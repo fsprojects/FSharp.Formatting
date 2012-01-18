@@ -9,7 +9,7 @@ Known issues
 ------------
 
  - Nested emhasis using the same characters is not implemented.
-   For example `\*\*\*bold italic\*\*just italic\*`
+   For example `***bold italic**just italic*`
 
  - Parsing of lists is a bit messy and needs to be written
    differently.
