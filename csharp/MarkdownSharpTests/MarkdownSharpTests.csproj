@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1F76D227-9B91-475B-9B64-B7A3D0EE7E3D}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MarkdownSharpTests</RootNamespace>
+    <AssemblyName>MarkdownSharpTests</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821" />
+    <Reference Include="nunit.framework, Version=2.5.3.9345, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseTest.cs" />
+    <Compile Include="ConfigTest.cs" />
+    <Compile Include="helpers\crc16.cs" />
+    <Compile Include="MDTestTests.cs" />
+    <Compile Include="SimpleTests.cs" />
+    <Compile Include="Program.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="nunit-console\nunit-console.exe.config" />
+    <None Include="source\perl\License.text" />
+    <None Include="source\perl\Markdown.101.pl" />
+    <None Include="source\perl\Markdown.102b8.pl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MarkdownSharp\MarkdownSharp.csproj">
+      <Project>{37619116-CCE8-465A-8B1F-081CA53364BB}</Project>
+      <Name>MarkdownSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\log4net.dll" />
+    <Content Include="lib\nunit.framework.dll" />
+    <None Include="benchmark\markdown-example-short-2.text" />
+    <None Include="benchmark\markdown-example-long-1.text" />
+    <None Include="benchmark\markdown-example-long-2.text" />
+    <None Include="benchmark\markdown-example-medium-1.text" />
+    <None Include="benchmark\markdown-example-medium-2.text" />
+    <None Include="benchmark\markdown-example-short-1.text" />
+    <Content Include="testfiles\mdtest-1.1\!readme.txt" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Amps_and_angle_encoding.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Auto_links.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Backslash_escapes.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Blockquotes_with_code_blocks.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Code_Blocks.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Code_Spans.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Hard_wrapped_paragraphs_with_list_like_lines.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Horizontal_rules.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Images.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Inline_HTML_Advanced.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Inline_HTML_comments.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Inline_HTML_Simple.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Links_inline_style.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Links_reference_style.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Links_shortcut_references.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Literal_quotes_in_titles.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Markdown_Documentation_Basics.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Markdown_Documentation_Syntax.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Nested_blockquotes.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Ordered_and_unordered_lists.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Strong_and_em_together.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Tabs.html" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Tidyness.html" />
+    <Content Include="nunit-console\nunit-console-runner.dll" />
+    <Content Include="nunit-console\nunit-console.exe" />
+    <Content Include="nunit-console\nunit.core.dll" />
+    <Content Include="nunit-console\nunit.core.interfaces.dll" />
+    <Content Include="nunit-console\nunit.util.dll" />
+    <Content Include="testfiles\mstest-0.1\code-inside-list.html" />
+    <Content Include="testfiles\mstest-0.1\line-endings-cr.html" />
+    <Content Include="testfiles\mstest-0.1\line-endings-crlf.html" />
+    <None Include="testfiles\pandoc\unpredictable-sublists.text" />
+    <Content Include="testfiles\pandoc\!readme.txt" />
+    <Content Include="testfiles\pandoc\failure-to-escape-less-than.html" />
+    <Content Include="testfiles\pandoc\nested-divs.html" />
+    <Content Include="testfiles\pandoc\nested-emphasis.html" />
+    <Content Include="testfiles\php-markdown\!readme.txt" />
+    <Content Include="testfiles\php-markdown\Backslash escapes.html" />
+    <Content Include="testfiles\php-markdown\Code block in a list item.html" />
+    <Content Include="testfiles\php-markdown\Code Spans.html" />
+    <Content Include="testfiles\php-markdown\Email auto links.html" />
+    <Content Include="testfiles\php-markdown\Emphasis.html" />
+    <Content Include="testfiles\php-markdown\Headers.html" />
+    <Content Include="testfiles\php-markdown\Horizontal Rules.html" />
+    <Content Include="testfiles\php-markdown\Inline HTML %28Simple%29.html" />
+    <Content Include="testfiles\php-markdown\Inline HTML %28Span%29.html" />
+    <Content Include="testfiles\php-markdown\Inline HTML comments.html" />
+    <Content Include="testfiles\php-markdown\Ins &amp; del.html" />
+    <Content Include="testfiles\php-markdown\Links, inline style.html" />
+    <Content Include="testfiles\php-markdown\MD5 Hashes.html" />
+    <Content Include="testfiles\php-markdown\Nesting.html" />
+    <Content Include="testfiles\php-markdown\Parens in URL.html" />
+    <Content Include="testfiles\php-markdown\PHP-Specific Bugs.html" />
+    <Content Include="testfiles\php-markdown\Tight blocks.html" />
+    <Content Include="testfiles\mstest-0.1\!readme.txt" />
+    <Content Include="testfiles\mstest-0.1\markdown-readme.html" />
+    <Content Include="testfiles\mstest-0.1\line-endings-lf.html" />
+    <None Include="benchmark\markdown-readme.32.text" />
+    <None Include="benchmark\markdown-readme.8.text" />
+    <None Include="benchmark\markdown-readme.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Amps_and_angle_encoding.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Auto_links.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Backslash_escapes.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Blockquotes_with_code_blocks.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Code_Blocks.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Code_Spans.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Hard_wrapped_paragraphs_with_list_like_lines.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Horizontal_rules.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Images.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Inline_HTML_Advanced.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Inline_HTML_comments.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Inline_HTML_Simple.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Links_inline_style.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Links_reference_style.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Links_shortcut_references.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Literal_quotes_in_titles.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Markdown_Documentation_Basics.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Markdown_Documentation_Syntax.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Nested_blockquotes.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Ordered_and_unordered_lists.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Strong_and_em_together.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Tabs.text" />
+    <EmbeddedResource Include="testfiles\mdtest-1.1\Tidyness.text" />
+    <None Include="source\php\License.text" />
+    <None Include="source\php\markdown.php" />
+    <None Include="source\php\PHP Markdown Readme.text" />
+    <None Include="testfiles\mstest-0.1\code-inside-list.text" />
+    <None Include="testfiles\mstest-0.1\line-endings-cr.text" />
+    <None Include="testfiles\mstest-0.1\line-endings-crlf.text" />
+    <None Include="testfiles\mstest-0.1\line-endings-lf.text" />
+    <None Include="testfiles\pandoc\failure-to-escape-less-than.text" />
+    <None Include="testfiles\pandoc\indented-code-in-list-item.text" />
+    <None Include="testfiles\pandoc\nested-divs.text" />
+    <None Include="testfiles\pandoc\nested-emphasis.text" />
+    <None Include="testfiles\pandoc\unordered-list-and-horizontal-rules.text" />
+    <None Include="testfiles\pandoc\unordered-list-followed-by-ordered-list.text" />
+    <None Include="testfiles\php-markdown\Backslash escapes.text" />
+    <None Include="testfiles\php-markdown\Code block in a list item.text" />
+    <None Include="testfiles\php-markdown\Code Spans.text" />
+    <None Include="testfiles\php-markdown\Email auto links.text" />
+    <None Include="testfiles\php-markdown\Emphasis.text" />
+    <None Include="testfiles\php-markdown\Headers.text" />
+    <None Include="testfiles\php-markdown\Horizontal Rules.text" />
+    <None Include="testfiles\php-markdown\Inline HTML %28Simple%29.text" />
+    <None Include="testfiles\php-markdown\Inline HTML %28Span%29.text" />
+    <None Include="testfiles\php-markdown\Inline HTML comments.text" />
+    <None Include="testfiles\php-markdown\Ins &amp; del.text" />
+    <None Include="testfiles\php-markdown\Links, inline style.text" />
+    <None Include="testfiles\php-markdown\MD5 Hashes.text" />
+    <None Include="testfiles\php-markdown\Nesting.text" />
+    <None Include="testfiles\php-markdown\Parens in URL.text" />
+    <None Include="testfiles\php-markdown\PHP-Specific Bugs.text" />
+    <None Include="testfiles\php-markdown\Tight blocks.text" />
+    <None Include="testfiles\mstest-0.1\markdown-readme.text" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

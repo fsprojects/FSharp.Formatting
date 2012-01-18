@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownSharp", "MarkdownSharp\MarkdownSharp.csproj", "{37619116-CCE8-465A-8B1F-081CA53364BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownSharpTests", "MarkdownSharpTests\MarkdownSharpTests.csproj", "{1F76D227-9B91-475B-9B64-B7A3D0EE7E3D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37619116-CCE8-465A-8B1F-081CA53364BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37619116-CCE8-465A-8B1F-081CA53364BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37619116-CCE8-465A-8B1F-081CA53364BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37619116-CCE8-465A-8B1F-081CA53364BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F76D227-9B91-475B-9B64-B7A3D0EE7E3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F76D227-9B91-475B-9B64-B7A3D0EE7E3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F76D227-9B91-475B-9B64-B7A3D0EE7E3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F76D227-9B91-475B-9B64-B7A3D0EE7E3D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown", "FSharp.Markdown\FSharp.Markdown.fsproj", "{C44C1C05-599A-40DD-9590-465EAB8960C5}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown.Tests", "FSharp.Markdown.Tests\FSharp.Markdown.Tests.fsproj", "{07DE4905-050C-4378-A039-F1EF7E1F309D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C44C1C05-599A-40DD-9590-465EAB8960C5}.Debug|x86.ActiveCfg = Debug|x86
+		{C44C1C05-599A-40DD-9590-465EAB8960C5}.Debug|x86.Build.0 = Debug|x86
+		{C44C1C05-599A-40DD-9590-465EAB8960C5}.Release|x86.ActiveCfg = Release|x86
+		{C44C1C05-599A-40DD-9590-465EAB8960C5}.Release|x86.Build.0 = Release|x86
+		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Debug|x86.ActiveCfg = Debug|x86
+		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Debug|x86.Build.0 = Debug|x86
+		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Release|x86.ActiveCfg = Release|x86
+		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,3 @@
+I was wondering... why memoization is not provided natively as a language feature by any language I know about?
+
+**Edit**: to clarify, what I mean is that the language provides a keyword to specify a given function as memoizable, not that every function is automatically memoized "by default", unless specified otherwise. For example, fortran provides the keyword PURE to specify a specific function as such. I guess that the compiler can take advantage of this information to memoize the call, but I ignore what happens if you declare PURE a function with side effects.

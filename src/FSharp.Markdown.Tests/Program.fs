@@ -1,0 +1,70 @@
+﻿// --------------------------------------------------------------------------------------
+// F# Markdown (Main.fs)
+// (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
+// --------------------------------------------------------------------------------------
+
+open FSharp.Markdown
+open System.IO
+open System.Diagnostics
+
+let (++) a b = Path.Combine(a, b)
+let testdir = __SOURCE_DIRECTORY__ ++ "..\\..\\tests\\"
+
+// --------------------------------------------------------------------------------------
+// Run performance benchmarks
+// --------------------------------------------------------------------------------------
+
+let benchmark file count =
+  let text = File.ReadAllText(testdir ++ "benchmark" ++ file)
+
+  let sw = new Stopwatch()
+  sw.Start()
+  for n in 1 .. count do 
+    Markdown.TransformHtml(text) |> ignore 
+  sw.Stop()
+
+  printfn "input string length: %d" text.Length
+  printfn "%d iteration(s) in %d ms" count sw.ElapsedMilliseconds
+  if count = 1 then printfn ""
+  else printfn " (%f ms per iteration)\n" (float sw.ElapsedMilliseconds / float count)
+
+let benchmarks () =
+  benchmark "markdown-example-short-1.text" 4000
+  benchmark "markdown-example-medium-1.text" 1000
+  benchmark "markdown-example-long-2.text" 100
+  benchmark "markdown-readme.text" 1
+  benchmark "markdown-readme.8.text" 1
+  benchmark "markdown-readme.32.text" 1
+
+// --------------------------------------------------------------------------------------
+// Run tests and verify
+// --------------------------------------------------------------------------------------
+
+let transformAndCompare (source:string) (target:string) (verify:string) = 
+  try
+    if File.Exists(verify) then
+      let text = File.ReadAllText(source)
+      ( use wr = new StreamWriter(target)
+        Markdown.TransformHtml(text, wr, "\r\n") )
+    
+      let contents = File.ReadAllLines(verify)
+      File.WriteAllLines(verify, contents)
+
+      let targetHtml = File.ReadAllText(target)
+      let verifyHtml = File.ReadAllText(verify)
+      if targetHtml = verifyHtml then File.Delete(target)
+      else printfn " - %s" (target.Substring(testdir.Length))
+  with e ->
+    printfn " - %s (failed)\n %A" (target.Substring(testdir.Length)) e
+
+let rec runTests dir = 
+  for file in Directory.GetFiles(dir, "*.text") do
+    transformAndCompare file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
+  for dir in Directory.GetDirectories(dir) do
+    runTests dir
+
+// --------------------------------------------------------------------------------------
+
+do
+  runTests (testdir ++ "testfiles")
+  benchmarks ()
