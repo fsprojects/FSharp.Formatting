@@ -75,8 +75,8 @@ let formatToolTipSpans spans =
         wr.Write("</em>")        
     | Literal(string) ->
         let spaces = string.Length - string.TrimStart(' ').Length
-        wr.Write(String.replicate spaces "&160;")
-        wr.Write(string.Substring(spaces))
+        wr.Write(String.replicate spaces "&#160;")
+        wr.Write(HttpUtility.HtmlEncode(string.Substring(spaces)))
     | HardLineBreak ->
         wr.Write("<br />"))
   format spans

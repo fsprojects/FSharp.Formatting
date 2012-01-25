@@ -230,7 +230,7 @@ type CodeFormatAgent(assembly) =
     let parsedSnippets = 
       snippets |> List.map (fun (title, lines) -> 
         // Process the current snippet
-        let parsed = processSnippet checkInfo sourceLines source
+        let parsed = processSnippet checkInfo sourceLines lines
 
         // Remove additional whitespace from start of lines
         let spaces = Helpers.countStartingSpaces lines
