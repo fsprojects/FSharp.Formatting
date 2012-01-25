@@ -42,7 +42,25 @@ module String =
     if starts |> Seq.exists (text.StartsWith) then Some() else None
   /// Matches when a string starts with the specified sub-string
   let (|StartsWith|_|) (start:string) (text:string) = 
-    if text.StartsWith(start) then Some() else None
+    if text.StartsWith(start) then Some(text.Substring(start.Length)) else None
+  /// Matches when a string starts with the specified sub-string
+  /// The matched string is trimmed from all whitespace.
+  let (|StartsWithTrim|_|) (start:string) (text:string) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+
+  /// Matches when a string starts with the given value and ends 
+  /// with a given value (and returns the rest of it)
+  let (|StartsAndEndsWith|_|) (starts, ends) (s:string) =
+    if s.StartsWith(starts) && s.EndsWith(ends) && 
+       s.Length >= starts.Length + ends.Length then 
+      Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
+    else None
+
+  /// Matches when a string starts with the given value and ends 
+  /// with a given value (and returns trimmed body)
+  let (|StartsAndEndsWithTrim|_|) args = function
+    | StartsAndEndsWith args (TrimBoth res) -> Some res
+    | _ -> None
 
   /// Matches when a string starts with a non-zero number of complete
   /// repetitions of the specified parameter (and returns the number

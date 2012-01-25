@@ -39,6 +39,70 @@ type MarkdownParagrph =
   | QuotedBlock of MarkdownParagrphs
   | Span of MarkdownSpans
   | HorizontalRule 
-  | Unknown
 
 and MarkdownParagrphs = list<MarkdownParagrph>
+
+// --------------------------------------------------------------------------------------
+// Patterns that make recursive Markdown processing easier
+// --------------------------------------------------------------------------------------
+
+module Matching =
+  type SpanLeafInfo = private SL of MarkdownSpan
+  type SpanNodeInfo = private SN of MarkdownSpan
+   
+  let (|SpanLeaf|SpanNode|) span = 
+    match span with
+    | Literal _ 
+    | InlineCode _
+    | DirectImage _ 
+    | IndirectImage _
+    | HardLineBreak -> 
+        SpanLeaf(SL span)
+    | Strong spans 
+    | Emphasis spans 
+    | DirectLink(spans, _)
+    | IndirectLink(spans, _, _) -> 
+        SpanNode(SN span, spans)
+
+  let SpanLeaf (SL(span)) = span
+  let SpanNode (SN(span), spans) =
+    match span with
+    | Strong _ -> Strong spans 
+    | Emphasis _ -> Emphasis spans
+    | DirectLink(_, a) -> DirectLink(spans, a)
+    | IndirectLink(_, a, b) -> IndirectLink(spans, a, b) 
+    | _ -> invalidArg "" "Incorrect SpanNodeInfo"
+
+  type ParagraphSpansInfo = private PS of MarkdownParagrph
+  type ParagraphLeafInfo = private PL of MarkdownParagrph
+  type ParagraphNestedInfo = private PN of MarkdownParagrph
+
+  let (|ParagraphLeaf|ParagraphNested|ParagraphSpans|) par =
+    match par with  
+    | Heading(_, spans)
+    | Paragraph(spans)
+    | Span(spans) ->
+        ParagraphSpans(PS par, spans)
+    | CodeBlock _
+    | HtmlBlock _ 
+    | HorizontalRule ->
+        ParagraphLeaf(PL par)
+    | ListBlock(_, pars) ->
+        ParagraphNested(PN par, pars)
+    | QuotedBlock(nested) ->
+        ParagraphNested(PN par, [nested])
+
+  let ParagraphSpans (PS(par), spans) = 
+    match par with 
+    | Heading(a, _) -> Heading(a, spans)
+    | Paragraph(_) -> Paragraph(spans)
+    | Span(_) -> Span(spans)
+    | _ -> invalidArg "" "Incorrect ParagraphSpansInfo."
+
+  let ParagraphLeaf (PL(par)) = par
+
+  let ParagraphNested (PN(par), pars) =
+    match par with 
+    | ListBlock(a, _) -> ListBlock(a, pars)
+    | QuotedBlock(_) -> QuotedBlock(List.concat pars)
+    | _ -> invalidArg "" "Incorrect ParagraphNestedInfo."

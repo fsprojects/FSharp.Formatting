@@ -5,14 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{c44c1c05-599a-40dd-9590-465eab8960c5}</ProjectGuid>
+    <ProjectGuid>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FSharp.Markdown</RootNamespace>
-    <AssemblyName>FSharp.Markdown</AssemblyName>
+    <RootNamespace>FSharp.CodeFormat</RootNamespace>
+    <AssemblyName>FSharp.CodeFormat</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <Name>FSharp.Markdown</Name>
+    <Name>FSharp.CodeFormat</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Debug\FSharp.Markdown.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Release\FSharp.Markdown.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.CodeFormat.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -41,12 +42,20 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\FSharpX\Collections.fs" />
-    <Compile Include="..\FSharpX\StringParsing.fs" />
-    <Compile Include="Markdown.fs" />
-    <Compile Include="MarkdownParser.fs" />
+    <Compile Include="..\FSharpX\Collections.fs">
+      <Link>Collections.fs</Link>
+    </Compile>
+    <Compile Include="..\FSharpX\StringParsing.fs">
+      <Link>StringParsing.fs</Link>
+    </Compile>
+    <Compile Include="FSharpCompiler.fs" />
+    <Compile Include="CommentFilter.fs" />
+    <Compile Include="SourceCode.fs" />
+    <Compile Include="ToolTipReader.fs" />
+    <Compile Include="CodeFormatAgent.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>

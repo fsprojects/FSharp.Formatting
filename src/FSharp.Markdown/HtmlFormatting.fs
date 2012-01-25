@@ -144,7 +144,6 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       formatSpans ctx spans
   | HtmlBlock(code) ->
       ctx.Writer.Write(code)
-  | Unknown -> ()
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagrpah values to a TextWriter

@@ -5,6 +5,13 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown", "FSharp.M
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown.Tests", "FSharp.Markdown.Tests\FSharp.Markdown.Tests.fsproj", "{07DE4905-050C-4378-A039-F1EF7E1F309D}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat", "FSharp.CodeFormat\FSharp.CodeFormat.fsproj", "{341EBF32-D470-4C55-99E9-55F14F7FFBB1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FSharp.CodeFormat.Tests", "FSharp.CodeFormat.Tests", "{D8986C46-42E0-4087-9A07-131163119BC6}"
+	ProjectSection(SolutionItems) = preProject
+		FSharp.CodeFormat.Tests\Script.fsx = FSharp.CodeFormat.Tests\Script.fsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +26,10 @@ Global
 		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Debug|x86.Build.0 = Debug|x86
 		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Release|x86.ActiveCfg = Release|x86
 		{07DE4905-050C-4378-A039-F1EF7E1F309D}.Release|x86.Build.0 = Release|x86
+		{341EBF32-D470-4C55-99E9-55F14F7FFBB1}.Debug|x86.ActiveCfg = Debug|x86
+		{341EBF32-D470-4C55-99E9-55F14F7FFBB1}.Debug|x86.Build.0 = Debug|x86
+		{341EBF32-D470-4C55-99E9-55F14F7FFBB1}.Release|x86.ActiveCfg = Release|x86
+		{341EBF32-D470-4C55-99E9-55F14F7FFBB1}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
