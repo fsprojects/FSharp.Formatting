@@ -27,8 +27,8 @@ type CodeFormat =
   /// using the F# compiler service. The agent requires a reference to 
   /// the 'FSharp.Compiler.dll' assembly. At the moment, the assembly
   /// is shared by all the instances of formatting agent!
-  static member CreateAgent(assembly) = 
-    CodeFormatAgent(assembly)
+  static member CreateAgent(fsharpCompiler) = 
+    CodeFormatAgent(fsharpCompiler)
 
   /// Formats the snippets parsed using the CodeFormatAgent as HTML
   /// The parameters specify prefix for HTML tags, whether lines should

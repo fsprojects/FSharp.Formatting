@@ -5,14 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>FSharp.CodeFormat</RootNamespace>
-    <AssemblyName>FSharp.CodeFormat</AssemblyName>
+    <ProjectGuid>{5debd769-d86e-4e14-abf1-373ca91bfaa2}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FSharp.CodeFormat.Tests</RootNamespace>
+    <AssemblyName>FSharp.CodeFormat.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <Name>FSharp.CodeFormat</Name>
+    <Name>FSharp.CodeFormat.Tests</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,11 +20,10 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.CodeFormat.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -34,11 +33,20 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Release\FSharp.CodeFormat.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.CodeFormat.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Compile Include="Program.fs" />
+    <None Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.CodeFormat">
+      <HintPath>..\FSharp.CodeFormat\bin\Debug\FSharp.CodeFormat.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0\FSharp.Core.dll</HintPath>
     </Reference>
@@ -46,22 +54,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\FSharpX\Collections.fs">
-      <Link>Collections.fs</Link>
-    </Compile>
-    <Compile Include="..\FSharpX\StringParsing.fs">
-      <Link>StringParsing.fs</Link>
-    </Compile>
-    <Compile Include="FSharpCompiler.fs" />
-    <Compile Include="CommentFilter.fs" />
-    <Compile Include="SourceCode.fs" />
-    <Compile Include="ToolTipReader.fs" />
-    <Compile Include="CodeFormatAgent.fs" />
-    <Compile Include="HtmlFormatting.fs" />
-    <Compile Include="Main.fs" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.

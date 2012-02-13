@@ -50,7 +50,7 @@ type ToolTipFormatter(prefix) =
   /// Returns all generated tool tip elements
   member x.WriteTipElements (writer:TextWriter) = 
     for (KeyValue(_, (index, html))) in tips do
-      writer.Write(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
+      writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
 
 /// Represents context used by the formatter
 type FormattingContext = 
@@ -85,7 +85,8 @@ let formatToolTipSpans spans =
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
   | Error(kind, message, body) when ctx.GenerateErrors ->
-      let tipAttributes = ctx.FormatTip [Literal message] true formatToolTipSpans
+      let tip = ToolTipReader.formatMultilineString (message.Trim())
+      let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
       ctx.Writer.Write("<span ")
       ctx.Writer.Write(tipAttributes)
       ctx.Writer.Write("class=\"cerr\">")
@@ -101,7 +102,8 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       ctx.Writer.Write("</span>")
 
   | Omitted(body, hidden) ->
-      let tipAttributes = ctx.FormatTip [Literal body] false formatToolTipSpans
+      let tip = ToolTipReader.formatMultilineString (hidden.Trim())
+      let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
       ctx.Writer.Write("<span ")
       ctx.Writer.Write(tipAttributes)
       ctx.Writer.Write("class=\"omitted\">")

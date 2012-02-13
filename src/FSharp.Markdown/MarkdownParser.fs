@@ -163,7 +163,7 @@ let (|Heading|_|) = function
 /// Recognizes a horizontal rule written using *, _ or -
 let (|HorizontalRule|_|) (line:string) = 
   let rec loop ((h, a, u) as arg) i =
-    if h >= 3 || a >= 3 || u >= 3 then Some()
+    if (h >= 3 || a >= 3 || u >= 3) && i = line.Length then Some()
     elif i = line.Length then None
     elif Char.IsWhiteSpace line.[i] then loop arg (i + 1)
     elif line.[i] = '-' && a = 0 && u = 0 then loop (h + 1, a, u) (i + 1)

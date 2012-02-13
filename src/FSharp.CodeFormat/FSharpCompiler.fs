@@ -27,16 +27,32 @@ module Reflection =
   let ctorFlags = instanceFlags
   let inline asMethodBase(a:#MethodBase) = a :> MethodBase
   
+
+  // Caching to make the initial lookup a bit faster
+  let typeInfoLookup = new System.Collections.Generic.Dictionary<_, option<Type * Type>>()
+  let lookupTypeInfo typ f = 
+    match typeInfoLookup.TryGetValue(typ) with
+    | true, res -> res
+    | false, _ ->
+        let res = f()
+        typeInfoLookup.Add(typ, res)
+        res
+
   let (?) (o:obj) name : 'R =
+    let extractTypeInfo () = 
+      if FSharpType.IsFunction(typeof<'R>) then
+        Some(FSharpType.GetFunctionElements(typeof<'R>))
+      else None
+
+    match lookupTypeInfo (typeof<'R>) extractTypeInfo with
     // The return type is a function, which means that we want to invoke a method
-    if FSharpType.IsFunction(typeof<'R>) then
-      let argType, resType = FSharpType.GetFunctionElements(typeof<'R>)
+    | Some(argType, resType) -> 
       FSharpValue.MakeFunction(typeof<'R>, fun args ->
         // We treat elements of a tuple passed as argument as a list of arguments
         // When the 'o' object is 'System.Type', we call static methods
         let methods, instance, args = 
           let args = 
-            if argType = typeof<unit> then [| |]
+            if Object.Equals(argType, typeof<unit>) then [| |]
             elif not(FSharpType.IsTuple(argType)) then [| args |]
             else FSharpValue.GetTupleFields(args)
           if (typeof<System.Type>).IsAssignableFrom(o.GetType()) then 
@@ -49,13 +65,21 @@ module Reflection =
         // A simple overload resolution based on the name and number of parameters only
         let methods = 
           [ for m in methods do
-              if m.Name = name && m.GetParameters().Length = args.Length then yield m ]
+              if m.Name = name && m.GetParameters().Length = args.Length then yield m 
+              if m.Name = name && m.IsGenericMethod &&
+                 m.GetGenericArguments().Length + m.GetParameters().Length = args.Length then yield m ]
         match methods with 
         | [] -> failwithf "No method '%s' with %d arguments found" name args.Length
         | _::_::_ -> failwithf "Multiple methods '%s' with %d arguments found" name args.Length
         | [:? ConstructorInfo as c] -> c.Invoke(args)
+        | [ m ] when m.IsGenericMethod ->
+            let tyCount = m.GetGenericArguments().Length
+            let tyArgs = args |> Seq.take tyCount 
+            let actualArgs = args |> Seq.skip tyCount
+            let gm = (m :?> MethodInfo).MakeGenericMethod [| for a in tyArgs -> unbox a |]
+            gm.Invoke(instance, Array.ofSeq actualArgs)
         | [ m ] -> m.Invoke(instance, args) ) |> unbox<'R>
-    else
+    | _ ->
       // When the 'o' object is 'System.Type', we access static properties
       let typ, flags, instance = 
         if (typeof<System.Type>).IsAssignableFrom(o.GetType()) then unbox o, staticFlags, null
@@ -63,36 +87,101 @@ module Reflection =
       
       // Find a property that we can call and get the value
       let prop = typ.GetProperty(name, flags)
-      if prop = null then 
+      if Object.Equals(prop, null) then 
         let fld = typ.GetField(name, flags)
-        if fld = null then
+        if Object.Equals(fld, null) then
           failwithf "Field or property '%s' not found in '%s' using flags '%A'." name typ.Name flags
         else
           fld.GetValue(instance) |> unbox<'R>
       else
         let meth = prop.GetGetMethod(true)
-        if prop = null then failwithf "Property '%s' found, but doesn't have 'get' method." name
+        if Object.Equals(prop, null) then failwithf "Property '%s' found, but doesn't have 'get' method." name
         meth.Invoke(instance, [| |]) |> unbox<'R>
+        
 
 
+  /// Convert list of type FSharpList to a list in the specified FSharp.Core assembly
+  let convertList (list:obj) (fsharpCore:Assembly) : obj =
+    // Find the generic arguments of the source
+    let bases = list.GetType() |> Seq.unfold (fun ty -> 
+      if ty.FullName = "System.Object" then None else Some(ty, ty.BaseType) )
+    let sourceListTyp = bases |> Seq.find (fun ty -> ty.Name = "FSharpList`1")
+    let tyArg = sourceListTyp.GetGenericArguments().[0]
+        
+    let listMod = fsharpCore.GetType("Microsoft.FSharp.Collections.ListModule")
+    listMod?OfSeq(tyArg, list)
+
+
+  /// Really simple closure type for creating delegates
+  type Closure<'T, 'R>(f) =
+    member x.Invoke(a : 'T) : 'R = unbox (f (box a))
+
+  /// Convert function of type FSharpFunc to a function in the specified FSharp.Core assembly
+  let convertFunction (func:obj) (fsharpCore:Assembly) : obj =
+    // Find the generic arguments of the source
+    let bases = func.GetType() |> Seq.unfold (fun ty -> 
+      if ty.FullName = "System.Object" then None else Some(ty, ty.BaseType) )
+    let sourceFuncTyp = bases |> Seq.find (fun ty -> ty.Name = "FSharpFunc`2")
+    if not (sourceFuncTyp.IsGenericType) then failwith "FSharpFunc should be generic!"
+
+    let args = sourceFuncTyp.GetGenericArguments()
+    if args.Length <> 2 then failwith "FSharpFunc has wrong number of generic args!"
+    if args.[1].Name = "FSharpFunc`2" then failwith "Curried functions not supported yet!"
+
+    // Make target function type
+    let targetArgs = args |> Array.map (fun arg -> 
+      // Does not work for generic types, but does the trick for unit
+      if arg.FullName.StartsWith("Microsoft.FSharp.Core") then
+        fsharpCore.GetType(arg.FullName)
+      else arg)
+
+    // Create closure that invokes the source function using reflection
+    let invoke = func.GetType().GetMethod("Invoke")
+    let invokeFunc (arg:obj) = invoke.Invoke(func, [| arg |]) 
+    let clo = typedefof<Closure<_, _>>.MakeGenericType(targetArgs)?``.ctor``(invokeFunc)
+
+    // Create converter delegate from the closure and turn it to F# function
+    // Assumes current runtime and the taget's runtime are the same...
+    let funcTyp = fsharpCore.GetType("Microsoft.FSharp.Core.FSharpFunc`2")
+    let boundFuncTyp = funcTyp.MakeGenericType(targetArgs)
+    let boundConverter = typedefof<System.Converter<_, _>>.MakeGenericType(targetArgs)
+    let converter = Delegate.CreateDelegate(boundConverter, clo, clo.GetType().GetMethod("Invoke"))
+    boundFuncTyp?FromConverter(converter)
+
+
+  
   /// Wrapper type for the 'FSharp.Compiler.dll' assembly - expose types we use
   type FSharpCompilerWrapper() =      
 
-    let mutable assembly = None
+    let mutable fsharpCompiler = None
+    let mutable fsharpCore = None
+
     /// Exposes the currently loaded FSharp.Compiler.dll
-    member x.CurrentAssembly : Assembly = 
-      match assembly with 
+    member x.FSharpCompiler : Assembly = 
+      match fsharpCompiler with 
       | None -> failwith "Assembly FSharp.Compiler is not configured!"
       | Some asm -> asm
-    /// Configure the wrapper to use the specified FSharp.Compiler.dll
-    member x.BindToAssembly(asm) = assembly <- Some asm
+    /// Returns the referenced 'FSharp.Core.dll' assembly
+    member x.ReferencedFSharpCore = 
+      match fsharpCore with 
+      | None -> failwith "Assembly FSharp.Core is not configured!"
+      | Some asm -> asm
 
-    member x.InteractiveChecker = x.CurrentAssembly.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker")
-    member x.IsResultObsolete = x.CurrentAssembly.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.IsResultObsolete")
-    member x.CheckOptions = x.CurrentAssembly.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.CheckOptions")
-    member x.SourceTokenizer = x.CurrentAssembly.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.SourceTokenizer")
-    member x.TokenInformation = x.CurrentAssembly.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.TokenInformation")
-    member x.``Parser.token.Tags`` = x.CurrentAssembly.GetType("Microsoft.FSharp.Compiler.Parser+token+Tags")
+    /// Configure the wrapper to use the specified FSharp.Compiler.dll
+    member x.BindToAssembly(compiler) = 
+      fsharpCompiler <- Some compiler
+      // Determine FSharp.Core assmembly from the FSharpFunc`1 type given as
+      // the argument to InteractiveChecker.Create (kind of hack..)
+      let flags = BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic
+      let createMi = (x.InteractiveChecker : System.Type).GetMethod("Create", flags)
+      fsharpCore <- Some (createMi.GetParameters().[0].ParameterType.Assembly)
+
+    member x.InteractiveChecker = x.FSharpCompiler.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker")
+    member x.IsResultObsolete = x.FSharpCompiler.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.IsResultObsolete")
+    member x.CheckOptions = x.FSharpCompiler.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.CheckOptions")
+    member x.SourceTokenizer = x.FSharpCompiler.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.SourceTokenizer")
+    member x.TokenInformation = x.FSharpCompiler.GetType("Microsoft.FSharp.Compiler.SourceCodeServices.TokenInformation")
+    member x.``Parser.token.Tags`` = x.FSharpCompiler.GetType("Microsoft.FSharp.Compiler.Parser+token+Tags")
 
   let FSharpCompiler = new FSharpCompilerWrapper()
 
@@ -188,7 +277,7 @@ module SourceCodeServices =
       optInfo, newstate
       
   type SourceTokenizer(defines:string list, source:string) =
-    let wrapped = FSharpCompiler.SourceTokenizer?``.ctor``(defines, source)
+    let wrapped = FSharpCompiler.SourceTokenizer?``.ctor``(convertList defines FSharpCompiler.ReferencedFSharpCore, source)
     member x.CreateLineTokenizer(line:string) = 
       LineTokenizer(wrapped?CreateLineTokenizer(line))
     
@@ -318,7 +407,7 @@ module SourceCodeServices =
       
     /// Resolve the names at the given location to give a data tip 
     member x.GetDataTipText(pos:Position, line:string, names:Names, tokentag:int) : DataTipText =
-      DataTipText(wrapped?GetDataTipText(pos, line, names, tokentag))
+      DataTipText(wrapped?GetDataTipText(pos, line, convertList names FSharpCompiler.ReferencedFSharpCore, tokentag))
       
     /// Resolve the names at the given location to give F1 keyword
     // member GetF1Keyword : Position * string * Names -> string option
@@ -373,7 +462,7 @@ module SourceCodeServices =
   type InteractiveChecker(wrapped:obj) =
       /// Crate an instance of the wrapper
       static member Create (dirty:FileTypeCheckStateIsDirty) =
-        InteractiveChecker(FSharpCompiler.InteractiveChecker?Create(dirty))
+        InteractiveChecker(FSharpCompiler.InteractiveChecker?Create(convertFunction dirty FSharpCompiler.ReferencedFSharpCore))
         
       /// Parse a source code file, returning a handle that can be used for obtaining navigation bar information
       /// To get the full information, call 'TypeCheckSource' method on the result
@@ -391,7 +480,7 @@ module SourceCodeServices =
         TypeCheckAnswer
           ( wrapped?TypeCheckSource
               ( parsed.Wrapped, filename, fileversion, source, options.Wrapped, 
-                FSharpCompiler.IsResultObsolete?NewIsResultObsolete(f) ) : obj)
+                FSharpCompiler.IsResultObsolete?NewIsResultObsolete(convertFunction f FSharpCompiler.ReferencedFSharpCore) ) : obj)
       
       /// For a given script file, get the CheckOptions implied by the #load closure
       member x.GetCheckOptionsFromScriptRoot(filename:string, source:string) : CheckOptions =

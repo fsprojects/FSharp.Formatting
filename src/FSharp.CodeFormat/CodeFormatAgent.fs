@@ -97,9 +97,9 @@ module private Helpers =
 // --------------------------------------------------------------------------------------
 
 /// Uses agent to handle formatting requests
-type CodeFormatAgent(assembly) = 
+type CodeFormatAgent(fsharpCompiler) = 
     
-  do FSharpCompiler.BindToAssembly(assembly)
+  do FSharpCompiler.BindToAssembly(fsharpCompiler)
 
   // Get the number of "IDENT" token in the F# compiler
   // (This is needed when calling compiler, and it varies depending
@@ -242,8 +242,14 @@ type CodeFormatAgent(assembly) =
           
         // Return parsed snippet as 'Snippet' value
         Snippet(title, parsed))
-
-    return parsedSnippets }
+  
+    let sourceErrors = 
+      [| for errInfo in errors ->
+           SourceError
+            ( (errInfo.StartLine, errInfo.StartColumn), (errInfo.EndLine, errInfo.EndColumn),
+              (if errInfo.Severity = Severity.Error then ErrorKind.Error else ErrorKind.Warning),
+              errInfo.Message ) |]
+    return parsedSnippets, sourceErrors }
  
   // ------------------------------------------------------------------------------------
   // Agent that implements the parsing & formatting
@@ -252,8 +258,11 @@ type CodeFormatAgent(assembly) =
     while true do
       // Receive parameters for the next parsing request
       let! request, (chnl:AsyncReplyChannel<_>) = agent.Receive()
-      let! res = processSourceCode request
-      chnl.Reply(res |> Array.ofList)
+      try
+        let! res, errs = processSourceCode request
+        chnl.Reply(res |> Array.ofList, errs)
+      with e ->
+        printfn "Failed %A" e
     })
 
   /// Parse the source code specified by 'source', assuming that it

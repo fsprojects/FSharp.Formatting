@@ -1,5 +1,9 @@
 src/FSharp.CodeFormat/bin
 src/FSharp.CodeFormat/obj
+src/FSharp.CodeFormat.Tests/bin
+src/FSharp.CodeFormat.Tests/obj
 src/FSharp.Markdown/bin
 src/FSharp.Markdown/obj
+src/FSharp.Markdown.Tests/bin
+src/FSharp.Markdown.Tests/obj
 *.suo

@@ -43,3 +43,5 @@ and TokenSpans = TokenSpan list
 type Line = Line of TokenSpans
 
 type Snippet = Snippet of string * Line list
+
+type SourceError = SourceError of (int * int) * (int * int) * ErrorKind * string
