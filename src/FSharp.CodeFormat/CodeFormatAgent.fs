@@ -229,19 +229,23 @@ type CodeFormatAgent(fsharpCompiler) =
     // Generate a list of snippets
     let parsedSnippets = 
       snippets |> List.map (fun (title, lines) -> 
-        // Process the current snippet
-        let parsed = processSnippet checkInfo sourceLines lines
+        if lines.Length = 0 then
+          // Skip empty snippets
+          Snippet(title, [])
+        else
+          // Process the current snippet
+          let parsed = processSnippet checkInfo sourceLines lines
 
-        // Remove additional whitespace from start of lines
-        let spaces = Helpers.countStartingSpaces lines
-        let parsed =  parsed |> List.map (function
-          | Line ((Token(kind, body, tip))::rest) ->
-              let body = body.Substring(spaces)
-              Line ((Token(kind, body, tip))::rest)
-          | line -> line)
+          // Remove additional whitespace from start of lines
+          let spaces = Helpers.countStartingSpaces lines
+          let parsed =  parsed |> List.map (function
+            | Line ((Token(kind, body, tip))::rest) ->
+                let body = body.Substring(spaces)
+                Line ((Token(kind, body, tip))::rest)
+            | line -> line)
           
-        // Return parsed snippet as 'Snippet' value
-        Snippet(title, parsed))
+          // Return parsed snippet as 'Snippet' value
+          Snippet(title, parsed))
   
     let sourceErrors = 
       [| for errInfo in errors ->
