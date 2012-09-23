@@ -526,11 +526,12 @@ module SourceCodeServices =
       // member GetSlotsCount : options : CheckOptions -> int
       // member UntypedParseForSlot : slot:int * options : CheckOptions -> UntypedParseInfo
 
-module Utils = 
+module Utilities = 
   open Reflection
 
-  /// Format an exception as a readable string with all information
-  /// (this also handles exceptions thrown by the F# language service)
+  /// When an exception occurs in the FSharp.Compiler.dll, we may use
+  /// various dynamic tricks to get the actual message from all the 
+  /// wrapper types - this throws a readable exception
   let formatException e = 
     let sb = new Text.StringBuilder()
     let rec printe s (e:exn) = 
@@ -539,11 +540,15 @@ module Utils =
       if name = "Microsoft.FSharp.Compiler.ErrorLogger+Error" then
         let (tup:obj) = e?Data0 
         Printf.bprintf sb "Compile error (%d): %s" tup?Item1 tup?Item2
+      elif name = "Microsoft.FSharp.Compiler.ErrorLogger+InternalError" then
+        Printf.bprintf sb "Internal Error message: %s" e?Data0
       elif name = "Microsoft.FSharp.Compiler.ErrorLogger+ReportedError" then
         let (inner:obj) = e?Data0 
         if inner = null then Printf.bprintf sb "Reported error is null"
         else printe "Reported error" (inner?Value)
       elif e.InnerException <> null then
         printe "Inner exception" e.InnerException
+        
     printe "Exception" e
     sb.ToString()
+

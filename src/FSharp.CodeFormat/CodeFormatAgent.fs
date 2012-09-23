@@ -264,16 +264,19 @@ type CodeFormatAgent(fsharpCompiler) =
       let! request, (chnl:AsyncReplyChannel<_>) = agent.Receive()
       try
         let! res, errs = processSourceCode request
-        chnl.Reply(res |> Array.ofList, errs)
+        chnl.Reply(Choice1Of2(res |> Array.ofList, errs))
       with e ->
-        printfn "Failed %A" e
+        chnl.Reply(Choice2Of2(new Exception(Utilities.formatException e, e)))
     })
 
   /// Parse the source code specified by 'source', assuming that it
   /// is located in a specified 'file'. Optional arguments can be used
   /// to give compiler command line options and preprocessor definitions
-  member x.AsyncParseSource(file, source, ?options, ?defines) =
-    agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
+  member x.AsyncParseSource(file, source, ?options, ?defines) = async {
+    let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
+    match res with
+    | Choice1Of2 res -> return res
+    | Choice2Of2 exn -> return raise exn }
 
   /// Parse the source code specified by 'source', assuming that it
   /// is located in a specified 'file'. Optional arguments can be used
@@ -286,4 +289,7 @@ type CodeFormatAgent(fsharpCompiler) =
   /// is located in a specified 'file'. Optional arguments can be used
   /// to give compiler command line options and preprocessor definitions
   member x.ParseSource(file, source, ?options, ?defines) =
-    agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
+    let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
+    match res with
+    | Choice1Of2 res -> res
+    | Choice2Of2 exn -> raise exn 

@@ -57,6 +57,8 @@ type FormattingContext =
   { AddLines : bool
     GenerateErrors : bool
     Writer : TextWriter 
+    OpenTag : string
+    CloseTag : string
     FormatTip : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string }
 
 // --------------------------------------------------------------------------------------
@@ -148,7 +150,9 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
       let ctx = { ctx with Writer = new StringWriter(mainStr) }
 
       // Generate <pre> tag for the snippet
-      ctx.Writer.WriteLine("<pre class=\"fssnip\">")
+      if String.IsNullOrEmpty(ctx.OpenTag) |> not then
+        ctx.Writer.WriteLine(ctx.OpenTag)
+
       let numberLength = lines.Length.ToString().Length
       let linesLength = lines.Length
       // Print all lines of the snippet
@@ -164,16 +168,19 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
         if not isLast then ctx.Writer.WriteLine() )
 
       // Close the <pre> tag for this snippet          
-      ctx.Writer.WriteLine("</pre>")
+      if String.IsNullOrEmpty(ctx.CloseTag) |> not then
+        ctx.Writer.WriteLine(ctx.CloseTag)
+
       ctx.Writer.Close() 
       yield title, mainStr.ToString() |]
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
-let format addLines addErrors prefix (snippets:Snippet[]) = 
+let format addLines addErrors prefix openTag closeTag (snippets:Snippet[]) = 
   let tipf = ToolTipFormatter(prefix)
   let ctx =  { AddLines = addLines; GenerateErrors = addErrors
-               Writer = null; FormatTip = tipf.FormatTip }
+               Writer = null; FormatTip = tipf.FormatTip 
+               OpenTag = openTag; CloseTag = closeTag }
   
   // Generate main HTML for snippets
   let snippets = formatSnippets ctx snippets

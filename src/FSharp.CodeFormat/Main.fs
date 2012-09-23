@@ -34,7 +34,15 @@ type CodeFormat =
   /// The parameters specify prefix for HTML tags, whether lines should
   /// be added to outputs and whether errors should be printed.
   static member FormatHtml(snippets, prefix, addLines, addErrors) =
-    let snip, tip = Html.format addLines addErrors prefix snippets 
+    CodeFormat.FormatHtml
+      ( snippets, prefix, "<pre class=\"fssnip\">", 
+        "</pre>", addLines, addErrors )
+
+  /// Formats the snippets parsed using the CodeFormatAgent as HTML
+  /// The parameters specify prefix for HTML tags, whether lines should
+  /// be added to outputs and whether errors should be printed.
+  static member FormatHtml(snippets, prefix, openTag, closeTag, addLines, addErrors) =
+    let snip, tip = Html.format addLines addErrors prefix openTag closeTag snippets 
     let snip = [| for t, h in snip -> FormattedSnippet(t, h) |]
     FormattedHtml(snip, tip)
 
@@ -42,3 +50,4 @@ type CodeFormat =
   /// using the specified ID prefix and default settings.
   static member FormatHtml(snippets, prefix) =
     CodeFormat.FormatHtml(snippets, prefix, true, false)
+
