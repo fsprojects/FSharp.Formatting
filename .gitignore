@@ -7,3 +7,4 @@ src/FSharp.Markdown/obj
 src/FSharp.Markdown.Tests/bin
 src/FSharp.Markdown.Tests/obj
 *.suo
+bin/

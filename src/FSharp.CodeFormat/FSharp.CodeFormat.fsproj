@@ -59,6 +59,9 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Reference Include="FSharp.CompilerBinding">
+      <HintPath>..\..\lib\FSharp.CompilerBinding.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0\FSharp.Core.dll</HintPath>
     </Reference>
@@ -75,7 +78,6 @@
     <Compile Include="..\FSharpX\StringParsing.fs">
       <Link>StringParsing.fs</Link>
     </Compile>
-    <Compile Include="FSharpCompiler.fs" />
     <Compile Include="CommentFilter.fs" />
     <Compile Include="SourceCode.fs" />
     <Compile Include="ToolTipReader.fs" />

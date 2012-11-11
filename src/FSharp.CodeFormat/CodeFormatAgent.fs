@@ -14,8 +14,9 @@ open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 
 open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Reflection
 open Microsoft.FSharp.Compiler.SourceCodeServices
+
+module FsParser = Microsoft.FSharp.Compiler.Parser
 
 // --------------------------------------------------------------------------------------
 // ?
@@ -99,12 +100,12 @@ module private Helpers =
 /// Uses agent to handle formatting requests
 type CodeFormatAgent(fsharpCompiler) = 
     
-  do FSharpCompiler.BindToAssembly(fsharpCompiler)
+  do FSharpCompiler.BindToAssembly(fsharpCompiler, null)
 
   // Get the number of "IDENT" token in the F# compiler
   // (This is needed when calling compiler, and it varies depending
   // on the version i.e. when new keywords are added). Use reflection hack!
-  let identToken : int = FSharpCompiler.``Parser.token.Tags``?IDENT
+  let identToken = FsParser.tagOfToken(FsParser.token.IDENT("")) 
 
   // Processes a single line of the snippet
   let processSnippetLine (checkInfo:TypeCheckInfo) (lines:string[]) (line, lineTokens) =
@@ -195,13 +196,13 @@ type CodeFormatAgent(fsharpCompiler) =
 
     // Get options for a standalone script file (this adds some 
     // default references and doesn't require full project information)
-    let opts = checker.GetCheckOptionsFromScriptRoot(file, source) 
+    let opts = checker.GetCheckOptionsFromScriptRoot(file, source, DateTime.Now) 
     
     // Override default options if the user specified something
     let opts = 
       match options with 
       | Some(str:string) when not(String.IsNullOrEmpty(str)) -> 
-          opts.WithProjectOptions(Helpers.parseOptions str)
+          opts.WithOptions(Helpers.parseOptions str)
       | _ -> opts
 
     // Run the first phase - parse source into AST without type information 
