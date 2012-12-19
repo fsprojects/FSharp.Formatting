@@ -149,8 +149,15 @@ type CodeFormatAgent(fsharpCompiler) =
           // F# Interactive output - return as Output token
           yield Output(body)
         else
-          // Lookup token kind & return information about token
-          yield Token(Helpers.getTokenKind tokenInfo.ColorClass, body, tip)
+          match tip with
+          | Some (Literal msg::_) when msg.StartsWith("custom operation:") ->
+              // If the tool-tip says this is a custom operation, then 
+              // we want to treat it as keyword (not sure if there is a better
+              // way to detect this, but Visual Studio also colors these later)
+              yield Token(TokenKind.Keyword, body, tip)
+          | _ -> 
+              // Lookup token kind & return information about token
+              yield Token(Helpers.getTokenKind tokenInfo.ColorClass, body, tip)
 
         // Process the rest of the line
         yield! loop island rest }

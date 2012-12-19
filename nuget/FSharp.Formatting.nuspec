@@ -2,17 +2,17 @@
 <package >
   <metadata>
     <id>FSharp.Formatting</id>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
     <authors>Tomas Petricek</authors>
     <owners>Tomas Petricek</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://github.com/tpetricek/FSharp.Formatting</projectUrl>
-    <!-- <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl> -->
+    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/misc/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Provides an F# implementation of Markdown parser and F# code formatter
       that can used to tokenize F# code and obtain information about tokens including
       tool tips with type information.</description>
-    <releaseNotes>Initial release.</releaseNotes>
+    <releaseNotes>Add support for custom query operators in F# 3.0</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>F# fsharp formatting markdown code fssnip</tags>
     <dependencies />
