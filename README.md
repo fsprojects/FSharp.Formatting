@@ -5,7 +5,7 @@ This project contains an F# implementation of Markdown parser and a
 library that formats F# code. The formatting includes colorization, but 
 also generation of tooltips with types and other information similar to 
 those displayed in Visual Studio when reading F# code. An example can be
-found on [F# snippets web site](http://wwww.fssnip.net).
+found on [F# snippets web site](http://www.fssnip.net).
 
 **TODO:** More information will be added soon.
 
