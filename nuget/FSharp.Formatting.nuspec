@@ -21,9 +21,9 @@
     <file src="..\literate\StringParsing.fs" target="literate" />
     <file src="..\literate\literate.fsx" target="literate" />
     <file src="..\literate\demo.fsx" target="literate" />
-    <file src="..\docs\templates\template-file.html" target="literate/templates" />
-    <file src="..\docs\templates\template-project.html" target="literate/templates" />
-    <file src="..\docs\content\style.css" target="literate/content" />
-    <file src="..\docs\content\tips.js" target="literate/content" />
+    <file src="..\literate\templates\template-file.html" target="literate/templates" />
+    <file src="..\literate\templates\template-project.html" target="literate/templates" />
+    <file src="..\literate\content\style.css" target="literate/content" />
+    <file src="..\literate\content\tips.js" target="literate/content" />
   </files>
 </package>
