@@ -2,23 +2,28 @@
 <package >
   <metadata>
     <id>FSharp.Formatting</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <authors>Tomas Petricek</authors>
     <owners>Tomas Petricek</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://github.com/tpetricek/FSharp.Formatting</projectUrl>
-    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/misc/logo.png</iconUrl>
+    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/misc/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides an F# implementation of Markdown parser and F# code formatter
-      that can used to tokenize F# code and obtain information about tokens including
-      tool tips with type information.</description>
-    <releaseNotes>Add support for custom query operators in F# 3.0</releaseNotes>
+    <description>Provides an F# implementation of Markdown parser and F# code formatter that can used to tokenize F# code and obtain information about tokens including tool tips with type information. The package comes with a sample that implements literate programming for F#.</description>
+    <releaseNotes>Added literate programming samples</releaseNotes>
     <copyright>Copyright 2012</copyright>
-    <tags>F# fsharp formatting markdown code fssnip</tags>
+    <tags>F# fsharp formatting markdown code fssnip literate programming</tags>
     <dependencies />
   </metadata>
   <files>
     <file src="..\bin\*.dll" target="lib/net40" />
     <file src="..\bin\*.pdb" target="lib/net40" />
+    <file src="..\literate\StringParsing.fs" target="literate" />
+    <file src="..\literate\literate.fsx" target="literate" />
+    <file src="..\literate\demo.fsx" target="literate" />
+    <file src="..\docs\templates\template-file.html" target="literate/templates" />
+    <file src="..\docs\templates\template-project.html" target="literate/templates" />
+    <file src="..\docs\content\style.css" target="literate/content" />
+    <file src="..\docs\content\tips.js" target="literate/content" />
   </files>
 </package>
