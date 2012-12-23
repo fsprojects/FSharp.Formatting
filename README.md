@@ -1,53 +1,35 @@
-F# Formatting
-=============
+F# Formatting: Documentation Tools
+==================================
 
-This project contains an F# implementation of Markdown parser and a 
-library that formats F# code. The formatting includes colorization, but 
-also generation of tooltips with types and other information similar to 
-those displayed in Visual Studio when reading F# code. An example can be
-found on [F# snippets web site](http://www.fssnip.net).
+The F# Formatting libraries (`FSharp.CodeFormat.dll` and `FSharp.Markdown.dll`) include an F# implementation 
+of Markdown parser and F# code formatter that can used to tokenize F# code and obtain information about tokens 
+including tool-tips (as in Visual Studio and MonoDevelop) with type information. The library also comes with 
+a sample that implements literate programming for F#.
 
-**TODO:** More information will be added soon.
+## Documentation 
 
-Using the library
------------------
+The documentation for this library is automatically generated (using the literate programming tools based on
+the library) from `*.fsx` and `*.md` files in [the docs folder][2]. If you find a typo, please submit a pull request! 
 
-The two parts (Markdown parser and F# code formatter) are separate libraries,
-but they can be easily combined together. The following script shows how to 
-parse Markdown document and then iterate over all CodeBlock elements (source
-code samples), add formatting to them and then put them back into a document.
+ - [F# Formatting: Documentation tools][3] provides more information about the library, how to contribute, etc. It also
+   includes links to tutorials showing how to use the Markdown parser and F# code formatter.
+   
+ - [F# Formatting: Literate programming][4] documents the most interesting part of the package - script that
+   can be used to generate documentation for F# projects from commented F# script files and Markdown documents.
 
- * [example script used at www.tryjoinads.org](https://github.com/tpetricek/TryJoinads/blob/master/tools/build.fsx)
+### Usees
+The library is used by a number of F# projects. Most prominently, the [F# snippets web site](http://www.fssnip.net)
+uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
+documentation and might be a useful inspiration:
 
-### Using the F# formatting
+ * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Formatting/blob/master/tools/build.fsx) used to generate the documentation for this project
+ * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Data/blob/master/tools/build.fsx) used to generate the documentation for `FSharp.Data`
 
-To format F# code using the `FSharp.Formatting.dll` library, you need to reference
-the library, open necessary namespaces and then create an instance of formatting
-agent:
+## Library license
 
-    #r "FSharp.CodeFormat.dll"
-	open FSharp.CodeFormat
-	
-    let fsharpCompiler = "..\\FSharp.Compiler.dll"
-	let asm = System.Reflection.Assembly.LoadFile(fsharpCompiler)
-	let formatAgent = CodeFormat.CreateAgent(asm)
- 
-Then you can use the agent repeatedly (it loads the F# compiler, so it is wise to reuse
-the same instance) to format a snippet as follows:
+The library is available under Apache 2.0. For more information see the [License file][1] in the GitHub repository.
 
-    // 'fsharpSource' contains the actual source code,
-	// the first argument specifies a file name (does not need
-	// to physically exist) and the last is compiler arguments
-    let snippets, errors = formatAgent.ParseSource("source.fsx", fsharpSource, "")
-	
-	// This formats the snippets into HTML 
-	let formatted = CodeFormat.FormatHtml(snippets, "ft", false, false)
- 
-Known issues
-------------
-
- - Nested emhasis using the same characters is not implemented.
-   For example `***bold italic**just italic*`
-
- - Parsing of lists is a bit messy and needs to be written
-   differently.
+ [1]: https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md
+ [2]: https://github.com/tpetricek/FSharp.Formatting/tree/master/docs
+ [3]: http://tpetricek.github.com/FSharp.Formatting/
+ [4]: http://tpetricek.github.com/FSharp.Formatting/demo.html
