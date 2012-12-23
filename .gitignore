@@ -8,5 +8,5 @@ src/FSharp.Markdown.Tests/bin
 src/FSharp.Markdown.Tests/obj
 *.suo
 bin/
-lib/net40/*
 nuget/*.nupkg
+docs/output/*.html

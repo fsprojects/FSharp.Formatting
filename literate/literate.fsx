@@ -1,99 +1,6 @@
 ﻿(**
-
 Literate programming for F#
 ===========================
-
-This script implements some common functionality for parsing F# script files
-and Markdown documents (using the API from the `FSharp.Markdown.dll` and
-`FSharp.CodeFormat.dll`). It supports processing two kinds of documents:
-
- - Documents that are valid F# script files (`*.fsx`) and contain special
-   comments with documentation and commands for generating HTML output
-
- - Documents that are Markdown documents (`*.md`) and contain blocks of 
-   F# code (indented by four spaces as usual in Markdown)
-
-### F# Script files
-
-The following example shows most of the features that can be used in a literate
-F# script file. Most of the features should be quite self-explanatory:
-
-    (**
-    # First-level heading
-    Some more documentation using `Markdown`.
-    *)
-    
-    (*** include: final-sample ***)
-
-    (** 
-    ## Second-level heading
-    With some more documentation
-    *)
-    
-    (*** define: final-sample ***)
-    let helloWorld() = printfn "Hello world!"
-
-The F# script files is processed as follows:
-
- - A multi-line comment starting with `(**` and ending with `*)` is 
-   turned into text and is processed using the F# Markdown processor 
-   (which supports standard Markdown commands).
-
- - A single-line comment starting with `(***` and ending with `***)` 
-   is treated as a special command. The command can consist of 
-   `key: value` or `key=value` pairs or just `key` command.
-
-Two of the supported commands are `define`, which defines a named
-snippet (such as `final-sample`) and removes the command together with 
-the following F# code block from the main document. The snippet can then
-be inserted elsewhere in the document using `include`. This makes it
-possible to write documents without the ordering requirements of the
-F# language.
-
-Another command is `hide` (without a value) which specifies that the
-following F# code block (until the next comment or command) should be 
-omitted from the output.
-
-### Markdown documents
-
-In the Markdown mode, the entire file is a valid Markdown document, which may
-contain F# code snippets (but also other code snippets). As usual, snippets are
-indented with four spaces. In addition, the snippets can be annotated with special
-commands. Some of them are demonstrated in the following example: 
-
-    # First-level heading
-
-        [hide]
-        let print s = printfn "%s" s
-
-    Some more documentation using `Markdown`.
-
-        [module=Hello]
-        let helloWorld() = print "Hello world!"
-
-    ## Second-level heading
-    With some more documentation
-
-        [lang=csharp]
-        Console.WriteLine("Hello world!");
-
-When processing the document, all F# snippets are copied to a separate file that
-is type-checked using the F# compiler (to obtain colours and tool tips).
-The commands are written on the first line of the snippet, wrapped in `[...]`:
-
- - The `hide` command specifies that the F# snippet should not be included in the
-   final document. This can be used to include code that is needed to type-check
-   the code, but is not visible to the reader.
-
- - The `module=Foo` command can be used to specify F# `module` where the snippet
-   is placed. Use this command if you need multiple versions of the same snippet
-   or if you need to separate code from different snippets.
-
- - The `lang=foo` command specifies that the language of the snippet. If the language
-   is other than `fsharp`, the snippet is copied to the output as `<pre>` HTML
-   tag without any processing.
-
----
 
 Implementation
 --------------
@@ -107,8 +14,8 @@ and `FSharp.CodeFormat.dll` to colorize F# source & parse Markdown:
 namespace FSharp.Literate
 
 #r "System.Web.dll"
-#r "..\\lib\\net40\\FSharp.Markdown.dll"
-#r "..\\lib\\net40\\FSharp.CodeFormat.dll"
+#r "FSharp.Markdown.dll"
+#r "FSharp.CodeFormat.dll"
 #load "StringParsing.fs"
 
 open System
@@ -302,6 +209,12 @@ module internal CodeBlockUtils =
         yield BlockComment (comment.Substring(0, cend))
         yield BlockCommand cmds
         yield! collectSnippet [] lines
+    | (ConcatenatedComments text)::_ when 
+        comment.LastIndexOf("*)") <> -1 && text.Trim().StartsWith("//") ->
+        // Comment ended, but we found a code snippet starting with // comment
+        let cend = comment.LastIndexOf("*)")
+        yield BlockComment (comment.Substring(0, cend))
+        yield! collectSnippet [] lines
     | (ConcatenatedComments text)::lines  ->
         // Continue parsing comment
         yield! collectComment (comment + "\n" + text) lines
@@ -428,9 +341,15 @@ module internal SourceProcessors =
   /// Replace {parameter} in the input string with 
   /// values defined in the specified list
   let replaceParameters parameters input = 
-    parameters |> Seq.fold (fun (html:string) (key, value) -> 
-      html.Replace("{" + key + "}", value)) input
-  
+    // First replace keys with some uglier keys and then replace them with values
+    // (in case one of the keys appears in some other value)
+    let id = System.Guid.NewGuid().ToString("d")
+    let input = parameters |> Seq.fold (fun (html:string) (key, value) -> 
+      html.Replace("{" + key + "}", "{" + key + id + "}")) input
+    let result = parameters |> Seq.fold (fun (html:string) (key, value) -> 
+      html.Replace("{" + key + id + "}", value)) input
+    result 
+
   /// Write formatted blocks to a specified string builder 
   /// and return first-level heading if there is some
   let outputBlocks (sb:Text.StringBuilder) 
@@ -588,7 +507,6 @@ module internal SourceProcessors =
 
 
 (** 
----
 
 ## Public API
 
