@@ -16,6 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FSharpX", "FSharpX", "{9371
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{4B40DB37-B3D8-4C44-9563-39CF34B4E149}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\codeformat.fsx = ..\docs\codeformat.fsx
+		..\docs\demo.fsx = ..\docs\demo.fsx
+		..\docs\index.md = ..\docs\index.md
+		..\docs\markdown.fsx = ..\docs\markdown.fsx
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
