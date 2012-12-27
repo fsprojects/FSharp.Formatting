@@ -12,11 +12,13 @@ and `FSharp.CodeFormat.dll` to colorize F# source & parse Markdown:
 
 (*** hide ***)
 namespace FSharp.Literate
-
+#if INTERACTIVE
+// #I "../bin/"
 #r "System.Web.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.CodeFormat.dll"
 #load "StringParsing.fs"
+#endif
 
 open System
 open System.IO
@@ -493,7 +495,7 @@ module internal SourceProcessors =
     // Process all paragraphs in two steps (replace F# snippets & references)
     let paragraphs = 
       doc.Paragraphs |> List.choose (fun par ->
-        par |> replaceCodeSnippets Map.empty
+        par |> replaceCodeSnippets codeLookup
             |> Option.bind (replaceReferences refLookup)) 
 
     // Construct new Markdown document and write it
