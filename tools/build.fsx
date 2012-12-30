@@ -25,6 +25,7 @@ let generateDocs() =
 
   // Compiler options (reference the two dll files and System.Web.dll)
   let options = 
+    "--reference:\"" + source + "/../bin/FSharp.CompilerBinding.dll\" " +
     "--reference:\"" + source + "/../bin/FSharp.CodeFormat.dll\" " +
     "--reference:\"" + source + "/../bin/FSharp.Markdown.dll\" " +
     "--reference:System.Web.dll"
