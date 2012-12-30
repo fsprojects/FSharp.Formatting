@@ -6,6 +6,8 @@ src/FSharp.Markdown/bin
 src/FSharp.Markdown/obj
 src/FSharp.Markdown.Tests/bin
 src/FSharp.Markdown.Tests/obj
+src/FSharp.Literate.Tests/bin
+src/FSharp.Literate.Tests/obj
 *.suo
 bin/
 nuget/*.nupkg
