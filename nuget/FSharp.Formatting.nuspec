@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>FSharp.Formatting</id>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
     <authors>Tomas Petricek</authors>
     <owners>Tomas Petricek</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
