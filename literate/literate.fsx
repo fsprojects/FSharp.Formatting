@@ -484,8 +484,9 @@ module internal SourceProcessors =
                   "// [/snippet]" ) 
 
         // Process F# script file, report errors & build lookup table for replacement
-        let snippets, errors = 
-          ctx.FormatAgent.ParseSource(output + ".fs", String.concat "\n\n" blocks, ctx.Options)
+        let modul = "module " + (new String(name |> Seq.filter Char.IsLetter |> Seq.toArray))
+        let source = modul + "\r\n" + (String.concat "\n\n" blocks)
+        let snippets, errors = ctx.FormatAgent.ParseSource(output + ".fs", source, ctx.Options)
         reportErrors errors
         let formatted = CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
         let snippetLookup = 
