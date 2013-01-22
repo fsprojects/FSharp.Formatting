@@ -226,5 +226,6 @@ version of the F# compiler:
    section with all indirect links that are defined & used in the document.
  - `replacements` - a list of key-value pairs containing additional parameters
    that should be replaced in the tempalte HTML file.
-
+ - `includeSource` - when `true`, parameter `{source}` will be replaced with a 
+   `<pre>` tag containing the original source code of the F# Script or Markdown document.
 *)

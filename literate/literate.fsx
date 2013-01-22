@@ -292,6 +292,8 @@ module internal SourceProcessors =
       Replacements : list<string * string> 
       // Generate line numbers for F# snippets?
       GenerateLineNumbers : bool 
+      // Include the source file in the generated output as '{source}'
+      IncludeSource : bool
       // Command line options for the F# compiler
       Options : string }
 
@@ -400,9 +402,9 @@ module internal SourceProcessors =
 
     // Parse the entire file as an F# script file,
     // get sequence of blocks & extract definitions
-    let snippets, errors = ctx.FormatAgent.ParseSource(file, File.ReadAllText(file), ctx.Options)
+    let sourceSnippets, errors = ctx.FormatAgent.ParseSource(file, File.ReadAllText(file), ctx.Options)
     reportErrors errors
-    let (Snippet(_, lines)) = match snippets with [| it |] -> it | _ -> failwith "multiple snippets"
+    let (Snippet(_, lines)) = match sourceSnippets with [| it |] -> it | _ -> failwith "multiple snippets"
     let definitions, blocks = parseScriptFile lines |> extractDefinitions
 
     // Process all definitions & build a dictionary with HTML for each definition
@@ -439,12 +441,24 @@ module internal SourceProcessors =
     refParagraph |> Option.iter (fun p -> 
       sb.Append(Markdown.WriteHtml(MarkdownDocument(p, dict []))) |> ignore)    
     
+    // If we want to include the source code of the script, then process
+    // the entire source and generate replacement {source} => ...some html...
+    let sourceRepalcement, sourceTips =
+      if ctx.IncludeSource then 
+        let formatted = CodeFormat.FormatHtml(sourceSnippets, ctx.Prefix + "s")
+        let html =
+          match formatted.SnippetsHtml with
+          | [| snip |] -> snip.Html
+          | snips -> [ for s in snips -> sprintf "<h3>%s</h3>\n%s" s.Title s.Html ] |> String.concat ""
+        [ "source", html ], formatted.ToolTipHtml
+      else [], ""
+
     // Repalce all parameters in the template & write to output
     let parameters = 
-      ctx.Replacements @
+      ctx.Replacements @ sourceRepalcement @
       [ "page-title", defaultArg heading name
         "document", sb.ToString()
-        "tooltips", formatted.ToolTipHtml + formattedDefns.ToolTipHtml ]
+        "tooltips", formatted.ToolTipHtml + formattedDefns.ToolTipHtml + sourceTips ]
     File.WriteAllText(output, replaceParameters parameters ctx.Template)
 
   // ------------------------------------------------------------------------------------
@@ -453,7 +467,8 @@ module internal SourceProcessors =
   let processMarkdown ctx file output =
     // Read file & parse Markdown document
     let name = Path.GetFileNameWithoutExtension(file)
-    let doc = Markdown.Parse(File.ReadAllText(file))
+    let originalSource = File.ReadAllText(file)
+    let doc = Markdown.Parse(originalSource)
 
     // Turn all indirect links into a references & add paragraph to the document
     let refParagraph, refLookup = 
@@ -499,9 +514,17 @@ module internal SourceProcessors =
         par |> replaceCodeSnippets codeLookup
             |> Option.bind (replaceReferences refLookup)) 
 
+    // If we want to include the source code of the script, then process
+    // the entire source and generate replacement {source} => ...some html...
+    let sourceReplacements =
+      if ctx.IncludeSource then
+        let html = Markdown.WriteHtml(MarkdownDocument([CodeBlock originalSource], dict []))
+        [ "source", html ]
+      else []
+
     // Construct new Markdown document and write it
     let parameters = 
-      ctx.Replacements @
+      ctx.Replacements @ sourceReplacements @
       [ "page-title", defaultArg (findHeadings paragraphs) name
         "document", Markdown.WriteHtml(MarkdownDocument(paragraphs, doc.DefinedLinks))
         "tooltips", tipsHtml ]
@@ -525,7 +548,7 @@ type Literate =
   /// Provides default values for all optional parameters
   static member private DefaultArguments
       ( input, templateFile, output, fsharpCompiler, prefix,
-        compilerOptions, lineNumbers, references, replacements) = 
+        compilerOptions, lineNumbers, references, replacements, includeSource) = 
     let defaultArg v f = match v with Some v -> v | _ -> f()
     let output = defaultArg output (fun () ->
       let dir = Path.GetDirectoryName(input)
@@ -542,37 +565,38 @@ type Literate =
         Options = defaultArg compilerOptions (fun () -> "")
         GenerateLineNumbers = defaultArg lineNumbers (fun () -> true)
         GenerateReferences = defaultArg references (fun () -> false)
-        Replacements = defaultArg replacements (fun () -> []) }
+        Replacements = defaultArg replacements (fun () -> []) 
+        IncludeSource = defaultArg includeSource (fun () -> false) }
     output, ctx(*[/omit]*)
 
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, templateFile, ?output, ?fsharpCompiler, ?prefix,
-      ?compilerOptions, ?lineNumbers, ?references, ?replacements ) = (*[omit:(...)]*)
+      ?compilerOptions, ?lineNumbers, ?references, ?replacements, ?includeSource ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
         ( input, templateFile, output, fsharpCompiler, prefix,
-          compilerOptions, lineNumbers, references, replacements )
+          compilerOptions, lineNumbers, references, replacements, includeSource )
     processMarkdown ctx input output (*[/omit]*)
 
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, templateFile, ?output, ?fsharpCompiler, ?prefix,
-      ?compilerOptions, ?lineNumbers, ?references, ?replacements ) = (*[omit:(...)]*)
+      ?compilerOptions, ?lineNumbers, ?references, ?replacements, ?includeSource ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
         ( input, templateFile, output, fsharpCompiler, prefix,
-          compilerOptions, lineNumbers, references, replacements )
+          compilerOptions, lineNumbers, references, replacements, includeSource )
     processScriptFile ctx input output (*[/omit]*)
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, templateFile, ?outputDirectory, ?fsharpCompiler, ?prefix,
-      ?compilerOptions, ?lineNumbers, ?references, ?replacements ) = (*[omit:(...)]*)
+      ?compilerOptions, ?lineNumbers, ?references, ?replacements, ?includeSource ) = (*[omit:(...)]*)
     let _, ctx = 
       Literate.DefaultArguments
         ( "", templateFile, Some "", fsharpCompiler, prefix,
-          compilerOptions, lineNumbers, references, replacements )
+          compilerOptions, lineNumbers, references, replacements, includeSource )
  
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 

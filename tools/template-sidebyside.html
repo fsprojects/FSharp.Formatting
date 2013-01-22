@@ -7,7 +7,7 @@
       document title extracted from the <h1> element or
       file name, if there is no <h1> heading
     -->
-    <title>{page-title}</title>
+    <title>{custom-title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{page-description}">
     <meta name="author" content="{page-author}">
@@ -35,7 +35,15 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          {document}
+          <h1 style="margin-bottom:35px">{custom-title}</h1>
+          <div class="row">
+            <div class="span5">
+              {source}
+            </div>
+            <div class="span4">
+              {document}
+            </div>
+          </div>
           {tooltips}          
         </div>
         <div class="span3">
