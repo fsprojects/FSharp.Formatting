@@ -1,7 +1,7 @@
 ﻿// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
 // the following will include binaries and load the literate script
-#I "../packages/FSharp.Formatting.1.0.4/lib/net40"
-#load "../packages/FSharp.Formatting.1.0.4/literate/literate.fsx"
+#I "../lib/net40"
+#load "literate.fsx"
 open FSharp.Literate
 
 /// This functions processes a single F# Script file
