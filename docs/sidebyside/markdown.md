@@ -10,7 +10,7 @@ In this case, the document itself is a valid Markdown and
 you can use standard Markdown features to format the text:
 
  - Here is an example of unordered list and...
- - Text formatting including **bold** and _emphasis
+ - Text formatting including **bold** and _emphasis_
 
 For more information, see the [Markdown][md] reference.
 

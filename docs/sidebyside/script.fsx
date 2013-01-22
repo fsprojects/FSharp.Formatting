@@ -12,7 +12,7 @@ is treated as part of the document and is transformed
 using Markdown, which means that you can use:
 
  - Unordered or ordered lists 
- - Text formatting including **bold** and _emphasis
+ - Text formatting including **bold** and _emphasis_
 
 And numerous other [Markdown][md] features.
 
