@@ -254,6 +254,57 @@ let rec (|ListItems|_|) prevSimple = function
       | _ -> Some([indent, info], rest)
   | _ -> None
 
+
+// Code for parsing pipe tables
+
+/// Recognizes alignment specified in the passed separator line.
+let (|PipeSeparatorLine|_|) = function
+  | String.StartsAndEndsWith (":", ":") (String.EqualsRepeated "-") -> Some(AlignCenter)
+  | String.StartsWith ":" (String.EqualsRepeated "-") -> Some(AlignLeft)
+  | String.StartsAndEndsWith ("", ":") (String.EqualsRepeated "-") -> Some(AlignRight)
+  | String.EqualsRepeated "-" -> Some(AlignDefault)
+  | _ -> None
+
+/// Recognizes rows of pipe table.
+/// The function takes number of expected columns and array of delimiters.
+/// Returns list of strings between delimiters.
+let (|PipeTableRow|_|) (size:option<int>) delimiters (line:string) =
+  let parts = line.Split(delimiters) |> Array.map (fun s -> s.Trim())
+  let n = parts.Length
+  let m = if size.IsNone then 1 else size.Value
+  let x = if String.IsNullOrEmpty parts.[0] && n > m then 1 else 0
+  let y = if String.IsNullOrEmpty parts.[n - 1] && n - x > m then n - 2 else n - 1
+  if n = 1 || (size.IsSome && y - x + 1 <> m) then None else Some(parts.[x..y] |> Array.toList)
+
+/// Recognizes separator row of pipe table.
+/// Returns list of alignments.
+let (|PipeSeparatorRow|_|) size = function 
+  | PipeTableRow size [|'|'; '+'|] parts ->
+    if List.exists (function | PipeSeparatorLine _ -> false | _ -> true) parts then None
+    else Some(List.map (function | PipeSeparatorLine alignment -> alignment | _ -> AlignDefault) parts)
+  | _ -> None 
+
+/// Recognizes pipe table
+let (|PipeTableBlock|_|) input =
+  let rec get_table_rows size acc = function
+  | (PipeTableRow size [|'|'|] columns) :: rest ->
+    get_table_rows size (List.map (fun l -> [l]) columns :: acc) rest
+  | rest -> (List.rev acc, rest)
+
+  match input with
+  | (PipeTableRow None [|'|'|] headers) :: rest ->
+    match rest with
+    | (PipeSeparatorRow (Some headers.Length) alignments) :: rest ->
+      let rows, others = get_table_rows (Some headers.Length) [] rest
+      let header_paragraphs = headers |> List.map (fun l -> [l])
+      Some((Some(header_paragraphs), alignments, rows), others)
+    | _ -> None
+  | (PipeSeparatorRow None alignments) :: rest ->
+    let rows, others = get_table_rows (Some alignments.Length) [] rest
+    Some((None, alignments, rows), others)    
+  | _ -> None
+
+
 /// Recognizes a start of a blockquote
 let (|BlockquoteStart|_|) (line:string) = 
   let rec spaces i = 
@@ -330,9 +381,18 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | Blockquote(body, Lines.TrimBlankStart rest) ->
       yield QuotedBlock(parseParagraphs ctx body |> List.ofSeq)
       yield! parseParagraphs ctx rest
+  | PipeTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest) ->
+      let head_paragraphs = 
+        if headers.IsNone then None
+        else Some(headers.Value |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
+      yield TableBlock(head_paragraphs, alignments,
+        rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq)))
+      yield! parseParagraphs ctx rest 
+
   | HorizontalRule :: (Lines.TrimBlankStart lines) ->
       yield HorizontalRule
       yield! parseParagraphs ctx lines
+
 
   // Recognize list of list items and turn it into nested lists
   | ListItems true (items, Lines.TrimBlankStart rest) ->
