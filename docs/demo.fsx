@@ -228,4 +228,6 @@ version of the F# compiler:
    that should be replaced in the tempalte HTML file.
  - `includeSource` - when `true`, parameter `{source}` will be replaced with a 
    `<pre>` tag containing the original source code of the F# Script or Markdown document.
+ - `errorHandler` - a function that is used to report errors from the F# compiler 
+   (if not specified, errors are printed to the standard output)
 *)

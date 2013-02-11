@@ -295,7 +295,9 @@ module internal SourceProcessors =
       // Include the source file in the generated output as '{source}'
       IncludeSource : bool
       // Command line options for the F# compiler
-      Options : string }
+      Options : string 
+      // Custom function for reporting errors 
+      ErrorHandler : option<string * SourceError -> unit> }
 
   (*[omit:(Implementation omitted)]*)
   open CommandUtils
@@ -303,10 +305,13 @@ module internal SourceProcessors =
   open LiterateUtils
   
   /// Print information about all errors during the processing
-  let private reportErrors (errors:seq<SourceError>) = 
-    for (SourceError((sl, sc), (el, ec), kind, msg)) in errors do
-      printfn "   * (%d:%d)-(%d:%d) (%A): %s" sl sc el ec kind msg
-    if Seq.length errors > 0 then printfn ""
+  let private reportErrors ctx file (errors:seq<SourceError>) = 
+    match ctx.ErrorHandler with
+    | Some eh -> for e in errors do eh(file, e)
+    | _ ->
+        for (SourceError((sl, sc), (el, ec), kind, msg)) in errors do
+          printfn "   * (%d:%d)-(%d:%d) (%A): %s" sl sc el ec kind msg
+        if Seq.length errors > 0 then printfn ""
 
   /// Given all links defined in the Markdown document and a list of all links
   /// that are accessed somewhere from the document, generate References paragraph
@@ -403,7 +408,7 @@ module internal SourceProcessors =
     // Parse the entire file as an F# script file,
     // get sequence of blocks & extract definitions
     let sourceSnippets, errors = ctx.FormatAgent.ParseSource(file, File.ReadAllText(file), ctx.Options)
-    reportErrors errors
+    reportErrors ctx file errors
     let (Snippet(_, lines)) = match sourceSnippets with [| it |] -> it | _ -> failwith "multiple snippets"
     let definitions, blocks = parseScriptFile lines |> extractDefinitions
 
@@ -502,7 +507,7 @@ module internal SourceProcessors =
         let modul = "module " + (new String(name |> Seq.filter Char.IsLetter |> Seq.toArray))
         let source = modul + "\r\n" + (String.concat "\n\n" blocks)
         let snippets, errors = ctx.FormatAgent.ParseSource(output + ".fs", source, ctx.Options)
-        reportErrors errors
+        reportErrors ctx file errors
         let formatted = CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
         let snippetLookup = 
           [ for (_, code), fs in Array.zip codes formatted.SnippetsHtml -> code, fs.Html ]
@@ -547,8 +552,8 @@ type Literate =
   (*[omit:(Helper methdods omitted)]*)
   /// Provides default values for all optional parameters
   static member private DefaultArguments
-      ( input, templateFile, output, fsharpCompiler, prefix,
-        compilerOptions, lineNumbers, references, replacements, includeSource) = 
+      ( input, templateFile, output, fsharpCompiler, prefix, compilerOptions, 
+        lineNumbers, references, replacements, includeSource, errorHandler) = 
     let defaultArg v f = match v with Some v -> v | _ -> f()
     let output = defaultArg output (fun () ->
       let dir = Path.GetDirectoryName(input)
@@ -566,37 +571,38 @@ type Literate =
         GenerateLineNumbers = defaultArg lineNumbers (fun () -> true)
         GenerateReferences = defaultArg references (fun () -> false)
         Replacements = defaultArg replacements (fun () -> []) 
-        IncludeSource = defaultArg includeSource (fun () -> false) }
+        IncludeSource = defaultArg includeSource (fun () -> false) 
+        ErrorHandler = errorHandler }
     output, ctx(*[/omit]*)
 
   /// Process Markdown document
   static member ProcessMarkdown
-    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix,
-      ?compilerOptions, ?lineNumbers, ?references, ?replacements, ?includeSource ) = (*[omit:(...)]*)
+    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
-        ( input, templateFile, output, fsharpCompiler, prefix,
-          compilerOptions, lineNumbers, references, replacements, includeSource )
+        ( input, templateFile, output, fsharpCompiler, prefix, compilerOptions, 
+          lineNumbers, references, replacements, includeSource, errorHandler )
     processMarkdown ctx input output (*[/omit]*)
 
   /// Process F# Script file
   static member ProcessScriptFile
-    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix,
-      ?compilerOptions, ?lineNumbers, ?references, ?replacements, ?includeSource ) = (*[omit:(...)]*)
+    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
-        ( input, templateFile, output, fsharpCompiler, prefix,
-          compilerOptions, lineNumbers, references, replacements, includeSource )
+        ( input, templateFile, output, fsharpCompiler, prefix, compilerOptions, 
+          lineNumbers, references, replacements, includeSource, errorHandler )
     processScriptFile ctx input output (*[/omit]*)
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
-    ( inputDirectory, templateFile, ?outputDirectory, ?fsharpCompiler, ?prefix,
-      ?compilerOptions, ?lineNumbers, ?references, ?replacements, ?includeSource ) = (*[omit:(...)]*)
+    ( inputDirectory, templateFile, ?outputDirectory, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let _, ctx = 
       Literate.DefaultArguments
-        ( "", templateFile, Some "", fsharpCompiler, prefix,
-          compilerOptions, lineNumbers, references, replacements, includeSource )
+        ( "", templateFile, Some "", fsharpCompiler, prefix, compilerOptions, 
+          lineNumbers, references, replacements, includeSource, errorHandler )
  
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 
