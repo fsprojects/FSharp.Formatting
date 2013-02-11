@@ -34,7 +34,7 @@ module private Utils  =
 /// uses an F# discriminated union type and so is best used from F#.
 type MarkdownDocument(paragraphs, links) =
   /// Returns a list of paragraphs in the document
-  member x.Paragraphs : MarkdownParagrphs = paragraphs
+  member x.Paragraphs : MarkdownParagraphs = paragraphs
   /// Returns a dictionary containing explicitly defined links
   member x.DefinedLinks : IDictionary<string, string * option<string>> = links
 
