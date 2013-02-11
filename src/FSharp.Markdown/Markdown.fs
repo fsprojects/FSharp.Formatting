@@ -17,6 +17,12 @@ type MarkdownListKind =
   | Ordered 
   | Unordered
 
+type MarkdownColumnAlignment =
+  | AlignLeft
+  | AlignRight
+  | AlignCenter
+  | AlignDefault
+
 type MarkdownSpan =
   | Literal of string
   | InlineCode of string
@@ -30,17 +36,20 @@ type MarkdownSpan =
 
 and MarkdownSpans = list<MarkdownSpan>
 
-type MarkdownParagrph = 
+type MarkdownParagraph = 
   | Heading of int * MarkdownSpans
   | Paragraph of MarkdownSpans
   | CodeBlock of string
   | HtmlBlock of string
-  | ListBlock of MarkdownListKind * list<MarkdownParagrphs>
-  | QuotedBlock of MarkdownParagrphs
+  | ListBlock of MarkdownListKind * list<MarkdownParagraphs>
+  | QuotedBlock of MarkdownParagraphs
   | Span of MarkdownSpans
   | HorizontalRule 
+  | TableBlock of option<MarkdownTableRow> * list<MarkdownColumnAlignment> * list<MarkdownTableRow>
 
-and MarkdownParagrphs = list<MarkdownParagrph>
+and MarkdownParagraphs = list<MarkdownParagraph>
+
+and MarkdownTableRow = list<MarkdownParagraphs>
 
 // --------------------------------------------------------------------------------------
 // Patterns that make recursive Markdown processing easier
@@ -73,9 +82,9 @@ module Matching =
     | IndirectLink(_, a, b) -> IndirectLink(spans, a, b) 
     | _ -> invalidArg "" "Incorrect SpanNodeInfo"
 
-  type ParagraphSpansInfo = private PS of MarkdownParagrph
-  type ParagraphLeafInfo = private PL of MarkdownParagrph
-  type ParagraphNestedInfo = private PN of MarkdownParagrph
+  type ParagraphSpansInfo = private PS of MarkdownParagraph
+  type ParagraphLeafInfo = private PL of MarkdownParagraph
+  type ParagraphNestedInfo = private PN of MarkdownParagraph
 
   let (|ParagraphLeaf|ParagraphNested|ParagraphSpans|) par =
     match par with  
@@ -91,6 +100,10 @@ module Matching =
         ParagraphNested(PN par, pars)
     | QuotedBlock(nested) ->
         ParagraphNested(PN par, [nested])
+    | TableBlock(headers, alignments, rows) ->
+      match headers with
+      | None -> ParagraphNested(PN par, rows |> List.concat)
+      | Some columns -> ParagraphNested(PN par, columns::rows |> List.concat)
 
   let ParagraphSpans (PS(par), spans) = 
     match par with 
@@ -102,7 +115,18 @@ module Matching =
   let ParagraphLeaf (PL(par)) = par
 
   let ParagraphNested (PN(par), pars) =
+    let splitEach n list =
+      let rec loop n left ansList curList items =
+        if List.isEmpty items && List.isEmpty curList then List.rev ansList
+        elif left = 0 || List.isEmpty items then loop n n ((List.rev curList) :: ansList) [] items
+        else loop n (left - 1) ansList ((List.head items) :: curList) (List.tail items)
+      loop n n [] [] list
+
     match par with 
     | ListBlock(a, _) -> ListBlock(a, pars)
     | QuotedBlock(_) -> QuotedBlock(List.concat pars)
+    | TableBlock(headers, alignments, _) ->
+      let rows = splitEach (alignments.Length) pars
+      if List.isEmpty rows || headers.IsNone then TableBlock(None, alignments, rows)
+      else TableBlock(Some(List.head rows), alignments, List.tail rows)
     | _ -> invalidArg "" "Incorrect ParagraphNestedInfo."
