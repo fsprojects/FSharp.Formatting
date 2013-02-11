@@ -123,6 +123,34 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write(ctx.Newline)
       ctx.Writer.Write("</code></pre>")
+  | TableBlock(headers, alignments, rows) ->
+      let aligns = alignments |> List.map (function
+        | AlignLeft -> " align=\"left\""
+        | AlignRight -> " align=\"right\""
+        | AlignCenter -> " align=\"center\""
+        | AlignDefault -> "")
+      ctx.Writer.Write("<table>")
+      ctx.Writer.Write(ctx.Newline)
+      if headers.IsSome then
+        ctx.Writer.Write("<thead>" + ctx.Newline + "<tr class=\"header\">" + ctx.Newline)
+        for cell, align in Seq.zip headers.Value aligns do
+          ctx.Writer.Write("<th" + align + ">")
+          for paragraph in cell do
+            formatParagraph { ctx with LineBreak = noBreak ctx } paragraph
+          ctx.Writer.Write("</th>" + ctx.Newline)
+        ctx.Writer.Write("</tr>" +  ctx.Newline + "</thead>" + ctx.Newline)
+      ctx.Writer.Write("<tbody>" + ctx.Newline)
+      for id, row in rows |> List.mapi (fun i r -> (i + 1, r)) do
+        ctx.Writer.Write("<tr class=\"" + (if id % 2 = 1 then "odd" else "even") + "\">" + ctx.Newline)
+        for cell, align in Seq.zip row aligns do
+          ctx.Writer.Write("<td" + align + ">")
+          for paragraph in cell do
+            formatParagraph { ctx with LineBreak = noBreak ctx } paragraph
+          ctx.Writer.Write("</td>" + ctx.Newline)
+        ctx.Writer.Write("</tr>" + ctx.Newline)
+      ctx.Writer.Write("</tbody>" + ctx.Newline)
+      ctx.Writer.Write("</table>")
+      ctx.Writer.Write(ctx.Newline)
 
   | ListBlock(kind, items) ->
       let tag = if kind = Ordered then "ol" else "ul"
