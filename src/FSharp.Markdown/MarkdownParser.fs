@@ -258,14 +258,14 @@ let rec (|ListItems|_|) prevSimple = function
 // Code for parsing pipe tables
 
 /// Recognizes alignment specified in the passed separator line.
-let (|PipeSeparatorLine|_|) = function
+let (|TableCellSeparator|_|) = function
   | String.StartsAndEndsWith (":", ":") (String.EqualsRepeated "-") -> Some(AlignCenter)
   | String.StartsWith ":" (String.EqualsRepeated "-") -> Some(AlignLeft)
   | String.StartsAndEndsWith ("", ":") (String.EqualsRepeated "-") -> Some(AlignRight)
   | String.EqualsRepeated "-" -> Some(AlignDefault)
   | _ -> None
 
-/// Recognizes rows of pipe table.
+/// Recognizes row of pipe table.
 /// The function takes number of expected columns and array of delimiters.
 /// Returns list of strings between delimiters.
 let (|PipeTableRow|_|) (size:option<int>) delimiters (line:string) =
@@ -280,28 +280,68 @@ let (|PipeTableRow|_|) (size:option<int>) delimiters (line:string) =
 /// Returns list of alignments.
 let (|PipeSeparatorRow|_|) size = function 
   | PipeTableRow size [|'|'; '+'|] parts ->
-    if List.exists (function | PipeSeparatorLine _ -> false | _ -> true) parts then None
-    else Some(List.map (function | PipeSeparatorLine alignment -> alignment | _ -> AlignDefault) parts)
+      let alignments = parts |> List.choose ( |TableCellSeparator|_| )
+      if parts.Length <> alignments.Length then None else (Some alignments)
   | _ -> None 
 
 /// Recognizes pipe table
 let (|PipeTableBlock|_|) input =
-  let rec get_table_rows size acc = function
-  | (PipeTableRow size [|'|'|] columns) :: rest ->
-    get_table_rows size (List.map (fun l -> [l]) columns :: acc) rest
-  | rest -> (List.rev acc, rest)
-
+  let rec getTableRows size acc = function
+    | (PipeTableRow size [|'|'|] columns) :: rest ->
+        getTableRows size (List.map (fun l -> [l]) columns :: acc) rest
+    | rest -> (List.rev acc, rest)
   match input with
-  | (PipeTableRow None [|'|'|] headers) :: rest ->
-    match rest with
-    | (PipeSeparatorRow (Some headers.Length) alignments) :: rest ->
-      let rows, others = get_table_rows (Some headers.Length) [] rest
-      let header_paragraphs = headers |> List.map (fun l -> [l])
-      Some((Some(header_paragraphs), alignments, rows), others)
-    | _ -> None
   | (PipeSeparatorRow None alignments) :: rest ->
-    let rows, others = get_table_rows (Some alignments.Length) [] rest
-    Some((None, alignments, rows), others)    
+      let rows, others = getTableRows (Some alignments.Length) [] rest
+      Some((None, alignments, rows), others)    
+  | (PipeTableRow None [|'|'|] headers) :: rest ->
+      match rest with
+      | (PipeSeparatorRow (Some headers.Length) alignments) :: rest ->
+          let rows, others = getTableRows (Some headers.Length) [] rest
+          let header_paragraphs = headers |> List.map (fun l -> [l])
+          Some((Some(header_paragraphs), alignments, rows), others)
+      | _ -> None
+  | _ -> None
+
+// Code for parsing emacs tables
+
+/// Recognizes one line of emacs table. It can be line with content or separator line.
+/// The function takes positions of grid columns (if known) and expected grid separator.
+/// Passed function is used to check whether all parts within grid are valid.
+/// Retuns tuple (position of grid columns, text between grid columns).
+let (|EmacsTableLine|_|) (grid:option<int []>) (c:char) (check:string -> bool) (line:string) =
+  let p = if grid.IsSome then grid.Value else Array.FindAll([|0..line.Length - 1|], fun i -> line.[i] = c) 
+  let n = p.Length - 1
+  if n < 2 || line.Length <= p.[n] || Array.exists (fun i -> line.[i] <> c) p then None
+  else
+    let parts = [1..n] |> List.map (fun i -> line.Substring(p.[i - 1] + 1, p.[i] - p.[i - 1] - 1))
+    if List.forall check parts then Some(p, parts) else None
+
+/// Recognizes emacs table
+let (|EmacsTableBlock|_|) input =
+  let isCellSep = String.(|EqualsRepeated|_|) "-" >> Option.isSome
+  let isAlignedCellSep = ( |TableCellSeparator|_| ) >> Option.isSome
+  let isHeadCellSep = String.(|EqualsRepeated|_|) "=" >> Option.isSome
+  let isText (s:string) = true
+  match input with
+  | (EmacsTableLine None '+' isAlignedCellSep (grid, parts)) :: rest ->
+    let alignments = List.choose ( |TableCellSeparator|_| ) parts
+    // iterate over rows and go from state to state
+    // headers - the content of head row (initially none)
+    // prevRow - content of the processed rows
+    // cur - list of paragraphs in the current row (list of empty lists after each separator line)
+    // flag indicates whether current row is empty (similar to List.forall (List.isEmpty) cur)
+    let emptyCur = List.replicate<string list> (grid.Length - 1) []
+    let rec loop flag headers prevRows cur = function
+      | (EmacsTableLine (Some grid) '|' isText (_, parts)) :: others ->
+          loop false headers prevRows (List.zip parts cur |> List.map (fun (h, t) -> h.TrimEnd() :: t)) others
+      | (EmacsTableLine (Some grid) '+' isCellSep _) :: others ->
+          loop true headers (List.map (List.rev) cur :: prevRows) emptyCur others
+      | (EmacsTableLine (Some grid) '+' isHeadCellSep _) :: others when Option.isNone headers ->
+          loop true (Some (List.map (List.rev) cur)) prevRows emptyCur others
+      | others when flag -> Some((headers, alignments, List.rev prevRows), others)
+      | _ -> None
+    loop true None [] emptyCur rest
   | _ -> None
 
 
@@ -381,14 +421,14 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | Blockquote(body, Lines.TrimBlankStart rest) ->
       yield QuotedBlock(parseParagraphs ctx body |> List.ofSeq)
       yield! parseParagraphs ctx rest
+  | EmacsTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest) 
   | PipeTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest) ->
-      let head_paragraphs = 
+      let headParagraphs = 
         if headers.IsNone then None
         else Some(headers.Value |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
-      yield TableBlock(head_paragraphs, alignments,
+      yield TableBlock(headParagraphs, alignments,
         rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq)))
       yield! parseParagraphs ctx rest 
-
   | HorizontalRule :: (Lines.TrimBlankStart lines) ->
       yield HorizontalRule
       yield! parseParagraphs ctx lines
