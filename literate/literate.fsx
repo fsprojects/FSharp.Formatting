@@ -13,7 +13,7 @@ and `FSharp.CodeFormat.dll` to colorize F# source & parse Markdown:
 (*** hide ***)
 namespace FSharp.Literate
 #if INTERACTIVE
-// #I "../bin/"
+#I "../bin/"
 #r "System.Web.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.CodeFormat.dll"
@@ -211,15 +211,25 @@ module internal CodeBlockUtils =
         yield BlockComment (comment.Substring(0, cend))
         yield BlockCommand cmds
         yield! collectSnippet [] lines
+
     | (ConcatenatedComments text)::_ when 
         comment.LastIndexOf("*)") <> -1 && text.Trim().StartsWith("//") ->
         // Comment ended, but we found a code snippet starting with // comment
         let cend = comment.LastIndexOf("*)")
         yield BlockComment (comment.Substring(0, cend))
         yield! collectSnippet [] lines
+
+    | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
+        // Another block of Markdown comment starting... 
+        // Yield the previous snippet block and continue parsing more comments
+        let cend = comment.LastIndexOf("*)")
+        yield BlockComment (comment.Substring(0, cend))
+        if lines <> [] then yield! collectComment text lines
+
     | (ConcatenatedComments text)::lines  ->
         // Continue parsing comment
         yield! collectComment (comment + "\n" + text) lines
+
     | lines ->
         // Ended - yield comment & continue parsing snippet
         let cend = comment.LastIndexOf("*)")
