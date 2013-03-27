@@ -101,7 +101,6 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
 
       // Close the <pre> tag for this snippet          
       if String.IsNullOrEmpty(ctx.CloseTag) |> not then
-        ctx.Writer.WriteLine()
         ctx.Writer.WriteLine(ctx.CloseTag)
 
       ctx.Writer.Close() 

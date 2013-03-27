@@ -122,7 +122,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
         formatSpan ctx span
   | HorizontalRule ->
       // Reference from http://tex.stackexchange.com/q/19579/9623
-      ctx.Writer.WriteLine(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}")
+      ctx.Writer.WriteLine(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
   | CodeBlock(code) ->
       ctx.Writer.WriteLine(@"\begin{lstlisting}")
       ctx.Writer.WriteLine(code)
@@ -167,8 +167,8 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   | Span spans -> 
       formatSpans ctx spans
   | HtmlBlock(code) ->
-      // To be safe, put them into verbatim
-      // Further processing follows later
+      //// To be safe, put them into verbatim
+      //// Further processing follows later
       //ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.Writer.Write(code)
       //ctx.Writer.WriteLine(@"\end{lstlisting}")
