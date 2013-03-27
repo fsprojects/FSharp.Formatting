@@ -127,8 +127,8 @@ Assuming you installed a version 1.0.4 of the package, you can load the
 script as follows (this assumes you're calling it from another script file
 such as `tools\build.fsx` in your solution directory):
 *)
-#I "../packages/FSharp.Formatting.1.0.4/lib/net40"
-#load "../packages/FSharp.Formatting.1.0.4/literate/literate.fsx"
+//#I "../packages/FSharp.Formatting.1.0.4/lib/net40"
+//#load "../packages/FSharp.Formatting.1.0.4/literate/literate.fsx"
 open FSharp.Literate
 open System.IO
 (**
@@ -161,7 +161,7 @@ Assuming you have `template.html` in the current directory, you can write:
 *)
 
 let source = __SOURCE_DIRECTORY__
-let template = Path.Combine(source, "template.html")
+let template = Path.Combine(source, "../demo.html")
 
 (**
 Then you can use the two static methods to turn single documents into HTML
@@ -173,6 +173,19 @@ Literate.ProcessScriptFile(script, template)
 
 let doc = Path.Combine(source, "../docs/document.md")
 Literate.ProcessMarkdown(doc, template)
+
+(**
+Now we also support LaTEX format; you can produce LaTEX outputs 
+which can easily be converted to PDF using `pdflatex`:
+*)
+
+let template2 = Path.Combine(source, "../color_template.tex")
+
+let script2 = Path.Combine(source, "../docs/script.fsx")
+Literate.ProcessScriptFile(script2, template2, format = Latex)
+
+let doc2 = Path.Combine(source, "../docs/document.md")
+Literate.ProcessMarkdown(doc2, template2, format = Latex)
 
 (**
 This sample uses `*.md` extension for Markdown documents, but this is not required when
@@ -201,7 +214,7 @@ let projInfo =
 
 // Process all files and save results to 'output' directory
 Literate.ProcessDirectory
-  (source, template, source + "\\output", replacements = projInfo)
+  (source, template, Html, source + "\\output", replacements = projInfo)
 
 (**
 The sample template `template-project.html` has been used to generate this documentation

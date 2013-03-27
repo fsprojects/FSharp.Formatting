@@ -63,6 +63,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Web">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\FSharpX\Collections.fs">
@@ -74,6 +77,7 @@
     <Compile Include="Markdown.fs" />
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="HtmlFormatting.fs" />
+    <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
