@@ -56,21 +56,19 @@ type CodeFormat =
   /// Formats the snippets parsed using the CodeFormatAgent as LaTEX
   /// The parameters specify prefix for LaTEX tags, whether lines should
   /// be added to outputs.
-  static member FormatLatex(snippets, prefix, addLines) =
-    CodeFormat.FormatLatex
-      ( snippets, prefix, @"\begin{Verbatim}", 
-        @"\end{Verbatim}", addLines)
+  static member FormatLatex(snippets, addLines) =
+    CodeFormat.FormatLatex(snippets, @"\begin{Verbatim}", @"\end{Verbatim}", addLines)
 
   /// Formats the snippets parsed using the CodeFormatAgent as LaTEX
-  /// The parameters specify prefix for LaTEX tags, whether lines should
+  /// The parameters specify whether lines should
   /// be added to outputs.
-  static member FormatLatex(snippets, prefix, openTag, closeTag, addLines) =
-    let snip, tip = Latex.format addLines prefix openTag closeTag snippets
+  static member FormatLatex(snippets, openTag, closeTag, addLines) =
+    let snip, tip = Latex.format addLines openTag closeTag snippets
     let snip = [| for t, h in snip -> FormattedSnippet(t, h) |]
     FormattedContent(snip, tip)
 
   /// Formats the snippets parsed using the CodeFormatAgent as LaTEX
-  /// using the specified ID prefix and default settings.
-  static member FormatLatex(snippets, prefix) =
-    CodeFormat.FormatLatex(snippets, prefix, true)
+  /// using the default settings.
+  static member FormatLatex(snippets) =
+    CodeFormat.FormatLatex(snippets, true)
 

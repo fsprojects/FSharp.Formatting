@@ -105,11 +105,12 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
         ctx.Writer.WriteLine(ctx.CloseTag)
 
       ctx.Writer.Close() 
-      yield "", mainStr.ToString() |]
+      // Title is important for dictionary lookup
+      yield title, mainStr.ToString() |]
 
 /// Format snippets and return LaTEX for <pre> tags together
 /// (to be added to the end of document)
-let format addLines prefix openTag closeTag (snippets:Snippet[]) = 
+let format addLines openTag closeTag (snippets:Snippet[]) = 
   let ctx =  { AddLines = addLines; Writer = null;
                OpenTag = openTag; CloseTag = closeTag }
   

@@ -169,9 +169,9 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   | HtmlBlock(code) ->
       // To be safe, put them into verbatim
       // Further processing follows later
-      ctx.Writer.Write(@"\begin{lstlisting}")
+      //ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.Writer.Write(code)
-      ctx.Writer.WriteLine(@"\end{lstlisting}")
+      //ctx.Writer.WriteLine(@"\end{lstlisting}")
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagrpah values to a TextWriter
