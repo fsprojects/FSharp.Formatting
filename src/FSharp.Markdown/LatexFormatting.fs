@@ -15,7 +15,8 @@ open FSharp.Collections
 /// from http://tex.stackexchange.com/questions/34580/escape-character-in-latex
 let specialChars =
     [|  // This line comes first to avoid double replacing
-        @"\", @"\textbackslash";
+        // It also accommodates \r, \n, \t, etc.
+        @"\", @"<\textbackslash>";
         "#", @"\#";
         "$", @"\$";
         "%", @"\%";
@@ -23,8 +24,9 @@ let specialChars =
         "_", @"\_";
         "{", @"\{";
         "}", @"\}";
-        "~",@"\textasciitilde";
-        "^", @"\textasciicircum" |]
+        @"<\textbackslash>", @"{\textbackslash}";
+        "~",@"{\textasciitilde}";
+        "^", @"{\textasciicircum}" |]
     
 let latexEncode s =
     specialChars |> Array.fold (fun (acc:string) (k, v) -> acc.Replace(k, v)) (HttpUtility.HtmlDecode s)
