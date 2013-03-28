@@ -88,6 +88,7 @@
     <Compile Include="ToolTipReader.fs" />
     <Compile Include="CodeFormatAgent.fs" />
     <Compile Include="HtmlFormatting.fs" />
+    <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <PropertyGroup>
