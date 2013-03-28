@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>FSharp.Formatting</id>
-    <version>1.0.13</version>
+    <version>1.0.14</version>
     <authors>Tomas Petricek, Oleg Pestov</authors>
     <owners>Tomas Petricek</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
@@ -10,7 +10,7 @@
     <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/misc/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Provides an F# implementation of Markdown parser and F# code formatter that can used to tokenize F# code and obtain information about tokens including tool tips with type information. The package comes with a sample that implements literate programming for F#.</description>
-    <releaseNotes>Support for tables and error reporting in literate script</releaseNotes>
+    <releaseNotes>Improved tables support and fixes in literate script</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>F# fsharp formatting markdown code fssnip literate programming</tags>
     <dependencies />
