@@ -6,19 +6,19 @@
 namespace FSharp.CodeFormat
 
 /// Represents an indivudal formatted snippet with title
-type FormattedSnippet(title:string, html:string) = 
+type FormattedSnippet(title:string, content:string) = 
   /// Returns the title of the snippet (or 'Unnamed') if not given
   member x.Title = title
-  /// Returns the formatted HTML code for the snipet
-  member x.Html = html
+  /// Returns the formatted content code for the snipet
+  member x.Content = content
 
 
-/// Represents formatted HTML snippets 
-type FormattedHtml(snippets:FormattedSnippet[], tips:string) = 
+/// Represents formatted snippets 
+type FormattedContent(snippets:FormattedSnippet[], tips:string) = 
   /// Returns the processed snippets as an array
-  member x.SnippetsHtml = snippets
+  member x.Snippets = snippets
   /// Returns string with ToolTip elements for all the snippets
-  member x.ToolTipHtml = tips
+  member x.ToolTip = tips
 
 
 /// Exposes functionality of the F# code formatter with a nice interface
@@ -44,10 +44,29 @@ type CodeFormat =
   static member FormatHtml(snippets, prefix, openTag, closeTag, addLines, addErrors) =
     let snip, tip = Html.format addLines addErrors prefix openTag closeTag snippets 
     let snip = [| for t, h in snip -> FormattedSnippet(t, h) |]
-    FormattedHtml(snip, tip)
+    FormattedContent(snip, tip)
 
   /// Formats the snippets parsed using the CodeFormatAgent as HTML
   /// using the specified ID prefix and default settings.
   static member FormatHtml(snippets, prefix) =
     CodeFormat.FormatHtml(snippets, prefix, true, false)
+
+  /// Formats the snippets parsed using the CodeFormatAgent as LaTeX
+  /// The parameters specify prefix for LaTeX tags, whether lines should
+  /// be added to outputs.
+  static member FormatLatex(snippets, addLines) =
+    CodeFormat.FormatLatex(snippets, @"\begin{Verbatim}", @"\end{Verbatim}", addLines)
+
+  /// Formats the snippets parsed using the CodeFormatAgent as LaTeX
+  /// The parameters specify whether lines should
+  /// be added to outputs.
+  static member FormatLatex(snippets, openTag, closeTag, addLines) =
+    let snip, tip = Latex.format addLines openTag closeTag snippets
+    let snip = [| for t, h in snip -> FormattedSnippet(t, h) |]
+    FormattedContent(snip, tip)
+
+  /// Formats the snippets parsed using the CodeFormatAgent as LaTeX
+  /// using the default settings.
+  static member FormatLatex(snippets) =
+    CodeFormat.FormatLatex(snippets, true)
 

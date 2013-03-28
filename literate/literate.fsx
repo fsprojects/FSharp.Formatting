@@ -53,6 +53,14 @@ module internal CommandUtils =
     | _ -> None 
   (*[/omit]*)
 
+type OutputKind =
+  | Html
+  | Latex
+  override x.ToString() =
+    match x with
+    | Html -> "html"
+    | Latex -> "tex"
+
 (** 
 ### LiterateUtils module
 
@@ -134,30 +142,35 @@ module internal LiterateUtils =
 
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
-  let rec replaceCodeSnippets (codeLookup:IDictionary<_, _>) = function
+  let rec replaceCodeSnippets outputKind (codeLookup:IDictionary<_, _>) = function
     | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
         when cmds.ContainsKey("hide") -> None
     | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
     | CodeBlock(Let (dict []) (cmds, code)) ->
         if (cmds.ContainsKey("lang")) && cmds.["lang"] <> "fsharp" then 
-          let html = "<pre lang=\"" + cmds.["lang"] + "\">" + HttpUtility.HtmlEncode(code) + "</pre>"
-          HtmlBlock(html) |> Some
+            let content = 
+                if outputKind = Html then
+                   "<pre lang=\"" + cmds.["lang"] + "\">" + HttpUtility.HtmlEncode(code) + "</pre>"
+                else sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" <| HttpUtility.HtmlDecode(code) 
+            HtmlBlock(content) |> Some
         else
-          let html : string = codeLookup.[code]
-          HtmlBlock(html) |> Some
+            let content : string = codeLookup.[code]
+            HtmlBlock(content) |> Some
 
     // Recursively process nested paragraphs, other nodes return without change
     | Matching.ParagraphNested(pn, nested) ->
-        let pars = List.map (List.choose (replaceCodeSnippets codeLookup)) nested
+        let pars = List.map (List.choose (replaceCodeSnippets outputKind codeLookup)) nested
         Matching.ParagraphNested(pn, pars) |> Some
     | other -> Some other
 
   /// Try find first-level heading in the paragraph collection
-  let findHeadings paragraphs =              
+  let findHeadings paragraphs outputKind =              
     paragraphs |> Seq.tryPick (function 
       | (Heading(1, text)) -> 
           let doc = MarkdownDocument([Span(text)], dict [])
-          Some(Markdown.WriteHtml(doc))
+          match outputKind with
+          | Html -> Some(Markdown.WriteHtml(doc))
+          | Latex -> Some(Markdown.WriteLatex(doc))
       | _ -> None)
   (*[/omit]*)
 
@@ -306,6 +319,8 @@ module internal SourceProcessors =
       IncludeSource : bool
       // Command line options for the F# compiler
       Options : string 
+      // The output format
+      OutputKind : OutputKind
       // Custom function for reporting errors 
       ErrorHandler : option<string * SourceError -> unit> }
 
@@ -325,7 +340,7 @@ module internal SourceProcessors =
 
   /// Given all links defined in the Markdown document and a list of all links
   /// that are accessed somewhere from the document, generate References paragraph
-  let generateReferences (definedLinks:IDictionary<_, string * string option>) refs = 
+  let generateReferences (definedLinks:IDictionary<_, string * string option>) refs outputKind = 
     
     // For all unique references in the document, 
     // get the link & title from definitions
@@ -353,8 +368,16 @@ module internal SourceProcessors =
                           DirectLink([Literal title], (link, Some title))]]  ]
 
     // Return the document together with dictionary for looking up indices
-    let id = DateTime.Now.ToString("yyMMddhh")
-    [ Heading(3, [Literal ("<a name=\"rf" + id + "\">&#160;</a>References") ])
+    let literal =
+        match outputKind with
+        | Html ->
+            // Return the document together with dictionary for looking up indices
+            let id = DateTime.Now.ToString("yyMMddhh")
+            Literal ("<a name=\"rf" + id + "\">&#160;</a>References")
+        | Latex ->
+            // Add formatting later
+            Literal ("References")
+    [ Heading(3, [literal])
       ListBlock(MarkdownListKind.Unordered, refList) ], refLookup
 
   /// Replace {parameter} in the input string with 
@@ -378,7 +401,7 @@ module internal SourceProcessors =
       (snippets:seq<FormattedSnippet>)
       // Sequence with just formatted BlockComment elements
       (comments:seq<MarkdownDocument>)
-      (definitions:IDictionary<_, string>) refLookup =
+      (definitions:IDictionary<_, string>) refLookup outputKind =
     
     // We traverse sequences using enumerators as we need them
     let heading = ref None
@@ -400,13 +423,17 @@ module internal SourceProcessors =
       | BlockComment s -> 
           let mdoc = nextComment()
           let paragraphs = mdoc.Paragraphs |> List.choose (replaceReferences refLookup) 
-          findHeadings paragraphs |> Option.iter (fun v -> heading := Some v)
-          sb.Append(Markdown.WriteHtml(MarkdownDocument(paragraphs, mdoc.DefinedLinks))) |> ignore
+          findHeadings paragraphs outputKind |> Option.iter (fun v -> heading := Some v)
+          let func =
+            match outputKind with
+            | Html -> Markdown.WriteHtml
+            | Latex -> Markdown.WriteLatex
+          sb.Append(func(MarkdownDocument(paragraphs, mdoc.DefinedLinks))) |> ignore
       
       // Emit next snippet (if it is not just empty list)
       | BlockSnippet lines ->
           let snip = nextSnippet()
-          if lines <> [] then sb.Append(snip.Html) |> ignore
+          if lines <> [] then sb.Append(snip.Content) |> ignore
     !heading
 
   // ------------------------------------------------------------------------------------
@@ -424,14 +451,20 @@ module internal SourceProcessors =
 
     // Process all definitions & build a dictionary with HTML for each definition
     let snippets = [| for name, lines in definitions -> Snippet(name, lines) |] 
-    let formattedDefns = CodeFormat.FormatHtml(snippets, ctx.Prefix + "d", ctx.GenerateLineNumbers, false)
-    let definitions = dict [ for snip in formattedDefns.SnippetsHtml -> snip.Title, snip.Html ]
+    let formattedDefns = 
+        match ctx.OutputKind with
+        | Html -> CodeFormat.FormatHtml(snippets, ctx.Prefix + "d", ctx.GenerateLineNumbers, false)
+        | Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
+    let definitions = dict [ for snip in formattedDefns.Snippets -> snip.Title, snip.Content ]
     
     // Process all snippet blocks in the script file (using F# formatter)
     let snippets = blocks |> List.choose (function
         | BlockSnippet(lines) -> Some(Snippet("Untitled", lines))
         | _ -> None) |> Array.ofList
-    let formatted = CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+    let formatted = 
+        match ctx.OutputKind with
+        | Html -> CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+        | Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
 
     // Parse all comment blocks in the script file (as Markdown)
     let parsedBlocks = blocks |> Array.ofSeq |> Seq.choose (function
@@ -446,34 +479,54 @@ module internal SourceProcessors =
           [ for (KeyValue(k, v)) in mdoc.DefinedLinks -> k, v]) |> dict
         let refs = parsedBlocks |> Seq.collect (fun mdoc -> 
           Seq.collect collectReferences mdoc.Paragraphs)
-        let pars, refLookup = generateReferences definedLinks refs
+        let pars, refLookup = generateReferences definedLinks refs ctx.OutputKind
         Some pars, refLookup
       else None, dict []
 
     // Write all HTML content to a string builder & add References    
     let sb = Text.StringBuilder()
-    let heading = outputBlocks sb blocks formatted.SnippetsHtml parsedBlocks definitions refLookup
+    let heading = outputBlocks sb blocks formatted.Snippets parsedBlocks definitions refLookup ctx.OutputKind
+    let func =
+        match ctx.OutputKind with
+        | Html -> Markdown.WriteHtml
+        | Latex -> Markdown.WriteLatex
     refParagraph |> Option.iter (fun p -> 
-      sb.Append(Markdown.WriteHtml(MarkdownDocument(p, dict []))) |> ignore)    
+      sb.Append(func(MarkdownDocument(p, dict []))) |> ignore)  
     
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
-    let sourceRepalcement, sourceTips =
-      if ctx.IncludeSource then 
-        let formatted = CodeFormat.FormatHtml(sourceSnippets, ctx.Prefix + "s")
-        let html =
-          match formatted.SnippetsHtml with
-          | [| snip |] -> snip.Html
-          | snips -> [ for s in snips -> sprintf "<h3>%s</h3>\n%s" s.Title s.Html ] |> String.concat ""
-        [ "source", html ], formatted.ToolTipHtml
-      else [], ""
+    let sourceReplacement, sourceTips =
+      match ctx.OutputKind with
+      | Html ->
+        if ctx.IncludeSource then 
+            let formatted = CodeFormat.FormatHtml(sourceSnippets, ctx.Prefix + "s")
+            let content =
+                match formatted.Snippets with
+                | [| snip |] -> snip.Content
+                | snips -> [ for s in snips -> sprintf "<h3>%s</h3>\n%s" s.Title s.Content ] |> String.concat ""
+            [ "source", content ], formatted.ToolTip
+        else [], ""
+      | Latex ->
+        if ctx.IncludeSource then 
+            let formatted = CodeFormat.FormatLatex(sourceSnippets)
+            let content =
+                match formatted.Snippets with
+                | [| snip |] -> snip.Content
+                | snips -> [ for s in snips -> sprintf "\subsubsection{%s}\n%s" s.Title s.Content ] |> String.concat ""
+            [ "source", content ], formatted.ToolTip
+        else [], ""
 
-    // Repalce all parameters in the template & write to output
+    let contentTag = 
+      match ctx.OutputKind with 
+      | Html -> "document" 
+      | Latex -> "contents" 
+
+    // Replace all parameters in the template & write to output
     let parameters = 
-      ctx.Replacements @ sourceRepalcement @
+      ctx.Replacements @ sourceReplacement @
       [ "page-title", defaultArg heading name
-        "document", sb.ToString()
-        "tooltips", formatted.ToolTipHtml + formattedDefns.ToolTipHtml + sourceTips ]
+        contentTag, sb.ToString()
+        "tooltips", formatted.ToolTip + formattedDefns.ToolTip + sourceTips ]
     File.WriteAllText(output, replaceParameters parameters ctx.Template)
 
   // ------------------------------------------------------------------------------------
@@ -490,7 +543,7 @@ module internal SourceProcessors =
       if ctx.GenerateReferences then 
         // Union link definitions & collect all indirect links
         let refs = Seq.collect collectReferences doc.Paragraphs
-        let pars, refLookup = generateReferences doc.DefinedLinks refs
+        let pars, refLookup = generateReferences doc.DefinedLinks refs ctx.OutputKind
         Some pars, refLookup
       else None, dict []
     
@@ -518,30 +571,43 @@ module internal SourceProcessors =
         let source = modul + "\r\n" + (String.concat "\n\n" blocks)
         let snippets, errors = ctx.FormatAgent.ParseSource(output + ".fs", source, ctx.Options)
         reportErrors ctx file errors
-        let formatted = CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+        let formatted = 
+            match ctx.OutputKind with
+            | Html -> CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+            | Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
         let snippetLookup = 
-          [ for (_, code), fs in Array.zip codes formatted.SnippetsHtml -> code, fs.Html ]
-        dict snippetLookup, formatted.ToolTipHtml
+          [ for (_, code), fs in Array.zip codes formatted.Snippets -> code, fs.Content ]
+        dict snippetLookup, formatted.ToolTip
 
     // Process all paragraphs in two steps (replace F# snippets & references)
     let paragraphs = 
       doc.Paragraphs |> List.choose (fun par ->
-        par |> replaceCodeSnippets codeLookup
+        par |> replaceCodeSnippets ctx.OutputKind codeLookup
             |> Option.bind (replaceReferences refLookup)) 
+
+    let contentTag = 
+      match ctx.OutputKind with 
+      | Html -> "document" 
+      | Latex -> "contents"
+
+    let func =  
+      match ctx.OutputKind with 
+      | Html -> Markdown.WriteHtml 
+      | Latex -> Markdown.WriteLatex
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
     let sourceReplacements =
       if ctx.IncludeSource then
-        let html = Markdown.WriteHtml(MarkdownDocument([CodeBlock originalSource], dict []))
-        [ "source", html ]
+        let content = func(MarkdownDocument([CodeBlock originalSource], dict []))
+        [ "source", content ]
       else []
 
     // Construct new Markdown document and write it
     let parameters = 
       ctx.Replacements @ sourceReplacements @
-      [ "page-title", defaultArg (findHeadings paragraphs) name
-        "document", Markdown.WriteHtml(MarkdownDocument(paragraphs, doc.DefinedLinks))
+      [ "page-title", defaultArg (findHeadings paragraphs ctx.OutputKind) name
+        contentTag, func(MarkdownDocument(paragraphs, doc.DefinedLinks))
         "tooltips", tipsHtml ]
     File.WriteAllText(output, replaceParameters parameters ctx.Template)
   (*[/omit]*)
@@ -562,13 +628,16 @@ type Literate =
   (*[omit:(Helper methdods omitted)]*)
   /// Provides default values for all optional parameters
   static member private DefaultArguments
-      ( input, templateFile, output, fsharpCompiler, prefix, compilerOptions, 
+      ( input, templateFile, output,format, fsharpCompiler, prefix, compilerOptions, 
         lineNumbers, references, replacements, includeSource, errorHandler) = 
     let defaultArg v f = match v with Some v -> v | _ -> f()
+
+    let outputKind = defaultArg format (fun _ -> Html)
+
     let output = defaultArg output (fun () ->
       let dir = Path.GetDirectoryName(input)
       let file = Path.GetFileNameWithoutExtension(input)
-      Path.Combine(dir, file + ".html"))
+      Path.Combine(dir, sprintf "%s.%O" file outputKind))
     let fsharpCompiler = defaultArg fsharpCompiler (fun () -> 
       Assembly.Load("FSharp.Compiler"))
     
@@ -582,36 +651,37 @@ type Literate =
         GenerateReferences = defaultArg references (fun () -> false)
         Replacements = defaultArg replacements (fun () -> []) 
         IncludeSource = defaultArg includeSource (fun () -> false) 
+        OutputKind = outputKind
         ErrorHandler = errorHandler }
     output, ctx(*[/omit]*)
 
   /// Process Markdown document
   static member ProcessMarkdown
-    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, templateFile, ?format, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
-        ( input, templateFile, output, fsharpCompiler, prefix, compilerOptions, 
+        ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
           lineNumbers, references, replacements, includeSource, errorHandler )
     processMarkdown ctx input output (*[/omit]*)
 
   /// Process F# Script file
   static member ProcessScriptFile
-    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, templateFile, ?format, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
-        ( input, templateFile, output, fsharpCompiler, prefix, compilerOptions, 
+        ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
           lineNumbers, references, replacements, includeSource, errorHandler )
     processScriptFile ctx input output (*[/omit]*)
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
-    ( inputDirectory, templateFile, ?outputDirectory, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( inputDirectory, templateFile, ?format, ?outputDirectory, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let _, ctx = 
       Literate.DefaultArguments
-        ( "", templateFile, Some "", fsharpCompiler, prefix, compilerOptions, 
+        ( "", templateFile, Some "", format, fsharpCompiler, prefix, compilerOptions, 
           lineNumbers, references, replacements, includeSource, errorHandler )
  
     /// Recursively process all files in the directory tree
@@ -625,13 +695,13 @@ type Literate =
       let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
       for func, file in fsx @ mds do
         let name = Path.GetFileNameWithoutExtension(file)
-        let output = Path.Combine(outdir, name + ".html")
+        let output = Path.Combine(outdir, sprintf "%s.%O" name ctx.OutputKind)
 
         // Update only when needed
         let changeTime = File.GetLastWriteTime(file)
         let generateTime = File.GetLastWriteTime(output)
         if changeTime > generateTime then
-          printfn "Generating '%s.html'" name
+          printfn "Generating '%s.%O'" name ctx.OutputKind
           func ctx file output
 
     let outputDirectory = defaultArg outputDirectory inputDirectory
