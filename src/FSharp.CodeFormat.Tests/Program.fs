@@ -22,11 +22,11 @@ let doWork () =
 
     let res = CodeFormat.FormatHtml(snips, "fstips")
     use wr = new StreamWriter(System.Console.OpenStandardOutput()) // file + ".output")
-    for snip in res.SnippetsHtml do
+    for snip in res.Snippets do
       wr.WriteLine(snip.Title)
-      wr.WriteLine(snip.Html + "\n")
+      wr.WriteLine(snip.Content + "\n")
     wr.WriteLine("\n\n<!-- GENERATED TOOL TIPS -->")
-    wr.Write(res.ToolTipHtml)
+    wr.Write(res.ToolTip)
 
 doWork ()
 let sw = Stopwatch()
