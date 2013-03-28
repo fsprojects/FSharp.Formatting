@@ -107,3 +107,54 @@ type Markdown =
   /// format and write the result to a given writer.
   static member WriteHtml(doc:MarkdownDocument, writer) = 
     Markdown.WriteHtml(doc, writer, Environment.NewLine)
+
+  // -----------------------------------
+  // Now the functions for LaTeX format
+  // -----------------------------------
+
+  /// Transform Markdown document into LaTeX format. The result
+  /// will be written to the provided TextWriter.
+  static member TransformLatex(text, writer:TextWriter, newline) = 
+    let doc = Markdown.Parse(text, newline)
+    Latex.formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
+
+  /// Transform Markdown document into LaTeX format. The result
+  /// will be written to the provided TextWriter.
+  static member TransformLatex(text, writer:TextWriter) = 
+    Markdown.TransformLatex(text, writer, Environment.NewLine)
+
+  /// Transform Markdown document into LaTeX format. 
+  /// The result will be returned as a string.
+  static member TransformLatex(text, newline) =
+    let sb = new System.Text.StringBuilder()
+    use wr = new StringWriter(sb)
+    Markdown.TransformLatex(text, wr, newline)
+    sb.ToString()
+
+  /// Transform Markdown document into LaTeX format. 
+  /// The result will be returned as a string.
+  static member TransformLatex(text) =
+    Markdown.TransformLatex(text, Environment.NewLine)
+
+  /// Transform the provided MarkdownDocument into LaTeX
+  /// format and write the result to a given writer.
+  static member WriteLatex(doc:MarkdownDocument, writer, newline) = 
+    Latex.formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
+
+  /// Transform the provided MarkdownDocument into LaTeX
+  /// format and return the result as a string.
+  static member WriteLatex(doc:MarkdownDocument, newline) = 
+    let sb = new System.Text.StringBuilder()
+    use wr = new StringWriter(sb)
+    Markdown.WriteLatex(doc, wr, newline)
+    sb.ToString()
+
+  /// Transform the provided MarkdownDocument into LaTeX
+  /// format and return the result as a string.
+  static member WriteLatex(doc:MarkdownDocument) = 
+    Markdown.WriteLatex(doc, Environment.NewLine)
+
+  /// Transform the provided MarkdownDocument into LaTeX
+  /// format and write the result to a given writer.
+  static member WriteLatex(doc:MarkdownDocument, writer) = 
+    Markdown.WriteLatex(doc, writer, Environment.NewLine)
