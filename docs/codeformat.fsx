@@ -113,11 +113,11 @@ let prefix = "fst"
 let html = CodeFormat.FormatHtml(snippets, prefix)
 
 // Print all snippets, in case there is more of them
-for snip in html.SnippetsHtml do
-  printfn "%s" snip.Html
+for snip in html.Snippets do
+  printfn "%s" snip.Content
 
 // Print HTML code that is generated for ToolTips
-printfn "%s" html.ToolTipHtml
+printfn "%s" html.ToolTip
 
 (**
 If the input contains multiple snippets spearated using the `[snippet:...]` comment,
