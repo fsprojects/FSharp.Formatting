@@ -106,6 +106,12 @@ type CodeFormatAgent(fsharpCompiler) =
   // (This is needed when calling compiler, and it varies depending
   // on the version i.e. when new keywords are added). Use reflection hack!
   let identToken = FsParser.tagOfToken(FsParser.token.IDENT("")) 
+  
+  // Create keys for query tooltips for double-backtick identifiers
+  let processDoubleBackticks (body : string) = 
+    if body.StartsWith "``" then
+      sprintf "( %s )" <| body.Trim('`')
+    else body
 
   // Processes a single line of the snippet
   let processSnippetLine (checkInfo:TypeCheckInfo) (lines:string[]) (line, lineTokens) =
@@ -121,7 +127,7 @@ type CodeFormatAgent(fsharpCompiler) =
         let island =
           match tokenInfo.TokenName with
           | "DOT" -> island         // keep what we have found so far
-          | "IDENT" -> body::island  // add current identifier
+          | "IDENT" -> processDoubleBackticks body::island  // add current identifier
           | _ -> []                 // drop everything - not in island
 
         // Find tootltip using F# compiler service & the identifier island
@@ -136,7 +142,7 @@ type CodeFormatAgent(fsharpCompiler) =
             | _ when island.Length > 1 ->
                 // Try to find some information about the last part of the identifier 
                 let pos = (line, tokenInfo.LeftColumn + 2)
-                let tip = checkInfo.GetDataTipText(pos, lines.[line], [ body ], identToken)
+                let tip = checkInfo.GetDataTipText(pos, lines.[line], [ processDoubleBackticks body ], identToken)
                 ToolTipReader.tryFormatTip tip
             | _ -> None
           else None

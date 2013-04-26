@@ -89,3 +89,13 @@ features or report bugs!
 let sample = 
   laterFunction()
   |> printfn "Got: %s"
+
+(**
+Support for double backticks:
+*)
+/// This is a double-backtick identifier
+let ``f oo`` = ()
+
+(**
+Others examples follow here.
+*)
