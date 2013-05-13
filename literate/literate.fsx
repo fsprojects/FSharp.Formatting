@@ -666,7 +666,7 @@ type Literate =
 
   /// Process Markdown document
   static member ProcessMarkdown
-    ( input, ?templateFile, ?format, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
@@ -676,7 +676,7 @@ type Literate =
 
   /// Process F# Script file
   static member ProcessScriptFile
-    ( input, ?templateFile, ?format, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
@@ -686,7 +686,7 @@ type Literate =
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
-    ( inputDirectory, ?templateFile, ?format, ?outputDirectory, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let _, ctx = 
       Literate.DefaultArguments

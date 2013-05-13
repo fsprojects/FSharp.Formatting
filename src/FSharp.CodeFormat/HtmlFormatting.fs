@@ -149,45 +149,45 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
       let mainStr = StringBuilder()
       let ctx = { ctx with Writer = new StringWriter(mainStr) }
 
-      // Generate <pre> tag for the snippet
-      if String.IsNullOrEmpty(ctx.OpenTag) |> not then
-        ctx.Writer.WriteLine(ctx.OpenTag)
-
-      // Put the snip into a table
-      ctx.Writer.WriteLine("<table>")
-      ctx.Writer.WriteLine("<tr>")
-
       let numberLength = lines.Length.ToString().Length
       let linesLength = lines.Length
+      let emitTag tag = 
+        if String.IsNullOrEmpty(tag) |> not then 
+          ctx.Writer.WriteLine(tag)
 
+      // If we're adding lines, then generate two column table 
+      // (so that the body can be easily copied)
       if ctx.AddLines then
-        // Should not add new lines inside verbatim environment
-        ctx.Writer.Write("<td>")
+        ctx.Writer.Write("<table class=\"pre\">")
+        ctx.Writer.Write("<tr>")
+        ctx.Writer.Write("<td class=\"lines\">")
 
+        // Generate <pre> tag for the snippet
+        emitTag ctx.OpenTag
         // Print all line numbers of the snippet
         for index in 0..linesLength-1 do
           // Add line number to the beginning
           let lineStr = (index + 1).ToString().PadLeft(numberLength)
           ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
 
+        emitTag ctx.CloseTag
         ctx.Writer.WriteLine("</td>")
+        ctx.Writer.Write("<td class=\"snippet\">")
 
-      ctx.Writer.Write("<td>")
 
-      // Print all lines of the snippet
+      // Print all lines of the snippet inside <pre>..</pre>
+      emitTag ctx.OpenTag
       lines |> List.iteri (fun index (Line spans) ->
         let isLast = index = linesLength - 1
         formatTokenSpans ctx spans
         if not isLast then ctx.Writer.WriteLine() )
+      emitTag ctx.CloseTag
 
-      ctx.Writer.WriteLine("</td>")
-
-      ctx.Writer.WriteLine("</tr>")
-      ctx.Writer.Write("</table>")
-
-      // Close the <pre> tag for this snippet          
-      if String.IsNullOrEmpty(ctx.CloseTag) |> not then
-        ctx.Writer.WriteLine(ctx.CloseTag)
+      if ctx.AddLines then
+        // Close the table if we are adding lines
+        ctx.Writer.WriteLine("</td>")
+        ctx.Writer.WriteLine("</tr>")
+        ctx.Writer.Write("</table>")
 
       ctx.Writer.Close() 
       yield title, mainStr.ToString() |]

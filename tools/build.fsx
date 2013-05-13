@@ -34,7 +34,7 @@ let generateDocs() =
   // Now we can process the samples directory (with some additional references)
   // and then we clean up the files & directories we had to create earlier
   Literate.ProcessDirectory
-    ( sources, template, output, replacements = projInfo, 
+    ( sources, template, output, OutputKind.Html, replacements = projInfo, 
       compilerOptions = options )
 
   // Process the literate.fsx script separately

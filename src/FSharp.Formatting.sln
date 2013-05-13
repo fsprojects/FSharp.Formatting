@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown", "FSharp.Markdown\FSharp.Markdown.fsproj", "{C44C1C05-599A-40DD-9590-465EAB8960C5}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown.Tests", "FSharp.Markdown.Tests\FSharp.Markdown.Tests.fsproj", "{07DE4905-050C-4378-A039-F1EF7E1F309D}"
@@ -29,6 +29,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Side-by-side", "Side-by-sid
 	ProjectSection(SolutionItems) = preProject
 		..\docs\sidebyside\markdown.md = ..\docs\sidebyside\markdown.md
 		..\docs\sidebyside\script.fsx = ..\docs\sidebyside\script.fsx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{BF4EF348-696A-4771-BD23-C198FBD9D729}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\output\content\style.css = ..\docs\output\content\style.css
+		..\docs\output\content\tips.js = ..\docs\output\content\tips.js
 	EndProjectSection
 EndProject
 Global
@@ -84,5 +90,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B909A167-1109-4880-8BB8-C1A036B639BD} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
+		{BF4EF348-696A-4771-BD23-C198FBD9D729} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
 	EndGlobalSection
 EndGlobal
