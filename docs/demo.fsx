@@ -176,19 +176,6 @@ let doc = Path.Combine(source, "../docs/document.md")
 Literate.ProcessMarkdown(doc, template)
 
 (**
-Now we also support PDF output via LaTeX format. You can turn single documents into LaTeX
-using `template.tex` as follows:
-*)
-
-let template = Path.Combine(source, "template.tex")
-
-let script = Path.Combine(source, "../docs/script.fsx")
-Literate.ProcessScriptFile(script, template, format = Latex)
-
-let doc = Path.Combine(source, "../docs/document.md")
-Literate.ProcessMarkdown(doc, template, format = Latex)
-
-(**
 This sample uses `*.md` extension for Markdown documents, but this is not required when
 using `ProcessMarkdown`. You can use any extension you wish. By default, the methods
 will generate file with the same name (but with the `.html` extension). You can change
@@ -215,13 +202,28 @@ let projInfo =
 
 // Process all files and save results to 'output' directory
 Literate.ProcessDirectory
-  (source, template, Html, source + "\\output", replacements = projInfo)
+  (source, template, source + "\\output", replacements = projInfo)
 
 (**
 The sample template `template-project.html` has been used to generate this documentation
 and it includes additional parameters for specifying various information about F#
 projects.
 
+## Generating Latex output
+Now we also support PDF output via LaTeX format. You can turn single documents into LaTeX
+using `template.tex` as follows:
+*)
+
+let script = Path.Combine(source, "../docs/script.fsx")
+Literate.ProcessScriptFile(script, template, format = OutputKind.Latex)
+
+let doc = Path.Combine(source, "../docs/document.md")
+Literate.ProcessMarkdown(doc, template, format = OutputKind.Latex)
+
+Literate.ProcessDirectory
+  (source, template, source + "\\output", format = OutputKind.Latex, replacements = projInfo)
+
+(**
 ## Optional parameters
 
 All of the three methods discussed in the previous two sections take a number of optional

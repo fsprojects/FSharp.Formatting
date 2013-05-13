@@ -5,16 +5,18 @@
 open FSharp.Literate
 
 /// This functions processes a single F# Script file
-let processScript filename outputKind =
+let processScript templateFile outputKind =
   let file = __SOURCE_DIRECTORY__ + "\\test.fsx"
-  let template = __SOURCE_DIRECTORY__ + filename
-  Literate.ProcessScriptFile(file, template, outputKind)
+  let output = __SOURCE_DIRECTORY__ + "\\outputs\\test." + (outputKind.ToString())
+  let template = __SOURCE_DIRECTORY__ + templateFile
+  Literate.ProcessScriptFile(file, template, output, format = outputKind)
 
 /// This functions processes a single Markdown document
-let processDocument filename outputKind =
+let processDocument templateFile outputKind =
   let file = __SOURCE_DIRECTORY__ + "\\demo.md"
-  let template = __SOURCE_DIRECTORY__ + filename
-  Literate.ProcessMarkdown(file, template, outputKind)
+  let output = __SOURCE_DIRECTORY__ + "\\outputs\\demo." + (outputKind.ToString())
+  let template = __SOURCE_DIRECTORY__ + templateFile
+  Literate.ProcessMarkdown(file, template, output, format = outputKind)
 
 /// This functions processes an entire directory containing
 /// multiple script files (*.fsx) and Markdown documents (*.md)
@@ -29,11 +31,11 @@ let processDirectory() =
       "project-name", "F# Formatting" ]
 
   Literate.ProcessDirectory
-    ( dir, template, Html, dir + "\\output", 
+    ( dir, template, dir + "\\output", OutputKind.Html, 
       replacements = projInfo)
 
-#time "on";;
-let a = processScript "\\templates\\template-file.html" Html;;
-let b = processDocument "\\templates\\template-file.html" Html;;
-let c = processScript "\\templates\\template-color.tex" Latex;;
-let d = processDocument "\\templates\\template-color.tex" Latex;;
+// Generate output for sample scripts & documents in both HTML & Latex
+processScript "\\templates\\template-file.html" OutputKind.Html
+processDocument "\\templates\\template-file.html" OutputKind.Html
+processScript "\\templates\\template-color.tex" OutputKind.Latex
+processDocument "\\templates\\template-color.tex" OutputKind.Latex

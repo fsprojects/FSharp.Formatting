@@ -12,3 +12,4 @@ src/FSharp.Literate.Tests/obj
 bin/
 nuget/*.nupkg
 docs/output/*.html
+literate/outputs/*

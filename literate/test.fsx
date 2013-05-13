@@ -91,10 +91,16 @@ let sample =
   |> printfn "Got: %s"
 
 (**
-Support for double backticks:
+
+Other features
+--------------
+
+The tool-tips also work for double-backtick identifiers.
+This might be useful to generate nice documents from tests:
+
 *)
-/// This is a double-backtick identifier
-let ``f oo`` = ()
+let ``1 + 1 should be equal to 2``() =
+  1 + 1 = 2
 
 (**
 Others examples follow here.
