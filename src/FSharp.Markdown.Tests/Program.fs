@@ -40,12 +40,12 @@ let benchmarks () =
 // Run tests and verify
 // --------------------------------------------------------------------------------------
 
-let transformAndCompare (source:string) (target:string) (verify:string) = 
+let transformAndCompare transFunc (source:string) (target:string) (verify:string) = 
   try
     if File.Exists(verify) then
       let text = File.ReadAllText(source)
       ( use wr = new StreamWriter(target)
-        Markdown.TransformHtml(text, wr, "\r\n") )
+        transFunc(text, wr, "\r\n") )
     
       let contents = File.ReadAllLines(verify)
       File.WriteAllLines(verify, contents)
@@ -59,7 +59,9 @@ let transformAndCompare (source:string) (target:string) (verify:string) =
 
 let rec runTests dir = 
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
+    transformAndCompare Markdown.TransformHtml file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
+  for file in Directory.GetFiles(dir, "*.text") do
+    transformAndCompare Markdown.TransformLatex file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
   for dir in Directory.GetDirectories(dir) do
     runTests dir
 
