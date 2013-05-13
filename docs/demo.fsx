@@ -210,10 +210,16 @@ and it includes additional parameters for specifying various information about F
 projects.
 
 ## Generating Latex output
-Now we also support PDF output via LaTeX format. You can turn single documents into LaTeX
-using `template.tex` as follows:
-*)
 
+The methods used above (`ProcessScriptFile`, `ProcessMarkdown` as well as `ProcessDirectory`) 
+produce HTML output by default, but they can be also used to produce Latex output. This is done
+by setting the named parameter `format` to one of the two `OutputKind` cases. The following
+example shows how to call the methods to generate Latex documents:
+*)
+// Template file containing the {content} tag and possibly others
+let template = Path.Combine(source, "template.tex")
+
+// Process script file, Markdown document and a directory
 let script = Path.Combine(source, "../docs/script.fsx")
 Literate.ProcessScriptFile(script, template, format = OutputKind.Latex)
 
@@ -221,9 +227,21 @@ let doc = Path.Combine(source, "../docs/document.md")
 Literate.ProcessMarkdown(doc, template, format = OutputKind.Latex)
 
 Literate.ProcessDirectory
-  (source, template, source + "\\output", format = OutputKind.Latex, replacements = projInfo)
+  ( source, template, source + "\\output", 
+    format = OutputKind.Latex, replacements = projInfo)
 
 (**
+Note that the `template.tex` file needs to contain `{content}` as the key where the body
+of the document is placed (this differs from `{document}` used in the HTML format to avoid
+collision with standard Latex `{document}` tag). The project comes with two samples (also 
+available as part of the NuGet package). The sample
+Latex outputs (compiled to a PDF file) look as follows:
+
+ * [Sample Markdown file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/demo.md)
+   produces the following [formatted PDF file](https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/demo.pdf)
+ * [Sample F# script file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/test.fsx)
+   produces the following [formatted PDF file](https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/test.pdf)
+
 ## Optional parameters
 
 All of the three methods discussed in the previous two sections take a number of optional
