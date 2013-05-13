@@ -1,7 +1,9 @@
 #!/bin/bash
 rm -rf .temp 
 mkdir .temp
+cd tools
 fsharpi build.fsx
+cd ..
 cp docs/output/*.html .temp
 git checkout gh-pages
 cp .temp/*.html .
