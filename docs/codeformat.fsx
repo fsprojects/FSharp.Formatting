@@ -106,7 +106,7 @@ Generating HTML output
 
 Finally, the `CodeFormat` type also includes method `FormatHtml` that can be used
 to generate nice HTML output from an F# snippet. This is used, for example on 
-[F# Snippets](http://www.fssnip.net]. The following example shows how to call it:
+[F# Snippets](http://www.fssnip.net). The following example shows how to call it:
 *)
 
 let prefix = "fst" 
