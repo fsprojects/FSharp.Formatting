@@ -1,10 +1,10 @@
 #!/bin/bash
 rm -rf .temp 
 mkdir .temp
-cd tools
-fsharpi build.fsx
-cd ..
+mkdir .temp/content
+(cd tools && fsharpi build.fsx)
 cp docs/output/*.html .temp
+cp docs/output/content/* .temp/content
 git checkout gh-pages
 cp .temp/*.html .
 git add *.html
