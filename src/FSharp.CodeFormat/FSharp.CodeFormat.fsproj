@@ -67,10 +67,6 @@
     <Reference Include="FSharp.CompilerBinding">
       <HintPath>..\..\lib\FSharp.CompilerBinding.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0\FSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
