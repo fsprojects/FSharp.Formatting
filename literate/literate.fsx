@@ -293,7 +293,7 @@ module internal SourceProcessors =
     { // An instance of the F# code formatting agent
       FormatAgent : CodeFormatAgent 
       // Source code of a HTML template file
-      Template : string
+      Template : string option
       // Short prefix code added to all HTML 'id' elements
       Prefix : string 
       // Should the processing add 'References' section?
@@ -360,14 +360,20 @@ module internal SourceProcessors =
   /// Replace {parameter} in the input string with 
   /// values defined in the specified list
   let replaceParameters parameters input = 
-    // First replace keys with some uglier keys and then replace them with values
-    // (in case one of the keys appears in some other value)
-    let id = System.Guid.NewGuid().ToString("d")
-    let input = parameters |> Seq.fold (fun (html:string) (key, value) -> 
-      html.Replace("{" + key + "}", "{" + key + id + "}")) input
-    let result = parameters |> Seq.fold (fun (html:string) (key, value) -> 
-      html.Replace("{" + key + id + "}", value)) input
-    result 
+    match input with 
+    | None ->
+        // If there is no template, return just document + tooltips
+        let lookup = parameters |> dict
+        lookup.["document"] + "\n\n" + lookup.["tooltips"]
+    | Some input ->
+        // First replace keys with some uglier keys and then replace them with values
+        // (in case one of the keys appears in some other value)
+        let id = System.Guid.NewGuid().ToString("d")
+        let input = parameters |> Seq.fold (fun (html:string) (key, value) -> 
+          html.Replace("{" + key + "}", "{" + key + id + "}")) input
+        let result = parameters |> Seq.fold (fun (html:string) (key, value) -> 
+          html.Replace("{" + key + id + "}", value)) input
+        result 
 
   /// Write formatted blocks to a specified string builder 
   /// and return first-level heading if there is some
@@ -575,7 +581,7 @@ type Literate =
     // Build & return processing context
     let ctx = 
       { FormatAgent = CodeFormat.CreateAgent(fsharpCompiler) 
-        Template = File.ReadAllText(templateFile)
+        Template = templateFile |> Option.map (fun file -> File.ReadAllText(file))
         Prefix = defaultArg prefix (fun () -> "fs")
         Options = defaultArg compilerOptions (fun () -> "")
         GenerateLineNumbers = defaultArg lineNumbers (fun () -> true)
@@ -587,7 +593,7 @@ type Literate =
 
   /// Process Markdown document
   static member ProcessMarkdown
-    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
@@ -597,7 +603,7 @@ type Literate =
 
   /// Process F# Script file
   static member ProcessScriptFile
-    ( input, templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let output, ctx = 
       Literate.DefaultArguments
@@ -607,7 +613,7 @@ type Literate =
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
-    ( inputDirectory, templateFile, ?outputDirectory, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( inputDirectory, ?templateFile, ?outputDirectory, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
     let _, ctx = 
       Literate.DefaultArguments
