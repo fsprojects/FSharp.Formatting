@@ -7,6 +7,7 @@ cp docs/output/*.html .temp
 cp docs/output/content/* .temp/content
 git checkout gh-pages
 cp .temp/*.html .
+cp .temp/content/* content/
 git add *.html
 git commit -m "Update generated documentation"
 git push
