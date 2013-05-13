@@ -136,14 +136,25 @@ snippet will be turned into a <code>&lt;pre&gt;</code> element. If you do
 the same using Literate F# tool, the code is turned into
 a nicely formatted F# snippet:</p>
 
-<pre class="fssnip">
-<span class="l">1: </span><span class="c">/// The Hello World of functional languages!</span>
-<span class="l">2: </span><span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span> 
-<span class="l">3: </span>  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
-<span class="l">4: </span>  <span class="k">else</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="i">factorial</span> (<span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
 <span class="l">5: </span>
-<span class="l">6: </span><span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="i">factorial</span> <span class="n">10</span></pre>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">/// The Hello World of functional languages!</span>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span> 
+  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
+  <span class="k">else</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="i">factorial</span> (<span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="i">factorial</span> <span class="n">10</span></pre>
+</td>
+</tr>
+</table>
 
 <h2>Hiding code</h2>
 
@@ -157,9 +168,15 @@ the snippet should be placed in a separate module
 processed and so you can use it from other (visible) 
 code and get correct tool tips:</p>
 
-<pre class="fssnip">
-<span class="l">1: </span><span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 11)" onmouseover="showTip(event, 'fs6', 11)" class="i">Hidden</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 12)" onmouseover="showTip(event, 'fs4', 12)" class="i">answer</span></pre>
-
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 11)" onmouseover="showTip(event, 'fs6', 11)" class="i">Hidden</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 12)" onmouseover="showTip(event, 'fs4', 12)" class="i">answer</span></pre>
+</td>
+</tr>
+</table>
 
 <h2>Including other snippets</h2>
 
