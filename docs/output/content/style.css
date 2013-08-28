@@ -63,9 +63,7 @@ pre, table.pre {
   width:95%;
 }
 table.pre td.lines {
-  width:20px;
-  border-top-right-radius:0px;
-  border-bottom-right-radius:0px;
+  width:30px;
   border-right-style: none;
   padding-right:0px;
 }
