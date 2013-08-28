@@ -44,6 +44,9 @@ div.tip
 	display:none;
 }
 
+table.pre {
+  width:90%;
+}
 /* Optionally, also configure how the PRE element and TABLE.PRE look */
 table.pre pre {
   padding:0px;
