@@ -63,29 +63,6 @@ type OutputKind =
     | OutputKind.Latex -> "contents" 
   (*[/omit]*)
 
-(**
-### CommandUtils module
-
-Utilities for parsing commands. Commands can be used in different places. We 
-recognize `key1=value, key2=value` and also `key1:value, key2:value`
-*)
-module internal CommandUtils = 
-  (*[omit:(Implementation omitted)]*)
-
-  let (|ParseCommands|_|) (str:string) = 
-    let kvs = 
-      [ for cmd in str.Split(',') do
-          let kv = cmd.Split([| '='; ':' |])
-          if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
-          elif kv.Length = 1 then yield kv.[0].Trim(), "" ] 
-    if kvs <> [] then Some(dict kvs) else None
-  
-  let (|Command|_|) k (d:IDictionary<_, _>) =
-    match d.TryGetValue(k) with
-    | true, v -> Some v
-    | _ -> None 
-  (*[/omit]*)
-
 (** 
 ### LiterateUtils module
 
@@ -95,7 +72,6 @@ with formatted HTML (after running F# code formatter)
 *)
 module internal LiterateUtils = 
   (*[omit:(Implementation omitted)]*)
-  open CommandUtils
 
   /// Given Markdown document, get the keys of all IndirectLinks 
   /// (to be used when generating paragraph with all references)

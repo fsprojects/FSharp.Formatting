@@ -158,3 +158,20 @@ module Lines =
 /// 
 let (|Let|) a b = (a, b)
 
+open System.Collections.Generic
+
+/// Utility for parsing commands. Commands can be used in different places. We 
+/// recognize `key1=value, key2=value` and also `key1:value, key2:value`
+let (|ParseCommands|_|) (str:string) = 
+  let kvs = 
+    [ for cmd in str.Split(',') do
+        let kv = cmd.Split([| '='; ':' |])
+        if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
+        elif kv.Length = 1 then yield kv.[0].Trim(), "" ] 
+  if kvs <> [] then Some(dict kvs) else None
+  
+/// Lookup in a dictionary
+let (|Command|_|) k (d:IDictionary<_, _>) =
+  match d.TryGetValue(k) with
+  | true, v -> Some v
+  | _ -> None 
