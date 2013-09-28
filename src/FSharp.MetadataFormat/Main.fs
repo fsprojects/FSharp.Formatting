@@ -363,7 +363,7 @@ module Reader =
           groups.Add(current, [par])
       | par -> 
           groups.[current] <- par::groups.[current]
-    let blurb = Markdown.WriteHtml(MarkdownDocument(groups.["<default>"], doc.DefinedLinks))
+    let blurb = Markdown.WriteHtml(MarkdownDocument(List.rev groups.["<default>"], doc.DefinedLinks))
     let full = Markdown.WriteHtml(doc)
     Comment.Create(blurb, full)
           
@@ -526,37 +526,44 @@ module Formatter =
 
 open System.IO
 
-module Main = 
-  let main() =
-    let dllFile = @"C:\dev\FSharp.DataFrame\bin\FSharp.DataFrame.dll"
-    let xmlFile = Path.ChangeExtension(dllFile, ".xml")
+type MetadataFormat = 
+  static member Generate(dllFile, outDir, layoutRoot, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
+    let (/) a b = Path.Combine(a, b)
+    let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
     if not (File.Exists xmlFile) then 
       raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
 
-    let fasm = FSharpAssembly.FromFile(dllFile)
 //    [ for e in fasm.Entities do
 //        for m in e.MembersOrValues do
 //          yield m.IsTypeFunction ]
 //          yield m.GenericParameters.Count ]
 
-    let asm = Reader.readAssembly fasm xmlFile
-  
-    let razor = Formatter.RazorRender(@"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates")
+    
+    let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
+    let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
+    let typeTemplate = defaultArg typeTemplate "type.cshtml"
+    
+    let asm = FSharpAssembly.FromFile(dllFile)
+    let asm = Reader.readAssembly asm xmlFile
+    
+    let razor = Formatter.RazorRender(layoutRoot)
     razor.Model <- box asm
-    let out = razor.ProcessFile(@"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates\namespaces.cshtml")
-    File.WriteAllText(@"C:\temp\ndocs\index.html", out)
+    let out = razor.ProcessFile(layoutRoot / namespaceTemplate)
+    File.WriteAllText(outDir / "index.html", out)
 
-    let razor = Formatter.RazorRender(@"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates")
+    let razor = Formatter.RazorRender(layoutRoot)
     for ns in asm.Namespaces do
       for modul in ns.Modules do
         razor.Model <- box (ModuleInfo.Create(modul, asm))
-        let out = razor.ProcessFile(@"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates\module.cshtml")
-        File.WriteAllText(@"C:\temp\ndocs\" + modul.UrlName + ".html", out)
-    let razor = Formatter.RazorRender(@"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates")
+        let out = razor.ProcessFile(layoutRoot / moduleTemplate)
+        File.WriteAllText(outDir / (modul.UrlName + ".html"), out)
+
+    let razor = Formatter.RazorRender(layoutRoot)
     for ns in asm.Namespaces do
       for typ in ns.Types do
         razor.Model <- box (TypeInfo.Create(typ, asm))
-        let out = razor.ProcessFile(@"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates\type.cshtml")
-        File.WriteAllText(@"C:\temp\ndocs\" + typ.UrlName + ".html", out)
+        let out = razor.ProcessFile(layoutRoot / typeTemplate)
+        File.WriteAllText(outDir / (typ.UrlName + ".html"), out)
 
-  do main()
+// let dllFile = @"C:\dev\FSharp.DataFrame\bin\FSharp.DataFrame.dll"
+// let layoutRoot = @"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates"

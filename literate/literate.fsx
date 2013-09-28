@@ -183,8 +183,6 @@ and command looks like `(*** key1:value, key2:value ***)` (and should be single 
 *)
 module internal CodeBlockUtils =
   (*[omit:(Implementation omitted)]*)
-  open CommandUtils
-
   type Block = 
     | BlockComment of string
     | BlockSnippet of Line list 
@@ -324,7 +322,6 @@ module internal SourceProcessors =
       ErrorHandler : option<string * SourceError -> unit> }
 
   (*[omit:(Implementation omitted)]*)
-  open CommandUtils
   open CodeBlockUtils
   open LiterateUtils
   
