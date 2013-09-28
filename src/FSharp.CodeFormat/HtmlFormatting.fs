@@ -100,7 +100,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
 
   | Output(body) ->
       ctx.Writer.Write("<span class=\"fsi\">")
-      ctx.Writer.Write(body)
+      ctx.Writer.Write(HttpUtility.HtmlEncode(body))
       ctx.Writer.Write("</span>")
 
   | Omitted(body, hidden) ->

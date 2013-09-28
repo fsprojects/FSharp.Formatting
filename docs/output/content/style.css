@@ -60,10 +60,10 @@ pre, table.pre td {
 }
 pre, table.pre {
   margin: 0px 0px 10px 0px;
+  width:95%;
 }
 table.pre td.lines {
-  border-top-right-radius:0px;
-  border-bottom-right-radius:0px;
+  width:35px;
   border-right-style: none;
   padding-right:0px;
 }

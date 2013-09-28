@@ -4,6 +4,8 @@ src/FSharp.CodeFormat.Tests/bin
 src/FSharp.CodeFormat.Tests/obj
 src/FSharp.Markdown/bin
 src/FSharp.Markdown/obj
+src/FSharp.MetadataFormat/bin
+src/FSharp.MetadataFormat/obj
 src/FSharp.Markdown.Tests/bin
 src/FSharp.Markdown.Tests/obj
 src/FSharp.Literate.Tests/bin
@@ -13,3 +15,4 @@ bin/
 nuget/*.nupkg
 docs/output/*.html
 literate/outputs/*
+packages/
