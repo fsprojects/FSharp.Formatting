@@ -560,7 +560,7 @@ module internal SourceProcessors =
         // Process F# script file, report errors & build lookup table for replacement
         let modul = "module " + (new String(name |> Seq.filter Char.IsLetter |> Seq.toArray))
         let source = modul + "\r\n" + (String.concat "\n\n" blocks)
-        let snippets, errors = ctx.FormatAgent.ParseSource(output + ".fs", source, ctx.Options)
+        let snippets, errors = ctx.FormatAgent.ParseSource(output + ".fsx", source, ctx.Options)
         reportErrors ctx file errors
         let formatted = 
             match ctx.OutputKind with
