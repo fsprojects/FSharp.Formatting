@@ -11,7 +11,7 @@ with type information. The package also comes with a sample that implements lite
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The F# Formatting Library is available as <a href="https://nuget.org/packages/FSharp.Data">FSharp.Formatting on NuGet</a>.
+      The F# Formatting Library is available as <a href="https://nuget.org/packages/FSharp.Formatting">FSharp.Formatting on NuGet</a>.
       To install it, run the following command in the <a href="http://docs.nuget.org/docs/start-here/using-the-package-manager-console">Package Manager Console</a>:
       <pre>PM> Install-Package FSharp.Formatting</pre>
     </div>
