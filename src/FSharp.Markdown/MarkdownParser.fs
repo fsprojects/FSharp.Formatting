@@ -371,11 +371,17 @@ let (|TakeParagraphLines|_|) input =
   | matching, rest when matching <> [] -> Some(matching, rest)
   | _ -> None
 
-/// Recognize nested HTML block
-/// TODO: This is too simple - takes paragraph that starts with <
-let (|HtmlBlock|_|) = function
-  | first::_ & TakeParagraphLines(html, rest) when first.StartsWith("<") ->
-      Some(html, rest)
+/// Recognize nested HTML block.
+/// Standard markdown allows to include blocks of HTML between balanced tags that are separated
+/// from the surrounding text with blank lines, and start and end at the left margin.
+let (|HtmlBlock|_|) input = 
+  let rec loop first last acc = function
+    | head::tail when not (String.IsNullOrWhiteSpace(head)) ->
+        loop (if String.IsNullOrEmpty(first) then head else first) head (head::acc) tail
+    | rest -> first, last, List.rev acc, rest
+  match loop "" "" [] input with
+  | (String.StartsWith "<" s, String.StartsAndEndsWith ("</", ">") tag, html, rest) when s.StartsWith(tag) ->
+      Some(html, rest)  
   | _ -> None
 
 /// Continues taking lines until a whitespace line or start of a blockquote
@@ -466,12 +472,9 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | Heading(n, body, Lines.TrimBlankStart lines) ->
       yield Heading(n, parseSpans body)
       yield! parseParagraphs ctx lines 
-  | HtmlBlock(code, Lines.TrimBlankStart lines) when 
-        ( let all = String.concat ctx.Newline code
-          not (all.StartsWith("<http://")) && not (all.StartsWith("<ftp://")) && not (all.Contains("@")) ) ->
-      let all = String.concat ctx.Newline code
-      yield HtmlBlock(all)
-      yield! parseParagraphs ctx lines 
+  | HtmlBlock(html, Lines.TrimBlankStart rest) ->
+      yield HtmlBlock(String.concat ctx.Newline html)
+      yield! parseParagraphs ctx rest
   | TakeParagraphLines(lines, Lines.TrimBlankStart rest) ->      
       yield Paragraph (parseSpans (String.concat ctx.Newline lines))
       yield! parseParagraphs ctx rest 
