@@ -374,6 +374,7 @@ let (|TakeParagraphLines|_|) input =
 /// Recognize nested HTML block.
 /// Standard markdown allows to include blocks of HTML between balanced tags that are separated
 /// from the surrounding text with blank lines, and start and end at the left margin.
+/// Also treats as HTML one line paragraphs that starts with open tag bracket and doesn't contain @.
 let (|HtmlBlock|_|) input = 
   let rec loop first last acc = function
     | head::tail when not (String.IsNullOrWhiteSpace(head)) ->
@@ -382,6 +383,9 @@ let (|HtmlBlock|_|) input =
   match loop "" "" [] input with
   | (String.StartsWith "<" s, String.StartsAndEndsWith ("</", ">") tag, html, rest) when s.StartsWith(tag) ->
       Some(html, rest)  
+  | (f, _, html, rest) when (List.length html) = 1 && f.StartsWith("<") && not (f.StartsWith("<http://")) &&
+                            not (f.StartsWith("<ftp://")) && not (f.Contains("@")) ->
+      Some(html, rest)      
   | _ -> None
 
 /// Continues taking lines until a whitespace line or start of a blockquote
