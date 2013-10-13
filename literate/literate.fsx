@@ -14,6 +14,7 @@ and `FSharp.CodeFormat.dll` to colorize F# source & parse Markdown:
 namespace FSharp.Literate
 #if INTERACTIVE
 #I "../bin/"
+#I "../lib/net40/"
 #r "System.Web.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.CodeFormat.dll"
