@@ -1,0 +1,10 @@
+FSharp.Formatting.Tests.v11.suo
+FSharp.Formatting.v11.suo
+FSharp.Formatting.VisualState.xml
+TestResults.xml
+TestResult.xml
+bin/
+packages/
+src/
+tests/
+tools/
