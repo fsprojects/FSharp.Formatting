@@ -5,14 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5debd769-d86e-4e14-abf1-373ca91bfaa2}</ProjectGuid>
+    <ProjectGuid>{07de4905-050c-4378-a039-f1ef7e1f309d}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>FSharp.CodeFormat.Tests</RootNamespace>
-    <AssemblyName>FSharp.CodeFormat.Tests</AssemblyName>
+    <RootNamespace>FSharp.Markdown.Tests</RootNamespace>
+    <AssemblyName>FSharp.Markdown.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <Name>FSharp.CodeFormat.Tests</Name>
+    <Name>FSharp.Markdown.Tests</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Debug\FSharp.CodeFormat.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Markdown.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
-    <DocumentationFile>bin\Release\FSharp.CodeFormat.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Markdown.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +43,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FSharp.CodeFormat.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\FSharp.Markdown.Tests.XML</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -53,7 +53,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharp.CodeFormat.Tests.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\FSharp.Markdown.Tests.XML</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
@@ -67,19 +67,14 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Program.fsx" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Markdown">
+      <HintPath>..\..\bin\FSharp.Markdown.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
-      <Name>FSharp.CodeFormat</Name>
-      <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.

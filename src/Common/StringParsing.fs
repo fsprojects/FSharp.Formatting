@@ -169,6 +169,13 @@ let (|ParseCommands|_|) (str:string) =
         if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
         elif kv.Length = 1 then yield kv.[0].Trim(), "" ] 
   if kvs <> [] then Some(dict kvs) else None
+
+/// Utility for parsing commands - this deals with a single command.
+let (|ParseCommand|_|) (cmd:string) = 
+  let kv = cmd.Split([| '='; ':' |])
+  if kv.Length = 2 then Some(kv.[0].Trim(), kv.[1].Trim())
+  elif kv.Length = 1 then Some(kv.[0].Trim(), "")
+  else None
   
 /// Lookup in a dictionary
 let (|Command|_|) k (d:IDictionary<_, _>) =

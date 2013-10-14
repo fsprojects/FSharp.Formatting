@@ -1,12 +1,5 @@
 ﻿namespace FSharp.MetadataFormat
 
-
-#if INTERACTIVE
-#r @"..\..\lib\FSharp.PowerPack.Metadata.dll"
-#r "System.Xml.Linq.dll"
-#r @"..\..\packages\RazorEngine.3.3.0\lib\net40\RazorEngine.dll"
-#endif
-
 open System
 open System.Reflection
 open System.Collections.Generic
@@ -17,11 +10,12 @@ open System.Xml.Linq
 
 type Comment =
   { Blurb : string
-    FullText : string }
+    FullText : string
+    Sections : list<KeyValuePair<string, string>> }
   static member Empty =
-    { Blurb = ""; FullText = "" }
-  static member Create(blurb, full) = 
-    { Blurb = blurb; FullText = full }
+    { Blurb = ""; FullText = ""; Sections = [] }
+  static member Create(blurb, full, sects) = 
+    { Blurb = blurb; FullText = full; Sections = sects }
 
 type MemberOrValue = 
   { Usage : int -> string 
@@ -35,23 +29,39 @@ type MemberOrValue =
     { Usage = usage; Modifiers = mods; TypeArguments = typars;
       Signature = sign }
 
+type MemberKind = 
+  // In a module
+  | ValueOrFunction = 0
+  | TypeExtension = 1
+  | ActivePattern = 2
+
+  // In a class
+  | Constructor = 3 
+  | InstanceMember = 4
+  | StaticMember = 5 
+
 type Member =
   { Name : string
+    Category : string
+    Kind : MemberKind
     Details : MemberOrValue
     Comment : Comment }
-  static member Create(name, details, comment) = 
-    { Member.Name = name; Details = details; Comment = comment }
+  static member Create(name, kind, cat, details, comment) = 
+    { Member.Name = name; Kind = kind;
+      Category = cat; Details = details; Comment = comment }
 
 type Type = 
   { Name : string 
     UrlName : string
     Comment : Comment 
 
+    AllMembers : Member list
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
   static member Create(name, url, comment, ctors, inst, stat) = 
     { Type.Name = name; UrlName = url; Comment = comment;
+      AllMembers = List.concat [ ctors; inst; stat] ;
       Constructors = ctors; InstanceMembers = inst; StaticMembers = stat }
 
 type Module = 
@@ -59,11 +69,13 @@ type Module =
     UrlName : string
     Comment : Comment
     
+    AllMembers : Member list
     ValuesAndFuncs : Member list
     TypeExtensions : Member list
     ActivePatterns : Member list }
   static member Create(name, url, comment, vals, exts, pats) = 
-    { Module.Name = name; UrlName = url; Comment = comment 
+    { Module.Name = name; UrlName = url; Comment = comment;
+      AllMembers = List.concat [ vals; exts; pats ] 
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
 
 type Namespace = 
@@ -359,13 +371,19 @@ module Reader =
     for par in doc.Paragraphs do
       match par with 
       | Heading(2, [Literal text]) -> 
-          current <- text.Trim().ToLowerInvariant()
+          current <- text.Trim()
           groups.Add(current, [par])
       | par -> 
           groups.[current] <- par::groups.[current]
     let blurb = Markdown.WriteHtml(MarkdownDocument(List.rev groups.["<default>"], doc.DefinedLinks))
     let full = Markdown.WriteHtml(doc)
-    Comment.Create(blurb, full)
+
+    let sections = 
+      [ for (KeyValue(k, v)) in groups ->
+          let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
+          let html = Markdown.WriteHtml(MarkdownDocument(body, doc.DefinedLinks))
+          KeyValuePair(k, html) ]
+    Comment.Create(blurb, full, sections)
           
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
@@ -379,8 +397,8 @@ module Reader =
             let cmds = new System.Collections.Generic.Dictionary<_, _>()
             let text =
               lines |> Seq.filter (function
-                | String.StartsWithWrapped ("[", "]") (ParseCommands local, rest) -> 
-                    for kvp in local do cmds.Add(kvp.Key, kvp.Value)
+                | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
+                    cmds.Add(k, v)
                     false
                 | _ -> true) |> String.concat "\n"
             let doc = Markdown.Parse(text)
@@ -392,20 +410,23 @@ module Reader =
   let readChildren ctx entities reader cond = 
     entities |> Seq.filter cond |> Seq.map (reader ctx) |> List.ofSeq
 
-  let tryReadMember (ctx:ReadingContext) (memb:FSharpMemberOrVal) =
+  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrVal) =
     let cmds, comment = readCommentAndCommands ctx memb.XmlDocSig
-    if cmds.ContainsKey("omit") then None
-    else Some(Member.Create(memb.DisplayName, readMemberOrVal memb, comment))
+    match cmds with
+    | Command "omit" _ -> None
+    | Command "category" cat 
+    | Let "" (cat, _) -> 
+        Some(Member.Create(memb.DisplayName, kind, cat, readMemberOrVal memb, comment))
 
-  let readAllMembers ctx (members:seq<FSharpMemberOrVal>) = 
+  let readAllMembers ctx kind (members:seq<FSharpMemberOrVal>) = 
     members 
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
-    |> Seq.choose (tryReadMember ctx) |> List.ofSeq
+    |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
-  let readMembers ctx (entity:FSharpEntity) cond = 
+  let readMembers ctx kind (entity:FSharpEntity) cond = 
     entity.MembersOrValues 
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
-    |> Seq.filter cond |> Seq.choose (tryReadMember ctx) |> List.ofSeq
+    |> Seq.filter cond |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readType (ctx:ReadingContext) (typ:FSharpEntity) =
     let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.Namespace typ.CompiledName)
@@ -424,21 +445,26 @@ module Reader =
         iimpls |> List.iter (fun i -> 
             newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>"))) 
     *)
-    let ctors = readAllMembers ctx cvals 
-    let inst = readAllMembers ctx ivals 
-    let stat = readAllMembers ctx svals 
+    let cmd, comment = readCommentAndCommands ctx typ.XmlDocSig
+    // TODO: omit
+
+    let ctors = readAllMembers ctx MemberKind.Constructor cvals 
+    let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
+    let stat = readAllMembers ctx MemberKind.StaticMember svals 
     Type.Create
-      ( typ.DisplayName, urlName, readComment ctx typ.XmlDocSig,
-        ctors, inst, stat )
+      ( typ.DisplayName, urlName, comment, ctors, inst, stat )
 
   let readModule (ctx:ReadingContext) (modul:FSharpEntity) =
+    let cmd, comment = readCommentAndCommands ctx modul.XmlDocSig
+    // TODO: omit
+
     let urlName = ctx.UniqueUrlName (sprintf "%s.%s" modul.Namespace modul.CompiledName)
-    let vals = readMembers ctx modul (fun v -> not v.IsMember && not v.IsActivePattern)
-    let exts = readMembers ctx modul (fun v -> v.IsExtensionMember)
-    let pats = readMembers ctx modul (fun v -> v.IsActivePattern)
+    let vals = readMembers ctx MemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
+    let exts = readMembers ctx MemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
+    let pats = readMembers ctx MemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
 
     Module.Create
-      ( modul.DisplayName, urlName, readComment ctx modul.XmlDocSig,
+      ( modul.DisplayName, urlName, comment,
         vals, exts, pats )
 
   let readNamespace ctx (ns, entities:seq<FSharpEntity>) =
@@ -525,6 +551,19 @@ module Formatter =
         failwithf "Processing the file '%s' failed with exception:\n%O\nSource written to: '%s'." source ex csharp
 
 open System.IO
+open System.Threading.Tasks
+
+module Parallel = 
+  let pfor (input:seq<_>) (localInit:unit -> _) body =
+    Parallel.ForEach(input, Func<'TLocal>(localInit), Func<_, ParallelLoopState, 'TLocal, 'TLocal>(body), Action<_>(fun _ -> ())) |> ignore
+
+module Log = 
+  let printer = MailboxProcessor.Start(fun inbox -> async {
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+    while true do
+      let! msg = inbox.Receive()
+      printfn "[%d sec] %s" (sw.ElapsedMilliseconds / 1000L) msg })
+  let logf fmt = Printf.kprintf printer.Post fmt 
 
 type MetadataFormat = 
   static member Generate(dllFile, outDir, layoutRoot, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
@@ -543,27 +582,37 @@ type MetadataFormat =
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
     
+    Log.logf "Reading assembly: %s" dllFile
     let asm = FSharpAssembly.FromFile(dllFile)
+    Log.logf "Parsing assembly"
     let asm = Reader.readAssembly asm xmlFile
     
+    Log.logf "Starting razor engine"
     let razor = Formatter.RazorRender(layoutRoot)
     razor.Model <- box asm
+
+    Log.logf "Generating: index.html"
     let out = razor.ProcessFile(layoutRoot / namespaceTemplate)
     File.WriteAllText(outDir / "index.html", out)
 
-    let razor = Formatter.RazorRender(layoutRoot)
-    for ns in asm.Namespaces do
-      for modul in ns.Modules do
-        razor.Model <- box (ModuleInfo.Create(modul, asm))
-        let out = razor.ProcessFile(layoutRoot / moduleTemplate)
-        File.WriteAllText(outDir / (modul.UrlName + ".html"), out)
+    Log.logf "Generating modules..."
+    let modules = [ for ns in asm.Namespaces do yield! ns.Modules ]
+    
+    Parallel.pfor modules (fun () -> Formatter.RazorRender(layoutRoot)) (fun modul _ razor -> 
+      Log.logf "Generating module: %s" modul.UrlName
+      razor.Model <- box (ModuleInfo.Create(modul, asm))
+      let out = razor.ProcessFile(layoutRoot / moduleTemplate)
+      File.WriteAllText(outDir / (modul.UrlName + ".html"), out)
+      Log.logf "Finished module: %s" modul.UrlName
+      razor)
 
-    let razor = Formatter.RazorRender(layoutRoot)
-    for ns in asm.Namespaces do
-      for typ in ns.Types do
-        razor.Model <- box (TypeInfo.Create(typ, asm))
-        let out = razor.ProcessFile(layoutRoot / typeTemplate)
-        File.WriteAllText(outDir / (typ.UrlName + ".html"), out)
+    Log.logf "Generating types..."
+    let types = [ for ns in asm.Namespaces do yield! ns.Types ]
 
-// let dllFile = @"C:\dev\FSharp.DataFrame\bin\FSharp.DataFrame.dll"
-// let layoutRoot = @"C:\dev\FSharp.Formatting\src\FSharp.MetadataFormat\templates"
+    Parallel.pfor types (fun () -> Formatter.RazorRender(layoutRoot)) (fun typ _ razor -> 
+      Log.logf "Generating type: %s" typ.UrlName
+      razor.Model <- box (TypeInfo.Create(typ, asm))
+      let out = razor.ProcessFile(layoutRoot / typeTemplate)
+      File.WriteAllText(outDir / (typ.UrlName + ".html"), out)
+      Log.logf "Finished type: %s" typ.UrlName
+      razor)

@@ -73,10 +73,10 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\FSharpX\Collections.fs">
+    <Compile Include="..\Common\Collections.fs">
       <Link>Collections.fs</Link>
     </Compile>
-    <Compile Include="..\FSharpX\StringParsing.fs">
+    <Compile Include="..\Common\StringParsing.fs">
       <Link>StringParsing.fs</Link>
     </Compile>
     <Compile Include="CommentFilter.fs" />
