@@ -262,11 +262,13 @@ type CodeFormatAgent(fsharpCompiler) =
           Snippet(title, parsed))
   
     let sourceErrors = 
-      [| for errInfo in errors ->
-           SourceError
-            ( (errInfo.StartLine, errInfo.StartColumn), (errInfo.EndLine, errInfo.EndColumn),
-              (if errInfo.Severity = Severity.Error then ErrorKind.Error else ErrorKind.Warning),
-              errInfo.Message ) |]
+      [| for errInfo in errors do
+          if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+           yield 
+             SourceError
+               ( (errInfo.StartLine, errInfo.StartColumn), (errInfo.EndLine, errInfo.EndColumn),
+                 (if errInfo.Severity = Severity.Error then ErrorKind.Error else ErrorKind.Warning),
+                 errInfo.Message ) |]
     return parsedSnippets, sourceErrors }
  
   // ------------------------------------------------------------------------------------

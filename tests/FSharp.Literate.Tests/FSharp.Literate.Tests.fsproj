@@ -20,7 +20,7 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\FSharp.Literate.Tests.XML</DocumentationFile>
@@ -32,7 +32,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\FSharp.Literate.Tests.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
@@ -42,12 +42,6 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition="(!Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')) And (Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets'))" />
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="(!Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')) And (!Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets')) And (Exists('$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets'))" />
   <ItemGroup>
-    <Compile Include="../../literate/StringParsing.fs">
-      <Link>StringParsing.fs</Link>
-    </Compile>
-    <Compile Include="../../literate/literate.fsx">
-      <Link>Literate.fsx</Link>
-    </Compile>
     <Compile Include="Program.fs" />
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -65,6 +59,9 @@
   <ItemGroup>
     <Reference Include="FSharp.CodeFormat">
       <HintPath>..\..\bin\FSharp.CodeFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Literate">
+      <HintPath>..\..\bin\FSharp.Literate.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Markdown">
       <HintPath>..\..\bin\FSharp.Markdown.dll</HintPath>

@@ -1,24 +1,8 @@
-﻿(**
-Literate programming for F#
-===========================
+﻿namespace FSharp.Literate
 
-Implementation
---------------
-
-This document is written as a literate F# script file, so the remaining text
-is an overview of the implementation. The implementation uses `FSharp.Markdown.dll`
-and `FSharp.CodeFormat.dll` to colorize F# source & parse Markdown:
-*)
-
-(*** hide ***)
-namespace FSharp.Literate
-#if INTERACTIVE
-#I "../bin/"
-#r "System.Web.dll"
-#r "FSharp.Markdown.dll"
-#r "FSharp.CodeFormat.dll"
-#load "StringParsing.fs"
-#endif
+// --------------------------------------------------------------------------------------
+// Literate programming tools for F#
+// --------------------------------------------------------------------------------------
 
 open System
 open System.IO
@@ -30,18 +14,11 @@ open FSharp.Patterns
 open FSharp.CodeFormat
 open FSharp.Markdown
 
-(** 
-### OutputKind type
-
-The following type defines the two possible output types from literate script:
-HTML and LaTeX.
-
-*)
+/// Defines the two possible output types from literate script: HTML and LaTeX.
 [<RequireQualifiedAccess>]
 type OutputKind =
   | Html
   | Latex
-  (*[omit:(members omitted)]*)
 
   /// Name of the format (used as a file extension)
   override x.ToString() = 
@@ -61,17 +38,17 @@ type OutputKind =
     match x with 
     | OutputKind.Html -> "document" 
     | OutputKind.Latex -> "contents" 
-  (*[/omit]*)
 
-(** 
-### LiterateUtils module
 
-Utilities for processing Markdown documents - extract links for references,
-add links to references, extract code blocks for colorization and replace them
-with formatted HTML (after running F# code formatter)
-*)
+// --------------------------------------------------------------------------------------
+// Processing Markdown documents
+// --------------------------------------------------------------------------------------
+
+/// [omit]
+/// Utilities for processing Markdown documents - extract links for references,
+/// add links to references, extract code blocks for colorization and replace them
+/// with formatted HTML (after running F# code formatter)
 module internal LiterateUtils = 
-  (*[omit:(Implementation omitted)]*)
 
   /// Given Markdown document, get the keys of all IndirectLinks 
   /// (to be used when generating paragraph with all references)
@@ -171,18 +148,17 @@ module internal LiterateUtils =
           let doc = MarkdownDocument([Span(text)], dict [])
           Some(outputKind.Format(doc))
       | _ -> None)
-  (*[/omit]*)
 
-(**
-### CodeBlockUtils module
+// --------------------------------------------------------------------------------------
+// CodeBlockUtils module
+// --------------------------------------------------------------------------------------
 
-Parsing of F# Script files with Markdown commands. Given a parsed script file, we 
-split it into a sequence of comments, snippets and commands (comment starts with 
-`(**` and ending with `*)` are translated to Markdown, snippet is all other F# code 
-and command looks like `(*** key1:value, key2:value ***)` (and should be single line).
-*)
+/// [omit]
+/// Parsing of F# Script files with Markdown commands. Given a parsed script file, we 
+/// split it into a sequence of comments, snippets and commands (comment starts with 
+/// `(**` and ending with `*)` are translated to Markdown, snippet is all other F# code 
+/// and command looks like `(*** key1:value, key2:value ***)` (and should be single line).
 module internal CodeBlockUtils =
-  (*[omit:(Implementation omitted)]*)
   type Block = 
     | BlockComment of string
     | BlockSnippet of Line list 
@@ -286,15 +262,15 @@ module internal CodeBlockUtils =
       | current::rest ->
           loop defns (current::normal) rest
     defns |> List.ofSeq |> loop [] [] 
-  (*[/omit]*)
 
-(**
-### SourceProcessors module
+// --------------------------------------------------------------------------------------
+// SourceProcessors module
+// --------------------------------------------------------------------------------------
 
-Functions that process `*.fsx` and `*.md` files. The function `processScriptFile`
-assumes that the file is an F# script file (with text hidden in comments) while 
-`processMarkdown` assumes that all F# code is included as code snippets.
-*)
+/// [omit]
+// Functions that process `*.fsx` and `*.md` files. The function `processScriptFile`
+// assumes that the file is an F# script file (with text hidden in comments) while 
+// `processMarkdown` assumes that all F# code is included as code snippets.
 module internal SourceProcessors = 
 
   /// Specifies a context that is passed to the 
@@ -321,7 +297,6 @@ module internal SourceProcessors =
       // Custom function for reporting errors 
       ErrorHandler : option<string * SourceError -> unit> }
 
-  (*[omit:(Implementation omitted)]*)
   open CodeBlockUtils
   open LiterateUtils
   
@@ -436,8 +411,9 @@ module internal SourceProcessors =
     !heading
 
   // ------------------------------------------------------------------------------------
+  // Process F# Script file
+  // ------------------------------------------------------------------------------------
 
-  /// Process F# Script file
   let processScriptFile ctx file output =
     let name = Path.GetFileNameWithoutExtension(file)
 
@@ -521,8 +497,9 @@ module internal SourceProcessors =
     File.WriteAllText(output, replaceParameters parameters ctx.Template)
 
   // ------------------------------------------------------------------------------------
+  // Process Markdown document
+  // ------------------------------------------------------------------------------------
 
-  /// Process Markdown document
   let processMarkdown ctx file output =
     // Read file & parse Markdown document
     let name = Path.GetFileNameWithoutExtension(file)
@@ -592,99 +569,3 @@ module internal SourceProcessors =
         ctx.OutputKind.ContentTag, ctx.OutputKind.Format(MarkdownDocument(paragraphs, doc.DefinedLinks))
         "tooltips", tipsHtml ]
     File.WriteAllText(output, replaceParameters parameters ctx.Template)
-  (*[/omit]*)
-
-
-(** 
-
-## Public API
-
-The following type provides three simple methods for calling the literate programming tool.
-The `ProcessMarkdown` and `ProcessScriptFile` methods process a single Markdown document
-and F# script, respectively. The `ProcessDirectory` method handles an entire directory tree
-(looking for `*.fsx` and `*.md` files).
-*)
-open SourceProcessors
- 
-type Literate = 
-  (*[omit:(Helper methdods omitted)]*)
-  /// Provides default values for all optional parameters
-  static member private DefaultArguments
-      ( input, templateFile, output,format, fsharpCompiler, prefix, compilerOptions, 
-        lineNumbers, references, replacements, includeSource, errorHandler) = 
-    let defaultArg v f = match v with Some v -> v | _ -> f()
-
-    let outputKind = defaultArg format (fun _ -> OutputKind.Html)
-
-    let output = defaultArg output (fun () ->
-      let dir = Path.GetDirectoryName(input)
-      let file = Path.GetFileNameWithoutExtension(input)
-      Path.Combine(dir, sprintf "%s.%O" file outputKind))
-    let fsharpCompiler = defaultArg fsharpCompiler (fun () -> 
-      Assembly.Load("FSharp.Compiler"))
-    
-    // Build & return processing context
-    let ctx = 
-      { FormatAgent = CodeFormat.CreateAgent(fsharpCompiler) 
-        Template = templateFile |> Option.map (fun file -> File.ReadAllText(file))
-        Prefix = defaultArg prefix (fun () -> "fs")
-        Options = defaultArg compilerOptions (fun () -> "")
-        GenerateLineNumbers = defaultArg lineNumbers (fun () -> true)
-        GenerateReferences = defaultArg references (fun () -> false)
-        Replacements = defaultArg replacements (fun () -> []) 
-        IncludeSource = defaultArg includeSource (fun () -> false) 
-        OutputKind = outputKind
-        ErrorHandler = errorHandler }
-    output, ctx(*[/omit]*)
-
-  /// Process Markdown document
-  static member ProcessMarkdown
-    ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
-    let output, ctx = 
-      Literate.DefaultArguments
-        ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler )
-    processMarkdown ctx input output (*[/omit]*)
-
-  /// Process F# Script file
-  static member ProcessScriptFile
-    ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
-    let output, ctx = 
-      Literate.DefaultArguments
-        ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler )
-    processScriptFile ctx input output (*[/omit]*)
-
-  /// Process directory containing a mix of Markdown documents and F# Script files
-  static member ProcessDirectory
-    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = (*[omit:(...)]*)
-    let _, ctx = 
-      Literate.DefaultArguments
-        ( "", templateFile, Some "", format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler )
- 
-    /// Recursively process all files in the directory tree
-    let rec processDirectory indir outdir = 
-      // Create output directory if it does not exist
-      if Directory.Exists(outdir) |> not then
-        try Directory.CreateDirectory(outdir) |> ignore 
-        with _ -> failwithf "Cannot create directory '%s'" outdir
-
-      let fsx = [ for f in Directory.GetFiles(indir, "*.fsx") -> processScriptFile, f ]
-      let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
-      for func, file in fsx @ mds do
-        let name = Path.GetFileNameWithoutExtension(file)
-        let output = Path.Combine(outdir, sprintf "%s.%O" name ctx.OutputKind)
-
-        // Update only when needed
-        let changeTime = File.GetLastWriteTime(file)
-        let generateTime = File.GetLastWriteTime(output)
-        if changeTime > generateTime then
-          printfn "Generating '%s.%O'" name ctx.OutputKind
-          func ctx file output
-
-    let outputDirectory = defaultArg outputDirectory inputDirectory
-    processDirectory inputDirectory outputDirectory (*[/omit]*)

@@ -33,7 +33,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Release\FSharp.Markdown.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -41,21 +41,20 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>..\..\..\FSharp.Formatting\bin\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>..\..\bin\FSharp.Markdown.xml</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharp.Markdown.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\FSharp.Markdown.xml</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
@@ -67,13 +66,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-   <Compile Include="..\Common\Collections.fs">
+    <Compile Include="..\Common\Collections.fs">
       <Link>Collections.fs</Link>
     </Compile>
     <Compile Include="..\Common\StringParsing.fs">
       <Link>StringParsing.fs</Link>
     </Compile>
-     <Compile Include="Markdown.fs" />
+    <Compile Include="Markdown.fs" />
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />

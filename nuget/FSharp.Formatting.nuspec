@@ -1,25 +1,28 @@
 <?xml version="1.0"?>
 <package >
-  <metadata>
-    <id>FSharp.Formatting</id>
-    <version>1.0.15</version>
-    <authors>Tomas Petricek, Oleg Pestov, Anh-Dung Phan</authors>
-    <owners>Tomas Petricek</owners>
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://github.com/tpetricek/FSharp.Formatting</projectUrl>
     <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/misc/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Provides an F# implementation of Markdown parser and F# code formatter that can used to tokenize F# code and obtain information about tokens including tool tips with type information. The package comes with a sample that implements literate programming for F#.</description>
-    <releaseNotes>Added latex support, tables and better formatting with line numbers</releaseNotes>
+    <summary>@summary@</summary>
+    <description>@description@</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
     <copyright>Copyright 2013</copyright>
-    <tags>F# fsharp formatting markdown code fssnip literate programming</tags>
-    <dependencies />
+    <tags>@tags@</tags>
+    <dependencies>
+      <dependency id="Microsoft.AspNet.Razor" version="2.0.30506.0" />
+      <dependency id="RazorEngine" version="3.3.0" />
+    </dependencies>
   </metadata>
   <files>
-    <file src="..\bin\*.dll" target="lib/net40" />
-    <file src="..\bin\*.pdb" target="lib/net40" />
-    <file src="..\literate\StringParsing.fs" target="literate" />
-    <file src="..\literate\literate.fsx" target="literate" />
+    <file src="..\bin\FSharp.*.dll" target="lib/net40" />
+    <file src="..\bin\FSharp.*.pdb" target="lib/net40" />
+    <file src="..\bin\FSharp.*.xml" target="lib/net40" />
     <file src="..\literate\demo.fsx" target="literate" />
     <file src="..\literate\templates\template-file.html" target="literate/templates" />
     <file src="..\literate\templates\template-project.html" target="literate/templates" />

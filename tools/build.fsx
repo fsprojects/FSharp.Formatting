@@ -12,7 +12,7 @@ let generateDocs() =
   let template = Path.Combine(source, "template.html")
   let templateSideBySide = Path.Combine(source, "template-sidebyside.html")
   let sources = Path.Combine(source, "../docs")
-  let output = Path.Combine(source, "../docs/output")
+  let output = Path.Combine(source, "../generated")
 
   // Additional strings to be replaced in the HTML template
   let projInfo =
