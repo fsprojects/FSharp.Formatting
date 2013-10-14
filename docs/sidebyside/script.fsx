@@ -46,7 +46,7 @@ command.
 let hidden = 42
 
 (** 
-The value will be deffined in the F# code and so you
+The value will be defined in the F# code and so you
 can use it from other (visible) code and get correct
 tool tips:
 *)
