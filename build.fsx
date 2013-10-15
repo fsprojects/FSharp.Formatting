@@ -146,7 +146,7 @@ let gitHome = "https://github.com/tpetricek"
 Target "ReleaseDocs" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "gh-pages"
     Branches.checkoutBranch "gh-pages" "gh-pages"
-    CopyRecursive "docs" "gh-pages" true |> printfn "%A"
+    CopyRecursive "generated" "gh-pages" true |> printfn "%A"
     CommandHelper.runSimpleGitCommand "gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" versionNuGet
     CommandHelper.runSimpleGitCommand "gh-pages" cmd |> printfn "%s"
