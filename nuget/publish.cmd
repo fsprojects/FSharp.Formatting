@@ -1,3 +1,1 @@
-nuget pack
-
-nuget push FSharp.Formatting.1.0.15.nupkg
+@for %%f in (..\bin\*.nupkg) do @..\.nuget\NuGet.exe push %%f
