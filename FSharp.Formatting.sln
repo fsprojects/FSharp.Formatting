@@ -33,6 +33,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
@@ -48,6 +49,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{A7574BE7
 		tools\build.fsx = tools\build.fsx
 		tools\template-sidebyside.html = tools\template-sidebyside.html
 		tools\template.html = tools\template.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Literate", "Literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
+	ProjectSection(SolutionItems) = preProject
+		literate\build.fsx = literate\build.fsx
+		literate\demo.fsx = literate\demo.fsx
+		literate\demo.md = literate\demo.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{EDE95A19-2D92-4F2B-BCF3-1B08A555969D}"
+	ProjectSection(SolutionItems) = preProject
+		docs\content\style.css = docs\content\style.css
+		docs\content\tips.js = docs\content\tips.js
 	EndProjectSection
 EndProject
 Global
@@ -112,5 +126,6 @@ Global
 		{B909A167-1109-4880-8BB8-C1A036B639BD} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
 		{BF4EF348-696A-4771-BD23-C198FBD9D729} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
 		{A7574BE7-0A14-42FD-8C55-330F1C43AE66} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
+		{EDE95A19-2D92-4F2B-BCF3-1B08A555969D} = {57C28077-FFFE-4F57-B31D-344A9288076B}
 	EndGlobalSection
 EndGlobal
