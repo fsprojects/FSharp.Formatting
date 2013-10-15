@@ -11,14 +11,16 @@
     <title>F# Formatting: Documentation tools
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Provides an F# implementation of Markdown parser and F#   code formatter that can used to tokenize F# code and obtain information about   tokens including tool tips with type information. The package comes with a sample   that implements literate programming for F#.">
+    <meta name="description" content="A package for building great F# documentation, samples and blogs">
     <meta name="author" content="Tomas Petricek">
+
     <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="content/style.css" />
-    <script src="content/tips.js" type="text/javascript"></script>
+    
+    <link type="text/css" rel="stylesheet" href="http://tpetricek.github.io/FSharp.Formatting/content/style.css" />
+    <script src="http://tpetricek.github.io/FSharp.Formatting/content/tips.js" type="text/javascript"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -30,7 +32,7 @@
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="https://github.com/fsharp/fsharpbinding">f# binding</a></li>
-          <li><a href="https://github.com/tpetricek/FSharp.Formatting">github page</a></li>
+          <li><a href="http://github.com/tpetricek/FSharp.Formatting">github page</a></li>
         </ul>
         <h3 class="muted">F# Formatting</h3>
       </div>
@@ -49,7 +51,7 @@ with type information. The package also comes with a sample that implements lite
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The F# Formatting Library is available as <a href="https://nuget.org/packages/FSharp.Data">FSharp.Formatting on NuGet</a>.
+      The F# Formatting Library is available as <a href="https://nuget.org/packages/FSharp.Formatting">FSharp.Formatting on NuGet</a>.
       To install it, run the following command in the <a href="http://docs.nuget.org/docs/start-here/using-the-package-manager-console">Package Manager Console</a>:
       <pre>PM> Install-Package FSharp.Formatting</pre>
     </div>
@@ -58,7 +60,7 @@ with type information. The package also comes with a sample that implements lite
 </div>
 
 <p>Alternatively, you can download the <a href="https://github.com/tpetricek/FSharp.Formatting/zipball/master">source as a ZIP file</a>
-or browse the <a href="https://github.com/tpetricek/FSharp.Formatting">GitHub</a> repository.</p>
+or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/release.zip">compiled binaries</a> as a ZIP.</p>
 
 <h2>Documentation</h2>
 
@@ -77,21 +79,27 @@ processor that is available in this library. It includes some basic examples of
 document processing.</p></li>
 <li><p><a href="codeformat.html">F# code formatting</a> - this page provides more details about the F# code
 formatter; it discusses how to call it to obtain information about F# source files.</p></li>
+<li><p><a href="metadata.html">Library documentation tool</a> - provides a brief documentation for a tool
+that generates nice HTML documentation from "XML comments" in your (not just) F# libraries.
+The tool is a replacement of <code>FsHtmlDoc</code> - it uses Razor for easy templating and handles
+comments written in Markdown too.</p></li>
 </ul>
 
-<h3>Contributions</h3>
+<h2>More information</h2>
 
 <p>The project is hosted on <a href="https://github.com/tpetricek/FSharp.Formatting">GitHub</a> where you can 
-<a href="https://github.com/tpetricek/FSharp.Formatting/issues">report issues</a>, fork the project and submit pull requests.</p>
-
-<h3>Library license</h3>
-
-<p>The library is available under Apache 2.0. For more information see the 
+<a href="https://github.com/tpetricek/FSharp.Formatting/issues">report issues</a>, fork the project and submit pull requests.
+Thanks to <a href="https://github.com/ovatsus">Gustavo Guerra</a> for a great build script and 
+<a href="https://github.com/forki">Steffen Forkmann</a> for the great build tool <a href="https://github.com/fsharp/FAKE">FAKE</a>.
+The library is available under Apache 2.0. For more information see the 
 <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License file</a> in the GitHub repository.</p>
 
                     
         </div>
         <div class="span3">
+          <a href="https://nuget.org/packages/FSharp.Formatting">
+            <img src="http://tpetricek.github.io/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
 
           <ul class="nav nav-list" id="menu">
             <li class="nav-header">F# Formatting</li>
@@ -101,17 +109,18 @@ formatter; it discusses how to call it to obtain information about F# source fil
             <li><a href="demo.html">Literate programming</a></li>
             <li><a href="markdown.html">Markdown parser</a></li>
             <li><a href="codeformat.html">F# code formatting</a></li>
+            <li><a href="metadata.html">Library doc tool</a></li>
 
             <li class="nav-header">Examples</li>
             <li><a href="sidescript.html">Literate F# script</a></li>
             <li><a href="sidemarkdown.html">Literate Markdown file</a></li>
 
-            <li class="nav-header">Source code</li>
-            <li><a href="literate.html">Literate.fsx</a></li>
+            <li class="nav-header">Documentation</li>
+            <li><a href="#">API Reference</a> (Coming soon!)</li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="https://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
   </body>
   </html>
