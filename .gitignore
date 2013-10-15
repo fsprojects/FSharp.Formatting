@@ -26,3 +26,6 @@ tools/FAKE/
 *.VisualState.xml
 TestResults.xml
 TestResult.xml
+release/
+generated/
+gh-pages/

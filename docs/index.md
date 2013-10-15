@@ -20,7 +20,7 @@ with type information. The package also comes with a sample that implements lite
 </div>
 
 Alternatively, you can download the [source as a ZIP file](https://github.com/tpetricek/FSharp.Formatting/zipball/master)
-or browse the [GitHub](https://github.com/tpetricek/FSharp.Formatting) repository.
+or download the [compiled binaries](https://github.com/tpetricek/FSharp.Formatting/archive/release.zip) as a ZIP.
 
 Documentation
 -------------
@@ -42,12 +42,17 @@ I hope it is also a good sample showing how to write documentation for F# projec
  - [F# code formatting](codeformat.html) - this page provides more details about the F# code
    formatter; it discusses how to call it to obtain information about F# source files.
 
-### Contributions
+ - [Library documentation tool](metadata.html) - provides a brief documentation for a tool
+   that generates nice HTML documentation from "XML comments" in your (not just) F# libraries.
+   The tool is a replacement of `FsHtmlDoc` - it uses Razor for easy templating and handles
+   comments written in Markdown too. 
+
+More information
+----------------
 
 The project is hosted on [GitHub](https://github.com/tpetricek/FSharp.Formatting) where you can 
 [report issues](https://github.com/tpetricek/FSharp.Formatting/issues), fork the project and submit pull requests.
-
-### Library license
-
+Thanks to [Gustavo Guerra](https://github.com/ovatsus) for a great build script and 
+[Steffen Forkmann](https://github.com/forki) for the great build tool [FAKE](https://github.com/fsharp/FAKE).
 The library is available under Apache 2.0. For more information see the 
 [License file](https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md) in the GitHub repository.

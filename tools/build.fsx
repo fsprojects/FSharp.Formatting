@@ -3,33 +3,48 @@
 // --------------------------------------------------------------------------------------
 
 #I "../bin"
-#load "../literate/literate.fsx"
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.Literate.dll"
+#r "FSharp.MetadataFormat.dll"
 open System.IO
 open FSharp.Literate
+open FSharp.MetadataFormat
+
+let (++) a b = Path.Combine(a, b)
+let source = __SOURCE_DIRECTORY__
+let template = source ++ "template.html"
+let templateSideBySide = source ++ "template-sidebyside.html"
+let sources = source ++ "../docs"
+let output = source ++ "../generated"
+
+// When running locally, you can use your path
+//let root = @"file://C:\dev\FSharp.Formatting\generated"
+let root = "http://tpetricek.github.io/FSharp.Formatting"
+
+// Additional strings to be replaced in the HTML template
+let projInfo =
+  [ "page-author", "Tomas Petricek"
+    "page-description", "A package for building great F# documentation, samples and blogs"
+    "github-link", "http://github.com/tpetricek/FSharp.Formatting"
+    "project-name", "F# Formatting"
+    "root", root ]
+
+// Compiler options (reference the two dll files and System.Web.dll)
+let options = 
+  "--reference:\"" + source + "/../bin/FSharp.CompilerBinding.dll\" " +
+  "--reference:\"" + source + "/../bin/FSharp.CodeFormat.dll\" " +
+  "--reference:\"" + source + "/../bin/FSharp.Markdown.dll\" " +
+  "--reference:System.Web.dll"
 
 let generateDocs() =
-  let source = __SOURCE_DIRECTORY__
-  let template = Path.Combine(source, "template.html")
-  let templateSideBySide = Path.Combine(source, "template-sidebyside.html")
-  let sources = Path.Combine(source, "../docs")
-  let output = Path.Combine(source, "../generated")
-
-  // Additional strings to be replaced in the HTML template
-  let projInfo =
-    [ "page-description", """Provides an F# implementation of Markdown parser and F# 
-        code formatter that can used to tokenize F# code and obtain information about 
-        tokens including tool tips with type information. The package comes with a sample 
-        that implements literate programming for F#.""".Replace("\n","").Replace("      ", "")
-      "page-author", "Tomas Petricek"
-      "github-link", "https://github.com/tpetricek/FSharp.Formatting"
-      "project-name", "F# Formatting" ]
-
-  // Compiler options (reference the two dll files and System.Web.dll)
-  let options = 
-    "--reference:\"" + source + "/../bin/FSharp.CompilerBinding.dll\" " +
-    "--reference:\"" + source + "/../bin/FSharp.CodeFormat.dll\" " +
-    "--reference:\"" + source + "/../bin/FSharp.Markdown.dll\" " +
-    "--reference:System.Web.dll"
+  // Copy all sample data files to the "data" directory
+  let copy = [ sources ++ "misc", output ++ "misc"
+               sources ++ "content", output ++ "content" ]
+  for source, target in copy do
+    if Directory.Exists target then Directory.Delete(target, true)
+    Directory.CreateDirectory target |> ignore
+    for fileInfo in DirectoryInfo(source).EnumerateFiles() do
+        fileInfo.CopyTo(target ++ fileInfo.Name) |> ignore
 
   // Now we can process the samples directory (with some additional references)
   // and then we clean up the files & directories we had to create earlier
@@ -37,20 +52,10 @@ let generateDocs() =
     ( sources, template, output, OutputKind.Html, replacements = projInfo, 
       compilerOptions = options )
 
-  // Process the literate.fsx script separately
-  let changeTime = File.GetLastWriteTime(Path.Combine(source, "../literate/literate.fsx"))
-  let generateTime = File.GetLastWriteTime(Path.Combine(output, "literate.html"))
-  if changeTime > generateTime then
-    printfn "Generating 'literate.html'"
-    Literate.ProcessScriptFile
-      ( Path.Combine(source, "../literate/literate.fsx"), template,
-        Path.Combine(output, "literate.html"), 
-        compilerOptions = options, replacements = projInfo )
-
   // Process the sidebyside/script.fsx script separately
   let scriptInfo = projInfo @ [ "custom-title", "F# Script file: Side-by-side example" ]
-  let changeTime = File.GetLastWriteTime(Path.Combine(source, "../docs/sidebyside/script.fsx"))
-  let generateTime = File.GetLastWriteTime(Path.Combine(output, "sidescript.html"))
+  let changeTime = File.GetLastWriteTime(source ++ "../docs/sidebyside/script.fsx")
+  let generateTime = File.GetLastWriteTime(output ++ "sidescript.html")
   if changeTime > generateTime then
     printfn "Generating 'sidescript.html'"
     Literate.ProcessScriptFile
@@ -60,8 +65,8 @@ let generateDocs() =
 
   // Process the sidebyside/markdown.md file separately
   let scriptInfo = projInfo @ [ "custom-title", "F# Markdown: Side-by-side example" ]
-  let changeTime = File.GetLastWriteTime(Path.Combine(source, "../docs/sidebyside/markdown.md"))
-  let generateTime = File.GetLastWriteTime(Path.Combine(output, "sidemarkdown.html"))
+  let changeTime = File.GetLastWriteTime(source ++ "../docs/sidebyside/markdown.md")
+  let generateTime = File.GetLastWriteTime(output ++ "sidemarkdown.html")
   if changeTime > generateTime then
     printfn "Generating 'sidemarkdown.html'"
     Literate.ProcessMarkdown
