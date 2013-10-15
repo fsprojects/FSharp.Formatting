@@ -8,3 +8,6 @@ packages/
 src/
 tests/
 tools/
+generated/
+gh-pages/
+release/
