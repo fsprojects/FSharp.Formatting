@@ -155,8 +155,16 @@ let (|Heading|_|) = function
       Some(1, header, rest)
   | (String.TrimBoth header) :: (String.TrimEnd (String.EqualsRepeated "-")) :: rest ->
       Some(2, header, rest)
-  | String.StartsWithRepeated "#" (n, String.TrimEndUsing ['#'] header) :: rest ->
-      Some(n, header, rest)
+  | String.StartsWithRepeated "#" (n, header) :: rest ->
+      let header = 
+        // Drop "##" at the end, but only when it is preceded by some whitespace
+        // (For example "## Hello F#" should be "Hello F#")
+        if header.EndsWith "#" then
+          let noHash = header.TrimEnd [| '#' |]
+          if noHash.Length > 0 && Char.IsWhiteSpace(noHash.Chars(noHash.Length - 1)) 
+          then noHash else header
+        else header        
+      Some(n, header.Trim(), rest)
   | rest ->
       None
 

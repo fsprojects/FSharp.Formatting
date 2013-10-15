@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		docs\demo.fsx = docs\demo.fsx
 		docs\index.md = docs\index.md
 		docs\markdown.fsx = docs\markdown.fsx
+		docs\metadata.fsx = docs\metadata.fsx
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Side-by-side", "Side-by-side", "{B909A167-1109-4880-8BB8-C1A036B639BD}"
@@ -45,6 +46,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{A7574BE7-0A14-42FD-8C55-330F1C43AE66}"
 	ProjectSection(SolutionItems) = preProject
 		tools\build.fsx = tools\build.fsx
+		tools\template-sidebyside.html = tools\template-sidebyside.html
+		tools\template.html = tools\template.html
 	EndProjectSection
 EndProject
 Global
@@ -108,5 +111,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{B909A167-1109-4880-8BB8-C1A036B639BD} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
 		{BF4EF348-696A-4771-BD23-C198FBD9D729} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
+		{A7574BE7-0A14-42FD-8C55-330F1C43AE66} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
 	EndGlobalSection
 EndGlobal
