@@ -8,8 +8,7 @@
     <ProjectGuid>{c44c1c05-599a-40dd-9590-465eab8960c5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.Markdown</RootNamespace>
-    <AssemblyName>
-    </AssemblyName>
+    <AssemblyName>FSharp.Markdown</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
