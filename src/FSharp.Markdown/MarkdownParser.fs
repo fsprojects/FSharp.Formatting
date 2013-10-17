@@ -28,6 +28,33 @@ let getLinkAndTitle (String.TrimBoth input) =
     else input, None
   url.TrimStart('<').TrimEnd('>'), title
 
+/// Succeeds when the specified character list starts with an escaped 
+/// character - in that case, returns the character and the tail of the list
+let inline (|EscapedChar|_|) input = 
+  match input with
+  | '\\'::( ( '*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']' 
+            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-') as c) ::rest -> Some(c, rest)
+  | _ -> None
+
+/// Matches a list if it starts with a sub-list that is delimited
+/// using the specified delimiters. Returns a wrapped list and the rest.
+///
+/// This is similar to `List.Delimited`, but it skips over escaped characters.
+let inline (|DelimitedMarkdown|_|) bracket input = 
+  let startl, endl = bracket, bracket
+  // Like List.partitionUntilEquals, but skip over escaped characters
+  let rec loop acc = function
+    | EscapedChar(x, xs) -> loop (x::'\\'::acc) xs
+    | input when List.startsWith endl input -> Some(List.rev acc, input)
+    | x::xs -> loop (x::acc) xs
+    | [] -> None
+  // If it starts with 'startl', let's search for 'endl'
+  if List.startsWith bracket input then
+    match loop [] (List.skip bracket.Length input) with 
+    | Some(pre, post) -> Some(pre, List.skip bracket.Length post)
+    | None -> None
+  else None
+
 /// Recognizes an indirect link written using `[body][key]` or just `[key]`
 /// The key can be preceeded by a space or other single whitespace thing.
 let (|IndirectLink|_|) = function
@@ -53,26 +80,31 @@ let (|DirectLink|_|) = function
 let (|Emphasised|_|) = function
   | (('_' | '*') :: tail) as input ->
     match input with
-    | List.Delimited ['_'; '_'; '_'] (body, rest) 
-    | List.Delimited ['*'; '*'; '*'] (body, rest) -> 
+    | DelimitedMarkdown ['_'; '_'; '_'] (body, rest) 
+    | DelimitedMarkdown ['*'; '*'; '*'] (body, rest) -> 
         Some(body, Emphasis >> List.singleton >> Strong, rest)
-    | List.Delimited ['_'; '_'] (body, rest) 
-    | List.Delimited ['*'; '*'] (body, rest) -> 
+    | DelimitedMarkdown ['_'; '_'] (body, rest) 
+    | DelimitedMarkdown ['*'; '*'] (body, rest) -> 
         Some(body, Strong, rest)
-    | List.Delimited ['_'] (body, rest) 
-    | List.Delimited ['*'] (body, rest) -> 
+    | DelimitedMarkdown ['_'] (body, rest) 
+    | DelimitedMarkdown ['*'] (body, rest) -> 
         Some(body, Emphasis, rest)
     | _ -> None
   | _ -> None
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input = seq {
-  let accLiteral = lazy Literal(String(List.rev acc |> Array.ofList))
+
+  // Zero or one literals, depending whether there is some accumulated input
+  let accLiterals = Lazy.Create(fun () ->
+    if List.isEmpty acc then [] 
+    else [Literal(String(List.rev acc |> Array.ofList))] )
+
   match input with 
   // Recognizes explicit line-break at the end of line
   | ' '::' '::('\n' | '\r')::rest
   | ' '::' '::'\r'::'\n'::rest ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       yield HardLineBreak
       yield! parseChars [] rest
 
@@ -82,21 +114,20 @@ let rec parseChars acc input = seq {
       yield! parseChars (';'::'p'::'m'::'a'::'&'::acc) rest      
 
   // Ignore escaped characters that might mean something else
-  | '\\'::( ( '*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']' 
-            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-') as c) ::rest ->
+  | EscapedChar(c, rest) ->
       yield! parseChars (c::acc) rest
 
   // Inline code delimited either using double `` or single `
   | List.Delimited ['`'; '`'] (body, rest)
   | List.Delimited ['`'] (body, rest) ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       yield InlineCode(String(Array.ofList body).Trim())
       yield! parseChars [] rest
 
   // Inline link wrapped as <http://foo.bar>
   | List.DelimitedWith ['<'] ['>'] (List.AsString link, rest) 
         when link.Contains("@") || link.Contains("://") ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       yield DirectLink([Literal link], (link, None))
       yield! parseChars [] rest
   // Not an inline link - leave as an inline HTML tag
@@ -105,30 +136,30 @@ let rec parseChars acc input = seq {
 
   // Recognize direct link [foo](http://bar) or indirect link [foo][bar] 
   | DirectLink (body, link, rest) ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       let info = getLinkAndTitle (String(Array.ofList link))
       yield DirectLink(parseChars [] body |> List.ofSeq, info)
       yield! parseChars [] rest
   | IndirectLink(body, link, original, rest) ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
       yield IndirectLink(parseChars [] body |> List.ofSeq, original, key)
       yield! parseChars [] rest
 
   // Recognize image - this is a link prefixed with the '!' symbol
   | '!'::DirectLink (body, link, rest) ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       yield DirectImage(String(Array.ofList body), getLinkAndTitle (String(Array.ofList link)))
       yield! parseChars [] rest
   | '!'::IndirectLink(body, link, original, rest) ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
       yield IndirectImage(String(Array.ofList body), original, key)
       yield! parseChars [] rest
 
   // Handle emphasised text
   | Emphasised (body, f, rest) ->
-      yield accLiteral.Value
+      yield! accLiterals.Value
       let body = parseChars [] body |> List.ofSeq
       yield f(body)
       yield! parseChars [] rest
@@ -138,7 +169,7 @@ let rec parseChars acc input = seq {
   | x::xs -> 
       yield! parseChars (x::acc) xs 
   | [] ->
-      yield accLiteral.Value }
+      yield! accLiterals.Value }
 
 /// Parse body of a paragraph into a list of Markdown inline spans      
 let parseSpans (String.TrimBoth s) = 

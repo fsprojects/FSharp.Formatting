@@ -31,3 +31,12 @@ Some more""" |> Markdown.Parse
   |> shouldEqual [
       Heading(2, [Literal "Hello"]); 
       Paragraph [Literal "Some more"]]
+
+[<Test>]
+let ``Can escape special characters such as "*" in emphasis`` () =
+  let doc = """*foo\*\*bar*""" |> Markdown.Parse
+  let expected = Paragraph [Emphasis [Literal "foo**bar"]] 
+  doc.Paragraphs.Head 
+  |> shouldEqual expected
+      
+
