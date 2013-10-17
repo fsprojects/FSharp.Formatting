@@ -70,12 +70,17 @@ type Module =
     Comment : Comment
     
     AllMembers : Member list
+
+    NestedModules : Module list
+    NestedTypes : Type list
+
     ValuesAndFuncs : Member list
     TypeExtensions : Member list
     ActivePatterns : Member list }
-  static member Create(name, url, comment, vals, exts, pats) = 
+  static member Create(name, url, comment, modules, types, vals, exts, pats) = 
     { Module.Name = name; UrlName = url; Comment = comment;
       AllMembers = List.concat [ vals; exts; pats ] 
+      NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
 
 type Namespace = 
@@ -348,6 +353,10 @@ module Reader =
         found
       { XmlMemberMap = map; MarkdownComments = true; UniqueUrlName = nameGen }
 
+  // ----------------------------------------------------------------------------------------------
+  // Helper functions
+  // ----------------------------------------------------------------------------------------------
+
   let removeSpaces (comment:string) =
     use reader = new StringReader(comment)
     let lines = 
@@ -407,16 +416,26 @@ module Reader =
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
-  let readChildren ctx entities reader cond = 
-    entities |> Seq.filter cond |> Seq.map (reader ctx) |> List.ofSeq
+  // ----------------------------------------------------------------------------------------------
+  // Reading entities
+  // ----------------------------------------------------------------------------------------------
 
-  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrVal) =
-    let cmds, comment = readCommentAndCommands ctx memb.XmlDocSig
+  /// Reads XML documentation comments and calls the specified function
+  /// to parse the rest of the entity, unless [omit] command is set.
+  /// The function is called with category name, commands & comment.
+  let readCommentsInto ctx xmlDoc f =
+    let cmds, comment = readCommentAndCommands ctx xmlDoc
     match cmds with
     | Command "omit" _ -> None
     | Command "category" cat 
-    | Let "" (cat, _) -> 
-        Some(Member.Create(memb.DisplayName, kind, cat, readMemberOrVal memb, comment))
+    | Let "" (cat, _) -> Some(f cat cmds comment)
+
+  let readChildren ctx entities reader cond = 
+    entities |> Seq.filter cond |> Seq.choose (reader ctx) |> List.ofSeq
+
+  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrVal) =
+    readCommentsInto ctx memb.XmlDocSig (fun cat _ comment ->
+      Member.Create(memb.DisplayName, kind, cat, readMemberOrVal memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberOrVal>) = 
     members 
@@ -428,48 +447,64 @@ module Reader =
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
     |> Seq.filter cond |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
-  let readType (ctx:ReadingContext) (typ:FSharpEntity) =
-    let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.Namespace typ.CompiledName)
+  // ----------------------------------------------------------------------------------------------
+  // Reading modules types (mutually recursive, because of nesting)
+  // ----------------------------------------------------------------------------------------------
 
-    let ivals, svals = typ.MembersOrValues |> List.ofSeq |> List.partition (fun v -> v.IsInstanceMember)
-    let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
-    
-    // Base types?
-    let iimpls = 
-      if ( not typ.IsAbbreviation && not typ.HasAssemblyCodeRepresentation && 
-           typ.ReflectionType.IsInterface) then [] else typ.Implements |> List.ofSeq
-    (*
-    // TODO: layout base type in some way
-    if not iimpls.IsEmpty then 
-      newTable1 hFile "Interfaces" 40 "Type"  (fun () -> 
-        iimpls |> List.iter (fun i -> 
-            newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>"))) 
-    *)
-    let cmd, comment = readCommentAndCommands ctx typ.XmlDocSig
-    // TODO: omit
-
-    let ctors = readAllMembers ctx MemberKind.Constructor cvals 
-    let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
-    let stat = readAllMembers ctx MemberKind.StaticMember svals 
-    Type.Create
-      ( typ.DisplayName, urlName, comment, ctors, inst, stat )
-
-  let readModule (ctx:ReadingContext) (modul:FSharpEntity) =
-    let cmd, comment = readCommentAndCommands ctx modul.XmlDocSig
-    // TODO: omit
-
-    let urlName = ctx.UniqueUrlName (sprintf "%s.%s" modul.Namespace modul.CompiledName)
-    let vals = readMembers ctx MemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
-    let exts = readMembers ctx MemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
-    let pats = readMembers ctx MemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
-
-    Module.Create
-      ( modul.DisplayName, urlName, comment,
-        vals, exts, pats )
-
-  let readNamespace ctx (ns, entities:seq<FSharpEntity>) =
+  let rec readModulesAndTypes ctx (entities:seq<_>) = 
     let modules = readChildren ctx entities readModule (fun x -> x.IsModule) 
     let types = readChildren ctx entities readType (fun x -> not x.IsModule) 
+    modules, types
+
+  and readType (ctx:ReadingContext) (typ:FSharpEntity) =
+    readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
+      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.Namespace typ.CompiledName)
+
+      let ivals, svals = typ.MembersOrValues |> List.ofSeq |> List.partition (fun v -> v.IsInstanceMember)
+      let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
+    
+      (*
+      // Base types?
+      let iimpls = 
+        if ( not typ.IsAbbreviation && not typ.HasAssemblyCodeRepresentation && 
+             typ.ReflectionType.IsInterface) then [] else typ.Implements |> List.ofSeq
+      // TODO: layout base type in some way
+      if not iimpls.IsEmpty then 
+        newTable1 hFile "Interfaces" 40 "Type"  (fun () -> 
+          iimpls |> List.iter (fun i -> 
+              newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>"))) 
+      *)
+
+
+      let ctors = readAllMembers ctx MemberKind.Constructor cvals 
+      let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
+      let stat = readAllMembers ctx MemberKind.StaticMember svals 
+      Type.Create
+        ( typ.DisplayName, urlName, comment, ctors, inst, stat ))
+
+  and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
+    readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
+    
+      // Properties & value bindings in the module
+      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" modul.Namespace modul.CompiledName)
+      let vals = readMembers ctx MemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
+      let exts = readMembers ctx MemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
+      let pats = readMembers ctx MemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
+
+      // Nested modules and types
+      let modules, types = readModulesAndTypes ctx modul.NestedEntities
+
+      Module.Create
+        ( modul.DisplayName, urlName, comment,
+          modules, types,
+          vals, exts, pats ))
+
+  // ----------------------------------------------------------------------------------------------
+  // Reading namespace and assembly details
+  // ----------------------------------------------------------------------------------------------
+
+  let readNamespace ctx (ns, entities:seq<FSharpEntity>) =
+    let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
   let readAssembly (assembly:FSharpAssembly) (xmlFile:string) =
@@ -490,6 +525,10 @@ module Reader =
       |> Seq.groupBy (fun m -> m.Namespace) |> Seq.sortBy fst
       |> Seq.map (readNamespace ctx) |> List.ofSeq
     Assembly.Create(assemblyName, namespaces)
+
+// ------------------------------------------------------------------------------------------------
+// Main - generating HTML
+// ------------------------------------------------------------------------------------------------
 
 open System.IO
 open RazorEngine
@@ -519,7 +558,26 @@ type Html private() =
   static member Encode(str) = 
     System.Web.HttpUtility.HtmlEncode(str)
 
+module Log = 
+  type LogMessage = Print of string | Run of (unit -> unit)
+
+  let printer = MailboxProcessor.Start(fun inbox -> async {
+    let sw = System.Diagnostics.Stopwatch.StartNew()
+    while true do
+      let! msg = inbox.Receive()
+      match msg with 
+      | Print msg -> printfn "[%d sec] %s" (sw.ElapsedMilliseconds / 1000L) msg 
+      | Run cmd -> cmd () })
+  let logf fmt = Printf.kprintf (Print >> printer.Post) fmt 
+  let output f = printer.Post(Run f)
+
 module Formatter = 
+  // Set console color temporarilly
+  let colored color = 
+    let prev = Console.ForegroundColor
+    Console.ForegroundColor <- color
+    { new IDisposable with
+        member x.Dispose() = Console.ForegroundColor <- prev }
 
   type RazorRender(layoutsRoot) =
     let config = new TemplateServiceConfiguration()
@@ -545,10 +603,18 @@ module Formatter =
         x.ViewBag <- new DynamicViewBag()
         let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, null)
         html
-      with :? TemplateCompilationException as ex -> 
-        let csharp = Path.GetTempFileName() + ".cs"
-        File.WriteAllText(csharp, ex.SourceCode)
-        failwithf "Processing the file '%s' failed with exception:\n%O\nSource written to: '%s'." source ex csharp
+      with 
+      | :? TemplateCompilationException as ex -> 
+          let csharp = Path.GetTempFileName() + ".cs"
+          File.WriteAllText(csharp, ex.SourceCode)
+          Log.output (fun () ->
+            use _c = colored ConsoleColor.Red
+            printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
+            for error in ex.Errors do
+              printfn " - (%d, %d) %s" error.Line error.Column error.ErrorText
+            printfn ""
+          )
+          failwith "Generating HTML failed."
 
 open System.IO
 open System.Threading.Tasks
@@ -556,14 +622,6 @@ open System.Threading.Tasks
 module Parallel = 
   let pfor (input:seq<_>) (localInit:unit -> _) body =
     Parallel.ForEach(input, Func<'TLocal>(localInit), Func<_, ParallelLoopState, 'TLocal, 'TLocal>(body), Action<_>(fun _ -> ())) |> ignore
-
-module Log = 
-  let printer = MailboxProcessor.Start(fun inbox -> async {
-    let sw = System.Diagnostics.Stopwatch.StartNew()
-    while true do
-      let! msg = inbox.Receive()
-      printfn "[%d sec] %s" (sw.ElapsedMilliseconds / 1000L) msg })
-  let logf fmt = Printf.kprintf printer.Post fmt 
 
 type MetadataFormat = 
   static member Generate(dllFile, outDir, layoutRoot, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
@@ -596,7 +654,13 @@ type MetadataFormat =
     File.WriteAllText(outDir / "index.html", out)
 
     Log.logf "Generating modules..."
-    let modules = [ for ns in asm.Namespaces do yield! ns.Modules ]
+
+    let rec nestedModules (modul:Module) = seq {
+      yield modul
+      for n in modul.NestedModules do yield! nestedModules n }
+    let modules = 
+      [ for ns in asm.Namespaces do 
+          for n in ns.Modules do yield! nestedModules n ]
     
     Parallel.pfor modules (fun () -> Formatter.RazorRender(layoutRoot)) (fun modul _ razor -> 
       Log.logf "Generating module: %s" modul.UrlName
@@ -607,7 +671,13 @@ type MetadataFormat =
       razor)
 
     Log.logf "Generating types..."
-    let types = [ for ns in asm.Namespaces do yield! ns.Types ]
+    let rec nestedTypes (modul:Module) = seq {
+      yield! modul.NestedTypes
+      for n in modul.NestedModules do yield! nestedTypes n }
+    let types = 
+      [ for ns in asm.Namespaces do 
+          for n in ns.Modules do yield! nestedTypes n
+          yield! ns.Types ]
 
     Parallel.pfor types (fun () -> Formatter.RazorRender(layoutRoot)) (fun typ _ razor -> 
       Log.logf "Generating type: %s" typ.UrlName
