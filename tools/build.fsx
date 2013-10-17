@@ -49,8 +49,7 @@ let generateDocs() =
   // Now we can process the samples directory (with some additional references)
   // and then we clean up the files & directories we had to create earlier
   Literate.ProcessDirectory
-    ( sources, template, output, OutputKind.Html, replacements = projInfo, 
-      compilerOptions = options )
+    ( sources, template, output, OutputKind.Html, replacements = projInfo )
 
   // Process the sidebyside/script.fsx script separately
   let scriptInfo = projInfo @ [ "custom-title", "F# Script file: Side-by-side example" ]

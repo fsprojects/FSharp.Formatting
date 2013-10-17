@@ -2,17 +2,14 @@
 F# Formatting: Literate programming
 ===================================
 
-The `FSharp.Formatting` package comes with a [simple script][lit] that implements the 
+The `FSharp.Formatting` package comes a library `FSharp.Literate.dll` that implements the 
 idea of _literate programming_. The script uses the F# Markdown processor and code
 formatter to generate nice HTML pages from F# script files (`*.fsx` files) or Markdown
 documents (`*.md` files) containing F# snippets.
 
 The next section of the article discusses the two options and introduces some special
 commands that you can use when writing your script files. The second section shows
-how to use the literate programming script from your F# projects. You can also
-look at some implementation notes generated from the [script itself](literate.html).
-
-  [lit]: https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/literate.fsx
+how to use the literate programming library from your F# projects.
 
 Literate programming 
 --------------------
@@ -106,35 +103,32 @@ The commands are written on the first line of the snippet, wrapped in `[...]`:
    is other than `fsharp`, the snippet is copied to the output as `<pre>` HTML
    tag without any processing.
 
-Using the script
-----------------
+Typical literate setup
+----------------------
 *)
 
 (*** hide ***)
-// NOTE: This is hidden in the output. It makes the tool work even if we
-// provide invalid path later on (in order to document the typical scenario)
 #I "../bin"
-#load "../literate/literate.fsx"
 
 (**
-Using the literate programming script is very easy. If you install the `FSharp.Formatting`
-package using NuGet, it will automatically install the `literate.fsx` file (if you 
-do not want to use nuget, you can just copy the latest version of the file
-from [GitHub](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/literate.fsx)
-and modify it as you need).
+The typical way to setup literate programming support in your project is to reference
+`FSharp.Formatting` using NuGet and then add a simple script file (e.g. `build.fsx`) that
+calls the literate programming tools and generates the HTML (or LaTeX) output from your
+samples. You can find an [example of such file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/build.fsx)
+on GitHub (and it is also copied with NuGet).
 
-Assuming you installed a version 1.0.4 of the package, you can load the 
-script as follows (this assumes you're calling it from another script file
-such as `tools\build.fsx` in your solution directory):
+The typical `build.fsx` script first needs to reference `FSharp.Literate.dll`. Assuming
+you're using version 2.0.2, the reference should look something like this:
 *)
-#I "../packages/FSharp.Formatting.1.0.4/lib/net40"
-#load "../packages/FSharp.Formatting.1.0.4/literate/literate.fsx"
+#I "../packages/FSharp.Formatting.2.0.2/lib/net40"
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.Literate.dll"
 open FSharp.Literate
 open System.IO
 (**
 The first line tells F# interactive to automatically search for `*.dll` assemblies
-in the directory where `FSharp.CodeFormat.dll` and `FSharp.Markdown.dll` are located.
-This is required by the second line, which loads the script.
+in the directory where F# formatting binaries are located. The next two lines references
+the library with all the important functionality.
 
 Now we can open `FSharp.Literate` and use the `Literate` type to process individual
 documents or entire directories.
@@ -193,7 +187,7 @@ file which is included as a sample in the package):
 *)
 
 // Load the template & specify project information
-let template = source + "template-project.html"
+let projTemplate = source + "template-project.html"
 let projInfo =
   [ "page-description", "F# Literate programming"
     "page-author", "Tomas Petricek"
@@ -202,14 +196,14 @@ let projInfo =
 
 // Process all files and save results to 'output' directory
 Literate.ProcessDirectory
-  (source, template, source + "\\output", replacements = projInfo)
+  (source, projTemplate, source + "\\output", replacements = projInfo)
 
 (**
 The sample template `template-project.html` has been used to generate this documentation
 and it includes additional parameters for specifying various information about F#
 projects.
 
-## Generating Latex output
+## Generating LaTeX output
 
 The methods used above (`ProcessScriptFile`, `ProcessMarkdown` as well as `ProcessDirectory`) 
 produce HTML output by default, but they can be also used to produce Latex output. This is done
@@ -217,17 +211,17 @@ by setting the named parameter `format` to one of the two `OutputKind` cases. Th
 example shows how to call the methods to generate Latex documents:
 *)
 // Template file containing the {content} tag and possibly others
-let template = Path.Combine(source, "template.tex")
+let texTemplate = Path.Combine(source, "template.tex")
 
 // Process script file, Markdown document and a directory
-let script = Path.Combine(source, "../docs/script.fsx")
-Literate.ProcessScriptFile(script, template, format = OutputKind.Latex)
+let scriptTex = Path.Combine(source, "../docs/script.fsx")
+Literate.ProcessScriptFile(scriptTex, texTemplate, format = OutputKind.Latex)
 
-let doc = Path.Combine(source, "../docs/document.md")
-Literate.ProcessMarkdown(doc, template, format = OutputKind.Latex)
+let docTex = Path.Combine(source, "../docs/document.md")
+Literate.ProcessMarkdown(docTex, template, format = OutputKind.Latex)
 
 Literate.ProcessDirectory
-  ( source, template, source + "\\output", 
+  ( source, texTemplate, source + "\\output", 
     format = OutputKind.Latex, replacements = projInfo)
 
 (**
