@@ -431,7 +431,11 @@ module Reader =
     | Let "" (cat, _) -> Some(f cat cmds comment)
 
   let readChildren ctx entities reader cond = 
-    entities |> Seq.filter cond |> Seq.choose (reader ctx) |> List.ofSeq
+    entities 
+    |> Seq.filter cond 
+    |> Seq.sortBy (fun (c:FSharpEntity) -> c.DisplayName)
+    |> Seq.choose (reader ctx) 
+    |> List.ofSeq
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrVal) =
     readCommentsInto ctx memb.XmlDocSig (fun cat _ comment ->
