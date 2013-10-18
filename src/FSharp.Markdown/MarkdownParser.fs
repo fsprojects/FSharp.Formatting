@@ -118,6 +118,8 @@ let rec parseChars acc input = seq {
       yield! parseChars (c::acc) rest
 
   // Inline code delimited either using double `` or single `
+  // (if there are spaces around, then body can contain more backticks)
+  | List.DelimitedWith ['`'; ' '] [' '; '`'] (body, rest)
   | List.Delimited ['`'; '`'] (body, rest)
   | List.Delimited ['`'] (body, rest) ->
       yield! accLiterals.Value

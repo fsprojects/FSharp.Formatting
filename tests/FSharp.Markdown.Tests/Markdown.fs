@@ -39,4 +39,10 @@ let ``Can escape special characters such as "*" in emphasis`` () =
   doc.Paragraphs.Head 
   |> shouldEqual expected
       
+[<Test>]
+let ``Inline code can contain backticks when wrapped with spaces`` () =
+  let doc = """` ``h`` `""" |> Markdown.Parse
+  let expected = Paragraph [InlineCode "``h``"]
+  doc.Paragraphs.Head 
+  |> shouldEqual expected
 

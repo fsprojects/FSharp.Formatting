@@ -3,3 +3,4 @@
 * 2.0.1 - Fixed handling of # in headers
 * 2.0.2 - Change tool tip font for better readability
 * 2.0.3 - Fixed Markdown escaping, nested modules and types in FsHtmlDoc
+* 2.0.4 - Support escaping in inline code
