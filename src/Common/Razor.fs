@@ -102,7 +102,6 @@ type RazorRender(layoutRoots, namespaces) =
     try
       x.ViewBag <- new DynamicViewBag()
       for k, v in defaultArg properties [] do
-        printfn " - %A => %A" k v
         x.ViewBag.AddValue(k, v)
       let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, null)
       html

@@ -7,7 +7,7 @@
     <owners>@authors@</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://github.com/tpetricek/FSharp.Formatting</projectUrl>
-    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/misc/logo.png</iconUrl>
+    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/files/misc/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>

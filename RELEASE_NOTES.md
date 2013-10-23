@@ -5,3 +5,4 @@
 * 2.0.3 - Fixed Markdown escaping, nested modules and types in FsHtmlDoc
 * 2.0.4 - Support escaping in inline code
 * 2.1.0-beta - Metadataq and literate formatting now support Razor, include templates in NuGet package
+* 2.1.1-beta - Fix logo in nuget package
