@@ -94,7 +94,7 @@ let ``Can process fsx file using the template included in NuGet package``() =
     ( simpleFsx, docPageTemplate, temp.File, fsharpCompiler = compilerAsembly, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
   temp.Content |> should contain "val hello : string"
-  temp.Content |> should contain "<title>FSharp.ProjectScaffold"
+  temp.Content |> should contain "<title>Heading"
 
 [<Test>]
 let ``Can process md file using the template included in NuGet package``() =
@@ -104,4 +104,4 @@ let ``Can process md file using the template included in NuGet package``() =
     ( simpleMd, docPageTemplate, temp.File, fsharpCompiler = compilerAsembly, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
   temp.Content |> should contain "val hello : string"
-  temp.Content |> should contain "<title>FSharp.ProjectScaffold"
+  temp.Content |> should contain "<title>Heading"
