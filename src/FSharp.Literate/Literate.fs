@@ -278,8 +278,8 @@ module internal SourceProcessors =
   type ProcessingContext = 
     { // An instance of the F# code formatting agent
       FormatAgent : CodeFormatAgent 
-      // Source code of a HTML template file
-      Template : string option
+      // Path to the template file
+      TemplateFile : string option
       // Short prefix code added to all HTML 'id' elements
       Prefix : string 
       // Should the processing add 'References' section?
@@ -295,7 +295,9 @@ module internal SourceProcessors =
       // The output format
       OutputKind : OutputKind
       // Custom function for reporting errors 
-      ErrorHandler : option<string * SourceError -> unit> }
+      ErrorHandler : option<string * SourceError -> unit> 
+      // Where to look for Razor templates, when using Razor
+      LayoutRoots : seq<string> }
 
   open CodeBlockUtils
   open LiterateUtils
@@ -351,24 +353,6 @@ module internal SourceProcessors =
     [ Heading(3, [literal])
       ListBlock(MarkdownListKind.Unordered, refList) ], refLookup
 
-  /// Replace {parameter} in the input string with 
-  /// values defined in the specified list
-  let replaceParameters parameters input = 
-    match input with 
-    | None ->
-        // If there is no template, return just document + tooltips
-        let lookup = parameters |> dict
-        lookup.["document"] + "\n\n" + lookup.["tooltips"]
-    | Some input ->
-        // First replace keys with some uglier keys and then replace them with values
-        // (in case one of the keys appears in some other value)
-        let id = System.Guid.NewGuid().ToString("d")
-        let input = parameters |> Seq.fold (fun (html:string) (key, value) -> 
-          html.Replace("{" + key + "}", "{" + key + id + "}")) input
-        let result = parameters |> Seq.fold (fun (html:string) (key, value) -> 
-          html.Replace("{" + key + id + "}", value)) input
-        result 
-
   /// Write formatted blocks to a specified string builder 
   /// and return first-level heading if there is some
   let outputBlocks (sb:Text.StringBuilder) 
@@ -414,7 +398,7 @@ module internal SourceProcessors =
   // Process F# Script file
   // ------------------------------------------------------------------------------------
 
-  let processScriptFile ctx file output =
+  let processScriptFile ctx file output  =
     let name = Path.GetFileNameWithoutExtension(file)
 
     // Parse the entire file as an F# script file,
@@ -494,7 +478,7 @@ module internal SourceProcessors =
       [ "page-title", defaultArg heading name
         ctx.OutputKind.ContentTag, sb.ToString()
         "tooltips", formatted.ToolTip + formattedDefns.ToolTip + sourceTips ]
-    File.WriteAllText(output, replaceParameters parameters ctx.Template)
+    Templating.generateFile ctx.OutputKind.ContentTag parameters ctx.TemplateFile output ctx.LayoutRoots    
 
   // ------------------------------------------------------------------------------------
   // Process Markdown document
@@ -568,4 +552,4 @@ module internal SourceProcessors =
       [ "page-title", defaultArg (findHeadings paragraphs ctx.OutputKind) name
         ctx.OutputKind.ContentTag, ctx.OutputKind.Format(MarkdownDocument(paragraphs, doc.DefinedLinks))
         "tooltips", tipsHtml ]
-    File.WriteAllText(output, replaceParameters parameters ctx.Template)
+    Templating.generateFile ctx.OutputKind.ContentTag parameters ctx.TemplateFile output ctx.LayoutRoots    

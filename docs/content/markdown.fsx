@@ -9,7 +9,7 @@ how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../bin/FSharp.Markdown.dll"
+#r "../../bin/FSharp.Markdown.dll"
 open FSharp.Markdown
 
 (**

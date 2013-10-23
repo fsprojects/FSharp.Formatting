@@ -108,7 +108,8 @@ Typical literate setup
 *)
 
 (*** hide ***)
-#I "../bin"
+#nowarn "211"
+#I "../../bin"
 
 (**
 The typical way to setup literate programming support in your project is to reference

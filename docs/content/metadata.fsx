@@ -19,7 +19,7 @@ Building library documentation
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../bin/FSharp.MetadataFormat.dll"
+#r "../../bin/FSharp.MetadataFormat.dll"
 open FSharp.MetadataFormat
 open System.IO
 
@@ -34,7 +34,7 @@ Assuming `root` is the root directory for your project, you can write:
 MetadataFormat.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
-    Path.Combine(root, "templates") )
+    [ Path.Combine(root, "templates") ] )
     
 (**
 Excluding APIs from the docs

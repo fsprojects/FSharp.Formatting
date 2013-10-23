@@ -535,25 +535,9 @@ module Reader =
 // ------------------------------------------------------------------------------------------------
 
 open System.IO
-open RazorEngine
-open RazorEngine.Text
-open RazorEngine.Templating
-open RazorEngine.Configuration
+open FSharp.MetadataFormat
 
-module Global = 
-  let mutable layoutRootGlobal = ""
-
-[<AbstractClass>]
-type DocPageTemplateBase<'T>() =
-  inherit RazorEngine.Templating.TemplateBase<'T>()
-  member val Title : string = "" with get,set
-  member x.RenderPart(name, model:obj) =  
-    let layoutsRoot = Global.layoutRootGlobal
-    let partFile = Path.Combine(layoutsRoot, name + ".cshtml")
-    if not (File.Exists(partFile)) then
-      failwithf "Could not find template file: %s\nSearching in: %s" name layoutsRoot    
-    Razor.Parse(File.ReadAllText(partFile), model)
-
+/// For use in the tempaltes (lives in namespace FSharp.MetadataFormat)
 type Html private() =
   static let mutable uniqueNumber = 0
   static member UniqueID() = 
@@ -562,103 +546,39 @@ type Html private() =
   static member Encode(str) = 
     System.Web.HttpUtility.HtmlEncode(str)
 
-module Log = 
-  type LogMessage = Print of string | Run of (unit -> unit)
-
-  let printer = MailboxProcessor.Start(fun inbox -> async {
-    let sw = System.Diagnostics.Stopwatch.StartNew()
-    while true do
-      let! msg = inbox.Receive()
-      match msg with 
-      | Print msg -> printfn "[%d sec] %s" (sw.ElapsedMilliseconds / 1000L) msg 
-      | Run cmd -> cmd () })
-  let logf fmt = Printf.kprintf (Print >> printer.Post) fmt 
-  let output f = printer.Post(Run f)
-
-module Formatter = 
-  // Set console color temporarilly
-  let colored color = 
-    let prev = Console.ForegroundColor
-    Console.ForegroundColor <- color
-    { new IDisposable with
-        member x.Dispose() = Console.ForegroundColor <- prev }
-
-  type RazorRender(layoutsRoot) =
-    let config = new TemplateServiceConfiguration()
-    do Global.layoutRootGlobal <- layoutsRoot
-    do config.EncodedStringFactory <- new RawStringFactory()
-    do config.Resolver <- 
-        { new ITemplateResolver with
-            member x.Resolve name =
-              let layoutFile = Path.Combine(layoutsRoot, name + ".cshtml")
-              if File.Exists(layoutFile) then File.ReadAllText(layoutFile)
-              else failwithf "Could not find template file: %s\nSearching in: %s" name layoutsRoot }
-    do config.Namespaces.Add("FSharp.MetadataFormat") |> ignore
-    do config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
-    do config.Debug <- true        
-    let templateservice = new TemplateService(config)
-    do Razor.SetTemplateService(templateservice)
-
-    member val Model : obj = obj() with get, set
-    member val ViewBag = new DynamicViewBag() with get,set
-
-    member x.ProcessFile(source) = 
-      try
-        x.ViewBag <- new DynamicViewBag()
-        let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, null)
-        html
-      with 
-      | :? TemplateCompilationException as ex -> 
-          let csharp = Path.GetTempFileName() + ".cs"
-          File.WriteAllText(csharp, ex.SourceCode)
-          Log.output (fun () ->
-            use _c = colored ConsoleColor.Red
-            printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
-            for error in ex.Errors do
-              printfn " - (%d, %d) %s" error.Line error.Column error.ErrorText
-            printfn ""
-          )
-          failwith "Generating HTML failed."
-
-open System.IO
-open System.Threading.Tasks
-
-module Parallel = 
-  let pfor (input:seq<_>) (localInit:unit -> _) body =
-    Parallel.ForEach(input, Func<'TLocal>(localInit), Func<_, ParallelLoopState, 'TLocal, 'TLocal>(body), Action<_>(fun _ -> ())) |> ignore
-
+/// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoot, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
-    let (/) a b = Path.Combine(a, b)
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
+    let (@@) a b = Path.Combine(a, b)
     let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
     if not (File.Exists xmlFile) then 
       raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
 
-//    [ for e in fasm.Entities do
-//        for m in e.MembersOrValues do
-//          yield m.IsTypeFunction ]
-//          yield m.GenericParameters.Count ]
+    let parameters = defaultArg parameters []
+    let props = [ "Properties", dict parameters ]
 
-    
+    // Default template file names
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
     
+    // Read and process assmebly and the XML file
     Log.logf "Reading assembly: %s" dllFile
     let asm = FSharpAssembly.FromFile(dllFile)
     Log.logf "Parsing assembly"
     let asm = Reader.readAssembly asm xmlFile
     
+    // Generate all the HTML stuff
     Log.logf "Starting razor engine"
-    let razor = Formatter.RazorRender(layoutRoot)
+    let razor = RazorRender(layoutRoots, ["FSharp.MetadataFormat"])
     razor.Model <- box asm
 
     Log.logf "Generating: index.html"
-    let out = razor.ProcessFile(layoutRoot / namespaceTemplate)
-    File.WriteAllText(outDir / "index.html", out)
+    let out = razor.ProcessFile(RazorRender.Resolve(layoutRoots, namespaceTemplate), props)
+    File.WriteAllText(outDir @@ "index.html", out)
 
+    // Generate documentation for all modules
     Log.logf "Generating modules..."
-
     let rec nestedModules (modul:Module) = seq {
       yield modul
       for n in modul.NestedModules do yield! nestedModules n }
@@ -666,11 +586,12 @@ type MetadataFormat =
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedModules n ]
     
-    Parallel.pfor modules (fun () -> Formatter.RazorRender(layoutRoot)) (fun modul _ razor -> 
+    let moduleTemplateFile = RazorRender.Resolve(layoutRoots, moduleTemplate)
+    Parallel.pfor modules (fun () -> RazorRender(layoutRoots,["FSharp.MetadataFormat"])) (fun modul _ razor -> 
       Log.logf "Generating module: %s" modul.UrlName
       razor.Model <- box (ModuleInfo.Create(modul, asm))
-      let out = razor.ProcessFile(layoutRoot / moduleTemplate)
-      File.WriteAllText(outDir / (modul.UrlName + ".html"), out)
+      let out = razor.ProcessFile(moduleTemplateFile, props)
+      File.WriteAllText(outDir @@ (modul.UrlName + ".html"), out)
       Log.logf "Finished module: %s" modul.UrlName
       razor)
 
@@ -683,10 +604,12 @@ type MetadataFormat =
           for n in ns.Modules do yield! nestedTypes n
           yield! ns.Types ]
 
-    Parallel.pfor types (fun () -> Formatter.RazorRender(layoutRoot)) (fun typ _ razor -> 
+    // Generate documentation for all types
+    let typeTemplateFile = RazorRender.Resolve(layoutRoots, typeTemplate)
+    Parallel.pfor types (fun () -> RazorRender(layoutRoots, ["FSharp.MetadataFormat"])) (fun typ _ razor -> 
       Log.logf "Generating type: %s" typ.UrlName
       razor.Model <- box (TypeInfo.Create(typ, asm))
-      let out = razor.ProcessFile(layoutRoot / typeTemplate)
-      File.WriteAllText(outDir / (typ.UrlName + ".html"), out)
+      let out = razor.ProcessFile(typeTemplateFile, props)
+      File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
       Log.logf "Finished type: %s" typ.UrlName
       razor)

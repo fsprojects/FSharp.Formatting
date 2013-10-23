@@ -5,27 +5,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown", "src\FSha
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat", "src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj", "{341EBF32-D470-4C55-99E9-55F14F7FFBB1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{4B40DB37-B3D8-4C44-9563-39CF34B4E149}"
-	ProjectSection(SolutionItems) = preProject
-		docs\codeformat.fsx = docs\codeformat.fsx
-		docs\demo.fsx = docs\demo.fsx
-		docs\index.md = docs\index.md
-		docs\markdown.fsx = docs\markdown.fsx
-		docs\metadata.fsx = docs\metadata.fsx
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Side-by-side", "Side-by-side", "{B909A167-1109-4880-8BB8-C1A036B639BD}"
-	ProjectSection(SolutionItems) = preProject
-		docs\sidebyside\markdown.md = docs\sidebyside\markdown.md
-		docs\sidebyside\script.fsx = docs\sidebyside\script.fsx
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{BF4EF348-696A-4771-BD23-C198FBD9D729}"
-	ProjectSection(SolutionItems) = preProject
-		docs\output\content\style.css = docs\output\content\style.css
-		docs\output\content\tips.js = docs\output\content\tips.js
-	EndProjectSection
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.MetadataFormat", "src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj", "{BC4946BA-2724-4524-AC50-DFC49EE154A1}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Literate", "src\FSharp.Literate\FSharp.Literate.fsproj", "{65E6D541-0486-4383-B619-5CFC5D2BA2F0}"
@@ -44,24 +23,41 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{5C565F18
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{A7574BE7-0A14-42FD-8C55-330F1C43AE66}"
-	ProjectSection(SolutionItems) = preProject
-		tools\build.fsx = tools\build.fsx
-		tools\template-sidebyside.html = tools\template-sidebyside.html
-		tools\template.html = tools\template.html
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Literate", "Literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
 	ProjectSection(SolutionItems) = preProject
-		literate\build.fsx = literate\build.fsx
-		literate\demo.fsx = literate\demo.fsx
-		literate\demo.md = literate\demo.md
+		misc\literate\build.fsx = misc\literate\build.fsx
+		misc\literate\demo.fsx = misc\literate\demo.fsx
+		misc\literate\demo.md = misc\literate\demo.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Content", "Content", "{EDE95A19-2D92-4F2B-BCF3-1B08A555969D}"
 	ProjectSection(SolutionItems) = preProject
 		docs\content\style.css = docs\content\style.css
 		docs\content\tips.js = docs\content\tips.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1068-4804-89E7-0AFBAD5F885F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{71885AB0-0A46-4FC8-AEDF-F2DC4BEB0E67}"
+	ProjectSection(SolutionItems) = preProject
+		docs\content\codeformat.fsx = docs\content\codeformat.fsx
+		docs\content\demo.fsx = docs\content\demo.fsx
+		docs\content\index.md = docs\content\index.md
+		docs\content\markdown.fsx = docs\content\markdown.fsx
+		docs\content\metadata.fsx = docs\content\metadata.fsx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sidebyside", "sidebyside", "{561B2DD7-455E-4464-B585-C8768C633EFC}"
+	ProjectSection(SolutionItems) = preProject
+		docs\content\sidebyside\markdown.md = docs\content\sidebyside\markdown.md
+		docs\content\sidebyside\script.fsx = docs\content\sidebyside\script.fsx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820}"
+	ProjectSection(SolutionItems) = preProject
+		docs\tools\generate.fsx = docs\tools\generate.fsx
+		docs\tools\template-sidebyside.html = docs\tools\template-sidebyside.html
+		docs\tools\template.html = docs\tools\template.html
 	EndProjectSection
 EndProject
 Global
@@ -123,9 +119,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{B909A167-1109-4880-8BB8-C1A036B639BD} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
-		{BF4EF348-696A-4771-BD23-C198FBD9D729} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
-		{A7574BE7-0A14-42FD-8C55-330F1C43AE66} = {4B40DB37-B3D8-4C44-9563-39CF34B4E149}
 		{EDE95A19-2D92-4F2B-BCF3-1B08A555969D} = {57C28077-FFFE-4F57-B31D-344A9288076B}
+		{71885AB0-0A46-4FC8-AEDF-F2DC4BEB0E67} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
+		{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
+		{561B2DD7-455E-4464-B585-C8768C633EFC} = {71885AB0-0A46-4FC8-AEDF-F2DC4BEB0E67}
 	EndGlobalSection
 EndGlobal
