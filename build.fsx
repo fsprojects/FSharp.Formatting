@@ -166,7 +166,7 @@ Target "Release" DoNothing
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
-
+  
 Target "All" DoNothing
 
 "Clean"
