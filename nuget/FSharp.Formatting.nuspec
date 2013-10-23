@@ -20,16 +20,13 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="../bin/FSharp.*.dll" target="lib/net40" />
-    <file src="../bin/FSharp.*.pdb" target="lib/net40" />
-    <file src="../bin/FSharp.*.xml" target="lib/net40" />
-    <file src="../misc/templates/*.cshtml" target="templates" />
-    <file src="../misc/templates/reference/*.cshtml" target="templates/reference" />
-    <file src="../misc/literate/build.fsx" target="literate" />
-    <file src="../misc/literate/demo.fsx" target="literate" />
-    <file src="../misc/literate/demo.md" target="literate" />
-    <file src="../misc/literate/templates/*" target="literate/templates" />
-    <file src="../docs/files/content/style.css" target="content" />
-    <file src="../docs/files/content/tips.js" target="content" />
+    <file src="..\bin\FSharp.*.dll" target="lib/net40" />
+    <file src="..\bin\FSharp.*.pdb" target="lib/net40" />
+    <file src="..\bin\FSharp.*.xml" target="lib/net40" />
+    <file src="..\misc\templates\*.cshtml" target="templates" />
+    <file src="..\misc\templates\reference\*.cshtml" target="templates/reference" />
+    <file src="..\misc\literate\*" target="literate" />
+    <file src="..\misc\literate\templates\*" target="literate/templates" />
+    <file src="..\docs\files\content\*" target="content" />
   </files>
 </package>

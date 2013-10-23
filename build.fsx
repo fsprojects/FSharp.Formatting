@@ -6,10 +6,10 @@
 
 open System
 open System.IO
-open System.Text.RegularExpressions
 open Fake 
 open Fake.AssemblyInfoFile
 open Fake.Git
+open Fake.ReleaseNotesHelper
 
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
@@ -26,18 +26,8 @@ let description = """
 
 let tags = "F# fsharp formatting markdown code fssnip literate programming"
 
-// Read additional information from the release notes document
-// Expected format: "0.9.0-beta - Foo bar." or just "0.9.0 - Foo bar."
-// (We need to extract just the number for AssemblyInfo & all version for NuGet
-let versionAsm, versionNuGet, releaseNotes = 
-    let lastItem = File.ReadLines "RELEASE_NOTES.md" |> Seq.last
-    let firstDash = lastItem.IndexOf(" - ")
-    let notes = lastItem.Substring(firstDash + 2).Trim()
-    let version = lastItem.Substring(0, firstDash).Trim([|'*'|]).Trim()
-    // Get just numeric version, if it contains dash
-    let versionDash = version.IndexOf('-')
-    if versionDash = -1 then version, version, notes
-    else version.Substring(0, versionDash), version, notes
+// Read release notes document
+let release = ReleaseNotesHelper.parseReleaseNotes (File.ReadLines "RELEASE_NOTES.md")
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
@@ -48,8 +38,8 @@ Target "AssemblyInfo" (fun _ ->
       [ Attribute.Title project
         Attribute.Product project
         Attribute.Description summary
-        Attribute.Version versionAsm
-        Attribute.FileVersion versionAsm ] 
+        Attribute.Version release.AssemblyVersion
+        Attribute.FileVersion release.AssemblyVersion ] 
 )
 
 // --------------------------------------------------------------------------------------
@@ -118,8 +108,8 @@ Target "NuGet" (fun _ ->
             Project = project
             Summary = summary
             Description = description
-            Version = versionNuGet
-            ReleaseNotes = releaseNotes
+            Version = release.NugetVersion
+            ReleaseNotes = String.concat " " release.Notes
             Tags = tags
             OutputPath = "bin"
             ToolPath = nugetPath
@@ -149,7 +139,7 @@ Target "ReleaseDocs" (fun _ ->
     Branches.checkoutBranch "temp/gh-pages" "gh-pages"
     CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
-    let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" versionNuGet
+    let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
     CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
     Branches.push "temp/gh-pages"
 )
@@ -158,7 +148,7 @@ Target "ReleaseBinaries" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
     Branches.checkoutBranch "temp/release" "release"
     CopyRecursive "bin" "temp/release" true |> printfn "%A"
-    let cmd = sprintf """commit -a -m "Update binaries for version %s""" versionNuGet
+    let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
     CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
     Branches.push "temp/release"
 )
