@@ -9,3 +9,4 @@
 * 2.1.2-beta - Fix nuget package
 * 2.1.3-beta - Fix the Root property for templating
 * 2.1.4 - Includes templates, support Razor for literate templates, bugs fixed
+* 2.1.5 - Improve default templates for open-source projects

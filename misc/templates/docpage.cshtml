@@ -1,7 +1,7 @@
 ﻿@{
   Layout = "template";
-  Title = @Properties["project-name"];
-  Description = @Properties["project-summary"];
+  Title = (Properties["page-title"] + " - " + Properties["project-name"]);
+  Description = Properties["project-summary"];
 }
 @Properties["document"]
 @Properties["tooltips"]
