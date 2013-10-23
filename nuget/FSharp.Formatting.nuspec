@@ -7,7 +7,7 @@
     <owners>@authors@</owners>
     <licenseUrl>http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>http://github.com/tpetricek/FSharp.Formatting</projectUrl>
-    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/misc/logo.png</iconUrl>
+    <iconUrl>https://raw.github.com/tpetricek/FSharp.Formatting/master/docs/files/misc/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>
@@ -20,17 +20,16 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\bin\FSharp.*.dll" target="lib/net40" />
-    <file src="..\bin\FSharp.*.pdb" target="lib/net40" />
-    <file src="..\bin\FSharp.*.xml" target="lib/net40" />
-    <file src="..\literate\build.fsx" target="literate" />
-    <file src="..\literate\demo.fsx" target="literate" />
-    <file src="..\literate\demo.md" target="literate" />
-    <file src="..\literate\templates\template-file.html" target="literate/templates" />
-    <file src="..\literate\templates\template-project.html" target="literate/templates" />
-    <file src="..\literate\templates\template-math.tex" target="literate/templates" />
-    <file src="..\literate\templates\template-color.tex" target="literate/templates" />
-    <file src="..\docs\content\style.css" target="literate/content" />
-    <file src="..\docs\content\tips.js" target="literate/content" />
+    <file src="../bin/FSharp.*.dll" target="lib/net40" />
+    <file src="../bin/FSharp.*.pdb" target="lib/net40" />
+    <file src="../bin/FSharp.*.xml" target="lib/net40" />
+    <file src="../misc/templates/*.cshtml" target="templates" />
+    <file src="../misc/templates/reference/*.cshtml" target="templates/reference" />
+    <file src="../misc/literate/build.fsx" target="literate" />
+    <file src="../misc/literate/demo.fsx" target="literate" />
+    <file src="../misc/literate/demo.md" target="literate" />
+    <file src="../misc/literate/templates/*" target="literate/templates" />
+    <file src="../docs/files/content/style.css" target="content" />
+    <file src="../docs/files/content/tips.js" target="content" />
   </files>
 </package>

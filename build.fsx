@@ -2,7 +2,7 @@
 // FAKE build script 
 // --------------------------------------------------------------------------------------
 
-#r @"tools/FAKE/tools/FakeLib.dll"
+#r @"packages/FAKE/tools/FakeLib.dll"
 
 open System
 open System.IO
@@ -12,11 +12,6 @@ open Fake.AssemblyInfoFile
 open Fake.Git
 
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
-
-let files includes = 
-  { BaseDirectories = [__SOURCE_DIRECTORY__]
-    Includes = includes
-    Excludes = [] } |> Scan
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
@@ -66,18 +61,21 @@ Target "RestorePackages" (fun _ ->
 )
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "gh-pages"; "release" ]
+    CleanDirs ["bin"; "temp" ]
 )
 
 Target "CleanDocs" (fun _ ->
-    CleanDirs ["generated"]
+    CleanDirs ["docs/output"]
 )
 
 // --------------------------------------------------------------------------------------
 // Build library 
 
 Target "Build" (fun _ ->
-    (files ["FSharp.Formatting.sln"; "FSharp.Formatting.Tests.sln"])
+    { BaseDirectories = [__SOURCE_DIRECTORY__]
+      Includes = ["FSharp.Formatting.sln"; "FSharp.Formatting.Tests.sln"]
+      Excludes = [] } 
+    |> Scan
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 )
@@ -91,7 +89,10 @@ Target "RunTests" (fun _ ->
 
     ActivateFinalTarget "CloseTestRunner"
 
-    (files ["tests/*/bin/Release/FSharp.*Tests*.dll"])
+    { BaseDirectories = [__SOURCE_DIRECTORY__]
+      Includes = ["tests/*/bin/Release/FSharp.*Tests*.dll"]
+      Excludes = [] } 
+    |> Scan
     |> NUnit (fun p ->
         { p with
             ToolPath = nunitPath
@@ -132,7 +133,7 @@ Target "NuGet" (fun _ ->
 // Generate the documentation
 
 Target "JustGenerateDocs" (fun _ ->
-    executeFSI "tools" "build.fsx" [] |> ignore
+    executeFSI "docs/tools" "generate.fsx" [] |> ignore
 )
 
 Target "GenerateDocs" DoNothing
@@ -144,22 +145,22 @@ Target "GenerateDocs" DoNothing
 let gitHome = "https://github.com/tpetricek"
 
 Target "ReleaseDocs" (fun _ ->
-    Repository.clone "" (gitHome + "/FSharp.Formatting.git") "gh-pages"
-    Branches.checkoutBranch "gh-pages" "gh-pages"
-    CopyRecursive "generated" "gh-pages" true |> printfn "%A"
-    CommandHelper.runSimpleGitCommand "gh-pages" "add ." |> printfn "%s"
+    Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
+    Branches.checkoutBranch "temp/gh-pages" "gh-pages"
+    CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
+    CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" versionNuGet
-    CommandHelper.runSimpleGitCommand "gh-pages" cmd |> printfn "%s"
-    Branches.push "gh-pages"
+    CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
+    Branches.push "temp/gh-pages"
 )
 
 Target "ReleaseBinaries" (fun _ ->
-    Repository.clone "" (gitHome + "/FSharp.Formatting.git") "release"
-    Branches.checkoutBranch "release" "release"
-    CopyRecursive "bin" "release" true |> printfn "%A"
+    Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
+    Branches.checkoutBranch "temp/release" "release"
+    CopyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" versionNuGet
-    CommandHelper.runSimpleGitCommand "release" cmd |> printfn "%s"
-    Branches.push "release"
+    CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
+    Branches.push "temp/release"
 )
 
 Target "Release" DoNothing

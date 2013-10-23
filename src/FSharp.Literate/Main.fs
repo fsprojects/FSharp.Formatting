@@ -17,7 +17,7 @@ type Literate =
   /// Provides default values for all optional parameters
   static member private DefaultArguments
       ( input, templateFile, output,format, fsharpCompiler, prefix, compilerOptions, 
-        lineNumbers, references, replacements, includeSource, errorHandler) = 
+        lineNumbers, references, replacements, includeSource, errorHandler, layoutRoots) = 
     let defaultArg v f = match v with Some v -> v | _ -> f()
 
     let outputKind = defaultArg format (fun _ -> OutputKind.Html)
@@ -32,7 +32,7 @@ type Literate =
     // Build & return processing context
     let ctx = 
       { FormatAgent = CodeFormat.CreateAgent(fsharpCompiler) 
-        Template = templateFile |> Option.map (fun file -> File.ReadAllText(file))
+        TemplateFile = templateFile 
         Prefix = defaultArg prefix (fun () -> "fs")
         Options = defaultArg compilerOptions (fun () -> "")
         GenerateLineNumbers = defaultArg lineNumbers (fun () -> true)
@@ -40,37 +40,39 @@ type Literate =
         Replacements = defaultArg replacements (fun () -> []) 
         IncludeSource = defaultArg includeSource (fun () -> false) 
         OutputKind = outputKind
-        ErrorHandler = errorHandler }
+        ErrorHandler = errorHandler
+        LayoutRoots = defaultArg layoutRoots (fun () -> []) }
     output, ctx
 
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
     let output, ctx = 
       Literate.DefaultArguments
         ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler )
+          lineNumbers, references, replacements, includeSource, errorHandler, layoutRoots)
     processMarkdown ctx input output 
 
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
     let output, ctx = 
       Literate.DefaultArguments
         ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler )
+          lineNumbers, references, replacements, includeSource, errorHandler, layoutRoots )
     processScriptFile ctx input output 
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler ) = 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
     let _, ctx = 
       Literate.DefaultArguments
         ( "", templateFile, Some "", format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler )
+          lineNumbers, references, replacements, includeSource, errorHandler, 
+          layoutRoots )
  
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 

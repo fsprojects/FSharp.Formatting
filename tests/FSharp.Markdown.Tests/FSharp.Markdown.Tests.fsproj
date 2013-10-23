@@ -70,6 +70,7 @@
     </Compile>
     <Compile Include="TestFiles.fs" />
     <Compile Include="Markdown.fs" />
+    <Compile Include="Externals.fs" />
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

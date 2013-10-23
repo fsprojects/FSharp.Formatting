@@ -9,7 +9,7 @@ from the type-checker) and how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../bin/FSharp.CodeFormat.dll"
+#r "../../bin/FSharp.CodeFormat.dll"
 open FSharp.CodeFormat
 open System.Reflection
 
