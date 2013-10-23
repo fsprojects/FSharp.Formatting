@@ -160,13 +160,11 @@ and [<AbstractClass>] DocPageTemplateBase<'T>() =
     with get() = defaultArg (x.tryGetViewBagValue<string> "Description") ""
     and set value = x.trySetViewBagValue<string> "Description" value
 
-  member x.Root
-    with get() = defaultArg (x.tryGetViewBagValue<string> "Root") ""
-    and set value = x.trySetViewBagValue<string> "Root" value
-
   member x.Properties
     with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
     and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
+
+  member x.Root = x.Properties.["root"]
 
   member x.RenderPart(name, model:obj) =  
     Razor.Parse(RazorRender.Resolver.Resolve(name), model)

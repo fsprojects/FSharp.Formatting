@@ -60,8 +60,8 @@ let testdir = __SOURCE_DIRECTORY__ ++ "..\\..\\tests\\Benchmarks\\testfiles\\"
 
 let getTest() = genTestCases testdir
 
-[<Test;Ignore>]
-[<TestCaseSource("getTest")>]
+//[<Test;Ignore>]
+//[<TestCaseSource("getTest")>]
 let ``Run external tests`` (actualName : string) (expectedName : string) (actual : string) (expected : string) =
     if actual = expected then File.Delete(expectedName)  
     Assert.That(actual, Is.EqualTo(expected),
