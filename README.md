@@ -22,7 +22,7 @@ The library is used by a number of F# projects. Most prominently, the [F# snippe
 uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
 documentation and might be a useful inspiration:
 
- * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Formatting/blob/master/tools/build.fsx) used to generate the documentation for this project
+ * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Formatting/blob/master/build.fsx) used to generate the documentation for this project
  * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Data/blob/master/tools/build.fsx) used to generate the documentation for `FSharp.Data`
 
 ## Library license
