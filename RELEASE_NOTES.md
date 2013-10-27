@@ -10,3 +10,4 @@
 * 2.1.3-beta - Fix the Root property for templating
 * 2.1.4 - Includes templates, support Razor for literate templates, bugs fixed
 * 2.1.5 - Improve default templates for open-source projects
+* 2.1.6 - Improve default templates for open-source projects (again)
