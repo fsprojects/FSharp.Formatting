@@ -175,13 +175,16 @@ module internal CodeBlockUtils =
 
   /// Succeeds when a line (list of tokens) contains only Comment 
   /// tokens and returns the text from the comment as a string
+  /// (Comment may also be followed by Whitespace that is skipped)
   let private (|ConcatenatedComments|_|) (Line tokens) =
-    let comments =
-      tokens |> List.choose (function
-        | Token(TokenKind.Comment, text, _) -> Some text
-        | _ -> None)
-    if comments.Length <> tokens.Length then None
-    else Some (String.concat "" comments)
+    let rec readComments inWhite acc = function
+      | Token(TokenKind.Comment, text, _)::tokens when not inWhite-> 
+          readComments false (text::acc) tokens
+      | Token(TokenKind.Default, String.WhiteSpace _, _)::tokens ->
+          readComments true acc tokens
+      | [] -> Some(String.concat "" (List.rev acc))
+      | _ -> None
+    readComments false [] tokens
 
   // Process lines of an F# script file. Simple state machine with two states
   //  * collectComment - we're parsing a comment and waiting for the end
