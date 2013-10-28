@@ -2,8 +2,8 @@
 
 open System.IO
 open System.Reflection
+open FSharp.Markdown
 open FSharp.CodeFormat
-open FSharp.Literate.SourceProcessors
 
 // --------------------------------------------------------------------------------------
 // Public API
@@ -13,67 +13,140 @@ open FSharp.Literate.SourceProcessors
 /// The `ProcessMarkdown` and `ProcessScriptFile` methods process a single Markdown document
 /// and F# script, respectively. The `ProcessDirectory` method handles an entire directory tree
 /// (ooking for `*.fsx` and `*.md` files).
-type Literate = 
-  /// Provides default values for all optional parameters
-  static member private DefaultArguments
-      ( input, templateFile, output,format, fsharpCompiler, prefix, compilerOptions, 
-        lineNumbers, references, replacements, includeSource, errorHandler, layoutRoots) = 
-    let defaultArg v f = match v with Some v -> v | _ -> f()
+type Literate private () = 
 
-    let outputKind = defaultArg format (fun _ -> OutputKind.Html)
+  /// Build default options context for formatting literate document
+  static let formattingContext templateFile format prefix lineNumbers includeSource replacements layoutRoots =
+    { TemplateFile = templateFile 
+      Replacements = defaultArg replacements []
+      GenerateLineNumbers = defaultArg lineNumbers true
+      IncludeSource = defaultArg includeSource false
+      Prefix = defaultArg prefix "fs"
+      OutputKind = defaultArg format OutputKind.Html
+      LayoutRoots = defaultArg layoutRoots [] }
+  
+  /// Build default options context for parsing literate scripts/documents
+  static let parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols = 
+    let agent =
+      match formatAgent, fsharpCompiler with
+      | Some agent, _ -> agent
+      | _, Some compiler -> CodeFormat.CreateAgent(compiler)
+      | _ -> CodeFormat.CreateAgent(Assembly.Load("FSharp.Compiler"))
+    { FormatAgent = agent
+      CompilerOptions = compilerOptions
+      DefinedSymbols = Option.map (String.concat ",") definedSymbols }
+  
+  /// Get default output file name, given various information
+  static let defaultOutput output input kind =
+    match output, defaultArg kind OutputKind.Html with 
+    | Some out, _ -> out
+    | _, OutputKind.Latex -> Path.ChangeExtension(input, "tex")
+    | _, OutputKind.Html -> Path.ChangeExtension(input, "html")
+      
+  /// Apply the specified transformations to a document
+  static let transform references doc =
+    let doc = 
+      if references <> Some true then doc
+      else Transformations.generateReferences doc
+    doc              
+      
+  // ------------------------------------------------------------------------------------
+  // Parsing functions
+  // ------------------------------------------------------------------------------------
+  
+  /// Parse F# Script file
+  static member ParseScriptFile 
+    ( path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ParseScript.parseScriptFile path (File.ReadAllText path) ctx
+    |> transform references
 
-    let output = defaultArg output (fun () ->
-      let dir = Path.GetDirectoryName(input)
-      let file = Path.GetFileNameWithoutExtension(input)
-      Path.Combine(dir, sprintf "%s.%O" file outputKind))
-    let fsharpCompiler = defaultArg fsharpCompiler (fun () -> 
-      Assembly.Load("FSharp.Compiler"))
-    
-    // Build & return processing context
-    let ctx = 
-      { FormatAgent = CodeFormat.CreateAgent(fsharpCompiler) 
-        TemplateFile = templateFile 
-        Prefix = defaultArg prefix (fun () -> "fs")
-        Options = defaultArg compilerOptions (fun () -> "")
-        GenerateLineNumbers = defaultArg lineNumbers (fun () -> true)
-        GenerateReferences = defaultArg references (fun () -> false)
-        Replacements = defaultArg replacements (fun () -> []) 
-        IncludeSource = defaultArg includeSource (fun () -> false) 
-        OutputKind = outputKind
-        ErrorHandler = errorHandler
-        LayoutRoots = defaultArg layoutRoots (fun () -> []) }
-    output, ctx
+  /// Parse F# Script file
+  static member ParseScriptString 
+    ( content, ?path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
+    |> transform references
+
+  /// Parse Markdown document
+  static member ParseMarkdownFile
+    ( path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ParseMarkdown.parseMarkdown (File.ReadAllText path) 
+    |> transform references
+    |> Transformations.formatCodeSnippets path ctx
+
+  /// Parse Markdown document
+  static member ParseMarkdownString
+    ( content, ?path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ParseMarkdown.parseMarkdown content
+    |> transform references
+    |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
+
+  // ------------------------------------------------------------------------------------
+  // Simple writing functions
+  // ------------------------------------------------------------------------------------
+
+  static member WriteHtml(doc:LiterateDocument) =
+    Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+
+  static member WriteLatex(doc:LiterateDocument) =
+    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+
+  static member WriteHtml(doc:LiterateDocument, writer:TextWriter) =
+    Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+
+  static member WriteLatex(doc:LiterateDocument, writer:TextWriter) =
+    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+
+  // ------------------------------------------------------------------------------------
+  // Processing functions that handle templating etc.
+  // ------------------------------------------------------------------------------------
 
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
-    let output, ctx = 
-      Literate.DefaultArguments
-        ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler, layoutRoots)
-    processMarkdown ctx input output 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
+    let doc = 
+      Literate.ParseMarkdownFile
+        ( input, ?fsharpCompiler=fsharpCompiler, ?compilerOptions=compilerOptions, 
+          ?references = references )
+    let ctx = formattingContext templateFile format prefix lineNumbers includeSource replacements layoutRoots
+    Templating.processFile doc (defaultOutput output input format) ctx
+
 
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
-    let output, ctx = 
-      Literate.DefaultArguments
-        ( input, templateFile, output, format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler, layoutRoots )
-    processScriptFile ctx input output 
+    let doc = 
+      Literate.ParseScriptFile
+        ( input, ?fsharpCompiler=fsharpCompiler, ?compilerOptions=compilerOptions, 
+          ?references = references )
+    let ctx = formattingContext templateFile format prefix lineNumbers includeSource replacements layoutRoots
+    Templating.processFile doc (defaultOutput output input format) ctx
+
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
-    let _, ctx = 
-      Literate.DefaultArguments
-        ( "", templateFile, Some "", format, fsharpCompiler, prefix, compilerOptions, 
-          lineNumbers, references, replacements, includeSource, errorHandler, 
-          layoutRoots )
- 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
+
+    // Call one or the other process function with all the arguments
+    let processScriptFile file output = 
+      Literate.ProcessScriptFile
+        ( file, ?templateFile = templateFile, output = output, ?format = format, 
+          ?fsharpCompiler = fsharpCompiler, ?prefix = prefix, ?compilerOptions = compilerOptions, 
+          ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
+          ?includeSource = includeSource, ?layoutRoots = layoutRoots )
+    let processMarkdown file output = 
+      Literate.ProcessMarkdown
+        ( file, ?templateFile = templateFile, output = output, ?format = format, 
+          ?fsharpCompiler = fsharpCompiler, ?prefix = prefix, ?compilerOptions = compilerOptions, 
+          ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
+          ?includeSource = includeSource, ?layoutRoots = layoutRoots )
+     
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 
       // Create output directory if it does not exist
@@ -85,14 +158,15 @@ type Literate =
       let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
       for func, file in fsx @ mds do
         let name = Path.GetFileNameWithoutExtension(file)
-        let output = Path.Combine(outdir, sprintf "%s.%O" name ctx.OutputKind)
+        let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
+        let output = Path.Combine(outdir, sprintf "%s.%s" name ext)
 
         // Update only when needed
         let changeTime = File.GetLastWriteTime(file)
         let generateTime = File.GetLastWriteTime(output)
         if changeTime > generateTime then
-          printfn "Generating '%s.%O'" name ctx.OutputKind
-          func ctx file output
+          printfn "Generating '%s.%s'" name ext
+          func file output
 
     let outputDirectory = defaultArg outputDirectory inputDirectory
-    processDirectory inputDirectory outputDirectory 
+    processDirectory inputDirectory outputDirectory

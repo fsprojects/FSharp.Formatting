@@ -28,28 +28,37 @@ type MarkdownSpan =
   | InlineCode of string
   | Strong of MarkdownSpans
   | Emphasis of MarkdownSpans
+  | AnchorLink of string 
   | DirectLink of MarkdownSpans * (string * option<string>)
   | IndirectLink of MarkdownSpans * string * string
   | DirectImage of string * (string * option<string>)
   | IndirectImage of string * string * string
   | HardLineBreak
+  | EmbedSpans of MarkdownEmbedSpans
 
 and MarkdownSpans = list<MarkdownSpan>
+
+and MarkdownEmbedSpans =
+  abstract Render : unit -> MarkdownSpans
 
 type MarkdownParagraph = 
   | Heading of int * MarkdownSpans
   | Paragraph of MarkdownSpans
   | CodeBlock of string
-  | HtmlBlock of string
+  | InlineBlock of string
   | ListBlock of MarkdownListKind * list<MarkdownParagraphs>
   | QuotedBlock of MarkdownParagraphs
   | Span of MarkdownSpans
   | HorizontalRule 
   | TableBlock of option<MarkdownTableRow> * list<MarkdownColumnAlignment> * list<MarkdownTableRow>
+  | EmbedParagraphs of MarkdownEmbedParagraphs
 
 and MarkdownParagraphs = list<MarkdownParagraph>
 
 and MarkdownTableRow = list<MarkdownParagraphs>
+
+and MarkdownEmbedParagraphs =
+  abstract Render : unit -> MarkdownParagraphs
 
 // --------------------------------------------------------------------------------------
 // Patterns that make recursive Markdown processing easier
@@ -62,9 +71,11 @@ module Matching =
   let (|SpanLeaf|SpanNode|) span = 
     match span with
     | Literal _ 
+    | AnchorLink _
     | InlineCode _
     | DirectImage _ 
     | IndirectImage _
+    | EmbedSpans _
     | HardLineBreak -> 
         SpanLeaf(SL span)
     | Strong spans 
@@ -93,7 +104,8 @@ module Matching =
     | Span(spans) ->
         ParagraphSpans(PS par, spans)
     | CodeBlock _
-    | HtmlBlock _ 
+    | InlineBlock _ 
+    | EmbedParagraphs _
     | HorizontalRule ->
         ParagraphLeaf(PL par)
     | ListBlock(_, pars) ->
@@ -126,7 +138,7 @@ module Matching =
     | ListBlock(a, _) -> ListBlock(a, pars)
     | QuotedBlock(_) -> QuotedBlock(List.concat pars)
     | TableBlock(headers, alignments, _) ->
-      let rows = splitEach (alignments.Length) pars
-      if List.isEmpty rows || headers.IsNone then TableBlock(None, alignments, rows)
-      else TableBlock(Some(List.head rows), alignments, List.tail rows)
+        let rows = splitEach (alignments.Length) pars
+        if List.isEmpty rows || headers.IsNone then TableBlock(None, alignments, rows)
+        else TableBlock(Some(List.head rows), alignments, List.tail rows)
     | _ -> invalidArg "" "Incorrect ParagraphNestedInfo."

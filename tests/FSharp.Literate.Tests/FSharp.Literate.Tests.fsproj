@@ -44,13 +44,16 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition="(!Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')) And (Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets'))" />
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="(!Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')) And (!Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets')) And (Exists('$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets'))" />
   <ItemGroup>
-    <None Include="files/simple.md" />
-    <None Include="files/simple.fsx" />
-    <None Include="files/template.html" />
-    <None Include="files/template.cshtml" />
-    <None Include="files/docpage.cshtml" />
+    <None Include="Files/simple.md" />
+    <None Include="Files/simple.fsx" />
+    <None Include="Files/template.html" />
+    <None Include="Files/template.cshtml" />
+    <None Include="Files/docpage.cshtml" />
     <Compile Include="..\Common\FsUnit.fs">
-      <Link>FsUnit.fs</Link>
+      <Link>Common\FsUnit.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\MarkdownUnit.fs">
+      <Link>Common\MarkdownUnit.fs</Link>
     </Compile>
     <Compile Include="Tests.fs" />
     <None Include="App.config">

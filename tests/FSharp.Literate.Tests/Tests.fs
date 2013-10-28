@@ -2,8 +2,10 @@
 #I "../../bin/"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
+#r "FSharp.Markdown.dll"
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
+#load "../Common/MarkdownUnit.fs"
 #else
 module FSharp.Literate.Tests.Simple
 #endif
@@ -13,6 +15,8 @@ open System
 open System.IO
 open System.Reflection
 open FSharp.Literate
+open FSharp.Markdown
+open FSharp.Markdown.Unit
 open NUnit.Framework
 
 // --------------------------------------------------------------------------------------
@@ -37,6 +41,85 @@ type TempFile() =
   member x.Content = File.ReadAllText(file)
   interface IDisposable with
     member x.Dispose() = File.Delete(file)
+
+// --------------------------------------------------------------------------------------
+// Test standalone literate parsing
+// --------------------------------------------------------------------------------------
+
+let formatAgent = FSharp.CodeFormat.CodeFormat.CreateAgent(compilerAsembly)
+
+[<Test>]
+let ``Can parse and format literate F# script`` () =
+  let content = """
+(** **hello** *)
+let test = 42"""
+  let doc = Literate.ParseScriptString(content, "C:\\A.fsx", formatAgent)
+  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+
+[<Test>] 
+let ``Can parse and format markdown with F# snippet`` () =
+  let content = """
+**hello**
+
+    let test = 42"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent = formatAgent)
+  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+
+[<Test>]
+let ``Can generate references from indirect links`` () =
+  let content = """
+(** 
+some [link][ref] to
+
+  [ref]: http://there "Author: Article"
+*)"""
+  let doc = Literate.ParseScriptString(content, "C:\\A.fsx", formatAgent, references=true)
+  doc.Paragraphs |> shouldMatchPar (function ListBlock(_, _) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchSpan (function Literal("Article") -> true | _ -> false) 
+  doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author") -> true | _ -> false) 
+
+[<Test>]
+let ``Can report errors in F# code snippets (in F# script file)`` () =
+  let content = """
+**hello**
+
+    let test = 4 + 1.0"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent = formatAgent)
+  doc.Errors |> Seq.length |> should be (greaterThan 0)
+
+[<Test>]
+let ``Can report errors in F# code snippets (in Markdown document)`` () =
+  let content = """
+(** **hello** *)
+let test = 4 + 1.0"""
+  let doc = Literate.ParseScriptString(content, "C:\\A.fsx", formatAgent)
+  doc.Errors |> Seq.length |> should be (greaterThan 0)
+
+// --------------------------------------------------------------------------------------
+// Test that parsed documents for Markdown and F# #scripts are the same
+// --------------------------------------------------------------------------------------
+
+let simpleFsx = """
+(** **Hello** *)
+let test = 42"""
+let simpleMd = """
+**Hello**
+
+    let test = 42"""
+
+[<Test>]
+let ``Parsing simple script and markdown produces the same result`` () =
+  let doc1 = Literate.ParseMarkdownString(simpleMd, formatAgent = formatAgent)
+  let doc2 = Literate.ParseScriptString(simpleFsx, formatAgent = formatAgent)
+  doc1 |> shouldEqual doc2
 
 // --------------------------------------------------------------------------------------
 // Test processing simple files using simple templates

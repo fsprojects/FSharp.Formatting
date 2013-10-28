@@ -47,7 +47,9 @@ let smallBreak (ctx:FormattingContext) () =
 let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
-let rec formatSpan (ctx:FormattingContext) = function 
+let rec formatSpan (ctx:FormattingContext) = function
+  | AnchorLink(id) -> ctx.Writer.Write("<a name=\"" + id + "\">&#160;</a>") 
+  | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(str)
   | HardLineBreak -> ctx.Writer.Write("<br />")
   | IndirectLink(body, _, LookupKey ctx.Links (link, title)) 
@@ -106,6 +108,7 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 /// Write a MarkdownParagrpah value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
+  | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
       ctx.Writer.Write("<h" + string n + ">")
       formatSpans ctx spans
@@ -170,7 +173,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</blockquote>")
   | Span spans -> 
       formatSpans ctx spans
-  | HtmlBlock(code) ->
+  | InlineBlock(code) ->
       ctx.Writer.Write(code)
   ctx.LineBreak()
 

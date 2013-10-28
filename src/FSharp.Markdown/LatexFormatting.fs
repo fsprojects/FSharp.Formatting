@@ -57,9 +57,11 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function 
+  | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(latexEncode str)
   | HardLineBreak -> bigBreak ctx ()
 
+  | AnchorLink _ -> ()
   | IndirectLink(body, _, LookupKey ctx.Links (link, _)) 
   | DirectLink(body, (link, _))
   | IndirectLink(body, link, _) ->
@@ -102,6 +104,7 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 /// Write a MarkdownParagrpah value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
+  | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
       let level = 
         match n with
@@ -166,7 +169,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.WriteLine(@"\end{quote}")
   | Span spans -> 
       formatSpans ctx spans
-  | HtmlBlock(code) ->
+  | InlineBlock(code) ->
       //// To be safe, put them into verbatim
       //// Further processing follows later
       //ctx.Writer.Write(@"\begin{lstlisting}")

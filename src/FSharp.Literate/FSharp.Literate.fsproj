@@ -52,8 +52,12 @@
     <Compile Include="..\Common\Razor.fs">
       <Link>Common\Razor.fs</Link>
     </Compile>
-    <Compile Include="Templating.fs" />
-    <Compile Include="Literate.fs" />
+    <Compile Include="Document.fs" />
+    <Compile Include="Contexts.fs" />
+    <Compile Include="ParseScript.fs" />
+    <Compile Include="ParseMarkdown.fs" />
+    <Compile Include="Transformations.fs" />
+    <Compile Include="Formatting.fs" />
     <Compile Include="Main.fs" />
     <None Include="packages.config" />
   </ItemGroup>
