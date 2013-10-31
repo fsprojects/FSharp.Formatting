@@ -46,6 +46,7 @@ document, process the obtained document representation and
 how to turn the code into a nicely formatted HTML.</p>
 
 <p>First, we need to load the assembly and open necessary namespaces:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -56,12 +57,15 @@ how to turn the code into a nicely formatted HTML.</p>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Markdown</span></pre>
 </td>
 </tr>
-</table><h2>Parsing documents</h2>
+</table>
+
+<h2>Parsing documents</h2>
 
 <p>The F# Markdown parser recognizes the standard <a href="http://daringfireball.net/projects/markdown/">Markdown syntax</a>
 and it is not the aim of this tutorial to fully document it. 
 The following snippet creates a simple string containing a document
 with several elements and then parses it using the <code>Markdown.Parse</code> method:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -90,7 +94,9 @@ with several elements and then parses it using the <code>Markdown.Parse</code> m
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">parsed</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">Markdown</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">Parse</span>(<span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">document</span>)</pre>
 </td>
 </tr>
-</table><p>The sample document consists of a first-level heading (written using 
+</table>
+
+<p>The sample document consists of a first-level heading (written using 
 one of the two alternative styles) followed by a paragraph with a 
 <em>direct</em> link, code snippet and one more paragraph that includes an 
 <em>indirect</em> link. The URLs of indirect links are defined by a separate
@@ -103,6 +109,7 @@ from multiple places in the documnet.</p>
 Instead, it builds a nice F# data structure that we can use to analyze, 
 transform and process the document. First of all the <code>DefinedLinks</code> property
 returns all indirect link definitions:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -115,9 +122,12 @@ returns all indirect link definitions:</p>
 <span class="fsi">  dict [(&quot;fsorg&quot;, (&quot;http://fsharp.org&quot;, Some &quot;The F# organization.&quot;))]</span></pre>
 </td>
 </tr>
-</table><p>The document content can be accessed using the <code>Paragraphs</code> property that returns
+</table>
+
+<p>The document content can be accessed using the <code>Paragraphs</code> property that returns
 a sequence of paragraphs or other first-level elements (headings, quotes, code snippets, etc.).
 The following snippet prints the heading of the document:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -140,7 +150,9 @@ The following snippet prints the heading of the document:</p>
   | _ <span class="k">-&gt;</span> ()</pre>
 </td>
 </tr>
-</table><p>You can find more detailed information about the document structure and processing it
+</table>
+
+<p>You can find more detailed information about the document structure and processing it
 in the upcoming <a href="http://manning.com/petricek2/">F# Deep Dives</a> book. The chapter that 
 discusses the design of the Markdown processor is <a href="http://manning.com/petricek2/F_DeepDives_MEAP_ch3.pdf">available as a free sample</a>
 (PDF).</p>
@@ -156,6 +168,7 @@ paragraphs, headings etc.).</p>
 <p>To avoid pattern matching on every single kind of span and every single kind of 
 paragraph, we can use active patterns from the <code>Matching</code> module. These can be use
 to recognize any paragraph or span that can contain child elements:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -208,7 +221,9 @@ to recognize any paragraph or span that can contain child elements:</p>
 <span class="fsi">  seq [&quot;http://fsharp.net&quot;; &quot;http://fsharp.org&quot;]</span></pre>
 </td>
 </tr>
-</table><p>The <code>collectSpanLinks</code> function works on individual span elements that contain inline
+</table>
+
+<p>The <code>collectSpanLinks</code> function works on individual span elements that contain inline
 formatting (emphasis, strong) and also links. The <code>DirectLink</code> node represents an inline
 link like the one pointing to <a href="http://fsharp.net">http://fsharp.net</a> while <code>IndirectLink</code> represents a
 link that uses one of the link definitions. The function simply returns the URL associated
@@ -232,6 +247,7 @@ paragraphs that contain normal text - here we call <code>collectSpanLinks</code>
 
 <p>Finally, the <code>Markdown</code> type also includes method <code>WriteHtml</code> that can be used
 to generate HTML document from the Markdown input. The following example shows how to call it:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 </pre>
@@ -240,7 +256,9 @@ to generate HTML document from the Markdown input. The following example shows h
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 68)" onmouseover="showTip(event, 'fs36', 68)" class="i">html</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 69)" onmouseover="showTip(event, 'fs5', 69)" class="i">Markdown</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 70)" onmouseover="showTip(event, 'fs37', 70)" class="i">WriteHtml</span>(<span onmouseout="hideTip(event, 'fs4', 71)" onmouseover="showTip(event, 'fs4', 71)" class="i">parsed</span>)</pre>
 </td>
 </tr>
-</table><p>In addition, you can also use <code>Markdown.TransformHtml</code> to directly turn input document
+</table>
+
+<p>In addition, you can also use <code>Markdown.TransformHtml</code> to directly turn input document
 in the Markdown format into a HTML document (without the intermediate step).</p>
 
           <div class="tip" id="fs1">namespace FSharp</div>

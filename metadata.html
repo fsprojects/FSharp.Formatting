@@ -54,6 +54,7 @@ a couple of extensions:</p>
 <h2>Building library documentation</h2>
 
 <p>First, we need to load the assembly and open necessary namespaces:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -66,11 +67,14 @@ a couple of extensions:</p>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">IO</span></pre>
 </td>
 </tr>
-</table><p>Building the library documentation is easy - you just need to call
+</table>
+
+<p>Building the library documentation is easy - you just need to call
 <code>MetadataFormat.Generate</code> from your FAKE script or from F# Interactive.
 The method takes three (required) parameters - the path to your <code>dll</code>,
 output directory and directory with Razor templates.
 Assuming <code>root</code> is the root directory for your project, you can write:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -87,10 +91,13 @@ Assuming <code>root</code> is the root directory for your project, you can write
     </pre>
 </td>
 </tr>
-</table><h2>Excluding APIs from the docs</h2>
+</table>
+
+<h2>Excluding APIs from the docs</h2>
 
 <p>If you want to exclude modules or functions from the API docs you can use the <code>[omit]</code> tag.
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -105,7 +112,9 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">a</span> <span class="o">=</span> <span class="n">42</span></pre>
 </td>
 </tr>
-</table><h2>Work in progress!</h2>
+</table>
+
+<h2>Work in progress!</h2>
 
 <p>This library is under active development and it is not completely functional.
 For more examples of how it can be used, see the 

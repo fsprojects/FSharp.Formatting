@@ -46,6 +46,7 @@ F# source code, obtain information about the source code (mainly tooltips
 from the type-checker) and how to turn the code into a nicely formatted HTML.</p>
 
 <p>First, we need to load the assembly and open necessary namespaces:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -58,11 +59,14 @@ from the type-checker) and how to turn the code into a nicely formatted HTML.</p
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">Reflection</span></pre>
 </td>
 </tr>
-</table><h2>Starting background agent</h2>
+</table>
+
+<h2>Starting background agent</h2>
 
 <p>The <code>FSharp.CodeFormat</code> namespace contains <code>CodeFormat</code> type which is the
 entry point. The static method <code>CreateAgent</code> starts a background worker that
 can be called to format snippets repeatedly:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -73,7 +77,9 @@ can be called to format snippets repeatedly:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">formattingAgent</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">CodeFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 10)" onmouseover="showTip(event, 'fs10', 10)" class="i">CreateAgent</span>(<span onmouseout="hideTip(event, 'fs5', 11)" onmouseover="showTip(event, 'fs5', 11)" class="i">fsharpCompiler</span>)</pre>
 </td>
 </tr>
-</table><p>If you want to process multiple snippets, it is a good idea to keep the 
+</table>
+
+<p>If you want to process multiple snippets, it is a good idea to keep the 
 formatting agent around if possible. The agent needs to load the F# compiler
 (which needs to load various files itself) and so this takes long. As the above
 example shows, you can specify which version of <code>FSharp.Compiler.dll</code> to use.</p>
@@ -83,6 +89,7 @@ example shows, you can specify which version of <code>FSharp.Compiler.dll</code>
 <p>The formatting agent provides <code>ParseSource</code> method (together with an asynchronous
 version for use from F# and also a version that returns .NET <code>Task</code> for C#).
 To call the method, we define a simple F# code as a string:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -99,7 +106,9 @@ To call the method, we define a simple F# code as a string:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">snippets</span>, <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">errors</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="i">formattingAgent</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">ParseSource</span>(<span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\\</span><span class="s">snippet</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>, <span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">source</span>)</pre>
 </td>
 </tr>
-</table><p>When calling the method, you need to specify a file name and the actual content
+</table>
+
+<p>When calling the method, you need to specify a file name and the actual content
 of the script file. The file does not have to physically exist. It is used by the
 F# compiler to resolve relative references (e.g. <code>#r</code>) and to automatically name
 the module including all code in the file.</p>
@@ -119,6 +128,7 @@ as those used on <a href="http://www.fssnip.net">fssnip.net</a> as documented in
 <p>Each returned snippet is essentially just a collection of lines and each line 
 consists of a sequence of tokens. The following snippet prints basic information
 about the tokens of our sample snippet:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -155,7 +165,9 @@ about the tokens of our sample snippet:</p>
   <span onmouseout="hideTip(event, 'fs32', 49)" onmouseover="showTip(event, 'fs32', 49)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
-</table><p>The <code>TokenSpan.Token</code> is the most important kind of token. It consists of a kind
+</table>
+
+<p>The <code>TokenSpan.Token</code> is the most important kind of token. It consists of a kind
 (identifier, keyword, etc.), the original F# code and tool tip information.
 The tool tip is further formatted using a simple document format, but we simply 
 print the value using the F# pretty printing, so the result looks as follows:</p>
@@ -174,6 +186,7 @@ underlined with red squiggle if the code contains an error.</p>
 <p>Finally, the <code>CodeFormat</code> type also includes method <code>FormatHtml</code> that can be used
 to generate nice HTML output from an F# snippet. This is used, for example on 
 <a href="http://www.fssnip.net">F# Snippets</a>. The following example shows how to call it:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -198,7 +211,9 @@ to generate nice HTML output from an F# snippet. This is used, for example on
 <span onmouseout="hideTip(event, 'fs32', 62)" onmouseover="showTip(event, 'fs32', 62)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs37', 63)" onmouseover="showTip(event, 'fs37', 63)" class="i">html</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 64)" onmouseover="showTip(event, 'fs42', 64)" class="i">ToolTip</span></pre>
 </td>
 </tr>
-</table><p>If the input contains multiple snippets spearated using the <code>[snippet:...]</code> comment,
+</table>
+
+<p>If the input contains multiple snippets spearated using the <code>[snippet:...]</code> comment,
 then the formatter returns multiple HTML blocks. However, the generated tool tips
 are shared by all snippets (to save space) and so they are returned separately.</p>
 
