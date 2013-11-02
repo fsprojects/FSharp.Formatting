@@ -119,7 +119,7 @@ type Literate private () =
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?errorHandler, ?layoutRoots ) = 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
     let doc = 
       Literate.ParseScriptFile
         ( input, ?fsharpCompiler=fsharpCompiler, ?compilerOptions=compilerOptions, 

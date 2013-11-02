@@ -11,3 +11,6 @@
 * 2.1.4 - Includes templates, support Razor for literate templates, bugs fixed
 * 2.1.5 - Improve default templates for open-source projects
 * 2.1.6 - Improve default templates for open-source projects (again)
+* 2.2.0 - Refactor literate tools
+* 2.2.1 - Remove (now unused) error handler parameter in literate (use ParseScript instead)
+* 2.2.2 - Nicer CSS style for API reference docs
