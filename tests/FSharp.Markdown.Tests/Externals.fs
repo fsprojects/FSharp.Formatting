@@ -60,13 +60,33 @@ let testdir = __SOURCE_DIRECTORY__ ++ "..\\..\\tests\\Benchmarks\\testfiles\\"
 
 let getTest() = genTestCases testdir
 
-//[<Test;Ignore>]
-//[<TestCaseSource("getTest")>]
+let failingTests = 
+    set [
+        "Auto_links.text";
+        "Inline_HTML_comments.text";
+        "Ordered_and_unordered_lists.text";
+        "line-endings-cr.text";
+        "line-endings-crlf.text";
+        "line-endings-lf.text";
+        "markdown-readme.text";
+        "nested-emphasis.text";
+        "Email auto links.text";
+        "Emphasis.text";
+        "Inline HTML (Span).text";
+        "Ins & del.text";
+        "Links, inline style.text";
+        "Nesting.text";
+        "Parens in URL.text";
+    ]
+
+[<Test>]
+[<TestCaseSource("getTest")>]
 let ``Run external tests`` (actualName : string) (expectedName : string) (actual : string) (expected : string) =
-    if actual = expected then File.Delete(expectedName)  
-    Assert.That(actual, Is.EqualTo(expected),
-                "Mismatch between '{0}' and the transformed '{1}'.",
-                actualName, expectedName)
+    if not <| Set.contains (Path.GetFileName(actualName)) failingTests then
+        if actual = expected then File.Delete(expectedName) else System.Console.WriteLine("FILE:{0}\n", actualName);
+        Assert.That(actual, Is.EqualTo(expected),
+                    "Mismatch between '{0}' and the transformed '{1}'.",
+                    actualName, expectedName)
             
 
 
