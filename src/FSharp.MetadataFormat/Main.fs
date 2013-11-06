@@ -252,15 +252,18 @@ module ValueReader =
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors and indexers
       | _, _, ".ctor", _ -> "new " + tyname
-      | _, true, _, "Item" -> (uncapitalize tyname) + ".[" + (defaultArg args "...") + "]"
+      //| _, true, _, "Item" -> (uncapitalize tyname) + ".[" + (defaultArg args "...") + "]"
+      | _, true, _, "Item" -> "[" + (defaultArg args "...") + "]"
       // Ordinary instance members
-      | _, true, _, name -> (uncapitalize tyname) + "." + name + (defaultArg parArgs "(...)")
+      //| _, true, _, name -> (uncapitalize tyname) + "." + name + (defaultArg parArgs "(...)")
+      | _, true, _, name -> name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
       | false, _, _, name when 
           not (hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes) -> 
             name + " " + (defaultArg args "(...)")
       // Ordinary static members or things (?) that require fully qualified access
-      | _, _, _, name -> tyname + "." + name + (defaultArg parArgs "(...)")
+      //| _, _, _, name -> tyname + "." + name + (defaultArg parArgs "(...)")
+      | _, _, _, name -> name + (defaultArg parArgs "(...)")
 
     let modifiers =
       [ // TODO: v.Accessibility does not contain anything
