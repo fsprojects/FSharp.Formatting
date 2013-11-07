@@ -128,7 +128,7 @@ let rec parseChars acc input = seq {
 
   // Inline link wrapped as <http://foo.bar>
   | List.DelimitedWith ['<'] ['>'] (List.AsString link, rest) 
-        when link.Contains("@") || link.Contains("://") ->
+        when Seq.forall (Char.IsWhiteSpace >> not) link && (link.Contains("@") || link.Contains("://")) ->
       yield! accLiterals.Value
       yield DirectLink([Literal link], (link, None))
       yield! parseChars [] rest
