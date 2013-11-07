@@ -38,7 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack.Metadata">
-      <HintPath>..\..\packages\Binaries\FSharp.PowerPack.Metadata.dll</HintPath>
+      <HintPath>..\..\lib\FSharp.PowerPack.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="RazorEngine">
