@@ -251,7 +251,8 @@ module ValueReader =
         else sprintf "(%s)" s)
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors and indexers
-      | _, _, ".ctor", _ -> "new " + tyname
+      //| _, _, ".ctor", _ -> "new " + tyname
+      | _, _, ".ctor", _ -> "new" + (defaultArg parArgs "(...)")
       //| _, true, _, "Item" -> (uncapitalize tyname) + ".[" + (defaultArg args "...") + "]"
       | _, true, _, "Item" -> "[" + (defaultArg args "...") + "]"
       // Ordinary instance members
