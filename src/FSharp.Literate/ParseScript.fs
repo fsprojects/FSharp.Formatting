@@ -157,4 +157,4 @@ module internal ParseScript =
     let (Snippet(_, lines)) = match sourceSnippets with [| it |] -> it | _ -> failwith "multiple snippets"
     let parsedBlocks = parseScriptFile lines 
     let paragraphs, defs = transformBlocks [] [] (List.ofSeq parsedBlocks)
-    LiterateDocument(paragraphs, "", defs, LiterateSource.Script sourceSnippets, errors)
+    LiterateDocument(paragraphs, "", defs, LiterateSource.Script sourceSnippets, file, errors)

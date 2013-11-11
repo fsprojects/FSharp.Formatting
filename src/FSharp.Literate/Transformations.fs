@@ -6,6 +6,7 @@ open System.Web
 open System.Reflection
 open System.Collections.Generic
 
+open CSharpFormat
 open FSharp.Patterns
 open FSharp.CodeFormat
 open FSharp.Markdown
@@ -48,7 +49,9 @@ module Transformations =
             let lines = File.ReadAllLines(file)
             let startIdx = lines |> Seq.findIndex (fun l -> l.Contains startTag)
             let endIdx = lines |> Seq.findIndex (fun l -> l.Contains endTag)
-            lines.[startIdx + 1 .. endIdx - 1] |> String.concat "\n"
+            lines.[startIdx + 1 .. endIdx - 1] 
+            |> String.removeSpaces
+            |> String.concat "\n"
           else code
 
         if (cmds.ContainsKey("lang")) && cmds.["lang"] <> "fsharp" then 
@@ -222,7 +225,9 @@ module Transformations =
             let inlined = 
               match ctx.OutputKind with
               | OutputKind.Html ->
-                  sprintf "<pre lang=\"%s\">%s</pre>" lang (HttpUtility.HtmlEncode code)
+                  let code = HttpUtility.HtmlEncode code
+                  let code = SyntaxHighlighter.FormatCode(lang, code)
+                  sprintf "<pre lang=\"%s\">%s</pre>" lang code
               | OutputKind.Latex ->
                   sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
             Some(InlineBlock(inlined))

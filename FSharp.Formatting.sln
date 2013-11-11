@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{5C565F18
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Literate", "Literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
 	ProjectSection(SolutionItems) = preProject
 		misc\literate\build.fsx = misc\literate\build.fsx
 		misc\literate\demo.fsx = misc\literate\demo.fsx
@@ -59,6 +59,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BEE70727
 		docs\tools\template-sidebyside.html = docs\tools\template-sidebyside.html
 		docs\tools\template.html = docs\tools\template.html
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpFormat", "src\CSharpFormat\CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +116,16 @@ Global
 		{65E6D541-0486-4383-B619-5CFC5D2BA2F0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{65E6D541-0486-4383-B619-5CFC5D2BA2F0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{65E6D541-0486-4383-B619-5CFC5D2BA2F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

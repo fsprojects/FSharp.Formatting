@@ -72,7 +72,7 @@ type Literate private () =
   static member ParseMarkdownFile
     ( path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
     let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
-    ParseMarkdown.parseMarkdown (File.ReadAllText path) 
+    ParseMarkdown.parseMarkdown path (File.ReadAllText path) 
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
 
@@ -80,7 +80,7 @@ type Literate private () =
   static member ParseMarkdownString
     ( content, ?path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
     let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
-    ParseMarkdown.parseMarkdown content
+    ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
 
@@ -88,16 +88,24 @@ type Literate private () =
   // Simple writing functions
   // ------------------------------------------------------------------------------------
 
-  static member WriteHtml(doc:LiterateDocument) =
+  static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers) =
+    let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None None None
+    let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
-  static member WriteLatex(doc:LiterateDocument) =
+  static member WriteLatex(doc:LiterateDocument, ?prefix, ?lineNumbers) =
+    let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None None None
+    let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
-  static member WriteHtml(doc:LiterateDocument, writer:TextWriter) =
+  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers) =
+    let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None None None
+    let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
-  static member WriteLatex(doc:LiterateDocument, writer:TextWriter) =
+  static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers) =
+    let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None None None
+    let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
   // ------------------------------------------------------------------------------------

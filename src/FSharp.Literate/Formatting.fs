@@ -112,6 +112,7 @@ module Templating =
     let parameters = 
       ctx.Replacements @ sourceReplacements @
       [ "page-title", pageTitle
+        "page-source", doc.SourceFile
         contentTag, formattedDocument
         "tooltips", tipsHtml ]
     generateFile contentTag parameters ctx.TemplateFile output ctx.LayoutRoots

@@ -98,6 +98,21 @@ module String =
     | StartsWithRepeated repeated (n, "") -> Some()
     | _ -> None 
 
+  /// Given a list of lines indented with certan number of whitespace 
+  /// characters (spaces), remove the spaces from the beginning of each line 
+  /// and return the string as a list of lines
+  let removeSpaces lines =
+    let spaces =
+      lines 
+      |> Seq.filter (String.IsNullOrWhiteSpace >> not)
+      |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
+      |> Seq.min
+    lines 
+    |> Seq.map (fun line -> 
+        if String.IsNullOrWhiteSpace(line) then ""
+        else line.Substring(spaces))
+
+
 module List =
   /// Matches a list if it starts with a sub-list that is delimited
   /// using the specified delimiters. Returns a wrapped list and the rest.

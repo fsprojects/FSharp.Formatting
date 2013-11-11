@@ -1,3 +1,5 @@
+src/CSharpFormat/bin
+src/CSharpFormat/obj
 src/FSharp.CodeFormat/bin
 src/FSharp.CodeFormat/obj
 src/FSharp.CodeFormat.Tests/bin

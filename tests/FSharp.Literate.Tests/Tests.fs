@@ -78,6 +78,22 @@ let test = 4 + 1.0"""
   doc.Errors |> Seq.length |> should be (greaterThan 0)
 
 // --------------------------------------------------------------------------------------
+// Formatting C# code snippets
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Can format the var keyword in C# code snippet`` () =
+  let content = """
+hello
+
+    [lang=csharp]
+    var a = 10 < 10;"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=formatAgent)
+  let html = Literate.WriteHtml(doc)
+  html |> should contain "<span class=\"k\">var</span>"
+
+
+// --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
 // --------------------------------------------------------------------------------------
 

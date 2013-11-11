@@ -16,3 +16,5 @@
 * 2.2.2 - Nicer CSS style for API reference docs
 * 2.2.3 - Better recognition of links
 * 2.2.4-beta - Experimental - get snippet from file, some evaluation stuff
+* 2.2.5-beta - Add formatting for non-fsharp code, remove indents when importing snippet
+* 2.2.6-beta - Add page-source parameter for Razor tempalting

@@ -27,7 +27,7 @@ type LiterateSource =
 
 /// Representation of a literate document - the representation of Paragraphs
 /// uses an F# discriminated union type and so is best used from F#.
-type LiterateDocument(paragraphs, formattedTips, links, source, errors) =
+type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, errors) =
   // Get the content of the document as a structurally comparable tuple
   let asTuple (doc:LiterateDocument) = 
     List.ofSeq doc.DefinedLinks.Keys, List.ofSeq doc.DefinedLinks.Values,
@@ -41,6 +41,8 @@ type LiterateDocument(paragraphs, formattedTips, links, source, errors) =
   member x.Errors : seq<SourceError> = errors
   /// Original document source code
   member x.Source : LiterateSource = source
+  /// Location where the file was loaded from
+  member x.SourceFile : string = sourceFile
   /// Formatted tool tips
   member x.FormattedTips : string = formattedTips
 
@@ -55,11 +57,11 @@ type LiterateDocument(paragraphs, formattedTips, links, source, errors) =
   override x.GetHashCode() = (asTuple x).GetHashCode()
 
   /// Clone the document and change some of its properties
-  member x.With(?paragraphs, ?formattedTips, ?definedLinks, ?source, ?errors) =
+  member x.With(?paragraphs, ?formattedTips, ?definedLinks, ?source, ?sourceFile, ?errors) =
     LiterateDocument
       ( defaultArg paragraphs x.Paragraphs, defaultArg formattedTips x.FormattedTips,
-        defaultArg definedLinks x.DefinedLinks,
-        defaultArg source x.Source, defaultArg errors x.Errors )
+        defaultArg definedLinks x.DefinedLinks, defaultArg source x.Source, 
+        defaultArg sourceFile x.SourceFile, defaultArg errors x.Errors )
 
 // --------------------------------------------------------------------------------------
 // Pattern matching helpers

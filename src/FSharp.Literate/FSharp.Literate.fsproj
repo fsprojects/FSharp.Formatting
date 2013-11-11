@@ -87,6 +87,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
+    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj">
+      <Name>CSharpFormat</Name>
+      <Project>{9ab3650b-cc24-4404-a175-a573da928475}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
       <Name>FSharp.CodeFormat</Name>
       <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>

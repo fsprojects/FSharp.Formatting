@@ -363,15 +363,7 @@ module Reader =
       [ let line = ref ""
         while (line := reader.ReadLine(); line.Value <> null) do
           yield line.Value ]
-    let spaces =
-      lines 
-      |> Seq.filter (String.IsNullOrWhiteSpace >> not)
-      |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
-      |> Seq.min
-    lines 
-    |> Seq.map (fun line -> 
-        if String.IsNullOrWhiteSpace(line) then ""
-        else line.Substring(spaces))
+    String.removeSpaces lines
 
   let readMarkdownComment (doc:MarkdownDocument) = 
     let groups = System.Collections.Generic.Dictionary<_, _>()
