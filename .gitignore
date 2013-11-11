@@ -29,3 +29,4 @@ TestResults.xml
 TestResult.xml
 temp/
 tests/Benchmarks/testfiles/*/*.html
+*.sln.DotSettings.user

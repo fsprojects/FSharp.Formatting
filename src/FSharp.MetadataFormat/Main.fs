@@ -40,6 +40,10 @@ type MemberKind =
   | InstanceMember = 4
   | StaticMember = 5 
 
+  // In a class, F# special members
+  | UnionCase = 100
+  | RecordField = 101
+
 type Member =
   { Name : string
     Category : string
@@ -55,12 +59,16 @@ type Type =
     UrlName : string
     Comment : Comment 
 
+    UnionCases : Member list
+    RecordFields : Member list
+
     AllMembers : Member list
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
-  static member Create(name, url, comment, ctors, inst, stat) = 
+  static member Create(name, url, comment, cases, fields, ctors, inst, stat) = 
     { Type.Name = name; UrlName = url; Comment = comment;
+      UnionCases = cases; RecordFields = fields
       AllMembers = List.concat [ ctors; inst; stat] ;
       Constructors = ctors; InstanceMembers = inst; StaticMembers = stat }
 
@@ -243,16 +251,20 @@ module ValueReader =
         else sprintf "(%s)" s)
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors and indexers
-      | _, _, ".ctor", _ -> "new " + tyname
-      | _, true, _, "Item" -> (uncapitalize tyname) + ".[" + (defaultArg args "...") + "]"
+      //| _, _, ".ctor", _ -> "new " + tyname
+      | _, _, ".ctor", _ -> "new" + (defaultArg parArgs "(...)")
+      //| _, true, _, "Item" -> (uncapitalize tyname) + ".[" + (defaultArg args "...") + "]"
+      | _, true, _, "Item" -> "[" + (defaultArg args "...") + "]"
       // Ordinary instance members
-      | _, true, _, name -> (uncapitalize tyname) + "." + name + (defaultArg parArgs "(...)")
+      //| _, true, _, name -> (uncapitalize tyname) + "." + name + (defaultArg parArgs "(...)")
+      | _, true, _, name -> name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
       | false, _, _, name when 
           not (hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes) -> 
             name + " " + (defaultArg args "(...)")
       // Ordinary static members or things (?) that require fully qualified access
-      | _, _, _, name -> tyname + "." + name + (defaultArg parArgs "(...)")
+      //| _, _, _, name -> tyname + "." + name + (defaultArg parArgs "(...)")
+      | _, _, _, name -> name + (defaultArg parArgs "(...)")
 
     let modifiers =
       [ // TODO: v.Accessibility does not contain anything
@@ -327,6 +339,22 @@ module ValueReader =
     //layoutAttribs denv v.Attributes 
     usageL  , docL, noteL
     *)
+
+  let readUnionCase (case:FSharpUnionCase) =
+    let usage (maxLength:int) = case.Name
+    let modifiers = List.empty
+    let typeparams = List.empty
+    let signature = case.Fields |> List.ofSeq |> List.map (fun field -> formatType field.Type) |> String.concat " * "
+    MemberOrValue.Create(usage, modifiers, typeparams, signature)
+
+  let readRecordField (field:FSharpRecordField) =
+    let usage (maxLength:int) = field.Name
+    let modifiers =
+      [ if field.IsMutable then yield "mutable"
+        if field.IsStatic then yield "static" ]
+    let typeparams = List.empty
+    let signature = formatType field.Type
+    MemberOrValue.Create(usage, modifiers, typeparams, signature)
 
 module Reader =
   open FSharp.Markdown
@@ -443,6 +471,28 @@ module Reader =
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
     |> Seq.filter cond |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
+  let readTypeName (typ:FSharpEntity) =
+    typ.GenericParameters
+    |> List.ofSeq
+    |> List.map (fun p -> sprintf "'%s" p.Name)
+    |> function
+    | [] -> typ.DisplayName
+    | gnames -> sprintf "%s<%s>" typ.DisplayName (String.concat ", " gnames)
+
+  let readUnionCases ctx (typ:FSharpEntity) =
+    typ.UnionCases
+    |> List.ofSeq
+    |> List.choose (fun case ->
+      readCommentsInto ctx case.XmlDocSig (fun cat _ comment ->
+        Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase case, comment)))
+
+  let readRecordFields ctx (typ:FSharpEntity) =
+    typ.RecordFields
+    |> List.ofSeq
+    |> List.choose (fun field ->
+      readCommentsInto ctx field.XmlDocSig (fun cat _ comment ->
+        Member.Create(field.Name, MemberKind.RecordField, cat, readRecordField field, comment)))
+
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
   // ----------------------------------------------------------------------------------------------
@@ -471,12 +521,15 @@ module Reader =
               newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>"))) 
       *)
 
-
+      let name = readTypeName typ
+      let cases = readUnionCases ctx typ
+      let fields = readRecordFields ctx typ
+        
       let ctors = readAllMembers ctx MemberKind.Constructor cvals 
       let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
       Type.Create
-        ( typ.DisplayName, urlName, comment, ctors, inst, stat ))
+        ( name, urlName, comment, cases, fields, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
