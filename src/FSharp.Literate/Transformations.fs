@@ -36,11 +36,21 @@ module Transformations =
 
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
-  let rec private replaceCodeSnippets (codeLookup:IDictionary<_, _>) = function
-    | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
-        when cmds.ContainsKey("hide") -> None
+  let rec private replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
     | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
     | CodeBlock(Let (dict []) (cmds, code)) ->
+        if cmds.ContainsKey("hide") then None else
+        let code = 
+          if cmds.ContainsKey("file") && cmds.ContainsKey("key") then 
+            // Get snippet from an external file
+            let file = Path.Combine(Path.GetDirectoryName(path), cmds.["file"])
+            let startTag, endTag = "[" + cmds.["key"] + "]", "[/" + cmds.["key"] + "]"
+            let lines = File.ReadAllLines(file)
+            let startIdx = lines |> Seq.findIndex (fun l -> l.Contains startTag)
+            let endIdx = lines |> Seq.findIndex (fun l -> l.Contains endTag)
+            lines.[startIdx + 1 .. endIdx - 1] |> String.concat "\n"
+          else code
+
         if (cmds.ContainsKey("lang")) && cmds.["lang"] <> "fsharp" then 
           Some (EmbedParagraphs(LanguageTaggedCode(cmds.["lang"], code)))
         else
@@ -48,7 +58,7 @@ module Transformations =
 
     // Recursively process nested paragraphs, other nodes return without change
     | Matching.ParagraphNested(pn, nested) ->
-        let pars = List.map (List.choose (replaceCodeSnippets codeLookup)) nested
+        let pars = List.map (List.choose (replaceCodeSnippets path codeLookup)) nested
         Matching.ParagraphNested(pn, pars) |> Some
     | other -> Some other
 
@@ -60,34 +70,33 @@ module Transformations =
 
     // Extract all CodeBlocks and pass them to F# snippets
     let codes = doc.Paragraphs |> Seq.collect collectCodeSnippets |> Array.ofSeq
-    if codes.Length = 0 then doc else
+    let snippetLookup, errors = 
+      if codes.Length = 0 then dict [], [||] else
+        // If there are some F# snippets, we build an F# source file
+        let blocks = codes |> Seq.mapi (fun index -> function
+          | Some modul, code ->
+              // Generate module & add indentation
+              "module " + modul + " =\n" +
+              "// [snippet:" + (string index) + "]\n" +
+              "    " + code.Replace("\n", "\n    ") + "\n" +
+              "// [/snippet]"
+          | None, code ->
+              "// [snippet:" + (string index) + "]\n" +
+              code + "\n" +
+              "// [/snippet]" ) 
+        let modul = "module " + (new String(name |> Seq.filter Char.IsLetter |> Seq.toArray))
+        let source = modul + "\r\n" + (String.concat "\n\n" blocks)
 
-    // If there are some F# snippets, we build an F# source file
-    let blocks = codes |> Seq.mapi (fun index -> function
-      | Some modul, code ->
-          // Generate module & add indentation
-          "module " + modul + " =\n" +
-          "// [snippet:" + (string index) + "]\n" +
-          "    " + code.Replace("\n", "\n    ") + "\n" +
-          "// [/snippet]"
-      | None, code ->
-          "// [snippet:" + (string index) + "]\n" +
-          code + "\n" +
-          "// [/snippet]" ) 
-    let modul = "module " + (new String(name |> Seq.filter Char.IsLetter |> Seq.toArray))
-    let source = modul + "\r\n" + (String.concat "\n\n" blocks)
-
-    // Process F# script file & build lookup table for replacement
-    let snippets, errors = 
-      ctx.FormatAgent.ParseSource
-        ( Path.ChangeExtension(path, ".fsx"), source, 
-          ?options = ctx.CompilerOptions, ?defines = ctx.DefinedSymbols )
-    let snippetLookup = 
-      [ for (_, code), (Snippet(_, fs)) in Array.zip codes snippets -> 
-          code, fs ] |> dict
+        // Process F# script file & build lookup table for replacement
+        let snippets, errors = 
+          ctx.FormatAgent.ParseSource
+            ( Path.ChangeExtension(path, ".fsx"), source, 
+              ?options = ctx.CompilerOptions, ?defines = ctx.DefinedSymbols )
+        [ for (_, code), (Snippet(_, fs)) in Array.zip codes snippets -> 
+            code, fs ] |> dict, errors
     
     // Replace code blocks with formatted snippets in the document
-    let newPars = doc.Paragraphs |> List.choose (replaceCodeSnippets snippetLookup)
+    let newPars = doc.Paragraphs |> List.choose (replaceCodeSnippets path snippetLookup)
     doc.With(paragraphs = newPars, errors = Seq.append doc.Errors errors)
 
   // ----------------------------------------------------------------------------------------------

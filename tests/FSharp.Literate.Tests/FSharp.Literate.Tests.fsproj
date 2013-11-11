@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.Literate.Tests</RootNamespace>
     <AssemblyName>FSharp.Literate.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <Name>FSharp.Literate.Tests</Name>
@@ -55,7 +55,9 @@
     <Compile Include="..\Common\MarkdownUnit.fs">
       <Link>Common\MarkdownUnit.fs</Link>
     </Compile>
+    <Compile Include="Setup.fs" />
     <Compile Include="Tests.fs" />
+    <Compile Include="EvalTests.fs" />
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

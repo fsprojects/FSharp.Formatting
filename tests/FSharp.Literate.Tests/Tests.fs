@@ -6,47 +6,21 @@
 #r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #load "../Common/MarkdownUnit.fs"
+#load "Setup.fs"
 #else
 module FSharp.Literate.Tests.Simple
 #endif
 
 open FsUnit
-open System
-open System.IO
-open System.Reflection
 open FSharp.Literate
 open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
-
-// --------------------------------------------------------------------------------------
-// Setup - find the compiler assembly etc.
-// --------------------------------------------------------------------------------------
-
-let (@@) a b = Path.Combine(a, b)
-
-let compilerAsembly =
-  let files = 
-    [ @"%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0\FSharp.Compiler.dll"
-      @"%ProgramFiles(x86)%\Microsoft SDKs\F#\3.0\Framework\v4.0\FSharp.Compiler.dll"
-      @"%ProgramFiles(x86)%\Microsoft F#\v4.0\FSharp.Compiler.dll" ]
-  files |> Seq.pick (fun file ->
-    let file = Environment.ExpandEnvironmentVariables(file)
-    if File.Exists(file) then Some(Assembly.LoadFile(file))
-    else None)
-
-type TempFile() =
-  let file = Path.GetTempFileName()
-  member x.File = file
-  member x.Content = File.ReadAllText(file)
-  interface IDisposable with
-    member x.Dispose() = File.Delete(file)
+open FSharp.Literate.Tests.Setup
 
 // --------------------------------------------------------------------------------------
 // Test standalone literate parsing
 // --------------------------------------------------------------------------------------
-
-let formatAgent = FSharp.CodeFormat.CodeFormat.CreateAgent(compilerAsembly)
 
 [<Test>]
 let ``Can parse and format literate F# script`` () =
