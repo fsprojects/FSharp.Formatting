@@ -11,6 +11,12 @@ open NUnit.Framework
 open FSharp.Markdown
 
 [<Test>]
+let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
+  let doc = """<a href="mailto:a@b.c">hi</a>""" |> Markdown.Parse
+  doc.Paragraphs
+  |> shouldEqual [ Paragraph [Literal """<a href="mailto:a@b.c">hi</a>""" ]]
+
+[<Test>]
 let ``Headings ending with F# are parsed correctly`` () =
   let doc = """
 ## Hello F#

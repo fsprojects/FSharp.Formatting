@@ -31,6 +31,22 @@ let removeWhitespace(s : string) =
     let s = s.Replace("\n", "");
     s
 
+let failingTests = 
+    set [
+        "Auto_links.text";
+        "Inline_HTML_comments.text";
+        "Ordered_and_unordered_lists.text";
+        "markdown-readme.text";
+        "nested-emphasis.text";
+        "Email auto links.text";
+        "Emphasis.text";
+        "Inline HTML (Span).text";
+        "Ins & del.text";
+        "Links, inline style.text";
+        "Nesting.text";
+        "Parens in URL.text";
+    ]
+
 let rec genTestCases (dir : string) =
     let generate (source : string) (target : string) (verify : string) = 
         try 
@@ -42,7 +58,10 @@ let rec genTestCases (dir : string) =
                 File.WriteAllLines(verify, contents)
                 let targetHtml = removeWhitespace(File.ReadAllText(target))
                 let verifyHtml = removeWhitespace(File.ReadAllText(verify))
-                [ TestCaseData(source, target, verifyHtml, targetHtml) ]
+                if not <| Set.contains (Path.GetFileName(source)) failingTests then
+                    [ TestCaseData(source, target, verifyHtml, targetHtml) ]
+                else
+                    []
             else
                 []
         with e -> 
@@ -60,10 +79,10 @@ let testdir = __SOURCE_DIRECTORY__ ++ "..\\..\\tests\\Benchmarks\\testfiles\\"
 
 let getTest() = genTestCases testdir
 
-//[<Test;Ignore>]
-//[<TestCaseSource("getTest")>]
-let ``Run external tests`` (actualName : string) (expectedName : string) (actual : string) (expected : string) =
-    if actual = expected then File.Delete(expectedName)  
+[<Test>]
+[<TestCaseSource("getTest")>]
+let ``Run external test`` (actualName : string) (expectedName : string) (actual : string) (expected : string) =
+    if actual = expected then File.Delete(expectedName)
     Assert.That(actual, Is.EqualTo(expected),
                 "Mismatch between '{0}' and the transformed '{1}'.",
                 actualName, expectedName)

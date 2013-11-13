@@ -127,7 +127,7 @@ module internal ParseScript =
         transformBlocks acc defs blocks
     // Unknown command
     | BlockCommand(cmds)::_ ->
-        failwith "Unknown commands: %A" [for (KeyValue(k, v)) in cmds -> sprintf "%s:%s" k v]
+        failwithf "Unknown command: %A" [for (KeyValue(k, v)) in cmds -> sprintf "%s:%s" k v]
 
     // Skip snippets with no content
     | BlockSnippet([])::blocks ->
