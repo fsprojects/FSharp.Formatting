@@ -15,3 +15,4 @@
 * 2.2.1 - Remove (now unused) error handler parameter in literate (use ParseScript instead)
 * 2.2.2 - Nicer CSS style for API reference docs
 * 2.2.3 - Better recognition of links
+* 2.2.4 - Add inline Latex support (thanks to Xiang Zhang!)
