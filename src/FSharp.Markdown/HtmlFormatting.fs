@@ -48,6 +48,10 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function
+  | LatexInlineMath(body) ->
+    // use mathjax grammar, for detail, check: http://www.mathjax.org/
+    ctx.Writer.Write("<span class=\"math\">\\(" + body + "\\)</span>")
+
   | AnchorLink(id) -> ctx.Writer.Write("<a name=\"" + id + "\">&#160;</a>") 
   | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(str)
@@ -108,6 +112,11 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 /// Write a MarkdownParagrpah value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
+  | LatexBlock(lines) ->
+    // use mathjax grammar, for detail, check: http://www.mathjax.org/
+    let body = String.concat ctx.Newline lines
+    ctx.Writer.Write("<p><span class=\"math\">\\[" + body + "\\]</span></p>")
+
   | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
       ctx.Writer.Write("<h" + string n + ">")

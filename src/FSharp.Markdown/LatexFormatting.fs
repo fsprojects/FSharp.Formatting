@@ -57,6 +57,7 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function 
+  | LatexInlineMath(body) -> ctx.Writer.Write(sprintf "$%s$" body)
   | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(latexEncode str)
   | HardLineBreak -> bigBreak ctx ()
@@ -104,6 +105,13 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 /// Write a MarkdownParagrpah value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
+  | LatexBlock(lines) ->
+    ctx.ParagraphIndent()
+    bigBreak ctx ()
+    for line in lines do
+      ctx.Writer.WriteLine(line)
+    bigBreak ctx ()
+
   | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
       let level = 

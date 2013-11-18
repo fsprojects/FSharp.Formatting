@@ -33,7 +33,7 @@ let getLinkAndTitle (String.TrimBoth input) =
 let inline (|EscapedChar|_|) input = 
   match input with
   | '\\'::( ( '*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']' 
-            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-') as c) ::rest -> Some(c, rest)
+            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) ::rest -> Some(c, rest)
   | _ -> None
 
 /// Matches a list if it starts with a sub-list that is delimited
@@ -125,6 +125,12 @@ let rec parseChars acc input = seq {
       yield! accLiterals.Value
       yield InlineCode(String(Array.ofList body).Trim())
       yield! parseChars [] rest
+
+  // Inline Latex inline math mode
+  | List.Delimited ['$'] (body, rest) ->
+    yield! accLiterals.Value
+    yield LatexInlineMath(String(Array.ofList body).Trim())
+    yield! parseChars [] rest
 
   // Inline link wrapped as <http://foo.bar>
   | List.DelimitedWith ['<'] ['>'] (List.AsString link, rest) 
@@ -435,6 +441,13 @@ let rec (|Blockquote|_|) = function
       Some (line::continued @ moreLines, rest)
   | _ -> None
 
+/// Recognizes Latex block - start with "$$$"
+let (|LatexBlock|_|) (lines:string list) = lines |> function
+  | first::rest when (first.TrimEnd()) = "$$$" -> rest |> function
+    | TakeParagraphLines(body, rest) -> Some(body, rest)
+    | _ -> None
+  | _ -> None
+
 /// Recognize a definition of a link as in `[key]: http://url ...`
 let (|LinkDefinition|_|) = function
   | ( String.StartsWithWrapped ("[", "]:") (wrapped, String.TrimBoth link) 
@@ -473,6 +486,9 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | HorizontalRule :: (Lines.TrimBlankStart lines) ->
       yield HorizontalRule
       yield! parseParagraphs ctx lines
+  | LatexBlock(body, Lines.TrimBlankStart rest) ->
+    yield LatexBlock(body)
+    yield! parseParagraphs ctx rest
 
 
   // Recognize list of list items and turn it into nested lists

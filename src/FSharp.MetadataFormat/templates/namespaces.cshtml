@@ -22,7 +22,7 @@
 	        {
             <tr>
 		          <td class="type-name">
-                <a href="@(it.UrlName).html">@it.Name</a>
+                <a href="@(it.UrlName).html">@Html.Encode(it.Name)</a>
 		          </td>
               <td class="xmldoc">@it.Comment.Blurb</td>
             </tr>
