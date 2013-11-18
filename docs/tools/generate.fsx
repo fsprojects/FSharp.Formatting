@@ -51,28 +51,27 @@ let generateDocs() =
   Literate.ProcessDirectory
     ( sources, template, output, OutputKind.Html, replacements = projInfo )
 
-  // Process the sidebyside/script.fsx script separately
-  let scriptInfo = projInfo @ [ "custom-title", "F# Script file: Side-by-side example" ]
-  let changeTime = File.GetLastWriteTime(source ++ "../content/sidebyside/script.fsx")
-  let generateTime = File.GetLastWriteTime(output ++ "sidescript.html")
-  if changeTime > generateTime then
-    printfn "Generating 'sidescript.html'"
+  // Process the side-by-side scripts and markdown documents separately
+  let processScript input output scriptInfo =
     Literate.ProcessScriptFile
-      ( Path.Combine(source, "../content/sidebyside/script.fsx"), templateSideBySide,
-        Path.Combine(output, "sidescript.html"), 
-        compilerOptions = options, replacements = scriptInfo, includeSource = true)
-
-  // Process the sidebyside/markdown.md file separately
-  let scriptInfo = projInfo @ [ "custom-title", "F# Markdown: Side-by-side example" ]
-  let changeTime = File.GetLastWriteTime(source ++ "../content/sidebyside/markdown.md")
-  let generateTime = File.GetLastWriteTime(output ++ "sidemarkdown.html")
-  if changeTime > generateTime then
-    printfn "Generating 'sidemarkdown.html'"
+      ( input, templateSideBySide, output, compilerOptions = options,
+        replacements = scriptInfo, includeSource = true )
+  let processMarkdown input output scriptInfo =
     Literate.ProcessMarkdown
-      ( Path.Combine(source, "../content/sidebyside/markdown.md"), templateSideBySide,
-        Path.Combine(output, "sidemarkdown.html"), 
-        compilerOptions = options, replacements = scriptInfo, includeSource = true)
-
+      ( input, templateSideBySide, output, compilerOptions = options,
+        replacements = scriptInfo, includeSource = true )
+  let sideBySideScripts = 
+    [ "script.fsx", "sidescript.html", "F# Script file: Side-by-side example", processScript
+      "extensions.md", "sideextensions.html", "F# Markdown: Formatting extensions", processMarkdown 
+      "markdown.md", "sidemarkdown.html", "F# Markdown: Side-by-side example", processMarkdown ]
+          
+  for file, outFile, title, proc in sideBySideScripts do
+    let scriptInfo = projInfo @ [ "custom-title", title ]
+    let changeTime = File.GetLastWriteTime(source ++ ("../content/sidebyside/" + file))
+    let generateTime = File.GetLastWriteTime(output ++ outFile)
+    if not (File.Exists(output ++ outFile)) || (changeTime > generateTime) then
+      printfn "Generating '%s'" outFile
+      proc (source ++ ("../content/sidebyside/" + file)) (output ++ outFile) scriptInfo
 
 // Generate documentation
 generateDocs()

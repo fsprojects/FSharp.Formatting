@@ -49,6 +49,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{7188
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sidebyside", "sidebyside", "{561B2DD7-455E-4464-B585-C8768C633EFC}"
 	ProjectSection(SolutionItems) = preProject
+		docs\content\sidebyside\extensions.md = docs\content\sidebyside\extensions.md
 		docs\content\sidebyside\markdown.md = docs\content\sidebyside\markdown.md
 		docs\content\sidebyside\script.fsx = docs\content\sidebyside\script.fsx
 	EndProjectSection
