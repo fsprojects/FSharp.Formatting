@@ -142,15 +142,6 @@ td.title, thead {
   Formatting for API reference
 /*--------------------------------------------------------------------------*/
 
-#main h2 {	       
-  font-size: 160%;
-  margin-top:40px;
-}
-#main h3 {
-  font-size: 130%;
-  font-weight: bold;
-  margin-top: 20px;
-}
 .type-list .type-name, .module-list .module-name {
   width:25%;
   font-weight:bold;

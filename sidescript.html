@@ -16,6 +16,7 @@
     <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
     
     <link type="text/css" rel="stylesheet" href="http://tpetricek.github.io/FSharp.Formatting/content/style.css" />
@@ -164,11 +165,11 @@
 <span class="c">*)</span>
 
 <span class="c">/// The Hello World of functional languages!</span>
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fss1', 1)" onmouseover="showTip(event, 'fss1', 1)" class="i">factorial</span> <span onmouseout="hideTip(event, 'fss2', 2)" onmouseover="showTip(event, 'fss2', 2)" class="i">x</span> <span class="o">=</span> 
-  <span class="k">if</span> <span onmouseout="hideTip(event, 'fss2', 3)" onmouseover="showTip(event, 'fss2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
-  <span class="k">else</span> <span onmouseout="hideTip(event, 'fss2', 4)" onmouseover="showTip(event, 'fss2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fss1', 5)" onmouseover="showTip(event, 'fss1', 5)" class="i">factorial</span> (<span onmouseout="hideTip(event, 'fss2', 6)" onmouseover="showTip(event, 'fss2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span> 
+  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
+  <span class="k">else</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="i">factorial</span> (<span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fss3', 7)" onmouseover="showTip(event, 'fss3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fss1', 8)" onmouseover="showTip(event, 'fss1', 8)" class="i">factorial</span> <span class="n">10</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="i">factorial</span> <span class="n">10</span>
 
 <span class="c">(**</span>
 <span class="c">Hiding code</span>
@@ -181,7 +182,7 @@
 
 <span class="c">(*** hide ***)</span>
 <span class="c">/// This is a hidden answer</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fss4', 9)" onmouseover="showTip(event, 'fss4', 9)" class="i">hidden</span> <span class="o">=</span> <span class="n">42</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 9)" onmouseover="showTip(event, 'fs4', 9)" class="i">hidden</span> <span class="o">=</span> <span class="n">42</span>
 
 <span class="c">(** </span>
 <span class="c">The value will be defined in the F# code and so you</span>
@@ -189,7 +190,7 @@
 <span class="c">tool tips:</span>
 <span class="c">*)</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fss5', 10)" onmouseover="showTip(event, 'fss5', 10)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fss4', 11)" onmouseover="showTip(event, 'fss4', 11)" class="i">hidden</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="i">hidden</span>
 
 <span class="c">(** </span>
 <span class="c">Moving code around</span>
@@ -210,7 +211,7 @@
 <span class="c">Then we can explain how `laterFunction` is defined:</span>
 <span class="c">*)</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fss6', 12)" onmouseover="showTip(event, 'fss6', 12)" class="i">laterFunction</span>() <span class="o">=</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="i">laterFunction</span>() <span class="o">=</span> 
   <span class="s">&quot;</span><span class="s">Not</span><span class="s"> </span><span class="s">very</span><span class="s"> </span><span class="s">difficult</span><span class="s">,</span><span class="s"> </span><span class="s">is</span><span class="s"> </span><span class="s">it</span><span class="s">?</span><span class="s">&quot;</span>
 
 <span class="c">(**</span>
@@ -224,12 +225,13 @@
 <span class="c">*)</span>
 
 <span class="c">(*** define:later-bit ***)</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fss7', 13)" onmouseover="showTip(event, 'fss7', 13)" class="i">sample</span> <span class="o">=</span> 
-  <span onmouseout="hideTip(event, 'fss6', 14)" onmouseover="showTip(event, 'fss6', 14)" class="i">laterFunction</span>()
-  <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fss8', 15)" onmouseover="showTip(event, 'fss8', 15)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Got</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">sample</span> <span class="o">=</span> 
+  <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="i">laterFunction</span>()
+  <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Got</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table>
+
             </div>
             <div class="span4">
               <h1>Literate sample</h1>
@@ -255,6 +257,7 @@ using Markdown, which means that you can use:</p>
 <p>Code that is not inside comment will be formatted as
 a sample snippet (which also means that you can 
 run it in Visual Studio or MonoDevelop).</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -273,14 +276,18 @@ run it in Visual Studio or MonoDevelop).</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="i">factorial</span> <span class="n">10</span></pre>
 </td>
 </tr>
-</table><h2>Hiding code</h2>
+</table>
+
+<h2>Hiding code</h2>
 
 <p>If you want to include some code in the source code, 
 but omit it from the output, you can use the <code>hide</code> 
 command.</p>
+
 <p>The value will be defined in the F# code and so you
 can use it from other (visible) code and get correct
 tool tips:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 </pre>
@@ -289,7 +296,9 @@ tool tips:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 9)" onmouseover="showTip(event, 'fs4', 9)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="i">hidden</span></pre>
 </td>
 </tr>
-</table><h2>Moving code around</h2>
+</table>
+
+<h2>Moving code around</h2>
 
 <p>Sometimes, it is useful to first explain some code that
 has to be located at the end of the snippet (perhaps 
@@ -298,6 +307,7 @@ This can be done using <code>include</code> and <code>define</code> commands.</p
 
 <p>The following snippet gets correct tool tips, even though
 it uses <code>laterFunction</code>:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -305,12 +315,15 @@ it uses <code>laterFunction</code>:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fsd1', 1)" onmouseover="showTip(event, 'fsd1', 1)" class="i">sample</span> <span class="o">=</span> 
-  <span onmouseout="hideTip(event, 'fsd2', 2)" onmouseover="showTip(event, 'fsd2', 2)" class="i">laterFunction</span>()
-  <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fsd3', 3)" onmouseover="showTip(event, 'fsd3', 3)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Got</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="i">sample</span> <span class="o">=</span> 
+  <span onmouseout="hideTip(event, 'fs6', 13)" onmouseover="showTip(event, 'fs6', 13)" class="i">laterFunction</span>()
+  <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs8', 14)" onmouseover="showTip(event, 'fs8', 14)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Got</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
-</table><p>Then we can explain how <code>laterFunction</code> is defined:</p>
+</table>
+
+<p>Then we can explain how <code>laterFunction</code> is defined:</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -321,7 +334,9 @@ it uses <code>laterFunction</code>:</p>
   <span class="s">&quot;</span><span class="s">Not</span><span class="s"> </span><span class="s">very</span><span class="s"> </span><span class="s">difficult</span><span class="s">,</span><span class="s"> </span><span class="s">is</span><span class="s"> </span><span class="s">it</span><span class="s">?</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
-</table><p>This example covers pretty much all features that are 
+</table>
+
+<p>This example covers pretty much all features that are 
 currently implemented in <code>literate.fsx</code>, but feel free 
 to <a href="https://github.com/tpetricek/FSharp.Formatting">fork the project on GitHub</a> and add more 
 features or report bugs!</p>
@@ -334,17 +349,8 @@ features or report bugs!</p>
 <div class="tip" id="fs4">val answer : int<br /><br />Full name: Script.answer</div>
 <div class="tip" id="fs5">val hidden : int<br /><br />Full name: Script.hidden<br /><em><br /><br />&#160;This is a hidden answer</em></div>
 <div class="tip" id="fs6">val laterFunction : unit -&gt; string<br /><br />Full name: Script.laterFunction</div>
-<div class="tip" id="fsd1">val sample : unit<br /><br />Full name: Script.sample</div>
-<div class="tip" id="fsd2">val laterFunction : unit -&gt; string<br /><br />Full name: Script.laterFunction</div>
-<div class="tip" id="fsd3">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fss1">val factorial : x:int -&gt; int<br /><br />Full name: Script.factorial<br /><em><br /><br />&#160;The Hello World of functional languages!</em></div>
-<div class="tip" id="fss2">val x : int</div>
-<div class="tip" id="fss3">val f10 : int<br /><br />Full name: Script.f10</div>
-<div class="tip" id="fss4">val hidden : int<br /><br />Full name: Script.hidden<br /><em><br /><br />&#160;This is a hidden answer</em></div>
-<div class="tip" id="fss5">val answer : int<br /><br />Full name: Script.answer</div>
-<div class="tip" id="fss6">val laterFunction : unit -&gt; string<br /><br />Full name: Script.laterFunction</div>
-<div class="tip" id="fss7">val sample : unit<br /><br />Full name: Script.sample</div>
-<div class="tip" id="fss8">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs7">val sample : unit<br /><br />Full name: Script.sample</div>
+<div class="tip" id="fs8">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
           
         </div>
         <div class="span3">
@@ -365,6 +371,7 @@ features or report bugs!</p>
             <li class="nav-header">Examples</li>
             <li><a href="sidescript.html">Literate F# script</a></li>
             <li><a href="sidemarkdown.html">Literate Markdown file</a></li>
+            <li><a href="sideextensions.html">Markdown extensions</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="#">API Reference</a> (Coming soon!)</li>
