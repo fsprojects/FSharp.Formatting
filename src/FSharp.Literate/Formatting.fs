@@ -31,14 +31,14 @@ module internal Formatting =
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->
-        MarkdownDocument([CodeBlock text], dict [])
+        doc.With(paragraphs = [CodeBlock text])
     | LiterateSource.Script snippets ->
         let paragraphs = 
           [ for Snippet(name, lines) in snippets do
               if snippets.Length > 1 then
                 yield Heading(3, [Literal name])
               yield EmbedParagraphs(FormattedCode(lines)) ]
-        MarkdownDocument(paragraphs, dict[])
+        doc.With(paragraphs = paragraphs)
 
 // --------------------------------------------------------------------------------------
 // Generates file using HTML or CSHTML (Razor) template
@@ -87,8 +87,10 @@ module Templating =
     // the entire source and generate replacement {source} => ...some html...
     let sourceReplacements =
       if ctx.IncludeSource then 
-        let doc = Formatting.getSourceDocument doc
-        let content = Formatting.format doc ctx.OutputKind
+        let doc = 
+          Formatting.getSourceDocument doc
+          |> Transformations.replaceLiterateParagraphs ctx 
+        let content = Formatting.format doc.MarkdownDocument ctx.OutputKind
         [ "source", content ]
       else []
 
