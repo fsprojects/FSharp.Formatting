@@ -44,6 +44,13 @@ let ``Can escape special characters such as "*" in emphasis`` () =
   let expected = Paragraph [Emphasis [Literal "foo**bar"]] 
   doc.Paragraphs.Head 
   |> shouldEqual expected
+
+[<Test>]
+let ``Can escape special characters in LaTex inline math`` () =
+  let doc = """test \$ is: $foo\$\$bar<>\$\&\%\$\#\_\{\}$""" |> Markdown.Parse
+  let expected = Paragraph [Literal "test $ is: "; LatexInlineMath "foo\$\$bar<>\$\&\%\$\#\_\{\}"]
+  doc.Paragraphs.Head
+  |> shouldEqual expected
       
 [<Test>]
 let ``Inline code can contain backticks when wrapped with spaces`` () =
@@ -58,6 +65,23 @@ let ``Transform bold text correctly``() =
     let expected = "<p>This is <strong>bold</strong>. This is also <strong>bold</strong>.</p>\r\n";
     Markdown.TransformHtml doc
     |> shouldEqual expected
+
+[<Test>]
+let ``Transform LaTex inline math correctly``() =
+  let doc = """test \$ is: $foo\$\$bar<>\$\&\%\$\#\_\{\}$."""
+  let expected = """<p>test $ is: <span class="math">\(foo\$\$bar&lt;&gt;\$\&amp;\%\$\#\_\{\}\)</span>.</p>"""
+  (Markdown.TransformHtml doc).Trim()
+  |> shouldEqual expected
+
+[<Test>]
+let ``Transform LaTex block correctly``() =
+  let doc = """$$$
+foo\$\$bar<>\$\&\%\$\#\_\{\}
+foo\$\$bar<>\$\&\%\$\#\_\{\}"""
+  let expected = """<p><span class="math">\[foo\$\$bar&lt;&gt;\$\&amp;\%\$\#\_\{\}
+foo\$\$bar&lt;&gt;\$\&amp;\%\$\#\_\{\}\]</span></p>"""
+  (Markdown.TransformHtml doc).Trim()
+  |> shouldEqual expected
 
 [<Test>]
 let ``Transform italic text correctly``() =    
