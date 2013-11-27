@@ -16,3 +16,4 @@
 * 2.2.2 - Nicer CSS style for API reference docs
 * 2.2.3 - Better recognition of links
 * 2.2.4 - Add inline Latex support (thanks to Xiang Zhang!)
+* 2.2.5 - Update templates, support multiple DLLs in metadata format

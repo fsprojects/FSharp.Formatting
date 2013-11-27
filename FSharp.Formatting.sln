@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{5C565F18
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Literate", "Literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
 	ProjectSection(SolutionItems) = preProject
 		misc\literate\build.fsx = misc\literate\build.fsx
 		misc\literate\demo.fsx = misc\literate\demo.fsx
@@ -59,6 +59,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BEE70727
 		docs\tools\generate.fsx = docs\tools\generate.fsx
 		docs\tools\template-sidebyside.html = docs\tools\template-sidebyside.html
 		docs\tools\template.html = docs\tools\template.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{D0550510-0DCE-4B40-B4FB-091668E1C5FD}"
+	ProjectSection(SolutionItems) = preProject
+		misc\templates\docpage.cshtml = misc\templates\docpage.cshtml
+		misc\templates\template.cshtml = misc\templates\template.cshtml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{917A4F64-8304-4228-B29A-E2FB474B761B}"
+	ProjectSection(SolutionItems) = preProject
+		misc\templates\reference\module.cshtml = misc\templates\reference\module.cshtml
+		misc\templates\reference\namespaces.cshtml = misc\templates\reference\namespaces.cshtml
+		misc\templates\reference\part-members.cshtml = misc\templates\reference\part-members.cshtml
+		misc\templates\reference\part-nested.cshtml = misc\templates\reference\part-nested.cshtml
+		misc\templates\reference\type.cshtml = misc\templates\reference\type.cshtml
 	EndProjectSection
 EndProject
 Global
@@ -124,5 +139,6 @@ Global
 		{71885AB0-0A46-4FC8-AEDF-F2DC4BEB0E67} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 		{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 		{561B2DD7-455E-4464-B585-C8768C633EFC} = {71885AB0-0A46-4FC8-AEDF-F2DC4BEB0E67}
+		{917A4F64-8304-4228-B29A-E2FB474B761B} = {D0550510-0DCE-4B40-B4FB-091668E1C5FD}
 	EndGlobalSection
 EndGlobal
