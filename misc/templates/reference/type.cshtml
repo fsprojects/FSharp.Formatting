@@ -45,6 +45,18 @@
   }
 
   @RenderPart("members", new {
+    Header = "Union Cases",
+    TableHeader = "Union Case",
+    Members = Model.Type.UnionCases
+  })
+
+  @RenderPart("members", new {
+    Header = "Record Fields",
+    TableHeader = "Record Field",
+    Members = Model.Type.RecordFields
+  })
+
+  @RenderPart("members", new {
     Header = "Constructors",
     TableHeader = "Constructor",
     Members = g.Members.Where(m => m.Kind == MemberKind.Constructor)
