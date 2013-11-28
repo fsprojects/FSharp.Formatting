@@ -33,7 +33,13 @@ let getLinkAndTitle (String.TrimBoth input) =
 let inline (|EscapedChar|_|) input = 
   match input with
   | '\\'::( ( '*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']' 
-            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-') as c) ::rest -> Some(c, rest)
+            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) ::rest -> Some(c, rest)
+  | _ -> None
+
+/// Escape dollar inside a LaTex inline math span.
+let inline (|EscapedLatexInlineMathChar|_|) input =
+  match input with
+  | '\\'::( ('$') as c) :: rest -> Some(c, rest)
   | _ -> None
 
 /// Matches a list if it starts with a sub-list that is delimited
@@ -45,6 +51,22 @@ let inline (|DelimitedMarkdown|_|) bracket input =
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
     | EscapedChar(x, xs) -> loop (x::'\\'::acc) xs
+    | input when List.startsWith endl input -> Some(List.rev acc, input)
+    | x::xs -> loop (x::acc) xs
+    | [] -> None
+  // If it starts with 'startl', let's search for 'endl'
+  if List.startsWith bracket input then
+    match loop [] (List.skip bracket.Length input) with 
+    | Some(pre, post) -> Some(pre, List.skip bracket.Length post)
+    | None -> None
+  else None
+
+/// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
+let inline (|DelimitedLatexInlineMath|_|) bracket input =
+  let startl, endl = bracket, bracket
+  // Like List.partitionUntilEquals, but skip over escaped characters
+  let rec loop acc = function
+    | EscapedLatexInlineMathChar(x, xs) -> loop (x::'\\'::acc) xs
     | input when List.startsWith endl input -> Some(List.rev acc, input)
     | x::xs -> loop (x::acc) xs
     | [] -> None
@@ -125,6 +147,12 @@ let rec parseChars acc input = seq {
       yield! accLiterals.Value
       yield InlineCode(String(Array.ofList body).Trim())
       yield! parseChars [] rest
+
+  // Inline Latex inline math mode
+  | DelimitedLatexInlineMath ['$'] (body, rest) ->
+    yield! accLiterals.Value
+    yield LatexInlineMath(String(Array.ofList body).Trim())
+    yield! parseChars [] rest
 
   // Inline link wrapped as <http://foo.bar>
   | List.DelimitedWith ['<'] ['>'] (List.AsString link, rest) 
@@ -435,6 +463,13 @@ let rec (|Blockquote|_|) = function
       Some (line::continued @ moreLines, rest)
   | _ -> None
 
+/// Recognizes Latex block - start with "$$$"
+let (|LatexBlock|_|) (lines:string list) = lines |> function
+  | first::rest when (first.TrimEnd()) = "$$$" -> rest |> function
+    | TakeParagraphLines(body, rest) -> Some(body, rest)
+    | _ -> None
+  | _ -> None
+
 /// Recognize a definition of a link as in `[key]: http://url ...`
 let (|LinkDefinition|_|) = function
   | ( String.StartsWithWrapped ("[", "]:") (wrapped, String.TrimBoth link) 
@@ -473,6 +508,9 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | HorizontalRule :: (Lines.TrimBlankStart lines) ->
       yield HorizontalRule
       yield! parseParagraphs ctx lines
+  | LatexBlock(body, Lines.TrimBlankStart rest) ->
+    yield LatexBlock(body)
+    yield! parseParagraphs ctx rest
 
 
   // Recognize list of list items and turn it into nested lists

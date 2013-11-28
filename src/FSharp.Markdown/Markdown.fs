@@ -34,6 +34,7 @@ type MarkdownSpan =
   | DirectImage of string * (string * option<string>)
   | IndirectImage of string * string * string
   | HardLineBreak
+  | LatexInlineMath of string
   | EmbedSpans of MarkdownEmbedSpans
 
 and MarkdownSpans = list<MarkdownSpan>
@@ -49,6 +50,7 @@ type MarkdownParagraph =
   | ListBlock of MarkdownListKind * list<MarkdownParagraphs>
   | QuotedBlock of MarkdownParagraphs
   | Span of MarkdownSpans
+  | LatexBlock of list<string>
   | HorizontalRule 
   | TableBlock of option<MarkdownTableRow> * list<MarkdownColumnAlignment> * list<MarkdownTableRow>
   | EmbedParagraphs of MarkdownEmbedParagraphs
@@ -75,6 +77,7 @@ module Matching =
     | InlineCode _
     | DirectImage _ 
     | IndirectImage _
+    | LatexInlineMath _
     | EmbedSpans _
     | HardLineBreak -> 
         SpanLeaf(SL span)
@@ -106,6 +109,7 @@ module Matching =
     | CodeBlock _
     | InlineBlock _ 
     | EmbedParagraphs _
+    | LatexBlock _
     | HorizontalRule ->
         ParagraphLeaf(PL par)
     | ListBlock(_, pars) ->

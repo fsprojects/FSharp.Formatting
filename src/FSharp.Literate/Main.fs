@@ -60,6 +60,7 @@ type Literate private () =
     let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
     |> transform references
+    |> Transformations.formatCodeSnippets path ctx
 
   /// Parse F# Script file
   static member ParseScriptString 
@@ -67,6 +68,7 @@ type Literate private () =
     let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
     |> transform references
+    |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
 
   /// Parse Markdown document
   static member ParseMarkdownFile

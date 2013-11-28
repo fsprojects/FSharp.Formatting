@@ -6,6 +6,7 @@ open System.Collections.Generic
 open Microsoft.FSharp.Metadata
 open FSharp.Patterns
 
+open System.IO
 open System.Xml.Linq
 
 type Comment =
@@ -69,7 +70,7 @@ type Type =
   static member Create(name, url, comment, cases, fields, ctors, inst, stat) = 
     { Type.Name = name; UrlName = url; Comment = comment;
       UnionCases = cases; RecordFields = fields
-      AllMembers = List.concat [ ctors; inst; stat] ;
+      AllMembers = List.concat [ ctors; inst; stat; cases; fields ] ;
       Constructors = ctors; InstanceMembers = inst; StaticMembers = stat }
 
 type Module = 
@@ -98,21 +99,22 @@ type Namespace =
   static member Create(name, mods, typs) = 
     { Namespace.Name = name; Modules = mods; Types = typs }
 
-type Assembly = 
-  { Name : AssemblyName
+type AssemblyGroup = 
+  { Name : string
+    Assemblies : AssemblyName list
     Namespaces : Namespace list }
-  static member Create(name, nss) =
-    { Assembly.Name = name; Namespaces = nss }
+  static member Create(name, asms, nss) =
+    { AssemblyGroup.Name = name; Assemblies = asms; Namespaces = nss }
 
 type ModuleInfo = 
   { Module : Module
-    Assembly : Assembly }
+    Assembly : AssemblyGroup }
   static member Create(modul, asm) = 
     { ModuleInfo.Module = modul; Assembly = asm }
 
 type TypeInfo = 
   { Type : Type
-    Assembly : Assembly }
+    Assembly : AssemblyGroup }
   static member Create(typ, asm) = 
     { TypeInfo.Type = typ; Assembly = asm }
 
@@ -251,19 +253,15 @@ module ValueReader =
         else sprintf "(%s)" s)
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors and indexers
-      //| _, _, ".ctor", _ -> "new " + tyname
       | _, _, ".ctor", _ -> "new" + (defaultArg parArgs "(...)")
-      //| _, true, _, "Item" -> (uncapitalize tyname) + ".[" + (defaultArg args "...") + "]"
       | _, true, _, "Item" -> "[" + (defaultArg args "...") + "]"
       // Ordinary instance members
-      //| _, true, _, name -> (uncapitalize tyname) + "." + name + (defaultArg parArgs "(...)")
       | _, true, _, name -> name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
       | false, _, _, name when 
           not (hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes) -> 
             name + " " + (defaultArg args "(...)")
       // Ordinary static members or things (?) that require fully qualified access
-      //| _, _, _, name -> tyname + "." + name + (defaultArg parArgs "(...)")
       | _, _, _, name -> name + (defaultArg parArgs "(...)")
 
     let modifiers =
@@ -573,7 +571,7 @@ module Reader =
       assembly.Entities 
       |> Seq.groupBy (fun m -> m.Namespace) |> Seq.sortBy fst
       |> Seq.map (readNamespace ctx) |> List.ofSeq
-    Assembly.Create(assemblyName, namespaces)
+    assemblyName, namespaces
 
 // ------------------------------------------------------------------------------------------------
 // Main - generating HTML
@@ -594,11 +592,12 @@ type Html private() =
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
   static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
-    let (@@) a b = Path.Combine(a, b)
-    let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
-    if not (File.Exists xmlFile) then 
-      raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+    MetadataFormat.Generate
+      ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
+        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile)
 
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
+    let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
 
@@ -606,13 +605,51 @@ type MetadataFormat =
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
-    
-    // Read and process assmebly and the XML file
-    Log.logf "Reading assembly: %s" dllFile
-    let asm = FSharpAssembly.FromFile(dllFile)
-    Log.logf "Parsing assembly"
-    let asm = Reader.readAssembly asm xmlFile
-    
+
+    // When resolving assemblies, look in folders where all DLLs live
+    AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
+      Log.logf "Resolving assembly: %s" e.Name
+      let asmName = System.Reflection.AssemblyName(e.Name)
+      let asmOpt = 
+        dllFiles |> Seq.tryPick (fun dll ->
+          let root = Path.GetDirectoryName(dll)
+          let file = root @@ (asmName.Name + ".dll")
+          if File.Exists(file) then 
+            Some(System.Reflection.Assembly.LoadFile(file))
+          else None )
+      defaultArg asmOpt null
+    ))
+
+    // Read and process assmeblies and the corresponding XML files
+    let assemblies = 
+      [ for dllFile in dllFiles do
+          let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
+          if not (File.Exists xmlFile) then 
+            raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+
+          Log.logf "Reading assembly: %s" dllFile
+          let asm = FSharpAssembly.FromFile(dllFile)
+          Log.logf "Parsing assembly"
+          yield Reader.readAssembly asm xmlFile ]
+
+    // Get the name - either from parameters, or name of the assembly (if there is just one)
+    let name = 
+      let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
+      match assemblies, projName with 
+      | _, Some name -> name
+      | [ asm, _ ], _ -> asm.Name
+      | _ -> failwith "Unknown project name. Provide 'properties' parameter with 'project-name' key."
+    // Union namespaces from multiple libraries
+    let namespaces = Dictionary<_, _>()
+    for _, nss in assemblies do 
+      for ns in nss do 
+        match namespaces.TryGetValue(ns.Name) with
+        | true, (mods, typs) -> namespaces.[ns.Name] <- (mods @ ns.Modules, typs @ ns.Types)
+        | false, _ -> namespaces.Add(ns.Name, (ns.Modules, ns.Types))
+
+    let namespaces = [ for (KeyValue(name, (mods, typs))) in namespaces -> Namespace.Create(name, mods, typs) ]
+    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces)
+        
     // Generate all the HTML stuff
     Log.logf "Starting razor engine"
     let razor = RazorRender(layoutRoots, ["FSharp.MetadataFormat"])

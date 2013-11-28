@@ -15,7 +15,7 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
-let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"]
+let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
 let summary = "A package for building great F# documentation, samples and blogs"
 let description = """
   The package is a collection of libraries that can be used for literate programming
