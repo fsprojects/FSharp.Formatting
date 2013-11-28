@@ -20,4 +20,4 @@
 * 2.2.6-beta - Add page-source parameter for Razor tempalting
 * 2.2.7-beta - Generate docs for some F# types, formatting improvements 
 * 2.2.8-beta - Add inline Latex support (thanks to Xiang Zhang!)
-* 2.2.9 - Update templates, support multiple DLLs in metadata format
+* 2.2.9-beta - Update templates, support multiple DLLs in metadata format
