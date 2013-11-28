@@ -615,7 +615,8 @@ type MetadataFormat =
           let root = Path.GetDirectoryName(dll)
           let file = root @@ (asmName.Name + ".dll")
           if File.Exists(file) then 
-            Some(System.Reflection.Assembly.LoadFile(file))
+            let bytes = File.ReadAllBytes(file)
+            Some(System.Reflection.Assembly.Load(bytes))
           else None )
       defaultArg asmOpt null
     ))
