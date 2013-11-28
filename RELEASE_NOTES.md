@@ -18,3 +18,4 @@
 * 2.2.4-beta - Experimental - get snippet from file, some evaluation stuff
 * 2.2.5-beta - Add formatting for non-fsharp code, remove indents when importing snippet
 * 2.2.6-beta - Add page-source parameter for Razor tempalting
+* 2.2.7-beta - Generate docs for some F# types, formatting improvements 
