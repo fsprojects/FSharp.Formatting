@@ -8,6 +8,8 @@ src/FSharp.Literate/bin
 src/FSharp.Literate/obj
 src/FSharp.MetadataFormat/bin
 src/FSharp.MetadataFormat/obj
+src/FSharp.PowerPack.metadata/obj
+src/FSharp.PowerPack.metadata/bin
 tests/FSharp.Markdown.Tests/bin
 tests/FSharp.Markdown.Tests/obj
 tests/FSharp.CodeFormat.Tests/bin

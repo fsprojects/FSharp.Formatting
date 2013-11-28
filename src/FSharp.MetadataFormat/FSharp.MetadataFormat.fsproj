@@ -37,9 +37,6 @@
     <DocumentationFile>..\..\bin\FSharp.MetadataFormat.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FSharp.PowerPack.Metadata">
-      <HintPath>..\..\lib\FSharp.PowerPack.Metadata.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="RazorEngine">
       <HintPath>..\..\packages\RazorEngine.3.3.0\lib\net40\RazorEngine.dll</HintPath>
@@ -85,9 +82,17 @@
       <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\FSharp.PowerPack.Metadata\FSharp.PowerPack.Metadata.fsproj">
+      <Name>FSharp.PowerPack.Metadata</Name>
+      <Project>{0057b83f-130e-4e7c-b60c-9b4935d8bee9}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

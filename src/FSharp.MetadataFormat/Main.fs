@@ -6,6 +6,7 @@ open System.Collections.Generic
 open Microsoft.FSharp.Metadata
 open FSharp.Patterns
 
+open System.IO
 open System.Xml.Linq
 
 type Comment =
@@ -612,7 +613,21 @@ type MetadataFormat =
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
-    
+
+    // When resolving assemblies, look in folders where all DLLs live
+    AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
+      Log.logf "Resolving assembly: %s" e.Name
+      let asmName = System.Reflection.AssemblyName(e.Name)
+      let asmOpt = 
+        dllFiles |> Seq.tryPick (fun dll ->
+          let root = Path.GetDirectoryName(dll)
+          let file = root @@ (asmName.Name + ".dll")
+          if File.Exists(file) then 
+            Some(System.Reflection.Assembly.LoadFile(file))
+          else None )
+      defaultArg asmOpt null
+    ))
+
     // Read and process assmeblies and the corresponding XML files
     let assemblies = 
       [ for dllFile in dllFiles do

@@ -55,6 +55,15 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   System.Diagnostics.Process.Start(output)
   #endif
 
+// Ignore by default to make tests run reasonably fast
+[<Test; Ignore>]
+let ``MetadataFormat works on sample FAKE assembly``() = 
+  let library = root @@ "files" @@ "FAKE" @@ "FakeLib.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate(library, output, layoutRoots, info)
+  let files = Directory.GetFiles(output)
+  files |> Seq.length |> shouldEqual 166
+
 [<Test>]
 let ``MetadataFormat works on two sample F# assemblies``() = 
   let libraries = 
