@@ -2,9 +2,6 @@
 <doc>
 <assembly><name>Deedle</name></assembly>
 <members>
-<member name="T:AssemblyInfo">
-
-</member>
 <member name="M:Deedle.Aggregation.WindowWhile``1(System.Func{``0,``0,System.Boolean})">
 <summary>
  Aggregate data into floating windows where each window ends as soon
@@ -198,7 +195,7 @@
  to get the array representing the segment data.
 </summary>
 </member>
-<member name="M:Deedle.DelayedSeries.Create``3(``0,``0,Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,Deedle.Indices.BoundaryBehavior},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,Deedle.Indices.BoundaryBehavior},Microsoft.FSharp.Control.FSharpAsync{``1}}})">
+<member name="M:Deedle.DelayedSeries.Create``2(``0,``0,Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,Deedle.Indices.BoundaryBehavior},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,Deedle.Indices.BoundaryBehavior},Microsoft.FSharp.Control.FSharpAsync{System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{``0,``1}}}}})">
 <summary>
  An F#-friendly function that creates lazily loaded series. The method requires
  the overall range of the series (smallest and greatest key) and a function that
@@ -238,6 +235,8 @@
  ## Remarks
 
  For more information see the [lazy data loading tutorial](../lazysource.html).
+ The operation calls `loader` (and so creates the tasks) on the thread that is
+ requesting the result.
 </summary>
 </member>
 <member name="T:Deedle.DelayedSeries">
@@ -308,7 +307,16 @@
 <member name="">
 
 </member>
-<member name="M:Deedle.Frame.ReadCsv(System.IO.Stream,System.Nullable{System.Boolean},System.Boolean,System.Int32,System.String,System.String,System.String)">
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.Frame.ReadCsv(System.IO.Stream,System.Nullable{System.Boolean},System.Boolean,System.Int32,System.String,System.String,System.String,System.Nullable{System.Int32})">
 <summary>
  Load data frame from a CSV file. The operation automatically reads column names from the 
  CSV file (if they are present) and infers the type of values for each column. Columns
@@ -333,7 +341,7 @@
     values in the CSV file (such as `&quot;en-US&quot;`). The default is invariant culture. 
 </summary>
 </member>
-<member name="M:Deedle.Frame.ReadCsv(System.String,System.Nullable{System.Boolean},System.Boolean,System.Int32,System.String,System.String,System.String)">
+<member name="M:Deedle.Frame.ReadCsv(System.String,System.Nullable{System.Boolean},System.Boolean,System.Int32,System.String,System.String,System.String,System.Nullable{System.Int32})">
 <summary>
  Load data frame from a CSV file. The operation automatically reads column names from the 
  CSV file (if they are present) and infers the type of values for each column. Columns
@@ -356,6 +364,7 @@
     parse semicolon separated files.
   * `culture` - Specifies the name of the culture that is used when parsing 
     values in the CSV file (such as `&quot;en-US&quot;`). The default is invariant culture. 
+  * `maxRows` - Specifies the maximum number of rows that will be read from the CSV file
 </summary>
 </member>
 <member name="">
@@ -408,6 +417,31 @@
 </member>
 <member name="">
 
+</member>
+<member name="F:Deedle.Deedle.FrameData.Columns">
+<summary>
+ Represents the data of the frame as a sequence of columns containing
+ type and array with column values. `OptionalValue.Missing` is used to
+ represent missing data.
+</summary>
+</member>
+<member name="F:Deedle.Deedle.FrameData.RowKeys">
+<summary>
+ A sequence of keys for all rows. Individual key is an array
+ which contains multiple values for hierarchical indices
+</summary>
+</member>
+<member name="F:Deedle.Deedle.FrameData.ColumnKeys">
+<summary>
+ A sequence of keys for all column. Individual key is an array
+ which contains multiple values for hierarchical indices
+</summary>
+</member>
+<member name="T:Deedle.FrameData">
+<summary>
+ Represents the underlying (raw) data of the frame in a format that can
+ be used for exporting data frame to other formats etc. (DataTable, CSV, Excel)
+</summary>
 </member>
 <member name="">
 
@@ -451,7 +485,7 @@
  ## Parameters
   - `frame` - Source data frame to be transposed.
  
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="">
@@ -542,8 +576,11 @@
   - `keys` - A sequence of new row keys. The keys must have the same type as the original
     frame keys (because the rows are realigned).
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.FrameExtensions.OrderRows``2(Deedle.Frame{``0,``1})">
 <summary>
@@ -554,7 +591,7 @@
  ## Parameters
   - `frame` - Source data frame to be ordered.
  
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameExtensions.OrderColumns``2(Deedle.Frame{``0,``1})">
@@ -566,7 +603,7 @@
  ## Parameters
   - `frame` - Source data frame to be ordered.
  
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameExtensions.IndexRowsWith``3(Deedle.Frame{``0,``1},System.Collections.Generic.IEnumerable{``2})">
@@ -579,7 +616,7 @@
   - `frame` - Source data frame whose row index are to be replaced.
   - `keys` - A collection of new row keys.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameExtensions.IndexRowsOrdinally``2(Deedle.Frame{``0,``1})">
@@ -591,7 +628,7 @@
  ## Parameters
   - `frame` - Source data frame whose row index are to be replaced.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameExtensions.IndexColumnsWith``3(Deedle.Frame{``0,``1},System.Collections.Generic.IEnumerable{``2})">
@@ -604,7 +641,7 @@
   - `frame` - Source data frame whose column index are to be replaced.
   - `keys` - A collection of new column keys.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="">
@@ -698,6 +735,41 @@
  [category:Missing values]
 </summary>
 </member>
+<member name="M:Deedle.FrameExtensions.ExpandColumns``1(Deedle.Frame{``0,System.String},System.Collections.Generic.IEnumerable{System.String})">
+<summary>
+ Creates a new data frame where the specified columns are expanded based on runtime
+ structure of the objects they store. A column can be expanded if it is 
+ `Series&lt;string, T&gt;` or `IDictionary&lt;K, V&gt;` or if it is any .NET object with readable
+ properties. 
+
+ ## Example
+ Given a data frame with a series that contains tuples, you can expand the
+ tuple members and get a frame with columns `S.Item1` and `S.Item2`:
+ 
+     let df = frame [ &quot;S&quot; =&gt; series [ 1 =&gt; (1, &quot;One&quot;); 2 =&gt; (2, &quot;Two&quot;) ] ]  
+     df.ExpandColumns [&quot;S&quot;]
+
+ ## Parameters
+  - `names` - Names of columns in the original data frame to be expanded
+  - `frame` - Input data frame whose columns will be expanded
+
+ [category:Data structure manipulation]
+</summary>
+</member>
+<member name="M:Deedle.FrameExtensions.ExpandColumns``1(Deedle.Frame{``0,System.String},System.Int32,System.Boolean)">
+<summary>
+ Creates a new data frame where all columns are expanded based on runtime
+ structure of the objects they store. The expansion is performed recrusively
+ to the specified depth. A column can be expanded if it is `Series&lt;string, T&gt;` 
+ or `IDictionary&lt;K, V&gt;` or if it is any .NET object with readable
+ properties. 
+
+ ## Parameters
+  - `nesting` - The nesting level for expansion. When set to 0, nothing is done.
+
+ [category:Data structure manipulation]
+</summary>
+</member>
 <member name="M:Deedle.FrameExtensions.DropSparseRows``2(Deedle.Frame{``0,``1})">
 <summary>
  Creates a new data frame that contains only those rows of the original 
@@ -748,7 +820,7 @@
 <summary>
  Some comment
 
- ## Index manipulation
+ ## Data structure manipulation
  Summary 1
 
  ## Input and output
@@ -784,7 +856,12 @@
  Create data frame containing a single column
 </summary>
 </member>
-<member name="M:Deedle.FrameUtils.collapseRows``3(Deedle.Series{``0,Deedle.Frame{``1,``2}})">
+<member name="M:Deedle.FrameUtils.collapseSeriesSeries``3(Deedle.Series{``0,Deedle.Series{``1,Deedle.ObjectSeries{``2}}})">
+<summary>
+ Given a series of frames, build a frame with multi-level row index
+</summary>
+</member>
+<member name="M:Deedle.FrameUtils.collapseFrameSeries``3(Deedle.Series{``0,Deedle.Frame{``1,``2}})">
 <summary>
  Given a series of frames, build a frame with multi-level row index
 </summary>
@@ -796,6 +873,9 @@
  are easier to write in a separate type (having them inside generic type 
  can confuse the type inference in various ways).
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -824,6 +904,12 @@
 <summary>
  [category:Series operations]
 </summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.Frame`2.op_Subtraction(System.Int32,Deedle.Frame{`0,`1})">
 <summary>
@@ -1041,6 +1127,9 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
 <member name="P:Deedle.Frame`2.Item(`1)">
 <summary>
  [category:Series operations]
@@ -1058,13 +1147,6 @@
 </member>
 <member name="">
 
-</member>
-<member name="P:Deedle.Frame`2.Format">
-<summary>
- Shows the data frame content in a human-readable format. The resulting string
- shows all columns, but a limited number of rows. The property is used 
- automatically by F# Interactive.
-</summary>
 </member>
 <member name="">
 
@@ -1087,19 +1169,95 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="M:Deedle.Frame`2.Zip``3(Deedle.Frame{`0,`1},System.Func{``0,``1,``2})">
 <summary>
+ Aligns two data frames using both column index and row index and apply the specified operation
+ on values of a specified type that are available in both data frames. This overload uses
+ `JoinKind.Outer` for both columns and rows.
+
+ Once aligned, the call `df1.Zip&lt;T&gt;(df2, f)` applies the specifed function `f` on all `T` values
+ that are available in corresponding locations in both frames. For values of other types, the 
+ value from `df1` is returned.
+
+ ## Parameters
+  - `otherFrame` - Other frame to be aligned and zipped with the current instance
+  - `op` - A function that is applied to aligned values. The `Zip` operation is generic
+    in the type of this function and the type of function is used to determine which 
+    values in the frames are zipped and which are left unchanged.
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.Zip``3(Deedle.Frame{`0,`1},Deedle.JoinKind,Deedle.JoinKind,Deedle.Lookup,System.Func{``0,``1,``2})">
 <summary>
+ Aligns two data frames using both column index and row index and apply the specified operation
+ on values of a specified type that are available in both data frames. The parameters `columnKind`,
+ and `rowKind` can be specified to determine how the alginment works (similarly to `Join`).
+ Column keys are always matched using `Lookup.Exact`, but `lookup` determines lookup for rows.
+
+ Once aligned, the call `df1.Zip&lt;T&gt;(df2, f)` applies the specifed function `f` on all `T` values
+ that are available in corresponding locations in both frames. For values of other types, the 
+ value from `df1` is returned.
+
+ ## Parameters
+  - `otherFrame` - Other frame to be aligned and zipped with the current instance
+  - `columnKind` - Specifies how to align columns (inner, outer, left or right join)
+  - `rowKind` - Specifies how to align rows (inner, outer, left or right join)
+  - `lookup` - Specifies how to find matching value for a row (when using left or right join on rows)
+  - `op` - A function that is applied to aligned values. The `Zip` operation is generic
+    in the type of this function and the type of function is used to determine which 
+    values in the frames are zipped and which are left unchanged.
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.TryGetRowAt(System.Int32)">
 <summary>
  [category:Accessors and slicing]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Truncate(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Tanh(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Tan(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Sqrt(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Sinh(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Sin(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Sign(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.SeriesApply``1(System.Boolean,System.Func{Deedle.Series{`0,``0},Deedle.ISeries{`0}})">
@@ -1118,23 +1276,67 @@
 <member name="">
 
 </member>
+<member name="M:Deedle.Frame`2.Round(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
 <member name="M:Deedle.Frame`2.ReplaceSeries``1(`1,System.Collections.Generic.IEnumerable{``0})">
 <summary>
+ Mutates the data frame by replacing the specified series with
+ a new data sequence . (If the series does not exist, only the new
+ series is added.)
+
+ ## Parameters
+  - `column` - A key (or name) for the column to be replaced or added
+  - `series` - A sequence of values to be added
+
  [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.ReplaceSeries(`1,Deedle.ISeries{`0})">
 <summary>
+ Mutates the data frame by replacing the specified series with
+ a new series. (If the series does not exist, only the new
+ series is added.)
+
+ ## Parameters
+  - `column` - A key (or name) for the column to be replaced or added
+  - `series` - A data series to be used (the row key type has to match)
+
  [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.ReplaceSeries``1(`1,System.Collections.Generic.IEnumerable{``0},Deedle.Lookup)">
 <summary>
+ Mutates the data frame by replacing the specified series with
+ a new data sequence. (If the series does not exist, only the new series is added.) 
+ When adding a series, the specified `lookup` parameter is used for filling
+ missing values (e.g. `null` or `NaN`). The parameter can only be used for 
+ frame with ordered indices.
+
+ ## Parameters
+  - `column` - A key (or name) for the column to be replaced or added
+  - `series` - A data series to be used (the row key type has to match)
+  - `lookup` - Specify how to find value in the added series (look for 
+    nearest available value with the smaller/greater key).
+
  [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.ReplaceSeries(`1,Deedle.ISeries{`0},Deedle.Lookup)">
 <summary>
+ Mutates the data frame by replacing the specified series with
+ a new series. (If the series does not exist, only the new series is added.) 
+ When adding a series, the specified `lookup` parameter is used for matching 
+ keys. The parameter can only be used for frame with ordered indices.
+
+ ## Parameters
+  - `column` - A key (or name) for the column to be replaced or added
+  - `series` - A data series to be used (the row key type has to match)
+  - `lookup` - Specify how to find value in the added series (look for 
+    nearest available value with the smaller/greater key).
+
  [category:Series operations]
 </summary>
 </member>
@@ -1153,6 +1355,19 @@
  [category:Series operations]
 </summary>
 </member>
+<member name="M:Deedle.Frame`2.Pow(System.Double,Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Pow(Deedle.Frame{`0,`1},System.Double)">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="">
+
+</member>
 <member name="">
 
 </member>
@@ -1161,19 +1376,116 @@
 </member>
 <member name="">
 
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.Frame`2.Log10(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Log(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Join``1(`1,Deedle.Series{`0,``0})">
+<summary>
+ Performs outer join on data frame and a series. The column key for the joined
+ series must not occur in the current data frame. The rows are automatically aligned
+ and unavailable values are marked as missing.
+
+ ## Parameters
+  - `colKey` - Column key to be used for the joined series
+  - `series` - Series to be joined with the current data frame
+
+ [category:Joining, zipping and appending]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Join``1(`1,Deedle.Series{`0,``0},Deedle.JoinKind)">
+<summary>
+ Join data frame and a series. The column key for the joined series must not occur in the 
+ current data frame. The rows are aligned and transformed according to the specified join kind.
+
+ ## Parameters
+  - `colKey` - Column key to be used for the joined series
+  - `series` - Series to be joined with the current data frame
+  - `kind` - Specifies the joining behavior on row indices. Use `JoinKind.Outer` and 
+    `JoinKind.Inner` to get the union and intersection of the row keys, respectively.
+    Use `JoinKind.Left` and `JoinKind.Right` to use the current key of the left/right
+    data frame.
+
+ [category:Joining, zipping and appending]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Join``1(`1,Deedle.Series{`0,``0},Deedle.JoinKind,Deedle.Lookup)">
+<summary>
+ Join data frame and a series. The column key for the joined series must not occur in the 
+ current data frame. The rows are aligned and transformed according to the specified join kind.
+ When the index of both objects is ordered, it is possible to specify `lookup` 
+ in order to align indices from other frame to the indices of the main frame
+ (typically, to find the nearest key with available value for a key).
+
+ ## Parameters
+  - `colKey` - Column key to be used for the joined series
+  - `series` - Series to be joined with the current data frame
+  - `kind` - Specifies the joining behavior on row indices. Use `JoinKind.Outer` and 
+    `JoinKind.Inner` to get the union and intersection of the row keys, respectively.
+    Use `JoinKind.Left` and `JoinKind.Right` to use the current key of the left/right
+    data frame.
+  - `lookup` - When `kind` is `Left` or `Right` and the two frames have ordered row index,
+    this parameter can be used to specify how to find value for a key when there is no
+    exactly matching key or when there are missing values.
+
+ [category:Joining, zipping and appending]
+</summary>
 </member>
 <member name="M:Deedle.Frame`2.Join(Deedle.Frame{`0,`1})">
 <summary>
+ Performs outer join on two data frames. The columns of the joined frames must not 
+ overlap and their rows are aligned. The unavailable values are marked as missing.
+
+ ## Parameters
+  - `otherFrame` - Other frame (right) to be joined with the current instance (left)
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.Join(Deedle.Frame{`0,`1},Deedle.JoinKind)">
 <summary>
+ Join two data frames. The columns of the joined frames must not overlap and their
+ rows are aligned and transformed according to the specified join kind.
+ For more alignment options on ordered frames, see overload taking `lookup`.
+
+ ## Parameters
+  - `otherFrame` - Other frame (right) to be joined with the current instance (left)
+  - `kind` - Specifies the joining behavior on row indices. Use `JoinKind.Outer` and 
+    `JoinKind.Inner` to get the union and intersection of the row keys, respectively.
+    Use `JoinKind.Left` and `JoinKind.Right` to use the current key of the left/right
+    data frame.
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.Join(Deedle.Frame{`0,`1},Deedle.JoinKind,Deedle.Lookup)">
 <summary>
+ Join two data frames. The columns of the joined frames must not overlap and their
+ rows are aligned and transformed according to the specified join kind.
+ When the index of both frames is ordered, it is possible to specify `lookup` 
+ in order to align indices from other frame to the indices of the main frame
+ (typically, to find the nearest key with available value for a key).
+
+ ## Parameters
+  - `otherFrame` - Other frame (right) to be joined with the current instance (left)
+  - `kind` - Specifies the joining behavior on row indices. Use `JoinKind.Outer` and 
+    `JoinKind.Inner` to get the union and intersection of the row keys, respectively.
+    Use `JoinKind.Left` and `JoinKind.Right` to use the current key of the left/right
+    data frame.
+  - `lookup` - When `kind` is `Left` or `Right` and the two frames have ordered row index,
+    this parameter can be used to specify how to find value for a key when there is no
+    exactly matching key or when there are missing values.
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
@@ -1268,10 +1580,27 @@
  [category:Series operations]
 </summary>
 </member>
-<member name="M:Deedle.Frame`2.FromColumnsNonGeneric(Deedle.Series{`1,Deedle.ISeries{`0}})">
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.Frame`2.Format">
 <summary>
- This pretty much duplicates `FrameUtils.ofColumns`, but we need to inline it here,
- otherwise the type inference breaks in very bad ways :-(
+ Shows the data frame content in a human-readable format. The resulting string
+ shows all columns, but a limited number of rows. The property is used 
+ automatically by F# Interactive.
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Floor(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Exp(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
 </summary>
 </member>
 <member name="">
@@ -1279,7 +1608,42 @@
 </member>
 <member name="M:Deedle.Frame`2.DropSeries(`1)">
 <summary>
+ Mutates the data frame by removing the specified series from the 
+ frame columns. The operation throws if the column key is not found.
+
+ ## Parameters
+  - `column` - The key (or name) to be dropped from the frame
+  - `frame` - Source data frame (which is not mutated by the operation)
+
  [category:Series operations]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Cosh(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Cos(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.Frame`2.Ceiling(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Atan(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Asin(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
 </summary>
 </member>
 <member name="">
@@ -1287,28 +1651,96 @@
 </member>
 <member name="M:Deedle.Frame`2.Append(Deedle.Frame{`0,`1})">
 <summary>
+ Append two data frames with non-overlapping values. The operation takes the union of columns
+ and rows of the source data frames and then unions the values. An exception is thrown when 
+ both data frames define value for a column/row location, but the operation succeeds if one
+ frame has a missing value at the location.
+
+ Note that the rows are *not* automatically reindexed to avoid overlaps. This means that when
+ a frame has rows indexed with ordinal numbers, you may need to explicitly reindex the row
+ keys before calling append.
+
+ ## Parameters
+  - `otherFrame` - The other frame to be appended (combined) with the current instance
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.AddSeries``1(`1,Deedle.ISeries{`0},Deedle.Lookup)">
 <summary>
+ Mutates the data frame by adding an additional data series
+ as a new column with the specified column key. The operation 
+ uses left join and aligns new series to the existing frame keys.
+ A parameter `lookup` can be used to specify how to find a value in the
+ added series (if an exact key is not available). The `lookup` parameter
+ can only be used with ordered indices.
+
+ ## Parameters
+  - `series` - A data series to be added (the row key type has to match)
+  - `column` - A key (or name) for the newly added column
+  - `lookup` - Specify how to find value in the added series (look for 
+    nearest available value with the smaller/greater key).
+
  [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.AddSeries``1(`1,System.Collections.Generic.IEnumerable{``0},Deedle.Lookup)">
 <summary>
+ Mutates the data frame by adding an additional data series
+ as a new column with the specified column key. The sequence is
+ aligned to the data frame based on ordering. If it is longer, it is
+ trimmed and if it is shorter, missing values will be added.
+ A parameter `lookup` can be used to specify how to find a value in the
+ added series (if the sequence contains invalid values like `null` or `NaN`). 
+
+ ## Parameters
+  - `column` - A key (or name) for the newly added column
+  - `series` - A sequence of values to be added
+  - `lookup` - Specify how to find value in the added series (look for 
+    nearest available value with the smaller/greater key).
+
  [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.AddSeries(`1,Deedle.ISeries{`0})">
 <summary>
+ Mutates the data frame by adding an additional data series
+ as a new column with the specified column key. The operation 
+ uses left join and aligns new series to the existing frame keys.
+
+ ## Parameters
+  - `series` - A data series to be added (the row key type has to match)
+  - `column` - A key (or name) for the newly added column
+
  [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.Frame`2.AddSeries``1(`1,System.Collections.Generic.IEnumerable{``0})">
 <summary>
+ Mutates the data frame by adding an additional data series
+ as a new column with the specified column key. The sequence is
+ aligned to the data frame based on ordering. If it is longer, it is
+ trimmed and if it is shorter, missing values will be added.
+
+ ## Parameters
+  - `column` - A key (or name) for the newly added column
+  - `series` - A sequence of values to be added
+
  [category:Series operations]
 </summary>
+</member>
+<member name="M:Deedle.Frame`2.Acos(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="M:Deedle.Frame`2.Abs(Deedle.Frame{`0,`1})">
+<summary>
+ [category:Operators]
+</summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -1320,6 +1752,11 @@
 <summary>
  A frame contains one Index, with multiple Vecs
  (because this is dynamic, we need to store them as IVec)
+
+ ## Joining, zipping and appending
+ More info
+
+
 </summary>
 </member>
 <member name="M:Deedle.ICustomLookup`1.Matches(`0)">
@@ -1334,6 +1771,22 @@
  in an index. A key type `K` can come with associated `ICustomLookup&lt;K&gt;` to provide 
  customized pattern matching (equality testing) 
 </summary>
+</member>
+<member name="">
+
+</member>
+<member name="T:Deedle.IFrame">
+<summary>
+ An empty interface that is implemented by `Frame&lt;&apos;R, &apos;C&gt;`. The purpose of the
+ interface is to allow writing code that works on arbitrary data frames, although
+ you 
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
 </member>
 <member name="P:Deedle.ISeries`1.Vector">
 <summary>
@@ -1518,8 +1971,20 @@
 <member name="">
 
 </member>
+<member name="P:Deedle.MissingValueException.Key">
+<summary>
+ The key that has been accessed
+</summary>
+</member>
 <member name="">
 
+</member>
+<member name="T:Deedle.MissingValueException">
+<summary>
+ Thrown when a value at the specified index does not exist in the data frame or series.
+ This exception is thrown only when the key is defined, but the value is not available,
+ in other situations `KeyNotFoundException` is thrown
+</summary>
 </member>
 <member name="">
 
@@ -1559,6 +2024,39 @@
 </member>
 <member name="">
 
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.OptionalValue.OfNullable``1(System.Nullable{``0})">
+<summary>
+ Creates an `OptionalValue&lt;T&gt;` from a nullable value of type `T?`
+</summary>
+</member>
+<member name="M:Deedle.OptionalValue.Empty``1">
+<summary>
+ Creates an `OptionalValue&lt;&apos;T&gt;` that does not contain a value
+</summary>
+</member>
+<member name="M:Deedle.OptionalValue.Create``1(``0)">
+<summary>
+ Creates an `OptionalValue&lt;&apos;T&gt;` that contains a value `v`
+</summary>
+</member>
+<member name="T:Deedle.OptionalValue">
+<summary>
+ Non-generic type that makes it easier to create `OptionalValue&lt;T&gt;` values
+ from C# by benefiting the type inference for generic method invocations.
+</summary>
 </member>
 <member name="M:Deedle.OptionalValueExtensions.OrDefault``1(Deedle.OptionalValue{``0},``0)">
 <summary>
@@ -1736,6 +2234,54 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="M:Deedle.SeriesExtensions.SumLevel``2(Deedle.Series{``0,System.Decimal},System.Func{``0,``1})">
 <summary>
  Groups the elements of the input series in groups based on the keys
@@ -1821,9 +2367,6 @@
  missing values and so the result will never be `NaN`.
  [category:Statistics]
 </summary>
-</member>
-<member name="">
-
 </member>
 <member name="M:Deedle.SeriesExtensions.StandardDeviationLevel``2(Deedle.Series{``0,System.Double},System.Func{``0,``1})">
 <summary>
@@ -2113,6 +2656,9 @@
  
  [category:Lookup, resampling and scaling]
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.SeriesExtensions.MinLevel``2(Deedle.Series{``0,System.Decimal},System.Func{``0,``1})">
 <summary>
@@ -2424,6 +2970,9 @@
  [category:Missing values]
 </summary>
 </member>
+<member name="">
+
+</member>
 <member name="M:Deedle.SeriesExtensions.FillMissing``2(Deedle.Series{``0,``1},Deedle.Direction)">
 <summary>
  Fill missing values in the series with the nearest available value
@@ -2461,9 +3010,6 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="">
-
-</member>
 <member name="M:Deedle.SeriesExtensions.DropMissing``2(Deedle.Series{``0,``1})">
 <summary>
  Drop missing values from the specified series. The returned series contains 
@@ -2493,13 +3039,6 @@
 <member name="">
 
 </member>
-<member name="M:Deedle.SeriesExtensions.CountValues``2(Deedle.Series{``0,``1})">
-<summary>
- Returns the total number of values in the specified series. This excludes
- missing values or not available values (such as values created from `null`,
- `Double.NaN`, or those that are missing due to outer join etc.).
-</summary>
-</member>
 <member name="M:Deedle.SeriesExtensions.CountLevel``2(Deedle.Series{``0,System.Decimal},System.Func{``0,``1})">
 <summary>
  Groups the elements of the input series in groups based on the keys
@@ -2515,30 +3054,28 @@
  [category:Statistics]
 </summary>
 </member>
-<member name="M:Deedle.SeriesExtensions.CountKeys``2(Deedle.Series{``0,``1})">
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="F:Deedle.Deedle.Series`2.valueCount">
 <summary>
- Returns the total number of keys in the specified series. This returns
- the total length of the series, including keys for which there is no 
- value available.
+ Lazy value to hold the number of elements (so that we do not recalculate this all the time)
 </summary>
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
 </member>
 <member name="">
 
@@ -2680,8 +3217,10 @@
  [category:Operators]
 </summary>
 </member>
-<member name="">
-
+<member name="P:Deedle.Series`2.VectorBuilder">
+<summary>
+ Returns the vector builder associated with this series
+</summary>
 </member>
 <member name="">
 
@@ -2700,6 +3239,15 @@
  Note that the length of this sequence does not match the `Keys` sequence
  if there are missing values. To get matching sequence, use the `Observations`
  property or `Series.observation`.
+
+ [category:Series data]
+</summary>
+</member>
+<member name="P:Deedle.Series`2.ValueCount">
+<summary>
+ Returns the total number of values in the specified series. This excludes
+ missing values or not available values (such as values created from `null`,
+ `Double.NaN`, or those that are missing due to outer join etc.).
 
  [category:Series data]
 </summary>
@@ -2728,6 +3276,15 @@
  [category:Series data]
 </summary>
 </member>
+<member name="P:Deedle.Series`2.KeyCount">
+<summary>
+ Returns the total number of keys in the specified series. This returns
+ the total length of the series, including keys for which there is no 
+ value available.
+
+ [category:Series data]
+</summary>
+</member>
 <member name="P:Deedle.Series`2.Item(Deedle.ICustomLookup{`0})">
 <summary>
  [category:Accessors and slicing]
@@ -2753,8 +3310,10 @@
  [category:Series data]
 </summary>
 </member>
-<member name="">
-
+<member name="P:Deedle.Series`2.IndexBuilder">
+<summary>
+ Returns the index builder associated with this series
+</summary>
 </member>
 <member name="">
 
@@ -2765,13 +3324,6 @@
  be accessed directly, because all functionality is exposed through series operations.
 
  [category:Series data]
-</summary>
-</member>
-<member name="P:Deedle.Series`2.Format">
-<summary>
- Shows the data frame content in a human-readable format. The resulting string
- shows all columns, but a limited number of rows. The property is used 
- automatically by F# Interactive.
 </summary>
 </member>
 <member name="M:Deedle.Series`2.ZipInner``1(Deedle.Series{`0,``0})">
@@ -2869,6 +3421,9 @@
 <summary>
  [category:Operators]
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.Series`2.Sqrt(Deedle.Series{`0,System.Double})">
 <summary>
@@ -3013,6 +3568,24 @@
  [category:Operators]
 </summary>
 </member>
+<member name="M:Deedle.Series`2.Pairwise">
+<summary>
+ Returns a series containing the predecessor and an element for each input, except
+ for the first one. The returned series is one key shorter (it does not contain a 
+ value for the first key).
+
+ ## Parameters
+  - `series` - The input series to be aggregated.
+
+ ## Example
+
+     let input = series [ 1 =&gt; &apos;a&apos;; 2 =&gt; &apos;b&apos;; 3 =&gt; &apos;c&apos;]
+     let res = input.Pairwise()
+     res = series [2 =&gt; (&apos;a&apos;, &apos;b&apos;); 3 =&gt; (&apos;b&apos;, &apos;c&apos;) ]
+
+ [category:Windowing, chunking and grouping]
+</summary>
+</member>
 <member name="M:Deedle.Series`2.Pairwise(Deedle.Boundary)">
 <summary>
  Returns a series containing an element and its neighbor for each input.
@@ -3037,23 +3610,11 @@
  [category:Windowing, chunking and grouping]
 </summary>
 </member>
-<member name="M:Deedle.Series`2.Pairwise">
-<summary>
- Returns a series containing the predecessor and an element for each input, except
- for the first one. The returned series is one key shorter (it does not contain a 
- value for the first key).
+<member name="">
 
- ## Parameters
-  - `series` - The input series to be aggregated.
+</member>
+<member name="">
 
- ## Example
-
-     let input = series [ 1 =&gt; &apos;a&apos;; 2 =&gt; &apos;b&apos;; 3 =&gt; &apos;c&apos;]
-     let res = input.Pairwise()
-     res = series [2 =&gt; (&apos;a&apos;, &apos;b&apos;); 3 =&gt; (&apos;b&apos;, &apos;c&apos;) ]
-
- [category:Windowing, chunking and grouping]
-</summary>
 </member>
 <member name="">
 
@@ -3085,7 +3646,7 @@
  [category:Indexing]
 </summary>
 </member>
-<member name="M:Deedle.Series`2.GroupBy``2(Microsoft.FSharp.Core.FSharpFunc{`0,Microsoft.FSharp.Core.FSharpFunc{`1,``0}},Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{Deedle.Series{`0,`1},Deedle.OptionalValue{``1}}})">
+<member name="M:Deedle.Series`2.GroupBy``2(System.Func{System.Collections.Generic.KeyValuePair{`0,`1},``0},System.Func{System.Collections.Generic.KeyValuePair{``0,Deedle.Series{`0,`1}},Deedle.OptionalValue{``1}})">
 <summary>
  Groups a series (ordered or unordered) using the specified key selector (`keySelector`) 
  and then aggregates each group into a single value, returned in the resulting series,
@@ -3181,6 +3742,16 @@
  [category:Accessors and slicing]
 </summary>
 </member>
+<member name="">
+
+</member>
+<member name="M:Deedle.Series`2.Format">
+<summary>
+ Shows the data frame content in a human-readable format. The resulting string
+ shows all columns, but a limited number of rows. The property is used 
+ automatically by F# Interactive.
+</summary>
+</member>
 <member name="M:Deedle.Series`2.Floor(Deedle.Series{`0,System.Double})">
 <summary>
  [category:Operators]
@@ -3190,6 +3761,9 @@
 <summary>
  [category:Operators]
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -3209,10 +3783,19 @@
  [category:Operators]
 </summary>
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="M:Deedle.Series`2.Atan(Deedle.Series{`0,System.Double})">
 <summary>
  [category:Operators]
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.Series`2.Asin(Deedle.Series{`0,System.Double})">
 <summary>
@@ -3224,7 +3807,21 @@
  [category:Appending, joining and zipping]
 </summary>
 </member>
-<member name="M:Deedle.Series`2.Aggregate``2(Deedle.Aggregation{`0},System.Func{Deedle.DataSegment{Deedle.Series{`0,`1}},``0},System.Func{Deedle.DataSegment{Deedle.Series{`0,`1}},``1})">
+<member name="M:Deedle.Series`2.Aggregate``2(Deedle.Aggregation{`0},System.Func{Deedle.DataSegment{Deedle.Series{`0,`1}},System.Collections.Generic.KeyValuePair{``0,Deedle.OptionalValue{``1}}})">
+<summary>
+ Aggregates an ordered series using the method specified by `Aggregation&lt;K&gt;` and then
+ applies the provided `observationSelector` on each window or chunk to produce the result
+ which is returned as a new series. The selector returns both the key and the value.
+
+ ## Parameters
+  - `aggregation` - Specifies the aggregation method using `Aggregation&lt;K&gt;`. This is
+    a discriminated union listing various chunking and windowing conditions.
+  - `observationSelector` - A function that is called on each chunk to obtain a key and a value.
+
+ [category:Windowing, chunking and grouping]
+</summary>
+</member>
+<member name="M:Deedle.Series`2.Aggregate``2(Deedle.Aggregation{`0},System.Func{Deedle.DataSegment{Deedle.Series{`0,`1}},``0},System.Func{Deedle.DataSegment{Deedle.Series{`0,`1}},Deedle.OptionalValue{``1}})">
 <summary>
  Aggregates an ordered series using the method specified by `Aggregation&lt;K&gt;` and then
  applies the provided `valueSelector` on each window or chunk to produce the result
@@ -3239,6 +3836,9 @@
 
  [category:Windowing, chunking and grouping]
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.Series`2.Acos(Deedle.Series{`0,System.Double})">
 <summary>
@@ -3270,6 +3870,44 @@
  keys `K`. The keys of a series may or may not be ordered 
 </summary>
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="P:Deedle.TryValue`1.Value">
+<summary>
+ Returns the value of `TryValue&lt;T&gt;` when the value is present; 
+ otherwise, throws an exception that was captured
+</summary>
+</member>
+<member name="P:Deedle.TryValue`1.HasValue">
+<summary>
+ Returns `true` when the `TryValue&lt;T&gt;` object represents a 
+ successfully calculated value 
+</summary>
+</member>
+<member name="P:Deedle.TryValue`1.Exception">
+<summary>
+ Returns the exception captured by this value. When `HasValue = true`, 
+ accessing the property throws `InvalidOperationException`.
+</summary>
+</member>
+<member name="M:Deedle.TryValue`1.ToString">
+<summary>
+ Returns the string representation of the underlying value or `&lt;error&gt;`
+</summary>
+</member>
+<member name="T:Deedle.TryValue`1">
+<summary>
+ Represents a value or an exception. This type is used by functions such as
+ `Series.tryMap` and `Frame.tryMap` to capture the result of a lambda function,
+ which may be either a value or an exception. The type is a discriminated union,
+ so it can be processed using F# pattern matching, or using `Value`, `HasValue`
+ and `Exception` properties
+</summary>
+</member>
 <member name="F:Deedle.UnionBehavior.Exclusive">
 <summary>
  When there are values available in both series that are being unioned, raise an exception.
@@ -3299,6 +3937,12 @@
 <summary>
  A type alias for the `OptionalValue&lt;T&gt;` type. The type alias can be used
  to make F# type definitions that use optional values directly more succinct.
+</summary>
+</member>
+<member name="T:Deedle.tryval`1">
+<summary>
+ A type alias for the `TryValue&lt;T&gt;` type. The type alias can be used
+ to make F# type declarations that explcitly handle exceptions more succinct.
 </summary>
 </member>
 <member name="">
@@ -3444,6 +4088,9 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
 <member name="T:Deedle.Delayed.DelayedIndexBuilder">
 <summary>
  Delayed index builder - this is where interesting things happen. Most operations
@@ -3471,6 +4118,9 @@
  In the DelayedIndexBuilder, we do not know the type of values, so this 
  is a less generic interface that gives us a way for accessing it...
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -3616,11 +4266,27 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
 <member name="T:Deedle.Delayed.DelayedSource`2">
 <summary>
  This type represents data source for constructing delayed series. To construct
  a delayed series, use `DelayedSeries.Create` (this creates index and vector 
  linked to this `DelayedSource`).
+
+ The function `loader` is called outside of the `async` (on the calling thread)
+ but the returned async computations are invoked on background thread.
+</summary>
+</member>
+<member name="T:Deedle.Delayed.DelayedSourceData`2">
+<summary>
+ Result that should be returned in response to `DelayedSourceRanges` request
+</summary>
+</member>
+<member name="T:Deedle.Delayed.DelayedSourceRanges`1">
+<summary>
+ Specifies the ranges for which data need to be provided
 </summary>
 </member>
 <member name="">
@@ -3747,7 +4413,7 @@
  columns, it will be successfully added, but there will be missing values.
 </summary>
 </member>
-<member name="M:Deedle.FSharpFrameExtensions.Frame.ReadCsv.Static(System.IO.Stream,Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Int32},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String})">
+<member name="M:Deedle.FSharpFrameExtensions.Frame.ReadCsv.Static(System.IO.Stream,Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Int32},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.Int32})">
 <summary>
  Load data frame from a CSV file. The operation automatically reads column names from the 
  CSV file (if they are present) and infers the type of values for each column. Columns
@@ -3771,7 +4437,7 @@
     values in the CSV file (such as `&quot;en-US&quot;`). The default is invariant culture. 
 </summary>
 </member>
-<member name="M:Deedle.FSharpFrameExtensions.Frame.ReadCsv.Static(System.String,Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Int32},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String})">
+<member name="M:Deedle.FSharpFrameExtensions.Frame.ReadCsv.Static(System.String,Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Int32},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.Int32})">
 <summary>
  Load data frame from a CSV file. The operation automatically reads column names from the 
  CSV file (if they are present) and infers the type of values for each column. Columns
@@ -3793,6 +4459,19 @@
     parse semicolon separated files.
   * `culture` - Specifies the name of the culture that is used when parsing 
     values in the CSV file (such as `&quot;en-US&quot;`). The default is invariant culture. 
+</summary>
+</member>
+<member name="M:Deedle.FSharpFrameExtensions.frame``3(System.Collections.Generic.IEnumerable{System.Tuple{``0,``1}})">
+<summary>
+ A function for constructing data frame from a sequence of name - column pairs.
+ This provides a nicer syntactic sugar for `Frame.ofColumns`.
+
+ ## Example
+ To create a simple frame with two columns, you can write:
+ 
+     frame [ &quot;A&quot; =&gt; series [ 1 =&gt; 30.0; 2 =&gt; 35.0 ]
+             &quot;B&quot; =&gt; series [ 1 =&gt; 30.0; 3 =&gt; 40.0 ] ]
+
 </summary>
 </member>
 <member name="M:Deedle.FSharpFrameExtensions.op_Dollar``3(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Deedle.Series{``2,``0})">
@@ -3819,7 +4498,7 @@
  or frames from key-row or key-column pairs. The operator simply returns a 
  tuple, but it provides a more convenient syntax. For example:
 
-     Series.ofObservations [ &quot;k1&quot; =&gt; 1; &quot;k2&quot; =&gt; 15 ]
+     series [ &quot;k1&quot; =&gt; 1; &quot;k2&quot; =&gt; 15 ]
 
 </summary>
 </member>
@@ -3955,34 +4634,134 @@
 <member name="T:Deedle.FrameBuilder">
 
 </member>
+<member name="">
+
+</member>
+<member name="M:Deedle.FrameModule.stack``2(Deedle.Frame{``0,``1})">
+<summary>
+ Implements R-like &apos;stack&apos; (returns frame whose 
+ columns are named Row/Column/Value)
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="M:Deedle.FrameModule.ZipInto``5(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2}},Deedle.Frame{``3,``4},Deedle.Frame{``3,``4})">
 <summary>
+ Aligns two data frames using both column index and row index and apply the specified operation
+ on values of a specified type that are available in both data frames. This overload uses
+ `JoinKind.Outer` for both columns and rows.
+
+ Once aligned, the call `df1.Zip&lt;T&gt;(df2, f)` applies the specifed function `f` on all `T` values
+ that are available in corresponding locations in both frames. For values of other types, the 
+ value from `df1` is returned.
+
+ ## Parameters
+  - `frame1` - First frame to be aligned and zipped with the other instance
+  - `frame2` - Other frame to be aligned and zipped with the first  instance
+  - `columnKind` - Specifies how to align columns (inner, outer, left or right join)
+  - `rowKind` - Specifies how to align rows (inner, outer, left or right join)
+  - `lookup` - Specifies how to find matching value for a row (when using left or right join on rows)
+  - `op` - A function that is applied to aligned values. The `Zip` operation is generic
+    in the type of this function and the type of function is used to determine which 
+    values in the frames are zipped and which are left unchanged.
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.ZipAlignInto``5(Deedle.JoinKind,Deedle.JoinKind,Deedle.Lookup,Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2}},Deedle.Frame{``3,``4},Deedle.Frame{``3,``4})">
 <summary>
+ Aligns two data frames using both column index and row index and apply the specified operation
+ on values of a specified type that are available in both data frames. The parameters `columnKind`,
+ and `rowKind` can be specified to determine how the alginment works (similarly to `Join`).
+ Column keys are always matched using `Lookup.Exact`, but `lookup` determines lookup for rows.
+
+ Once aligned, the call `df1.Zip&lt;T&gt;(df2, f)` applies the specifed function `f` on all `T` values
+ that are available in corresponding locations in both frames. For values of other types, the 
+ value from `df1` is returned.
+
+ ## Parameters
+  - `frame1` - First frame to be aligned and zipped with the other instance
+  - `frame2` - Other frame to be aligned and zipped with the first  instance
+  - `columnKind` - Specifies how to align columns (inner, outer, left or right join)
+  - `rowKind` - Specifies how to align rows (inner, outer, left or right join)
+  - `lookup` - Specifies how to find matching value for a row (when using left or right join on rows)
+  - `op` - A function that is applied to aligned values. The `Zip` operation is generic
+    in the type of this function and the type of function is used to determine which 
+    values in the frames are zipped and which are left unchanged.
+
+ [category:Joining, zipping and appending]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.Append``2(Deedle.Frame{``0,``1},Deedle.Frame{``0,``1})">
+<summary>
+ Append two data frames with non-overlapping values. The operation takes the union of columns
+ and rows of the source data frames and then unions the values. An exception is thrown when 
+ both data frames define value for a column/row location, but the operation succeeds if one
+ frame has a missing value at the location.
+
+ Note that the rows are *not* automatically reindexed to avoid overlaps. This means that when
+ a frame has rows indexed with ordinal numbers, you may need to explicitly reindex the row
+ keys before calling append.
+
+ ## Parameters
+  - `otherFrame` - The other frame to be appended (combined) with the current instance
+
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.JoinAlign``2(Deedle.JoinKind,Deedle.Lookup,Deedle.Frame{``0,``1},Deedle.Frame{``0,``1})">
 <summary>
- Join two frames using the specified kind of join and 
- the specified lookup semantics.
+ Join two data frames. The columns of the joined frames must not overlap and their
+ rows are aligned and transformed according to the specified join kind.
+ When the index of both frames is ordered, it is possible to specify `lookup` 
+ in order to align indices from other frame to the indices of the main frame
+ (typically, to find the nearest key with available value for a key).
+
+ ## Parameters
+  - `frame1` - First data frame (left) to be used in the joining
+  - `frame2` - Other frame (right) to be joined with `frame1`
+  - `kind` - Specifies the joining behavior on row indices. Use `JoinKind.Outer` and 
+    `JoinKind.Inner` to get the union and intersection of the row keys, respectively.
+    Use `JoinKind.Left` and `JoinKind.Right` to use the current key of the left/right
+    data frame.
+  - `lookup` - When `kind` is `Left` or `Right` and the two frames have ordered row index,
+    this parameter can be used to specify how to find value for a key when there is no
+    exactly matching key or when there are missing values.
 
  [category:Joining, zipping and appending]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.Join``2(Deedle.JoinKind,Deedle.Frame{``0,``1},Deedle.Frame{``0,``1})">
 <summary>
- Join two frames using the specified kind of join. This function uses
- exact matching on keys. If you want to align nearest smaller or greater
- keys in left or outer join, use `joinAlign`. 
+ Join two data frames. The columns of the joined frames must not overlap and their
+ rows are aligned and transformed according to the specified join kind.
+ For more alignment options on ordered frames, see `joinAlign`.
+
+ ## Parameters
+  - `frame1` - First data frame (left) to be used in the joining
+  - `frame2` - Other frame (right) to be joined with `frame1`
+  - `kind` - Specifies the joining behavior on row indices. Use `JoinKind.Outer` and 
+    `JoinKind.Inner` to get the union and intersection of the row keys, respectively.
+    Use `JoinKind.Left` and `JoinKind.Right` to use the current key of the left/right
+    data frame.
 
  [category:Joining, zipping and appending]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.rowsDense``2(Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.RowsDense``2(Deedle.Frame{``0,``1})">
 <summary>
  Returns the rows of the data frame that do not have any missing values. 
  The operation returns a series (indexed by the row keys of the source frame) 
@@ -3995,7 +4774,7 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.colsDense``2(Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.ColumnsDense``2(Deedle.Frame{``0,``1})">
 <summary>
  Returns the columns of the data frame that do not have any missing values.
  The operation returns a series (indexed by the column keys of the source frame) 
@@ -4008,7 +4787,7 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.dropSparseCols``2(Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.DropSparseColumns``2(Deedle.Frame{``0,``1})">
 <summary>
  Creates a new data frame that contains only those columns of the original 
  data frame that are _dense_, meaning that they have a value for each row.
@@ -4021,7 +4800,7 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.dropSparseRows``2(Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.DropSparseRows``2(Deedle.Frame{``0,``1})">
 <summary>
  Creates a new data frame that contains only those rows of the original 
  data frame that are _dense_, meaning that they have a value for each column.
@@ -4034,7 +4813,7 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.fillMissingUsing``3(Microsoft.FSharp.Core.FSharpFunc{Deedle.Series{``0,``1},Microsoft.FSharp.Core.FSharpFunc{``0,``1}},Deedle.Frame{``0,``2})">
+<member name="M:Deedle.FrameModule.FillMissingUsing``3(Microsoft.FSharp.Core.FSharpFunc{Deedle.Series{``0,``1},Microsoft.FSharp.Core.FSharpFunc{``0,``1}},Deedle.Frame{``0,``2})">
 <summary>
  Fill missing values in the frame using the specified function. The specified
  function is called with all series and keys for which the frame does not 
@@ -4054,7 +4833,7 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.fillMissing``2(Deedle.Direction,Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.FillMissing``2(Deedle.Direction,Deedle.Frame{``0,``1})">
 <summary>
  Fill missing values in the data frame with the nearest available value
  (using the specified direction). Note that the frame may still contain
@@ -4072,7 +4851,7 @@
  [category:Missing values]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.fillMissingWith``3(``0,Deedle.Frame{``1,``2})">
+<member name="M:Deedle.FrameModule.FillMissingWith``3(``0,Deedle.Frame{``1,``2})">
 <summary>
  Fill missing values of a given type in the frame with a constant value.
  The operation is only applied to columns (series) that contain values of the
@@ -4147,53 +4926,181 @@
 <member name="">
 
 </member>
-<member name="">
-
+<member name="M:Deedle.FrameModule.tryValues``2(Deedle.Frame{``0,``1})">
+<summary>
+ Throws `AggregateException` if something goes wrong
+</summary>
 </member>
 <member name="">
 
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.SelectColumnKeys``3(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Deedle.Frame{``2,``0})">
+<summary>
+ Builds a new data frame whose column keys are the results of applying the
+ specified function on the column keys of the original data frame.
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of one argument that defines the column key mapping
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.SelectColumnValues``4(Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``0},``1},Deedle.Frame{``0,``3})">
+<summary>
+ Builds a new data frame whose columns are the results of applying the specified
+ function on the columns of the input data frame. The function is called
+ with an object series that represents the column data (use `mapCols`
+ if you need to access the column key).
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of one argument that defines the column mapping
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.SelectColumns``4(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``1},``2}},Deedle.Frame{``1,``0})">
+<summary>
+ Builds a new data frame whose columns are the results of applying the specified
+ function on the columns of the input data frame. The function is called
+ with the column key and object series that represents the column data.
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of two arguments that defines the column mapping
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.WhereColumnValues``2(Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``0},System.Boolean},Deedle.Frame{``0,``1})">
+<summary>
+ Returns a new data frame containing only the columns of the input frame
+ for which the specified predicate returns `true`. The predicate is called
+ with an object series that represents the column data (use `filterCols`
+ if you need to access the column key).
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of one argument that defines the predicate
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.WhereColumns``2(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``1},System.Boolean}},Deedle.Frame{``1,``0})">
+<summary>
+ Returns a new data frame containing only the columns of the input frame
+ for which the specified predicate returns `true`. The predicate is called
+ with the column key and object series that represents the column data.
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of two arguments that defines the predicate
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.SelectRowKeys``3(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Deedle.Frame{``0,``2})">
+<summary>
+ Builds a new data frame whose row keys are the results of applying the
+ specified function on the row keys of the original data frame.
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of one argument that defines the row key mapping
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.SelectRowValues``3(Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``0},``1},Deedle.Frame{``2,``0})">
+<summary>
+ Builds a new data frame whose rows are the results of applying the specified
+ function on the rows of the input data frame. The function is called
+ with an object series that represents the row data (use `mapRows`
+ if you need to access the row key).
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of one argument that defines the row mapping
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.SelectRows``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``1},``2}},Deedle.Frame{``0,``1})">
+<summary>
+ Builds a new data frame whose rows are the results of applying the specified
+ function on the rows of the input data frame. The function is called
+ with the row key and object series that represents the row data.
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of two arguments that defines the row mapping
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.WhereRowValues``2(Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``0},System.Boolean},Deedle.Frame{``1,``0})">
+<summary>
+ Returns a new data frame containing only the rows of the input frame
+ for which the specified predicate returns `true`. The predicate is called
+ with an object series that represents the row data (use `filterRows`
+ if you need to access the row key).
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of one argument that defines the predicate
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.WhereRows``2(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.FSharpFunc{Deedle.ObjectSeries{``1},System.Boolean}},Deedle.Frame{``0,``1})">
+<summary>
+ Returns a new data frame containing only the rows of the input frame
+ for which the specified predicate returns `true`. The predicate is called
+ with the row key and object series that represents the row data.
 
+ ## Parameters
+  - `frame` - Input data frame to be transformed
+  - `f` - Function of two arguments that defines the predicate
+
+ [category:Projection and filtering]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.ExpandColumns``1(System.Collections.Generic.IEnumerable{System.String},Deedle.Frame{``0,System.String})">
+<summary>
+ Creates a new data frame where the specified columns are expanded based on runtime
+ structure of the objects they store. A column can be expanded if it is 
+ `Series&lt;string, T&gt;` or `IDictionary&lt;K, V&gt;` or if it is any .NET object with readable
+ properties. 
 
+ ## Example
+ Given a data frame with a series that contains tuples, you can expand the
+ tuple members and get a frame with columns `S.Item1` and `S.Item2`:
+ 
+     let df = frame [ &quot;S&quot; =&gt; series [ 1 =&gt; (1, &quot;One&quot;); 2 =&gt; (2, &quot;Two&quot;) ] ]  
+     df |&gt; Frame.expandCols [&quot;S&quot;]
+
+ ## Parameters
+  - `names` - Names of columns in the original data frame to be expanded
+  - `frame` - Input data frame whose columns will be expanded
+
+ [category:Data structure manipulation]
+</summary>
 </member>
-<member name="">
+<member name="M:Deedle.FrameModule.expandAllCols``1(System.Int32,Deedle.Frame{``0,System.String})">
+<summary>
+ Creates a new data frame where all columns are expanded based on runtime
+ structure of the objects they store. The expansion is performed recrusively
+ to the specified depth. A column can be expanded if it is `Series&lt;string, T&gt;` 
+ or `IDictionary&lt;K, V&gt;` or if it is any .NET object with readable
+ properties. 
 
-</member>
-<member name="">
+ ## Parameters
+  - `nesting` - The nesting level for expansion. When set to 0, nothing is done.
+  - `frame` - Input data frame whose columns will be expanded
 
-</member>
-<member name="">
-
+ [category:Data structure manipulation]
+</summary>
 </member>
 <member name="M:Deedle.FrameModule.OrderColumns``2(Deedle.Frame{``0,``1})">
 <summary>
@@ -4204,7 +5111,7 @@
  ## Parameters
   - `frame` - Source data frame to be ordered.
  
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.OrderRows``2(Deedle.Frame{``0,``1})">
@@ -4216,7 +5123,7 @@
  ## Parameters
   - `frame` - Source data frame to be ordered.
  
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.Transpose``2(Deedle.Frame{``0,``1})">
@@ -4229,7 +5136,7 @@
  ## Parameters
   - `frame` - Source data frame to be transposed.
  
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsWith``3(System.Collections.Generic.IEnumerable{``0},Deedle.Frame{``1,``2})">
@@ -4242,7 +5149,7 @@
   - `frame` - Source data frame whose row index are to be replaced.
   - `keys` - A collection of new row keys.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexColumnsWith``3(System.Collections.Generic.IEnumerable{``0},Deedle.Frame{``1,``2})">
@@ -4255,7 +5162,7 @@
   - `frame` - Source data frame whose column index are to be replaced.
   - `keys` - A collection of new column keys.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsByString``2(``0,Deedle.Frame{``1,``0})">
@@ -4269,7 +5176,7 @@
   - `column` - The name of a column in the original data frame that will be used for the new
     index. Note that the values in the column need to be unique.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsByDateTimeOffset``2(``0,Deedle.Frame{``1,``0})">
@@ -4283,7 +5190,7 @@
   - `column` - The name of a column in the original data frame that will be used for the new
     index. Note that the values in the column need to be unique.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsByDateTime``2(``0,Deedle.Frame{``1,``0})">
@@ -4297,7 +5204,7 @@
   - `column` - The name of a column in the original data frame that will be used for the new
     index. Note that the values in the column need to be unique.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsByInt``2(``0,Deedle.Frame{``1,``0})">
@@ -4311,7 +5218,7 @@
   - `column` - The name of a column in the original data frame that will be used for the new
     index. Note that the values in the column need to be unique.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsByObject``2(``0,Deedle.Frame{``1,``0})">
@@ -4325,7 +5232,7 @@
   - `column` - The name of a column in the original data frame that will be used for the new
     index. Note that the values in the column need to be unique.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRows``3(``0,Deedle.Frame{``1,``0})">
@@ -4339,7 +5246,7 @@
   - `column` - The name of a column in the original data frame that will be used for the new
     index. Note that the values in the column need to be unique.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.IndexRowsOrdinally``2(Deedle.Frame{``0,``1})">
@@ -4351,7 +5258,7 @@
  ## Parameters
   - `frame` - Source data frame whose row index are to be replaced.
 
- [category:Index manipulation]
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.RealignRows``2(System.Collections.Generic.IEnumerable{``0},Deedle.Frame{``0,``1})">
@@ -4365,21 +5272,7 @@
   - `keys` - A sequence of new row keys. The keys must have the same type as the original
     frame keys (because the rows are realigned).
 
- [category:Index manipulation]
-</summary>
-</member>
-<member name="M:Deedle.FrameModule.LookupRow``3(``0,Deedle.Lookup,Deedle.Frame{``0,``1})">
-<summary>
- Returns a specified row from a data frame. If the data frame has 
- ordered row index, the lookup semantics can be used to get row with 
- nearest greater/smaller key. For exact semantics, you can use `getSeries`.
-</summary>
-</member>
-<member name="M:Deedle.FrameModule.LookupColumn``3(``0,Deedle.Lookup,Deedle.Frame{``1,``0})">
-<summary>
- Returns a specified series (column) from a data frame. If the data frame has 
- ordered column index, the lookup semantics can be used to get series
- with nearest greater/smaller key. For exact semantics, you can use `getSeries`.
+ [category:Data structure manipulation]
 </summary>
 </member>
 <member name="">
@@ -4388,18 +5281,52 @@
 <member name="">
 
 </member>
-<member name="M:Deedle.FrameModule.GetRow``3(``0,Deedle.Frame{``0,``1})">
-<summary>
- Returns a specified row from a data frame. This 
- function uses exact matching semantics. Use `lookupRow` if you
- want to use inexact matching (e.g. on dates)
-</summary>
+<member name="">
+
 </member>
-<member name="M:Deedle.FrameModule.GetColumn``3(``0,Deedle.Frame{``1,``0})">
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.FrameModule.GetSeries``2(``0,Deedle.Frame{``1,``0})">
 <summary>
- Returns a specified series (column) from a data frame. This 
- function uses exact matching semantics. Use `lookupSeries` if you
- want to use inexact matching (e.g. on dates)
+ Returns a specified column from a data frame as a `float` series.
+ This function attempts to covnert the column to numeric and throws an exception
+ if that is not possible. For non-numeric types, use `getCol` instead.
+
+ [category:Series operations]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.ReplaceColumn``2(``0,Deedle.ISeries{``1},Deedle.Frame{``1,``0})">
@@ -4407,114 +5334,169 @@
  Creates a new data frame where the specified column is repalced
  with a new series. (If the series does not exist, only the new
  series is added.)
+
+ ## Parameters
+  - `column` - A key (or name) for the column to be replaced or added
+  - `series` - A data series to be used (the row key type has to match)
+  - `frame` - Source data frame (which is not mutated by the operation)
+
+ [category:Series operations]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.DropColumn``2(``0,Deedle.Frame{``1,``0})">
+<member name="M:Deedle.FrameModule.DropSeries``2(``0,Deedle.Frame{``1,``0})">
 <summary>
  Creates a new data frame that contains all data from the original
- data frame without the specified series (column).
+ data frame without the specified series (column). The operation throws
+ if the column key is not found.
+
+ ## Parameters
+  - `column` - The key (or name) to be dropped from the frame
+  - `frame` - Source data frame (which is not mutated by the operation)
+
+ [category:Series operations]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.AddSeries``3(``0,Deedle.Series{``1,``2},Deedle.Frame{``1,``0})">
+<summary>
+ Creates a new data frame that contains all data from 
+ the original data frame, together with an additional series.
+ The operation uses left join and aligns new series to the 
+ existing frame keys.
+
+ ## Parameters
+  - `column` - A key (or name) for the newly added column
+  - `series` - A data series to be added (the row key type has to match)
+  - `frame` - Source data frame (which is not mutated by the operation)
+
+ [category:Series operations]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.GetRows``2(System.Collections.Generic.IEnumerable{``0},Deedle.Frame{``0,``1})">
+<summary>
+ Returns a frame consisting of the specified rows from the original
+ data frame. The function uses exact key matching semantics.
+
+ [category:Accessing frame data and lookup]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.GetColumns``2(System.Collections.Generic.IEnumerable{``0},Deedle.Frame{``1,``0})">
+<summary>
+ Returns a frame consisting of the specified columns from the original
+ data frame. The function uses exact key matching semantics.
+
+ [category:Accessing frame data and lookup]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.LookupRow``3(``0,Deedle.Lookup,Deedle.Frame{``0,``1})">
+<summary>
+ Returns a specified row from a data frame. If the data frame has 
+ ordered row index, the lookup semantics can be used to get row with 
+ nearest greater/smaller key. For exact semantics, you can use `getRow`.
+
+ [category:Accessing frame data and lookup]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.LookupColumn``3(``0,Deedle.Lookup,Deedle.Frame{``1,``0})">
+<summary>
+ Returns a specified series (column) from a data frame. If the data frame has 
+ ordered column index, the lookup semantics can be used to get series
+ with nearest greater/smaller key. For exact semantics, you can use `getCol`.
+
+ [category:Accessing frame data and lookup]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.GetRow``3(``0,Deedle.Frame{``0,``1})">
+<summary>
+ Returns a specified row from a data frame. This function uses exact matching 
+ semantics on the key. Use `lookupRow` if you want to use inexact matching 
+ (e.g. on dates)
+
+ [category:Accessing frame data and lookup]
+</summary>
+</member>
+<member name="M:Deedle.FrameModule.GetColumn``3(``0,Deedle.Frame{``1,``0})">
+<summary>
+ Returns a specified column from a data frame. This function uses exact matching 
+ semantics on the key. Use `lookupSeries` if you want to use inexact 
+ matching (e.g. on dates)
+
+ [category:Accessing frame data and lookup]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.Rows``2(Deedle.Frame{``0,``1})">
 <summary>
  Returns the rows of the data frame as a series (indexed by 
- the row keys of the source frame) containing _series_ representing
+ the row keys of the source frame) containing untyped series representing
  individual row of the frame.
+
+ [category:Accessing frame data and lookup]
 </summary>
 </member>
 <member name="M:Deedle.FrameModule.Columns``2(Deedle.Frame{``0,``1})">
 <summary>
  Returns the columns of the data frame as a series (indexed by 
- the column keys of the source frame) containing _series_ representing
+ the column keys of the source frame) containing untyped series representing
  individual columns of the frame.
+
+ [category:Accessing frame data and lookup]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.Append``2(Deedle.Frame{``0,``1},Deedle.Frame{``0,``1})">
-<summary>
- Append two data frames. The columns of the resulting data frame
- will be the union of columns of the two data frames. The row keys
- may overlap, but the values must not - if there is a value for a
- certain column, at the same row index in both data frames, an exception
- is thrown. 
-</summary>
-</member>
-<member name="M:Deedle.FrameModule.AddColumn``3(``0,Deedle.Series{``1,``2},Deedle.Frame{``1,``0})">
-<summary>
- Creates a new data frame that contains all data from 
- the original data frame, together with additional series.
-</summary>
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="M:Deedle.FrameModule.countCols``2(Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.CountColumns``2(Deedle.Frame{``0,``1})">
 <summary>
  Returns the total number of column keys in the specified frame. This returns
  the total length of columns, including keys for which there is no 
  data available.
+
+ [category:Accessing frame data and lookup]
 </summary>
 </member>
-<member name="M:Deedle.FrameModule.countRows``2(Deedle.Frame{``0,``1})">
+<member name="M:Deedle.FrameModule.CountRows``2(Deedle.Frame{``0,``1})">
 <summary>
  Returns the total number of row keys in the specified frame. This returns
  the total length of the row series, including keys for which there is no 
  value available.
+
+ [category:Accessing frame data and lookup]
 </summary>
 </member>
 <member name="T:Deedle.FrameModule">
 <summary>
  Frame module comment
 
- ## Index manipulation
+ ## Accessing frame data and lookup
+ basics
+
+ ## Data structure manipulation
  More documentation here
+
+ ## Joining, zipping and appending
+ More info
 
  ## Missing values
  More documentation here
+
+ ## Projection and filtering
+ TBD
+
 </summary>
 </member>
-<member name="M:Deedle.FrameUtilsModule.readCsv(System.IO.TextReader,Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Int32},Microsoft.FSharp.Core.FSharpOption{System.String},System.String,Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String})">
+<member name="M:Deedle.FrameUtilsModule.expandColumns``1(Microsoft.FSharp.Collections.FSharpSet{System.String},Deedle.Frame{``0,System.String})">
+<summary>
+ Expand properties of vectors recursively. Nothing is done when `nesting = 0`.
+</summary>
+</member>
+<member name="M:Deedle.FrameUtilsModule.expandVectors``1(System.Int32,System.Boolean,Deedle.Frame{``0,System.String})">
+<summary>
+ Expand properties of vectors recursively. Nothing is done when `nesting = 0`.
+</summary>
+</member>
+<member name="M:Deedle.FrameUtilsModule.fromValues``4(System.Collections.Generic.IEnumerable{``0},Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Core.FSharpFunc{``0,``2},Microsoft.FSharp.Core.FSharpFunc{``0,``3})">
+<summary>
+ Create data frame from a sequence of values using
+ projections that return column/row keys and the value
+</summary>
+</member>
+<member name="M:Deedle.FrameUtilsModule.readCsv(System.IO.TextReader,Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Int32},Microsoft.FSharp.Core.FSharpOption{System.String},System.String,Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.Int32})">
 <summary>
  Load data from a CSV file using F# Data API
 </summary>
@@ -4525,11 +5507,18 @@
  to their actual types to create IVector&lt;T&gt; with the right T)
 </summary>
 </member>
-<member name="">
-
+<member name="M:Deedle.FrameUtilsModule.toDataTable``2(System.Collections.Generic.IEnumerable{System.String},Deedle.Frame{``0,``1})">
+<summary>
+ Export the specified frame to &apos;DataTable&apos;. Caller needs to specify
+ keys (headers) for the row keys (there may be more of them for multi-level index)
+</summary>
 </member>
-<member name="">
-
+<member name="M:Deedle.FrameUtilsModule.writeCsv``2(System.IO.TextWriter,Microsoft.FSharp.Core.FSharpOption{System.String},Microsoft.FSharp.Core.FSharpOption{System.Char},Microsoft.FSharp.Core.FSharpOption{System.Globalization.CultureInfo},Microsoft.FSharp.Core.FSharpOption{System.Boolean},Microsoft.FSharp.Core.FSharpOption{System.Collections.Generic.IEnumerable{System.String}},Deedle.Frame{``0,``1})">
+<summary>
+ Store data frame to a CSV file using the specified information
+ (use TSV format if file ends with .tsv, when including row keys, the
+ caller needs to provide headers)
+</summary>
 </member>
 <member name="">
 
@@ -4542,6 +5531,12 @@
 </member>
 <member name="T:Deedle.FrameUtilsModule">
 
+</member>
+<member name="T:Deedle.Indices.AsyncSeriesConstruction`1">
+<summary>
+ Asynchronous version of `SeriesConstruction&lt;&apos;K&gt;`. Returns a workflow that evaluates
+ the index, together with a construction to apply (asynchronously) on vectors
+</summary>
 </member>
 <member name="">
 
@@ -4641,6 +5636,13 @@
  should check and infer this from the data.
 </summary>
 </member>
+<member name="M:Deedle.Indices.IIndexBuilder.AsyncMaterialize``1(System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction})">
+<summary>
+ Given an index and vector construction, return a new index asynchronously
+ to allow composing evaluation of lazy series. The command to be applied to
+ vectors can be applied asynchronously using `vectorBuilder.AsyncBuild`
+</summary>
+</member>
 <member name="M:Deedle.Indices.IIndexBuilder.Append``1(System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction},System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction},Deedle.Vectors.IVectorValueTransform)">
 <summary>
  Append two indices and builds corresponding vector transformations
@@ -4650,7 +5652,7 @@
  a key is defined in both indices (i.e. which value should be in the new vector).
 </summary>
 </member>
-<member name="M:Deedle.Indices.IIndexBuilder.Aggregate``3(Deedle.Indices.IIndex{``0},Deedle.Aggregation{``0},Deedle.Vectors.VectorConstruction,Microsoft.FSharp.Core.FSharpFunc{System.Tuple{Deedle.DataSegmentKind,System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction}},Deedle.OptionalValue{``1}},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{Deedle.DataSegmentKind,System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction}},``2})">
+<member name="M:Deedle.Indices.IIndexBuilder.Aggregate``3(Deedle.Indices.IIndex{``0},Deedle.Aggregation{``0},Deedle.Vectors.VectorConstruction,Microsoft.FSharp.Core.FSharpFunc{System.Tuple{Deedle.DataSegmentKind,System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction}},System.Tuple{``1,Deedle.OptionalValue{``2}}})">
 <summary>
  Aggregate an ordered index into floating windows or chunks. 
 
@@ -4660,11 +5662,9 @@
   - `aggregation` - Defines the kind of aggregation to apply (the type 
     is a discriminated union with a couple of cases)
   - `source` - Source vector construction to be transformed 
-  - `valueSelector` - Given information about window/chunk (including 
+  - `selector` - Given information about window/chunk (including 
     vector construction that can be used to build the data chunk), return
-    a new value for the returned vector.
-  - `keySelector` - Given information about window/chunk (including 
-    vector construction that can be used to build the data chunk), return a key of the chunk/window.
+    a new key, together with a new value for the returned vector.
 </summary>
 </member>
 <member name="T:Deedle.Indices.IIndexBuilder">
@@ -4707,6 +5707,11 @@
 <summary>
  Returns the minimal and maximal key associated with the index.
  (the operation may fail for unordered indices)
+</summary>
+</member>
+<member name="P:Deedle.Indices.IIndex`1.KeyCount">
+<summary>
+ Returns the number of keys in the index
 </summary>
 </member>
 <member name="P:Deedle.Indices.IIndex`1.IsOrdered">
@@ -4839,13 +5844,18 @@
  Create an index from the specified data
 </summary>
 </member>
+<member name="M:Deedle.Indices.Linear.LinearIndexBuilder.Deedle-Indices-IIndexBuilder-AsyncMaterialize``1(System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction})">
+<summary>
+ Linear index is always fully evaluated - just return it asynchronously
+</summary>
+</member>
 <member name="M:Deedle.Indices.Linear.LinearIndexBuilder.Deedle-Indices-IIndexBuilder-Append``1(System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction},System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction},Deedle.Vectors.IVectorValueTransform)">
 <summary>
  Append is similar to union, but it also combines the vectors using the specified
  vector transformation.
 </summary>
 </member>
-<member name="M:Deedle.Indices.Linear.LinearIndexBuilder.Deedle-Indices-IIndexBuilder-Aggregate``3(Deedle.Indices.IIndex{``0},Deedle.Aggregation{``0},Deedle.Vectors.VectorConstruction,Microsoft.FSharp.Core.FSharpFunc{System.Tuple{Deedle.DataSegmentKind,System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction}},Deedle.OptionalValue{``1}},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{Deedle.DataSegmentKind,System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction}},``2})">
+<member name="M:Deedle.Indices.Linear.LinearIndexBuilder.Deedle-Indices-IIndexBuilder-Aggregate``3(Deedle.Indices.IIndex{``0},Deedle.Aggregation{``0},Deedle.Vectors.VectorConstruction,Microsoft.FSharp.Core.FSharpFunc{System.Tuple{Deedle.DataSegmentKind,System.Tuple{Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction}},System.Tuple{``1,Deedle.OptionalValue{``2}}})">
 <summary>
  Aggregate ordered index
 </summary>
@@ -4909,6 +5919,9 @@
  Returns the range of keys - makes sense only for ordered index
 </summary>
 </member>
+<member name="">
+
+</member>
 <member name="P:Deedle.Indices.Linear.LinearIndex`1.IsOrdered">
 <summary>
  Are the keys of the index ordered?
@@ -4954,6 +5967,16 @@
  An index that maps keys `K` to offsets `Address`. The keys cannot be duplicated.
  The construction checks if the keys are ordered (using the provided or the default
  comparer for `K`) and disallows certain operations on unordered indices.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="T:Deedle.Internal.IFsiFormattable">
+<summary>
+ [omit]
+ An interface implemented by types that support nice formatting for F# Interactive
+ (The `FSharp.DataFrame.fsx` file registers an FSI printer using this interface.)
 </summary>
 </member>
 <member name="">
@@ -5024,6 +6047,20 @@
  Module that implements various helpers for supporting C# dynamic type.
  (this takes care of some of the complexity around building `DynamicMetaObject`
  and it is used by `SeriesBuilder` and `Frame`)
+</summary>
+</member>
+<member name="M:Deedle.Internal.Convert.changeType``1(System.Object)">
+<summary>
+ Helper function that converts value to a specified type
+ (this aims to be as flexible as possible)
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="T:Deedle.Internal.Convert">
+<summary>
+ [omit]
 </summary>
 </member>
 <member name="">
@@ -5309,6 +6346,21 @@
  `Single.NaN` as well as `Double.NaN`.
 
  The functions in this module are not intended to be called directly.
+</summary>
+</member>
+<member name="M:Deedle.Internal.ExceptionHelpers.keyNotFound``2(``0)">
+<summary>
+ Throws `KeyNotFoundException` with a nicely formatted error message for the specified key
+</summary>
+</member>
+<member name="M:Deedle.Internal.ExceptionHelpers.missingVal``2(``0)">
+<summary>
+ Throws `MissingValueException` with a nicely formatted error message for the specified key
+</summary>
+</member>
+<member name="T:Deedle.Internal.ExceptionHelpers">
+<summary>
+ Simple helper functions for throwing exceptions
 </summary>
 </member>
 <member name="M:Deedle.JoinHelpers.createJoinTransformation``1(Deedle.Indices.IIndexBuilder,Deedle.JoinKind,Deedle.Lookup,Deedle.Indices.IIndex{``0},Deedle.Indices.IIndex{``0},Deedle.Vectors.VectorConstruction,Deedle.Vectors.VectorConstruction)">
@@ -5616,8 +6668,78 @@
  Module with helper functions for extracting values from hierarchical tuples
 </summary>
 </member>
+<member name="M:Deedle.Reflection.convertRecordSequence``1(System.Collections.Generic.IEnumerable{``0})">
+<summary>
+ Convert a sequence of records to a data frame - automatically 
+ get the columns based on information available using reflection
+</summary>
+</member>
+<member name="M:Deedle.Reflection.getRecordConvertorExprs(System.Type)">
+<summary>
+ Given type &apos;T that represents some .NET object, generate an array of 
+ functions that take seq&lt;&apos;T&gt; and generate IVector with each column:
+
+     vectorBuilder.Create(&lt;input&gt;.Select(fun (recd:&apos;T) -&gt; 
+       recd.&lt;field&gt;).ToArray()) : IVector&lt;&apos;F&gt;
+
+</summary>
+</member>
 <member name="">
 
+</member>
+<member name="M:Deedle.Reflection.expandVector``1(System.Boolean,Deedle.IVector{``0})">
+<summary>
+ Given a single vector, expand its values into multiple vectors. This may be:
+ - `IDictionary` is expanded based on keys/values
+ - `ISeries&lt;string&gt;` is expanded 
+ - .NET types with readable properties are expanded
+</summary>
+</member>
+<member name="P:Deedle.Reflection.getCachedCompileProjection">
+<summary>
+ Compile all projections from the type, so that we can run them fast
+ and cache the results with Type as the key, so that we don&apos;t have to recompile 
+</summary>
+</member>
+<member name="M:Deedle.Reflection.expandDictionary(System.Object)">
+<summary>
+ Given value, return names, types and values of all its IDictionary contents (or None)
+</summary>
+</member>
+<member name="M:Deedle.Reflection.getMemberProjections(System.Type)">
+<summary>
+ Given System.Type for some .NET object, get a sequence of projections
+ that return the values of all readonly properties (together with their name &amp; type)
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="P:Deedle.Reflection.createTypedVector">
+<summary>
+ Helper function used when building frames from data tables
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="P:Deedle.Reflection.customExpanders">
+<summary>
+ Custom expanders that override default behavior
+</summary>
+</member>
+<member name="P:Deedle.Reflection.nonFlattenedTypes">
+<summary>
+ Mutable collections of interfaces that we want to ignore 
+</summary>
+</member>
+<member name="P:Deedle.Reflection.additionalPrimitiveTypes">
+<summary>
+ Mutable collection of additional primitive types that we want to skip
+</summary>
 </member>
 <member name="">
 
@@ -5634,11 +6756,15 @@
 <member name="">
 
 </member>
-<member name="">
-
+<member name="M:Deedle.Reflection.getDictionaryValues``2(System.Collections.Generic.IDictionary{``0,``1})">
+<summary>
+ Helper function that returns contents of IDictionary&lt;&apos;K, &apos;V&gt;
+</summary>
 </member>
-<member name="">
-
+<member name="M:Deedle.Reflection.createTypedVectorHelper``1(System.Collections.Generic.IEnumerable{Deedle.OptionalValue{System.Object}})">
+<summary>
+ Helper function that creates IVector&lt;&apos;T&gt; and casts it to IVector
+</summary>
 </member>
 <member name="">
 
@@ -5981,6 +7107,11 @@
  `InvalidOperationException` when the series is not ordered.
 
  [category:Lookup, resampling and scaling]
+</summary>
+</member>
+<member name="M:Deedle.SeriesModule.fillMissingBetween``2(``0,``0,Deedle.Direction,Deedle.Series{``0,``1})">
+<summary>
+ [category:Missing values]
 </summary>
 </member>
 <member name="M:Deedle.SeriesModule.fillMissing``2(Deedle.Direction,Deedle.Series{``0,``1})">
@@ -6367,7 +7498,7 @@
  [category:Windowing, chunking and grouping]
 </summary>
 </member>
-<member name="M:Deedle.SeriesModule.aggregateInto``4(Deedle.Aggregation{``0},Microsoft.FSharp.Core.FSharpFunc{Deedle.DataSegment{Deedle.Series{``0,``1}},``2},Microsoft.FSharp.Core.FSharpFunc{Deedle.DataSegment{Deedle.Series{``0,``1}},``3},Deedle.Series{``0,``1})">
+<member name="M:Deedle.SeriesModule.aggregateInto``4(Deedle.Aggregation{``0},Microsoft.FSharp.Core.FSharpFunc{Deedle.DataSegment{Deedle.Series{``0,``1}},``2},Microsoft.FSharp.Core.FSharpFunc{Deedle.DataSegment{Deedle.Series{``0,``1}},Deedle.OptionalValue{``3}},Deedle.Series{``0,``1})">
 <summary>
  Aggregates an ordered series using the method specified by `Aggregation&lt;K&gt;` and then
  applies the provided value selector `f` on each window or chunk to produce the result
@@ -6533,7 +7664,24 @@
  [category:Statistics]
 </summary>
 </member>
-<member name="M:Deedle.SeriesModule.ApplyLevel``4(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Core.FSharpFunc{System.Collections.Generic.IEnumerable{``2},``3},Deedle.Series{``0,``2})">
+<member name="M:Deedle.SeriesModule.ApplyLevel``4(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Core.FSharpFunc{Deedle.Series{``0,``2},``3},Deedle.Series{``0,``2})">
+<summary>
+ Groups the elements of the input series in groups based on the keys
+ produced by `level` and then aggregates series representing each group
+ using the specified function `op`. The result is a new series containing
+ the aggregates of each group. 
+
+ This operation is designed to be used with [hierarchical indexing](../features.html#indexing).
+
+ ## Parameters
+  - `series` - An input series to be aggregated
+  - `op` - A function that takes a series and produces an aggregated result
+  - `level` - A delegate that returns a new group key, based on the key in the input series
+
+ [category:Statistics]
+</summary>
+</member>
+<member name="M:Deedle.SeriesModule.StatisticsLevel``4(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Core.FSharpFunc{System.Collections.Generic.IEnumerable{``2},``3},Deedle.Series{``0,``2})">
 <summary>
  Groups the elements of the input series in groups based on the keys
  produced by `level` and then aggregates elements in each group
@@ -6598,7 +7746,7 @@
  [category:Statistics]
 </summary>
 </member>
-<member name="M:Deedle.SeriesModule.Apply``3(Microsoft.FSharp.Core.FSharpFunc{System.Collections.Generic.IEnumerable{``0},``1},Deedle.Series{``2,``0})">
+<member name="M:Deedle.SeriesModule.Stat``3(Microsoft.FSharp.Core.FSharpFunc{System.Collections.Generic.IEnumerable{``0},``1},Deedle.Series{``2,``0})">
 <summary>
  Aggregates the values of the specified series using a function that operates on
  sequence (`IEnumerable&lt;T&gt;`). This simply reads all non-missing values and passes
@@ -6621,6 +7769,9 @@
 <summary>
  Aggregates non-missing values using the specified function working on seq&lt;&apos;T&gt;
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="M:Deedle.SeriesModule.FlattenLevel``4(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Core.FSharpFunc{Deedle.Series{``0,``2},``3},Deedle.Series{``0,``2})">
 <summary>
@@ -6690,6 +7841,17 @@
 <summary>
  `result[k] = series[k] - series[k - offset]`
 </summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Deedle.SeriesModule.tryValues``2(Deedle.Series{``0,Deedle.TryValue{``1}})">
+<summary>
+ Throws `AggregateException` if something goes wrong
+</summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -6824,6 +7986,25 @@
  to the &quot;least common denominator&quot; data structure - `IEnumerable&lt;T&gt;`.
 </summary>
 </member>
+<member name="">
+
+</member>
+<member name="T:Deedle.VectorHelpers.CreateTypedVectorHelper">
+<summary>
+ Helper object called by createTypedVector via reflection
+</summary>
+</member>
+<member name="M:Deedle.VectorHelpers.TryValuesHelper.TryValues``1(Deedle.IVector{Deedle.TryValue{``0}})">
+<summary>
+ Turns IVector&lt;TryValue&lt;&apos;T&gt;&gt; into TryValue&lt;IVector&lt;&apos;T&gt;&gt; by aggregating all exceptions
+ (used via reflection by the `tryValues` function below)
+</summary>
+</member>
+<member name="T:Deedle.VectorHelpers.TryValuesHelper">
+<summary>
+ Helper type that is used via reflection
+</summary>
+</member>
 <member name="P:Deedle.VectorHelpers.VectorValueTransform.RightIfAvailable">
 <summary>
  A generic transformation that prefers the left value (if it is not missing)
@@ -6885,6 +8066,17 @@
 <member name="M:Deedle.VectorHelpers.substitute(System.Int32,System.Int32)">
 <summary>
  Substitute variable hole for another in a vector construction
+</summary>
+</member>
+<member name="M:Deedle.VectorHelpers.createTypedVector(Deedle.Vectors.IVectorBuilder,System.Object[])">
+<summary>
+ Given object array, create a typed vector of the best possible type
+</summary>
+</member>
+<member name="M:Deedle.VectorHelpers.tryValues(Deedle.IVector)">
+<summary>
+ Given an IVector, check if the vector contains `&apos;T tryval` values and if it does,
+ turn that into a vector of just `&apos;T` values, or return aggregated exception
 </summary>
 </member>
 <member name="">
@@ -6951,6 +8143,31 @@
  Pretty printer for vectors. This uses the &apos;Data&apos; property
 </summary>
 </member>
+<member name="M:Deedle.VectorHelpers.Inference.commonSupertype(System.Type,System.Type)">
+<summary>
+ Given two types, find their common supertype
+</summary>
+</member>
+<member name="P:Deedle.VectorHelpers.Inference.Top">
+<summary>
+ System.Type representing top
+</summary>
+</member>
+<member name="P:Deedle.VectorHelpers.Inference.Bottom">
+<summary>
+ System.Type representing bottom
+</summary>
+</member>
+<member name="M:Deedle.VectorHelpers.Inference.|Top|Bottom|String|Int|Float|(System.Type)">
+<summary>
+ Classsify type as one of the supported primitives
+</summary>
+</member>
+<member name="T:Deedle.VectorHelpers.Inference">
+<summary>
+ Helper functions and active patterns for type inference
+</summary>
+</member>
 <member name="T:Deedle.VectorHelpers">
 <summary>
  A module with various utilities for working with vectors. 
@@ -6976,6 +8193,12 @@
  Apply a vector construction to a given vector. The second parameter
  is an array of arguments (&quot;variables&quot;) that may be referenced from the
  `VectorConstruction` using the `Return 0` construct.
+</summary>
+</member>
+<member name="M:Deedle.Vectors.IVectorBuilder.AsyncBuild``1(Deedle.Vectors.VectorConstruction,Deedle.IVector{``0}[])">
+<summary>
+ Asynchronous version of `Build` operation. This is mainly used for 
+ `AsyncMaterialize` and it does not handle fully general vector constructions (yet)
 </summary>
 </member>
 <member name="T:Deedle.Vectors.IVectorBuilder">
@@ -7026,6 +8249,12 @@
 <member name="T:Deedle.Vectors.Vector">
 <summary>
  Type that provides access to creating vectors (represented as arrays)
+</summary>
+</member>
+<member name="T:Deedle.Vectors.VectorConstruction.AsyncCustomCommand">
+<summary>
+ Same as `CustomCommand` with the difference that the resulting vector is returned
+ asynchronously (this is useful for lazy loading and it is used by `AsyncBuild`).
 </summary>
 </member>
 <member name="T:Deedle.Vectors.VectorConstruction.CustomCommand">
@@ -7222,6 +8451,11 @@
 <summary>
  Given a vector construction command(s) produces a new IVector
  (the result is typically ArrayVector, but this is not guaranteed)
+</summary>
+</member>
+<member name="M:Deedle.Vectors.ArrayVector.ArrayVectorBuilder.Deedle-Vectors-IVectorBuilder-AsyncBuild``1(Deedle.Vectors.VectorConstruction,Deedle.IVector{``0}[])">
+<summary>
+ Asynchronous version - limited implementation for AsyncMaterialize
 </summary>
 </member>
 <member name="">
@@ -7611,6 +8845,12 @@
 </summary>
 </member>
 <member name="T:ExtCore.Collections.ExtCoreExtensions">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:System.AssemblyVersionInformation">
 
 </member>
 </members>

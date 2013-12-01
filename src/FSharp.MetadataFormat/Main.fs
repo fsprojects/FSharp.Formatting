@@ -150,11 +150,9 @@ module ValueReader =
         let basePath = Path.GetFullPath(baseFolder)
         let docPath = Path.GetFullPath(l.Document)
         if not <| docPath.StartsWith basePath then
-            failwith "Current source file doesn't reside in source folder"
-        let relativePath = docPath.[basePath.Length+1..]
-        let uriBuilder = UriBuilder(repo)
-        uriBuilder.Path <- uriBuilder.Path + relativePath
-        let loc = String.Format("{0}#L{1}-{2}", uriBuilder.Uri, l.StartLine, l.EndLine)
+            failwithf "Current source file '%s' doesn't reside in source folder '%s'" l.Document baseFolder
+        let relativePath = docPath.[basePath.Length..]
+        let loc = String.Format("{0}/{1}#L{2}-{3}", repo.TrimEnd('/'),  relativePath.TrimStart('/'), l.StartLine, l.EndLine)
         Log.logf "Source location: %s" loc
         loc)
 

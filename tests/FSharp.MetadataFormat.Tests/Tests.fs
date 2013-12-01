@@ -42,7 +42,9 @@ let info =
 let ``MetadataFormat works on sample Deedle assembly``() = 
   let library = root @@ "files" @@ "Deedle.dll"
   let output = getOutputDir()
-  MetadataFormat.Generate(library, output, layoutRoots, info)
+  MetadataFormat.Generate(library, output, layoutRoots, info,
+                          sourceFolderRepo = ("https://github.com/BlueMountainCapital/Deedle/tree/master/",
+                                              "c:/dev/FSharp.DataFrame"))
   let files = Directory.GetFiles(output)
   
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
