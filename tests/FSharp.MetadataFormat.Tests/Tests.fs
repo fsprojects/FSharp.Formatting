@@ -43,8 +43,8 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   let library = root @@ "files" @@ "Deedle.dll"
   let output = getOutputDir()
   MetadataFormat.Generate(library, output, layoutRoots, info,
-                          sourceFolderRepo = ("https://github.com/BlueMountainCapital/Deedle/tree/master/",
-                                              "c:/dev/FSharp.DataFrame"))
+                          sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
+                          sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
   
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -98,8 +98,8 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   let output = getOutputDir()
   printfn "Output: %s" output
   MetadataFormat.Generate(libraries, output, layoutRoots, info,
-                          sourceFolderRepo = ("https://github.com/tpetricek/FSharp.Formatting/tree/master/",
-                                              "C:/Tomas/Public/FSharp.Formatting"))
+                          sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+                          sourceFolder = "C:/Tomas/Public/FSharp.Formatting")
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "Go to GitHub source"

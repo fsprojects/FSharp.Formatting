@@ -146,13 +146,15 @@ module ValueReader =
         UniqueUrlName = nameGen; SourceFolderRepository = sourceFolderRepo }
 
   let formatSourceLocation (sourceFolderRepo : (string * string) option) (l : SourceLocation) =
-    sourceFolderRepo |> Option.map (fun (repo, baseFolder) -> 
+    sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
         let basePath = Path.GetFullPath(baseFolder)
         let docPath = Path.GetFullPath(l.Document)
         if not <| docPath.StartsWith basePath then
             failwithf "Current source file '%s' doesn't reside in source folder '%s'" l.Document baseFolder
         let relativePath = docPath.[basePath.Length..]
-        let loc = String.Format("{0}/{1}#L{2}-{3}", repo.TrimEnd('/'),  relativePath.TrimStart('/'), l.StartLine, l.EndLine)
+        let uriBuilder = UriBuilder(repo)
+        uriBuilder.Path <- uriBuilder.Path + relativePath
+        let loc = String.Format("{0}#L{1}-{2}", uriBuilder.Uri, l.StartLine, l.EndLine)
         Log.logf "Source location: %s" loc
         loc)
 
@@ -609,12 +611,12 @@ type Html private() =
 
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceFolderRepo) =
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
-        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceFolderRepo = sourceFolderRepo)
+        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceFolderRepo) =
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -623,6 +625,16 @@ type MetadataFormat =
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
+    let sourceFolderRepo =
+        match sourceFolder, sourceRepo with
+        | Some folder, Some repo -> Some(folder, repo)
+        | Some folder, _ ->
+            Log.logf "Repository url should be specified along with source folder."
+            None
+        | _, Some repo ->
+            Log.logf "Source folder should be specified along with repository url."
+            None
+        | _ -> None
 
     // When resolving assemblies, look in folders where all DLLs live
     AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
