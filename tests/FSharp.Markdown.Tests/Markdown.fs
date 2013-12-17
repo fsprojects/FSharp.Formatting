@@ -51,6 +51,13 @@ let ``Can escape special characters in LaTex inline math`` () =
   let expected = Paragraph [Literal "test $ is: "; LatexInlineMath "foo\$\$bar<>\$\&\%\$\#\_\{\}"]
   doc.Paragraphs.Head
   |> shouldEqual expected
+
+[<Test>]
+let ``Test special character _ in LaTex inline math`` () =
+    let doc = """$\bigcap_{x \in A} p_{x}A$""" |> Markdown.Parse
+    let expected = Paragraph [ LatexInlineMath "\\bigcap_{x \\in A} p_{x}A" ]
+    doc.Paragraphs.Head
+    |> shouldEqual expected
       
 [<Test>]
 let ``Inline code can contain backticks when wrapped with spaces`` () =
