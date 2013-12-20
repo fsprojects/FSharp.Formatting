@@ -52,9 +52,6 @@ Target "RestorePackages" (fun _ ->
 
 Target "Clean" (fun _ ->
     CleanDirs ["bin"; "temp" ]
-)
-
-Target "CleanDocs" (fun _ ->
     CleanDirs ["docs/output"]
 )
 
@@ -122,12 +119,9 @@ Target "NuGet" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
-Target "JustGenerateDocs" (fun _ ->
+Target "GenerateDocs" (fun _ ->
     executeFSI "docs/tools" "generate.fsx" [] |> ignore
 )
-
-Target "GenerateDocs" DoNothing
-"CleanDocs" ==> "JustGenerateDocs" ==> "GenerateDocs"
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
