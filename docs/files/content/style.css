@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono|Actor);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono|Gudea);
 
 /*-------------------------------------------------------------------------- 
   Formatting for F# code snippets 
@@ -80,7 +80,7 @@ table.pre td.lines {
 /*--------------------------------------------------------------------------*/
 
 body {
-  font-family: Actor, serif;
+  font-family: Gudea, serif;
   padding-top: 0px;
   padding-bottom: 40px;
 }

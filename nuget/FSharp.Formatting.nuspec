@@ -28,6 +28,6 @@
     <file src="..\misc\templates\reference\*.cshtml" target="templates/reference" />
     <file src="..\misc\literate\*" target="literate" />
     <file src="..\misc\literate\templates\*" target="literate/templates" />
-    <file src="..\docs\files\content\*" target="content" />
+    <file src="..\docs\files\content\*" target="styles" />
   </files>
 </package>
