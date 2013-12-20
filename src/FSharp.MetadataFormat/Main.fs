@@ -22,13 +22,15 @@ type MemberOrValue =
   { Usage : int -> string 
     Modifiers : string list 
     TypeArguments : string list 
-    Signature : string }
+    Signature : string
+    SourceLocation : string option }
   member x.FormatUsage(maxLength) = x.Usage(maxLength)
   member x.FormatTypeArguments = String.concat ", " x.TypeArguments
   member x.FormatModifiers = String.concat " " x.Modifiers
-  static member Create(usage, mods, typars, sign) =
+  member x.FormatSourceLocation = defaultArg x.SourceLocation ""
+  static member Create(usage, mods, typars, sign, location) =
     { Usage = usage; Modifiers = mods; TypeArguments = typars;
-      Signature = sign }
+      Signature = sign; SourceLocation = location }
 
 type MemberKind = 
   // In a module
@@ -120,6 +122,41 @@ type TypeInfo =
 
 module ValueReader = 
   open System.Collections.ObjectModel
+
+  type ReadingContext = 
+    { XmlMemberMap : IDictionary<string, XElement>
+      MarkdownComments : bool
+      UniqueUrlName : string -> string
+      SourceFolderRepository : (string * string) option }
+    member x.XmlMemberLookup(key) =
+      match x.XmlMemberMap.TryGetValue(key) with
+      | true, v -> Some v
+      | _ -> None 
+    static member Create(map, sourceFolderRepo) = 
+      let usedNames = Dictionary<_, _>()
+      let nameGen (name:string) =
+        let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
+        let found =
+          seq { yield nice
+                for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
+          |> Seq.find (usedNames.ContainsKey >> not)
+        usedNames.Add(found, true)
+        found
+      { XmlMemberMap = map; MarkdownComments = true; 
+        UniqueUrlName = nameGen; SourceFolderRepository = sourceFolderRepo }
+
+  let formatSourceLocation (sourceFolderRepo : (string * string) option) (l : SourceLocation) =
+    sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
+        let basePath = Path.GetFullPath(baseFolder)
+        let docPath = Path.GetFullPath(l.Document)
+        if not <| docPath.StartsWith basePath then
+            failwithf "Current source file '%s' doesn't reside in source folder '%s'" l.Document baseFolder
+        let relativePath = docPath.[basePath.Length..]
+        let uriBuilder = UriBuilder(repo)
+        uriBuilder.Path <- uriBuilder.Path + relativePath
+        let loc = String.Format("{0}#L{1}-{2}", uriBuilder.Uri, l.StartLine, l.EndLine)
+        Log.logf "Source location: %s" loc
+        loc)
 
   let (|AllAndLast|_|) (list:'T list)= 
     if list.IsEmpty then None
@@ -244,7 +281,7 @@ module ValueReader =
         | args -> bracket (String.concat tupSep args))
     |> String.concat argSep
   
-  let readMemberOrVal (v:FSharpMemberOrVal) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrVal) = 
     let buildUsage (args:string option) = 
       let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
@@ -303,7 +340,8 @@ module ValueReader =
       let long = buildUsage (Some usage)
       if long.Length <= length then long
       else buildUsage None
-    MemberOrValue.Create(buildShortUsage, modifiers, typars, signature)
+    let location = formatSourceLocation ctx.SourceFolderRepository v.DeclarationLocation
+    MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location)
 
     (*
 
@@ -338,46 +376,28 @@ module ValueReader =
     usageL  , docL, noteL
     *)
 
-  let readUnionCase (case:FSharpUnionCase) =
+  let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
     let usage (maxLength:int) = case.Name
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = case.Fields |> List.ofSeq |> List.map (fun field -> formatType field.Type) |> String.concat " * "
-    MemberOrValue.Create(usage, modifiers, typeparams, signature)
+    let location = formatSourceLocation ctx.SourceFolderRepository case.DeclarationLocation
+    MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
-  let readRecordField (field:FSharpRecordField) =
+  let readRecordField (ctx:ReadingContext) (field:FSharpRecordField) =
     let usage (maxLength:int) = field.Name
     let modifiers =
       [ if field.IsMutable then yield "mutable"
         if field.IsStatic then yield "static" ]
     let typeparams = List.empty
     let signature = formatType field.Type
-    MemberOrValue.Create(usage, modifiers, typeparams, signature)
+    let location = formatSourceLocation ctx.SourceFolderRepository field.DeclarationLocation
+    MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
 module Reader =
   open FSharp.Markdown
   open System.IO
   open ValueReader
-
-  type ReadingContext = 
-    { XmlMemberMap : IDictionary<string, XElement>
-      MarkdownComments : bool
-      UniqueUrlName : string -> string }
-    member x.XmlMemberLookup(key) =
-      match x.XmlMemberMap.TryGetValue(key) with
-      | true, v -> Some v
-      | _ -> None 
-    static member Create(map) = 
-      let usedNames = Dictionary<_, _>()
-      let nameGen (name:string) =
-        let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
-        let found =
-          seq { yield nice
-                for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
-          |> Seq.find (usedNames.ContainsKey >> not)
-        usedNames.Add(found, true)
-        found
-      { XmlMemberMap = map; MarkdownComments = true; UniqueUrlName = nameGen }
 
   // ----------------------------------------------------------------------------------------------
   // Helper functions
@@ -457,7 +477,7 @@ module Reader =
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrVal) =
     readCommentsInto ctx memb.XmlDocSig (fun cat _ comment ->
-      Member.Create(memb.DisplayName, kind, cat, readMemberOrVal memb, comment))
+      Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberOrVal>) = 
     members 
@@ -482,14 +502,14 @@ module Reader =
     |> List.ofSeq
     |> List.choose (fun case ->
       readCommentsInto ctx case.XmlDocSig (fun cat _ comment ->
-        Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase case, comment)))
+        Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
 
   let readRecordFields ctx (typ:FSharpEntity) =
     typ.RecordFields
     |> List.ofSeq
     |> List.choose (fun field ->
       readCommentsInto ctx field.XmlDocSig (fun cat _ comment ->
-        Member.Create(field.Name, MemberKind.RecordField, cat, readRecordField field, comment)))
+        Member.Create(field.Name, MemberKind.RecordField, cat, readRecordField ctx field, comment)))
 
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
@@ -554,7 +574,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly) (xmlFile:string) =
+  let readAssembly (assembly:FSharpAssembly) (xmlFile:string) sourceFolderRepo =
     let assemblyName = assembly.ReflectionAssembly.GetName()
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -564,7 +584,7 @@ module Reader =
           let attr = e.Attribute(XName.Get "name") 
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] |> dict
-    let ctx = ReadingContext.Create(xmlMemberMap)
+    let ctx = ReadingContext.Create(xmlMemberMap, sourceFolderRepo)
 
     // 
     let namespaces = 
@@ -591,12 +611,12 @@ type Html private() =
 
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
-        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile)
+        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile) =
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -605,6 +625,16 @@ type MetadataFormat =
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
+    let sourceFolderRepo =
+        match sourceFolder, sourceRepo with
+        | Some folder, Some repo -> Some(folder, repo)
+        | Some folder, _ ->
+            Log.logf "Repository url should be specified along with source folder."
+            None
+        | _, Some repo ->
+            Log.logf "Source folder should be specified along with repository url."
+            None
+        | _ -> None
 
     // When resolving assemblies, look in folders where all DLLs live
     AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
@@ -631,7 +661,7 @@ type MetadataFormat =
           Log.logf "Reading assembly: %s" dllFile
           let asm = FSharpAssembly.FromFile(dllFile)
           Log.logf "Parsing assembly"
-          yield Reader.readAssembly asm xmlFile ]
+          yield Reader.readAssembly asm xmlFile sourceFolderRepo ]
 
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 

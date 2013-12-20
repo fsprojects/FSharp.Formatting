@@ -42,7 +42,9 @@ let info =
 let ``MetadataFormat works on sample Deedle assembly``() = 
   let library = root @@ "files" @@ "Deedle.dll"
   let output = getOutputDir()
-  MetadataFormat.Generate(library, output, layoutRoots, info)
+  MetadataFormat.Generate(library, output, layoutRoots, info,
+                          sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
+                          sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
   
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -84,6 +86,29 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-nested.html"] |> should contain "Somewhat nested module"
   files.["fslib-nested-nestedtype.html"] |> should contain "Very nested member"
   files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
+  #if INTERACTIVE
+  System.Diagnostics.Process.Start(output)
+  #endif
+
+[<Test>]
+let ``MetadataFormat generates Go to GitHub source links``() = 
+  let libraries = 
+    [ root @@ "files/FsLib/bin/Debug" @@ "FsLib1.dll"
+      root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll" ]
+  let output = getOutputDir()
+  printfn "Output: %s" output
+  MetadataFormat.Generate(libraries, output, layoutRoots, info,
+                          sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+                          sourceFolder = "C:/Tomas/Public/FSharp.Formatting")
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  files.["fslib-class.html"] |> should contain "Go to GitHub source"
+  files.["fslib-class.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-record.html"] |> should contain "Go to GitHub source"
+  files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> should contain "Go to GitHub source"
+  files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
