@@ -23,3 +23,4 @@
 * 2.2.9-beta - Update templates, support multiple DLLs in metadata format
 * 2.2.10-beta - Avoid locking assembly files in AssemblyResolve event
 * 2.2.11-beta - Generate links to source code, change default font, move styles to styles folder in package
+* 2.2.12-beta - Better compatibility for the default font style
