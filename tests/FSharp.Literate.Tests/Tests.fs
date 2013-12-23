@@ -19,6 +19,29 @@ open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 
 // --------------------------------------------------------------------------------------
+// Test embedding code from a file
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Can embed content from an external file`` () =
+  let doc = 
+    //[test]
+    // magic
+    Literate.ParseMarkdownString("""
+a
+
+    [lang=csharp,file=Tests.fs,key=test]
+
+b""", __SOURCE_DIRECTORY__ + "\\Test.fsx")
+    //[/test]
+  doc.Paragraphs |> shouldMatchPar (function Paragraph [Literal "a"] -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Paragraph [Literal "b"] -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function 
+    | EmbedParagraphs(:? LiterateParagraph as cd) ->
+        match cd with LanguageTaggedCode("csharp", text) -> text.Contains "magic" | _ -> false
+    | _ -> false)
+
+// --------------------------------------------------------------------------------------
 // Test standalone literate parsing
 // --------------------------------------------------------------------------------------
 
@@ -122,7 +145,7 @@ let templateCsHtml = __SOURCE_DIRECTORY__ @@ "files/template.cshtml"
 let ``Code and HTML is formatted with a tooltip in Markdown file using HTML template``() = 
   let simpleMd = __SOURCE_DIRECTORY__ @@ "files/simple.md"
   use temp = new TempFile()
-  Literate.ProcessMarkdown(simpleMd, templateHtml, temp.File, fsharpCompiler=compilerAsembly)
+  Literate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
   temp.Content |> should contain "</a>"
   temp.Content |> should contain "val hello : string"
 
@@ -130,7 +153,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using HTML temp
 let ``Code and HTML is formatted with a tooltip in F# Script file using HTML template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
-  Literate.ProcessScriptFile(simpleFsx, templateHtml, temp.File, fsharpCompiler=compilerAsembly)
+  Literate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
   temp.Content |> should contain "</a>"
   temp.Content |> should contain "val hello : string"
 
@@ -139,7 +162,7 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using Razor te
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
   Literate.ProcessScriptFile
-    ( simpleFsx, templateCsHtml, temp.File, fsharpCompiler=compilerAsembly, 
+    ( simpleFsx, templateCsHtml, temp.File, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "files"] )
   temp.Content |> should contain "</a>"
   temp.Content |> should contain "val hello : string"
@@ -164,7 +187,7 @@ let ``Can process fsx file using the template included in NuGet package``() =
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
   Literate.ProcessScriptFile
-    ( simpleFsx, docPageTemplate, temp.File, fsharpCompiler = compilerAsembly, 
+    ( simpleFsx, docPageTemplate, temp.File, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
   temp.Content |> should contain "val hello : string"
   temp.Content |> should contain "<title>Heading"
@@ -174,7 +197,8 @@ let ``Can process md file using the template included in NuGet package``() =
   let simpleMd = __SOURCE_DIRECTORY__ @@ "files/simple.md"
   use temp = new TempFile()
   Literate.ProcessMarkdown
-    ( simpleMd, docPageTemplate, temp.File, fsharpCompiler = compilerAsembly, 
+    ( simpleMd, docPageTemplate, temp.File, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
   temp.Content |> should contain "val hello : string"
   temp.Content |> should contain "<title>Heading"
+

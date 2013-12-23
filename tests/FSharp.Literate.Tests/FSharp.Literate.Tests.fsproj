@@ -26,6 +26,10 @@
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\Debug\FSharp.Literate.Tests.XML</DocumentationFile>
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Tomas\Projects\FSharp.Formatting\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe</StartProgram>
+    <StartArguments>tests\FSharp.Literate.Tests\bin\Debug\FSharp.Literate.Tests.dll</StartArguments>
+    <StartWorkingDirectory>C:\Tomas\Projects\FSharp.Formatting</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -76,6 +80,9 @@
   <ItemGroup>
     <Reference Include="FSharp.CodeFormat">
       <HintPath>..\..\bin\FSharp.CodeFormat.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.1.0\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Literate">
       <HintPath>..\..\bin\FSharp.Literate.dll</HintPath>

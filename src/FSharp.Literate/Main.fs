@@ -26,12 +26,11 @@ type Literate private () =
       LayoutRoots = defaultArg layoutRoots [] }
   
   /// Build default options context for parsing literate scripts/documents
-  static let parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols = 
+  static let parsingContext formatAgent compilerOptions definedSymbols = 
     let agent =
-      match formatAgent, fsharpCompiler with
-      | Some agent, _ -> agent
-      | _, Some compiler -> CodeFormat.CreateAgent(compiler)
-      | _ -> CodeFormat.CreateAgent(Assembly.Load("FSharp.Compiler"))
+      match formatAgent with
+      | Some agent -> agent
+      | _ -> CodeFormat.CreateAgent()
     { FormatAgent = agent
       CompilerOptions = compilerOptions
       DefinedSymbols = Option.map (String.concat ",") definedSymbols }
@@ -56,32 +55,32 @@ type Literate private () =
   
   /// Parse F# Script file
   static member ParseScriptFile 
-    ( path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
-    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
 
   /// Parse F# Script file
   static member ParseScriptString 
-    ( content, ?path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
-    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
 
   /// Parse Markdown document
   static member ParseMarkdownFile
-    ( path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
-    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path) 
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
 
   /// Parse Markdown document
   static member ParseMarkdownString
-    ( content, ?path, ?formatAgent, ?fsharpCompiler, ?compilerOptions, ?definedSymbols, ?references ) =
-    let ctx = parsingContext formatAgent fsharpCompiler compilerOptions definedSymbols
+    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
@@ -116,11 +115,11 @@ type Literate private () =
 
   /// Process Markdown document
   static member ProcessMarkdown
-    ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
     let doc = 
       Literate.ParseMarkdownFile
-        ( input, ?fsharpCompiler=fsharpCompiler, ?compilerOptions=compilerOptions, 
+        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
           ?references = references )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource replacements layoutRoots
     Templating.processFile doc (defaultOutput output input format) ctx
@@ -128,11 +127,11 @@ type Literate private () =
 
   /// Process F# Script file
   static member ProcessScriptFile
-    ( input, ?templateFile, ?output, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
     let doc = 
       Literate.ParseScriptFile
-        ( input, ?fsharpCompiler=fsharpCompiler, ?compilerOptions=compilerOptions, 
+        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
           ?references = references )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource replacements layoutRoots
     Templating.processFile doc (defaultOutput output input format) ctx
@@ -140,20 +139,20 @@ type Literate private () =
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
-    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?fsharpCompiler, ?prefix, ?compilerOptions, 
+    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
 
     // Call one or the other process function with all the arguments
     let processScriptFile file output = 
       Literate.ProcessScriptFile
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
-          ?fsharpCompiler = fsharpCompiler, ?prefix = prefix, ?compilerOptions = compilerOptions, 
+          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
           ?includeSource = includeSource, ?layoutRoots = layoutRoots )
     let processMarkdown file output = 
       Literate.ProcessMarkdown
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
-          ?fsharpCompiler = fsharpCompiler, ?prefix = prefix, ?compilerOptions = compilerOptions, 
+          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
           ?includeSource = includeSource, ?layoutRoots = layoutRoots )
      

@@ -10,16 +10,6 @@ open System.Reflection
 
 let (@@) a b = Path.Combine(a, b)
 
-let compilerAsembly =
-  let files = 
-    [ @"%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0\FSharp.Compiler.dll"
-      @"%ProgramFiles(x86)%\Microsoft SDKs\F#\3.0\Framework\v4.0\FSharp.Compiler.dll"
-      @"%ProgramFiles(x86)%\Microsoft F#\v4.0\FSharp.Compiler.dll" ]
-  files |> Seq.pick (fun file ->
-    let file = Environment.ExpandEnvironmentVariables(file)
-    if File.Exists(file) then Some(Assembly.LoadFile(file))
-    else None)
-
 type TempFile() =
   let file = Path.GetTempFileName()
   member x.File = file
@@ -27,4 +17,4 @@ type TempFile() =
   interface IDisposable with
     member x.Dispose() = File.Delete(file)
 
-let formatAgent = FSharp.CodeFormat.CodeFormat.CreateAgent(compilerAsembly)
+let formatAgent = FSharp.CodeFormat.CodeFormat.CreateAgent()

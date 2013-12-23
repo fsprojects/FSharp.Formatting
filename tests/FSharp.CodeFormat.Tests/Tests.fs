@@ -17,19 +17,7 @@ open FSharp.CodeFormat
 // Initialization - find F# compiler dll, setup formatting agent
 // --------------------------------------------------------------------------------------
 
-// Lookup compiler DLL
-let locations = 
-  [ "%ProgramFiles%\\Microsoft SDKs\\F#\\3.0\\Framework\\v4.0\\FSharp.Compiler.dll"
-    "%ProgramFiles(x86)%\\Microsoft SDKs\\F#\\3.0\\Framework\\v4.0\\FSharp.Compiler.dll" ]
-let compiler = 
-  locations |> Seq.pick (fun location ->
-    try 
-      let location = Environment.ExpandEnvironmentVariables(location)
-      if not (File.Exists(location)) then None else
-        Some(Assembly.LoadFile(Environment.ExpandEnvironmentVariables(location)))
-    with _ -> None)
-
-let agent = CodeFormat.CreateAgent(compiler)
+let agent = CodeFormat.CreateAgent()
 
 // Check that snippet constains a specific span
 let containsSpan f snips = 

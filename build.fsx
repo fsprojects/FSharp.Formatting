@@ -59,10 +59,15 @@ Target "Clean" (fun _ ->
 // Build library 
 
 Target "Build" (fun _ ->
-    { BaseDirectories = [__SOURCE_DIRECTORY__]
-      Includes = ["FSharp.Formatting.sln"; "FSharp.Formatting.Tests.sln"]
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["FSharp.Formatting.sln"]
       Excludes = [] } 
-    |> Scan
+    |> MSBuildRelease "" "Rebuild"
+    |> ignore
+
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["FSharp.Formatting.Tests.sln"]
+      Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 )
@@ -76,7 +81,7 @@ Target "RunTests" (fun _ ->
 
     ActivateFinalTarget "CloseTestRunner"
 
-    { BaseDirectories = [__SOURCE_DIRECTORY__]
+    { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/bin/Release/FSharp.*Tests*.dll"]
       Excludes = [] } 
     |> Scan
@@ -151,15 +156,15 @@ Target "Release" DoNothing
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
-  
+
 Target "All" DoNothing
 
 "Clean"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "Build"
-  ==> "GenerateDocs"
   ==> "RunTests"
+  ==> "GenerateDocs"
   ==> "All"
 
 "All" 

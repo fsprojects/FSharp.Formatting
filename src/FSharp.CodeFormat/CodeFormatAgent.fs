@@ -72,7 +72,6 @@ module private Helpers =
     [ let state = ref 0L
       for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
         let tokenizer = sourceTok.CreateLineTokenizer(line)
-        tokenizer.StartNewLine()
         let rec parseLine() = seq {
           match tokenizer.ScanToken(!state) with
           | Some(tok), nstate ->
@@ -98,9 +97,7 @@ module private Helpers =
 // --------------------------------------------------------------------------------------
 
 /// Uses agent to handle formatting requests
-type CodeFormatAgent(fsharpCompiler) = 
-    
-  do FSharpCompiler.BindToAssembly(fsharpCompiler, null)
+type CodeFormatAgent() = 
 
   // Get the number of "IDENT" token in the F# compiler
   // (This is needed when calling compiler, and it varies depending
@@ -114,7 +111,7 @@ type CodeFormatAgent(fsharpCompiler) =
     else body
 
   // Processes a single line of the snippet
-  let processSnippetLine (checkInfo:TypeCheckInfo) (lines:string[]) (line, lineTokens) =
+  let processSnippetLine (checkInfo:TypeCheckResults) (lines:string[]) (line, lineTokens) =
 
     // Recursive processing of tokens on the line 
     // (keeps a long identifier 'island')
@@ -180,17 +177,17 @@ type CodeFormatAgent(fsharpCompiler) =
 
   // Create an instance of an InteractiveChecker (which does background analysis
   // in a typical IntelliSense editor integration for F#)
-  let checker = InteractiveChecker.Create(ignore)
+  let checker = InteractiveChecker.Create(NotifyFileTypeCheckStateIsDirty ignore)
 
   /// Type-checking takes some time and doesn't return information on the
   /// first call, so this function creates workflow that tries repeatedly
   let rec getTypeCheckInfo(untypedInfo, file, source, opts) = async {
     let obs = IsResultObsolete(fun () -> false)
-    let info = checker.TypeCheckSource(untypedInfo, file, 0, source, opts, obs) 
+    let info = checker.TypeCheckSource(untypedInfo, file, 0, source, opts, obs, null) 
     match info with
-    | TypeCheckSucceeded(res) when res.TypeCheckInfo.IsSome ->
+    | TypeCheckSucceeded(res) ->
         // Succeeded & got results back
-        return res.TypeCheckInfo.Value, res.Errors
+        return res
     | _ -> 
         do! Async.Sleep(500)
         return! getTypeCheckInfo(untypedInfo, file, source, opts) }
@@ -215,13 +212,14 @@ type CodeFormatAgent(fsharpCompiler) =
     let opts = 
       match options with 
       | Some(str:string) when not(String.IsNullOrEmpty(str)) -> 
-          opts.WithOptions(Helpers.parseOptions str)
+          { opts with ProjectOptions = Helpers.parseOptions str }
       | _ -> opts
 
     // Run the first phase - parse source into AST without type information 
     let untypedInfo = checker.UntypedParse(file, source, opts) 
     // Run the second phase - perform type checking
-    let! checkInfo, errors = getTypeCheckInfo(untypedInfo, file, source, opts)
+    let! checkInfo = getTypeCheckInfo(untypedInfo, file, source, opts)
+    let errors = checkInfo.Errors
 
     /// Parse source file into a list of lines consisting of tokens 
     let tokens = Helpers.getTokens file defines sourceLines
@@ -282,7 +280,7 @@ type CodeFormatAgent(fsharpCompiler) =
         let! res, errs = processSourceCode request
         chnl.Reply(Choice1Of2(res |> Array.ofList, errs))
       with e ->
-        chnl.Reply(Choice2Of2(new Exception(Utilities.formatException e, e)))
+        chnl.Reply(Choice2Of2(e)) // new Exception(Utilities.formatException e, e)))
     })
 
   /// Parse the source code specified by 'source', assuming that it

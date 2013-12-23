@@ -1,4 +1,4 @@
-﻿module internal AssemblyInfo
+﻿namespace System
 open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("FSharp.Formatting")>]
@@ -6,5 +6,7 @@ open System.Reflection
 [<assembly: AssemblyDescriptionAttribute("A package for building great F# documentation, samples and blogs")>]
 [<assembly: AssemblyVersionAttribute("2.2.12")>]
 [<assembly: AssemblyFileVersionAttribute("2.2.12")>]
+do ()
 
-()
+module internal AssemblyVersionInformation =
+    let [<Literal>] Version = "2.2.12"

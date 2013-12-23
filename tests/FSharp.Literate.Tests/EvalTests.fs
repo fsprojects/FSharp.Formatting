@@ -16,15 +16,6 @@ open FSharp.Literate
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 (*
-//[test]
-Literate.ParseMarkdownString("""
-a
-
-    [lang=csharp,file=EvalTests.fs,key=test]
-
-b""", __SOURCE_DIRECTORY__ + "\\Test.fsx").Paragraphs
-//[/test]
-
 let content = """
 (** **hello** *)
 let test = 42"""

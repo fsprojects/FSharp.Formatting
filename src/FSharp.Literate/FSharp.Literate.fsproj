@@ -75,20 +75,24 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Compiler.Editor">
-      <HintPath>..\..\lib\FSharp.Compiler.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Compiler.Interactive.Settings">
-      <HintPath>..\..\lib\FSharp.Compiler.Interactive.Settings.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Compiler.Interactive.Settings.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Compiler.Server.Shared">
-      <HintPath>..\..\lib\FSharp.Compiler.Server.Shared.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Compiler.Server.Shared.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FSharp.Compiler.Service">
+      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Compiler.Service.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\..\lib\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Interactive.Service">
-      <HintPath>..\..\lib\FSharp.Interactive.Service.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Interactive.Service.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="RazorEngine">

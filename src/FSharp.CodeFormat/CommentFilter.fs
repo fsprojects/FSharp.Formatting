@@ -77,7 +77,7 @@ let rec mergeComments (line:SnippetLine) (cmt:Token option) (acc:SnippetLine) =
   | (str, tok)::line, None when tok.TokenName = "COMMENT" || tok.TokenName = "LINE_COMMENT" ->
       mergeComments line (Some(str, tok)) acc
   | (str, tok)::line, Some(scmt, cmt) when tok.TokenName = "COMMENT" || tok.TokenName = "LINE_COMMENT"->
-      let ncmt = cmt.WithRightColumn(tok.RightColumn)
+      let ncmt = {cmt with RightColumn = tok.RightColumn }
       mergeComments line (Some(scmt+str, ncmt)) acc
   | (str, tok)::line, None ->
       mergeComments line None ((str, tok)::acc)
@@ -110,10 +110,10 @@ let rec shrinkLine line (content:SnippetLine) (source:Snippet) =
       let line, remcontent, source, text = 
         shrinkOmittedCode (StringBuilder()) line rest source
       let line, source = shrinkLine line remcontent source
-      (body, tok.WithTokenName("OMIT" + (text.ToString()) ))::line, source
+      (body, { tok with TokenName = "OMIT" + (text.ToString()) })::line, source
   | (String.StartsWithTrim "//" (String.StartsAndEndsWith ("[fsi:", "]") fsi), (tok:TokenInformation))::rest ->
       let line, source = shrinkLine line rest source
-      (fsi, tok.WithTokenName("FSI"))::line, source
+      (fsi, { tok with TokenName = "FSI"})::line, source
   | (str, tok)::rest -> 
       let line, source = shrinkLine line rest source
       (str, tok)::line, source
