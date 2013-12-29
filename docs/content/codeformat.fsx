@@ -120,7 +120,16 @@ for snip in html.Snippets do
 printfn "%s" html.ToolTip
 
 (**
-If the input contains multiple snippets spearated using the `[snippet:...]` comment,
+If the input contains multiple snippets spearated using the `//[snippet:...]` comment, e.g.:
+*)
+
+//[snippet:1]
+...
+//[/snippet]
+//[snippet:2]
+...
+
+(**
 then the formatter returns multiple HTML blocks. However, the generated tool tips
 are shared by all snippets (to save space) and so they are returned separately.
 *)
