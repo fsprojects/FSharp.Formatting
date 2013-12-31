@@ -80,7 +80,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpFormat", "src\CSharpF
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.PowerPack.Metadata", "src\FSharp.PowerPack.Metadata\FSharp.PowerPack.Metadata.fsproj", "{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.FormattingCLI", "FSharp.FormattingCLI\FSharp.FormattingCLI.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.FormattingCLI", "src\FSharp.FormattingCLI\FSharp.FormattingCLI.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
