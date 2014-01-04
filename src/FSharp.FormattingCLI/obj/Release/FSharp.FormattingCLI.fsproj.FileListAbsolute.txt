@@ -1,0 +1,8 @@
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\bin\fsformatting\App.config
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\bin\fsformatting\fsformatting.exe.config
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\bin\fsformatting\fsformatting.XML
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\bin\fsformatting\fsformatting.exe
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\bin\fsformatting\fsformatting.pdb
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\src\FSharp.FormattingCLI\obj\Release\FSharp.FormattingCLI.fsprojResolveAssemblyReference.cache
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\src\FSharp.FormattingCLI\obj\Release\fsformatting.exe
+C:\Users\boe\Documents\Visual Studio 2013\Projects\FSharp.Formatting\src\FSharp.FormattingCLI\obj\Release\fsformatting.pdb

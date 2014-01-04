@@ -14,10 +14,14 @@ open Fake.ReleaseNotesHelper
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
-let project = "FSharp.Formatting"
+
+// intentionally reuse the settings for FSharp.FormattingCLI - project? description?
+
+let project = "FSharp.Formatting"  // refer to target "AssemblyInfo"
 let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
 let summary = "A package for building great F# documentation, samples and blogs"
-let description = """
+// refer to target "NuGet"
+let description = """             
   The package is a collection of libraries that can be used for literate programming
   with F# (great for building documentation) and for generating library documentation 
   from inline code comments. The key componments (also available separately) are 
@@ -34,12 +38,20 @@ let release = ReleaseNotesHelper.parseReleaseNotes (File.ReadLines "RELEASE_NOTE
 
 Target "AssemblyInfo" (fun _ ->
   let fileName = "src/Common/AssemblyInfo.fs"
-  CreateFSharpAssemblyInfo fileName
+  CreateFSharpAssemblyInfo fileName   
       [ Attribute.Title project
         Attribute.Product project
         Attribute.Description summary
         Attribute.Version release.AssemblyVersion
         Attribute.FileVersion release.AssemblyVersion ] 
+
+  let fileName = "src/FSharp.FormattingCLI/AssemblyInfo.fs"
+  CreateFSharpAssemblyInfo fileName   
+      [ Attribute.Title project // reuse or set "FSharp.FormattingCLI"
+        Attribute.Product project
+        Attribute.Description summary
+        Attribute.Version release.AssemblyVersion
+        Attribute.FileVersion release.AssemblyVersion ]
 )
 
 // --------------------------------------------------------------------------------------
@@ -65,6 +77,12 @@ Target "Build" (fun _ ->
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 
+    { BaseDirectory = __SOURCE_DIRECTORY__ + @"\FSharp.FormattingCLI"
+      Includes = ["FSharp.Formatting.sln"]
+      Excludes = [] } 
+    |> MSBuildRelease "" "Rebuild"
+    |> ignore
+
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["FSharp.Formatting.Tests.sln"]
       Excludes = [] } 
@@ -74,6 +92,8 @@ Target "Build" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
+
+// TODO: define qpproriate tests  for CLI
 
 Target "RunTests" (fun _ ->
     let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
@@ -100,6 +120,9 @@ FinalTarget "CloseTestRunner" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
+// I think, there should be a separate NuGet package for the CLI
+// IMO, Fake is an example where you would only want to refer to the CLI
+
 Target "NuGet" (fun _ ->
     // Format the description to fit on a single line (remove \r\n and double-spaces)
     let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
@@ -113,16 +136,18 @@ Target "NuGet" (fun _ ->
             Version = release.NugetVersion
             ReleaseNotes = String.concat " " release.Notes
             Tags = tags
-            OutputPath = "bin"
+            OutputPath = "bin"  // need also "bin/tool", also a reason for a separate NuGet package
             ToolPath = nugetPath
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
-        "nuget/FSharp.Formatting.nuspec"
+        "nuget/FSharp.Formatting.nuspec"  //  e.g. ""nuget/FSharp.FormattingCLI.nuspec""
 )
 
 // --------------------------------------------------------------------------------------
 // Generate the documentation
+
+// intentionally reuse 
 
 Target "GenerateDocs" (fun _ ->
     executeFSI "docs/tools" "generate.fsx" [] |> ignore
@@ -130,6 +155,8 @@ Target "GenerateDocs" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
+
+// intentionally reuse
 
 let gitHome = "https://github.com/tpetricek"
 
@@ -146,7 +173,7 @@ Target "ReleaseDocs" (fun _ ->
 Target "ReleaseBinaries" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
     Branches.checkoutBranch "temp/release" "release"
-    CopyRecursive "bin" "temp/release" true |> printfn "%A"
+    CopyRecursive "bin" "temp/release" true |> printfn "%A" // covers the CLI
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
     CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
     Branches.push "temp/release"
