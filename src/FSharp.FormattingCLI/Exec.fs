@@ -9,18 +9,18 @@ open AssemblyInfo
 
 open CommandLine
 open CommandLine.Text
-open System.IO
+//open System.IO
 open System.Collections.Generic
 open FSharp.Data
 open FSharp.Data.Json
 open FSharp.Data.Json.Extensions
-open FSharp.Markdown
+//open FSharp.Markdown
 
 
 /// configuration of the supported FSharp.Formatting functions 
 let OptionsMapping = new Dictionary<string, IExecutable>(HashIdentity.Structural)
-OptionsMapping.["literate--processdirectory"] <- (Literate.ProcessDirectoryOptions() :> IExecutable)
-OptionsMapping.["metadataformat--generate"] <- (MetadataFormat.GenerateOptions() :> IExecutable)
+OptionsMapping.["literate--processdirectory"] <- (ProcessDirectoryOptions() :> IExecutable)
+OptionsMapping.["metadataformat--generate"] <- (GenerateOptions() :> IExecutable)
 
 
 /// Execution environment
@@ -52,28 +52,6 @@ type Env (argv: string []) =
         if not result then false
         else f() 
      
-//
-//    let parseJSON s = 
-//
-//        let errmsg s_ = Log.error (sprintf "Could not parse JSON option: %s" options.projInfo); false
-//
-//        try
-//            let projInfo = (JsonValue.Parse s)
-//            
-//            for i in projInfo.Properties do
-//                replacements.[(fst i)] <- (projInfo.GetProperty(fst i)).AsString()
-//            
-//            // yes, can deal with 'replacements' as desired:
-//            Log.info (sprintf "\n replacements = %A\n" replacements)
-//            //
-//            let lm s_ = Log.info (sprintf "page author =  >%s<\n" s_)
-//            (match replacements.["pageAuthor"] with 
-//            | x when x.Length > 0 -> pageAuthor <- x; lm pageAuthor; true
-//            | _ -> errmsg("Invalid page author."))
-//
-//        with 
-//            | _ -> errmsg("Received an JSON exception.")
-
 
     ///  execute the FSharp.Formatting method referred to by 'command'
     member x.execute(command, options) = 

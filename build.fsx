@@ -6,6 +6,7 @@
 
 open System
 open System.IO
+open System.Text.RegularExpressions
 open Fake 
 open Fake.AssemblyInfoFile
 open Fake.Git
@@ -17,17 +18,25 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // intentionally reuse the settings for FSharp.FormattingCLI - project? description?
 
-let project = "FSharp.Formatting"  // refer to target "AssemblyInfo"
+let project = "FSharp.Formatting" 
+let projectCLI = "FSharp.FormattingCLI"
+
 let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
+
 let summary = "A package for building great F# documentation, samples and blogs"
-// refer to target "NuGet"
+let summaryCLI = "A commandline interface for FSharp.Formatting"
+
 let description = """             
   The package is a collection of libraries that can be used for literate programming
   with F# (great for building documentation) and for generating library documentation 
   from inline code comments. The key componments (also available separately) are 
   Markdown parser, tools for formatting F# code snippets, including tool tip
-  type information and a tool for generating documentation from library metadata."""
+  type information and a tool for generating documentation from library metadata.
+  
+  The package contains a command line interface 'fsformatting.exe' which allows to use
+  a subset of the library function via shell commands."""
 
+let license = "Apache 2.0 License"
 let tags = "F# fsharp formatting markdown code fssnip literate programming"
 
 // Read release notes document
@@ -43,15 +52,25 @@ Target "AssemblyInfo" (fun _ ->
         Attribute.Product project
         Attribute.Description summary
         Attribute.Version release.AssemblyVersion
-        Attribute.FileVersion release.AssemblyVersion ] 
+        Attribute.FileVersion release.AssemblyVersion
+        Attribute.Copyright license ]  // license added for Gsscoder/CommandLine
+)
 
-  let fileName = "src/FSharp.FormattingCLI/AssemblyInfo.fs"
-  CreateFSharpAssemblyInfo fileName   
-      [ Attribute.Title project // reuse or set "FSharp.FormattingCLI"
-        Attribute.Product project
-        Attribute.Description summary
-        Attribute.Version release.AssemblyVersion
-        Attribute.FileVersion release.AssemblyVersion ]
+Target "AssemblyInfoCLI" (fun _ ->
+  let fileName = "src/Common/AssemblyInfo.fs"
+  let fileNameCLI = "src/FSharp.FormattingCLI/AssemblyInfo.fs"
+  let lines =
+     File.ReadAllLines(fileName)
+     |> Seq.map (fun line ->
+        let m1 = Regex("namespace System").Match(line)
+        let m2 = Regex("module internal AssemblyVersionInformation").Match(line)
+        let m3 = Regex("let \[<Literal>\] Version").Match(line)
+        match m1.Success, m2.Success, m3.Success with
+        | true, _, _ -> "module AssemblyInfo"
+        | _, true, _ -> "[<Literal>]"
+        | _, _, true -> "let assemblyVersion = \"" + release.AssemblyVersion + "\""
+        | _, _, _ -> line )
+  File.WriteAllLines(fileNameCLI, lines)
 )
 
 // --------------------------------------------------------------------------------------
@@ -77,8 +96,8 @@ Target "Build" (fun _ ->
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 
-    { BaseDirectory = __SOURCE_DIRECTORY__ + @"\FSharp.FormattingCLI"
-      Includes = ["FSharp.Formatting.sln"]
+    { BaseDirectory = __SOURCE_DIRECTORY__ + @"\src\FSharp.FormattingCLI"
+      Includes = ["FSharp.FormattingCLI.sln"]
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
     |> ignore
@@ -93,7 +112,7 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-// TODO: define qpproriate tests  for CLI
+// TODO: define approriate tests  for CLI
 
 Target "RunTests" (fun _ ->
     let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
@@ -136,12 +155,33 @@ Target "NuGet" (fun _ ->
             Version = release.NugetVersion
             ReleaseNotes = String.concat " " release.Notes
             Tags = tags
-            OutputPath = "bin"  // need also "bin/tool", also a reason for a separate NuGet package
+            OutputPath = "bin"
             ToolPath = nugetPath
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
-        "nuget/FSharp.Formatting.nuspec"  //  e.g. ""nuget/FSharp.FormattingCLI.nuspec""
+        "nuget/FSharp.Formatting.nuspec"  
+)
+
+Target "NuGetCLI" (fun _ ->
+    // Format the description to fit on a single line (remove \r\n and double-spaces)
+    let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
+    let nugetPath = ".nuget/nuget.exe"
+    NuGet (fun p -> 
+        { p with   
+            Authors = authors
+            Project = projectCLI
+            Summary = summaryCLI
+            Description = description
+            Version = release.NugetVersion
+            ReleaseNotes = String.concat " " release.Notes
+            Tags = tags
+            OutputPath = "bin/tools"
+            ToolPath = nugetPath
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Publish = hasBuildParam "nugetkey"
+            Dependencies = [] })
+        "nuget/FSharp.FormattingCLI.nuspec"
 )
 
 // --------------------------------------------------------------------------------------
@@ -189,6 +229,7 @@ Target "All" DoNothing
 "Clean"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
+  ==> "AssemblyInfoCLI"
   ==> "Build"
   ==> "RunTests"
   ==> "GenerateDocs"
@@ -198,6 +239,7 @@ Target "All" DoNothing
   ==> "ReleaseDocs"
   ==> "ReleaseBinaries"
   ==> "NuGet"
+  ==> "NugetCLI"
   ==> "Release"
 
 RunTargetOrDefault "All"
