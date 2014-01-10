@@ -1,4 +1,4 @@
-﻿namespace System
+module AssemblyInfo
 open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("FSharp.Formatting")>]
@@ -9,5 +9,5 @@ open System.Reflection
 [<assembly: AssemblyCopyrightAttribute("Apache 2.0 License")>]
 do ()
 
-module internal AssemblyVersionInformation =
-    let [<Literal>] Version = "2.2.12"
+[<Literal>]
+let assemblyVersion = "2.2.12"
