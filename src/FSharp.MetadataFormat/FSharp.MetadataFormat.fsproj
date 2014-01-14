@@ -37,6 +37,10 @@
     <DocumentationFile>..\..\bin\FSharp.MetadataFormat.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Compiler.Service">
+      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.7-alpha\lib\net40\FSharp.Compiler.Service.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll</HintPath>
       <SpecificVersion>True</SpecificVersion>
@@ -84,11 +88,6 @@
     <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj">
       <Name>FSharp.Markdown</Name>
       <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\FSharp.PowerPack.Metadata\FSharp.PowerPack.Metadata.fsproj">
-      <Name>FSharp.PowerPack.Metadata</Name>
-      <Project>{0057b83f-130e-4e7c-b60c-9b4935d8bee9}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

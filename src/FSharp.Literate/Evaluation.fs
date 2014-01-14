@@ -21,7 +21,8 @@ module Evaluation =
 
     let outStream = new StringWriter(sbOut)
     let errStream = new StringWriter(sbErr)
-    let fsi = FsiEvaluationSession([|"C:\\test.exe"; "--noninteractive"|], inStream, outStream, errStream)
+    let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+    let fsiSession = FsiEvaluationSession(fsiConfig, [|"C:\\test.exe"; "--noninteractive"|], inStream, outStream, errStream)
 
     member x.Evaluate(text:string) =
       try
@@ -33,7 +34,7 @@ module Evaluation =
           let prev = Console.Out
           Console.SetOut(new StringWriter(sbConsole))
           let value =
-            match fsi.EvalExpression(text.Substring(1)) with
+            match fsiSession.EvalExpression(text.Substring(1)) with
             | Some value -> Some(value.ReflectionValue, value.ReflectionType)
             | None -> None
           let output = 
@@ -45,7 +46,7 @@ module Evaluation =
         else
           // Evaluate top-level interaction which is not an expression
           // (such as 'let foo = 10')
-          fsi.EvalInteraction(text)
+          fsiSession.EvalInteraction(text)
           { Output = None; Result = None }
       with e ->
         match e.InnerException with

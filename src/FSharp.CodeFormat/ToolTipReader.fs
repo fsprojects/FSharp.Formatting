@@ -37,12 +37,12 @@ let private formatComment = function
 
 /// Format the element of a tool tip (comment, overloads, etc.)
 let private formatElement = function
-  | DataTipElementNone -> []
-  | DataTipElement(it, comment) -> 
+  | ToolTipElementNone -> []
+  | ToolTipElement(it, comment) -> 
       [ yield! formatMultilineString it
         yield HardLineBreak
         yield! formatComment comment ]
-  | DataTipElementGroup(items) -> 
+  | ToolTipElementGroup(items) -> 
       // Trim the items to at most 10 displayed in a tool tip
       let items, trimmed = 
         if items.Length <= 10 then items, false
@@ -59,14 +59,14 @@ let private formatElement = function
             yield Emphasis [Literal (msg) ]
             yield HardLineBreak ]
 
-  | DataTipElementCompositionError(err) -> []
+  | ToolTipElementCompositionError(err) -> []
 
 /// Format entire tool tip as a value of type ToolTipSpans      
 let private formatTip tip = 
   let spans = 
     match tip with
-    | DataTipText([single]) -> formatElement single
-    | DataTipText(items) -> 
+    | ToolTipText([single]) -> formatElement single
+    | ToolTipText(items) -> 
         [ yield Literal "Multiple items"
           yield HardLineBreak
           for first, item in Seq.mapi (fun i it -> i = 0, it) items do
@@ -84,7 +84,7 @@ let private formatTip tip =
 /// Format a tool tip, but first make sure that there is actually 
 /// some text in the tip. Returns None if no information is available
 let tryFormatTip = function
-  | DataTipText(elems) 
+  | ToolTipText(elems) 
       when elems |> List.forall (function 
-        DataTipElementNone -> true | _ -> false) -> None
+        ToolTipElementNone -> true | _ -> false) -> None
   | tip -> Some(formatTip tip)

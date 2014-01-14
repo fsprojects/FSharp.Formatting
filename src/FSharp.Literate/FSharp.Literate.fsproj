@@ -75,25 +75,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Compiler.Interactive.Settings">
-      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Compiler.Interactive.Settings.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="FSharp.Compiler.Server.Shared">
-      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Compiler.Server.Shared.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="FSharp.Compiler.Service">
-      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Compiler.Service.dll</HintPath>
+      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.7-alpha\lib\net40\FSharp.Compiler.Service.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\..\lib\FSharp.Core.dll</HintPath>
       <SpecificVersion>True</SpecificVersion>
-    </Reference>
-    <Reference Include="FSharp.Interactive.Service">
-      <HintPath>..\..\packages\FSharp.Compiler.Service.0.0.1-beta\lib\net40\FSharp.Interactive.Service.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="RazorEngine">
