@@ -3,7 +3,8 @@
 open System
 open System.Reflection
 open System.Collections.Generic
-open Microsoft.FSharp.Metadata
+open Microsoft.FSharp.Compiler.SourceCodeServices
+open Microsoft.FSharp.Compiler.Range
 open FSharp.Patterns
 
 open System.IO
@@ -145,12 +146,12 @@ module ValueReader =
       { XmlMemberMap = map; MarkdownComments = true; 
         UniqueUrlName = nameGen; SourceFolderRepository = sourceFolderRepo }
 
-  let formatSourceLocation (sourceFolderRepo : (string * string) option) (l : SourceLocation) =
+  let formatSourceLocation (sourceFolderRepo : (string * string) option) (l : range) =
     sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
         let basePath = Path.GetFullPath(baseFolder)
-        let docPath = Path.GetFullPath(l.Document)
+        let docPath = Path.GetFullPath(l.FileName)
         if not <| docPath.StartsWith basePath then
-            failwithf "Current source file '%s' doesn't reside in source folder '%s'" l.Document baseFolder
+            failwithf "Current source file '%s' doesn't reside in source folder '%s'" l.FileName baseFolder
         let relativePath = docPath.[basePath.Length..]
         let uriBuilder = UriBuilder(repo)
         uriBuilder.Path <- uriBuilder.Path + relativePath
@@ -166,24 +167,21 @@ module ValueReader =
     s.Substring(0, 1).ToLowerInvariant() + s.Substring(1)
 
   let isAttrib<'T> (attrib: FSharpAttribute)  =
-    attrib.ReflectionType = typeof<'T> 
+    attrib.AttributeType.CompiledName = typeof<'T>.Name
 
-  let tryFindAttrib<'T> (attribs: ReadOnlyCollection<FSharpAttribute>)  =
-    attribs |> Seq.tryPick (fun a -> if isAttrib<'T>(a) then Some (a.Value :?> 'T) else None)
-
-  let hasAttrib<'T> (attribs: ReadOnlyCollection<FSharpAttribute>) = 
-    tryFindAttrib<'T>(attribs).IsSome
+  let hasAttrib<'T> (attribs: IList<FSharpAttribute>) = 
+    attribs |> Seq.exists (fun a -> isAttrib<'T>(a))
 
   let (|MeasureProd|_|) (typ : FSharpType) = 
-      if typ.IsNamed && typ.NamedEntity.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
+      if typ.IsNamedType && typ.NamedEntity.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
       else None
 
   let (|MeasureInv|_|) (typ : FSharpType) = 
-      if typ.IsNamed && typ.NamedEntity.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
+      if typ.IsNamedType && typ.NamedEntity.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
       else None
 
   let (|MeasureOne|_|) (typ : FSharpType) = 
-      if typ.IsNamed && typ.NamedEntity.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
+      if typ.IsNamedType && typ.NamedEntity.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
       else None
 
   let formatTypeArgument (typar:FSharpGenericParameter) =
@@ -232,17 +230,17 @@ module ValueReader =
         (formatTypeWithPrec 2 ty1) + "*" + (formatTypeWithPrec 2 ty2)
     | MeasureInv ty -> "/" + (formatTypeWithPrec 1 ty)
     | MeasureOne  -> "1" 
-    | _ when typ.IsNamed -> 
+    | _ when typ.IsNamedType -> 
         let tcref = typ.NamedEntity 
         let tyargs = typ.GenericArguments |> Seq.toList
         // layout postfix array types
         formatTypeApplication (formatTyconRef tcref) prec tcref.UsesPrefixDisplay tyargs 
-    | _ when typ.IsTuple ->
+    | _ when typ.IsTupleType ->
         let tyargs = typ.GenericArguments |> Seq.toList
         bracketIf (prec <= 2) (formatTypesWithPrec 2 " * " tyargs)
-    | _ when typ.IsFunction ->
+    | _ when typ.IsFunctionType ->
         let rec loop soFar (typ:FSharpType) = 
-          if typ.IsFunction then 
+          if typ.IsFunctionType then 
             let domainTyp, retType = typ.GenericArguments.[0], typ.GenericArguments.[1]
             loop (soFar + (formatTypeWithPrec 4 typ.GenericArguments.[0]) + " -> ") retType
           else 
@@ -319,12 +317,12 @@ module ValueReader =
     // Hence getting the generic argument count if this is a little trickier
     let numGenericParamsOfApparentParent = 
         let pty = v.LogicalEnclosingEntity 
-        if pty.IsExternal then 
-            let ty = v.LogicalEnclosingEntity.ReflectionType 
-            if ty.IsGenericType then ty.GetGenericArguments().Length 
-            else 0 
-        else 
-            pty.GenericParameters.Count
+        //if pty.IsExternal then 
+        //    let ty = v.LogicalEnclosingEntity.ReflectionType 
+        //    if ty.IsGenericType then ty.GetGenericArguments().Length 
+        //    else 0 
+        //else 
+        pty.GenericParameters.Count
     let tps = v.GenericParameters |> Seq.skip numGenericParamsOfApparentParent
     let typars = formatTypeArguments tps 
 
@@ -380,7 +378,7 @@ module ValueReader =
     let usage (maxLength:int) = case.Name
     let modifiers = List.empty
     let typeparams = List.empty
-    let signature = case.Fields |> List.ofSeq |> List.map (fun field -> formatType field.Type) |> String.concat " * "
+    let signature = case.UnionCaseFields |> List.ofSeq |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
     let location = formatSourceLocation ctx.SourceFolderRepository case.DeclarationLocation
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
@@ -390,7 +388,7 @@ module ValueReader =
       [ if field.IsMutable then yield "mutable"
         if field.IsStatic then yield "static" ]
     let typeparams = List.empty
-    let signature = formatType field.Type
+    let signature = formatType field.FieldType
     let location = formatSourceLocation ctx.SourceFolderRepository field.DeclarationLocation
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
@@ -516,13 +514,13 @@ module Reader =
   // ----------------------------------------------------------------------------------------------
 
   let rec readModulesAndTypes ctx (entities:seq<_>) = 
-    let modules = readChildren ctx entities readModule (fun x -> x.IsModule) 
-    let types = readChildren ctx entities readType (fun x -> not x.IsModule) 
+    let modules = readChildren ctx entities readModule (fun x -> x.IsFSharpModule) 
+    let types = readChildren ctx entities readType (fun x -> not x.IsFSharpModule) 
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
     readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
-      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.Namespace typ.CompiledName)
+      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
       let ivals, svals = typ.MembersOrValues |> List.ofSeq |> List.partition (fun v -> v.IsInstanceMember)
       let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
@@ -553,7 +551,7 @@ module Reader =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
     
       // Properties & value bindings in the module
-      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" modul.Namespace modul.CompiledName)
+      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" modul.AccessPath modul.CompiledName)
       let vals = readMembers ctx MemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
       let exts = readMembers ctx MemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
       let pats = readMembers ctx MemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
@@ -575,7 +573,7 @@ module Reader =
     Namespace.Create(ns, modules, types)
 
   let readAssembly (assembly:FSharpAssembly) (xmlFile:string) sourceFolderRepo =
-    let assemblyName = assembly.ReflectionAssembly.GetName()
+    let assemblyName = assembly.QualifiedName
     
     // Read in the supplied XML file, map its name attributes to document text 
     let doc = XDocument.Load(xmlFile)
@@ -588,10 +586,10 @@ module Reader =
 
     // 
     let namespaces = 
-      assembly.Entities 
-      |> Seq.groupBy (fun m -> m.Namespace) |> Seq.sortBy fst
+      assembly.Contents.Entities
+      |> Seq.groupBy (fun modul -> modul.AccessPath) |> Seq.sortBy fst
       |> Seq.map (readNamespace ctx) |> List.ofSeq
-    assemblyName, namespaces
+    AssemblyName(assemblyName), namespaces
 
 // ------------------------------------------------------------------------------------------------
 // Main - generating HTML
@@ -653,16 +651,48 @@ type MetadataFormat =
 
     // Read and process assmeblies and the corresponding XML files
     let assemblies = 
+      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker.Create()
+      let base1 = Path.GetTempFileName()
+      let dllName = Path.ChangeExtension(base1, ".dll")
+      let fileName1 = Path.ChangeExtension(base1, ".fs")
+      let projFileName = Path.ChangeExtension(base1, ".fsproj")
+      File.WriteAllText(fileName1, """module M""")
+      let options = 
+        checker.GetProjectOptionsFromCommandLineArgs(projFileName,
+          [|yield "--debug:full" 
+            yield "--define:DEBUG" 
+            yield "--optimize-" 
+            yield "--out:" + dllName
+            yield "--doc:test.xml" 
+            yield "--warn:3" 
+            yield "--fullpaths" 
+            yield "--flaterrors" 
+            yield "--target:library" 
+            // Add references to mscorlib and FSharp.Core
+            // for f in ["mscorlib"; "FSharp.Core"] do 
+            //     if dllFiles |> List.forall (fun x -> String.Compare(f, Path.GetFileNameWithoutExtension x,ignoreCase=true) <> 0) then
+            //        yield "-r:"+f 
+            for dllFile in dllFiles do
+              yield "-r:"+dllFile 
+            yield fileName1 |])
+      let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+      let table = 
+          results.ProjectContext.GetReferencedAssemblies()
+            |> List.map (fun x -> x.SimpleName, x)
+            |> dict
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
           if not (File.Exists xmlFile) then 
             raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
 
           Log.logf "Reading assembly: %s" dllFile
-          let asm = FSharpAssembly.FromFile(dllFile)
-          Log.logf "Parsing assembly"
-          yield Reader.readAssembly asm xmlFile sourceFolderRepo ]
-
+          let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
+          if not (table.ContainsKey asmName) then 
+              printfn "**** Skiipping assembly %s because was not found in resolved assembly list" asmName
+          else
+              let asm = table.[Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))] 
+              Log.logf "Parsing assembly"
+              yield Reader.readAssembly asm xmlFile sourceFolderRepo ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd

@@ -111,7 +111,7 @@ type CodeFormatAgent() =
     else body
 
   // Processes a single line of the snippet
-  let processSnippetLine (checkInfo:TypeCheckResults) (lines:string[]) (line, lineTokens) =
+  let processSnippetLine (checkInfo:CheckFileResults) (lines:string[]) (line, lineTokens) =
 
     // Recursive processing of tokens on the line 
     // (keeps a long identifier 'island')
@@ -132,14 +132,12 @@ type CodeFormatAgent() =
           // If we're processing an identfier, see if it has any tool tip
           if (tokenInfo.TokenName = "IDENT") then
             let island = island |> List.rev
-            let pos = (line, tokenInfo.LeftColumn + 1)
-            let tip = checkInfo.GetDataTipText(pos, lines.[line], island, identToken)
+            let tip = checkInfo.GetToolTipText(line, tokenInfo.LeftColumn + 1, lines.[line], island, identToken)
             match ToolTipReader.tryFormatTip tip with
             | Some(_) as res -> res
             | _ when island.Length > 1 ->
                 // Try to find some information about the last part of the identifier 
-                let pos = (line, tokenInfo.LeftColumn + 2)
-                let tip = checkInfo.GetDataTipText(pos, lines.[line], [ processDoubleBackticks body ], identToken)
+                let tip = checkInfo.GetToolTipText(line, tokenInfo.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ], identToken)
                 ToolTipReader.tryFormatTip tip
             | _ -> None
           else None
@@ -177,25 +175,19 @@ type CodeFormatAgent() =
 
   // Create an instance of an InteractiveChecker (which does background analysis
   // in a typical IntelliSense editor integration for F#)
-  let checker = InteractiveChecker.Create(NotifyFileTypeCheckStateIsDirty ignore)
+  let checker = InteractiveChecker.Create()
 
   /// Type-checking takes some time and doesn't return information on the
   /// first call, so this function creates workflow that tries repeatedly
-  let rec getTypeCheckInfo(untypedInfo, file, source, opts) = async {
-    let obs = IsResultObsolete(fun () -> false)
-    let info = checker.TypeCheckSource(untypedInfo, file, 0, source, opts, obs, null) 
-    match info with
-    | TypeCheckSucceeded(res) ->
-        // Succeeded & got results back
-        return res
-    | _ -> 
-        do! Async.Sleep(500)
-        return! getTypeCheckInfo(untypedInfo, file, source, opts) }
+  let getTypeCheckInfo(untypedInfo, file, source, opts) = 
+      match checker.CheckFileInProject(untypedInfo, file, 0, source, opts) |> Async.RunSynchronously with 
+      | CheckFileAnswer.Succeeded(res) -> res
+      | CheckFileAnswer.Aborted -> failwith "unexpected abort"
 
 
   // ------------------------------------------------------------------------------------
 
-  let processSourceCode (file, source, options, defines) = async {
+  let processSourceCode (file, source, options, defines) = 
 
     // Read the source code into an array of lines
     use reader = new StringReader(source)
@@ -206,7 +198,7 @@ type CodeFormatAgent() =
 
     // Get options for a standalone script file (this adds some 
     // default references and doesn't require full project information)
-    let opts = checker.GetCheckOptionsFromScriptRoot(file, source, DateTime.Now) 
+    let opts = checker.GetProjectOptionsFromScript(file, source, DateTime.Now) 
     
     // Override default options if the user specified something
     let opts = 
@@ -216,9 +208,9 @@ type CodeFormatAgent() =
       | _ -> opts
 
     // Run the first phase - parse source into AST without type information 
-    let untypedInfo = checker.UntypedParse(file, source, opts) 
+    let untypedInfo = checker.ParseFileInProject(file, source, opts) 
     // Run the second phase - perform type checking
-    let! checkInfo = getTypeCheckInfo(untypedInfo, file, source, opts)
+    let checkInfo = getTypeCheckInfo(untypedInfo, file, source, opts)
     let errors = checkInfo.Errors
 
     /// Parse source file into a list of lines consisting of tokens 
@@ -267,7 +259,7 @@ type CodeFormatAgent() =
                ( (errInfo.StartLine, errInfo.StartColumn), (errInfo.EndLine, errInfo.EndColumn),
                  (if errInfo.Severity = Severity.Error then ErrorKind.Error else ErrorKind.Warning),
                  errInfo.Message ) |]
-    return parsedSnippets, sourceErrors }
+    parsedSnippets, sourceErrors 
  
   // ------------------------------------------------------------------------------------
   // Agent that implements the parsing & formatting
@@ -277,7 +269,7 @@ type CodeFormatAgent() =
       // Receive parameters for the next parsing request
       let! request, (chnl:AsyncReplyChannel<_>) = agent.Receive()
       try
-        let! res, errs = processSourceCode request
+        let res, errs = processSourceCode request
         chnl.Reply(Choice1Of2(res |> Array.ofList, errs))
       with e ->
         chnl.Reply(Choice2Of2(e)) // new Exception(Utilities.formatException e, e)))

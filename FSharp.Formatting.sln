@@ -78,8 +78,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Literate", "src\FSha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpFormat", "src\CSharpFormat\CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.PowerPack.Metadata", "src\FSharp.PowerPack.Metadata\FSharp.PowerPack.Metadata.fsproj", "{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -122,12 +120,6 @@ Global
 		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9AB3650B-CC24-4404-A175-A573DA928475}.Release|x86.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0057B83F-130E-4E7C-B60C-9B4935D8BEE9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
