@@ -126,17 +126,21 @@ If the input contains multiple snippets spearated using the `//[snippet:...]` co
 (**
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
-
-<span class="l">23: </span>
-<span class="l">24: </span>
-
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
 </pre>
 </td>
-<td class="snippet"><pre class="fssnip"><span class="c">//[snippet:1]</span>
-...
-<span class="c">//[/snippet]</span>
-<span class="c">//[snippet:2]</span>
-...
+<td class="snippet"><pre class="fssnip"><span class="c">// [snippet: First sample]</span>
+<span class="i">printf</span> <span class="s">"The answer is: %A"</span> <span class="n">42</span>
+<span class="c">// [/snippet]</span>
+
+<span class="c">// [snippet: Second sample]</span>
+<span class="i">printf</span> <span class="s">"Hello world!"</span>
+<span class="c">// [/snippet]</span>
 </pre>
 </td>
 </tr>
