@@ -407,16 +407,16 @@ that should be replaced in the tempalte HTML file.</li>
 
           <div class="tip" id="fs1">val helloWorld : unit -&gt; unit<br /><br />Full name: demo.helloWorld</div>
 <div class="tip" id="fs2">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs3">union case Option.Some: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs3">union case Option.Some: Value: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
 <div class="tip" id="fs4">val using : resource:&#39;T -&gt; action:(&#39;T -&gt; &#39;U) -&gt; &#39;U (requires &#39;T :&gt; System.IDisposable)<br /><br />Full name: Microsoft.FSharp.Core.Operators.using</div>
 <div class="tip" id="fs5">namespace FSharp</div>
 <div class="tip" id="fs6">namespace FSharp.Literate</div>
 <div class="tip" id="fs7"></div>
 <div class="tip" id="fs8">namespace System.IO</div>
 <div class="tip" id="fs9">Path.Combine(params paths: string []) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
-<div class="tip" id="fs10">static member Literate.ProcessScriptFile : input:string * ?templateFile:string * ?output:string * ?format:OutputKind * ?fsharpCompiler:#System.Reflection.Assembly * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?replacements:(string * string) list * ?includeSource:bool * ?layoutRoots:string list -&gt; unit</div>
-<div class="tip" id="fs11">static member Literate.ProcessMarkdown : input:string * ?templateFile:string * ?output:string * ?format:OutputKind * ?fsharpCompiler:#System.Reflection.Assembly * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?replacements:(string * string) list * ?includeSource:bool * ?layoutRoots:string list -&gt; unit</div>
-<div class="tip" id="fs12">static member Literate.ProcessDirectory : inputDirectory:string * ?templateFile:string * ?outputDirectory:string * ?format:OutputKind * ?fsharpCompiler:#System.Reflection.Assembly * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?replacements:(string * string) list * ?includeSource:bool * ?layoutRoots:string list -&gt; unit</div>
+<div class="tip" id="fs10">static member Literate.ProcessScriptFile : input:string * ?templateFile:string * ?output:string * ?format:OutputKind * ?formatAgent:FSharp.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?replacements:(string * string) list * ?includeSource:bool * ?layoutRoots:string list -&gt; unit</div>
+<div class="tip" id="fs11">static member Literate.ProcessMarkdown : input:string * ?templateFile:string * ?output:string * ?format:OutputKind * ?formatAgent:FSharp.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?replacements:(string * string) list * ?includeSource:bool * ?layoutRoots:string list -&gt; unit</div>
+<div class="tip" id="fs12">static member Literate.ProcessDirectory : inputDirectory:string * ?templateFile:string * ?outputDirectory:string * ?format:OutputKind * ?formatAgent:FSharp.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?replacements:(string * string) list * ?includeSource:bool * ?layoutRoots:string list -&gt; unit</div>
 <div class="tip" id="fs13">union case OutputKind.Latex: OutputKind</div>
           
         </div>

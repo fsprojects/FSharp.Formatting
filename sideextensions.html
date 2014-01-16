@@ -45,16 +45,34 @@
               <pre><code>Markdown extensions
 ===================
 
-You can write inline $ k_{n+1} = n^2 + k_n^2 - k_{n-1} $ Latex!
+To use LaTex extension, you need add javascript
+link to [MathJax](http://www.mathjax.org/) in
+your template.
 
-And even paragraphs:
+To use inline LaTex, eclose LaTex code with `$`:
+$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $.
+
+To use block LaTex, start a new parapgraph, with
+the first line marked as `$$$` (no close `$$$`):
 
 $$$
-\begin{equation}
-f(x)=3x^{2}+6(x-2)-1
-\end{equation}
+A_{m,n} =
+ \begin{pmatrix}
+  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
+  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
+  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
+ \end{pmatrix}
 
-$$$
+Use LaTex escape rule:
+
+- Escape \$ in inline mode: $ \$ $, $ \$var $
+- Other escapes: $ \&amp; \% \$ \# \_ \{ \} $
+- Using &lt; or &gt;: $ x &gt; 1 $, $ y &lt; 1 $, $ x &gt;= 1 $,
+  $ y &lt;= 1 $, $ x = 1 $
+- $ &lt;p&gt;something&lt;/p&gt; $
+
+
 
 </code></pre>
 
@@ -62,15 +80,33 @@ $$$
             <div class="span4">
               <h1>Markdown extensions</h1>
 
-<p>You can write inline <span class="math">\(k_{n+1} = n^2 + k_n^2 - k_{n-1}\)</span> Latex!</p>
+<p>To use LaTex extension, you need add javascript
+link to <a href="http://www.mathjax.org/">MathJax</a> in
+your template.</p>
 
-<p>And even paragraphs:</p>
+<p>To use inline LaTex, eclose LaTex code with <code>$</code>:
+<span class="math">\(k_{n+1} = n^2 + k_n^2 - k_{n-1}\)</span>.</p>
 
-<p><span class="math">\[\begin{equation}
-f(x)=3x^{2}+6(x-2)-1
-\end{equation}\]</span></p>
+<p>To use block LaTex, start a new parapgraph, with
+the first line marked as <code>$$$</code> (no close <code>$$$</code>):</p>
 
-<p><span class="math">\(\)</span>$</p>
+<p><span class="math">\[A_{m,n} =
+ \begin{pmatrix}
+  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
+  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
+  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
+ \end{pmatrix}\]</span></p>
+
+<p>Use LaTex escape rule:</p>
+
+<ul>
+<li>Escape $ in inline mode: <span class="math">\(\$\)</span>, <span class="math">\(\$var\)</span></li>
+<li>Other escapes: <span class="math">\(\&amp; \% \$ \# \_ \{ \}\)</span></li>
+<li>Using < or >: <span class="math">\(x &gt; 1\)</span>, <span class="math">\(y &lt; 1\)</span>, <span class="math">\(x &gt;= 1\)</span>,
+<span class="math">\(y &lt;= 1\)</span>, <span class="math">\(x = 1\)</span></li>
+<li><span class="math">\(&lt;p&gt;something&lt;/p&gt;\)</span></li>
+</ul>
 
             </div>
           </div>

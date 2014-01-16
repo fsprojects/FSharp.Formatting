@@ -104,7 +104,7 @@ To call the method, we define a simple F# code as a string:</p>
 <span class="s">    </span><span class="s">let</span><span class="s"> </span><span class="s">hello</span><span class="s"> </span><span class="s">(</span><span class="s">)</span><span class="s"> </span><span class="s">=</span><span class="s"> </span>
 <span class="s">      </span><span class="s">printfn</span><span class="s"> </span><span class="s">&quot;</span><span class="s">Hello</span><span class="s"> </span><span class="s">world</span><span class="s">&quot;</span>
 <span class="s">  </span><span class="s">&quot;&quot;&quot;</span>
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">snippets</span>, <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">errors</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="i">formattingAgent</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">ParseSource</span>(<span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\\</span><span class="s">snippet</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>, <span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">source</span>)</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">snippets</span>, <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">errors</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="i">formattingAgent</span><span class="o">.</span><span class="i">ParseSource</span>(<span class="s">&quot;</span><span class="s">C</span><span class="s">:</span><span class="s">\\</span><span class="s">snippet</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>, <span onmouseout="hideTip(event, 'fs11', 16)" onmouseover="showTip(event, 'fs11', 16)" class="i">source</span>)</pre>
 </td>
 </tr>
 </table>
@@ -150,20 +150,20 @@ about the tokens of our sample snippet:</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">// Get the first snippet and obtain list of lines</span>
-<span class="k">let</span> (<span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">Snippet</span>(<span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs17', 20)" onmouseover="showTip(event, 'fs17', 20)" class="i">lines</span>)) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 21)" onmouseover="showTip(event, 'fs12', 21)" class="i">snippets</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 23)" onmouseover="showTip(event, 'fs19', 23)" class="i">head</span>
+<span class="k">let</span> (<span onmouseout="hideTip(event, 'fs14', 17)" onmouseover="showTip(event, 'fs14', 17)" class="i">Snippet</span>(<span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs16', 19)" onmouseover="showTip(event, 'fs16', 19)" class="i">lines</span>)) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 20)" onmouseover="showTip(event, 'fs12', 20)" class="i">snippets</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs17', 21)" onmouseover="showTip(event, 'fs17', 21)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">head</span>
 
 <span class="c">// Iterate over all lines and all tokens on each line</span>
-<span class="k">for</span> (<span onmouseout="hideTip(event, 'fs20', 24)" onmouseover="showTip(event, 'fs20', 24)" class="i">Line</span>(<span onmouseout="hideTip(event, 'fs21', 25)" onmouseover="showTip(event, 'fs21', 25)" class="i">tokens</span>)) <span class="k">in</span> <span onmouseout="hideTip(event, 'fs17', 26)" onmouseover="showTip(event, 'fs17', 26)" class="i">lines</span> <span class="k">do</span>
-  <span class="k">for</span> <span onmouseout="hideTip(event, 'fs22', 27)" onmouseover="showTip(event, 'fs22', 27)" class="i">token</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs21', 28)" onmouseover="showTip(event, 'fs21', 28)" class="i">tokens</span> <span class="k">do</span>
-    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs22', 29)" onmouseover="showTip(event, 'fs22', 29)" class="i">token</span> <span class="k">with</span>
-    | <span onmouseout="hideTip(event, 'fs23', 30)" onmouseover="showTip(event, 'fs23', 30)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 31)" onmouseover="showTip(event, 'fs24', 31)" class="i">Token</span>(<span onmouseout="hideTip(event, 'fs25', 32)" onmouseover="showTip(event, 'fs25', 32)" class="i">kind</span>, <span onmouseout="hideTip(event, 'fs26', 33)" onmouseover="showTip(event, 'fs26', 33)" class="i">code</span>, <span onmouseout="hideTip(event, 'fs27', 34)" onmouseover="showTip(event, 'fs27', 34)" class="i">tip</span>) <span class="k">-&gt;</span> 
-        <span onmouseout="hideTip(event, 'fs28', 35)" onmouseover="showTip(event, 'fs28', 35)" class="i">printf</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs26', 36)" onmouseover="showTip(event, 'fs26', 36)" class="i">code</span>
-        <span onmouseout="hideTip(event, 'fs27', 37)" onmouseover="showTip(event, 'fs27', 37)" class="i">tip</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs29', 38)" onmouseover="showTip(event, 'fs29', 38)" class="i">Option</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 39)" onmouseover="showTip(event, 'fs30', 39)" class="i">iter</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs31', 40)" onmouseover="showTip(event, 'fs31', 40)" class="i">spans</span> <span class="k">-&gt;</span>
-          <span onmouseout="hideTip(event, 'fs32', 41)" onmouseover="showTip(event, 'fs32', 41)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs31', 42)" onmouseover="showTip(event, 'fs31', 42)" class="i">spans</span>)          
-    | <span onmouseout="hideTip(event, 'fs23', 43)" onmouseover="showTip(event, 'fs23', 43)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 44)" onmouseover="showTip(event, 'fs33', 44)" class="i">Omitted</span> _ 
-    | <span onmouseout="hideTip(event, 'fs23', 45)" onmouseover="showTip(event, 'fs23', 45)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 46)" onmouseover="showTip(event, 'fs34', 46)" class="i">Output</span> _ 
-    | <span onmouseout="hideTip(event, 'fs23', 47)" onmouseover="showTip(event, 'fs23', 47)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 48)" onmouseover="showTip(event, 'fs35', 48)" class="i">Error</span> _ <span class="k">-&gt;</span> ()
-  <span onmouseout="hideTip(event, 'fs32', 49)" onmouseover="showTip(event, 'fs32', 49)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">&quot;</span></pre>
+<span class="k">for</span> (<span onmouseout="hideTip(event, 'fs19', 23)" onmouseover="showTip(event, 'fs19', 23)" class="i">Line</span>(<span onmouseout="hideTip(event, 'fs20', 24)" onmouseover="showTip(event, 'fs20', 24)" class="i">tokens</span>)) <span class="k">in</span> <span onmouseout="hideTip(event, 'fs16', 25)" onmouseover="showTip(event, 'fs16', 25)" class="i">lines</span> <span class="k">do</span>
+  <span class="k">for</span> <span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="i">token</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs20', 27)" onmouseover="showTip(event, 'fs20', 27)" class="i">tokens</span> <span class="k">do</span>
+    <span class="k">match</span> <span onmouseout="hideTip(event, 'fs21', 28)" onmouseover="showTip(event, 'fs21', 28)" class="i">token</span> <span class="k">with</span>
+    | <span onmouseout="hideTip(event, 'fs22', 29)" onmouseover="showTip(event, 'fs22', 29)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 30)" onmouseover="showTip(event, 'fs23', 30)" class="i">Token</span>(<span onmouseout="hideTip(event, 'fs24', 31)" onmouseover="showTip(event, 'fs24', 31)" class="i">kind</span>, <span onmouseout="hideTip(event, 'fs25', 32)" onmouseover="showTip(event, 'fs25', 32)" class="i">code</span>, <span onmouseout="hideTip(event, 'fs26', 33)" onmouseover="showTip(event, 'fs26', 33)" class="i">tip</span>) <span class="k">-&gt;</span> 
+        <span onmouseout="hideTip(event, 'fs27', 34)" onmouseover="showTip(event, 'fs27', 34)" class="i">printf</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs25', 35)" onmouseover="showTip(event, 'fs25', 35)" class="i">code</span>
+        <span onmouseout="hideTip(event, 'fs26', 36)" onmouseover="showTip(event, 'fs26', 36)" class="i">tip</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs28', 37)" onmouseover="showTip(event, 'fs28', 37)" class="i">Option</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 38)" onmouseover="showTip(event, 'fs29', 38)" class="i">iter</span> (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs30', 39)" onmouseover="showTip(event, 'fs30', 39)" class="i">spans</span> <span class="k">-&gt;</span>
+          <span onmouseout="hideTip(event, 'fs31', 40)" onmouseover="showTip(event, 'fs31', 40)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs30', 41)" onmouseover="showTip(event, 'fs30', 41)" class="i">spans</span>)          
+    | <span onmouseout="hideTip(event, 'fs22', 42)" onmouseover="showTip(event, 'fs22', 42)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs32', 43)" onmouseover="showTip(event, 'fs32', 43)" class="i">Omitted</span> _ 
+    | <span onmouseout="hideTip(event, 'fs22', 44)" onmouseover="showTip(event, 'fs22', 44)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 45)" onmouseover="showTip(event, 'fs33', 45)" class="i">Output</span> _ 
+    | <span onmouseout="hideTip(event, 'fs22', 46)" onmouseover="showTip(event, 'fs22', 46)" class="i">TokenSpan</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs34', 47)" onmouseover="showTip(event, 'fs34', 47)" class="i">Error</span> _ <span class="k">-&gt;</span> ()
+  <span onmouseout="hideTip(event, 'fs31', 48)" onmouseover="showTip(event, 'fs31', 48)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table>
@@ -179,8 +179,8 @@ print the value using the F# pretty printing, so the result looks as follows:</p
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span class="i">hello</span>[<span onmouseout="hideTip(event, 'fs36', 50)" onmouseover="showTip(event, 'fs36', 50)" class="i">Literal</span> <span class="s">&quot;</span><span class="s">val</span><span class="s"> </span><span class="s">hello</span><span class="s"> </span><span class="s">:</span><span class="s"> </span><span class="s">unit</span><span class="s"> </span><span class="s">-</span><span class="s">&gt;</span><span class="s"> </span><span class="s">unit</span><span class="s">&quot;</span>; <span class="o">..</span><span class="o">.</span>] () <span class="o">=</span> 
-  <span onmouseout="hideTip(event, 'fs32', 51)" onmouseover="showTip(event, 'fs32', 51)" class="i">printfn</span>[<span onmouseout="hideTip(event, 'fs36', 52)" onmouseover="showTip(event, 'fs36', 52)" class="i">Literal</span> <span class="s">&quot;</span><span class="s">val</span><span class="s"> </span><span class="s">printfn</span><span class="s"> </span><span class="s">:</span><span class="s"> </span><span class="s">TextWriterFormat</span><span class="s">&lt;</span><span class="s">&#39;</span><span class="s">T</span><span class="s">&gt;</span><span class="s"> </span><span class="s">-</span><span class="s">&gt;</span><span class="s"> </span><span class="s">&#39;</span><span class="s">T</span><span class="s">&quot;</span>; <span class="o">..</span><span class="o">.</span>] <span class="s">&quot;</span><span class="s">Hello</span><span class="s"> </span><span class="s">world</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span class="i">hello</span>[<span onmouseout="hideTip(event, 'fs35', 49)" onmouseover="showTip(event, 'fs35', 49)" class="i">Literal</span> <span class="s">&quot;</span><span class="s">val</span><span class="s"> </span><span class="s">hello</span><span class="s"> </span><span class="s">:</span><span class="s"> </span><span class="s">unit</span><span class="s"> </span><span class="s">-</span><span class="s">&gt;</span><span class="s"> </span><span class="s">unit</span><span class="s">&quot;</span>; <span class="o">..</span><span class="o">.</span>] () <span class="o">=</span> 
+  <span onmouseout="hideTip(event, 'fs31', 50)" onmouseover="showTip(event, 'fs31', 50)" class="i">printfn</span>[<span onmouseout="hideTip(event, 'fs35', 51)" onmouseover="showTip(event, 'fs35', 51)" class="i">Literal</span> <span class="s">&quot;</span><span class="s">val</span><span class="s"> </span><span class="s">printfn</span><span class="s"> </span><span class="s">:</span><span class="s"> </span><span class="s">TextWriterFormat</span><span class="s">&lt;</span><span class="s">&#39;</span><span class="s">T</span><span class="s">&gt;</span><span class="s"> </span><span class="s">-</span><span class="s">&gt;</span><span class="s"> </span><span class="s">&#39;</span><span class="s">T</span><span class="s">&quot;</span>; <span class="o">..</span><span class="o">.</span>] <span class="s">&quot;</span><span class="s">Hello</span><span class="s"> </span><span class="s">world</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table>
@@ -209,21 +209,44 @@ to generate nice HTML output from an F# snippet. This is used, for example on
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 53)" onmouseover="showTip(event, 'fs37', 53)" class="i">prefix</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">fst</span><span class="s">&quot;</span> 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 54)" onmouseover="showTip(event, 'fs38', 54)" class="i">html</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs9', 55)" onmouseover="showTip(event, 'fs9', 55)" class="i">CodeFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 56)" onmouseover="showTip(event, 'fs39', 56)" class="i">FormatHtml</span>(<span onmouseout="hideTip(event, 'fs12', 57)" onmouseover="showTip(event, 'fs12', 57)" class="i">snippets</span>, <span onmouseout="hideTip(event, 'fs37', 58)" onmouseover="showTip(event, 'fs37', 58)" class="i">prefix</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 52)" onmouseover="showTip(event, 'fs36', 52)" class="i">prefix</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">fst</span><span class="s">&quot;</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs37', 53)" onmouseover="showTip(event, 'fs37', 53)" class="i">html</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs9', 54)" onmouseover="showTip(event, 'fs9', 54)" class="i">CodeFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 55)" onmouseover="showTip(event, 'fs38', 55)" class="i">FormatHtml</span>(<span onmouseout="hideTip(event, 'fs12', 56)" onmouseover="showTip(event, 'fs12', 56)" class="i">snippets</span>, <span onmouseout="hideTip(event, 'fs36', 57)" onmouseover="showTip(event, 'fs36', 57)" class="i">prefix</span>)
 
 <span class="c">// Print all snippets, in case there is more of them</span>
-<span class="k">for</span> <span onmouseout="hideTip(event, 'fs40', 59)" onmouseover="showTip(event, 'fs40', 59)" class="i">snip</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs38', 60)" onmouseover="showTip(event, 'fs38', 60)" class="i">html</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 61)" onmouseover="showTip(event, 'fs41', 61)" class="i">Snippets</span> <span class="k">do</span>
-  <span onmouseout="hideTip(event, 'fs32', 62)" onmouseover="showTip(event, 'fs32', 62)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs40', 63)" onmouseover="showTip(event, 'fs40', 63)" class="i">snip</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 64)" onmouseover="showTip(event, 'fs42', 64)" class="i">Content</span>
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs39', 58)" onmouseover="showTip(event, 'fs39', 58)" class="i">snip</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs37', 59)" onmouseover="showTip(event, 'fs37', 59)" class="i">html</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 60)" onmouseover="showTip(event, 'fs40', 60)" class="i">Snippets</span> <span class="k">do</span>
+  <span onmouseout="hideTip(event, 'fs31', 61)" onmouseover="showTip(event, 'fs31', 61)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs39', 62)" onmouseover="showTip(event, 'fs39', 62)" class="i">snip</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 63)" onmouseover="showTip(event, 'fs41', 63)" class="i">Content</span>
 
 <span class="c">// Print HTML code that is generated for ToolTips</span>
-<span onmouseout="hideTip(event, 'fs32', 65)" onmouseover="showTip(event, 'fs32', 65)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs38', 66)" onmouseover="showTip(event, 'fs38', 66)" class="i">html</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 67)" onmouseover="showTip(event, 'fs43', 67)" class="i">ToolTip</span></pre>
+<span onmouseout="hideTip(event, 'fs31', 64)" onmouseover="showTip(event, 'fs31', 64)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs37', 65)" onmouseover="showTip(event, 'fs37', 65)" class="i">html</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 66)" onmouseover="showTip(event, 'fs42', 66)" class="i">ToolTip</span></pre>
 </td>
 </tr>
 </table>
 
-<p>If the input contains multiple snippets spearated using the <code>[snippet:...]</code> comment,
-then the formatter returns multiple HTML blocks. However, the generated tool tips
+<p>If the input contains multiple snippets spearated using the <code>//[snippet:...]</code> comment, e.g.:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip"><span class="c">// [snippet: First sample]</span>
+<span class="i">printf</span> <span class="s">"The answer is: %A"</span> <span class="n">42</span>
+<span class="c">// [/snippet]</span>
+
+<span class="c">// [snippet: Second sample]</span>
+<span class="i">printf</span> <span class="s">"Hello world!"</span>
+<span class="c">// [/snippet]</span>
+</pre>
+</td>
+</tr>
+</table>
+
+<p>then the formatter returns multiple HTML blocks. However, the generated tool tips
 are shared by all snippets (to save space) and so they are returned separately.</p>
 
           <div class="tip" id="fs1">namespace FSharp</div>
@@ -231,44 +254,43 @@ are shared by all snippets (to save space) and so they are returned separately.<
 <div class="tip" id="fs3">namespace System</div>
 <div class="tip" id="fs4">namespace System.Reflection</div>
 <div class="tip" id="fs5">val fsharpCompiler : Assembly<br /><br />Full name: Codeformat.fsharpCompiler</div>
-<div class="tip" id="fs6">type Assembly =<br />&#160;&#160;member CodeBase : string<br />&#160;&#160;member CreateInstance : typeName:string -&gt; obj + 2 overloads<br />&#160;&#160;member CustomAttributes : IEnumerable&lt;CustomAttributeData&gt;<br />&#160;&#160;member DefinedTypes : IEnumerable&lt;TypeInfo&gt;<br />&#160;&#160;member EntryPoint : MethodInfo<br />&#160;&#160;member Equals : o:obj -&gt; bool<br />&#160;&#160;member EscapedCodeBase : string<br />&#160;&#160;member Evidence : Evidence<br />&#160;&#160;member ExportedTypes : IEnumerable&lt;Type&gt;<br />&#160;&#160;member FullName : string<br />&#160;&#160;...<br /><br />Full name: System.Reflection.Assembly</div>
+<div class="tip" id="fs6">type Assembly =<br />&#160;&#160;member CodeBase : string<br />&#160;&#160;member CreateInstance : typeName:string -&gt; obj + 2 overloads<br />&#160;&#160;member EntryPoint : MethodInfo<br />&#160;&#160;member Equals : o:obj -&gt; bool<br />&#160;&#160;member EscapedCodeBase : string<br />&#160;&#160;member Evidence : Evidence<br />&#160;&#160;member FullName : string<br />&#160;&#160;member GetCustomAttributes : inherit:bool -&gt; obj[] + 1 overload<br />&#160;&#160;member GetCustomAttributesData : unit -&gt; IList&lt;CustomAttributeData&gt;<br />&#160;&#160;member GetExportedTypes : unit -&gt; Type[]<br />&#160;&#160;...<br /><br />Full name: System.Reflection.Assembly</div>
 <div class="tip" id="fs7">Assembly.Load(rawAssembly: byte []) : Assembly<br />Assembly.Load(assemblyRef: AssemblyName) : Assembly<br />Assembly.Load(assemblyString: string) : Assembly<br />Assembly.Load(rawAssembly: byte [], rawSymbolStore: byte []) : Assembly<br />Assembly.Load(rawAssembly: byte [], rawSymbolStore: byte [], securityContextSource: System.Security.SecurityContextSource) : Assembly</div>
-<div class="tip" id="fs8">val formattingAgent : CodeFormatAgent<br /><br />Full name: Codeformat.formattingAgent</div>
-<div class="tip" id="fs9">type CodeFormat =<br />&#160;&#160;static member CreateAgent : fsharpCompiler:Assembly -&gt; CodeFormatAgent<br />&#160;&#160;static member FormatHtml : snippets:Snippet [] * prefix:string -&gt; FormattedContent<br />&#160;&#160;static member FormatHtml : snippets:Snippet [] * prefix:string * addLines:bool * addErrors:bool -&gt; FormattedContent<br />&#160;&#160;static member FormatHtml : snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * addLines:bool * addErrors:bool -&gt; FormattedContent<br />&#160;&#160;static member FormatLatex : snippets:Snippet [] -&gt; FormattedContent<br />&#160;&#160;static member FormatLatex : snippets:Snippet [] * addLines:bool -&gt; FormattedContent<br />&#160;&#160;static member FormatLatex : snippets:Snippet [] * openTag:string * closeTag:string * addLines:bool -&gt; FormattedContent<br /><br />Full name: FSharp.CodeFormat.CodeFormat</div>
-<div class="tip" id="fs10">static member CodeFormat.CreateAgent : fsharpCompiler:Assembly -&gt; CodeFormatAgent</div>
+<div class="tip" id="fs8">val formattingAgent : obj<br /><br />Full name: Codeformat.formattingAgent</div>
+<div class="tip" id="fs9">type CodeFormat =<br />&#160;&#160;static member CreateAgent : unit -&gt; CodeFormatAgent<br />&#160;&#160;static member FormatHtml : snippets:Snippet [] * prefix:string -&gt; FormattedContent<br />&#160;&#160;static member FormatHtml : snippets:Snippet [] * prefix:string * addLines:bool * addErrors:bool -&gt; FormattedContent<br />&#160;&#160;static member FormatHtml : snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * addLines:bool * addErrors:bool -&gt; FormattedContent<br />&#160;&#160;static member FormatLatex : snippets:Snippet [] -&gt; FormattedContent<br />&#160;&#160;static member FormatLatex : snippets:Snippet [] * addLines:bool -&gt; FormattedContent<br />&#160;&#160;static member FormatLatex : snippets:Snippet [] * openTag:string * closeTag:string * addLines:bool -&gt; FormattedContent<br /><br />Full name: FSharp.CodeFormat.CodeFormat</div>
+<div class="tip" id="fs10">static member CodeFormat.CreateAgent : unit -&gt; CodeFormatAgent</div>
 <div class="tip" id="fs11">val source : string<br /><br />Full name: Codeformat.source</div>
 <div class="tip" id="fs12">val snippets : Snippet []<br /><br />Full name: Codeformat.snippets</div>
-<div class="tip" id="fs13">val errors : SourceError []<br /><br />Full name: Codeformat.errors</div>
-<div class="tip" id="fs14">member CodeFormatAgent.ParseSource : file:string * source:string * ?options:string * ?defines:string -&gt; Snippet [] * SourceError []</div>
-<div class="tip" id="fs15">Multiple items<br />union case Snippet.Snippet: string * Line list -&gt; Snippet<br /><br />--------------------<br />type Snippet = | Snippet of string * Line list<br /><br />Full name: FSharp.CodeFormat.Snippet</div>
-<div class="tip" id="fs16">val title : string<br /><br />Full name: Codeformat.title</div>
-<div class="tip" id="fs17">val lines : Line list<br /><br />Full name: Codeformat.lines</div>
-<div class="tip" id="fs18">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
-<div class="tip" id="fs19">val head : source:seq&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Collections.Seq.head</div>
-<div class="tip" id="fs20">Multiple items<br />union case Line.Line: TokenSpans -&gt; Line<br /><br />--------------------<br />type Line = | Line of TokenSpans<br /><br />Full name: FSharp.CodeFormat.Line</div>
-<div class="tip" id="fs21">val tokens : TokenSpans</div>
-<div class="tip" id="fs22">val token : TokenSpan</div>
-<div class="tip" id="fs23">type TokenSpan =<br />&#160;&#160;| Token of TokenKind * string * ToolTipSpans option<br />&#160;&#160;| Error of ErrorKind * string * TokenSpans<br />&#160;&#160;| Omitted of string * string<br />&#160;&#160;| Output of string<br /><br />Full name: FSharp.CodeFormat.TokenSpan</div>
-<div class="tip" id="fs24">union case TokenSpan.Token: TokenKind * string * ToolTipSpans option -&gt; TokenSpan</div>
-<div class="tip" id="fs25">val kind : TokenKind</div>
-<div class="tip" id="fs26">val code : string</div>
-<div class="tip" id="fs27">val tip : ToolTipSpans option</div>
-<div class="tip" id="fs28">val printf : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printf</div>
-<div class="tip" id="fs29">module Option<br /><br />from Microsoft.FSharp.Core</div>
-<div class="tip" id="fs30">val iter : action:(&#39;T -&gt; unit) -&gt; option:&#39;T option -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Option.iter</div>
-<div class="tip" id="fs31">val spans : ToolTipSpans</div>
-<div class="tip" id="fs32">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs33">union case TokenSpan.Omitted: string * string -&gt; TokenSpan</div>
-<div class="tip" id="fs34">union case TokenSpan.Output: string -&gt; TokenSpan</div>
-<div class="tip" id="fs35">union case TokenSpan.Error: ErrorKind * string * TokenSpans -&gt; TokenSpan</div>
-<div class="tip" id="fs36">Multiple items<br />type LiteralAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; LiteralAttribute<br /><br />Full name: Microsoft.FSharp.Core.LiteralAttribute<br /><br />--------------------<br />new : unit -&gt; LiteralAttribute</div>
-<div class="tip" id="fs37">val prefix : string<br /><br />Full name: Codeformat.prefix</div>
-<div class="tip" id="fs38">val html : FormattedContent<br /><br />Full name: Codeformat.html</div>
-<div class="tip" id="fs39">static member CodeFormat.FormatHtml : snippets:Snippet [] * prefix:string -&gt; FormattedContent<br />static member CodeFormat.FormatHtml : snippets:Snippet [] * prefix:string * addLines:bool * addErrors:bool -&gt; FormattedContent<br />static member CodeFormat.FormatHtml : snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * addLines:bool * addErrors:bool -&gt; FormattedContent</div>
-<div class="tip" id="fs40">val snip : FormattedSnippet</div>
-<div class="tip" id="fs41">property FormattedContent.Snippets: FormattedSnippet []</div>
-<div class="tip" id="fs42">property FormattedSnippet.Content: string</div>
-<div class="tip" id="fs43">property FormattedContent.ToolTip: string</div>
+<div class="tip" id="fs13">val errors : obj<br /><br />Full name: Codeformat.errors</div>
+<div class="tip" id="fs14">Multiple items<br />union case Snippet.Snippet: string * Line list -&gt; Snippet<br /><br />--------------------<br />type Snippet = | Snippet of string * Line list<br /><br />Full name: FSharp.CodeFormat.Snippet</div>
+<div class="tip" id="fs15">val title : string<br /><br />Full name: Codeformat.title</div>
+<div class="tip" id="fs16">val lines : Line list<br /><br />Full name: Codeformat.lines</div>
+<div class="tip" id="fs17">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs18">val head : source:seq&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Collections.Seq.head</div>
+<div class="tip" id="fs19">Multiple items<br />union case Line.Line: TokenSpans -&gt; Line<br /><br />--------------------<br />type Line = | Line of TokenSpans<br /><br />Full name: FSharp.CodeFormat.Line</div>
+<div class="tip" id="fs20">val tokens : TokenSpans</div>
+<div class="tip" id="fs21">val token : TokenSpan</div>
+<div class="tip" id="fs22">type TokenSpan =<br />&#160;&#160;| Token of TokenKind * string * ToolTipSpans option<br />&#160;&#160;| Error of ErrorKind * string * TokenSpans<br />&#160;&#160;| Omitted of string * string<br />&#160;&#160;| Output of string<br /><br />Full name: FSharp.CodeFormat.TokenSpan</div>
+<div class="tip" id="fs23">union case TokenSpan.Token: TokenKind * string * ToolTipSpans option -&gt; TokenSpan</div>
+<div class="tip" id="fs24">val kind : TokenKind</div>
+<div class="tip" id="fs25">val code : string</div>
+<div class="tip" id="fs26">val tip : ToolTipSpans option</div>
+<div class="tip" id="fs27">val printf : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printf</div>
+<div class="tip" id="fs28">module Option<br /><br />from Microsoft.FSharp.Core</div>
+<div class="tip" id="fs29">val iter : action:(&#39;T -&gt; unit) -&gt; option:&#39;T option -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Option.iter</div>
+<div class="tip" id="fs30">val spans : ToolTipSpans</div>
+<div class="tip" id="fs31">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs32">union case TokenSpan.Omitted: string * string -&gt; TokenSpan</div>
+<div class="tip" id="fs33">union case TokenSpan.Output: string -&gt; TokenSpan</div>
+<div class="tip" id="fs34">union case TokenSpan.Error: ErrorKind * string * TokenSpans -&gt; TokenSpan</div>
+<div class="tip" id="fs35">Multiple items<br />type LiteralAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; LiteralAttribute<br /><br />Full name: Microsoft.FSharp.Core.LiteralAttribute<br /><br />--------------------<br />new : unit -&gt; LiteralAttribute</div>
+<div class="tip" id="fs36">val prefix : string<br /><br />Full name: Codeformat.prefix</div>
+<div class="tip" id="fs37">val html : FormattedContent<br /><br />Full name: Codeformat.html</div>
+<div class="tip" id="fs38">static member CodeFormat.FormatHtml : snippets:Snippet [] * prefix:string -&gt; FormattedContent<br />static member CodeFormat.FormatHtml : snippets:Snippet [] * prefix:string * addLines:bool * addErrors:bool -&gt; FormattedContent<br />static member CodeFormat.FormatHtml : snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * addLines:bool * addErrors:bool -&gt; FormattedContent</div>
+<div class="tip" id="fs39">val snip : FormattedSnippet</div>
+<div class="tip" id="fs40">property FormattedContent.Snippets: FormattedSnippet []</div>
+<div class="tip" id="fs41">property FormattedSnippet.Content: string</div>
+<div class="tip" id="fs42">property FormattedContent.ToolTip: string</div>
           
         </div>
         <div class="span3">
