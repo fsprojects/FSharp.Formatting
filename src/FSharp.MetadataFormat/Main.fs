@@ -165,22 +165,38 @@ module ValueReader =
     s.Substring(0, 1).ToLowerInvariant() + s.Substring(1)
 
   let isAttrib<'T> (attrib: FSharpAttribute)  =
-    attrib.AttributeType.CompiledName = typeof<'T>.Name
+    // tcref.AttributeType can explode, in case of the reference not being found
+    try 
+        attrib.AttributeType.CompiledName = typeof<'T>.Name
+    with
+    | _ -> false
 
   let hasAttrib<'T> (attribs: IList<FSharpAttribute>) = 
     attribs |> Seq.exists (fun a -> isAttrib<'T>(a))
 
   let (|MeasureProd|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
-      else None
+      // typ.NamedEntity.LogicalName can explode, in case of the reference not being found
+      try
+        if typ.IsNamedType && typ.NamedEntity.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
+        else None
+      with
+      | _ -> None
 
   let (|MeasureInv|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
-      else None
+      // typ.NamedEntity.LogicalName can explode, in case of the reference not being found
+      try
+        if typ.IsNamedType && typ.NamedEntity.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
+        else None
+      with
+      | _ -> None
 
   let (|MeasureOne|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
-      else None
+      // typ.NamedEntity.LogicalName can explode, in case of the reference not being found
+      try
+        if typ.IsNamedType && typ.NamedEntity.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
+        else None
+      with
+      | _ -> None
 
   let formatTypeArgument (typar:FSharpGenericParameter) =
     (if typar.IsSolveAtCompileTime then "^" else "'") + typar.Name
@@ -195,8 +211,12 @@ module ValueReader =
     if cond then "(" + str + ")" else str
 
   let formatTyconRef (tcref:FSharpEntity) = 
-    // TODO: layoutTyconRef generates hyperlinks 
-    tcref.DisplayName
+    // tcref.DisplayName can explode, in case of the reference not being found
+    try
+        // TODO: layoutTyconRef generates hyperlinks 
+        tcref.DisplayName
+    with
+    | _ -> ""
 
   let rec formatTypeApplication typeName prec prefix args =
     if prefix then 
@@ -232,7 +252,11 @@ module ValueReader =
         let tcref = typ.NamedEntity 
         let tyargs = typ.GenericArguments |> Seq.toList
         // layout postfix array types
-        formatTypeApplication (formatTyconRef tcref) prec tcref.UsesPrefixDisplay tyargs 
+        // tcref.UsesPrefixDisplay can explode, in case of the reference not being found
+        try
+            formatTypeApplication (formatTyconRef tcref) prec tcref.UsesPrefixDisplay tyargs 
+        with
+        | _ -> ""
     | _ when typ.IsTupleType ->
         let tyargs = typ.GenericArguments |> Seq.toList
         bracketIf (prec <= 2) (formatTypesWithPrec 2 " * " tyargs)
@@ -517,33 +541,38 @@ module Reader =
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
-    readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
-      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
+    try
+        readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
+          let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
-      let ivals, svals = typ.MembersOrValues |> List.ofSeq |> List.partition (fun v -> v.IsInstanceMember)
-      let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
+
+          // tcref.MembersOrValue can explode, in case of the reference not being found
+          let ivals, svals = typ.MembersOrValues |> List.ofSeq |> List.partition (fun v -> v.IsInstanceMember)
+          let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
     
-      (*
-      // Base types?
-      let iimpls = 
-        if ( not typ.IsAbbreviation && not typ.HasAssemblyCodeRepresentation && 
-             typ.ReflectionType.IsInterface) then [] else typ.Implements |> List.ofSeq
-      // TODO: layout base type in some way
-      if not iimpls.IsEmpty then 
-        newTable1 hFile "Interfaces" 40 "Type"  (fun () -> 
-          iimpls |> List.iter (fun i -> 
-              newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>"))) 
-      *)
+          (*
+          // Base types?
+          let iimpls = 
+            if ( not typ.IsAbbreviation && not typ.HasAssemblyCodeRepresentation && 
+                 typ.ReflectionType.IsInterface) then [] else typ.Implements |> List.ofSeq
+          // TODO: layout base type in some way
+          if not iimpls.IsEmpty then 
+            newTable1 hFile "Interfaces" 40 "Type"  (fun () -> 
+              iimpls |> List.iter (fun i -> 
+                  newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>"))) 
+          *)
 
-      let name = readTypeName typ
-      let cases = readUnionCases ctx typ
-      let fields = readRecordFields ctx typ
+          let name = readTypeName typ
+          let cases = readUnionCases ctx typ
+          let fields = readRecordFields ctx typ
         
-      let ctors = readAllMembers ctx MemberKind.Constructor cvals 
-      let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
-      let stat = readAllMembers ctx MemberKind.StaticMember svals 
-      Type.Create
-        ( name, urlName, comment, cases, fields, ctors, inst, stat ))
+          let ctors = readAllMembers ctx MemberKind.Constructor cvals 
+          let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
+          let stat = readAllMembers ctx MemberKind.StaticMember svals 
+          Type.Create
+            ( name, urlName, comment, cases, fields, ctors, inst, stat ))
+    with
+    | _ -> None
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
