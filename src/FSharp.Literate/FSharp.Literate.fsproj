@@ -55,6 +55,9 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
+    <Compile Include="..\Common\Log.fs">
+      <Link>Common\Log.fs</Link>
+    </Compile>
     <Compile Include="..\Common\Razor.fs">
       <Link>Common\Razor.fs</Link>
     </Compile>

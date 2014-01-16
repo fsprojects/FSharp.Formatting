@@ -155,9 +155,7 @@ module ValueReader =
         let relativePath = docPath.[basePath.Length..]
         let uriBuilder = UriBuilder(repo)
         uriBuilder.Path <- uriBuilder.Path + relativePath
-        let loc = String.Format("{0}#L{1}-{2}", uriBuilder.Uri, l.StartLine, l.EndLine)
-        Log.logf "Source location: %s" loc
-        loc)
+        String.Format("{0}#L{1}-{2}", uriBuilder.Uri, l.StartLine, l.EndLine) )
 
   let (|AllAndLast|_|) (list:'T list)= 
     if list.IsEmpty then None
