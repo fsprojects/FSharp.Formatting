@@ -125,7 +125,8 @@ module ValueReader =
   open System.Collections.ObjectModel
 
   type ReadingContext = 
-    { XmlMemberMap : IDictionary<string, XElement>
+    { PublicOnly : bool
+      XmlMemberMap : IDictionary<string, XElement>
       MarkdownComments : bool
       UniqueUrlName : string -> string
       SourceFolderRepository : (string * string) option }
@@ -133,7 +134,7 @@ module ValueReader =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(map, sourceFolderRepo) = 
+    static member Create(publicOnly, map, sourceFolderRepo) = 
       let usedNames = Dictionary<_, _>()
       let nameGen (name:string) =
         let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
@@ -143,8 +144,11 @@ module ValueReader =
           |> Seq.find (usedNames.ContainsKey >> not)
         usedNames.Add(found, true)
         found
-      { XmlMemberMap = map; MarkdownComments = true; 
-        UniqueUrlName = nameGen; SourceFolderRepository = sourceFolderRepo }
+      { PublicOnly=publicOnly;
+        XmlMemberMap = map; 
+        MarkdownComments = true; 
+        UniqueUrlName = nameGen; 
+        SourceFolderRepository = sourceFolderRepo }
 
   let formatSourceLocation (sourceFolderRepo : (string * string) option) (l : range) =
     sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
@@ -262,7 +266,7 @@ module ValueReader =
       formatTypeWithPrec 2 arg.Type
     else argName
 
-  let formatArgsUsage generateTypes (v:FSharpMemberOrVal) args =
+  let formatArgsUsage generateTypes (v:FSharpMemberFunctionOrValue) args =
     let isItemIndexer = (v.IsInstanceMember && v.DisplayName = "Item")
     let counter = let n = ref 0 in fun () -> incr n; !n
     let unit, argSep, tupSep = 
@@ -277,7 +281,7 @@ module ValueReader =
         | args -> bracket (String.concat tupSep args))
     |> String.concat argSep
   
-  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrVal) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberFunctionOrValue) = 
     let buildUsage (args:string option) = 
       let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
@@ -464,24 +468,30 @@ module Reader =
     | Command "category" cat 
     | Let "" (cat, _) -> Some(f cat cmds comment)
 
-  let readChildren ctx entities reader cond = 
+  let checkAccess ctx (access: FSharpAccessibility) = 
+     not ctx.PublicOnly || access.IsPublic
+
+  let readChildren ctx (entities:seq<FSharpEntity>) reader cond = 
     entities 
+    |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
     |> Seq.filter cond 
     |> Seq.sortBy (fun (c:FSharpEntity) -> c.DisplayName)
     |> Seq.choose (reader ctx) 
     |> List.ofSeq
 
-  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrVal) =
+  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberFunctionOrValue) =
     readCommentsInto ctx memb.XmlDocSig (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
-  let readAllMembers ctx kind (members:seq<FSharpMemberOrVal>) = 
+  let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
     members 
+    |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
     |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readMembers ctx kind (entity:FSharpEntity) cond = 
-    entity.MembersOrValues 
+    entity.MembersFunctionsAndValues 
+    |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
     |> Seq.filter cond |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
@@ -570,7 +580,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly) (xmlFile:string) sourceFolderRepo =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo) =
     let assemblyName = assembly.QualifiedName
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -580,13 +590,17 @@ module Reader =
           let attr = e.Attribute(XName.Get "name") 
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] |> dict
-    let ctx = ReadingContext.Create(xmlMemberMap, sourceFolderRepo)
+    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo)
 
     // 
     let namespaces = 
       assembly.Contents.Entities
-      |> Seq.groupBy (fun modul -> modul.AccessPath) |> Seq.sortBy fst
-      |> Seq.map (readNamespace ctx) |> List.ofSeq
+      |> Seq.filter (fun modul -> checkAccess ctx modul.Accessibility)
+      |> Seq.groupBy (fun modul -> modul.AccessPath) 
+      |> Seq.sortBy fst
+      |> Seq.map (readNamespace ctx) 
+      |> List.ofSeq
+
     AssemblyName(assemblyName), namespaces
 
 // ------------------------------------------------------------------------------------------------
@@ -607,12 +621,13 @@ type Html private() =
 
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder) =
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?otherFlags) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
-        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder)
+        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+        ?publicOnly = publicOnly)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder) =
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?otherFlags) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -621,6 +636,8 @@ type MetadataFormat =
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
+    let otherFlags = defaultArg otherFlags []
+    let publicOnly = defaultArg publicOnly false
     let sourceFolderRepo =
         match sourceFolder, sourceRepo with
         | Some folder, Some repo -> Some(folder, repo)
@@ -666,12 +683,9 @@ type MetadataFormat =
             yield "--fullpaths" 
             yield "--flaterrors" 
             yield "--target:library" 
-            // Add references to mscorlib and FSharp.Core
-            // for f in ["mscorlib"; "FSharp.Core"] do 
-            //     if dllFiles |> List.forall (fun x -> String.Compare(f, Path.GetFileNameWithoutExtension x,ignoreCase=true) <> 0) then
-            //        yield "-r:"+f 
             for dllFile in dllFiles do
               yield "-r:"+dllFile 
+            yield! otherFlags
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
       for err in results.Errors  do
@@ -698,7 +712,7 @@ type MetadataFormat =
           else
               let asm = table.[asmName] 
               Log.logf "Parsing assembly"
-              yield Reader.readAssembly asm xmlFile sourceFolderRepo ]
+              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
