@@ -674,10 +674,18 @@ type MetadataFormat =
               yield "-r:"+dllFile 
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
+      for err in results.Errors  do
+         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.Severity.Error then "error" else "warning") err.Message
+
+      if results.HasCriticalErrors then 
+         Log.logf "**** stopping due to critical errors"
+         failwith "**** stopped due to critical errors"
+
       let table = 
           results.ProjectContext.GetReferencedAssemblies()
             |> List.map (fun x -> x.SimpleName, x)
             |> dict
+
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
           if not (File.Exists xmlFile) then 
@@ -686,9 +694,9 @@ type MetadataFormat =
           Log.logf "Reading assembly: %s" dllFile
           let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
           if not (table.ContainsKey asmName) then 
-              printfn "**** Skiipping assembly %s because was not found in resolved assembly list" asmName
+              Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" asmName
           else
-              let asm = table.[Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))] 
+              let asm = table.[asmName] 
               Log.logf "Parsing assembly"
               yield Reader.readAssembly asm xmlFile sourceFolderRepo ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
