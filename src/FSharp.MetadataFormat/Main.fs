@@ -530,7 +530,11 @@ module Reader =
     readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
-      let ivals, svals = typ.MembersOrValues |> List.ofSeq |> List.partition (fun v -> v.IsInstanceMember)
+      let ivals, svals = 
+          typ.MembersFunctionsAndValues 
+          |> List.ofSeq 
+          |> List.filter (fun v -> checkAccess ctx v.Accessibility)
+          |> List.partition (fun v -> v.IsInstanceMember) 
       let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
     
       (*
