@@ -66,6 +66,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <Compile Include="..\Common\StringParsing.fs">
+      <Link>Common\StringParsing.fs</Link>
+    </Compile>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Array.fs" />
     <Compile Include="List.fs" />
