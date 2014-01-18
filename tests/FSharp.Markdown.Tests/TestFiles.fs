@@ -8,7 +8,7 @@ open System.IO
 open System.Diagnostics
 
 let (++) a b = Path.Combine(a, b)
-let testdir = __SOURCE_DIRECTORY__ ++ "..\\..\\tests\\"
+let testdir = __SOURCE_DIRECTORY__ ++ Path.Combine("..","..","tests")
 
 // --------------------------------------------------------------------------------------
 // Run performance benchmarks

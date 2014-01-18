@@ -75,7 +75,7 @@ let rec genTestCases (dir : string) =
     }
 
 let (++) a b = Path.Combine(a, b)
-let testdir = __SOURCE_DIRECTORY__ ++ "..\\..\\tests\\Benchmarks\\testfiles\\"
+let testdir = __SOURCE_DIRECTORY__ ++ Path.Combine("..","..","tests","Benchmarks","testfiles")
 
 let getTest() = genTestCases testdir
 
