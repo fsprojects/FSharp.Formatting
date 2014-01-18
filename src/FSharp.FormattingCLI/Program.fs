@@ -7,5 +7,5 @@ open System
 [<EntryPoint>]
 let main argv =  
     
-    Env(argv).run()
+    Env(argv).Run()
 

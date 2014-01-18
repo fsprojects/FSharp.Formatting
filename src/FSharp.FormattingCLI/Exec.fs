@@ -9,12 +9,12 @@ open AssemblyInfo
 
 open CommandLine
 open CommandLine.Text
-//open System.IO
+
 open System.Collections.Generic
 open FSharp.Data
 open FSharp.Data.Json
 open FSharp.Data.Json.Extensions
-//open FSharp.Markdown
+
 
 
 /// configuration of the supported FSharp.Formatting functions 
@@ -41,7 +41,7 @@ type Env (argv: string []) =
 
     let fullHelp() = 
         for o in OptionsMapping.Values do
-            printfn "%s" (o.getUsage())
+            printfn "%s" (o.GetUsage())
 
     let exit x = 
         if x = -1 then fullHelp()
@@ -54,13 +54,13 @@ type Env (argv: string []) =
      
 
     ///  execute the FSharp.Formatting method referred to by 'command'
-    member x.execute(command, options) = 
+    member x.Execute(command, options) = 
         let mutable validArgs = false
         /// inform about verb command-specific parser error
         let informUser(o: IExecutable) = 
             printfn "\ncould not parse %A" argv
-            printfn "%s" (o.getErrorText())
-            printfn "%s" (o.getUsage())
+            printfn "%s" (o.GetErrorText())
+            printfn "%s" (o.GetUsage())
         /// (redundant) check to make execute() a safe stand alone command
         if not (command |> OptionsMapping.ContainsKey) then 
             printfn "received invalid commands %s (concatenated)" command
@@ -73,7 +73,7 @@ type Env (argv: string []) =
             with
                 | ex -> Log.error (sprintf "received 'CommandLine' parser exception. %s" (ex.ToString()))
             match validArgs with
-            | true -> commandOptions.execute() 
+            | true -> commandOptions.Execute() 
             | false -> 
                 informUser commandOptions
                 if Array.contains options "--help" then exit 0 
@@ -82,7 +82,7 @@ type Env (argv: string []) =
     /// handle corner cases, dispatch processing,
     /// print help text as necessary,
     /// return exit code 0/-1
-    member x.run() = 
+    member x.Run() = 
         if argv.Length < 1 then exit -1
         /// dispatch single command line argument
             // we may need platform specific argv handling,
@@ -101,6 +101,6 @@ type Env (argv: string []) =
                 printfn "received invalid commands %s %s" argv.[0] argv.[1]
                 exit -1
             else 
-                x.execute(combinedVerbCommand, options)
+                x.Execute(combinedVerbCommand, options)
  
             
