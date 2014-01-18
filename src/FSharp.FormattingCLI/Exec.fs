@@ -3,7 +3,7 @@
 open Options
 open Options.Literate
 open Options.MetadataFormat
-open Log
+
 open IExecutable
 open AssemblyInfo
 
@@ -15,7 +15,7 @@ open FSharp.Data
 open FSharp.Data.Json
 open FSharp.Data.Json.Extensions
 
-
+open Options
 
 /// configuration of the supported FSharp.Formatting functions 
 let OptionsMapping = new Dictionary<string, IExecutable>(HashIdentity.Structural)
@@ -71,7 +71,7 @@ type Env (argv: string []) =
             try    
                 validArgs <- parser.ParseArguments(options, commandOptions)
             with
-                | ex -> Log.error (sprintf "received 'CommandLine' parser exception. %s" (ex.ToString()))
+                | ex -> Log.logf "received 'CommandLine' parser exception. %s" (ex.ToString())
             match validArgs with
             | true -> commandOptions.Execute() 
             | false -> 

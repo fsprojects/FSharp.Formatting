@@ -11,7 +11,6 @@ open Options.Common
 open IExecutable
 
 
-
 /// Exposes metadata formatting functionality
 //    MetadataFormat.Generate
 //      ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
@@ -106,7 +105,7 @@ type GenerateOptions() =
                         ?sourceFolder = (evalString x.sourceFolder) 
                         )
             with
-                | _ as ex -> Log.error (sprintf "received exception in MetadataFormat.Generate:\n %A" ex); res <- -1
+                | _ as ex -> Log.logf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
             waitForKey x.waitForKey
             res
 

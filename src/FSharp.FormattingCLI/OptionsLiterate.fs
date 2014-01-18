@@ -113,7 +113,7 @@ type ProcessDirectoryOptions() =
                         ?includeSource = Some x.includeSource,
                         ?layoutRoots = (evalStringArray x.layoutRoots))
             with
-                | _ as ex -> Log.error (sprintf "received exception in Literate.ProcessDirectory:\n %A" ex); res <- -1
+                | _ as ex -> Log.logf "received exception in Literate.ProcessDirectory:\n %A" ex; res <- -1
             waitForKey x.waitForKey
             res
 
