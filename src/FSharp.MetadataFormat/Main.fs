@@ -629,7 +629,7 @@ type MetadataFormat =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly)
+        ?publicOnly = publicOnly, ?otherFlags = otherFlags)
 
   static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?otherFlags) =
     let (@@) a b = Path.Combine(a, b)
