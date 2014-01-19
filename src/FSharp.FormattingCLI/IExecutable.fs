@@ -1,4 +1,4 @@
-﻿module IExecutable
+﻿module FSharp.Formatting.IExecutable
 
 open System.Collections.Generic
 open CommandLine

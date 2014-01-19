@@ -1,10 +1,10 @@
-﻿module Exec
+﻿module FSharp.Formatting.Exec
 
-open Options
-open Options.Literate
-open Options.MetadataFormat
+open FSharp.Formatting.Options
+open FSharp.Formatting.Options.Literate
+open FSharp.Formatting.Options.MetadataFormat
+open FSharp.Formatting.IExecutable
 
-open IExecutable
 open System.AssemblyVersionInformation
 
 open CommandLine
@@ -15,7 +15,6 @@ open FSharp.Data
 open FSharp.Data.Json
 open FSharp.Data.Json.Extensions
 
-open Options
 
 /// configuration of the supported FSharp.Formatting functions 
 let OptionsMapping = new Dictionary<string, IExecutable>(HashIdentity.Structural)

@@ -1,4 +1,4 @@
-﻿namespace Options.MetadataFormat
+﻿namespace FSharp.Formatting.Options.MetadataFormat
 
 
 open System.Collections.Generic
@@ -6,9 +6,9 @@ open CommandLine
 open CommandLine.Text
 open FSharp.MetadataFormat
 
-open Options
-open Options.Common
-open IExecutable
+open FSharp.Formatting.Options
+open FSharp.Formatting.Options.Common
+open FSharp.Formatting.IExecutable
 
 
 /// Exposes metadata formatting functionality

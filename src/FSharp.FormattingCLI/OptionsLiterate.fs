@@ -1,4 +1,4 @@
-﻿namespace Options.Literate
+﻿namespace FSharp.Formatting.Options.Literate
 
 
 open System.Collections.Generic
@@ -6,9 +6,9 @@ open CommandLine
 open CommandLine.Text
 open FSharp.Literate
 
-open Options
-open Options.Common
-open IExecutable
+open FSharp.Formatting.Options
+open FSharp.Formatting.Options.Common
+open FSharp.Formatting.IExecutable
 
 
 

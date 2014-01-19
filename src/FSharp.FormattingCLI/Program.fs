@@ -1,5 +1,5 @@
-﻿open Options
-open Exec
+﻿open FSharp.Formatting.Options
+open FSharp.Formatting.Exec
 
 open System
 
