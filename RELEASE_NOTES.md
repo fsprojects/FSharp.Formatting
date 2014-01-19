@@ -26,4 +26,4 @@
 * 2.2.12-beta - Better compatibility for the default font style
 * 2.3.1-beta - Using new compiler services API, improved docs
 * 2.3.2-beta - Update to FSharp.Compiler.Service v0.0.10
-* 2.3.3-beta - Update FSharp.Compiler.Service and add fsformatting.exe tool
+* 2.3.3-beta - Update FSharp.Compiler.Service and add FSharp.Formatting.CommandTool package

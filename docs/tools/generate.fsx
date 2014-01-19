@@ -18,7 +18,7 @@ let sources = source ++ "../content"
 let output = source ++ "../output"
 
 // When running locally, you can use your path
-//let root = @"file://C:\Tomas\FSharp.Formatting\generated"
+//let root = @"file://C:\Tomas\Public\FSharp.Formatting\docs\output"
 let root = "http://tpetricek.github.io/FSharp.Formatting"
 
 // Additional strings to be replaced in the HTML template
@@ -75,3 +75,4 @@ let generateDocs() =
 
 // Generate documentation
 generateDocs()
+
