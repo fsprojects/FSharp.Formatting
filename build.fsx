@@ -7,7 +7,6 @@
 
 open System
 open System.IO
-open System.Text.RegularExpressions
 open Fake 
 open Fake.AssemblyInfoFile
 open Fake.Git
@@ -16,20 +15,16 @@ open Fake.ReleaseNotesHelper
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
-
 let project = "FSharp.Formatting" 
 let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
 let summary = "A package for building great F# documentation, samples and blogs"
-
 let description = """             
   The package is a collection of libraries that can be used for literate programming
   with F# (great for building documentation) and for generating library documentation 
   from inline code comments. The key componments (also available separately) are 
   Markdown parser, tools for formatting F# code snippets, including tool tip
   type information and a tool for generating documentation from library metadata.
-  
-  The package contains a command line interface 'fsformatting.exe' which allows to use
-  a subset of the library function via shell commands."""
+  The package includes a command line version of the tool. """
 
 let license = "Apache 2.0 License"
 let tags = "F# fsharp formatting markdown code fssnip literate programming"
@@ -48,7 +43,7 @@ Target "AssemblyInfo" (fun _ ->
         Attribute.Description summary
         Attribute.Version release.AssemblyVersion
         Attribute.FileVersion release.AssemblyVersion
-        Attribute.Copyright license ]  // license added for Gsscoder/CommandLine
+        Attribute.Copyright license ]
 )
 
 // --------------------------------------------------------------------------------------
@@ -75,12 +70,6 @@ Target "Build" (fun _ ->
     |> ignore
 
     { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["FSharp.FormattingCLI.sln"]
-      Excludes = [] } 
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["FSharp.Formatting.Tests.sln"]
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
@@ -89,8 +78,6 @@ Target "Build" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
-
-// TODO: define approriate tests  for CLI
 
 Target "RunTests" (fun _ ->
     let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
@@ -101,7 +88,6 @@ Target "RunTests" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/bin/Release/FSharp.*Tests*.dll"]
       Excludes = [] } 
-    |> Scan
     |> NUnit (fun p ->
         { p with
             ToolPath = nunitPath
@@ -116,9 +102,6 @@ FinalTarget "CloseTestRunner" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
-
-// I think, there should be a separate NuGet package for the CLI
-// IMO, Fake is an example where you would only want to refer to the CLI
 
 Target "NuGet" (fun _ ->
     // Format the description to fit on a single line (remove \r\n and double-spaces)
@@ -138,7 +121,7 @@ Target "NuGet" (fun _ ->
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
-        "nuget/FSharp.Formatting.nuspec"  
+        "nuget/FSharp.Formatting.nuspec"
 )
 
 // --------------------------------------------------------------------------------------
@@ -166,7 +149,7 @@ Target "ReleaseDocs" (fun _ ->
 Target "ReleaseBinaries" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
     Branches.checkoutBranch "temp/release" "release"
-    CopyRecursive "bin" "temp/release" true |> printfn "%A" // covers the CLI
+    CopyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
     CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
     Branches.push "temp/release"
