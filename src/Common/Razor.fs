@@ -73,7 +73,7 @@ type RazorRender(layoutRoots, namespaces) =
       x.ViewBag <- new DynamicViewBag()
       for k, v in defaultArg properties [] do
         x.ViewBag.AddValue(k, v)
-      let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, null)
+      let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, source)
       html
     with 
     | :? TemplateCompilationException as ex -> 
