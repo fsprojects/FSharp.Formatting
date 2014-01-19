@@ -77,45 +77,44 @@ output directory and directory with Razor templates.
 Assuming <code>root</code> is the root directory for your project, you can write:</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
-<span class="l"> 2: </span>
-<span class="l"> 3: </span>
-<span class="l"> 4: </span>
-<span class="l"> 5: </span>
-<span class="l"> 6: </span>
-<span class="l"> 7: </span>
-<span class="l"> 8: </span>
-<span class="l"> 9: </span>
-<span class="l">10: </span>
-<span class="l">11: </span>
-<span class="l">12: </span>
-<span class="l">13: </span>
-<span class="l">14: </span>
-<span class="l">15: </span>
-<span class="l">16: </span>
-<span class="l">17: </span>
-<span class="l">18: </span>
-<span class="l">19: </span>
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">Generate</span>
   ( <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">root</span>, <span class="s">&quot;</span><span class="s">bin</span><span class="s">/</span><span class="s">YourLibrary</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>), 
     <span onmouseout="hideTip(event, 'fs7', 10)" onmouseover="showTip(event, 'fs7', 10)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">root</span>, <span class="s">&quot;</span><span class="s">output</span><span class="s">&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 14)" onmouseover="showTip(event, 'fs8', 14)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 15)" onmouseover="showTip(event, 'fs9', 15)" class="i">root</span>, <span class="s">&quot;</span><span class="s">templates</span><span class="s">&quot;</span>) ] )
+    [ <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 14)" onmouseover="showTip(event, 'fs8', 14)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 15)" onmouseover="showTip(event, 'fs9', 15)" class="i">root</span>, <span class="s">&quot;</span><span class="s">templates</span><span class="s">&quot;</span>) ] )</pre>
+</td>
+</tr>
+</table>
 
-<span class="c">(*</span>
-<span class="c">You can automatically add GitHub links to each functions, values and class members for further reference.</span>
-<span class="c">You need to specify further more arguments: `sourceRepo` to your GitHub repository </span>
-<span class="c">and `sourceFolder` to the folder where your dlls are built.</span>
-<span class="c">It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.</span>
-<span class="c">*)</span>
+<h2>Adding Go to GitHub source links</h2>
 
+<p>You can automatically add GitHub links to each functions, values and class members for further reference.
+You need to specify two more arguments: <code>sourceRepo</code> to the GitHub repository 
+and <code>sourceFolder</code> to the folder where your dlls are built.
+It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have synchronized contents.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
 <span onmouseout="hideTip(event, 'fs5', 16)" onmouseover="showTip(event, 'fs5', 16)" class="i">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 17)" onmouseover="showTip(event, 'fs6', 17)" class="i">Generate</span>
   ( <span onmouseout="hideTip(event, 'fs7', 18)" onmouseover="showTip(event, 'fs7', 18)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 20)" onmouseover="showTip(event, 'fs9', 20)" class="i">root</span>, <span class="s">&quot;</span><span class="s">bin</span><span class="s">/</span><span class="s">YourLibrary</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>), 
     <span onmouseout="hideTip(event, 'fs7', 21)" onmouseover="showTip(event, 'fs7', 21)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 22)" onmouseover="showTip(event, 'fs8', 22)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 23)" onmouseover="showTip(event, 'fs9', 23)" class="i">root</span>, <span class="s">&quot;</span><span class="s">output</span><span class="s">&quot;</span>),
     [ <span onmouseout="hideTip(event, 'fs7', 24)" onmouseover="showTip(event, 'fs7', 24)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 25)" onmouseover="showTip(event, 'fs8', 25)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs9', 26)" onmouseover="showTip(event, 'fs9', 26)" class="i">root</span>, <span class="s">&quot;</span><span class="s">templates</span><span class="s">&quot;</span>) ],
-    <span class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">https</span><span class="s">:</span><span class="s">/</span><span class="s">/</span><span class="s">github</span><span class="s">.</span><span class="s">com</span><span class="s">/</span><span class="s">tpetricek</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">/</span><span class="s">tree</span><span class="s">/</span><span class="s">master</span><span class="s">/</span><span class="s">&quot;</span>,
+    <span class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">https</span><span class="s">:</span><span class="s">/</span><span class="s">/</span><span class="s">github</span><span class="s">.</span><span class="s">com</span><span class="s">/</span><span class="s">tpetricek</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">/</span><span class="s">tree</span><span class="s">/</span><span class="s">master</span><span class="s">&quot;</span>,
     <span class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">path</span><span class="s">/</span><span class="s">to</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">&quot;</span> )
     </pre>
 </td>
@@ -156,8 +155,8 @@ that you can use.</p>
 <div class="tip" id="fs2">namespace FSharp.MetadataFormat</div>
 <div class="tip" id="fs3">namespace System</div>
 <div class="tip" id="fs4">namespace System.IO</div>
-<div class="tip" id="fs5">type MetadataFormat =<br />&#160;&#160;static member Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string -&gt; unit<br />&#160;&#160;static member Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string -&gt; unit<br /><br />Full name: FSharp.MetadataFormat.MetadataFormat</div>
-<div class="tip" id="fs6">static member MetadataFormat.Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string -&gt; unit<br />static member MetadataFormat.Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string -&gt; unit</div>
+<div class="tip" id="fs5">type MetadataFormat =<br />&#160;&#160;static member Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?otherFlags:string list -&gt; unit<br />&#160;&#160;static member Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?otherFlags:string list -&gt; unit<br /><br />Full name: FSharp.MetadataFormat.MetadataFormat</div>
+<div class="tip" id="fs6">static member MetadataFormat.Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?otherFlags:string list -&gt; unit<br />static member MetadataFormat.Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?otherFlags:string list -&gt; unit</div>
 <div class="tip" id="fs7">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : params paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
 <div class="tip" id="fs8">Path.Combine(params paths: string []) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
 <div class="tip" id="fs9">val root : string<br /><br />Full name: Metadata.root</div>
@@ -184,6 +183,9 @@ that you can use.</p>
             <li><a href="sidescript.html">Literate F# script</a></li>
             <li><a href="sidemarkdown.html">Literate Markdown file</a></li>
             <li><a href="sideextensions.html">Markdown extensions</a></li>
+
+            <li class="nav-header">Command line</li>
+            <li><a href="commandline.html">Using command line tool</a></li>
 
             <li class="nav-header">Documentation</li>
             <li><a href="#">API Reference</a> (Coming soon!)</li>
