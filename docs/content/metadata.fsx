@@ -36,9 +36,11 @@ MetadataFormat.Generate
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ] )
 
-(*
+(**
+Adding Go to GitHub source links
+-----------------
 You can automatically add GitHub links to each functions, values and class members for further reference.
-You need to specify further more arguments: `sourceRepo` to your GitHub repository 
+You need to specify two more arguments: `sourceRepo` to the GitHub repository 
 and `sourceFolder` to the folder where your dlls are built.
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 *)
@@ -47,7 +49,7 @@ MetadataFormat.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ],
-    sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master/",
+    sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting" )
     
 (**

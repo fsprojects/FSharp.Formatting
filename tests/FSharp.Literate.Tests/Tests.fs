@@ -32,7 +32,7 @@ a
 
     [lang=csharp,file=Tests.fs,key=test]
 
-b""", __SOURCE_DIRECTORY__ + "\\Test.fsx")
+b""", __SOURCE_DIRECTORY__ @@ "Test.fsx")
     //[/test]
   doc.Paragraphs |> shouldMatchPar (function Paragraph [Literal "a"] -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function Paragraph [Literal "b"] -> true | _ -> false)
@@ -50,7 +50,7 @@ let ``Can parse and format literate F# script`` () =
   let content = """
 (** **hello** *)
 let test = 42"""
-  let doc = Literate.ParseScriptString(content, "C:\\A.fsx", formatAgent)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
@@ -78,7 +78,7 @@ some [link][ref] to
 
   [ref]: http://there "Author: Article"
 *)"""
-  let doc = Literate.ParseScriptString(content, "C:\\A.fsx", formatAgent, references=true)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent, references=true)
   doc.Paragraphs |> shouldMatchPar (function ListBlock(_, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchSpan (function Literal("Article") -> true | _ -> false) 
   doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author") -> true | _ -> false) 
@@ -97,7 +97,7 @@ let ``Can report errors in F# code snippets (in Markdown document)`` () =
   let content = """
 (** **hello** *)
 let test = 4 + 1.0"""
-  let doc = Literate.ParseScriptString(content, "C:\\A.fsx", formatAgent)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
   doc.Errors |> Seq.length |> should be (greaterThan 0)
 
 // --------------------------------------------------------------------------------------
