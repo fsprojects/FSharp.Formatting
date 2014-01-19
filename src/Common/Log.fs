@@ -1,7 +1,11 @@
-﻿#if METADATAFORMAT
+#if METADATAFORMAT
 namespace FSharp.MetadataFormat
 #else
+#if FSFCLI
+namespace FSharp.Formatting.Options
+#else
 namespace FSharp.Literate
+#endif
 #endif
 
 // --------------------------------------------------------------------------------------
