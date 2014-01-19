@@ -5,7 +5,7 @@ open Options.Literate
 open Options.MetadataFormat
 
 open IExecutable
-open AssemblyInfo
+open System.AssemblyVersionInformation
 
 open CommandLine
 open CommandLine.Text
@@ -90,7 +90,7 @@ type Env (argv: string []) =
         elif (argv.Length = 1) then 
             match argv.[0] with
             | "--help" -> fullHelp(); exit 0
-            | "--version" -> printfn "\nfsformatting version %s" AssemblyInfo.assemblyVersion; exit 0
+            | "--version" -> printfn "\nfsformatting version %s" Version; exit 0
             | _ -> exit -1
         /// dispatch verb commands, combined 1st and 2nd level
         else 

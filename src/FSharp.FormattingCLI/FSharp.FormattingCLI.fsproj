@@ -67,6 +67,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <Compile Include="..\Common\AssemblyInfo.fs">
+      <Link>Common\AssemblyInfo.fs</Link>
+    </Compile>
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
@@ -74,7 +77,6 @@
       <Link>Common\Log.fs</Link>
     </Compile>
     <Compile Include="Array.fs" />
-    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="IExecutable.fs" />
     <Compile Include="Options.fs" />
     <Compile Include="OptionsMetadataFormat.fs" />
