@@ -109,7 +109,7 @@ type ProcessDirectoryOptions() =
                         ?compilerOptions = (evalString (concat x.compilerOptions)),
                         ?lineNumbers = Some x.lineNumbers,
                         ?references = Some x.references,
-                        ?replacements = Some (List.ofArray (Array.pairwise x.replacements)),
+                        ?replacements = (evalPairwiseStringArray x.replacements),
                         ?includeSource = Some x.includeSource,
                         ?layoutRoots = (evalStringArray x.layoutRoots))
             with

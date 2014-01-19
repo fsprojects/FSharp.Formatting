@@ -28,6 +28,10 @@ module Common =
         if a = [|""|] then None
         else Some (List.ofArray a)
 
+    let evalPairwiseStringArray a =
+        if a = [|""|] then None
+        else Some (a |> Seq.pairwise |> Array.ofSeq |> List.ofArray)
+
     let concat (a) =
         let mutable s = ""
         for i in a do s <- (sprintf "%s %s" s i)

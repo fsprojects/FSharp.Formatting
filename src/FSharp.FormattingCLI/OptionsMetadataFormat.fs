@@ -96,7 +96,7 @@ type GenerateOptions() =
                         dllFiles = (x.dllFiles |> List.ofArray),
                         outDir = x.outputDirectory,
                         layoutRoots = (x.layoutRoots |> List.ofArray),
-                        ?parameters = (if x.parameters = [|""|] then None else Some (x.parameters |> Array.pairwise |> List.ofArray)),
+                        ?parameters = (evalPairwiseStringArray x.parameters),
                         ?namespaceTemplate = (evalString x.namespaceTemplate),
                         ?moduleTemplate = (evalString x.moduleTemplate),
                         ?typeTemplate = (evalString x.typeTemplate),

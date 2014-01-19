@@ -73,9 +73,8 @@
     <Compile Include="..\Common\Log.fs">
       <Link>Common\Log.fs</Link>
     </Compile>
-    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Array.fs" />
-    <Compile Include="List.fs" />
+    <Compile Include="AssemblyInfo.fs" />
     <Compile Include="IExecutable.fs" />
     <Compile Include="Options.fs" />
     <Compile Include="OptionsMetadataFormat.fs" />
