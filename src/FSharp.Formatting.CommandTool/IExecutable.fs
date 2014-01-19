@@ -3,11 +3,12 @@
 open System.Collections.Generic
 open CommandLine
 
+/// Represents a top-level command 
+/// (There are two instances, one for MetadataFormat and one for Literate)
 type IExecutable =
-    /// assign the mandatory and optional params to the desired formatting command
-    /// using http://stackoverflow.com/questions/7095620/propagating-optional-arguments
+    // Invoke the command
     abstract Execute : unit -> int
-    /// use the command-specific parser error message
+    /// Returns the command-specific parser error message
     abstract GetErrorText : unit -> string
-    /// get the command-specific help text
+    /// Returns the command-specific help text
     abstract GetUsage : unit -> string

@@ -22,6 +22,7 @@
   </metadata>
   <files>
     <file src="..\bin\CSharpFormat.*" target="lib/net40" />
+    <file src="..\bin\fsformatting.*" target="lib/net40" />
     <file src="..\bin\FSharp.*.dll" target="lib/net40" />
     <file src="..\bin\FSharp.*.pdb" target="lib/net40" />
     <file src="..\bin\FSharp.*.xml" target="lib/net40" />

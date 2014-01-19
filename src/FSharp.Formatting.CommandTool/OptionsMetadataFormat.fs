@@ -11,10 +11,12 @@ open FSharp.Formatting.Options.Common
 open FSharp.Formatting.IExecutable
 
 
-/// Exposes metadata formatting functionality
-//    MetadataFormat.Generate
-//      ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
-//        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile)
+/// Exposes metadata formatting functionality. This corresponds
+/// to invoking the following library function from MetadataFormat:
+///
+///    MetadataFormat.Generate
+///      ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
+///        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile)
 type GenerateOptions() =
 
     [<ParserState>]  
@@ -104,8 +106,7 @@ type GenerateOptions() =
                         ?sourceRepo = (evalString x.sourceRepo), 
                         ?sourceFolder = (evalString x.sourceFolder) 
                         )
-            with
-                | _ as ex -> Log.logf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
+            with ex -> Log.logf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
             waitForKey x.waitForKey
             res
 

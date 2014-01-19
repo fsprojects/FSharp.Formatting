@@ -34,7 +34,7 @@ type Env (argv: string []) =
     // need this for corner cases
     let waitForKey = Options.Common.waitForKey
     let waitForKey () =
-        if Array.contains (argv |> Array.map (fun s -> s.ToLower())) "--waitforkey" then
+        if argv |> Array.exists (fun s -> s.ToLower() = "--waitforkey") then
             printf "\nPress any key to continue ..."
             System.Console.ReadKey() |> ignore
 
@@ -75,7 +75,7 @@ type Env (argv: string []) =
             | true -> commandOptions.Execute() 
             | false -> 
                 informUser commandOptions
-                if Array.contains options "--help" then exit 0 
+                if Array.exists ((=) "--help") options then exit 0 
                 else -1 
 
     /// handle corner cases, dispatch processing,
