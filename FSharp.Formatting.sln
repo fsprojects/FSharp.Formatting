@@ -27,13 +27,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{EDE95A19-2D92-4F2B-BCF3-1B08A555969D}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\style.css = docs\content\style.css
-		docs\content\tips.js = docs\content\tips.js
+		docs\files\content\style.css = docs\files\content\style.css
+		docs\files\content\tips.js = docs\files\content\tips.js
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1068-4804-89E7-0AFBAD5F885F}"
 	ProjectSection(SolutionItems) = preProject
 		docs\content\codeformat.fsx = docs\content\codeformat.fsx
+		docs\content\commandline.md = docs\content\commandline.md
 		docs\content\demo.fsx = docs\content\demo.fsx
 		docs\content\index.md = docs\content\index.md
 		docs\content\markdown.fsx = docs\content\markdown.fsx
