@@ -15,18 +15,12 @@
     <copyright>Copyright 2014</copyright>
     <tags>@tags@</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.Razor" version="2.0.30506.0" />
-      <dependency id="RazorEngine" version="3.3.0" />
-      <dependency id="FSharp.Compiler.Service" version="0.0.1-beta" />
+      <!-- To make the command line tool work, all dependencies are included in tools folder -->
     </dependencies>
   </metadata>
   <files>
-    <!-- Automatically referenced by VS -->
-    <file src="..\bin\CSharpFormat.*" target="lib/net40" />
-    <file src="..\bin\FSharp.CodeFormat.*" target="lib/net40" />
-    <file src="..\bin\FSharp.Literate.*" target="lib/net40" />
-    <file src="..\bin\FSharp.Markdown.*" target="lib/net40" />
-    <file src="..\bin\FSharp.MetadataFormat.*" target="lib/net40" />
+    <!-- Copy all binaries to tools folder -->
+    <file src="..\bin\*" target="tools" />
     <!-- Templates & styles & literate demos -->
     <file src="..\misc\templates\*.cshtml" target="templates" />
     <file src="..\misc\templates\reference\*.cshtml" target="templates/reference" />

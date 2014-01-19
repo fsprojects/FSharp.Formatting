@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
+		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection

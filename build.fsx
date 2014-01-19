@@ -16,15 +16,26 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting" 
+let projectTool = "FSharp.Formatting.CommandTool" 
+
 let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
-let summary = "A package for building great F# documentation, samples and blogs"
+let authorsTool = ["Friedrich Boeckh"; "Tomas Petricek"]
+
+let summary = "A package of libraries for building great F# documentation, samples and blogs"
+let summaryTool = "A command line tool for building great F# documentation, samples and blogs"
+
 let description = """             
   The package is a collection of libraries that can be used for literate programming
   with F# (great for building documentation) and for generating library documentation 
-  from inline code comments. The key componments (also available separately) are 
-  Markdown parser, tools for formatting F# code snippets, including tool tip
-  type information and a tool for generating documentation from library metadata.
-  The package includes a command line version of the tool. """
+  from inline code comments. The key componments are Markdown parser, tools for formatting 
+  F# code snippets, including tool tip type information and a tool for generating 
+  documentation from library metadata."""
+let descriptionTool = """             
+  The package contains a command line version of F# Formatting libraries, which
+  can be used for literate programming with F# (great for building documentation) 
+  and for generating library documentation from inline code comments. The key componments 
+  are Markdown parser, tools for formatting F# code snippets, including tool tip
+  type information and a tool for generating documentation from library metadata."""
 
 let license = "Apache 2.0 License"
 let tags = "F# fsharp formatting markdown code fssnip literate programming"
@@ -122,6 +133,21 @@ Target "NuGet" (fun _ ->
             Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
         "nuget/FSharp.Formatting.nuspec"
+    NuGet (fun p -> 
+        { p with   
+            Authors = authorsTool
+            Project = projectTool
+            Summary = summaryTool
+            Description = descriptionTool
+            Version = release.NugetVersion
+            ReleaseNotes = String.concat " " release.Notes
+            Tags = tags
+            OutputPath = "bin"
+            ToolPath = nugetPath
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Publish = hasBuildParam "nugetkey"
+            Dependencies = [] })
+        "nuget/FSharp.Formatting.CommandTool.nuspec"
 )
 
 // --------------------------------------------------------------------------------------
