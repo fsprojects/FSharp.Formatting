@@ -6,9 +6,6 @@ of Markdown parser and F# code formatter that can used to tokenize F# code and o
 including tool-tips (as in Visual Studio and MonoDevelop) with type information. The library also comes with 
 a sample that implements literate programming for F#.
 
-## Build Status
-[![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png)](https://travis-ci.org/tpetricek/FSharp.Formatting)
-
 ## Documentation 
 
 The documentation for this library is automatically generated (using the literate programming tools based on
@@ -25,12 +22,15 @@ The library is used by a number of F# projects. Most prominently, the [F# snippe
 uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
 documentation and might be a useful inspiration:
 
- * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Formatting/blob/master/build.fsx) used to generate the documentation for this project
- * [The `build.fsx` script](https://github.com/tpetricek/FSharp.Data/blob/master/tools/build.fsx) used to generate the documentation for `FSharp.Data`
+ * [The `generate.fsx` script](https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docs/tools/generate.fsx) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
 
 ## Library license
 
 The library is available under Apache 2.0. For more information see the [License file][1] in the GitHub repository.
+
+## Build Status
+[![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png)](https://travis-ci.org/tpetricek/FSharp.Formatting)
+
 
  [1]: https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md
  [2]: https://github.com/tpetricek/FSharp.Formatting/tree/master/docs
