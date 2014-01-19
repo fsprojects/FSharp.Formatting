@@ -16,15 +16,9 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 
-// intentionally reuse the settings for FSharp.FormattingCLI - project? description?
-
 let project = "FSharp.Formatting" 
-let projectCLI = "FSharp.FormattingCLI"
-
 let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
-
 let summary = "A package for building great F# documentation, samples and blogs"
-let summaryCLI = "A commandline interface for FSharp.Formatting"
 
 let description = """             
   The package is a collection of libraries that can be used for literate programming
@@ -56,23 +50,6 @@ Target "AssemblyInfo" (fun _ ->
         Attribute.Copyright license ]  // license added for Gsscoder/CommandLine
 )
 
-Target "AssemblyInfoCLI" (fun _ ->
-  let fileName = "src/Common/AssemblyInfo.fs"
-  let fileNameCLI = "src/FSharp.FormattingCLI/AssemblyInfo.fs"
-  let lines =
-     File.ReadAllLines(fileName)
-     |> Seq.map (fun line ->
-        let m1 = Regex("namespace System").Match(line)
-        let m2 = Regex("module internal AssemblyVersionInformation").Match(line)
-        let m3 = Regex("let \[<Literal>\] Version").Match(line)
-        match m1.Success, m2.Success, m3.Success with
-        | true, _, _ -> "module AssemblyInfo"
-        | _, true, _ -> "[<Literal>]"
-        | _, _, true -> "let assemblyVersion = \"" + release.AssemblyVersion + "\""
-        | _, _, _ -> line )
-  File.WriteAllLines(fileNameCLI, lines)
-)
-
 // --------------------------------------------------------------------------------------
 // Clean build results & restore NuGet packages
 
@@ -96,7 +73,7 @@ Target "Build" (fun _ ->
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 
-    { BaseDirectory = __SOURCE_DIRECTORY__ + @"\src\FSharp.FormattingCLI"
+    { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["FSharp.FormattingCLI.sln"]
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
@@ -163,31 +140,8 @@ Target "NuGet" (fun _ ->
         "nuget/FSharp.Formatting.nuspec"  
 )
 
-Target "NuGetCLI" (fun _ ->
-    // Format the description to fit on a single line (remove \r\n and double-spaces)
-    let description = description.Replace("\r", "").Replace("\n", "").Replace("  ", " ")
-    let nugetPath = ".nuget/nuget.exe"
-    NuGet (fun p -> 
-        { p with   
-            Authors = authors
-            Project = projectCLI
-            Summary = summaryCLI
-            Description = description
-            Version = release.NugetVersion
-            ReleaseNotes = String.concat " " release.Notes
-            Tags = tags
-            OutputPath = "bin/tools"
-            ToolPath = nugetPath
-            AccessKey = getBuildParamOrDefault "nugetkey" ""
-            Publish = hasBuildParam "nugetkey"
-            Dependencies = [] })
-        "nuget/FSharp.FormattingCLI.nuspec"
-)
-
 // --------------------------------------------------------------------------------------
 // Generate the documentation
-
-// intentionally reuse 
 
 Target "GenerateDocs" (fun _ ->
     executeFSI "docs/tools" "generate.fsx" [] |> ignore
@@ -195,8 +149,6 @@ Target "GenerateDocs" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
-
-// intentionally reuse
 
 let gitHome = "https://github.com/tpetricek"
 
@@ -229,7 +181,6 @@ Target "All" DoNothing
 "Clean"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
-  ==> "AssemblyInfoCLI"
   ==> "Build"
   ==> "RunTests"
   ==> "GenerateDocs"
@@ -239,7 +190,6 @@ Target "All" DoNothing
   ==> "ReleaseDocs"
   ==> "ReleaseBinaries"
   ==> "NuGet"
-  ==> "NugetCLI"
   ==> "Release"
 
 RunTargetOrDefault "All"

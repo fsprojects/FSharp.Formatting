@@ -33,11 +33,11 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>..\..\bin\fsformatting</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE;FSFCLI</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>..\..\bin\fsformatting\fsformatting.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\fsformatting.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
