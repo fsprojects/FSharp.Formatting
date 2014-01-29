@@ -36,7 +36,7 @@ let (|ToolTipWithLiteral|_|) text tips =
 [<Test>]
 let ``Simple code snippet is formatted with tool tips``() = 
   let source = """let hello = 10"""
-  let snips, errors = agent.ParseSource("test.fsx", source.Trim())
+  let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
   
   errors |> shouldEqual [| |]
   snips |> containsSpan (function
@@ -47,7 +47,7 @@ let ``Simple code snippet is formatted with tool tips``() =
 [<Test>]
 let ``Simple code snippet is formatted as HTML``() = 
   let source = """let hello = 10"""
-  let snips, errors = agent.ParseSource("test.fsx", source.Trim())
+  let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
   let res = CodeFormat.FormatHtml(snips, "fstips")
   
   let actual = res.Snippets |> Seq.head
