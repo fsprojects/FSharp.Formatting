@@ -102,4 +102,7 @@
 	<Target Name="AfterBuild">
 	</Target>
 	-->
+  <ItemGroup>
+    <Content Include="test.fsx" />
+  </ItemGroup>
 </Project>
