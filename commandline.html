@@ -42,8 +42,8 @@
         <div class="span9" id="main">
           <h1>F# Formatting: Command line tool</h1>
 
-<p>If you prefer to use F# Formatting tools via command line, you can use the 
-<code>FSharp.Formatting.CommandTool</code> package, which includes an executable <code>fsformatting.exe</code> 
+<p>If you prefer to use F# Formatting tools via command line, you can use the
+<code>FSharp.Formatting.CommandTool</code> package, which includes an executable <code>fsformatting.exe</code>
 that gives you access to the most important functionality via a simple command line
 interface. This might be a good idea if you prefer to run F# Formatting as a separate
 process, e.g. for resource management reasons.</p>
@@ -65,29 +65,97 @@ or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/
 
 <h2>Using the tool</h2>
 
-<p>The documentation is coming soon!</p>
+<p>The tool option syntax is similar to git or other popular command line tools.
+The format of the command line interface is:</p>
+
+<pre lang="text">fsformatting[.exe] --help 
+fsformatting[.exe] [command] [function] [options]</pre>
+
+<p>In order to provide consistency across different shell environments, the command line tool appears to be case-insensitive by matching against lower case strings.</p>
+
+<p>The <code>[command]</code> directive maps to the corresponding library namespace:</p>
+
+<ul>
+<li><code>literate</code> - Selects namespace <code>FSharp.Literate</code></li>
+<li><code>metadataFormat</code> - Selects namespace <code>FSharp.MetadataFormat</code></li>
+</ul>
+
+<p>Currently, the command line tools exposes the functions <code>ProcessDirectory</code> of namespace <code>FSharp.Literate</code>
+(for literate programming using F#) and <code>Generate</code> of namespace <code>FSharp.MetadataFormat</code> (for generating
+library documentation from XML comments).</p>
+
+<p>The <code>--help</code> option as single specifier displays the help message for all valid <code>[command] [function] [options]</code> combinations.</p>
 
 <h2>Literate programming command</h2>
 
-<pre lang="text">fsformatting.exe [command] [options]</pre>
+<p>The method <code>FSharp.Literate.ProcessDirectory</code> processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
+according to the concept of <a href="demo.html">Literate Programming</a>.</p>
 
-<p>Options are</p>
+<pre lang="text">fsformatting[.exe] literate --processDirectory [options]</pre>
+
+<h3>Required options</h3>
 
 <ul>
-<li>todo</li>
-<li>todo</li>
+<li><code>--inputDirectory</code> - Input directory containing <code>*.fsx</code> and <code>*.md</code> files.</li>
 </ul>
+
+<h3>Other Options</h3>
+
+<ul>
+<li><code>--templateFile</code> -  Template file for formatting.</li>
+<li><code>--outputDirectory</code> -  Output directory, defaults to input directory.</li>
+<li><code>--format</code> -  Output format either <code>latex</code> or <code>html</code>, defaults to <code>html</code>.</li>
+<li><code>--prefix</code> -  Prefix for formatting, defaults to <code>fs</code>.</li>
+<li><code>--compilerOptions</code> -  Compiler Options.</li>
+<li><code>--lineNumbers</code> -  Line number option, defaults to <code>true</code>.</li>
+<li><code>--references</code> -  Turn all indirect links into references, defaults to <code>false</code>.</li>
+<li><code>--replacements</code> -  A whitespace separated list of string pairs as text replacement patterns for the format template file.</li>
+<li><code>--includeSource</code> -  Include sourcecode in documentation, defaults to <code>false</code>.</li>
+<li><code>--layoutRoots</code> -  Search directory list for the Razor Engine.</li>
+<li><code>--help</code> -  Display the specific help message for <code>literate --processDirectory</code>.</li>
+<li><code>--waitForKey</code> -  Wait for key before exit.</li>
+</ul>
+
+<h3>Example</h3>
+
+<pre lang="text">fsformatting literate 
+  --processDirectory --templateFile template-project.html 
+  --format latex --replacements &quot;page-author&quot; &quot;Tomas Petricek&quot;</pre>
 
 <h2>Library documentation command</h2>
 
-<pre lang="text">fsformatting.exe [command] [options]</pre>
+<p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://tpetricek.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading 
+the meta-data from a <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 
-<p>Options are</p>
+<pre lang="text">fsformatting[.exe] metadataFormat --generate [options]</pre>
+
+<h3>Required options</h3>
 
 <ul>
-<li>todo</li>
-<li>todo</li>
+<li><code>--dllFiles</code> -  List of <code>dll</code> input files.</li>
+<li><code>--outDir</code> -  Output directory.</li>
+<li><code>--layoutRoots</code> -  Search directory list for the Razor Engine templates.</li>
 </ul>
+
+<h3>Other options</h3>
+
+<ul>
+<li><code>--parameters</code> -  Property settings for the Razor Engine.</li>
+<li><code>--namespaceTemplate</code> -  Namespace template file for formatting, defaults to <code>namespaces.cshtml</code>.</li>
+<li><code>--moduleTemplate</code> -  Module template file for formatting, defaults to <code>module.cshtml</code>.</li>
+<li><code>--typeTemplate</code> -  Type template file for formatting, defaults to <code>type.cshtml</code>.</li>
+<li><code>--xmlFile</code> -  Single XML file to use for all <code>dll</code> files, otherwise using <code>file.xml</code> for each <code>file.dll</code>.</li>
+<li><code>--sourceRepo</code> -  Source repository URL; silently ignored, if a source repository folder is not provided.</li>
+<li><code>--sourceFolder</code> -  Source repository folder; silently ignored, if a source repository URL is not provided.</li>
+<li><code>--help</code> -  Display the specific help message for <code>metadataFormat --generate</code>.</li>
+<li><code>--waitForKey</code> -  Wait for key before exit.</li>
+</ul>
+
+<h3>Example</h3>
+
+<pre lang="text">fsformatting metadataFormat 
+  --generate --dllFiles lib1.dll &quot;lib 2.dll&quot; 
+  --outDir &quot;../api-docs&quot; --layoutRoots templates</pre>
 
                     
         </div>
