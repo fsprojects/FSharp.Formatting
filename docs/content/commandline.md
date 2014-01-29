@@ -29,7 +29,8 @@ The tool option syntax is similar to git or other popular command line tools.
 The format of the command line interface is:
 
     [lang=text]
-    fsformatting[.exe] [[command] [function] [options] || --help]
+    fsformatting[.exe] --help 
+    fsformatting[.exe] [command] [function] [options]
 
 In order to provide consistency across different shell environments, the command line tool appears to be case-insensitive by matching against lower case strings.
 
@@ -39,66 +40,76 @@ The `[command]` directive maps to the corresponding library namespace:
 * `metadataFormat` - Selects namespace `FSharp.MetadataFormat`
 
 Currently, the command line tools exposes the functions `ProcessDirectory` of namespace `FSharp.Literate`
-and `Generate` of namespace `FSharp.MetadataFormat`.
+(for literate programming using F#) and `Generate` of namespace `FSharp.MetadataFormat` (for generating
+library documentation from XML comments). 
 
 The `--help` option as single specifier displays the help message for all valid `[command] [function] [options]` combinations.
 
 Literate programming command
 ----------------------------
 
-`FSharp.Literate.ProcessDirectory`: Process a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
-according to the concept of [Literate Programming](http://tpetricek.github.io/FSharp.Formatting/demo.html).
+The method `FSharp.Literate.ProcessDirectory` processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
+according to the concept of [Literate Programming](demo.html).
 
     [lang=text]
     fsformatting[.exe] literate --processDirectory [options]
 
-Required options:
-* `--inputDirectory` - Input directory containing `*.fsx` and `*.md` files.
+### Required options
 
-Other Options:
-* `--templateFile` -  Template file for formatting.
-* `--outputDirectory` -  Output directory, defaults to input directory.
-* `--format` -  Output format either `latex` or `html`, defaults to `html`.
-* `--prefix` -  Prefix for formatting, defaults to `fs`.
-* `--compilerOptions` -  Compiler Options.
-* `--lineNumbers` -  Line number option, defaults to `true`.
-* `--references` -  Turn all indirect links into references, defaults to `false`.
-* `--replacements` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
-* `--includeSource` -  Include sourcecode in documentation, defaults to `false`.
-* `--layoutRoots` -  Search directory list for the Razor Engine.
-* `--help` -  Display the specific help message for `literate --processDirectory`.
-* `--waitForKey` -  Wait for key before exit.
+  * `--inputDirectory` - Input directory containing `*.fsx` and `*.md` files.
 
-Example:
+### Other Options
+
+  * `--templateFile` -  Template file for formatting.
+  * `--outputDirectory` -  Output directory, defaults to input directory.
+  * `--format` -  Output format either `latex` or `html`, defaults to `html`.
+  * `--prefix` -  Prefix for formatting, defaults to `fs`.
+  * `--compilerOptions` -  Compiler Options.
+  * `--lineNumbers` -  Line number option, defaults to `true`.
+  * `--references` -  Turn all indirect links into references, defaults to `false`.
+  * `--replacements` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
+  * `--includeSource` -  Include sourcecode in documentation, defaults to `false`.
+  * `--layoutRoots` -  Search directory list for the Razor Engine.
+  * `--help` -  Display the specific help message for `literate --processDirectory`.
+  * `--waitForKey` -  Wait for key before exit.
+
+### Example
 
     [lang=text]
-    fsformatting literate --processDirectory --templateFile template-project.html --format latex --replacements "page-author" "Tomas Petricek"
+    fsformatting literate 
+      --processDirectory --templateFile template-project.html 
+      --format latex --replacements "page-author" "Tomas Petricek"
 
 Library documentation command
 -----------------------------
 
-`FSharp.MetadataFormat.Generate`: Build the [library documentation](http://tpetricek.github.io/FSharp.Formatting/metadata.html) by scanning the metadata of the `*.dll` files of the package.
+The `FSharp.MetadataFormat.Generate` method builds the [library documentation](http://tpetricek.github.io/FSharp.Formatting/metadata.html) by reading 
+the meta-data from a `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
 
     [lang=text]
     fsformatting[.exe] metadataFormat --generate [options]
 
-Required options:
-* `--dllFiles` -  List of `dll` input files.
-* `--outDir` -  Output directory.
-* `--layoutRoots` -  Search directory list for the Razor Engine templates.
+### Required options
 
-Other options:
-* `--parameters` -  Property settings for the Razor Engine.
-* `--namespaceTemplate` -  Namespace template file for formatting, defaults to `namespaces.cshtml`.
-* `--moduleTemplate` -  Module template file for formatting, defaults to `module.cshtml`.
-* `--typeTemplate` -  Type template file for formatting, defaults to `type.cshtml`.
-* `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
-* `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
-* `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
-* `--help` -  Display the specific help message for `metadataFormat --generate`.
-* `--waitForKey` -  Wait for key before exit.
+  * `--dllFiles` -  List of `dll` input files.
+  * `--outDir` -  Output directory.
+  * `--layoutRoots` -  Search directory list for the Razor Engine templates.
 
-Example:
+### Other options
+
+  * `--parameters` -  Property settings for the Razor Engine.
+  * `--namespaceTemplate` -  Namespace template file for formatting, defaults to `namespaces.cshtml`.
+  * `--moduleTemplate` -  Module template file for formatting, defaults to `module.cshtml`.
+  * `--typeTemplate` -  Type template file for formatting, defaults to `type.cshtml`.
+  * `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
+  * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
+  * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
+  * `--help` -  Display the specific help message for `metadataFormat --generate`.
+  * `--waitForKey` -  Wait for key before exit.
+
+### Example
 
     [lang=text]
-    fsformatting metadataFormat --generate --dllFiles lib1.dll "lib 2.dll" --outDir "../api-docs" --layoutRoots templates
+    fsformatting metadataFormat 
+      --generate --dllFiles lib1.dll "lib 2.dll" 
+      --outDir "../api-docs" --layoutRoots templates

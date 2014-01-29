@@ -647,7 +647,7 @@ type MetadataFormat =
     let moduleTemplate = defaultArg moduleTemplate "module.cshtml"
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
     let otherFlags = defaultArg otherFlags []
-    let publicOnly = defaultArg publicOnly false
+    let publicOnly = defaultArg publicOnly true
     let sourceFolderRepo =
         match sourceFolder, sourceRepo with
         | Some folder, Some repo -> Some(folder, repo)

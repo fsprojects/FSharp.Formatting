@@ -28,3 +28,4 @@
 * 2.3.2-beta - Update to FSharp.Compiler.Service v0.0.10
 * 2.3.3-beta - Update FSharp.Compiler.Service and add FSharp.Formatting.CommandTool package
 * 2.3.4-beta - Fix dependency in NuGet package
+* 2.3.5-beta - Omit non-public members from metadata docs by default
