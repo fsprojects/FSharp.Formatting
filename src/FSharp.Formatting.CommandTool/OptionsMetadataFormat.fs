@@ -88,7 +88,7 @@ type GenerateOptions() =
     member val sourceFolder = "" with get, set
 
     [<OptionArray("libDirs", Required = false,
-        HelpText = "")>]
+        HelpText = "Search directory list for library references.")>]
     member val libDirs = [|""|] with get, set
 
     interface IExecutable with 

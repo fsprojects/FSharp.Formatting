@@ -104,6 +104,7 @@ the meta-data from a `*.dll` files of the package and using the XML comments fro
   * `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
   * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
   * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
+  * `--libDirs` - Search directory list for library references.
   * `--help` -  Display the specific help message for `metadataFormat --generate`.
   * `--waitForKey` -  Wait for key before exit.
 
