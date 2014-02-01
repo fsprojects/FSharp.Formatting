@@ -87,6 +87,10 @@ type GenerateOptions() =
         HelpText = "Source repository folder; silently ignored, if source repository URL is not provided (optional).")>]
     member val sourceFolder = "" with get, set
 
+    [<OptionArray("libDirs", Required = false,
+        HelpText = "")>]
+    member val libDirs = [|""|] with get, set
+
     interface IExecutable with 
         member x.Execute() = 
             let mutable res = 0
@@ -104,7 +108,8 @@ type GenerateOptions() =
                         ?typeTemplate = (evalString x.typeTemplate),
                         ?xmlFile = (evalString x.xmlFile),
                         ?sourceRepo = (evalString x.sourceRepo), 
-                        ?sourceFolder = (evalString x.sourceFolder) 
+                        ?sourceFolder = (evalString x.sourceFolder),
+                        ?libDirs = (evalStringArray x.libDirs)
                         )
             with ex -> Log.logf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
             waitForKey x.waitForKey
