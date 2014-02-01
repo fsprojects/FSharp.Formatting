@@ -748,7 +748,7 @@ type MetadataFormat =
           else
               let asm = table.[asmName] 
               Log.logf "Parsing assembly"
-              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, match markDownComments with None -> false | Some b -> b) ]
+              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, defaultArg markDownComments true) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
