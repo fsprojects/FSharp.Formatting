@@ -381,10 +381,17 @@ module ValueReader =
     *)
 
   let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
-    let usage (maxLength:int) = case.Name
+    let fields = case.UnionCaseFields |> List.ofSeq |> List.map (fun field -> formatType field.FieldType)
+    let buildUsage maxLength fields =
+        let long = "(" + (fields |> String.concat ",") + ")"
+        match long.Length with
+        | x when x <= 2 -> ""
+        | x when x <= maxLength -> long
+        | _ -> "(...)"
+    let usage (maxLength:int) = case.Name + buildUsage (maxLength - case.Name.Length) fields
     let modifiers = List.empty
     let typeparams = List.empty
-    let signature = case.UnionCaseFields |> List.ofSeq |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
+    let signature = fields |> String.concat " * "
     let loc = defaultArg case.ImplementationLocation case.DeclarationLocation
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
