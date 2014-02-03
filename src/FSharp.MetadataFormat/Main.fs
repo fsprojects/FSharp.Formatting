@@ -631,13 +631,13 @@ type Html private() =
 
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?otherFlags) =
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?otherFlags = otherFlags)
+        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?otherFlags) =
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -648,6 +648,7 @@ type MetadataFormat =
     let typeTemplate = defaultArg typeTemplate "type.cshtml"
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
+    let libDirs = defaultArg libDirs []
     let sourceFolderRepo =
         match sourceFolder, sourceRepo with
         | Some folder, Some repo -> Some(folder, repo)
@@ -694,7 +695,9 @@ type MetadataFormat =
             yield "--flaterrors" 
             yield "--target:library" 
             for dllFile in dllFiles do
-              yield "-r:"+dllFile 
+              yield "-r:"+dllFile
+            for libDir in libDirs do
+              yield "-I:"+libDir
             yield! otherFlags
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
