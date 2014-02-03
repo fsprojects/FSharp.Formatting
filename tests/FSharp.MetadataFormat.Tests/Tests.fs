@@ -76,6 +76,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   MetadataFormat.Generate(libraries, output, layoutRoots, info)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  // Check that all comments appear in the output
   files.["fslib-class.html"] |> should contain "Readonly int property"
   files.["fslib-record.html"] |> should contain "This is name"
   files.["fslib-record.html"] |> should contain "Additional member"
@@ -87,6 +88,9 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-nested.html"] |> should contain "Somewhat nested module"
   files.["fslib-nested-nestedtype.html"] |> should contain "Very nested member"
   files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
+
+  // Check that union fields are correctly generated
+  files.["fslib-union.html"] |> should contain "World(string,int)"
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
