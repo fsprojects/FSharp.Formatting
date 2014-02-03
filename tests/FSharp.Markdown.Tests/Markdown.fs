@@ -116,8 +116,8 @@ let ``Transform bracketed hyperlinks correctly``() =
 
 [<Test>]
 let ``Transform auto hyperlinks correctly``() =
-    let doc = "Have you visited http://www.example.com before?";
-    let expected = "<p>Have you visited http://www.example.com before?</p>\r\n" |> properNewLines;
+    let doc = "Have you visited http://www.example.com or https://www.example.com before?";
+    let expected = "<p>Have you visited <a href=\"http://www.example.com\">http://www.example.com</a> or <a href=\"https://www.example.com\">https://www.example.com</a> before?</p>\r\n" |> properNewLines;
     Markdown.TransformHtml doc
     |> shouldEqual expected
 

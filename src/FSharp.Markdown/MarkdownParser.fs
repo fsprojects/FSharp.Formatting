@@ -96,6 +96,18 @@ let (|DirectLink|_|) = function
       Some(body, link, rest)
   | _ -> None
 
+/// Recognizes an automatic link written using `http://url` or `https://url`
+let inline (|AutoLink|_|) input =
+  let linkFor (scheme:string) =
+    let prefix = scheme.ToCharArray() |> Array.toList
+    match input with
+    | List.DelimitedWith prefix [' '] (List.AsString link, rest) ->
+        Some(scheme + link, ' '::rest)
+    | _ -> None
+
+  ["http://";"https://"]
+  |> Seq.tryPick linkFor
+
 /// Recognizes some form of emphasis using `**bold**` or `*italic*`
 /// (both can be also marked using underscore).
 /// TODO: This does not handle nested emphasis well.
@@ -164,7 +176,7 @@ let rec parseChars acc input = seq {
   | List.DelimitedWith ['<'] ['>'] (tag, rest) ->
       yield! parseChars ('>'::(List.rev tag) @ '<' :: acc) rest
 
-  // Recognize direct link [foo](http://bar) or indirect link [foo][bar] 
+  // Recognize direct link [foo](http://bar) or indirect link [foo][bar] or auto link http://bar
   | DirectLink (body, link, rest) ->
       yield! accLiterals.Value
       let info = getLinkAndTitle (String(Array.ofList link))
@@ -174,6 +186,10 @@ let rec parseChars acc input = seq {
       yield! accLiterals.Value
       let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
       yield IndirectLink(parseChars [] body |> List.ofSeq, original, key)
+      yield! parseChars [] rest
+  | AutoLink (link, rest) ->
+      yield! accLiterals.Value
+      yield DirectLink([Literal link], (link, None))
       yield! parseChars [] rest
 
   // Recognize image - this is a link prefixed with the '!' symbol
