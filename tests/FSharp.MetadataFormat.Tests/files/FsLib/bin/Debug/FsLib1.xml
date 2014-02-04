@@ -22,6 +22,11 @@
  Record sample
 </summary>
 </member>
+<member name="T:FsLib.Union.Naming">
+<summary>
+ Naming of rate:float and string
+</summary>
+</member>
 <member name="T:FsLib.Union.World">
 <summary>
  World of string and int

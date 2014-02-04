@@ -381,9 +381,14 @@ module ValueReader =
     *)
 
   let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
-    let fields = case.UnionCaseFields |> List.ofSeq |> List.map (fun field -> formatType field.FieldType)
+    let formatFieldUsage (field:FSharpRecordField) =
+        if field.Name.StartsWith("Item") then
+            formatType field.FieldType
+        else
+            field.Name
+    let fields = case.UnionCaseFields |> List.ofSeq
     let buildUsage maxLength fields =
-        let long = "(" + (fields |> String.concat ",") + ")"
+        let long = "(" + (fields |> List.map formatFieldUsage |> String.concat ",") + ")"
         match long.Length with
         | x when x <= 2 -> ""
         | x when x <= maxLength -> long
@@ -391,7 +396,7 @@ module ValueReader =
     let usage (maxLength:int) = case.Name + buildUsage (maxLength - case.Name.Length) fields
     let modifiers = List.empty
     let typeparams = List.empty
-    let signature = fields |> String.concat " * "
+    let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
     let loc = defaultArg case.ImplementationLocation case.DeclarationLocation
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)

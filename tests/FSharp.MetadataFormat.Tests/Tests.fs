@@ -91,6 +91,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
 
   // Check that union fields are correctly generated
   files.["fslib-union.html"] |> should contain "World(string,int)"
+  files.["fslib-union.html"] |> should contain "Naming(rate,string)"
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
