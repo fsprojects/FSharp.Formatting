@@ -396,7 +396,7 @@ module ValueReader =
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
-  let readRecordField (ctx:ReadingContext) (field:FSharpRecordField) =
+  let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
     let usage (maxLength:int) = field.Name
     let modifiers =
       [ if field.IsMutable then yield "mutable"
@@ -524,11 +524,12 @@ module Reader =
         Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
 
   let readRecordFields ctx (typ:FSharpEntity) =
-    typ.RecordFields
+    typ.FSharpFields
     |> List.ofSeq
+    |> List.filter (fun field -> not field.IsCompilerGenerated)
     |> List.choose (fun field ->
       readCommentsInto ctx field.XmlDocSig (fun cat _ comment ->
-        Member.Create(field.Name, MemberKind.RecordField, cat, readRecordField ctx field, comment)))
+        Member.Create(field.Name, MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
 
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
@@ -547,6 +548,7 @@ module Reader =
           typ.MembersFunctionsAndValues 
           |> List.ofSeq 
           |> List.filter (fun v -> checkAccess ctx v.Accessibility)
+          |> List.filter (fun v -> not v.IsCompilerGenerated)
           |> List.partition (fun v -> v.IsInstanceMember) 
       let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
     
