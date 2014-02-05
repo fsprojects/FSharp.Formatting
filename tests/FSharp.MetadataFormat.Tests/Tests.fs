@@ -105,7 +105,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   MetadataFormat.Generate
     ( libraries, output, layoutRoots, info,
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
-      sourceFolder = "C:/Tomas/Public/FSharp.Formatting")
+      sourceFolder = __SOURCE_DIRECTORY__ @@ "../../")
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "github-link"

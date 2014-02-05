@@ -30,3 +30,4 @@
 * 2.3.4-beta - Fix dependency in NuGet package
 * 2.3.5-beta - Omit non-public members from metadata docs by default
 * 2.3.6-beta - Update documentation, fixes for Mono compatibility
+* 2.3.7-beta - Add auto-formatting for links and output sample usage for DU cases
