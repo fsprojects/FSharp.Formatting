@@ -10,8 +10,11 @@ open System.Collections.Generic
 
 type LiterateParagraph =
   | CodeReference of string
+  | OutputReference of string
+  | ValueReference of string
   | HiddenCode of string option * Line list
   | FormattedCode of Line list
+  | OutputReferencedCode of string * Line list
   | LanguageTaggedCode of string * string
   interface MarkdownEmbedParagraphs with
     member x.Render() = 

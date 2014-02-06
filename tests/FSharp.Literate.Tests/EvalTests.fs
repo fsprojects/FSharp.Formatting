@@ -15,19 +15,29 @@ open FsUnit
 open FSharp.Literate
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-(*
 let content = """
-(** **hello** *)
-let test = 42"""
-let doc = Literate.ParseScriptString(content, __SOURCE_DIRECTORY__ + "\\Test.fsx", formatAgent)
+(** hello *)
+let test = 42
+let test2 = 43 + test
 
-Evaluation.eval 0 doc
+(*** define-output:test ***)
+printf "12343"
 
-let fsi = Evaluation.FsiEvaluator()
-let res = fsi.Evaluate("=1 + 2")
-let res = fsi.Evaluate("=1 + 3")
-let res = fsi.Evaluate("=\"hi\"")
+(** a value *)
+(*** include-value: test ***)
 
-let res = fsi.Evaluate("= printfn \"hi\"; 1")
-fsi.Evaluate("failwith \"byte\"")
-*)
+(** 
+# Some more code *)
+let mocode f x =
+    let y = x + 3 * (f x)
+    y * 5
+
+(** another value *)
+(*** include-value: test2 ***)
+
+(** an output *)
+(*** include-output: test ***)
+"""
+let result = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
+let html = Literate.WriteHtml(result)
+html

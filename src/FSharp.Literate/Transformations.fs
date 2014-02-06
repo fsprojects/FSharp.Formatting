@@ -207,6 +207,7 @@ module Transformations =
     match par with 
     | Matching.LiterateParagraph(HiddenCode(Some id, lines)) -> 
         yield Choice2Of2(id), lines
+    | Matching.LiterateParagraph(OutputReferencedCode(_,lines))
     | Matching.LiterateParagraph(FormattedCode(lines)) -> 
         yield Choice1Of2(lines), lines
     | Matching.ParagraphNested(pn, nested) ->
@@ -215,11 +216,14 @@ module Transformations =
 
 
   /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
-  let rec private replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
+  let rec private replaceSpecialCodes ctx (formatted:IDictionary<_, _>) (evaluationResults:Map<_,Evaluation.FsiEvaluationResult>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
         | HiddenCode _ -> None
         | CodeReference ref -> Some (formatted.[Choice2Of2 ref])
+        | OutputReference ref -> evaluationResults.[(ref,false)].Output |> Option.map (sprintf "<pre>%s</pre>" >> InlineBlock) //WOE! should match outputkind
+        | ValueReference ref -> evaluationResults.[(ref,true)].Result |> Option.map (fst >> sprintf "<pre>%A</pre>" >> InlineBlock)
+        | OutputReferencedCode(_,lines)
         | FormattedCode lines -> Some (formatted.[Choice1Of2 lines])
         | LanguageTaggedCode(lang, code) -> 
             let inlined = 
@@ -233,7 +237,7 @@ module Transformations =
             Some(InlineBlock(inlined))
     // Traverse all other structrues recursively
     | Matching.ParagraphNested(pn, nested) ->
-        let nested = List.map (List.choose (replaceSpecialCodes ctx formatted)) nested
+        let nested = List.map (List.choose (replaceSpecialCodes ctx formatted evaluationResults)) nested
         Some(Matching.ParagraphNested(pn, nested))
     | par -> Some par
 
@@ -251,7 +255,8 @@ module Transformations =
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 
           key, InlineBlock(fmtd.Content) ] |> dict 
-
+    let fsi = new Evaluation.FsiEvaluator()
+    let evaluationResults = Evaluation.eval fsi doc
     // Replace original snippets with formatted HTML/Latex and return document
-    let newParagraphs = List.choose (replaceSpecialCodes ctx lookup) doc.Paragraphs
+    let newParagraphs = List.choose (replaceSpecialCodes ctx lookup evaluationResults) doc.Paragraphs
     doc.With(paragraphs = newParagraphs, formattedTips = formatted.ToolTip)

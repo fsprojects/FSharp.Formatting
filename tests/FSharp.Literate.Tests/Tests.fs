@@ -57,6 +57,41 @@ let test = 42"""
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
 
+
+[<Test>]
+let ``Can parse and format literate F# script with evaluation`` () =
+  let content = """
+(** **hello** *)
+let test = 42
+let test2 = 43 + test
+
+(*** define-output:test ***)
+printf "12343"
+
+(** a value *)
+(*** include-value: test ***)
+
+(** another value *)
+(*** include-value: test2 ***)
+
+(** an output *)
+(*** include-output: test ***)
+"""
+
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
+  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(ValueReference("test")) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(ValueReference("test2")) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(OutputReference("test")) -> true | _ -> false)
+ 
+
 [<Test>] 
 let ``Can parse and format markdown with F# snippet`` () =
   let content = """
