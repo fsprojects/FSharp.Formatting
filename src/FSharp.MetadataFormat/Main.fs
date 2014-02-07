@@ -259,9 +259,14 @@ module ValueReader =
 
   // Format each argument, including its name and type 
   let formatArgUsage generateTypes i (arg:FSharpParameter) = 
+    let nm = 
+      match arg.Name with 
+      | null -> if arg.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit"
+                then "()" 
+                else "arg" + string i 
+      | nm -> nm
     // Detect an optional argument 
     let isOptionalArg = hasAttrib<OptionalArgumentAttribute> arg.Attributes
-    let nm = match arg.Name with null -> "arg" + string i | nm -> nm
     let argName = if isOptionalArg then "?" + nm else nm
     if generateTypes then 
       (if String.IsNullOrWhiteSpace(arg.Name) then "" else argName + ":") + 
@@ -278,6 +283,7 @@ module ValueReader =
     |> List.map (List.map (fun x -> formatArgUsage generateTypes (counter()) x))
     |> List.map (function 
         | [] -> unit 
+        | [arg] when arg = unit -> unit
         | [arg] when not v.IsMember || isItemIndexer -> arg 
         | args when isItemIndexer -> String.concat tupSep args
         | args -> bracket (String.concat tupSep args))
@@ -335,6 +341,7 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
+      | [[x]] when v.IsGetterMethod && x.Name = null && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = formatArgsUsage false v argInfos
@@ -544,8 +551,20 @@ module Reader =
     readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
+      let rec getMembers (typ:FSharpEntity) = [
+        yield! typ.MembersFunctionsAndValues
+        match typ.BaseType with
+        | Some baseType ->
+            //TODO: would be better to reuse instead of reparsing the base type xml docs
+            let cmds, comment = readCommentAndCommands ctx baseType.NamedEntity.XmlDocSig
+            match cmds with
+            | Command "omit" _ -> yield! getMembers baseType.NamedEntity
+            | _ -> ()
+        | None -> ()
+      ]
+
       let ivals, svals = 
-          typ.MembersFunctionsAndValues 
+          getMembers typ
           |> List.ofSeq 
           |> List.filter (fun v -> checkAccess ctx v.Accessibility)
           |> List.filter (fun v -> not v.IsCompilerGenerated)
