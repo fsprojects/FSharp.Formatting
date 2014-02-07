@@ -14,7 +14,7 @@
             @Html.Encode(it.Details.FormatUsage(40))
           </code>
           <div class="tip" id="@id">
-            <strong>Signature:</strong>@Html.Encode(it.Details.Signature)<br />
+            <strong>Signature:</strong> @Html.Encode(it.Details.Signature)<br />
             @if (!it.Details.Modifiers.IsEmpty) {
               <strong>Modifiers:</strong> @it.Details.FormatModifiers<br />
             }
