@@ -544,8 +544,20 @@ module Reader =
     readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
+      let rec getMembers (typ:FSharpEntity) = [
+        yield! typ.MembersFunctionsAndValues
+        match typ.BaseType with
+        | Some baseType ->
+            //TODO: would be better to reuse instead of reparsing the base type xml docs
+            let cmds, comment = readCommentAndCommands ctx baseType.NamedEntity.XmlDocSig
+            match cmds with
+            | Command "omit" _ -> yield! getMembers baseType.NamedEntity
+            | _ -> ()
+        | None -> ()
+      ]
+
       let ivals, svals = 
-          typ.MembersFunctionsAndValues 
+          getMembers typ
           |> List.ofSeq 
           |> List.filter (fun v -> checkAccess ctx v.Accessibility)
           |> List.filter (fun v -> not v.IsCompilerGenerated)
