@@ -38,6 +38,6 @@ let mocode f x =
 (** an output *)
 (*** include-output: test ***)
 """
-let result = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
+let result = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent, fsiEvaluator = FSharp.Literate.Evaluation.FsiEvaluator())
 let html = Literate.WriteHtml(result)
 html

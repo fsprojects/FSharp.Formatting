@@ -125,10 +125,10 @@ module internal ParseScript =
         let p = EmbedParagraphs(CodeReference(ref))
         transformBlocks (p::acc) defs blocks
     | BlockCommand(Command "include-output" ref)::blocks -> 
-        let p = EmbedParagraphs(OutputReference(ref))
+        let p = EmbedParagraphs(OutputReference(ref, None))
         transformBlocks (p::acc) defs blocks
     | BlockCommand(Command "include-value" ref)::blocks -> 
-        let p = EmbedParagraphs(ValueReference(ref))
+        let p = EmbedParagraphs(ValueReference(ref, None))
         transformBlocks (p::acc) defs blocks
     // Hidden code block or hidden definition with 'ref' reference code
     | Let "" (ref, BlockCommand(Command "hide" _)::BlockSnippet(snip)::blocks) 

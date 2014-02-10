@@ -78,18 +78,18 @@ printf "12343"
 (*** include-output: test ***)
 """
 
-  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(ValueReference("test")) -> true | _ -> false)
+    | Matching.LiterateParagraph(ValueReference("test", Some (v, _))) -> (v :?> int) = 42 | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(ValueReference("test2")) -> true | _ -> false)
+    | Matching.LiterateParagraph(ValueReference("test2",Some (v, _))) -> (v :?> int) = 85 | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(OutputReference("test")) -> true | _ -> false)
+    | Matching.LiterateParagraph(OutputReference("test",Some "12343")) -> true | _ -> false)
  
 
 [<Test>] 

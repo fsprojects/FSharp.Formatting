@@ -86,7 +86,7 @@ module Evaluation =
         let text = unparse snip
         let result = fsi.Evaluate text
         evalBlocks fsi acc paras
-      | ValueReference ref -> 
+      | ValueReference (ref,None) -> 
         let result = fsi.Evaluate(ref,asExpression=true)
         evalBlocks fsi (((ref,true),result)::acc) paras
       | _ -> evalBlocks fsi acc paras
@@ -94,6 +94,5 @@ module Evaluation =
     | [] -> acc
 
   let eval fsi (doc:LiterateDocument) = 
-    //let fsi = FsiEvaluator()
     let evaluations = evalBlocks fsi [] doc.Paragraphs |> Map.ofList
     evaluations

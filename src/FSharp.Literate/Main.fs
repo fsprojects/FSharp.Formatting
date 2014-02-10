@@ -55,35 +55,39 @@ type Literate private () =
   
   /// Parse F# Script file
   static member ParseScriptFile 
-    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
+    |> Transformations.evaluateCodeSnippets fsiEvaluator
 
   /// Parse F# Script file
   static member ParseScriptString 
-    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
+    |> Transformations.evaluateCodeSnippets fsiEvaluator
 
   /// Parse Markdown document
   static member ParseMarkdownFile
-    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path) 
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
+    |> Transformations.evaluateCodeSnippets fsiEvaluator
 
   /// Parse Markdown document
   static member ParseMarkdownString
-    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references ) =
+    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
+    |> Transformations.evaluateCodeSnippets fsiEvaluator
 
   // ------------------------------------------------------------------------------------
   // Simple writing functions
@@ -128,11 +132,11 @@ type Literate private () =
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots ) = 
     let doc = 
       Literate.ParseScriptFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
-          ?references = references )
+          ?references = references, ?fsiEvaluator = fsiEvaluator )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource replacements layoutRoots
     Templating.processFile doc (defaultOutput output input format) ctx
 
@@ -140,14 +144,14 @@ type Literate private () =
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots ) = 
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots ) = 
 
     // Call one or the other process function with all the arguments
     let processScriptFile file output = 
       Literate.ProcessScriptFile
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
-          ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
+          ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements, 
           ?includeSource = includeSource, ?layoutRoots = layoutRoots )
     let processMarkdown file output = 
       Literate.ProcessMarkdown
