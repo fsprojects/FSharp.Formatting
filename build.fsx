@@ -90,26 +90,25 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner & kill test runner when complete
 
-Target "RunTests" (fun _ ->
-    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
-    let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
+Target "RunTests" <| ignore
 
-    ActivateFinalTarget "CloseTestRunner"
+let runTestTask name =
+    let taskName = sprintf "RunTest_%s" name
+    Target taskName <| fun () ->
+        !! (sprintf "tests/*/bin/Release/%s.dll" name)
+        |> NUnit (fun p ->
+            { p with
+                ToolPath = "packages/NUnit.Runners.2.6.3/Tools"
+                DisableShadowCopy = true
+                TimeOut = TimeSpan.FromMinutes 20.
+                Framework = "4.0"
+                OutputFile = "TestResults.xml" })
+    taskName ==> "RunTests" |> ignore
+    "Build" ==> taskName |> ignore
 
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/bin/Release/FSharp.*Tests*.dll"]
-      Excludes = [] } 
-    |> NUnit (fun p ->
-        { p with
-            ToolPath = nunitPath
-            DisableShadowCopy = true
-            TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
-)
+["FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests"; "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests"]
+|> List.iter runTestTask
 
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
-)
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -188,13 +187,10 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
-"Clean"
-  ==> "RestorePackages"
-  ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "RunTests"
-  ==> "GenerateDocs"
-  ==> "All"
+"Clean" ==> "RestorePackages" ==> "AssemblyInfo" ==> "Build"
+"Build" ==> "All"
+"RunTests" ==> "All"
+"GenerateDocs" ==> "All"
 
 "All" 
   ==> "ReleaseDocs"
