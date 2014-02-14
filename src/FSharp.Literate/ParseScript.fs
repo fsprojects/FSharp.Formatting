@@ -133,9 +133,8 @@ module internal ParseScript =
     // Hidden code block or hidden definition with 'ref' reference code
     | Let "" (ref, BlockCommand(Command "hide" _)::BlockSnippet(snip)::blocks) 
     | BlockCommand(Command "define" ref)::BlockSnippet(snip)::blocks ->
-        let acc = 
-          if ref = "" then acc
-          else (EmbedParagraphs(HiddenCode(Some ref, snip)))::acc
+        let ref = if ref = "" then None else Some ref
+        let acc = (EmbedParagraphs(HiddenCode(ref, snip)))::acc
         transformBlocks acc defs blocks
     | BlockCommand(Command "define-output" ref)::BlockSnippet(snip)::blocks ->
         let acc = 

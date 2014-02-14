@@ -61,9 +61,12 @@ let test = 42"""
 [<Test>]
 let ``Can parse and format literate F# script with evaluation`` () =
   let content = """
-(** **hello** *)
+(***hide***)
 let test = 42
 let test2 = 43 + test
+
+(** **hello** *)
+let test3 = test2 + 15
 
 (*** define-output:test ***)
 printf "12343"

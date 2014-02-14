@@ -18,6 +18,7 @@ open FSharp.Literate.Tests.Setup
 let content = """
 (** hello *)
 let test = 42
+(***hide***)
 let test2 = 43 + test
 
 (*** define-output:test ***)

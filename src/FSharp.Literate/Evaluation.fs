@@ -40,9 +40,6 @@ module Evaluation =
             else
               fsiSession.EvalInteraction(text)
               None
-          let output = 
-            if String.IsNullOrEmpty(sbOut.ToString()) then None
-            else Some(sbOut.ToString())
           let output = Some(sbConsole.ToString())
           Console.SetOut(prev)
           { Output = output; Result = value  }
@@ -81,6 +78,7 @@ module Evaluation =
           let text = unparse snip
           let result = fsi.Evaluate text
           evalBlocks fsi (((name,false),result)::acc) paras
+      | HiddenCode(_,snip)
       | FormattedCode(snip) ->
         //need to eval because subsequent code might refer it, but we don't need result
         let text = unparse snip

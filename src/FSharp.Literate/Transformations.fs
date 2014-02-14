@@ -203,7 +203,12 @@ module Transformations =
   let rec private replaceEvaluations (evaluationResults:Map<_,Evaluation.FsiEvaluationResult>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
-        | OutputReference (ref,None) -> EmbedParagraphs(OutputReference(ref,evaluationResults.[(ref,false)].Output))
+        | OutputReference (ref,None) -> 
+          let res = 
+            evaluationResults 
+            |> Map.tryFind (ref,false) 
+            |> Option.bind (fun res -> res.Output) 
+          EmbedParagraphs(OutputReference(ref,defaultArg res ("Could not find output reference " + ref) |> Some))
         | ValueReference (ref,None) -> EmbedParagraphs(ValueReference(ref,evaluationResults.[(ref,true)].Result))
         | other -> EmbedParagraphs(other)
     // Traverse all other structrues recursively
