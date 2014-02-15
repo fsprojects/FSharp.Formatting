@@ -81,7 +81,7 @@ printf "12343"
 (*** include-output: test ***)
 """
 
-  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
+  let doc = Literate.ParseScriptString(content, "C:" @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)

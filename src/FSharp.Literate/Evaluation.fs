@@ -14,7 +14,7 @@ module Evaluation =
     { Output : string option
       Result : (obj * Type) option }
 
-  type FsiEvaluator() =
+  type FsiEvaluator(?options:string[]) =
     // Initialize F# Interactive evaluation session
     let inStream = new StringReader("")
     let sbOut = new Text.StringBuilder()
@@ -23,14 +23,26 @@ module Evaluation =
     let outStream = new StringWriter(sbOut)
     let errStream = new StringWriter(sbErr)
     let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
-    let fsiSession = FsiEvaluationSession(fsiConfig, [|"C:\\test.exe"; "--noninteractive"|], inStream, outStream, errStream)
+    let argv = Array.append [|"C:\\test.exe"; "--noninteractive"|] (defaultArg options [||])
+    let fsiSession = FsiEvaluationSession(fsiConfig, argv, inStream, outStream, errStream)
 
-    member x.Evaluate(text:string, ?asExpression) =
+    /// Evaluates the given text in an fsi session and returns
+    /// and FsiEvaluationResult.
+    /// If evaluated as an expression, Result should be set with the
+    /// result of evaluating the text as an F# expression.
+    /// If not, just the console output of the evaluation is captured and
+    /// returned in Output.
+    /// If file is set, the text will be evaluated as if it was present in the
+    /// given script file - this is for correct usage of #I and #r with relative paths.
+    /// Note however that __SOURCE_DIRECTORY___ does not currently pick this up.
+    member x.Evaluate(text:string, ?asExpression, ?file) =
       try
-          let asExpression = defaultArg asExpression false
-          sbOut.Clear() |> ignore
-          let sbConsole = new Text.StringBuilder()
-          let prev = Console.Out
+        let asExpression = defaultArg asExpression false
+        file |> Option.iter (Path.GetDirectoryName >> sprintf "#cd @\"%s\""  >> fsiSession.EvalInteraction)
+        sbOut.Clear() |> ignore
+        let sbConsole = new Text.StringBuilder()
+        let prev = Console.Out
+        try //try..finally to make sure console.out is re-set to prev
           Console.SetOut(new StringWriter(sbConsole))
           let value =
             if asExpression then
@@ -41,8 +53,9 @@ module Evaluation =
               fsiSession.EvalInteraction(text)
               None
           let output = Some(sbConsole.ToString())
-          Console.SetOut(prev)
           { Output = output; Result = value  }
+        finally
+          Console.SetOut(prev)
       with e ->
         match e.InnerException with
         | null -> printfn "Error evaluating expression (%s)" e.Message
@@ -70,27 +83,27 @@ module Evaluation =
   /// whether the result is a top level variable (i.e. include-value) or a reference to 
   /// some output (i.e. define-output and include-output). This just to put each of those
   /// names in a separate scope.
-  let rec private evalBlocks (fsi:FsiEvaluator) acc (paras:MarkdownParagraphs) = 
+  let rec private evalBlocks (fsi:FsiEvaluator) file acc (paras:MarkdownParagraphs) = 
     match paras with
     | EmbedParagraphs(para)::paras ->
       match para :?> LiterateParagraph with
       | OutputReferencedCode (name,snip) ->
           let text = unparse snip
-          let result = fsi.Evaluate text
-          evalBlocks fsi (((name,false),result)::acc) paras
+          let result = fsi.Evaluate(text, file=file)
+          evalBlocks fsi file (((name,false),result)::acc) paras
       | HiddenCode(_,snip)
       | FormattedCode(snip) ->
         //need to eval because subsequent code might refer it, but we don't need result
         let text = unparse snip
-        let result = fsi.Evaluate text
-        evalBlocks fsi acc paras
+        let result = fsi.Evaluate(text, file=file)
+        evalBlocks fsi file acc paras
       | ValueReference (ref,None) -> 
-        let result = fsi.Evaluate(ref,asExpression=true)
-        evalBlocks fsi (((ref,true),result)::acc) paras
-      | _ -> evalBlocks fsi acc paras
-    | para::paras -> evalBlocks fsi acc paras
+        let result = fsi.Evaluate(ref,asExpression=true,file=file)
+        evalBlocks fsi file (((ref,true),result)::acc) paras
+      | _ -> evalBlocks fsi file acc paras
+    | para::paras -> evalBlocks fsi file acc paras
     | [] -> acc
 
   let eval fsi (doc:LiterateDocument) = 
-    let evaluations = evalBlocks fsi [] doc.Paragraphs |> Map.ofList
+    let evaluations = evalBlocks fsi doc.SourceFile [] doc.Paragraphs |> Map.ofList
     evaluations
