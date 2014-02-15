@@ -11,8 +11,8 @@ open System.Collections.Generic
 
 type LiterateParagraph =
   | CodeReference of string
-  | OutputReference of name:string * result:string option
-  | ValueReference of name:string * result:(obj * Type) option
+  | OutputReference of string * string option
+  | ValueReference of string * (obj * Type) option
   | HiddenCode of string option * Line list
   | FormattedCode of Line list
   | OutputReferencedCode of string * Line list
