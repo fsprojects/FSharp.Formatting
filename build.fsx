@@ -91,6 +91,12 @@ Target "Build" (fun _ ->
 // Run the unit tests using test runner & kill test runner when complete
 
 Target "RunTests" (fun _ ->
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["tests/*/files/FsLib/FsLib.sln"]
+      Excludes = [] }
+    |> MSBuildDebug "" "Rebuild"
+    |> ignore
+
     let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
     let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
 
