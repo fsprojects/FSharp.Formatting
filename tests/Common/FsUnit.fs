@@ -38,6 +38,7 @@ module TopLevelOperators =
     let equalWithin tolerance x = equal(x).Within tolerance
 
     let contain x = ContainsConstraint(x)
+    let notContain x = NotConstraint(ContainsConstraint(x))
 
     let haveLength n = Has.Length.EqualTo(n)
 

@@ -14,8 +14,11 @@
 </member>
 <member name="P:FsLib.Record.Foo">
 <summary>
- Additional member
+ Additional members
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="T:FsLib.Record">
 <summary>
