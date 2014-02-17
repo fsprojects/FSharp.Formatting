@@ -65,8 +65,8 @@
     <Compile Include="Contexts.fs" />
     <Compile Include="ParseScript.fs" />
     <Compile Include="ParseMarkdown.fs" />
-    <Compile Include="Transformations.fs" />
     <Compile Include="Evaluation.fs" />
+    <Compile Include="Transformations.fs" />
     <Compile Include="Formatting.fs" />
     <Compile Include="Main.fs" />
     <None Include="packages.config" />

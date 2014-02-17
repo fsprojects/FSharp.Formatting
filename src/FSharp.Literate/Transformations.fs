@@ -196,6 +196,35 @@ module Transformations =
     let newDoc = doc.Paragraphs |> List.choose (replaceReferences refLookup)
     doc.With(paragraphs = newDoc @ refPars)
 
+  // ---------------------------------------------------------------------------------------------
+  // Evaluate all snippets and enrich evaluation references with the results
+  // ---------------------------------------------------------------------------------------------
+
+  let rec private replaceEvaluations (evaluationResults:Map<_,Evaluation.FsiEvaluationResult>) = function
+    | Matching.LiterateParagraph(special) -> 
+        match special with
+        | OutputReference (ref,None) -> 
+          let res = 
+            evaluationResults 
+            |> Map.tryFind (ref,false) 
+            |> Option.bind (fun res -> res.Output) 
+          EmbedParagraphs(OutputReference(ref,defaultArg res ("Could not find output reference " + ref) |> Some))
+        | ValueReference (ref,None) -> EmbedParagraphs(ValueReference(ref,evaluationResults.[(ref,true)].Result))
+        | other -> EmbedParagraphs(other)
+    // Traverse all other structrues recursively
+    | Matching.ParagraphNested(pn, nested) ->
+        let nested = List.map (List.map (replaceEvaluations evaluationResults)) nested
+        Matching.ParagraphNested(pn, nested)
+    | par -> par
+
+  let evaluateCodeSnippets fsi (doc:LiterateDocument) =
+    match fsi with
+    | Some fsi ->
+      let evaluationResults = Evaluation.eval fsi doc
+      let newParagraphs = List.map (replaceEvaluations evaluationResults) doc.Paragraphs
+      doc.With(paragraphs = newParagraphs)
+    | None -> doc
+
   // ----------------------------------------------------------------------------------------------
   // Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
   // ----------------------------------------------------------------------------------------------
@@ -207,6 +236,7 @@ module Transformations =
     match par with 
     | Matching.LiterateParagraph(HiddenCode(Some id, lines)) -> 
         yield Choice2Of2(id), lines
+    | Matching.LiterateParagraph(OutputReferencedCode(_,lines))
     | Matching.LiterateParagraph(FormattedCode(lines)) -> 
         yield Choice1Of2(lines), lines
     | Matching.ParagraphNested(pn, nested) ->
@@ -220,6 +250,9 @@ module Transformations =
         match special with
         | HiddenCode _ -> None
         | CodeReference ref -> Some (formatted.[Choice2Of2 ref])
+        | OutputReference (_,result) -> result |> Option.map (sprintf "<pre>%s</pre>" >> InlineBlock) //WOE! should match outputkind
+        | ValueReference (_,result) -> result |> Option.map (fst >> sprintf "<pre>%A</pre>" >> InlineBlock) //WOE! should match outputkind
+        | OutputReferencedCode(_,lines)
         | FormattedCode lines -> Some (formatted.[Choice1Of2 lines])
         | LanguageTaggedCode(lang, code) -> 
             let inlined = 
@@ -237,6 +270,7 @@ module Transformations =
         Some(Matching.ParagraphNested(pn, nested))
     | par -> Some par
 
+  
 
   /// Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
   let replaceLiterateParagraphs ctx (doc:LiterateDocument) = 
@@ -251,7 +285,7 @@ module Transformations =
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 
           key, InlineBlock(fmtd.Content) ] |> dict 
-
+    
     // Replace original snippets with formatted HTML/Latex and return document
     let newParagraphs = List.choose (replaceSpecialCodes ctx lookup) doc.Paragraphs
     doc.With(paragraphs = newParagraphs, formattedTips = formatted.ToolTip)

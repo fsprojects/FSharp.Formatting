@@ -80,22 +80,28 @@ module internal CodeBlockUtils =
         yield BlockComment (comment.Substring(0, cend))
         if lines <> [] then yield! collectSnippet [] lines }
 
+
+
   /// Collecting a block of F# snippet
-  and private collectSnippet acc lines = seq {
-    match lines with 
-    | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
-        // Found a special command, yield snippet, command and parse another snippet
-        if acc <> [] then yield BlockSnippet (trimBlanksAndReverse acc)
-        yield BlockCommand cmds
-        yield! collectSnippet [] lines
+  and private collectSnippet acc lines = 
+    let blockSnippet acc =
+      let res = trimBlanksAndReverse acc 
+      BlockSnippet res
+    seq {
+      match lines with 
+      | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
+          // Found a special command, yield snippet, command and parse another snippet
+          if acc <> [] then yield blockSnippet acc
+          yield BlockCommand cmds
+          yield! collectSnippet [] lines
 
-    | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
-        // Found a comment - yield snippet & switch to parsing comment state
-        if acc <> [] then yield BlockSnippet (trimBlanksAndReverse acc)
-        yield! collectComment text lines
+      | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
+          // Found a comment - yield snippet & switch to parsing comment state
+          if acc <> [] then yield blockSnippet acc
+          yield! collectComment text lines
 
-    | x::xs ->  yield! collectSnippet (x::acc) xs
-    | [] -> yield BlockSnippet (trimBlanksAndReverse acc) }
+      | x::xs ->  yield! collectSnippet (x::acc) xs
+      | [] -> yield blockSnippet acc }
 
   /// Parse F# script file into a sequence of snippets, comments and commands
   let parseScriptFile = collectSnippet []
@@ -118,12 +124,22 @@ module internal ParseScript =
     | BlockCommand(Command "include" ref)::blocks -> 
         let p = EmbedParagraphs(CodeReference(ref))
         transformBlocks (p::acc) defs blocks
+    | BlockCommand(Command "include-output" ref)::blocks -> 
+        let p = EmbedParagraphs(OutputReference(ref, None))
+        transformBlocks (p::acc) defs blocks
+    | BlockCommand(Command "include-value" ref)::blocks -> 
+        let p = EmbedParagraphs(ValueReference(ref, None))
+        transformBlocks (p::acc) defs blocks
     // Hidden code block or hidden definition with 'ref' reference code
     | Let "" (ref, BlockCommand(Command "hide" _)::BlockSnippet(snip)::blocks) 
     | BlockCommand(Command "define" ref)::BlockSnippet(snip)::blocks ->
+        let ref = if ref = "" then None else Some ref
+        let acc = (EmbedParagraphs(HiddenCode(ref, snip)))::acc
+        transformBlocks acc defs blocks
+    | BlockCommand(Command "define-output" ref)::BlockSnippet(snip)::blocks ->
         let acc = 
           if ref = "" then acc
-          else (EmbedParagraphs(HiddenCode(Some ref, snip)))::acc
+          else (EmbedParagraphs(OutputReferencedCode(ref, snip)))::acc
         transformBlocks acc defs blocks
     // Unknown command
     | BlockCommand(cmds)::_ ->
@@ -155,6 +171,6 @@ module internal ParseScript =
       ctx.FormatAgent.ParseSource
         (file, content, ?options = ctx.CompilerOptions, ?defines = ctx.DefinedSymbols)
     let (Snippet(_, lines)) = match sourceSnippets with [| it |] -> it | _ -> failwith "multiple snippets"
-    let parsedBlocks = parseScriptFile lines 
+    let parsedBlocks = parseScriptFile lines
     let paragraphs, defs = transformBlocks [] [] (List.ofSeq parsedBlocks)
     LiterateDocument(paragraphs, "", defs, LiterateSource.Script sourceSnippets, file, errors)

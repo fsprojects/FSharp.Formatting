@@ -1,5 +1,6 @@
 ﻿namespace FSharp.Literate
 
+open System
 open FSharp.Markdown
 open FSharp.CodeFormat
 open System.Collections.Generic
@@ -10,8 +11,11 @@ open System.Collections.Generic
 
 type LiterateParagraph =
   | CodeReference of string
+  | OutputReference of string * string option
+  | ValueReference of string * (obj * Type) option
   | HiddenCode of string option * Line list
   | FormattedCode of Line list
+  | OutputReferencedCode of string * Line list
   | LanguageTaggedCode of string * string
   interface MarkdownEmbedParagraphs with
     member x.Render() = 

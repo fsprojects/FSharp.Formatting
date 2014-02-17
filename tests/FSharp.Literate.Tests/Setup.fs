@@ -18,3 +18,5 @@ type TempFile() =
     member x.Dispose() = File.Delete(file)
 
 let formatAgent = FSharp.CodeFormat.CodeFormat.CreateAgent()
+
+let fsiEvaluator = FSharp.Literate.Evaluation.FsiEvaluator()
