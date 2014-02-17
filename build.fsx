@@ -79,43 +79,46 @@ Target "Build" (fun _ ->
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
     |> ignore
+)
 
+// --------------------------------------------------------------------------------------
+// Build tests and generate tasks to run the tests in sequence
+
+Target "BuildTests" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["FSharp.Formatting.Tests.sln"]
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
     |> ignore
-)
 
-// --------------------------------------------------------------------------------------
-// Run the unit tests using test runner & kill test runner when complete
-
-Target "RunTests" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/files/FsLib/FsLib.sln"]
       Excludes = [] }
     |> MSBuildDebug "" "Rebuild"
     |> ignore
-
-    let nunitVersion = GetPackageVersion "packages" "NUnit.Runners"
-    let nunitPath = sprintf "packages/NUnit.Runners.%s/Tools" nunitVersion
-
-    ActivateFinalTarget "CloseTestRunner"
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/bin/Release/FSharp.*Tests*.dll"]
-      Excludes = [] } 
-    |> NUnit (fun p ->
-        { p with
-            ToolPath = nunitPath
-            DisableShadowCopy = true
-            TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
 )
 
-FinalTarget "CloseTestRunner" (fun _ ->  
-    ProcessHelper.killProcess "nunit-agent.exe"
-)
+let testProjects = 
+  [ "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests"; 
+    "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
+
+Target "RunTests" <| ignore
+
+// For each test project file, generate a new "RunTest_Xyz" which 
+// runs the test (to process them sequentially which is needed in Travis)
+for name in testProjects do
+    let taskName = sprintf "RunTest_%s" name
+    Target taskName <| fun () ->
+        !! (sprintf "tests/*/bin/Release/%s.dll" name)
+        |> NUnit (fun p ->
+            { p with
+                ToolPath = "packages/NUnit.Runners.2.6.3/Tools"
+                DisableShadowCopy = true
+                TimeOut = TimeSpan.FromMinutes 20.
+                Framework = "4.0"
+                OutputFile = "TestResults.xml" })
+    taskName ==> "RunTests" |> ignore
+    "BuildTests" ==> taskName |> ignore
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -194,13 +197,10 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
-"Clean"
-  ==> "RestorePackages"
-  ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "RunTests"
-  ==> "GenerateDocs"
-  ==> "All"
+"Clean" ==> "RestorePackages" ==> "AssemblyInfo" ==> "Build" ==> "BuildTests"
+"Build" ==> "All"
+"RunTests" ==> "All"
+"GenerateDocs" ==> "All"
 
 "All" 
   ==> "ReleaseDocs"
