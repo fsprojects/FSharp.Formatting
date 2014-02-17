@@ -6,8 +6,10 @@ type Union =
   | Hello of int
   /// World of string and int
   | World of string * int
+#if FSHARP_31
   /// Naming of rate:float and string
   | Naming of rate: float * string
+#endif
 
 /// Record sample
 type Record = 

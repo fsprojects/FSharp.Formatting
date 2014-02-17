@@ -95,7 +95,9 @@ let ``MetadataFormat works on two sample F# assemblies``() =
 
   // Check that union fields are correctly generated
   files.["fslib-union.html"] |> should contain "World(string,int)"
+#if FSHARP_31
   files.["fslib-union.html"] |> should contain "Naming(rate,string)"
+#endif
 
   // Check that methods with no arguments are correctly generated (#113)
   files.["fslib-record.html"] |> should notContain "Foo2(arg1)"
