@@ -32,3 +32,4 @@
 * 2.3.6-beta - Update documentation, fixes for Mono compatibility
 * 2.3.7-beta - Add auto-formatting for links and output sample usage for DU cases
 * 2.3.8-beta - Update FSharp.Compiler.Service to v0.0.17
+* 2.3.9-beta - Update FSharp.Compiler.Service to v0.0.20, include inherited members when the base type was ommited from the documentation, fix properties displaying as methods, fix functions with unit input rendering incorrectly

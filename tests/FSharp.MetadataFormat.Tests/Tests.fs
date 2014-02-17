@@ -67,6 +67,9 @@ let ``MetadataFormat works on sample FAKE assembly``() =
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
+let removeWhiteSpace (str:string) =
+    str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
+
 [<Test>]
 let ``MetadataFormat works on two sample F# assemblies``() = 
   let libraries = 
@@ -76,6 +79,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   MetadataFormat.Generate(libraries, output, layoutRoots, info)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
   // Check that all comments appear in the output
   files.["fslib-class.html"] |> should contain "Readonly int property"
   files.["fslib-record.html"] |> should contain "This is name"
@@ -92,6 +96,21 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   // Check that union fields are correctly generated
   files.["fslib-union.html"] |> should contain "World(string,int)"
   files.["fslib-union.html"] |> should contain "Naming(rate,string)"
+
+  // Check that methods with no arguments are correctly generated (#113)
+  files.["fslib-record.html"] |> should notContain "Foo2(arg1)"
+  files.["fslib-record.html"] |> should contain "Foo2()"
+  files.["fslib-record.html"] |> should contain "<strong>Signature:</strong> unit -&gt; int"
+  files.["fslib-class.html"] |> should contain "new()"
+  files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> unit -&gt; Class"  
+
+  // Check that properties are correctly generated (#114)
+  files.["fslib-class.html"] |> removeWhiteSpace |> should notContain ">Member(arg1)<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> should notContain ">Member()<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> should contain ">Member<"
+  files.["fslib-class.html"] |> should notContain "<strong>Signature:</strong> unit -&gt; int"
+  files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> int"
+  
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
