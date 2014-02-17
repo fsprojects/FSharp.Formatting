@@ -91,6 +91,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
 
   // Check that union fields are correctly generated
   files.["fslib-union.html"] |> should contain "World(string,int)"
+  files.["fslib-union.html"] |> should contain "Naming(rate,string)"
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
@@ -105,7 +106,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   MetadataFormat.Generate
     ( libraries, output, layoutRoots, info,
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
-      sourceFolder = "C:/Tomas/Public/FSharp.Formatting")
+      sourceFolder = __SOURCE_DIRECTORY__ @@ "../.." )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "github-link"

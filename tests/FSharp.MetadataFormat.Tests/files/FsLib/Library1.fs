@@ -6,6 +6,8 @@ type Union =
   | Hello of int
   /// World of string and int
   | World of string * int
+  /// Naming of rate:float and string
+  | Naming of rate: float * string
 
 /// Record sample
 type Record = 
