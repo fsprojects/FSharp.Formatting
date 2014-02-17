@@ -11,14 +11,14 @@ open FSharp.Patterns
 open FSharp.CodeFormat
 open FSharp.Markdown
 
-module Transformations = 
+module internal Transformations = 
   // ----------------------------------------------------------------------------------------------
   // Replace all code snippets (assume F#) with their nicely formatted versions
   // ----------------------------------------------------------------------------------------------
 
   /// Iterate over Markdown document and extract all F# code snippets that we want
   /// to colorize. We skip snippets that specify non-fsharp langauge e.g. [lang=csharp].
-  let rec private collectCodeSnippets par = seq {
+  let rec collectCodeSnippets par = seq {
     match par with
     | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
         when cmds.ContainsKey("lang") && cmds.["lang"] <> "fsharp" -> ()
@@ -37,7 +37,7 @@ module Transformations =
 
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
-  let rec private replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
+  let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
     | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
     | CodeBlock(Let (dict []) (cmds, code)) ->
         if cmds.ContainsKey("hide") then None else
@@ -108,7 +108,7 @@ module Transformations =
 
   /// Given Markdown document, get the keys of all IndirectLinks 
   /// (to be used when generating paragraph with all references)
-  let rec private collectReferences = 
+  let rec collectReferences = 
     // Collect IndirectLinks in a span
     let rec collectSpanReferences span = seq { 
       match span with
@@ -130,7 +130,7 @@ module Transformations =
 
   /// Given Markdown document, add a number using the given index to all indirect 
   /// references. For example, [article][ref] becomes [article][ref] [1](#rfxyz)
-  let private replaceReferences (refIndex:IDictionary<string, int>) =
+  let replaceReferences (refIndex:IDictionary<string, int>) =
     // Replace IndirectLinks with a nice link given a single span element
     let rec replaceSpans = function
       | IndirectLink(body, original, key) ->
@@ -156,7 +156,7 @@ module Transformations =
 
   /// Given all links defined in the Markdown document and a list of all links
   /// that are accessed somewhere from the document, generate References paragraph
-  let private generateRefParagraphs (definedLinks:IDictionary<_, string * string option>) refs =     
+  let generateRefParagraphs (definedLinks:IDictionary<_, string * string option>) refs =     
     // For all unique references in the document, 
     // get the link & title from definitions
     let refs = 
@@ -196,33 +196,87 @@ module Transformations =
     let newDoc = doc.Paragraphs |> List.choose (replaceReferences refLookup)
     doc.With(paragraphs = newDoc @ refPars)
 
+  // ----------------------------------------------------------------------------------------------
+  // Transformation that collects evaluation results for F# snippets in the document
+  // ----------------------------------------------------------------------------------------------
+
+  /// Represents key in a dictionary with evaluation results
+  type internal EvalKey = OutputRef of string | ValueRef of string
+   
+  /// Unparse a Line list to a string - for evaluation by fsi.
+  let unparse (lines: Line list) =
+    let joinLine (Line spans) =
+      spans
+      |> Seq.map (fun span -> match span with Token (_,s,_) -> s | Omitted (s1,s2) -> s2 | _ -> "")
+      |> String.concat ""
+    lines
+    |> Seq.map joinLine
+    |> String.concat "\n"
+
+  /// Evaluate all the snippets in a literate document, returning the results.
+  /// The result is a map of string * bool to FsiEvaluationResult. The bool indicates
+  /// whether the result is a top level variable (i.e. include-value) or a reference to 
+  /// some output (i.e. define-output and include-output). This just to put each of those
+  /// names in a separate scope.
+  let rec evalBlocks (fsi:FsiEvaluator) file acc (paras:MarkdownParagraphs) = 
+    match paras with
+    | Matching.LiterateParagraph(para)::paras ->
+      match para with
+      | OutputReferencedCode (name,snip) ->
+          let text = unparse snip
+          let result = fsi.Evaluate(text, file=file)
+          evalBlocks fsi file ((OutputRef name,result)::acc) paras
+      | HiddenCode(_,snip)
+      | FormattedCode(snip) ->
+          // Need to eval because subsequent code might refer it, but we don't need result
+          let text = unparse snip
+          let result = fsi.Evaluate(text, file=file)
+          evalBlocks fsi file acc paras
+      | ValueReference(ref) -> 
+          let result = fsi.Evaluate(ref,asExpression=true,file=file)
+          evalBlocks fsi file ((ValueRef ref,result)::acc) paras
+      | _ -> evalBlocks fsi file acc paras
+    | para::paras -> evalBlocks fsi file acc paras
+    | [] -> acc
+
+  /// Given an evaluator and document, evaluate all code snippets and return a map with
+  /// their results - the key is `ValueRef(name)` for all value references and 
+  /// `OutputRef(name)` for all references to the snippet console output
+  let evalAllSnippets fsi (doc:LiterateDocument) = 
+    evalBlocks fsi doc.SourceFile [] doc.Paragraphs |> Map.ofList
+    
+
   // ---------------------------------------------------------------------------------------------
-  // Evaluate all snippets and enrich evaluation references with the results
+  // Evaluate all snippets and replace evaluation references with the results
   // ---------------------------------------------------------------------------------------------
 
-  let rec private replaceEvaluations (evaluationResults:Map<_,Evaluation.FsiEvaluationResult>) = function
+  let rec replaceEvaluations ctx (evaluationResults:Map<_,FsiEvaluationResult>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
-        | OutputReference (ref,None) -> 
-          let res = 
-            evaluationResults 
-            |> Map.tryFind (ref,false) 
-            |> Option.bind (fun res -> res.Output) 
-          EmbedParagraphs(OutputReference(ref,defaultArg res ("Could not find output reference " + ref) |> Some))
-        | ValueReference (ref,None) -> EmbedParagraphs(ValueReference(ref,evaluationResults.[(ref,true)].Result))
-        | other -> EmbedParagraphs(other)
+        | OutputReference(ref) -> 
+            let res = 
+              match evaluationResults.TryFind(OutputRef(ref)) with
+              | Some res -> defaultArg res.Output "No output has been produced"
+              | _ -> "Could not find output reference " + ref
+            ctx.Evaluator.Value.FormatOutput(res)
+        | ValueReference(ref) -> 
+            match evaluationResults.[ValueRef ref].Result with
+            | Some(o, ty) -> ctx.Evaluator.Value.FormatValue(o,ty)
+            | _ -> [ CodeBlock(sprintf "Value '%s' could not be evaluated" ref) ]
+        | other -> [ EmbedParagraphs(other) ]
     // Traverse all other structrues recursively
     | Matching.ParagraphNested(pn, nested) ->
-        let nested = List.map (List.map (replaceEvaluations evaluationResults)) nested
-        Matching.ParagraphNested(pn, nested)
-    | par -> par
+        let nested = List.map (List.collect (replaceEvaluations ctx evaluationResults)) nested
+        [ Matching.ParagraphNested(pn, nested) ]
+    | par -> [ par ]
 
-  let evaluateCodeSnippets fsi (doc:LiterateDocument) =
-    match fsi with
+  /// Transform the specified literate document & evaluate all F# snippets
+  let evaluateCodeSnippets ctx (doc:LiterateDocument) =
+    match ctx.Evaluator with
     | Some fsi ->
-      let evaluationResults = Evaluation.eval fsi doc
-      let newParagraphs = List.map (replaceEvaluations evaluationResults) doc.Paragraphs
-      doc.With(paragraphs = newParagraphs)
+        let evaluationResults = evalAllSnippets fsi doc
+        let newParagraphs = List.collect (replaceEvaluations ctx evaluationResults) doc.Paragraphs
+        doc.With(paragraphs = newParagraphs)
     | None -> doc
 
   // ----------------------------------------------------------------------------------------------
@@ -232,7 +286,7 @@ module Transformations =
   /// Collect all code snippets in the document (so that we can format all of them)
   /// The resulting dictionary has Choice as the key, so that we can distinguish 
   /// between moved snippets and ordinary snippets
-  let rec private collectCodes par = seq {
+  let rec collectCodes par = seq {
     match par with 
     | Matching.LiterateParagraph(HiddenCode(Some id, lines)) -> 
         yield Choice2Of2(id), lines
@@ -245,13 +299,14 @@ module Transformations =
 
 
   /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
-  let rec private replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
+  let rec replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
         | HiddenCode _ -> None
         | CodeReference ref -> Some (formatted.[Choice2Of2 ref])
-        | OutputReference (_,result) -> result |> Option.map (sprintf "<pre>%s</pre>" >> InlineBlock) //WOE! should match outputkind
-        | ValueReference (_,result) -> result |> Option.map (fst >> sprintf "<pre>%A</pre>" >> InlineBlock) //WOE! should match outputkind
+        | OutputReference _  
+        | ValueReference _ -> 
+            failwith "Output and value references should be replaced by FSI evaluator"
         | OutputReferencedCode(_,lines)
         | FormattedCode lines -> Some (formatted.[Choice1Of2 lines])
         | LanguageTaggedCode(lang, code) -> 
@@ -270,7 +325,6 @@ module Transformations =
         Some(Matching.ParagraphNested(pn, nested))
     | par -> Some par
 
-  
 
   /// Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
   let replaceLiterateParagraphs ctx (doc:LiterateDocument) = 

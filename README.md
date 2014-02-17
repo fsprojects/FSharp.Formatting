@@ -35,4 +35,4 @@ The library is available under Apache 2.0. For more information see the [License
  [1]: https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md
  [2]: https://github.com/tpetricek/FSharp.Formatting/tree/master/docs
  [3]: http://tpetricek.github.com/FSharp.Formatting/
- [4]: http://tpetricek.github.com/FSharp.Formatting/demo.html
+ [4]: http://tpetricek.github.com/FSharp.Formatting/literate.html

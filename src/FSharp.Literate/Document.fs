@@ -10,13 +10,25 @@ open System.Collections.Generic
 // --------------------------------------------------------------------------------------
 
 type LiterateParagraph =
+  /// (*** include:foo ***) - Include formatted snippet from other part of the document here 
   | CodeReference of string
-  | OutputReference of string * string option
-  | ValueReference of string * (obj * Type) option
+  /// (*** include-output:foo ***) - Include output from a snippet here 
+  | OutputReference of string 
+  /// (*** include-value:foo ***) - Include the formatting of a specified value here
+  | ValueReference of string 
+
+  /// (*** hide ***) or (*** define:foo ***) - Code snippet that is not visible in 
+  /// the output (but is needed for type checking, evaluation, or to be included later)
   | HiddenCode of string option * Line list
-  | FormattedCode of Line list
+  /// (*** define-output:foo ***) - Code snippet that is not visible, but whose output
+  /// is used somewehre else in the literate doc via (*** include-output:foo ***)
   | OutputReferencedCode of string * Line list
+
+  /// Ordinary formatted code snippet
+  | FormattedCode of Line list
+  /// Ordinary formatted code snippet in non-F# language (tagged with language code)
   | LanguageTaggedCode of string * string
+
   interface MarkdownEmbedParagraphs with
     member x.Render() = 
       failwith "LiterateParagraph elements cannot be directly formatted"

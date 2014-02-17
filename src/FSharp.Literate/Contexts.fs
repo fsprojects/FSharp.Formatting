@@ -6,6 +6,8 @@ open FSharp.CodeFormat
 type CompilerContext = 
   { // An instance of the F# code formatting agent
     FormatAgent : CodeFormatAgent 
+    // F# interactive evaluator
+    Evaluator : FsiEvaluator option
     // Command line options for the F# compiler
     CompilerOptions : string option
     // Defined symbols for the F# compiler

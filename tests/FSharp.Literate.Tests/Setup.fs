@@ -19,4 +19,4 @@ type TempFile() =
 
 let formatAgent = FSharp.CodeFormat.CodeFormat.CreateAgent()
 
-let fsiEvaluator = FSharp.Literate.Evaluation.FsiEvaluator()
+let fsiEvaluator = FSharp.Literate.FsiEvaluator()

@@ -62,10 +62,10 @@
       <Link>Common\Razor.fs</Link>
     </Compile>
     <Compile Include="Document.fs" />
+    <Compile Include="Evaluator.fs" />
     <Compile Include="Contexts.fs" />
     <Compile Include="ParseScript.fs" />
     <Compile Include="ParseMarkdown.fs" />
-    <Compile Include="Evaluation.fs" />
     <Compile Include="Transformations.fs" />
     <Compile Include="Formatting.fs" />
     <Compile Include="Main.fs" />

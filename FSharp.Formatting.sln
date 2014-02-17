@@ -35,8 +35,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 	ProjectSection(SolutionItems) = preProject
 		docs\content\codeformat.fsx = docs\content\codeformat.fsx
 		docs\content\commandline.md = docs\content\commandline.md
-		docs\content\demo.fsx = docs\content\demo.fsx
+		docs\content\evaluation.fsx = docs\content\evaluation.fsx
 		docs\content\index.md = docs\content\index.md
+		docs\content\literate.fsx = docs\content\literate.fsx
 		docs\content\markdown.fsx = docs\content\markdown.fsx
 		docs\content\metadata.fsx = docs\content\metadata.fsx
 	EndProjectSection

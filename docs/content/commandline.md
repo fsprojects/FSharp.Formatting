@@ -49,7 +49,7 @@ Literate programming command
 ----------------------------
 
 The method `FSharp.Literate.ProcessDirectory` processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
-according to the concept of [Literate Programming](demo.html).
+according to the concept of [Literate Programming](literate.html).
 
     [lang=text]
     fsformatting[.exe] literate --processDirectory [options]

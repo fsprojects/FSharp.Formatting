@@ -12,26 +12,31 @@ module FSharp.Literate.Tests.Eval
 #endif
 
 open FsUnit
+open FSharp.Markdown
 open FSharp.Literate
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-let content = """
-(** hello *)
-let test = 42
+open FSharp.Markdown.Unit
+
+// --------------------------------------------------------------------------------------
+// Test FSI evaluator
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Can parse and format literate F# script with evaluation`` () =
+  let content = """
 (***hide***)
+let test = 42
 let test2 = 43 + test
 
+(** **hello** *)
+let test3 = test2 + 15
+
 (*** define-output:test ***)
-printf "12343"
+printf ">>%d<<" 12343
 
 (** a value *)
 (*** include-value: test ***)
-
-(** 
-# Some more code *)
-let mocode f x =
-    let y = x + 3 * (f x)
-    y * 5
 
 (** another value *)
 (*** include-value: test2 ***)
@@ -39,6 +44,42 @@ let mocode f x =
 (** an output *)
 (*** include-output: test ***)
 """
-let result = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent, fsiEvaluator = FSharp.Literate.Evaluation.FsiEvaluator())
-let html = Literate.WriteHtml(result)
-html
+
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
+
+  doc.Errors |> Seq.length |> shouldEqual 0
+  // Contains formatted code and markdown
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+
+  // Contains transformed output
+  doc.Paragraphs |> shouldMatchPar (function
+    | CodeBlock "42" -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | CodeBlock "85" -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | CodeBlock ">>12343<<" -> true | _ -> false)
+
+[<Test>]
+let ``Can parse and format literate F# script with custom evaluator`` () =
+  let content = """
+let test = [1;2;3]
+(*** include-value:test ***)"""
+  
+  // Create evaluator & register simple formatter for lists
+  let fsiEvaluator = FSharp.Literate.FsiEvaluator()
+  fsiEvaluator.RegisterTransformation(fun (o, ty) ->
+    if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
+      let items = 
+        [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph[Literal (it.ToString())] ] ]
+      Some [ ListBlock(MarkdownListKind.Ordered, items) ]
+    else None)
+
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
+  doc.Paragraphs
+  |> shouldMatchPar (function
+      | ListBlock(Ordered, items) -> 
+          items = [ [Paragraph [Literal "1"]]; [Paragraph [Literal "2"]]; [Paragraph [Literal "3"]] ]
+      | _ -> false) 

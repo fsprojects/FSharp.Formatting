@@ -26,13 +26,14 @@ type Literate private () =
       LayoutRoots = defaultArg layoutRoots [] }
   
   /// Build default options context for parsing literate scripts/documents
-  static let parsingContext formatAgent compilerOptions definedSymbols = 
+  static let parsingContext formatAgent evaluator compilerOptions definedSymbols = 
     let agent =
       match formatAgent with
       | Some agent -> agent
       | _ -> CodeFormat.CreateAgent()
     { FormatAgent = agent
       CompilerOptions = compilerOptions
+      Evaluator = evaluator 
       DefinedSymbols = Option.map (String.concat ",") definedSymbols }
   
   /// Get default output file name, given various information
@@ -56,38 +57,38 @@ type Literate private () =
   /// Parse F# Script file
   static member ParseScriptFile 
     ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
-    let ctx = parsingContext formatAgent compilerOptions definedSymbols
+    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
-    |> Transformations.evaluateCodeSnippets fsiEvaluator
+    |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse F# Script file
   static member ParseScriptString 
     ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
-    let ctx = parsingContext formatAgent compilerOptions definedSymbols
+    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
-    |> Transformations.evaluateCodeSnippets fsiEvaluator
+    |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse Markdown document
   static member ParseMarkdownFile
     ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
-    let ctx = parsingContext formatAgent compilerOptions definedSymbols
+    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path) 
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
-    |> Transformations.evaluateCodeSnippets fsiEvaluator
+    |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse Markdown document
   static member ParseMarkdownString
     ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
-    let ctx = parsingContext formatAgent compilerOptions definedSymbols
+    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content
     |> transform references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
-    |> Transformations.evaluateCodeSnippets fsiEvaluator
+    |> Transformations.evaluateCodeSnippets ctx
 
   // ------------------------------------------------------------------------------------
   // Simple writing functions
