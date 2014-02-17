@@ -261,9 +261,9 @@ module ValueReader =
   let formatArgUsage generateTypes i (arg:FSharpParameter) = 
     let nm = 
       match arg.Name with 
-      | null -> if arg.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit"
-                then "()" 
-                else "arg" + string i 
+      | null -> 
+          if arg.Type.IsNamedType && arg.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()" 
+          else "arg" + string i 
       | nm -> nm
     // Detect an optional argument 
     let isOptionalArg = hasAttrib<OptionalArgumentAttribute> arg.Attributes

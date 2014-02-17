@@ -68,6 +68,8 @@ Target "RestorePackages" (fun _ ->
 Target "Clean" (fun _ ->
     CleanDirs ["bin"; "temp" ]
     CleanDirs ["docs/output"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/bin"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
 )
 
 // --------------------------------------------------------------------------------------
