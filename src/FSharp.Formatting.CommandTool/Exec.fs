@@ -81,25 +81,26 @@ type Env (argv: string []) =
     /// handle corner cases, dispatch processing,
     /// print help text as necessary,
     /// return exit code 0/-1
-    member x.Run() = 
-        if argv.Length < 1 then exit -1
-        /// dispatch single command line argument
-            // we may need platform specific argv handling,
-            // on Linux, traditionally argv.[0] = 'program name'; probably not on Linux/Mono
-        elif (argv.Length = 1) then 
-            match argv.[0] with
-            | "--help" -> fullHelp(); exit 0
-            | "--version" -> printfn "\nfsformatting version %s" Version; exit 0
-            | _ -> exit -1
-        /// dispatch verb commands, combined 1st and 2nd level
-        else 
-            let options = (Array.sub argv 2 (argv.Length-2))
-            /// combined verb command must be in first place,
-            let combinedVerbCommand = (argv.[0]).ToLower()+(argv.[1]).ToLower()
-            if not (combinedVerbCommand |> OptionsMapping.ContainsKey) then 
-                printfn "received invalid commands %s %s" argv.[0] argv.[1]
-                exit -1
+    member x.Run() =
+        try
+            if argv.Length < 1 then exit -1
+            /// dispatch single command line argument
+                // we may need platform specific argv handling,
+                // on Linux, traditionally argv.[0] = 'program name'; probably not on Linux/Mono
+            elif (argv.Length = 1) then 
+                match argv.[0] with
+                | "--help" -> fullHelp(); exit 0
+                | "--version" -> printfn "\nfsformatting version %s" Version; exit 0
+                | _ -> exit -1
+            /// dispatch verb commands, combined 1st and 2nd level
             else 
-                x.Execute(combinedVerbCommand, options)
- 
-            
+                let options = (Array.sub argv 2 (argv.Length-2))
+                /// combined verb command must be in first place,
+                let combinedVerbCommand = (argv.[0]).ToLower()+(argv.[1]).ToLower()
+                if not (combinedVerbCommand |> OptionsMapping.ContainsKey) then 
+                    printfn "received invalid commands %s %s" argv.[0] argv.[1]
+                    exit -1
+                else 
+                    x.Execute(combinedVerbCommand, options)
+        finally
+            Log.close()

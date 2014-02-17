@@ -133,7 +133,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   files.["fslib-record.html"] |> should contain "github-link"
   files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   files.["fslib-union.html"] |> should contain "github-link"
-  files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
