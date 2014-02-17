@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{B592EE13-F065-4369-BB37-A20064E29D4F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B592EE13-F065-4369-BB37-A20064E29D4F}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
@@ -17,6 +17,12 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown.Tests", "tests\FSharp.Markdown.Tests\FSharp.Markdown.Tests.fsproj", "{07DE4905-050C-4378-A039-F1EF7E1F309D}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.MetadataFormat.Tests", "tests\FSharp.MetadataFormat.Tests\FSharp.MetadataFormat.Tests.fsproj", "{D2EC3D6A-35C0-4445-A9CB-AA18B12B6350}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "related", "related", "{0BCA32CA-96E2-4E6A-9697-681E2131F40A}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLib1", "tests\FSharp.MetadataFormat.Tests\files\FsLib\FsLib1.fsproj", "{AD192375-D530-40FB-A4E9-380C74CBB771}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLib2", "tests\FSharp.MetadataFormat.Tests\files\FsLib\FsLib2.fsproj", "{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,8 +78,32 @@ Global
 		{D2EC3D6A-35C0-4445-A9CB-AA18B12B6350}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{D2EC3D6A-35C0-4445-A9CB-AA18B12B6350}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{D2EC3D6A-35C0-4445-A9CB-AA18B12B6350}.Release|x86.ActiveCfg = Release|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|x86.ActiveCfg = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AD192375-D530-40FB-A4E9-380C74CBB771} = {0BCA32CA-96E2-4E6A-9697-681E2131F40A}
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62} = {0BCA32CA-96E2-4E6A-9697-681E2131F40A}
 	EndGlobalSection
 EndGlobal
