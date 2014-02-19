@@ -67,6 +67,7 @@ according to the concept of [Literate Programming](literate.html).
   * `--compilerOptions` -  Compiler Options.
   * `--lineNumbers` -  Line number option, defaults to `true`.
   * `--references` -  Turn all indirect links into references, defaults to `false`.
+  * `-- fsieval` - Use the default FsiEvaluator, defaults to `false`.
   * `--replacements` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
   * `--includeSource` -  Include sourcecode in documentation, defaults to `false`.
   * `--layoutRoots` -  Search directory list for the Razor Engine.
