@@ -441,8 +441,8 @@ module Reader =
     Comment.Create(blurb, full, sections)
 
   let readXmlComment (doc : XElement) = 
+   
    let full = new StringBuilder()
-
    Seq.iter (fun (x : XNode) -> if x.NodeType = XmlNodeType.Text then full.Append((x :?> XText).Value) |> ignore) (doc.Nodes())
    full.Append("</br>") |> ignore
 
@@ -456,7 +456,8 @@ module Reader =
 
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
-   Comment.Create("", full.ToString(), [])
+   let str = full.ToString()
+   Comment.Create(str, str, [])
 
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
