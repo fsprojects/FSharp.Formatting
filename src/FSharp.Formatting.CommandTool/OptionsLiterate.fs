@@ -80,6 +80,10 @@ type ProcessDirectoryOptions() =
         HelpText = "Turn all indirect links into references, defaults to 'false' (optional).")>]
     member val references = false with get, set
 
+    [<Option("fsieval", Required = false,
+        HelpText = "Use the default FsiEvaluator, defaults to 'false'")>]
+    member val fsieval = false with set, get
+
     [<OptionArray("replacements", Required = false,
         HelpText = "A whitespace separated list of string pairs as text replacement patterns for the format template file (optional).")>]
     member val replacements = [|""|] with get, set
@@ -98,7 +102,7 @@ type ProcessDirectoryOptions() =
             try
                 if x.help then 
                     printfn "%s" (x.GetUsageOfOption())
-                else
+                else                            
                     Literate.ProcessDirectory( 
                         x.inputDirectory,
                         ?templateFile = (evalString x.templateFile),
@@ -109,6 +113,7 @@ type ProcessDirectoryOptions() =
                         ?compilerOptions = (evalString (concat x.compilerOptions)),
                         ?lineNumbers = Some x.lineNumbers,
                         ?references = Some x.references,
+                        ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() ) else None),
                         ?replacements = (evalPairwiseStringArray x.replacements),
                         ?includeSource = Some x.includeSource,
                         ?layoutRoots = (evalStringArray x.layoutRoots))
