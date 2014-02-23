@@ -121,7 +121,7 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
     [ root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
       root @@ "files/TestLib/bin/Debug" @@ "TestLib2.dll" ]
   let output = getOutputDir()
-  MetadataFormat.Generate(libraries, output, layoutRoots, info)
+  MetadataFormat.Generate(libraries, output, layoutRoots, info, markDownComments = false)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "Readonly int property"
