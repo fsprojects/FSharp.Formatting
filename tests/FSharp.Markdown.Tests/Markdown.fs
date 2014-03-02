@@ -83,6 +83,13 @@ let ``Transform LaTex inline math correctly``() =
   |> shouldEqual expected
 
 [<Test>]
+let ``Transform display math correctly``() =
+    let doc = """$$\bigcap_{x \in A} p_{x}A$$"""
+    let res = Markdown.TransformHtml doc
+    res |> shouldEqual "<p><span class=\"math\">\\[\\bigcap_{x \\in A} p_{x}A\\]</span></p>\r\n"
+
+        
+[<Test>]
 let ``Transform LaTex block correctly``() =
   let doc = """$$$
 foo\$\$bar<>\$\&\%\$\#\_\{\}
@@ -169,7 +176,7 @@ let ``Transform header 2 correctly``() =
     let expected = "<h2>Header 2</h2>\r\n\r\n<h2>Header 2</h2>\r\n" |> properNewLines;
     Markdown.TransformHtml doc
     |> shouldEqual expected
-
+l
 [<Test>]
 let ``Transform code blocks correctly``() =
     let doc = "code sample:\r\n\r\n    <head>\r\n    <title>page title</title>\r\n    </head>\r\n";
