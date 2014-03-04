@@ -48,6 +48,9 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function
+  | LatexDisplayMath(body) ->
+    // use mathjax grammar, for detail, check: http://www.mathjax.org/
+    ctx.Writer.Write("<span class=\"math\">\\[" + (htmlEncode body) + "\\]</span>")
   | LatexInlineMath(body) ->
     // use mathjax grammar, for detail, check: http://www.mathjax.org/
     ctx.Writer.Write("<span class=\"math\">\\(" + (htmlEncode body) + "\\)</span>")

@@ -35,6 +35,7 @@ type MarkdownSpan =
   | IndirectImage of string * string * string
   | HardLineBreak
   | LatexInlineMath of string
+  | LatexDisplayMath of string
   | EmbedSpans of MarkdownEmbedSpans
 
 and MarkdownSpans = list<MarkdownSpan>
@@ -78,6 +79,7 @@ module Matching =
     | DirectImage _ 
     | IndirectImage _
     | LatexInlineMath _
+    | LatexDisplayMath _
     | EmbedSpans _
     | HardLineBreak -> 
         SpanLeaf(SL span)
