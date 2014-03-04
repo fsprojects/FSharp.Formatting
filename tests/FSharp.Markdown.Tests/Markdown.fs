@@ -188,7 +188,8 @@ let ``Transform code spans correctly``() =
 let ``Transform display math correctly``() =
      let doc = """$$\bigcap_{x \in A} p_{x}A$$"""
      let res = Markdown.TransformHtml doc
-     res |> shouldEqual "<p><span class=\"math\">\\[\\bigcap_{x \\in A} p_{x}A\\]</span></p>\r\n"
+     let res = res.TrimEnd([|'\r';'\n'|])
+     res |> shouldEqual "<p><span class=\"math\">\\[\\bigcap_{x \\in A} p_{x}A\\]</span></p>"
 
 [<Test>]
 let ``Transform HTML passthrough correctly``() =
