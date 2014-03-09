@@ -261,15 +261,15 @@ module ValueReader =
   let formatArgUsage generateTypes i (arg:FSharpParameter) = 
     let nm = 
       match arg.Name with 
-      | null -> 
+      | None -> 
           if arg.Type.IsNamedType && arg.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()" 
           else "arg" + string i 
-      | nm -> nm
+      | Some nm -> nm
     // Detect an optional argument 
     let isOptionalArg = hasAttrib<OptionalArgumentAttribute> arg.Attributes
     let argName = if isOptionalArg then "?" + nm else nm
     if generateTypes then 
-      (if String.IsNullOrWhiteSpace(arg.Name) then "" else argName + ":") + 
+      (match arg.Name with None -> "" | Some argName -> argName + ":") + 
       formatTypeWithPrec 2 arg.Type
     else argName
 
@@ -341,12 +341,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsGetterMethod && x.Name = null && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsGetterMethod && x.Name = null && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
@@ -392,7 +392,7 @@ module ValueReader =
     *)
 
   let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
-    let formatFieldUsage (field:FSharpRecordField) =
+    let formatFieldUsage (field:FSharpField) =
         if field.Name.StartsWith("Item") then
             formatType field.FieldType
         else
