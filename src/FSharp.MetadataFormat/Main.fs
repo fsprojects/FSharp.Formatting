@@ -47,6 +47,7 @@ type MemberKind =
   // In a class, F# special members
   | UnionCase = 100
   | RecordField = 101
+  | StaticParameter = 102
 
 type Member =
   { Name : string
@@ -65,16 +66,23 @@ type Type =
 
     UnionCases : Member list
     RecordFields : Member list
+    StaticParameters : Member list 
 
     AllMembers : Member list
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
-  static member Create(name, url, comment, cases, fields, ctors, inst, stat) = 
-    { Type.Name = name; UrlName = url; Comment = comment;
-      UnionCases = cases; RecordFields = fields
-      AllMembers = List.concat [ ctors; inst; stat; cases; fields ] ;
-      Constructors = ctors; InstanceMembers = inst; StaticMembers = stat }
+  static member Create(name, url, comment, cases, fields, statParams, ctors, inst, stat) = 
+    { Type.Name = name
+      UrlName = url
+      Comment = comment
+      UnionCases = cases
+      RecordFields = fields
+      StaticParameters = statParams
+      AllMembers = List.concat [ ctors; inst; stat; cases; fields; statParams ]
+      Constructors = ctors
+      InstanceMembers = inst
+      StaticMembers = stat }
 
 type Module = 
   { Name : string 
@@ -551,13 +559,49 @@ module Reader =
   // Reading modules types (mutually recursive, because of nesting)
   // ----------------------------------------------------------------------------------------------
 
+  // Create a xml documentation snippet and add it to the XmlMemberMap
+  let registerXmlDoc (ctx:ReadingContext) xmlDocSig (xmlDoc:string) =
+    let xmlDoc = if xmlDoc.Contains "<summary>" then xmlDoc else "<summary>" + xmlDoc + "</summary>"
+    let xmlDoc = "<member name=\"" + xmlDocSig + "\">" + xmlDoc + "</member>"
+    let xmlDoc = XElement.Parse xmlDoc
+    ctx.XmlMemberMap.Add(xmlDocSig, xmlDoc)
+    xmlDoc
+
+  // Type providers don't have their docs dumped into the xml file,
+  // so we need to add them to the XmlMemberMap separately
+  let processTypeProvider (ctx:ReadingContext) (typ:FSharpEntity) =
+    let xmlDocSig = "T:" + typ.AccessPath + "." + typ.LogicalName
+    let xmlDoc = registerXmlDoc ctx xmlDocSig (String.concat "" typ.XmlDoc)
+    let statParams = 
+        xmlDoc.Descendants(XName.Get "param")
+        |> Seq.choose (fun p -> let nameAttr = p.Attribute(XName.Get "name")
+                                if nameAttr = null
+                                then None
+                                else Some (nameAttr.Value, p.Value))
+        |> Seq.choose (fun (name, xmlDoc) -> 
+            let xmlDocSig = "P:" + typ.AccessPath + "." + typ.LogicalName + "." + name
+            registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape xmlDoc) |> ignore                
+            readCommentsInto ctx xmlDocSig (fun cat cmds comment -> 
+                Member.Create(name,
+                              MemberKind.StaticParameter, 
+                              cat,
+                              MemberOrValue.Create((fun _ -> name), [], [], name, None), 
+                              comment)))
+        |> Seq.toList
+    xmlDocSig, statParams
+
   let rec readModulesAndTypes ctx (entities:seq<_>) = 
     let modules = readChildren ctx entities readModule (fun x -> x.IsFSharpModule) 
     let types = readChildren ctx entities readType (fun x -> not x.IsFSharpModule) 
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
-    readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
+    let xmlDocSig, statParams =
+        if typ.XmlDocSig <> "" then typ.XmlDocSig, []
+        elif typ.XmlDoc.Count = 0 then "", []
+        // assume is a type provider
+        else processTypeProvider ctx typ
+    readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
       let rec getMembers (typ:FSharpEntity) = [
@@ -600,7 +644,7 @@ module Reader =
       let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
       Type.Create
-        ( name, urlName, comment, cases, fields, ctors, inst, stat ))
+        ( name, urlName, comment, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -632,11 +676,14 @@ module Reader =
     
     // Read in the supplied XML file, map its name attributes to document text 
     let doc = XDocument.Load(xmlFile)
-    let xmlMemberMap =
+    // don't use 'dict' to allow the dictionary to be mutated later on
+    let xmlMemberMap = Dictionary()
+    for key, value in 
       [ for e in doc.Descendants(XName.Get "member") do
           let attr = e.Attribute(XName.Get "name") 
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
-            yield attr.Value, e ] |> dict
+            yield attr.Value, e ] do
+        xmlMemberMap.Add(key, value)
     let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo)
 
     // 
