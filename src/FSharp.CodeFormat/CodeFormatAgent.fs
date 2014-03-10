@@ -208,7 +208,7 @@ type CodeFormatAgent() =
       | _ -> opts
 
     // Run the first phase - parse source into AST without type information 
-    let untypedInfo = checker.ParseFileInProject(file, source, opts) 
+    let untypedInfo = checker.ParseFileInProject(file, source, opts)  |> Async.RunSynchronously
     // Run the second phase - perform type checking
     let checkInfo = getTypeCheckInfo(untypedInfo, file, source, opts)
     let errors = checkInfo.Errors
