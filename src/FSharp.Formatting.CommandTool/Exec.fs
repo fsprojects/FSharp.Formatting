@@ -11,10 +11,6 @@ open CommandLine
 open CommandLine.Text
 
 open System.Collections.Generic
-open FSharp.Data
-open FSharp.Data.Json
-open FSharp.Data.Json.Extensions
-
 
 /// configuration of the supported FSharp.Formatting functions 
 let OptionsMapping = new Dictionary<string, IExecutable>(HashIdentity.Structural)
