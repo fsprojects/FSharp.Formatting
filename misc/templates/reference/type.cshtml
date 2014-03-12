@@ -22,7 +22,7 @@
     .Select((g, n) => new { 
       Index = n, 
       GroupKey = g.Key, 
-      Members = g.OrderBy(m => m.Name), 
+      Members = g.OrderBy(m => m.Kind == MemberKind.StaticParameter ? "" : m.Name), 
       Name = String.IsNullOrEmpty(g.Key) ? "Other type members" : g.Key 
     });
 }
