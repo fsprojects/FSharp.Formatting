@@ -185,15 +185,15 @@ module ValueReader =
     attribs |> Seq.exists (fun a -> isAttrib<'T>(a))
 
   let (|MeasureProd|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
+      if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
       else None
 
   let (|MeasureInv|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
+      if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
       else None
 
   let (|MeasureOne|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
+      if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
       else None
 
   let formatTypeArgument (typar:FSharpGenericParameter) =
@@ -242,8 +242,8 @@ module ValueReader =
         (formatTypeWithPrec 2 ty1) + "*" + (formatTypeWithPrec 2 ty2)
     | MeasureInv ty -> "/" + (formatTypeWithPrec 1 ty)
     | MeasureOne  -> "1" 
-    | _ when typ.IsNamedType -> 
-        let tcref = typ.NamedEntity 
+    | _ when typ.HasTypeDefinition -> 
+        let tcref = typ.TypeDefinition 
         let tyargs = typ.GenericArguments |> Seq.toList
         // layout postfix array types
         formatTypeApplication (formatTyconRef tcref) prec tcref.UsesPrefixDisplay tyargs 
@@ -270,7 +270,7 @@ module ValueReader =
     let nm = 
       match arg.Name with 
       | None -> 
-          if arg.Type.IsNamedType && arg.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()" 
+          if arg.Type.HasTypeDefinition && arg.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()" 
           else "arg" + string i 
       | Some nm -> nm
     // Detect an optional argument 
@@ -349,12 +349,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
@@ -619,9 +619,9 @@ module Reader =
         match typ.BaseType with
         | Some baseType ->
             //TODO: would be better to reuse instead of reparsing the base type xml docs
-            let cmds, comment = readCommentAndCommands ctx baseType.NamedEntity.XmlDocSig
+            let cmds, comment = readCommentAndCommands ctx baseType.TypeDefinition.XmlDocSig
             match cmds with
-            | Command "omit" _ -> yield! getMembers baseType.NamedEntity
+            | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
             | _ -> ()
         | None -> ()
       ]
