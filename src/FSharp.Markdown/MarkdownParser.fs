@@ -61,6 +61,23 @@ let inline (|DelimitedMarkdown|_|) bracket input =
     | None -> None
   else None
 
+
+/// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
+let inline (|DelimitedLatexDisplayMath|_|) bracket input =
+  let startl, endl = bracket, bracket
+  // Like List.partitionUntilEquals, but skip over escaped characters
+  let rec loop acc = function
+    | EscapedLatexInlineMathChar(x, xs) -> loop (x::'\\'::acc) xs
+    | input when List.startsWith endl input -> Some(List.rev acc, input)
+    | x::xs -> loop (x::acc) xs
+    | [] -> None
+  // If it starts with 'startl', let's search for 'endl'
+  if List.startsWith bracket input then
+    match loop [] (List.skip bracket.Length input) with 
+    | Some(pre, post) -> Some(pre, List.skip bracket.Length post)
+    | None -> None
+  else None
+
 /// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
 let inline (|DelimitedLatexInlineMath|_|) bracket input =
   let startl, endl = bracket, bracket
@@ -159,6 +176,12 @@ let rec parseChars acc input = seq {
       yield! accLiterals.Value
       yield InlineCode(String(Array.ofList body).Trim())
       yield! parseChars [] rest
+
+  // Display Latex inline math mode
+  | DelimitedLatexDisplayMath ['$';'$'] (body, rest) ->
+    yield! accLiterals.Value
+    yield LatexDisplayMath(String(Array.ofList body).Trim())
+    yield! parseChars [] rest
 
   // Inline Latex inline math mode
   | DelimitedLatexInlineMath ['$'] (body, rest) ->

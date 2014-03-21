@@ -183,6 +183,13 @@ let ``Transform code spans correctly``() =
     let expected = "<p>HTML contains the <code>&lt;blink&gt;</code> tag</p>\r\n" |> properNewLines;
     Markdown.TransformHtml doc
     |> shouldEqual expected
+    
+[<Test>]
+let ``Transform display math correctly``() =
+     let doc = """$$\bigcap_{x \in A} p_{x}A$$"""
+     let res = Markdown.TransformHtml doc
+     let res = res.TrimEnd([|'\r';'\n'|])
+     res |> shouldEqual "<p><span class=\"math\">\\[\\bigcap_{x \\in A} p_{x}A\\]</span></p>"
 
 [<Test>]
 let ``Transform HTML passthrough correctly``() =
