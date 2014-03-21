@@ -6,7 +6,8 @@ link to [MathJax](http://www.mathjax.org/) in
 your template.
 
 To use inline LaTex, eclose LaTex code with `$`:
-$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $.
+$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $. Alternatively,
+you can also use `$$`.
 
 To use block LaTex, start a new parapgraph, with
 the first line marked as `$$$` (no close `$$$`):
