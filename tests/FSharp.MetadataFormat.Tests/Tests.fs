@@ -141,3 +141,23 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   System.Diagnostics.Process.Start(output)
   #endif
 
+[<Test>]
+let ``MetadataFormat process XML comments in two sample F# assemblies``() = 
+  let libraries = 
+    [ root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
+      root @@ "files/TestLib/bin/Debug" @@ "TestLib2.dll" ]
+  let output = getOutputDir()
+  MetadataFormat.Generate(libraries, output, layoutRoots, info, markDownComments = false)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  files.["fslib-class.html"] |> should contain "Readonly int property"
+  files.["fslib-record.html"] |> should contain "This is name"
+  files.["fslib-record.html"] |> should contain "Additional member"
+  files.["fslib-union.html"] |> should contain "Hello of int"
+  files.["index.html"] |> should contain "Sample class"
+  files.["index.html"] |> should contain "Union sample"
+  files.["index.html"] |> should contain "Record sample"
+  files.["fslib-nested.html"] |> should contain "Somewhat nested type"
+  files.["fslib-nested.html"] |> should contain "Somewhat nested module"
+  files.["fslib-nested-nestedtype.html"] |> should contain "Very nested member"
+  files.["fslib-nested-submodule.html"] |> should contain "Very nested field"

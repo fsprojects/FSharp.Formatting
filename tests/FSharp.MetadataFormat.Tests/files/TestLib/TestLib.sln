@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestLib1", "TestLib1.fsproj", "{AD192375-D530-40FB-A4E9-380C74CBB771}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestLib2", "TestLib2.fsproj", "{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD192375-D530-40FB-A4E9-380C74CBB771}.Release|Any CPU.Build.0 = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

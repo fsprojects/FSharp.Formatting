@@ -7,7 +7,9 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 open FSharp.Patterns
 
+open System.Text
 open System.IO
+open System.Xml
 open System.Xml.Linq
 
 type Comment =
@@ -142,7 +144,7 @@ module ValueReader =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(publicOnly, map, sourceFolderRepo) = 
+    static member Create(publicOnly, map, sourceFolderRepo, markDownComments) = 
       let usedNames = Dictionary<_, _>()
       let nameGen (name:string) =
         let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
@@ -154,7 +156,7 @@ module ValueReader =
         found
       { PublicOnly=publicOnly;
         XmlMemberMap = map; 
-        MarkdownComments = true; 
+        MarkdownComments = markDownComments; 
         UniqueUrlName = nameGen; 
         SourceFolderRepository = sourceFolderRepo }
 
@@ -468,13 +470,36 @@ module Reader =
           let html = Markdown.WriteHtml(MarkdownDocument(body, doc.DefinedLinks))
           KeyValuePair(k, html) ]
     Comment.Create(blurb, full, sections)
-          
+
+  let readXmlComment (doc : XElement) = 
+   
+   let full = new StringBuilder()
+   Seq.iter (fun (x : XNode) -> if x.NodeType = XmlNodeType.Text then full.Append((x :?> XText).Value) |> ignore) (doc.Nodes())
+   full.Append("</br>") |> ignore
+
+   let paras = doc.Descendants(XName.Get("para"))
+   Seq.iter (fun (x : XElement) -> 
+     full.Append("<p>").Append((x ).Value).Append("</p>") |> ignore ) paras
+
+   let paras = doc.Descendants(XName.Get("remarks"))
+   Seq.iter (fun (x : XElement) -> 
+     full.Append("<p class='remarks'>").Append((x ).Value).Append("</p>") |> ignore ) paras
+
+   // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
+   // via reflection this tags are not so important in F#
+   let str = full.ToString()
+   Comment.Create(str, str, [])
+
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
     | None -> dict[], Comment.Empty
     | Some el ->
         let sum = el.Element(XName.Get "summary")
-        if sum = null then dict[], Comment.Empty 
+        if sum = null then
+          if String.IsNullOrEmpty el.Value then
+            dict[], Comment.Empty
+          else
+            dict[], (Comment.Create ("", el.Value, []))
         else 
           if ctx.MarkdownComments then 
             let lines = removeSpaces sum.Value
@@ -487,7 +512,9 @@ module Reader =
                 | _ -> true) |> String.concat "\n"
             let doc = Markdown.Parse(text)
             cmds :> IDictionary<_, _>, readMarkdownComment doc
-          else failwith "XML comments not supported yet"
+          else 
+            let cmds = new System.Collections.Generic.Dictionary<_, _>()
+            cmds :> IDictionary<_, _>, readXmlComment sum
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
@@ -671,7 +698,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo) =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo,markDownComments) =
     let assemblyName = assembly.QualifiedName
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -684,7 +711,7 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo)
+    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo, markDownComments)
 
     // 
     let namespaces = 
@@ -715,13 +742,13 @@ type Html private() =
 
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags) =
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags)
+        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags) =
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -809,7 +836,7 @@ type MetadataFormat =
           else
               let asm = table.[asmName] 
               Log.logf "Parsing assembly"
-              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo) ]
+              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, defaultArg markDownComments true) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
