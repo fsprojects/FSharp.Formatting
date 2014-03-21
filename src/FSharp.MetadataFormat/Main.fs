@@ -185,15 +185,15 @@ module ValueReader =
     attribs |> Seq.exists (fun a -> isAttrib<'T>(a))
 
   let (|MeasureProd|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
+      if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
       else None
 
   let (|MeasureInv|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
+      if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "/" && typ.GenericArguments.Count = 1 then Some typ.GenericArguments.[0]
       else None
 
   let (|MeasureOne|_|) (typ : FSharpType) = 
-      if typ.IsNamedType && typ.NamedEntity.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
+      if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "1" && typ.GenericArguments.Count = 0 then  Some ()
       else None
 
   let formatTypeArgument (typar:FSharpGenericParameter) =
@@ -242,8 +242,8 @@ module ValueReader =
         (formatTypeWithPrec 2 ty1) + "*" + (formatTypeWithPrec 2 ty2)
     | MeasureInv ty -> "/" + (formatTypeWithPrec 1 ty)
     | MeasureOne  -> "1" 
-    | _ when typ.IsNamedType -> 
-        let tcref = typ.NamedEntity 
+    | _ when typ.HasTypeDefinition -> 
+        let tcref = typ.TypeDefinition 
         let tyargs = typ.GenericArguments |> Seq.toList
         // layout postfix array types
         formatTypeApplication (formatTyconRef tcref) prec tcref.UsesPrefixDisplay tyargs 
@@ -270,7 +270,7 @@ module ValueReader =
     let nm = 
       match arg.Name with 
       | None -> 
-          if arg.Type.IsNamedType && arg.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()" 
+          if arg.Type.HasTypeDefinition && arg.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()" 
           else "arg" + string i 
       | Some nm -> nm
     // Detect an optional argument 
@@ -349,12 +349,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.NamedEntity.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
@@ -428,6 +428,18 @@ module ValueReader =
     let typeparams = List.empty
     let signature = formatType field.FieldType
     let loc = defaultArg field.ImplementationLocation field.DeclarationLocation
+    let location = formatSourceLocation ctx.SourceFolderRepository loc
+    MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
+
+  let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName = 
+    "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
+
+  let readFSharpStaticParam (ctx:ReadingContext) (staticParam:FSharpStaticParameter) =
+    let usage (maxLength:int) = staticParam.Name
+    let modifiers = List.empty
+    let typeparams = List.empty
+    let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
+    let loc = defaultArg staticParam.ImplementationLocation staticParam.DeclarationLocation
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
@@ -555,6 +567,13 @@ module Reader =
       readCommentsInto ctx field.XmlDocSig (fun cat _ comment ->
         Member.Create(field.Name, MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
 
+  let readStaticParams ctx (typ:FSharpEntity) =
+    typ.StaticParameters
+    |> List.ofSeq
+    |> List.choose (fun staticParam ->
+      readCommentsInto ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
+        Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
+
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
   // ----------------------------------------------------------------------------------------------
@@ -569,26 +588,18 @@ module Reader =
 
   // Type providers don't have their docs dumped into the xml file,
   // so we need to add them to the XmlMemberMap separately
-  let processTypeProvider (ctx:ReadingContext) (typ:FSharpEntity) =
+  let registerTypeProviderXmlDocs (ctx:ReadingContext) (typ:FSharpEntity) =
     let xmlDocSig = "T:" + typ.AccessPath + "." + typ.LogicalName
     let xmlDoc = registerXmlDoc ctx xmlDocSig (String.concat "" typ.XmlDoc)
-    let statParams = 
-        xmlDoc.Descendants(XName.Get "param")
-        |> Seq.choose (fun p -> let nameAttr = p.Attribute(XName.Get "name")
-                                if nameAttr = null
-                                then None
-                                else Some (nameAttr.Value, p.Value))
-        |> Seq.choose (fun (name, xmlDoc) -> 
-            let xmlDocSig = "P:" + typ.AccessPath + "." + typ.LogicalName + "." + name
-            registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape xmlDoc) |> ignore                
-            readCommentsInto ctx xmlDocSig (fun cat cmds comment -> 
-                Member.Create(name,
-                              MemberKind.StaticParameter, 
-                              cat,
-                              MemberOrValue.Create((fun _ -> name), [], [], name, None), 
-                              comment)))
-        |> Seq.toList
-    xmlDocSig, statParams
+    xmlDoc.Descendants(XName.Get "param")
+    |> Seq.choose (fun p -> let nameAttr = p.Attribute(XName.Get "name")
+                            if nameAttr = null
+                            then None
+                            else Some (nameAttr.Value, p.Value))
+    |> Seq.iter (fun (name, xmlDoc) -> 
+        let xmlDocSig = getFSharpStaticParamXmlSig typ name
+        registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape xmlDoc) |> ignore)
+    xmlDocSig
 
   let rec readModulesAndTypes ctx (entities:seq<_>) = 
     let modules = readChildren ctx entities readModule (fun x -> x.IsFSharpModule) 
@@ -596,11 +607,10 @@ module Reader =
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
-    let xmlDocSig, statParams =
-        if typ.XmlDocSig <> "" then typ.XmlDocSig, []
-        elif typ.XmlDoc.Count = 0 then "", []
-        // assume is a type provider
-        else processTypeProvider ctx typ
+    let xmlDocSig =
+        if typ.XmlDocSig = "" && typ.XmlDoc.Count > 0 && typ.IsProvided
+        then registerTypeProviderXmlDocs ctx typ
+        else typ.XmlDocSig
     readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
@@ -609,9 +619,9 @@ module Reader =
         match typ.BaseType with
         | Some baseType ->
             //TODO: would be better to reuse instead of reparsing the base type xml docs
-            let cmds, comment = readCommentAndCommands ctx baseType.NamedEntity.XmlDocSig
+            let cmds, comment = readCommentAndCommands ctx baseType.TypeDefinition.XmlDocSig
             match cmds with
-            | Command "omit" _ -> yield! getMembers baseType.NamedEntity
+            | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
             | _ -> ()
         | None -> ()
       ]
@@ -639,10 +649,12 @@ module Reader =
       let name = readTypeName typ
       let cases = readUnionCases ctx typ
       let fields = readRecordFields ctx typ
+      let statParams = readStaticParams ctx typ
         
       let ctors = readAllMembers ctx MemberKind.Constructor cvals 
       let inst = readAllMembers ctx MemberKind.InstanceMember ivals 
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
+
       Type.Create
         ( name, urlName, comment, cases, fields, statParams, ctors, inst, stat ))
 
