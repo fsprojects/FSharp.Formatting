@@ -222,7 +222,7 @@ module internal Transformations =
     match paras with
     | Matching.LiterateParagraph(para)::paras ->
       match para with
-      | OutputReferencedCode (name,snip) ->
+      | NamedCode(name,snip) ->
           let text = unparse snip
           let result = fsi.Evaluate(text, file=file)
           evalBlocks fsi file ((OutputRef name,result)::acc) paras
@@ -231,7 +231,7 @@ module internal Transformations =
           // Need to eval because subsequent code might refer it, but we don't need result
           let text = unparse snip
           let result = fsi.Evaluate(text, file=file)
-          evalBlocks fsi file acc paras
+          evalBlocks fsi file acc paras 
       | ValueReference(ref) -> 
           let result = fsi.Evaluate(ref,asExpression=true,file=file)
           evalBlocks fsi file ((ValueRef ref,result)::acc) paras
@@ -259,6 +259,10 @@ module internal Transformations =
               | Some res -> defaultArg res.Output "No output has been produced"
               | _ -> "Could not find output reference " + ref
             ctx.Evaluator.Value.FormatOutput(res)
+        | ItValueReference(ref) ->
+            match evaluationResults.TryFind(OutputRef(ref)) with
+            | Some { ItValue = Some v } -> ctx.Evaluator.Value.FormatValue(v)
+            | _ -> [ CodeBlock(sprintf "Value '%s' could not be evaluated" ref) ]
         | ValueReference(ref) -> 
             match evaluationResults.[ValueRef ref].Result with
             | Some(o, ty) -> ctx.Evaluator.Value.FormatValue(o,ty)
@@ -290,7 +294,7 @@ module internal Transformations =
     match par with 
     | Matching.LiterateParagraph(HiddenCode(Some id, lines)) -> 
         yield Choice2Of2(id), lines
-    | Matching.LiterateParagraph(OutputReferencedCode(_,lines))
+    | Matching.LiterateParagraph(NamedCode(_,lines))
     | Matching.LiterateParagraph(FormattedCode(lines)) -> 
         yield Choice1Of2(lines), lines
     | Matching.ParagraphNested(pn, nested) ->
@@ -305,9 +309,10 @@ module internal Transformations =
         | HiddenCode _ -> None
         | CodeReference ref -> Some (formatted.[Choice2Of2 ref])
         | OutputReference _  
+        | ItValueReference _  
         | ValueReference _ -> 
-            failwith "Output and value references should be replaced by FSI evaluator"
-        | OutputReferencedCode(_,lines)
+            failwith "Output, it-value and value references should be replaced by FSI evaluator"
+        | NamedCode(_,lines)
         | FormattedCode lines -> Some (formatted.[Choice1Of2 lines])
         | LanguageTaggedCode(lang, code) -> 
             let inlined = 

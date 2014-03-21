@@ -8,10 +8,68 @@ open FSharp.CodeFormat
 open Microsoft.FSharp.Compiler.ErrorLogger
 open Microsoft.FSharp.Compiler.Interactive.Shell
 
+// ------------------------------------------------------------------------------------------------
+// Helpers needed by the evaluator
+// ------------------------------------------------------------------------------------------------
+
+module EvaluatorHelpers =
+
+  /// Represents a simple (fake) event loop for the 'fsi' object
+  type SimpleEventLoop () = 
+    member x.Run () = ()
+    member x.Invoke<'T>(f:unit -> 'T) = f()
+    member x.ScheduleRestart() = ()
+
+  /// Implements a simple 'fsi' object to be passed to the FSI evaluator
+  [<Sealed>]
+  type InteractiveSettings()  = 
+      let mutable evLoop = (new SimpleEventLoop())
+      let mutable showIDictionary = true
+      let mutable showDeclarationValues = true
+      let mutable args = Environment.GetCommandLineArgs()
+      let mutable fpfmt = "g10"
+      let mutable fp = (System.Globalization.CultureInfo.InvariantCulture :> System.IFormatProvider)
+      let mutable printWidth = 78
+      let mutable printDepth = 100
+      let mutable printLength = 100
+      let mutable printSize = 10000
+      let mutable showIEnumerable = true
+      let mutable showProperties = true
+      let mutable addedPrinters = []
+
+      member self.FloatingPointFormat with get() = fpfmt and set v = fpfmt <- v
+      member self.FormatProvider with get() = fp and set v = fp <- v
+      member self.PrintWidth  with get() = printWidth and set v = printWidth <- v
+      member self.PrintDepth  with get() = printDepth and set v = printDepth <- v
+      member self.PrintLength  with get() = printLength and set v = printLength <- v
+      member self.PrintSize  with get() = printSize and set v = printSize <- v
+      member self.ShowDeclarationValues with get() = showDeclarationValues and set v = showDeclarationValues <- v
+      member self.ShowProperties  with get() = showProperties and set v = showProperties <- v
+      member self.ShowIEnumerable with get() = showIEnumerable and set v = showIEnumerable <- v
+      member self.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
+      member self.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
+      member self.CommandLineArgs with get() = args  and set v  = args <- v
+      member self.AddPrinter(printer : 'T -> string) =
+        addedPrinters <- Choice1Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
+
+      member self.EventLoop
+          with get () = evLoop
+          and set (x:SimpleEventLoop)  = ()
+
+      member self.AddPrintTransformer(printer : 'T -> obj) =
+        addedPrinters <- Choice2Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
+
+// ------------------------------------------------------------------------------------------------
+// Evaluator
+// ------------------------------------------------------------------------------------------------
+
+open EvaluatorHelpers
+
 /// Represents the result of evaluating an F# snippet. This contains
 /// the generated console output together with a result and its static type.
 type FsiEvaluationResult = 
   { Output : string option
+    ItValue : (obj * Type) option
     Result : (obj * Type) option }
 
 /// A wrapper for F# interactive serivice that is used to evaluate inline snippets
@@ -20,10 +78,9 @@ type FsiEvaluator(?options:string[]) =
   let inStream = new StringReader("")
   let sbOut = new Text.StringBuilder()
   let sbErr = new Text.StringBuilder()
-
   let outStream = new StringWriter(sbOut)
   let errStream = new StringWriter(sbErr)
-  let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+  let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings())
   let argv = Array.append [|"C:\\test.exe"; "--noninteractive"|] (defaultArg options [||])
   let fsiSession = FsiEvaluationSession(fsiConfig, argv, inStream, outStream, errStream)
 
@@ -66,16 +123,21 @@ type FsiEvaluator(?options:string[]) =
       let prev = Console.Out
       try //try..finally to make sure console.out is re-set to prev
         Console.SetOut(new StringWriter(sbConsole))
-        let value =
+        let value, itvalue =
           if asExpression then
               match fsiSession.EvalExpression(text) with
-              | Some value -> Some(value.ReflectionValue, value.ReflectionType)
-              | None -> None
+              | Some value -> Some(value.ReflectionValue, value.ReflectionType), None
+              | None -> None, None
           else
             fsiSession.EvalInteraction(text)
-            None
+            // try get the "it" value, but silently ignore any errors
+            try 
+              match fsiSession.EvalExpression("it") with
+              | Some value -> None, Some(value.ReflectionValue, value.ReflectionType)
+              | None -> None, None
+            with _ -> None, None
         let output = Some(sbConsole.ToString())
-        { Output = output; Result = value  }
+        { Output = output; Result = value; ItValue = itvalue  }
       finally
         Console.SetOut(prev)
     with e ->
@@ -83,4 +145,4 @@ type FsiEvaluator(?options:string[]) =
       | null -> printfn "Error evaluating expression (%s)" e.Message
       | WrappedError(err, _) -> printfn "Error evaluating expression (%s)" err.Message
       | _ -> printfn "Error evaluating expression (%s)" e.Message
-      { Output = None; Result = None }
+      { Output = None; Result = None; ItValue = None }

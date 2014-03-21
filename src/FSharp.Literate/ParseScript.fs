@@ -127,6 +127,9 @@ module internal ParseScript =
     | BlockCommand(Command "include-output" ref)::blocks -> 
         let p = EmbedParagraphs(OutputReference(ref))
         transformBlocks (p::acc) defs blocks
+    | BlockCommand(Command "include-it" ref)::blocks -> 
+        let p = EmbedParagraphs(ItValueReference(ref))
+        transformBlocks (p::acc) defs blocks
     | BlockCommand(Command "include-value" ref)::blocks -> 
         let p = EmbedParagraphs(ValueReference(ref))
         transformBlocks (p::acc) defs blocks
@@ -139,7 +142,7 @@ module internal ParseScript =
     | BlockCommand(Command "define-output" ref)::BlockSnippet(snip)::blocks ->
         let acc = 
           if ref = "" then acc
-          else (EmbedParagraphs(OutputReferencedCode(ref, snip)))::acc
+          else (EmbedParagraphs(NamedCode(ref, snip)))::acc
         transformBlocks acc defs blocks
     // Unknown command
     | BlockCommand(cmds)::_ ->

@@ -68,6 +68,10 @@ as follows:
 <pre><code>42
 </code></pre></blockquote>
 
+In addition to the commands demonstrated in the above sample, you can also use `(*** include-it: test ***)` 
+to include the `it` value that was produced by a snippet named `test` using the `(*** define-output: test ***)` 
+command.
+
 Specifying the evaluator and formatting 
 ---------------------------------------
 *)
