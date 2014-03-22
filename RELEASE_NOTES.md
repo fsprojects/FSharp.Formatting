@@ -37,3 +37,4 @@
 * 2.3.11-beta - Support output embedding in command line tool
 * 2.4.0 - Incrementing version and stop using the beta versioning
 * 2.4.1 - Support for generating docs for type providers
+* 2.4.2 - Improved static parameter support, evaluation and math mode, support XML docs

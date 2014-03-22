@@ -164,7 +164,10 @@ module ValueReader =
     sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
         let basePath = Uri(Path.GetFullPath(baseFolder)).ToString()
         let docPath = Uri(Path.GetFullPath(location.FileName)).ToString()
-        if not <| docPath.StartsWith basePath then
+
+        // Even though ignoring case might be wrong, we do that because
+        // one path might be file:///C:\... and the other file:///c:\...  :-(
+        if not <| docPath.StartsWith(basePath, StringComparison.InvariantCultureIgnoreCase) then
             Log.logf "Error occurs. Current source file '%s' doesn't reside in source folder '%s'" docPath basePath
             ""
         else
