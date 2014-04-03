@@ -60,16 +60,16 @@ If you want to exclude modules or functions from the API docs you can use the `[
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:
 
 *)
-
 /// [omit]
 /// Some actual comment
 module Foo = 
    let a = 42
-(*
+(**
 Classic XML documentation comments
----------------------------------------
+----------------------------------
 
-By default FSharp.Formatting will expect Markdown documentation comments, to parse XML comments pass the named argument `markDownComments` with value `false`.
+By default `FSharp.Formatting` will expect Markdown documentation comments, to parse XML comments
+pass the named argument `markDownComments` with value `false`.
 *)
 
 MetadataFormat.Generate
@@ -78,7 +78,7 @@ MetadataFormat.Generate
     [ Path.Combine(root, "templates") ],
     sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
-(*
+(**
 Example of XML documentation comment.
 *)
 /// <summary>
@@ -87,11 +87,10 @@ Example of XML documentation comment.
 /// </summary>
 module Foo = 
    let a = 42
-(*
-Note that currently our code is not handling `<parameter>` and `<result> tags, this is not so much of a problem given that given that FSharp.Formatting infers the signature via reflection.
-*)
-
 (**
+Note that currently our code is not handling `<parameter>` and `<result> tags, this is 
+not so much of a problem given that given that FSharp.Formatting infers the signature via reflection.
+
 Work in progress!
 -----------------
 
