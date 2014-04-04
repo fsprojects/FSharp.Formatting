@@ -129,7 +129,7 @@ type ProcessDirectoryOptions() =
                         watcher.NotifyFilter <- System.IO.NotifyFilters.LastWrite
                         let monitor = obj()
                         x.waitForKey <- true
-                        Event.add (fun _ -> lock monitor run) watcher.Changed
+                        Event.add (fun _ -> try lock monitor run with _ -> ()) watcher.Changed
                         watcher.EnableRaisingEvents <- true
 
                     run()
