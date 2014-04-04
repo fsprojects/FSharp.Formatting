@@ -96,27 +96,44 @@ type ProcessDirectoryOptions() =
         HelpText = "Search directory list for the Razor Engine (optional).")>]
     member val layoutRoots = [|""|] with get, set
 
+    [<Option("live", Required = false,
+        HelpText = "Watches for changes in the input directory and re-runs, if a change occures")>]
+    member val live = false with get, set
+
     interface IExecutable with 
         member x.Execute() = 
             let mutable res = 0
+            use watcher = new System.IO.FileSystemWatcher(x.inputDirectory)
             try
                 if x.help then 
                     printfn "%s" (x.GetUsageOfOption())
-                else                            
-                    Literate.ProcessDirectory( 
-                        x.inputDirectory,
-                        ?templateFile = (evalString x.templateFile),
-                        ?outputDirectory = Some (if x.outputDirectory = "" then x.inputDirectory else x.outputDirectory),
-                        ?format= Some (if (x.format).ToLower() = "html" then OutputKind.Html else OutputKind.Latex),
-                        ?formatAgent = None,
-                        ?prefix = (evalString x.prefix),
-                        ?compilerOptions = (evalString (concat x.compilerOptions)),
-                        ?lineNumbers = Some x.lineNumbers,
-                        ?references = Some x.references,
-                        ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() ) else None),
-                        ?replacements = (evalPairwiseStringArray x.replacements),
-                        ?includeSource = Some x.includeSource,
-                        ?layoutRoots = (evalStringArray x.layoutRoots))
+                else      
+                    let run () =
+                        Literate.ProcessDirectory( 
+                            x.inputDirectory,
+                            ?templateFile = (evalString x.templateFile),
+                            ?outputDirectory = Some (if x.outputDirectory = "" then x.inputDirectory else x.outputDirectory),
+                            ?format= Some (if (x.format).ToLower() = "html" then OutputKind.Html else OutputKind.Latex),
+                            ?formatAgent = None,
+                            ?prefix = (evalString x.prefix),
+                            ?compilerOptions = (evalString (concat x.compilerOptions)),
+                            ?lineNumbers = Some x.lineNumbers,
+                            ?references = Some x.references,
+                            ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() ) else None),
+                            ?replacements = (evalPairwiseStringArray x.replacements),
+                            ?includeSource = Some x.includeSource,
+                            ?layoutRoots = (evalStringArray x.layoutRoots))
+
+                    if x.live then
+                        watcher.IncludeSubdirectories <- true
+                        watcher.NotifyFilter <- System.IO.NotifyFilters.LastWrite
+                        let monitor = obj()
+                        x.waitForKey <- true
+                        Event.add (fun _ -> lock monitor run) watcher.Changed
+                        watcher.EnableRaisingEvents <- true
+
+                    run()
+
             with
                 | _ as ex -> Log.logf "received exception in Literate.ProcessDirectory:\n %A" ex; res <- -1
             waitForKey x.waitForKey
