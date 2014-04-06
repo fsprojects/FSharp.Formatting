@@ -17,7 +17,7 @@ the library) from `*.fsx` and `*.md` files in [the docs folder][2]. If you find 
  - [F# Formatting: Literate programming][4] documents the most interesting part of the package - script that
    can be used to generate documentation for F# projects from commented F# script files and Markdown documents.
 
-### Usees
+### Who Uses F# Formatting?
 The library is used by a number of F# projects. Most prominently, the [F# snippets web site](http://www.fssnip.net)
 uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
 documentation and might be a useful inspiration:
