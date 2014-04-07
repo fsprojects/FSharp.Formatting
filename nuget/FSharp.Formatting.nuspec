@@ -33,5 +33,6 @@
     <file src="..\misc\literate\*" target="literate" />
     <file src="..\misc\literate\templates\*" target="literate/templates" />
     <file src="..\docs\files\content\*" target="styles" />
+    <file src="..\docs\files\content\img\*" target="styles/img" />
   </files>
 </package>
