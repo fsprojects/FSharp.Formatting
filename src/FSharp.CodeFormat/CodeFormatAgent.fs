@@ -187,7 +187,7 @@ type CodeFormatAgent() =
 
   // ------------------------------------------------------------------------------------
 
-  let processSourceCode (file, source, options, defines) = 
+  let processSourceCode (file, source, options, defines) = async {
 
     // Read the source code into an array of lines
     use reader = new StringReader(source)
@@ -198,7 +198,7 @@ type CodeFormatAgent() =
 
     // Get options for a standalone script file (this adds some 
     // default references and doesn't require full project information)
-    let opts = checker.GetProjectOptionsFromScript(file, source, DateTime.Now) 
+    let! opts = checker.GetProjectOptionsFromScript(file, source, DateTime.Now) 
     
     // Override default options if the user specified something
     let opts = 
@@ -259,7 +259,8 @@ type CodeFormatAgent() =
                ( (errInfo.StartLine, errInfo.StartColumn), (errInfo.EndLine, errInfo.EndColumn),
                  (if errInfo.Severity = Severity.Error then ErrorKind.Error else ErrorKind.Warning),
                  errInfo.Message ) |]
-    parsedSnippets, sourceErrors 
+    return parsedSnippets, sourceErrors 
+  }
  
   // ------------------------------------------------------------------------------------
   // Agent that implements the parsing & formatting
@@ -269,7 +270,7 @@ type CodeFormatAgent() =
       // Receive parameters for the next parsing request
       let! request, (chnl:AsyncReplyChannel<_>) = agent.Receive()
       try
-        let res, errs = processSourceCode request
+        let! res, errs = processSourceCode request
         chnl.Reply(Choice1Of2(res |> Array.ofList, errs))
       with e ->
         chnl.Reply(Choice2Of2(e)) // new Exception(Utilities.formatException e, e)))
