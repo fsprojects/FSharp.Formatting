@@ -57,8 +57,8 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function 
-  | LatexInlineMath(body) 
-  | LatexDisplayMath(body) -> ctx.Writer.Write(sprintf "$%s$" body)
+  | LatexInlineMath(body) -> ctx.Writer.Write(sprintf "$%s$" body)
+  | LatexDisplayMath(body) -> ctx.Writer.Write(sprintf "$$%s$$" body)
   | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(latexEncode str)
   | HardLineBreak -> bigBreak ctx ()

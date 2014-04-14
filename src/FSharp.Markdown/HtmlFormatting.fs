@@ -48,10 +48,12 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function
-  | LatexDisplayMath(body)
-  | LatexInlineMath(body) ->
+  | LatexDisplayMath(body) ->
       // use mathjax grammar, for detail, check: http://www.mathjax.org/
       ctx.Writer.Write("<span class=\"math\">\\[" + (htmlEncode body) + "\\]</span>")
+  | LatexInlineMath(body) ->
+      // use mathjax grammar, for detail, check: http://www.mathjax.org/
+      ctx.Writer.Write("<span class=\"math\">\\(" + (htmlEncode body) + "\\)</span>")
 
   | AnchorLink(id) -> ctx.Writer.Write("<a name=\"" + id + "\">&#160;</a>") 
   | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
