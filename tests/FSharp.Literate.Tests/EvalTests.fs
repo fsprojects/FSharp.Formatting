@@ -22,7 +22,7 @@ open FSharp.Markdown.Unit
 // Test FSI evaluator
 // --------------------------------------------------------------------------------------
 
-[<Test>]
+[<Test; Ignore>]
 let ``Can parse and format literate F# script with evaluation`` () =
   let content = """
 (***hide***)
@@ -45,7 +45,7 @@ printf ">>%d<<" 12343
 (*** include-output: test ***)
 """
 
-  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
 
   doc.Errors |> Seq.length |> shouldEqual 0
   // Contains formatted code and markdown
@@ -62,7 +62,7 @@ printf ">>%d<<" 12343
   doc.Paragraphs |> shouldMatchPar (function
     | CodeBlock ">>12343<<" -> true | _ -> false)
 
-[<Test>]
+[<Test; Ignore>]
 let ``Can parse and format literate F# script with custom evaluator`` () =
   let content = """
 let test = [1;2;3]
@@ -77,7 +77,7 @@ let test = [1;2;3]
       Some [ ListBlock(MarkdownListKind.Ordered, items) ]
     else None)
 
-  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", formatAgent, fsiEvaluator = fsiEvaluator)
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = fsiEvaluator)
   doc.Paragraphs
   |> shouldMatchPar (function
       | ListBlock(Ordered, items) -> 

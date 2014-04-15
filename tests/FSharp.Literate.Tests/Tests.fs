@@ -50,7 +50,7 @@ let ``Can parse and format literate F# script`` () =
   let content = """
 (** **hello** *)
 let test = 42"""
-  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent())
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
@@ -63,7 +63,7 @@ let ``Can parse and format markdown with F# snippet`` () =
 **hello**
 
     let test = 42"""
-  let doc = Literate.ParseMarkdownString(content, formatAgent = formatAgent)
+  let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
@@ -78,7 +78,7 @@ some [link][ref] to
 
   [ref]: http://there "Author: Article"
 *)"""
-  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent, references=true)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent(), references=true)
   doc.Paragraphs |> shouldMatchPar (function ListBlock(_, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchSpan (function Literal("Article") -> true | _ -> false) 
   doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author") -> true | _ -> false) 
@@ -89,7 +89,7 @@ let ``Can report errors in F# code snippets (in F# script file)`` () =
 **hello**
 
     let test = 4 + 1.0"""
-  let doc = Literate.ParseMarkdownString(content, formatAgent = formatAgent)
+  let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
   doc.Errors |> Seq.length |> should be (greaterThan 0)
 
 [<Test>]
@@ -97,7 +97,7 @@ let ``Can report errors in F# code snippets (in Markdown document)`` () =
   let content = """
 (** **hello** *)
 let test = 4 + 1.0"""
-  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", formatAgent)
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent())
   doc.Errors |> Seq.length |> should be (greaterThan 0)
 
 // --------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ hello
 
     [lang=csharp]
     var a = 10 < 10;"""
-  let doc = Literate.ParseMarkdownString(content, formatAgent=formatAgent)
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain "<span class=\"k\">var</span>"
 
@@ -130,8 +130,8 @@ let simpleMd = """
 
 [<Test>]
 let ``Parsing simple script and markdown produces the same result`` () =
-  let doc1 = Literate.ParseMarkdownString(simpleMd, formatAgent = formatAgent) |> Literate.WriteHtml
-  let doc2 = Literate.ParseScriptString(simpleFsx, formatAgent = formatAgent) |> Literate.WriteHtml
+  let doc1 = Literate.ParseMarkdownString(simpleMd, formatAgent = getFormatAgent()) |> Literate.WriteHtml
+  let doc2 = Literate.ParseScriptString(simpleFsx, formatAgent = getFormatAgent()) |> Literate.WriteHtml
   doc1 |> shouldEqual doc2
 
 // --------------------------------------------------------------------------------------

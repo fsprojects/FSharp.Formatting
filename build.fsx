@@ -70,6 +70,8 @@ Target "Clean" (fun _ ->
     CleanDirs ["docs/output"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/bin"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/obj"]
 )
 
 // --------------------------------------------------------------------------------------
@@ -95,6 +97,12 @@ Target "BuildTests" (fun _ ->
 
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/files/FsLib/FsLib.sln"]
+      Excludes = [] }
+    |> MSBuildDebug "" "Rebuild"
+    |> ignore
+
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["tests/*/files/TestLib/TestLib.sln"]
       Excludes = [] }
     |> MSBuildDebug "" "Rebuild"
     |> ignore

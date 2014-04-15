@@ -39,3 +39,4 @@
 * 2.4.1 - Support for generating docs for type providers
 * 2.4.2 - Improved static parameter support, evaluation and math mode, support XML docs
 * 2.4.3 - Fix documentation, nicer github source links template
+* 2.4.4 - Live referesh in command line

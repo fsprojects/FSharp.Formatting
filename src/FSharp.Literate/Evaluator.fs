@@ -117,7 +117,10 @@ type FsiEvaluator(?options:string[]) =
   member internal x.Evaluate(text:string, ?asExpression, ?file) =
     try
       let asExpression = defaultArg asExpression false
-      file |> Option.iter (Path.GetDirectoryName >> sprintf "#cd @\"%s\""  >> fsiSession.EvalInteraction)
+      file |> Option.iter (fun file ->
+        let dir = Path.GetDirectoryName(file)
+        fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
+        fsiSession.EvalInteraction(sprintf "#cd @\"%s\"" dir) )
       sbOut.Clear() |> ignore
       let sbConsole = new Text.StringBuilder()
       let prev = Console.Out
