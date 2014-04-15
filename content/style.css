@@ -191,12 +191,3 @@ td.title, thead {
   color: #e0e0e0;
   margin-top:15px;
 }
-
-/* Hide snippets on the home page snippet & nicely format table */
-#hp-snippet td.lines {
-  display: none;
-}
-#hp-snippet .table {
-  width:80%;
-  margin-left:30px;
-}
