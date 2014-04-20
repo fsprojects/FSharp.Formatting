@@ -1,4 +1,4 @@
-F# Formatting: Documentation Tools
+F# Formatting: Documentation Tools [![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png)](https://travis-ci.org/tpetricek/FSharp.Formatting)
 ==================================
 
 The F# Formatting libraries (`FSharp.CodeFormat.dll` and `FSharp.Markdown.dll`) include an F# implementation 
@@ -27,9 +27,6 @@ documentation and might be a useful inspiration:
 ## Library license
 
 The library is available under Apache 2.0. For more information see the [License file][1] in the GitHub repository.
-
-## Build Status
-[![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png)](https://travis-ci.org/tpetricek/FSharp.Formatting)
 
 
  [1]: https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md
