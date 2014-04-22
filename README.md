@@ -1,4 +1,4 @@
-F# Formatting: Documentation Tools [![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png)](https://travis-ci.org/tpetricek/FSharp.Formatting)
+F# Formatting: Documentation Tools [![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png?branch=master)](https://travis-ci.org/tpetricek/FSharp.Formatting)
 ==================================
 
 The F# Formatting libraries (`FSharp.CodeFormat.dll` and `FSharp.Markdown.dll`) include an F# implementation 
