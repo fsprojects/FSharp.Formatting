@@ -97,7 +97,7 @@ type Literate private () =
   static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers) =
     let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+    Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs @ [InlineBlock doc.FormattedTips], doc.DefinedLinks))
 
   static member WriteLatex(doc:LiterateDocument, ?prefix, ?lineNumbers) =
     let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None None None
@@ -107,7 +107,7 @@ type Literate private () =
   static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers) =
     let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+    Markdown.WriteHtml(MarkdownDocument(doc.Paragraphs @ [InlineBlock doc.FormattedTips], doc.DefinedLinks), writer)
 
   static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers) =
     let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None None None

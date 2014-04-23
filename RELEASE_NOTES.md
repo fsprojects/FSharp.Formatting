@@ -40,3 +40,5 @@
 * 2.4.2 - Improved static parameter support, evaluation and math mode, support XML docs
 * 2.4.3 - Fix documentation, nicer github source links template
 * 2.4.4 - Live referesh in command line
+* 2.4.5 - Include tool tips when generating HTML using WriteHtml
+* 2.4.6 - Use --quiet (by default) to avoid calling default printer

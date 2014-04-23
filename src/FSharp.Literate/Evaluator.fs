@@ -81,7 +81,7 @@ type FsiEvaluator(?options:string[]) =
   let outStream = new StringWriter(sbOut)
   let errStream = new StringWriter(sbErr)
   let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings())
-  let argv = Array.append [|"C:\\test.exe"; "--noninteractive"|] (defaultArg options [||])
+  let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
   let fsiSession = FsiEvaluationSession(fsiConfig, argv, inStream, outStream, errStream)
 
   /// Registered transformations for pretty printing values
