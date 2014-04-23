@@ -12,3 +12,8 @@ install:
 
 script: 
   - ./build.sh
+
+branches:
+  except:
+    - gh-pages
+    - release
