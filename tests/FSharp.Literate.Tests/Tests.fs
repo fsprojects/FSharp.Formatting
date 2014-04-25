@@ -130,8 +130,8 @@ let simpleMd = """
 
 [<Test>]
 let ``Parsing simple script and markdown produces the same result`` () =
-  let doc1 = Literate.ParseMarkdownString(simpleMd, formatAgent = getFormatAgent()) |> Literate.WriteHtml
-  let doc2 = Literate.ParseScriptString(simpleFsx, formatAgent = getFormatAgent()) |> Literate.WriteHtml
+  let doc1 = Literate.ParseMarkdownString(simpleMd, formatAgent = getFormatAgent()).With(formattedTips="") |> Literate.WriteHtml
+  let doc2 = Literate.ParseScriptString(simpleFsx, formatAgent = getFormatAgent()).With(formattedTips="") |> Literate.WriteHtml
   doc1 |> shouldEqual doc2
 
 // --------------------------------------------------------------------------------------
