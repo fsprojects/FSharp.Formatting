@@ -72,6 +72,14 @@ type FsiEvaluationResult =
     ItValue : (obj * Type) option
     Result : (obj * Type) option }
 
+/// Record that is reported by the `EvaluationFailed` event when something
+/// goes wrong during evalutaiton of an expression
+type FsiEvaluationFailedInfo = 
+  { Text : string
+    AsExpression : bool
+    File : string option
+    Exception : exn }
+
 /// A wrapper for F# interactive serivice that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
@@ -83,6 +91,7 @@ type FsiEvaluator(?options:string[]) =
   let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings())
   let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
   let fsiSession = FsiEvaluationSession(fsiConfig, argv, inStream, outStream, errStream)
+  let evalFailed = new Event<_>()
 
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
@@ -115,8 +124,8 @@ type FsiEvaluator(?options:string[]) =
   /// given script file - this is for correct usage of #I and #r with relative paths.
   /// Note however that __SOURCE_DIRECTORY___ does not currently pick this up.
   member internal x.Evaluate(text:string, ?asExpression, ?file) =
+    let asExpression = defaultArg asExpression false
     try
-      let asExpression = defaultArg asExpression false
       file |> Option.iter (fun file ->
         let dir = Path.GetDirectoryName(file)
         fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
@@ -144,10 +153,8 @@ type FsiEvaluator(?options:string[]) =
       finally
         Console.SetOut(prev)
     with e ->
-      match e.InnerException with
-      | null -> errStream.WriteLine (sprintf "Error evaluating expression (%s):\n%s" e.Message text)
-      | WrappedError(err, _) -> errStream.WriteLine (sprintf "Error evaluating expression (%s):\n%s" err.Message text)
-      | _ -> errStream.WriteLine (sprintf "Error evaluating expression (%s):\n%s" e.Message text)
+      evalFailed.Trigger({ File=file; AsExpression=asExpression; Text=text; Exception=e })
       { Output = None; Result = None; ItValue = None }
 
-    member x.Errors = errStream.ToString()
+    /// This event is fired whenever an evaluation of an expression fails
+    member x.EvaluationFailed = evalFailed.Publish
