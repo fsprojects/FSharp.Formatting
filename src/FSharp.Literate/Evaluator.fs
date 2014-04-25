@@ -145,7 +145,9 @@ type FsiEvaluator(?options:string[]) =
         Console.SetOut(prev)
     with e ->
       match e.InnerException with
-      | null -> printfn "Error evaluating expression (%s)" e.Message
-      | WrappedError(err, _) -> printfn "Error evaluating expression (%s)" err.Message
-      | _ -> printfn "Error evaluating expression (%s)" e.Message
+      | null -> errStream.WriteLine (sprintf "Error evaluating expression (%s):\n%s" e.Message text)
+      | WrappedError(err, _) -> errStream.WriteLine (sprintf "Error evaluating expression (%s):\n%s" err.Message text)
+      | _ -> errStream.WriteLine (sprintf "Error evaluating expression (%s):\n%s" e.Message text)
       { Output = None; Result = None; ItValue = None }
+
+    member x.Errors = errStream.ToString()
