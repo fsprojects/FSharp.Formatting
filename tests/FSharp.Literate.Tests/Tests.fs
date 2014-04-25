@@ -130,8 +130,9 @@ let simpleMd = """
 
 [<Test>]
 let ``Parsing simple script and markdown produces the same result`` () =
-  let doc1 = Literate.ParseMarkdownString(simpleMd, formatAgent = getFormatAgent()).With(formattedTips="") |> Literate.WriteHtml
-  let doc2 = Literate.ParseScriptString(simpleFsx, formatAgent = getFormatAgent()).With(formattedTips="") |> Literate.WriteHtml
+  // Use path "/usr/File.fsx" which makes them equal, including the tool tips on Mono
+  let doc1 = Literate.ParseMarkdownString(simpleMd, path="/usr/File.fsx", formatAgent = getFormatAgent()) |> Literate.WriteHtml
+  let doc2 = Literate.ParseScriptString(simpleFsx, path="/usr/File.fsx", formatAgent = getFormatAgent()) |> Literate.WriteHtml
   doc1 |> shouldEqual doc2
 
 // --------------------------------------------------------------------------------------
