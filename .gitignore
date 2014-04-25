@@ -12,3 +12,4 @@ temp/
 tests/Benchmarks/testfiles/*/*.html
 *.sln.DotSettings.user
 *.userprefs
+*.bak
