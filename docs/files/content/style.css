@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono|Gudea:400,700,400italic);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono|Open+Sans:400,600,700);
 
 /*-------------------------------------------------------------------------- 
   Formatting for F# code snippets 
@@ -80,7 +80,7 @@ table.pre td.lines {
 /*--------------------------------------------------------------------------*/
 
 body {
-  font-family: Gudea, serif;
+  font-family: 'Open Sans', serif;
   padding-top: 0px;
   padding-bottom: 40px;
 }
@@ -133,10 +133,10 @@ td.title, thead {
 /* Change font sizes for headings etc. */
 #main h1 { font-size: 26pt; margin:10px 0px 15px 0px; font-weight:400; }
 #main h2 { font-size: 20pt; margin:20px 0px 0px 0px; font-weight:400; }
-#main h3 { font-size: 14pt; margin:15px 0px 0px 0px; font-weight:400; }
-#main p  { font-size: 12pt; margin:5px 0px 15px 0px; }
-#main ul { font-size: 12pt; margin-top:10px; }
-#main li { font-size: 12pt; margin: 5px 0px 5px 0px; }
+#main h3 { font-size: 14pt; margin:15px 0px 0px 0px; font-weight:600; }
+#main p  { font-size: 11pt; margin:5px 0px 15px 0px; }
+#main ul { font-size: 11pt; margin-top:10px; }
+#main li { font-size: 11pt; margin: 5px 0px 5px 0px; }
 #main strong { font-weight:700; }
 
 /*-------------------------------------------------------------------------- 
