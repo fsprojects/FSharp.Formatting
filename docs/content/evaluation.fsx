@@ -108,8 +108,16 @@ can use additional commands such as `include-value`. When the evaluator is *not*
 it is not created automatically and so the functionality is not available (this way,
 you won't accidentally run unexpected code!)
 
+If you specify the `fsiEvaluator` parameter, but don't want a specific snippet to be evaluated
+(because it might throw an exception, for example), you can use the `(*** do-not-eval ***)` 
+command.
+
 The constructor of `FsiEvaluator` takes command line parameters for `fsi.exe` that can
 be used to specify e.g. defined symbols and other attributes for F# Interactive.
+
+You can also subscribe to the `EvaluationFailed` event which is fired whenever the evaluation
+of an expression fails. You can use that to do tests that verify that all the code on your
+documentation executes without errors.
 
 Custom formatting functions
 ---------------------------

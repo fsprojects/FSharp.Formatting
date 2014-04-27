@@ -26,6 +26,8 @@ type LiterateParagraph =
   /// is used somewehre else in the literate doc via (*** include-output:foo ***)
   /// or via (*** include-it:foo ***)
   | NamedCode of string * Line list
+  /// (*** do-not-eval ***) - Code snippet that will not be evaluated
+  | DoNotEvalCode of Line list
 
   /// Ordinary formatted code snippet
   | FormattedCode of Line list
