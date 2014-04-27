@@ -43,3 +43,4 @@
 * 2.4.5 - Include tool tips when generating HTML using WriteHtml
 * 2.4.6 - Use --quiet (by default) to avoid calling default printer
 * 2.4.7 - Report errors from FsiEvaluator and stylesheet tweaks 
+* 2.4.8 - Support do-not-eval and expose StdErr from eval failed event
