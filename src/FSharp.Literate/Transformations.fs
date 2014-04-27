@@ -232,6 +232,9 @@ module internal Transformations =
           let text = unparse snip
           let result = fsi.Evaluate(text, file=file)
           evalBlocks fsi file acc paras 
+      | DoNotEvalCode(snip) -> 
+          // Don't evaluate in FSI
+          evalBlocks fsi file acc paras 
       | ValueReference(ref) -> 
           let result = fsi.Evaluate(ref,asExpression=true,file=file)
           evalBlocks fsi file ((ValueRef ref,result)::acc) paras
@@ -294,6 +297,7 @@ module internal Transformations =
     match par with 
     | Matching.LiterateParagraph(HiddenCode(Some id, lines)) -> 
         yield Choice2Of2(id), lines
+    | Matching.LiterateParagraph(DoNotEvalCode(lines))
     | Matching.LiterateParagraph(NamedCode(_,lines))
     | Matching.LiterateParagraph(FormattedCode(lines)) -> 
         yield Choice1Of2(lines), lines
@@ -312,6 +316,7 @@ module internal Transformations =
         | ItValueReference _  
         | ValueReference _ -> 
             failwith "Output, it-value and value references should be replaced by FSI evaluator"
+        | DoNotEvalCode lines
         | NamedCode(_,lines)
         | FormattedCode lines -> Some (formatted.[Choice1Of2 lines])
         | LanguageTaggedCode(lang, code) -> 
@@ -324,7 +329,7 @@ module internal Transformations =
               | OutputKind.Latex ->
                   sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
             Some(InlineBlock(inlined))
-    // Traverse all other structrues recursively
+    // Traverse all other structures recursively
     | Matching.ParagraphNested(pn, nested) ->
         let nested = List.map (List.choose (replaceSpecialCodes ctx formatted)) nested
         Some(Matching.ParagraphNested(pn, nested))

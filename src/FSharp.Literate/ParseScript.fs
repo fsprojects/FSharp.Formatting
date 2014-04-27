@@ -144,6 +144,9 @@ module internal ParseScript =
           if ref = "" then acc
           else (EmbedParagraphs(NamedCode(ref, snip)))::acc
         transformBlocks acc defs blocks
+    | BlockCommand(Command "do-not-eval" _)::BlockSnippet(snip)::blocks ->
+        let acc = (EmbedParagraphs(DoNotEvalCode(snip)))::acc
+        transformBlocks acc defs blocks
     // Unknown command
     | BlockCommand(cmds)::_ ->
         failwithf "Unknown command: %A" [for (KeyValue(k, v)) in cmds -> sprintf "%s:%s" k v]
