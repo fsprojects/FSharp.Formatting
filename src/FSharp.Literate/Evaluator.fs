@@ -78,7 +78,19 @@ type FsiEvaluationFailedInfo =
   { Text : string
     AsExpression : bool
     File : string option
-    Exception : exn }
+    Exception : exn
+    StdErr : string }
+    override x.ToString() = 
+      let errMessage = 
+        match x.Exception.InnerException with
+        | null -> x.Exception.Message
+        | WrappedError(err, _) -> err.Message
+        | _ -> x.Exception.InnerException.Message
+      let indent (s:string) = 
+        s.Split([| '\n'; '\r' |], StringSplitOptions.RemoveEmptyEntries)
+        |> Array.map(fun x -> "    " + x)
+        |> fun x -> String.Join("\n", x)
+      sprintf "Error evaluating expression (%s)\nExpression:\n%s\nError:\n%s" x.Exception.Message (indent x.Text) (indent x.StdErr)
 
 /// A wrapper for F# interactive serivice that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[]) =
@@ -131,6 +143,7 @@ type FsiEvaluator(?options:string[]) =
         fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
         fsiSession.EvalInteraction(sprintf "#cd @\"%s\"" dir) )
       sbOut.Clear() |> ignore
+      sbErr.Clear() |> ignore
       let sbConsole = new Text.StringBuilder()
       let prev = Console.Out
       try //try..finally to make sure console.out is re-set to prev
@@ -153,7 +166,7 @@ type FsiEvaluator(?options:string[]) =
       finally
         Console.SetOut(prev)
     with e ->
-      evalFailed.Trigger({ File=file; AsExpression=asExpression; Text=text; Exception=e })
+      evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = sbErr.ToString() }
       { Output = None; Result = None; ItValue = None }
 
     /// This event is fired whenever an evaluation of an expression fails
