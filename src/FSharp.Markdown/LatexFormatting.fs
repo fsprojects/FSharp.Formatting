@@ -46,11 +46,8 @@ type FormattingContext =
   { LineBreak : unit -> unit
     Newline : string
     Writer : TextWriter
-    Links : IDictionary<string, string * option<string>>
-    ParagraphIndent : unit -> unit }
+    Links : IDictionary<string, string * option<string>> }
 
-let bigBreak (ctx:FormattingContext) () =
-  ctx.Writer.Write(ctx.Newline + ctx.Newline)
 let smallBreak (ctx:FormattingContext) () =
   ctx.Writer.Write(ctx.Newline)
 let noBreak (ctx:FormattingContext) () = ()
@@ -61,7 +58,7 @@ let rec formatSpan (ctx:FormattingContext) = function
   | LatexDisplayMath(body) -> ctx.Writer.Write(sprintf "$$%s$$" body)
   | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(latexEncode str)
-  | HardLineBreak -> bigBreak ctx ()
+  | HardLineBreak -> ctx.LineBreak(); ctx.LineBreak()
 
   | AnchorLink _ -> ()
   | IndirectLink(body, _, LookupKey ctx.Links (link, _)) 
@@ -78,14 +75,20 @@ let rec formatSpan (ctx:FormattingContext) = function
   | IndirectImage(body, link, _) ->
       // Use the technique introduced at
       // http://stackoverflow.com/q/14014827
-      ctx.Writer.WriteLine(@"\begin{figure}[htbp]\centering")
-      ctx.Writer.Write(@"\includegraphics{")
+      if not (System.String.IsNullOrWhiteSpace(body)) then
+        ctx.Writer.Write(@"\begin{figure}[htbp]\centering")
+        ctx.LineBreak()
+      ctx.Writer.Write(@"\includegraphics[width=1.0\textwidth]{")
       ctx.Writer.Write(latexEncode link)
-      ctx.Writer.WriteLine("}")
-      ctx.Writer.Write(@"\caption{")
-      ctx.Writer.Write(latexEncode body)
-      ctx.Writer.WriteLine("}")
-      ctx.Writer.WriteLine(@"\end{figure}")
+      ctx.Writer.Write("}") 
+      ctx.LineBreak()
+      if not (System.String.IsNullOrWhiteSpace(body)) then
+        ctx.Writer.Write(@"\caption{")
+        ctx.Writer.Write(latexEncode body)
+        ctx.Writer.Write("}")
+        ctx.LineBreak()
+        ctx.Writer.Write(@"\end{figure}")
+        ctx.LineBreak()
 
   | Strong(body) -> 
       ctx.Writer.Write(@"\textbf{")
@@ -107,11 +110,13 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
   | LatexBlock(lines) ->
-    ctx.ParagraphIndent()
-    bigBreak ctx ()
+    ctx.LineBreak(); ctx.LineBreak()
+    ctx.Writer.Write("\["); ctx.LineBreak()
     for line in lines do
-      ctx.Writer.WriteLine(line)
-    bigBreak ctx ()
+      ctx.Writer.Write(line)
+      ctx.LineBreak()
+    ctx.Writer.Write("\]")
+    ctx.LineBreak(); ctx.LineBreak()
 
   | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
@@ -125,74 +130,83 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
         | _ -> ""
       ctx.Writer.Write(level + "{")
       formatSpans ctx spans
-      ctx.Writer.WriteLine("}")
+      ctx.Writer.Write("}")
+      ctx.LineBreak()
   | Paragraph(spans) ->
-      // What is paragraph indent doing?
-      ctx.ParagraphIndent()
-      bigBreak ctx ()
+      ctx.LineBreak(); ctx.LineBreak()
       for span in spans do 
         formatSpan ctx span
+
   | HorizontalRule ->
       // Reference from http://tex.stackexchange.com/q/19579/9623
-      ctx.Writer.WriteLine(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
+      ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
+      ctx.LineBreak()
+
   | CodeBlock(code) ->
-      ctx.Writer.WriteLine(@"\begin{lstlisting}")
-      ctx.Writer.WriteLine(code)
-      ctx.Writer.WriteLine(@"\end{lstlisting}")
+      ctx.Writer.Write(@"\begin{lstlisting}")
+      ctx.LineBreak()
+      ctx.Writer.Write(code)
+      ctx.LineBreak()
+      ctx.Writer.Write(@"\end{lstlisting}")
+      ctx.LineBreak()
+
   | TableBlock(headers, alignments, rows) ->
       let aligns = alignments |> List.map (function
-        | AlignLeft -> "|l"
         | AlignRight -> "|r"
         | AlignCenter -> "|c"
-        | AlignDefault -> "|")
-      ctx.Writer.WriteLine(@"\begin{longtable}{0|}\hline", aligns)
-      headers
-      |> Option.fold (fun acc e -> e::acc) rows
-      |> List.iter(fun row ->
-           for cell in row do
-             match cell with
-             | p::ps ->
-               formatParagraph { ctx with LineBreak = noBreak ctx } p
-               for p in ps do
-                 ctx.Writer.Write(" & ")
-                 formatParagraph { ctx with LineBreak = noBreak ctx } p
-             | [] -> ()
-           ctx.Writer.WriteLine(@"\hline"))
-      ctx.Writer.WriteLine(@"\end{longtable}")
+        | AlignDefault | AlignLeft -> "|l") |> String.concat ""
+      ctx.Writer.Write(@"\begin{tabular}{" + aligns + @"|}\hline")
+      ctx.LineBreak()
+
+      let bodyCtx = { ctx with LineBreak = noBreak ctx }
+      let formatRow (prefix:string) (postfix:string) row = 
+        row |> Seq.iteri (fun i cell ->
+          if i <> 0 then ctx.Writer.Write(" & ")
+          ctx.Writer.Write(prefix)
+          cell |> List.iter (formatParagraph bodyCtx) 
+          ctx.Writer.Write(postfix) )
+
+      for header in Option.toList headers do
+        formatRow @"\textbf{" "}" header
+        ctx.Writer.Write(@"\\ \hline\hline")
+        ctx.LineBreak()
+      for row in rows do
+        formatRow "" "" row
+        ctx.Writer.Write(@"\\ \hline")
+        ctx.LineBreak()
+      ctx.Writer.Write(@"\end{tabular}")
+      ctx.LineBreak()
 
   | ListBlock(kind, items) ->
       let tag = if kind = Ordered then "enumerate" else "itemize"
-      ctx.Writer.WriteLine(@"\begin{" + tag + "}")
+      ctx.Writer.Write(@"\begin{" + tag + "}")
+      ctx.LineBreak()
       for body in items do
         ctx.Writer.Write(@"\item ")
-        body |> List.iterInterleaved 
-                  (formatParagraph { ctx with LineBreak = noBreak ctx }) 
-                  (noBreak ctx)
-        ctx.Writer.WriteLine()
-      ctx.Writer.WriteLine(@"\end{" + tag + "}")
+        body |> List.iter (formatParagraph ctx)
+        ctx.LineBreak()
+      ctx.Writer.Write(@"\end{" + tag + "}")
+      ctx.LineBreak()
+
   | QuotedBlock(body) ->
-      ctx.ParagraphIndent()
-      ctx.Writer.WriteLine(@"\begin{quote}")
-      formatParagraphs { ctx with ParagraphIndent = fun () -> ctx.ParagraphIndent(); ctx.Writer.Write("  ") } body
-      ctx.ParagraphIndent()
-      ctx.Writer.WriteLine(@"\end{quote}")
+      ctx.Writer.Write(@"\begin{quote}")
+      ctx.LineBreak()
+      formatParagraphs ctx body
+      ctx.Writer.Write(@"\end{quote}")
+      ctx.LineBreak()
+
   | Span spans -> 
       formatSpans ctx spans
   | InlineBlock(code) ->
-      //// To be safe, put them into verbatim
-      //// Further processing follows later
-      //ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.Writer.Write(code)
-      //ctx.Writer.WriteLine(@"\end{lstlisting}")
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagrpah values to a TextWriter
 and formatParagraphs ctx paragraphs = 
   let length = List.length paragraphs
-  let smallCtx = { ctx with LineBreak = smallBreak ctx }
-  let bigCtx = { ctx with LineBreak = bigBreak ctx }
+  let ctx = { ctx with LineBreak = smallBreak ctx }
   for last, paragraph in paragraphs |> Seq.mapi (fun i v -> (i = length - 1), v) do
-    formatParagraph (if last then smallCtx else bigCtx) paragraph
+    formatParagraph ctx paragraph
 
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
@@ -202,5 +216,4 @@ let formatMarkdown writer newline links =
     { Writer = writer
       Links = links
       Newline = newline
-      LineBreak = ignore
-      ParagraphIndent = ignore }
+      LineBreak = ignore }

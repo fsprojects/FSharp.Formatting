@@ -218,25 +218,25 @@ module internal Transformations =
   /// whether the result is a top level variable (i.e. include-value) or a reference to 
   /// some output (i.e. define-output and include-output). This just to put each of those
   /// names in a separate scope.
-  let rec evalBlocks (fsi:FsiEvaluator) file acc (paras:MarkdownParagraphs) = 
+  let rec evalBlocks (fsi:IFsiEvaluator) file acc (paras:MarkdownParagraphs) = 
     match paras with
     | Matching.LiterateParagraph(para)::paras ->
       match para with
       | NamedCode(name,snip) ->
           let text = unparse snip
-          let result = fsi.Evaluate(text, file=file)
+          let result = fsi.Evaluate(text, false, Some file)
           evalBlocks fsi file ((OutputRef name,result)::acc) paras
       | HiddenCode(_,snip)
       | FormattedCode(snip) ->
           // Need to eval because subsequent code might refer it, but we don't need result
           let text = unparse snip
-          let result = fsi.Evaluate(text, file=file)
+          let result = fsi.Evaluate(text, false, Some file)
           evalBlocks fsi file acc paras 
       | DoNotEvalCode(snip) -> 
           // Don't evaluate in FSI
           evalBlocks fsi file acc paras 
       | ValueReference(ref) -> 
-          let result = fsi.Evaluate(ref,asExpression=true,file=file)
+          let result = fsi.Evaluate(ref, true, Some file)
           evalBlocks fsi file ((ValueRef ref,result)::acc) paras
       | _ -> evalBlocks fsi file acc paras
     | para::paras -> evalBlocks fsi file acc paras
@@ -253,24 +253,18 @@ module internal Transformations =
   // Evaluate all snippets and replace evaluation references with the results
   // ---------------------------------------------------------------------------------------------
 
-  let rec replaceEvaluations ctx (evaluationResults:Map<_,FsiEvaluationResult>) = function
+  let rec replaceEvaluations ctx (evaluationResults:Map<_, IFsiEvaluationResult>) = function
     | Matching.LiterateParagraph(special) -> 
-        match special with
-        | OutputReference(ref) -> 
-            let res = 
-              match evaluationResults.TryFind(OutputRef(ref)) with
-              | Some res -> defaultArg res.Output "No output has been produced"
-              | _ -> "Could not find output reference " + ref
-            ctx.Evaluator.Value.FormatOutput(res)
-        | ItValueReference(ref) ->
-            match evaluationResults.TryFind(OutputRef(ref)) with
-            | Some { ItValue = Some v } -> ctx.Evaluator.Value.FormatValue(v)
-            | _ -> [ CodeBlock(sprintf "Value '%s' could not be evaluated" ref) ]
-        | ValueReference(ref) -> 
-            match evaluationResults.[ValueRef ref].Result with
-            | Some(o, ty) -> ctx.Evaluator.Value.FormatValue(o,ty)
-            | _ -> [ CodeBlock(sprintf "Value '%s' could not be evaluated" ref) ]
+        let (|EvalFormat|_|) = function
+          | OutputReference(ref) -> Some(evaluationResults.TryFind(OutputRef ref), ref, FsiEmbedKind.Output)
+          | ItValueReference(ref) -> Some(evaluationResults.TryFind(OutputRef ref), ref, FsiEmbedKind.ItValue)
+          | ValueReference(ref) -> Some(evaluationResults.TryFind(ValueRef ref), ref, FsiEmbedKind.Value)
+          | _ -> None
+        match special with 
+        | EvalFormat(Some result, _, kind) -> ctx.Evaluator.Value.Format(result, kind)
+        | EvalFormat(None, ref, _) -> [ CodeBlock("Could not find reference '" + ref + "'") ]
         | other -> [ EmbedParagraphs(other) ]
+
     // Traverse all other structrues recursively
     | Matching.ParagraphNested(pn, nested) ->
         let nested = List.map (List.collect (replaceEvaluations ctx evaluationResults)) nested

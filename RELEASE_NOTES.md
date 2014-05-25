@@ -44,3 +44,5 @@
 * 2.4.6 - Use --quiet (by default) to avoid calling default printer
 * 2.4.7 - Report errors from FsiEvaluator and stylesheet tweaks 
 * 2.4.8 - Support do-not-eval and expose StdErr from eval failed event
+* 2.4.9 - Improve LaTeX formatting and make evaluator customizable
+* 2.4.10 - Automatically wrap LaTeX code in math mode blocks
