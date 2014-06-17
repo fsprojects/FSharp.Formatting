@@ -129,6 +129,13 @@ let ``Transform auto hyperlinks at end of line correctly``() =
     |> shouldEqual expected
 
 [<Test>]
+let ``Transform auto hyperlinks at start of line correctly``() =
+    let doc = "https://github.com/fsharp/FAKE/pull/472 shows we improved CLI documentation";
+    let expected = "<p><a href=\"https://github.com/fsharp/FAKE/pull/472\">https://github.com/fsharp/FAKE/pull/472</a> shows we improved CLI documentation</p>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
+
+[<Test>]
 let ``Transform alternative links correctly``() =
     let doc = "Have you visited [example](http://www.example.com) before?";
     let expected = "<p>Have you visited <a href=\"http://www.example.com\">example</a> before?</p>\r\n" |> properNewLines;
