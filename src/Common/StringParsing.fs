@@ -146,7 +146,7 @@ module List =
     | x::xs when x = startc -> loop [] 0 xs
     | _ -> None
 
-  /// Retruns a list of characters as a string.
+  /// Returns a list of characters as a string.
   let (|AsString|) chars = String(Array.ofList chars)
 
 module Lines = 
