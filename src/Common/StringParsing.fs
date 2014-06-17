@@ -123,6 +123,10 @@ module List =
       | None -> None
     else None
 
+  /// Matches a list if it starts with a sub-list. Returns the list.
+  let inline (|StartsWith|_|) startl input = 
+    if List.startsWith startl input then Some input else None
+
   /// Matches a list if it starts with a sub-list that is delimited
   /// using the specified delimiter. Returns a wrapped list and the rest.
   let inline (|Delimited|_|) str = (|DelimitedWith|_|) str str
