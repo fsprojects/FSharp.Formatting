@@ -48,10 +48,15 @@ module internal CodeBlockUtils =
 
   /// Waiting for the end of a comment      
   let rec private collectComment (comment:string) lines = seq {
+    let findCommentEnd (comment:string) =
+        let cend = comment.LastIndexOf("*)")
+        if cend = -1 then failwith "A (* comment was not closed"
+        cend
+
     match lines with
     | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
         // Ended with a command, yield comment, command & parse the next as a snippet
-        let cend = comment.LastIndexOf("*)")
+        let cend = findCommentEnd comment
         yield BlockComment (comment.Substring(0, cend))
         yield BlockCommand cmds
         yield! collectSnippet [] lines
@@ -59,14 +64,14 @@ module internal CodeBlockUtils =
     | (ConcatenatedComments text)::_ when 
         comment.LastIndexOf("*)") <> -1 && text.Trim().StartsWith("//") ->
         // Comment ended, but we found a code snippet starting with // comment
-        let cend = comment.LastIndexOf("*)")
+        let cend = findCommentEnd comment
         yield BlockComment (comment.Substring(0, cend))
         yield! collectSnippet [] lines
 
     | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
         // Another block of Markdown comment starting... 
         // Yield the previous snippet block and continue parsing more comments
-        let cend = comment.LastIndexOf("*)")
+        let cend = findCommentEnd comment
         yield BlockComment (comment.Substring(0, cend))
         if lines <> [] then yield! collectComment text lines
 
@@ -76,7 +81,7 @@ module internal CodeBlockUtils =
 
     | lines ->
         // Ended - yield comment & continue parsing snippet
-        let cend = comment.LastIndexOf("*)")
+        let cend = findCommentEnd comment
         yield BlockComment (comment.Substring(0, cend))
         if lines <> [] then yield! collectSnippet [] lines }
 
