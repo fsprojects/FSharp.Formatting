@@ -111,7 +111,7 @@ type IFsiEvaluator =
   /// Called to evaluate a snippet 
   abstract Evaluate : string * asExpression:bool * file:string option -> IFsiEvaluationResult
 
-/// A wrapper for F# interactive serivice that is used to evaluate inline snippets
+/// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
   let inStream = new StringReader("")
