@@ -120,6 +120,8 @@ let inline (|AutoLink|_|) input =
     match input with
     | List.DelimitedWith prefix [' '] (List.AsString link, rest) ->
         Some(scheme + link, ' '::rest)
+    | List.StartsWith prefix (List.AsString link) ->
+        Some(link, [])
     | _ -> None
 
   ["http://";"https://"]
