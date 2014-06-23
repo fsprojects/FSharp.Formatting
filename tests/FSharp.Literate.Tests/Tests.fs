@@ -203,3 +203,15 @@ let ``Can process md file using the template included in NuGet package``() =
   temp.Content |> should contain "val hello : string"
   temp.Content |> should contain "<title>Heading"
 
+
+[<Test>]
+let ``Gives nice error when parsing unclosed comment`` () =
+  let content = """
+(** **hello** 
+let test = 42"""
+  try
+    Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent()) |> ignore
+    failwith ""
+  with
+  | e when e.Message.Contains("comment was not closed") -> ()
+  | _ -> failwith "not correct error"
