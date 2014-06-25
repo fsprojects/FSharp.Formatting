@@ -121,7 +121,7 @@ type FsiEvaluator(?options:string[]) =
   let errStream = new StringWriter(sbErr)
   let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings())
   let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
-  let fsiSession = FsiEvaluationSession(fsiConfig, argv, inStream, outStream, errStream)
+  let fsiSession = FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream)
   let evalFailed = new Event<_>()
 
   /// Registered transformations for pretty printing values
