@@ -106,7 +106,7 @@ let rec formatSpan (ctx:FormattingContext) = function
 /// Write list of MarkdownSpan values to a TextWriter
 and formatSpans ctx = List.iter (formatSpan ctx)
 
-/// Write a MarkdownParagrpah value to a TextWriter
+/// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
   | LatexBlock(lines) ->
@@ -201,7 +201,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(code)
   ctx.LineBreak()
 
-/// Write a list of MarkdownParagrpah values to a TextWriter
+/// Write a list of MarkdownParagraph values to a TextWriter
 and formatParagraphs ctx paragraphs = 
   let length = List.length paragraphs
   let ctx = { ctx with LineBreak = smallBreak ctx }

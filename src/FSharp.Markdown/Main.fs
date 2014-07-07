@@ -85,12 +85,12 @@ type Markdown =
   static member TransformHtml(text) =
     Markdown.TransformHtml(text, Environment.NewLine)
   
-  /// Transform the provided MakrdownDocument into HTML
+  /// Transform the provided MarkdownDocument into HTML
   /// format and write the result to a given writer.
   static member WriteHtml(doc:MarkdownDocument, writer, newline) = 
     formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
 
-  /// Transform the provided MakrdownDocument into HTML
+  /// Transform the provided MarkdownDocument into HTML
   /// format and return the result as a string.
   static member WriteHtml(doc:MarkdownDocument, newline) = 
     let sb = new System.Text.StringBuilder()
@@ -98,12 +98,12 @@ type Markdown =
     Markdown.WriteHtml(doc, wr, newline)
     sb.ToString()
 
-  /// Transform the provided MakrdownDocument into HTML
+  /// Transform the provided MarkdownDocument into HTML
   /// format and return the result as a string.
   static member WriteHtml(doc:MarkdownDocument) = 
     Markdown.WriteHtml(doc, Environment.NewLine)
 
-  /// Transform the provided MakrdownDocument into HTML
+  /// Transform the provided MarkdownDocument into HTML
   /// format and write the result to a given writer.
   static member WriteHtml(doc:MarkdownDocument, writer) = 
     Markdown.WriteHtml(doc, writer, Environment.NewLine)
