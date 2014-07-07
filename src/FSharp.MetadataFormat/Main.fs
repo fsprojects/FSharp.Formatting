@@ -139,12 +139,13 @@ module ValueReader =
       XmlMemberMap : IDictionary<string, XElement>
       MarkdownComments : bool
       UniqueUrlName : string -> string
+      UrlRangeHighlight : Uri -> int -> int -> string
       SourceFolderRepository : (string * string) option }
     member x.XmlMemberLookup(key) =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(publicOnly, map, sourceFolderRepo, markDownComments) = 
+    static member Create(publicOnly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
       let usedNames = Dictionary<_, _>()
       let nameGen (name:string) =
         let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
@@ -158,9 +159,10 @@ module ValueReader =
         XmlMemberMap = map; 
         MarkdownComments = markDownComments; 
         UniqueUrlName = nameGen; 
+        UrlRangeHighlight = urlRangeHighlight; 
         SourceFolderRepository = sourceFolderRepo }
 
-  let formatSourceLocation (sourceFolderRepo : (string * string) option) (location : range option) =
+  let formatSourceLocation (urlRangeHighlight : Uri -> int -> int -> string) (sourceFolderRepo : (string * string) option) (location : range option) =
     location |> Option.bind (fun location ->
         sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
             let basePath = Uri(Path.GetFullPath(baseFolder)).ToString()
@@ -175,7 +177,7 @@ module ValueReader =
                 let relativePath = docPath.[basePath.Length..]
                 let uriBuilder = UriBuilder(repo)
                 uriBuilder.Path <- uriBuilder.Path + relativePath
-                String.Format("{0}#L{1}-{2}", uriBuilder.Uri, location.StartLine, location.EndLine) ) )
+                urlRangeHighlight uriBuilder.Uri location.StartLine location.EndLine ) )
 
   let (|AllAndLast|_|) (list:'T list)= 
     if list.IsEmpty then None
@@ -374,8 +376,13 @@ module ValueReader =
       if long.Length <= length then long
       else buildUsage None
     // If there is a signature file, we should go for implementation file
+<<<<<<< HEAD
     let loc = tryGetLocation v
     let location = formatSourceLocation ctx.SourceFolderRepository loc
+=======
+    let loc = defaultArg v.ImplementationLocation v.DeclarationLocation
+    let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
+>>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location)
 
     (*
@@ -428,8 +435,13 @@ module ValueReader =
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
+<<<<<<< HEAD
     let loc = tryGetLocation case
     let location = formatSourceLocation ctx.SourceFolderRepository loc
+=======
+    let loc = defaultArg case.ImplementationLocation case.DeclarationLocation
+    let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
+>>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
   let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
@@ -439,8 +451,13 @@ module ValueReader =
         if field.IsStatic then yield "static" ]
     let typeparams = List.empty
     let signature = formatType field.FieldType
+<<<<<<< HEAD
     let loc = tryGetLocation field
     let location = formatSourceLocation ctx.SourceFolderRepository loc
+=======
+    let loc = defaultArg field.ImplementationLocation field.DeclarationLocation
+    let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
+>>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName = 
@@ -451,8 +468,13 @@ module ValueReader =
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
+<<<<<<< HEAD
     let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.SourceFolderRepository loc
+=======
+    let loc = defaultArg staticParam.ImplementationLocation staticParam.DeclarationLocation
+    let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
+>>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
 module Reader =
@@ -720,7 +742,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo,markDownComments) =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments) =
     let assemblyName = assembly.QualifiedName
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -733,7 +755,7 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo, markDownComments)
+    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments)
 
     // 
     let namespaces = 
@@ -764,13 +786,13 @@ type Html private() =
 
 /// Exposes metadata formatting functionality
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments) =
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments)
+        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments) =
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -782,6 +804,8 @@ type MetadataFormat =
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
     let libDirs = defaultArg libDirs []
+    let urlRangeHighlight =
+      defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
     let sourceFolderRepo =
         match sourceFolder, sourceRepo with
         | Some folder, Some repo -> Some(folder, repo)
@@ -858,7 +882,7 @@ type MetadataFormat =
           else
               let asm = table.[asmName] 
               Log.logf "Parsing assembly"
-              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, defaultArg markDownComments true) ]
+              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
