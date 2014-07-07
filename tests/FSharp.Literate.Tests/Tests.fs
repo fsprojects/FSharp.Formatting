@@ -215,3 +215,18 @@ let test = 42"""
   with
   | e when e.Message.Contains("comment was not closed") -> ()
   | _ -> failwith "not correct error"
+
+// --------------------------------------------------------------------------------------
+// Formatting F# code snippets with seq as first line
+// --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``Can format the seq as first line in F# code snippet`` () =
+  let content = """
+hello
+
+    ["Some"]
+    |> Seq.length"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain "[\"Some\"]"
