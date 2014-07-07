@@ -181,18 +181,25 @@ open System.Collections.Generic
 
 /// Utility for parsing commands. Commands can be used in different places. We 
 /// recognize `key1=value, key2=value` and also `key1:value, key2:value`
+/// The key of the command should be identifier with just 
+/// characters in it - otherwise, the parsing fails.
 let (|ParseCommands|_|) (str:string) = 
   let kvs = 
     [ for cmd in str.Split(',') do
         let kv = cmd.Split([| '='; ':' |])
         if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
         elif kv.Length = 1 then yield kv.[0].Trim(), "" ] 
-  if kvs <> [] then Some(dict kvs) else None
+  let allKeysValid = 
+    kvs |> Seq.forall (fst >> Seq.forall Char.IsLetter) 
+  if allKeysValid && kvs <> [] then Some(dict kvs) else None
 
 /// Utility for parsing commands - this deals with a single command.
+/// The key of the command should be identifier with just 
+/// characters in it - otherwise, the parsing fails.
 let (|ParseCommand|_|) (cmd:string) = 
   let kv = cmd.Split([| '='; ':' |])
-  if kv.Length = 2 then Some(kv.[0].Trim(), kv.[1].Trim())
+  if kv.Length >= 1 && not (Seq.forall Char.IsLetter kv.[0]) then None
+  elif kv.Length = 2 then Some(kv.[0].Trim(), kv.[1].Trim())
   elif kv.Length = 1 then Some(kv.[0].Trim(), "")
   else None
   

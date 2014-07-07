@@ -229,4 +229,4 @@ hello
     |> Seq.length"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain "[\"Some\"]"
+  html |> should contain "Some"
