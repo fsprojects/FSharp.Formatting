@@ -376,13 +376,8 @@ module ValueReader =
       if long.Length <= length then long
       else buildUsage None
     // If there is a signature file, we should go for implementation file
-<<<<<<< HEAD
     let loc = tryGetLocation v
-    let location = formatSourceLocation ctx.SourceFolderRepository loc
-=======
-    let loc = defaultArg v.ImplementationLocation v.DeclarationLocation
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
->>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location)
 
     (*
@@ -435,13 +430,8 @@ module ValueReader =
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
-<<<<<<< HEAD
     let loc = tryGetLocation case
-    let location = formatSourceLocation ctx.SourceFolderRepository loc
-=======
-    let loc = defaultArg case.ImplementationLocation case.DeclarationLocation
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
->>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
   let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
@@ -451,13 +441,8 @@ module ValueReader =
         if field.IsStatic then yield "static" ]
     let typeparams = List.empty
     let signature = formatType field.FieldType
-<<<<<<< HEAD
     let loc = tryGetLocation field
-    let location = formatSourceLocation ctx.SourceFolderRepository loc
-=======
-    let loc = defaultArg field.ImplementationLocation field.DeclarationLocation
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
->>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName = 
@@ -468,13 +453,8 @@ module ValueReader =
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
-<<<<<<< HEAD
     let loc = tryGetLocation staticParam
-    let location = formatSourceLocation ctx.SourceFolderRepository loc
-=======
-    let loc = defaultArg staticParam.ImplementationLocation staticParam.DeclarationLocation
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
->>>>>>> JanBessai/UrlRangeHighlight
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
 module Reader =
