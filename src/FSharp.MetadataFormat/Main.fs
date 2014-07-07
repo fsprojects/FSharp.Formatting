@@ -160,21 +160,22 @@ module ValueReader =
         UniqueUrlName = nameGen; 
         SourceFolderRepository = sourceFolderRepo }
 
-  let formatSourceLocation (sourceFolderRepo : (string * string) option) (location : range) =
-    sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
-        let basePath = Uri(Path.GetFullPath(baseFolder)).ToString()
-        let docPath = Uri(Path.GetFullPath(location.FileName)).ToString()
+  let formatSourceLocation (sourceFolderRepo : (string * string) option) (location : range option) =
+    location |> Option.bind (fun location ->
+        sourceFolderRepo |> Option.map (fun (baseFolder, repo) -> 
+            let basePath = Uri(Path.GetFullPath(baseFolder)).ToString()
+            let docPath = Uri(Path.GetFullPath(location.FileName)).ToString()
 
-        // Even though ignoring case might be wrong, we do that because
-        // one path might be file:///C:\... and the other file:///c:\...  :-(
-        if not <| docPath.StartsWith(basePath, StringComparison.InvariantCultureIgnoreCase) then
-            Log.logf "Error occurs. Current source file '%s' doesn't reside in source folder '%s'" docPath basePath
-            ""
-        else
-            let relativePath = docPath.[basePath.Length..]
-            let uriBuilder = UriBuilder(repo)
-            uriBuilder.Path <- uriBuilder.Path + relativePath
-            String.Format("{0}#L{1}-{2}", uriBuilder.Uri, location.StartLine, location.EndLine) )
+            // Even though ignoring case might be wrong, we do that because
+            // one path might be file:///C:\... and the other file:///c:\...  :-(
+            if not <| docPath.StartsWith(basePath, StringComparison.InvariantCultureIgnoreCase) then
+                Log.logf "Error occurs. Current source file '%s' doesn't reside in source folder '%s'" docPath basePath
+                ""
+            else
+                let relativePath = docPath.[basePath.Length..]
+                let uriBuilder = UriBuilder(repo)
+                uriBuilder.Path <- uriBuilder.Path + relativePath
+                String.Format("{0}#L{1}-{2}", uriBuilder.Uri, location.StartLine, location.EndLine) ) )
 
   let (|AllAndLast|_|) (list:'T list)= 
     if list.IsEmpty then None
@@ -301,6 +302,11 @@ module ValueReader =
         | args when isItemIndexer -> String.concat tupSep args
         | args -> bracket (String.concat tupSep args))
     |> String.concat argSep
+
+  let tryGetLocation (symbol: FSharpSymbol) =
+    match symbol.ImplementationLocation with
+    | Some loc -> Some loc
+    | None -> symbol.DeclarationLocation
   
   let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberFunctionOrValue) = 
     let buildUsage (args:string option) = 
@@ -346,7 +352,8 @@ module ValueReader =
         //    else 0 
         //else 
         pty.GenericParameters.Count
-    let tps = v.GenericParameters |> Seq.skip numGenericParamsOfApparentParent
+    // Ensure that there is enough number of elements to skip
+    let tps = v.GenericParameters |> Seq.skip (min v.GenericParameters.Count numGenericParamsOfApparentParent)
     let typars = formatTypeArguments tps 
 
     //let cxs  = indexedConstraints v.GenericParameters 
@@ -367,7 +374,7 @@ module ValueReader =
       if long.Length <= length then long
       else buildUsage None
     // If there is a signature file, we should go for implementation file
-    let loc = defaultArg v.ImplementationLocation v.DeclarationLocation
+    let loc = tryGetLocation v
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location)
 
@@ -421,7 +428,7 @@ module ValueReader =
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
-    let loc = defaultArg case.ImplementationLocation case.DeclarationLocation
+    let loc = tryGetLocation case
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
@@ -432,7 +439,7 @@ module ValueReader =
         if field.IsStatic then yield "static" ]
     let typeparams = List.empty
     let signature = formatType field.FieldType
-    let loc = defaultArg field.ImplementationLocation field.DeclarationLocation
+    let loc = tryGetLocation field
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
@@ -444,7 +451,7 @@ module ValueReader =
     let modifiers = List.empty
     let typeparams = List.empty
     let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
-    let loc = defaultArg staticParam.ImplementationLocation staticParam.DeclarationLocation
+    let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
 
