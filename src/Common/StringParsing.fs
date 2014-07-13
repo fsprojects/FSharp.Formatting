@@ -190,7 +190,7 @@ let (|ParseCommands|_|) (str:string) =
         if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
         elif kv.Length = 1 then yield kv.[0].Trim(), "" ] 
   let allKeysValid = 
-    kvs |> Seq.forall (fst >> Seq.forall Char.IsLetter) 
+    kvs |> Seq.forall (fst >> Seq.forall (fun c -> Char.IsLetter c || c = '_' || c = '-'))
   if allKeysValid && kvs <> [] then Some(dict kvs) else None
 
 /// Utility for parsing commands - this deals with a single command.

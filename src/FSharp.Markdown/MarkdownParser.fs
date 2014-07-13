@@ -273,7 +273,7 @@ let (|Heading|_|) = function
 /// Recognizes a horizontal rule written using *, _ or -
 let (|HorizontalRule|_|) (line:string) = 
   let rec loop ((h, a, u) as arg) i =
-    if (h >= 3 || a >= 3 || u >= 3) && i = line.Length then Some()
+    if (h >= 3 || a >= 3 || u >= 3) && i = line.Length then Some(line.[0])
     elif i = line.Length then None
     elif Char.IsWhiteSpace line.[i] then loop arg (i + 1)
     elif line.[i] = '-' && a = 0 && u = 0 then loop (h + 1, a, u) (i + 1)
@@ -546,8 +546,8 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
       yield TableBlock(headParagraphs, alignments,
         rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq)))
       yield! parseParagraphs ctx rest 
-  | HorizontalRule :: (Lines.TrimBlankStart lines) ->
-      yield HorizontalRule
+  | HorizontalRule(c) :: (Lines.TrimBlankStart lines) ->
+      yield HorizontalRule(c)
       yield! parseParagraphs ctx lines
   | LatexBlock(body, Lines.TrimBlankStart rest) ->
     yield LatexBlock(body)

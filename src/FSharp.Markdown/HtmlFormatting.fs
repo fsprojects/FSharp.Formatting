@@ -131,7 +131,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       for span in spans do 
         formatSpan ctx span
       ctx.Writer.Write("</p>")
-  | HorizontalRule ->
+  | HorizontalRule(_) ->
       ctx.Writer.Write("<hr />")
   | CodeBlock(code) ->
       ctx.Writer.Write("<pre><code>")

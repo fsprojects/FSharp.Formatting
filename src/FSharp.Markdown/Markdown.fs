@@ -52,7 +52,7 @@ type MarkdownParagraph =
   | QuotedBlock of MarkdownParagraphs
   | Span of MarkdownSpans
   | LatexBlock of list<string>
-  | HorizontalRule 
+  | HorizontalRule of char
   | TableBlock of option<MarkdownTableRow> * list<MarkdownColumnAlignment> * list<MarkdownTableRow>
   | EmbedParagraphs of MarkdownEmbedParagraphs
 
@@ -112,7 +112,7 @@ module Matching =
     | InlineBlock _ 
     | EmbedParagraphs _
     | LatexBlock _
-    | HorizontalRule ->
+    | HorizontalRule _ ->
         ParagraphLeaf(PL par)
     | ListBlock(_, pars) ->
         ParagraphNested(PN par, pars)

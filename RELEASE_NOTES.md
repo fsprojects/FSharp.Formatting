@@ -48,3 +48,4 @@
 * 2.4.10 - Automatically wrap LaTeX code in math mode blocks
 * 2.4.11 - Improved handling of end comments and http/https links at end of lines
 * 2.4.12 - Be more flexible about URL generating, protect against exceptions, fix bugs and typos
+* 2.4.13 - Fix evaluation bug; Return characters for horizontal lines

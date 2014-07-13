@@ -223,6 +223,7 @@ let ``Transform escaped characters correctly``() =
 let ``Transform horizontal rules correctly``() =
     let doc = "* * *\r\n\r\n***\r\n\r\n*****\r\n\r\n- - -\r\n\r\n---------------------------------------\r\n\r\n";
     let expected = "<hr />\r\n\r\n<hr />\r\n\r\n<hr />\r\n\r\n<hr />\r\n\r\n<hr />\r\n" |> properNewLines;
+    Markdown.Parse(doc).Paragraphs
+    |> shouldEqual [ HorizontalRule '*'; HorizontalRule '*'; HorizontalRule '*'; HorizontalRule '-'; HorizontalRule '-' ]
     Markdown.TransformHtml doc
     |> shouldEqual expected
-

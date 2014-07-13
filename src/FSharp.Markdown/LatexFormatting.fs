@@ -137,7 +137,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       for span in spans do 
         formatSpan ctx span
 
-  | HorizontalRule ->
+  | HorizontalRule(_) ->
       // Reference from http://tex.stackexchange.com/q/19579/9623
       ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
       ctx.LineBreak()
