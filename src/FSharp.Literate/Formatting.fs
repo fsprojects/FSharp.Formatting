@@ -16,7 +16,11 @@ module internal Formatting =
   let format doc outputKind = 
     match outputKind with
     | OutputKind.Latex -> Markdown.WriteLatex(doc)
-    | OutputKind.Html -> Markdown.WriteHtml(doc)
+    | OutputKind.Html -> 
+        let sb = new System.Text.StringBuilder()
+        use wr = new StringWriter(sb)
+        Html.formatMarkdown wr System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+        sb.ToString()
 
   /// Try find first-level heading in the paragraph collection
   let findHeadings paragraphs (outputKind:OutputKind) =              

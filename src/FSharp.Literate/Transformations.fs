@@ -222,19 +222,23 @@ module internal Transformations =
     match paras with
     | Matching.LiterateParagraph(para)::paras ->
       match para with
-      | NamedCode(name,snip) ->
-          let text = unparse snip
-          let result = fsi.Evaluate(text, false, Some file)
-          evalBlocks fsi file ((OutputRef name,result)::acc) paras
-      | HiddenCode(_,snip)
+      | LiterateCode(snip, opts) ->
+          let acc =
+            if opts.Evaluate then
+              let text = unparse snip
+              let result = fsi.Evaluate(text, false, Some file)
+              match opts.OutputName with
+              | Some n -> (OutputRef n, result)::acc
+              | _ -> acc
+            else acc
+          evalBlocks fsi file acc paras
+
       | FormattedCode(snip) ->
           // Need to eval because subsequent code might refer it, but we don't need result
           let text = unparse snip
           let result = fsi.Evaluate(text, false, Some file)
           evalBlocks fsi file acc paras 
-      | DoNotEvalCode(snip) -> 
-          // Don't evaluate in FSI
-          evalBlocks fsi file acc paras 
+
       | ValueReference(ref) -> 
           let result = fsi.Evaluate(ref, true, Some file)
           evalBlocks fsi file ((ValueRef ref,result)::acc) paras
@@ -289,10 +293,9 @@ module internal Transformations =
   /// between moved snippets and ordinary snippets
   let rec collectCodes par = seq {
     match par with 
-    | Matching.LiterateParagraph(HiddenCode(Some id, lines)) -> 
+    | Matching.LiterateParagraph(LiterateCode(lines, { Visibility = NamedCode id })) -> 
         yield Choice2Of2(id), lines
-    | Matching.LiterateParagraph(DoNotEvalCode(lines))
-    | Matching.LiterateParagraph(NamedCode(_,lines))
+    | Matching.LiterateParagraph(LiterateCode(lines, _)) 
     | Matching.LiterateParagraph(FormattedCode(lines)) -> 
         yield Choice1Of2(lines), lines
     | Matching.ParagraphNested(pn, nested) ->
@@ -304,22 +307,21 @@ module internal Transformations =
   let rec replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
-        | HiddenCode _ -> None
+        | LiterateCode(_, { Visibility = (HiddenCode | NamedCode _) }) -> None
+        | FormattedCode lines 
+        | LiterateCode(lines, _) -> Some (formatted.[Choice1Of2 lines])
         | CodeReference ref -> Some (formatted.[Choice2Of2 ref])
         | OutputReference _  
         | ItValueReference _  
         | ValueReference _ -> 
             failwith "Output, it-value and value references should be replaced by FSI evaluator"
-        | DoNotEvalCode lines
-        | NamedCode(_,lines)
-        | FormattedCode lines -> Some (formatted.[Choice1Of2 lines])
         | LanguageTaggedCode(lang, code) -> 
             let inlined = 
               match ctx.OutputKind with
               | OutputKind.Html ->
                   let code = HttpUtility.HtmlEncode code
                   let code = SyntaxHighlighter.FormatCode(lang, code)
-                  sprintf "<pre lang=\"%s\">%s</pre>" lang code
+                  sprintf "<table class=\"pre\"><tr><td><pre lang=\"%s\">%s</pre></td></tr></table>" lang code
               | OutputKind.Latex ->
                   sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
             Some(InlineBlock(inlined))

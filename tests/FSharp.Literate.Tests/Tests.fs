@@ -217,7 +217,7 @@ let test = 42"""
   | _ -> failwith "not correct error"
 
 // --------------------------------------------------------------------------------------
-// Formatting F# code snippets with seq as first line
+// Formatting F# code snippets 
 // --------------------------------------------------------------------------------------
 
 [<Test>]
@@ -230,3 +230,18 @@ hello
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain "Some"
+
+
+[<Test>]
+let ``Can move snippets around using include and define commands`` () =
+  let content = """
+(*** include:later-bit ***)
+(**
+Second
+*)
+(*** define:later-bit ***)
+let First = 0
+"""
+  let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html.IndexOf("First") < html.IndexOf("Second") |> shouldEqual true

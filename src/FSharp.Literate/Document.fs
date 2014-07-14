@@ -9,6 +9,21 @@ open System.Collections.Generic
 // Special paragraphs used in literate documents
 // --------------------------------------------------------------------------------------
 
+type LiterateCodeVisibility = 
+  | VisibleCode
+  | HiddenCode
+  | NamedCode of string
+
+type LiterateCodeOptions = 
+  { /// Specifies whether the snippet is evalauted while processing
+    /// Use (*** do-not-eval ***) command to set this to `false`
+    Evaluate : bool
+    /// Specifies the name of the output produced by this snippet
+    /// Use the (*** define-output:foo ***) command to set this value
+    OutputName : option<string>
+    /// Specifies the visibility of the snippet in the generated HTML
+    Visibility : LiterateCodeVisibility }
+
 type LiterateParagraph =
   /// (*** include:foo ***) - Include formatted snippet from other part of the document here 
   | CodeReference of string
@@ -19,15 +34,8 @@ type LiterateParagraph =
   /// (*** include-value:foo ***) - Include the formatting of a specified value here
   | ValueReference of string 
 
-  /// (*** hide ***) or (*** define:foo ***) - Code snippet that is not visible in 
-  /// the output (but is needed for type checking, evaluation, or to be included later)
-  | HiddenCode of string option * Line list
-  /// (*** define-output:foo ***) - Code snippet whose output or "it" value
-  /// is used somewehre else in the literate doc via (*** include-output:foo ***)
-  /// or via (*** include-it:foo ***)
-  | NamedCode of string * Line list
-  /// (*** do-not-eval ***) - Code snippet that will not be evaluated
-  | DoNotEvalCode of Line list
+  /// Emebdded literate code snippet. Consists of source lines and options
+  | LiterateCode of Line list * LiterateCodeOptions
 
   /// Ordinary formatted code snippet
   | FormattedCode of Line list

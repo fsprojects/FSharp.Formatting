@@ -65,7 +65,7 @@ type Markdown =
   /// will be written to the provided TextWriter.
   static member TransformHtml(text, writer:TextWriter, newline) = 
     let doc = Markdown.Parse(text, newline)
-    formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
+    formatMarkdown writer newline false doc.DefinedLinks doc.Paragraphs 
 
   /// Transform Markdown document into HTML format. The result
   /// will be written to the provided TextWriter.
@@ -88,7 +88,7 @@ type Markdown =
   /// Transform the provided MarkdownDocument into HTML
   /// format and write the result to a given writer.
   static member WriteHtml(doc:MarkdownDocument, writer, newline) = 
-    formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
+    formatMarkdown writer newline false doc.DefinedLinks doc.Paragraphs
 
   /// Transform the provided MarkdownDocument into HTML
   /// format and return the result as a string.

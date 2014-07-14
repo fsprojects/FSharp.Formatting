@@ -38,6 +38,7 @@ type FormattingContext =
     Newline : string
     Writer : TextWriter
     Links : IDictionary<string, string * option<string>>
+    WrapCodeSnippets : bool
     ParagraphIndent : unit -> unit }
 
 let bigBreak (ctx:FormattingContext) () =
@@ -134,10 +135,12 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   | HorizontalRule(_) ->
       ctx.Writer.Write("<hr />")
   | CodeBlock(code) ->
+      if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       ctx.Writer.Write("<pre><code>")
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write(ctx.Newline)
       ctx.Writer.Write("</code></pre>")
+      if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
   | TableBlock(headers, alignments, rows) ->
       let aligns = alignments |> List.map (function
         | AlignLeft -> " align=\"left\""
@@ -200,10 +203,11 @@ and formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer newline links = 
+let formatMarkdown writer newline wrap links = 
   formatParagraphs 
     { Writer = writer
       Links = links
       Newline = newline
       LineBreak = ignore
+      WrapCodeSnippets = wrap
       ParagraphIndent = ignore }

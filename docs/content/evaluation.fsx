@@ -62,11 +62,11 @@ as follows:
 </tr>
 </table>
 <p>The result of the previous snippet is:</p>
-<pre><code>Result is: 42
-</code></pre>
+<table class="pre"><tr><td><pre><code>Result is: 42
+</code></pre></td></tr></table>
 <p>And the variable <code>test</code> has the following value:</p>
-<pre><code>42
-</code></pre></blockquote>
+<table class="pre"><tr><td><pre><code>42
+</code></pre></td></tr></table></blockquote>
 
 In addition to the commands demonstrated in the above sample, you can also use `(*** include-it: test ***)` 
 to include the `it` value that was produced by a snippet named `test` using the `(*** define-output: test ***)` 

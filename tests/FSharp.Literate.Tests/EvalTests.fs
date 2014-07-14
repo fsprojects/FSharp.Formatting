@@ -63,6 +63,18 @@ printf ">>%d<<" 12343
     | CodeBlock ">>12343<<" -> true | _ -> false)
 
 [<Test; Ignore>]
+let ``Can evaluate hidden code snippets`` () =
+  let content = """
+(*** hide,define-output: test ***)
+printfn "42"
+(*** include-output: test ***)
+"""
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html = Literate.WriteHtml(doc)
+  html.Contains("42") |> shouldEqual true
+  html.Contains(">printfn<") |> shouldEqual false
+
+[<Test; Ignore>]
 let ``Can parse and format literate F# script with custom evaluator`` () =
   let content = """
 let test = [1;2;3]
@@ -83,3 +95,50 @@ let test = [1;2;3]
       | ListBlock(Ordered, items) -> 
           items = [ [Paragraph [Literal "1"]]; [Paragraph [Literal "2"]]; [Paragraph [Literal "3"]] ]
       | _ -> false) 
+
+[<Test; Ignore>]
+let ``All embedded code snippets should be wrapped in a table`` () = 
+  let content = """
+(**
+test 1
+
+    [lang=sql]
+    select
+
+test 2
+
+    let a = 1
+
+*)
+(*** define-output:t ***)
+printfn "hi"
+(*** include-output:t ***)
+"""
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html = Literate.WriteHtml(doc)
+  html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length
+  |> shouldEqual 5
+
+
+[<Test; Ignore>]
+let ``Can disable evaluation on an entire script file`` () = 
+  let content = """
+(*** define-output:t ***)
+printfn "%d" (40 + 2)
+(*** include-output:t ***)
+"""
+  let doc1 = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html1 = Literate.WriteHtml(doc1)
+  html1.Contains("42") |> shouldEqual true
+
+  let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html2 = Literate.WriteHtml(doc2)
+  html2.Contains("42") |> shouldEqual false
+
+#if INTERACTIVE
+``Can parse and format literate F# script with evaluation`` ()
+``Can evaluate hidden code snippets`` ()
+``Can parse and format literate F# script with custom evaluator`` ()
+``All embedded code snippets should be wrapped in a table`` ()
+``Can disable evaluation on an entire script file`` ()
+#endif

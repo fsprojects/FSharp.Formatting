@@ -123,52 +123,65 @@ module internal ParseScript =
 
   /// Transform list of code blocks (snippet/comment/command)
   /// into a formatted Markdown document, with link definitions
-  let rec private transformBlocks acc defs blocks = 
+  let rec private transformBlocks noEval acc defs blocks = 
     match blocks with
+    // Disable evaluation for the rest of the file
+    | BlockCommand(Command "do-not-eval-file" _)::blocks ->
+        transformBlocks true acc defs blocks
+    
     // Reference to code snippet defined later
     | BlockCommand(Command "include" ref)::blocks -> 
         let p = EmbedParagraphs(CodeReference(ref))
-        transformBlocks (p::acc) defs blocks
+        transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "include-output" ref)::blocks -> 
         let p = EmbedParagraphs(OutputReference(ref))
-        transformBlocks (p::acc) defs blocks
+        transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "include-it" ref)::blocks -> 
         let p = EmbedParagraphs(ItValueReference(ref))
-        transformBlocks (p::acc) defs blocks
+        transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "include-value" ref)::blocks -> 
         let p = EmbedParagraphs(ValueReference(ref))
-        transformBlocks (p::acc) defs blocks
-    // Hidden code block or hidden definition with 'ref' reference code
-    | Let "" (ref, BlockCommand(Command "hide" _)::BlockSnippet(snip)::blocks) 
-    | BlockCommand(Command "define" ref)::BlockSnippet(snip)::blocks ->
-        let ref = if ref = "" then None else Some ref
-        let acc = (EmbedParagraphs(HiddenCode(ref, snip)))::acc
-        transformBlocks acc defs blocks
-    | BlockCommand(Command "define-output" ref)::BlockSnippet(snip)::blocks ->
-        let acc = 
-          if ref = "" then acc
-          else (EmbedParagraphs(NamedCode(ref, snip)))::acc
-        transformBlocks acc defs blocks
-    | BlockCommand(Command "do-not-eval" _)::BlockSnippet(snip)::blocks ->
-        let acc = (EmbedParagraphs(DoNotEvalCode(snip)))::acc
-        transformBlocks acc defs blocks
+        transformBlocks noEval (p::acc) defs blocks
+
+    // Parse commands in [foo=bar,zoo], followed by a source code snippet
+    //  * hide - the snippet will not be shown
+    //  * do-not-eval - the snippet will not be evaluated
+    //  * define:foo - specifies the name of this snippet (for inclusion later)
+    //  * define-output - defines the name for the snippet's output
+    | BlockCommand(cmds)::BlockSnippet(snip)::blocks ->
+        let visibility =
+          match cmds with 
+          | Command "hide" _ -> LiterateCodeVisibility.HiddenCode
+          | Command "define" name -> LiterateCodeVisibility.NamedCode name
+          | _ -> LiterateCodeVisibility.VisibleCode
+        let outputName = 
+          match cmds with
+          | Command "define-output" name -> Some name
+          | _ -> None
+        let opts = 
+          { Evaluate = not (noEval || cmds.ContainsKey("do-not-eval"))
+            OutputName = outputName
+            Visibility = visibility }
+        let code = EmbedParagraphs(LiterateCode(snip, opts))
+        transformBlocks noEval (code::acc) defs blocks
+
     // Unknown command
     | BlockCommand(cmds)::_ ->
         failwithf "Unknown command: %A" [for (KeyValue(k, v)) in cmds -> sprintf "%s:%s" k v]
 
     // Skip snippets with no content
     | BlockSnippet([])::blocks ->
-        transformBlocks acc defs blocks
+        transformBlocks noEval acc defs blocks
     // Ordinary F# code snippet
     | BlockSnippet(snip)::blocks ->
         let p = EmbedParagraphs(FormattedCode(snip))
-        transformBlocks (p::acc) defs blocks
+        transformBlocks noEval (p::acc) defs blocks
     // Markdown documentation block  
     | BlockComment(text)::blocks ->
         let doc = Markdown.Parse(text)
         let defs = doc.DefinedLinks::defs
         let acc = (List.rev doc.Paragraphs) @ acc
-        transformBlocks acc defs blocks
+        transformBlocks noEval acc defs blocks
     | [] -> 
         // Union all link definitions & return Markdown doc
         let allDefs = 
@@ -183,5 +196,5 @@ module internal ParseScript =
         (file, content, ?options = ctx.CompilerOptions, ?defines = ctx.DefinedSymbols)
     let (Snippet(_, lines)) = match sourceSnippets with [| it |] -> it | _ -> failwith "multiple snippets"
     let parsedBlocks = parseScriptFile lines
-    let paragraphs, defs = transformBlocks [] [] (List.ofSeq parsedBlocks)
+    let paragraphs, defs = transformBlocks false [] [] (List.ofSeq parsedBlocks)
     LiterateDocument(paragraphs, "", defs, LiterateSource.Script sourceSnippets, file, errors)
