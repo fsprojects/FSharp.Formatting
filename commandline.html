@@ -68,8 +68,8 @@ or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/
 <p>The tool option syntax is similar to git or other popular command line tools.
 The format of the command line interface is:</p>
 
-<pre lang="text">fsformatting[.exe] --help 
-fsformatting[.exe] [command] [function] [options]</pre>
+<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] --help 
+fsformatting[.exe] [command] [function] [options]</pre></td></tr></table>
 
 <p>In order to provide consistency across different shell environments, the command line tool appears to be case-insensitive by matching against lower case strings.</p>
 
@@ -91,7 +91,7 @@ library documentation from XML comments).</p>
 <p>The method <code>FSharp.Literate.ProcessDirectory</code> processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
 according to the concept of <a href="literate.html">Literate Programming</a>.</p>
 
-<pre lang="text">fsformatting[.exe] literate --processDirectory [options]</pre>
+<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] literate --processDirectory [options]</pre></td></tr></table>
 
 <h3>Required options</h3>
 
@@ -119,16 +119,16 @@ according to the concept of <a href="literate.html">Literate Programming</a>.</p
 
 <h3>Example</h3>
 
-<pre lang="text">fsformatting literate 
+<table class="pre"><tr><td><pre lang="text">fsformatting literate 
   --processDirectory --templateFile template-project.html 
-  --format latex --replacements &quot;page-author&quot; &quot;Tomas Petricek&quot;</pre>
+  --format latex --replacements &quot;page-author&quot; &quot;Tomas Petricek&quot;</pre></td></tr></table>
 
 <h2>Library documentation command</h2>
 
 <p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://tpetricek.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading 
 the meta-data from a <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 
-<pre lang="text">fsformatting[.exe] metadataFormat --generate [options]</pre>
+<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] metadataFormat --generate [options]</pre></td></tr></table>
 
 <h3>Required options</h3>
 
@@ -155,9 +155,9 @@ the meta-data from a <code>*.dll</code> files of the package and using the XML c
 
 <h3>Example</h3>
 
-<pre lang="text">fsformatting metadataFormat 
+<table class="pre"><tr><td><pre lang="text">fsformatting metadataFormat 
   --generate --dllFiles lib1.dll &quot;lib 2.dll&quot; 
-  --outDir &quot;../api-docs&quot; --layoutRoots templates</pre>
+  --outDir &quot;../api-docs&quot; --layoutRoots templates</pre></td></tr></table>
 
                     
         </div>
