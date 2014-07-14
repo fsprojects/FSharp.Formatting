@@ -106,7 +106,7 @@ module String =
       lines 
       |> Seq.filter (String.IsNullOrWhiteSpace >> not)
       |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
-      |> Seq.min
+      |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
     lines 
     |> Seq.map (fun line -> 
         if String.IsNullOrWhiteSpace(line) then ""
