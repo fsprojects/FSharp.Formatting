@@ -245,3 +245,19 @@ let First = 0
   let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html.IndexOf("First") < html.IndexOf("Second") |> shouldEqual true
+
+
+[<Test>]
+let ``Can split formatted document and formatted tool tips`` () =
+  let content = """(**
+hello
+*)
+let test = 42
+"""
+  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent())
+  let doc2 = Literate.FormatLiterateNodes(doc,format=OutputKind.Html)
+  let html = Literate.WriteHtml(doc2.With(formattedTips=""))
+  let tips = doc2.FormattedTips
+  tips |> should contain "test : int"
+  html |> should notContain "test : int"
+  html |> should contain "hello"

@@ -53,3 +53,4 @@
 * 2.4.15 - Support combination of commands (e.g. hide, define-output), add do-not-eval-file
 * 2.4.16 - Improve formatting of literate scripts (generate tables around pre)
 * 2.4.17 - Fix comment parsing when whitespace
+* 2.4.18 - Expose literate paragraph transformation

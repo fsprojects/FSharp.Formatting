@@ -121,6 +121,14 @@ type Literate private () =
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
   // ------------------------------------------------------------------------------------
+  // Replace literate paragraphs with plain paragraphs
+  // ------------------------------------------------------------------------------------
+
+  static member FormatLiterateNodes(doc:LiterateDocument, ?format, ?prefix, ?lineNumbers) =
+    let ctx = formattingContext None format prefix lineNumbers None None None
+    Transformations.replaceLiterateParagraphs ctx doc
+
+  // ------------------------------------------------------------------------------------
   // Processing functions that handle templating etc.
   // ------------------------------------------------------------------------------------
 
