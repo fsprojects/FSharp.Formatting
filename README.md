@@ -22,7 +22,7 @@ The library is used by a number of F# projects. Most prominently, the [F# snippe
 uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
 documentation and might be a useful inspiration:
 
- * [The `generate.fsx` script](https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docs/tools/generate.fsx) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
+ * [The `generate.fsx` script](https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docs/tools/generate.template) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
 
 ## Library license
 
