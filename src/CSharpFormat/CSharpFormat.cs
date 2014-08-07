@@ -63,6 +63,14 @@ namespace Manoli.Utils.CSharpFormat
 					+ "#error #line #region #endregion #pragma";
 			}
 		}
+
+        protected override string Operators
+        {
+            get
+            {
+                return ". : + - * / % & | ^ ! ~ = < > ?";
+            }
+        }
 	}
 }
 

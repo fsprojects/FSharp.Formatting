@@ -60,6 +60,14 @@ namespace Manoli.Utils.CSharpFormat
 				return @"@\w*";
 			}
 		}
+
+        protected override string Operators
+        {
+            get
+            {
+                return "+ - = & < > ~ | ^ / ! *";
+            }
+        }
 	}
 }
 
