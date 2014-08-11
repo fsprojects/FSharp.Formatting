@@ -43,9 +43,10 @@ let info =
 let ``MetadataFormat works on sample Deedle assembly``() = 
   let library = root @@ "files" @@ "Deedle.dll"
   let output = getOutputDir()
-  MetadataFormat.Generate(library, output, layoutRoots, info,
-                          sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
-                          sourceFolder = "c:/dev/FSharp.DataFrame")
+  MetadataFormat.Generate
+    ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"],
+      sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
+      sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
   
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -76,7 +77,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
     [ root @@ "files/FsLib/bin/Debug" @@ "FsLib1.dll"
       root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll" ]
   let output = getOutputDir()
-  MetadataFormat.Generate(libraries, output, layoutRoots, info)
+  MetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -125,7 +126,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   let output = getOutputDir()
   printfn "Output: %s" output
   MetadataFormat.Generate
-    ( libraries, output, layoutRoots, info,
+    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], 
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = __SOURCE_DIRECTORY__ @@ "../.." )
   let fileNames = Directory.GetFiles(output)
@@ -147,7 +148,7 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
     [ root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
       root @@ "files/TestLib/bin/Debug" @@ "TestLib2.dll" ]
   let output = getOutputDir()
-  MetadataFormat.Generate(libraries, output, layoutRoots, info, markDownComments = false)
+  MetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = false)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "Readonly int property"

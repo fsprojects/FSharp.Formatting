@@ -54,3 +54,6 @@
 * 2.4.16 - Improve formatting of literate scripts (generate tables around pre)
 * 2.4.17 - Fix comment parsing when whitespace
 * 2.4.18 - Expose literate paragraph transformation
+* 2.4.19 - Update command line tool to .NET 4
+* 2.4.20 - Add operator formatting to JavaScript langauge
+* 2.4.21 - Update to the most recent F# Compiler Service
