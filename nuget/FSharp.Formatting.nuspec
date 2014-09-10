@@ -15,9 +15,9 @@
     <copyright>Copyright 2014</copyright>
     <tags>@tags@</tags>
     <dependencies>
-      <dependency id="Microsoft.AspNet.Razor" version="2.0.30506.0" />
-      <dependency id="RazorEngine" version="3.3.0" />
-      <dependency id="FSharp.Compiler.Service" version="0.0.59" />
+      <dependency id="Microsoft.AspNet.Razor" version="[2.0.30506.0]" />
+      <dependency id="RazorEngine" version="[3.3.0]" />
+      <dependency id="FSharp.Compiler.Service" version="[0.0.59]" />
     </dependencies>
   </metadata>
   <files>
