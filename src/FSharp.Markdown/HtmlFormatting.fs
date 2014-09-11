@@ -7,6 +7,7 @@ module FSharp.Markdown.Html
 
 open System.IO
 open System.Collections.Generic
+open System.Text.RegularExpressions
 open FSharp.Patterns
 open FSharp.Collections
 
@@ -39,6 +40,7 @@ type FormattingContext =
     Writer : TextWriter
     Links : IDictionary<string, string * option<string>>
     WrapCodeSnippets : bool
+    GenerateHeaderAnchors : bool
     ParagraphIndent : unit -> unit }
 
 let bigBreak (ctx:FormattingContext) () =
@@ -113,6 +115,27 @@ let rec formatSpan (ctx:FormattingContext) = function
 /// Write list of MarkdownSpan values to a TextWriter
 and formatSpans ctx = List.iter (formatSpan ctx)
 
+/// generate anchor name out of top-level literals
+let formatAnchor (spans:MarkdownSpans) =
+    let extractWords (text:string) =
+        Regex.Matches(text, @"\w+")
+        |> Seq.cast<Match>
+        |> Seq.map (fun m -> m.Value)
+
+    let rec gather (span:MarkdownSpan) : seq<string> = 
+        seq {
+            match span with
+            | Literal str -> yield! extractWords str
+            | Strong body -> yield! gathers body
+            | Emphasis body -> yield! gathers body
+            | DirectLink (body,_) -> yield! gathers body
+            | _ -> ()
+        }
+
+    and gathers (spans:MarkdownSpans) = Seq.collect gather spans
+
+    spans |> gathers |> String.concat "-"
+
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
@@ -124,7 +147,13 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
       ctx.Writer.Write("<h" + string n + ">")
-      formatSpans ctx spans
+      let anchorName = formatAnchor spans
+      if ctx.GenerateHeaderAnchors then
+        ctx.Writer.Write(sprintf """<a name="%s" class="anchor" href="#%s">""" anchorName anchorName)
+        formatSpans ctx spans
+        ctx.Writer.Write "</a>"
+      else
+        formatSpans ctx spans
       ctx.Writer.Write("</h" + string n + ">")
   | Paragraph(spans) ->
       ctx.ParagraphIndent()
@@ -203,11 +232,12 @@ and formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer newline wrap links = 
+let formatMarkdown writer generateAnchors newline wrap links = 
   formatParagraphs 
     { Writer = writer
       Links = links
       Newline = newline
       LineBreak = ignore
       WrapCodeSnippets = wrap
+      GenerateHeaderAnchors = generateAnchors
       ParagraphIndent = ignore }

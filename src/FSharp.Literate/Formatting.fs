@@ -13,21 +13,21 @@ open FSharp.Markdown
 module internal Formatting =
 
   /// Format document with the specified output kind
-  let format doc outputKind = 
+  let format doc generateAnchors outputKind = 
     match outputKind with
     | OutputKind.Latex -> Markdown.WriteLatex(doc)
     | OutputKind.Html -> 
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
-        Html.formatMarkdown wr System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+        Html.formatMarkdown wr generateAnchors System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
         sb.ToString()
 
   /// Try find first-level heading in the paragraph collection
-  let findHeadings paragraphs (outputKind:OutputKind) =              
+  let findHeadings paragraphs generateAnchors (outputKind:OutputKind) =              
     paragraphs |> Seq.tryPick (function 
       | (Heading(1, text)) ->           
           let doc = MarkdownDocument([Span(text)], dict [])
-          Some(format doc outputKind)
+          Some(format doc generateAnchors outputKind)
       | _ -> None)
 
   /// Given literate document, get a new MarkdownDocument that represents the 
@@ -94,14 +94,14 @@ module Templating =
         let doc = 
           Formatting.getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx 
-        let content = Formatting.format doc.MarkdownDocument ctx.OutputKind
+        let content = Formatting.format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind
         [ "source", content ]
       else []
 
     // Get page title (either heading or file name)
     let pageTitle = 
       let name = Path.GetFileNameWithoutExtension(output)
-      defaultArg (Formatting.findHeadings doc.Paragraphs ctx.OutputKind) name
+      defaultArg (Formatting.findHeadings doc.Paragraphs ctx.GenerateHeaderAnchors ctx.OutputKind) name
 
     // To avoid clashes in templating use {contents} for Latex and older {document} for HTML
     let contentTag = 
@@ -111,7 +111,7 @@ module Templating =
 
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let formattedDocument = Formatting.format doc.MarkdownDocument ctx.OutputKind
+    let formattedDocument = Formatting.format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind
     let tipsHtml = doc.FormattedTips
 
     // Construct new Markdown document and write it
