@@ -31,6 +31,8 @@ type ProcessingContext =
     GenerateLineNumbers : bool 
     // Include the source file in the generated output as '{source}'
     IncludeSource : bool
+    // Auto-generate anchors for headers
+    GenerateHeaderAnchors : bool
     // The output format
     OutputKind : OutputKind
     // Where to look for Razor templates, when using Razor
