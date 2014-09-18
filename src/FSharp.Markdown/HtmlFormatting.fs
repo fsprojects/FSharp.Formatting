@@ -5,8 +5,10 @@
 
 module FSharp.Markdown.Html
 
+open System
 open System.IO
 open System.Collections.Generic
+open System.Text.RegularExpressions
 open FSharp.Patterns
 open FSharp.Collections
 
@@ -32,6 +34,19 @@ let (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) =
     | true, v -> Some v 
     | _ -> None)
 
+/// Generates a unique string out of given input
+type UniqueNameGenerator() =
+    let generated = new System.Collections.Generic.Dictionary<string, int>()
+
+    member __.GetName(name : string) =
+        let ok, i = generated.TryGetValue name
+        if ok then
+            generated.[name] <- i + 1
+            sprintf "%s-%d" name i
+        else
+            generated.[name] <- 1
+            name
+
 /// Context passed around while formatting the HTML
 type FormattingContext =
   { LineBreak : unit -> unit
@@ -39,6 +54,8 @@ type FormattingContext =
     Writer : TextWriter
     Links : IDictionary<string, string * option<string>>
     WrapCodeSnippets : bool
+    GenerateHeaderAnchors : bool
+    UniqueNameGenerator : UniqueNameGenerator
     ParagraphIndent : unit -> unit }
 
 let bigBreak (ctx:FormattingContext) () =
@@ -113,6 +130,31 @@ let rec formatSpan (ctx:FormattingContext) = function
 /// Write list of MarkdownSpan values to a TextWriter
 and formatSpans ctx = List.iter (formatSpan ctx)
 
+/// generate anchor name from Markdown text
+let formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
+    let extractWords (text:string) =
+        Regex.Matches(text, @"\w+")
+        |> Seq.cast<Match>
+        |> Seq.map (fun m -> m.Value)
+
+    let rec gather (span:MarkdownSpan) : seq<string> = 
+        seq {
+            match span with
+            | Literal str -> yield! extractWords str
+            | Strong body -> yield! gathers body
+            | Emphasis body -> yield! gathers body
+            | DirectLink (body,_) -> yield! gathers body
+            | _ -> ()
+        }
+
+    and gathers (spans:MarkdownSpans) = Seq.collect gather spans
+
+    spans 
+    |> gathers 
+    |> String.concat "-"
+    |> fun name -> if String.IsNullOrWhiteSpace name then "header" else name
+    |> ctx.UniqueNameGenerator.GetName
+
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
@@ -124,7 +166,13 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
   | Heading(n, spans) -> 
       ctx.Writer.Write("<h" + string n + ">")
-      formatSpans ctx spans
+      if ctx.GenerateHeaderAnchors then
+        let anchorName = formatAnchor ctx spans
+        ctx.Writer.Write(sprintf """<a name="%s" class="anchor" href="#%s">""" anchorName anchorName)
+        formatSpans ctx spans
+        ctx.Writer.Write "</a>"
+      else
+        formatSpans ctx spans
       ctx.Writer.Write("</h" + string n + ">")
   | Paragraph(spans) ->
       ctx.ParagraphIndent()
@@ -203,11 +251,13 @@ and formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer newline wrap links = 
+let formatMarkdown writer generateAnchors newline wrap links = 
   formatParagraphs 
     { Writer = writer
       Links = links
       Newline = newline
       LineBreak = ignore
       WrapCodeSnippets = wrap
+      GenerateHeaderAnchors = generateAnchors
+      UniqueNameGenerator = new UniqueNameGenerator()
       ParagraphIndent = ignore }
