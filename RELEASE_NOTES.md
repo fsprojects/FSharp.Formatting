@@ -59,3 +59,4 @@
 * 2.4.21 - Update to the most recent F# Compiler Service
 * 2.4.22 - Require specific versions in NuGet dependencies
 * 2.4.23 - Support generation of anchors in HTML documents
+* 2.4.24 - Include stylesheet for anchors & enable this for F# Formatting docs

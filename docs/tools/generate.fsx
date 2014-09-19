@@ -49,17 +49,17 @@ let generateDocs() =
   // Now we can process the samples directory (with some additional references)
   // and then we clean up the files & directories we had to create earlier
   Literate.ProcessDirectory
-    ( sources, template, output, OutputKind.Html, replacements = projInfo )
+    ( sources, template, output, OutputKind.Html, replacements = projInfo, generateAnchors = true )
 
   // Process the side-by-side scripts and markdown documents separately
   let processScript input output scriptInfo =
     Literate.ProcessScriptFile
       ( input, templateSideBySide, output, compilerOptions = options,
-        replacements = scriptInfo, includeSource = true )
+        replacements = scriptInfo, includeSource = true, generateAnchors = true )
   let processMarkdown input output scriptInfo =
     Literate.ProcessMarkdown
       ( input, templateSideBySide, output, compilerOptions = options,
-        replacements = scriptInfo, includeSource = true )
+        replacements = scriptInfo, includeSource = true, generateAnchors = true )
   let sideBySideScripts = 
     [ "script.fsx", "sidescript.html", "F# Script file: Side-by-side example", processScript
       "extensions.md", "sideextensions.html", "F# Markdown: Formatting extensions", processMarkdown 
