@@ -40,7 +40,7 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          <h1>F# Formatting: Library documentation</h1>
+          <h1><a name="F-Formatting-Library-documentation" class="anchor" href="#F-Formatting-Library-documentation">F# Formatting: Library documentation</a></h1>
 
 <p>The library <code>FSharp.MetadataFormat.dll</code> is a replacement for the <code>FsHtmlTool</code>
 which is available in F# PowerPack and can be used to generate documentation 
@@ -52,7 +52,7 @@ a couple of extensions:</p>
 <li>The HTML is generated using Razor, so it is easy to change the templates</li>
 </ul>
 
-<h2>Building library documentation</h2>
+<h2><a name="Building-library-documentation" class="anchor" href="#Building-library-documentation">Building library documentation</a></h2>
 
 <p>First, we need to load the assembly and open necessary namespaces:</p>
 
@@ -92,7 +92,7 @@ Assuming <code>root</code> is the root directory for your project, you can write
 </tr>
 </table>
 
-<h2>Adding Go to GitHub source links</h2>
+<h2><a name="Adding-Go-to-GitHub-source-links" class="anchor" href="#Adding-Go-to-GitHub-source-links">Adding Go to GitHub source links</a></h2>
 
 <p>You can automatically add GitHub links to each functions, values and class members for further reference.
 You need to specify two more arguments: <code>sourceRepo</code> to the GitHub repository 
@@ -121,7 +121,7 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 </tr>
 </table>
 
-<h2>Excluding APIs from the docs</h2>
+<h2><a name="Excluding-APIs-from-the-docs" class="anchor" href="#Excluding-APIs-from-the-docs">Excluding APIs from the docs</a></h2>
 
 <p>If you want to exclude modules or functions from the API docs you can use the <code>[omit]</code> tag.
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:</p>
@@ -142,7 +142,7 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 </tr>
 </table>
 
-<h2>Classic XML documentation comments</h2>
+<h2><a name="Classic-XML-documentation-comments" class="anchor" href="#Classic-XML-documentation-comments">Classic XML documentation comments</a></h2>
 
 <p>By default <code>FSharp.Formatting</code> will expect Markdown documentation comments, to parse XML comments
 pass the named argument <code>markDownComments</code> with value <code>false</code>.</p>
@@ -192,7 +192,7 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <p>Note that currently our code is not handling <code>&lt;parameter&gt;</code> and `<result> tags, this is 
 not so much of a problem given that given that FSharp.Formatting infers the signature via reflection.</p>
 
-<h2>Work in progress!</h2>
+<h2><a name="Work-in-progress" class="anchor" href="#Work-in-progress">Work in progress!</a></h2>
 
 <p>This library is under active development and it is not completely functional.
 For more examples of how it can be used, see the 

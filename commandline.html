@@ -40,7 +40,7 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          <h1>F# Formatting: Command line tool</h1>
+          <h1><a name="F-Formatting-Command-line-tool" class="anchor" href="#F-Formatting-Command-line-tool">F# Formatting: Command line tool</a></h1>
 
 <p>If you prefer to use F# Formatting tools via command line, you can use the
 <code>FSharp.Formatting.CommandTool</code> package, which includes an executable <code>fsformatting.exe</code>
@@ -63,7 +63,7 @@ process, e.g. for resource management reasons.</p>
 <p>Alternatively, you can download the <a href="https://github.com/tpetricek/FSharp.Formatting/zipball/master">source as a ZIP file</a>
 or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/release.zip">compiled binaries</a> as a ZIP.</p>
 
-<h2>Using the tool</h2>
+<h2><a name="Using-the-tool" class="anchor" href="#Using-the-tool">Using the tool</a></h2>
 
 <p>The tool option syntax is similar to git or other popular command line tools.
 The format of the command line interface is:</p>
@@ -86,20 +86,20 @@ library documentation from XML comments).</p>
 
 <p>The <code>--help</code> option as single specifier displays the help message for all valid <code>[command] [function] [options]</code> combinations.</p>
 
-<h2>Literate programming command</h2>
+<h2><a name="Literate-programming-command" class="anchor" href="#Literate-programming-command">Literate programming command</a></h2>
 
 <p>The method <code>FSharp.Literate.ProcessDirectory</code> processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
 according to the concept of <a href="literate.html">Literate Programming</a>.</p>
 
 <table class="pre"><tr><td><pre lang="text">fsformatting[.exe] literate --processDirectory [options]</pre></td></tr></table>
 
-<h3>Required options</h3>
+<h3><a name="Required-options" class="anchor" href="#Required-options">Required options</a></h3>
 
 <ul>
 <li><code>--inputDirectory</code> - Input directory containing <code>*.fsx</code> and <code>*.md</code> files.</li>
 </ul>
 
-<h3>Other Options</h3>
+<h3><a name="Other-Options" class="anchor" href="#Other-Options">Other Options</a></h3>
 
 <ul>
 <li><code>--templateFile</code> -  Template file for formatting.</li>
@@ -117,20 +117,20 @@ according to the concept of <a href="literate.html">Literate Programming</a>.</p
 <li><code>--waitForKey</code> -  Wait for key before exit.</li>
 </ul>
 
-<h3>Example</h3>
+<h3><a name="Example" class="anchor" href="#Example">Example</a></h3>
 
 <table class="pre"><tr><td><pre lang="text">fsformatting literate 
   --processDirectory --templateFile template-project.html 
   --format latex --replacements &quot;page-author&quot; &quot;Tomas Petricek&quot;</pre></td></tr></table>
 
-<h2>Library documentation command</h2>
+<h2><a name="Library-documentation-command" class="anchor" href="#Library-documentation-command">Library documentation command</a></h2>
 
 <p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://tpetricek.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading 
 the meta-data from a <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 
 <table class="pre"><tr><td><pre lang="text">fsformatting[.exe] metadataFormat --generate [options]</pre></td></tr></table>
 
-<h3>Required options</h3>
+<h3><a name="Required-options-1" class="anchor" href="#Required-options-1">Required options</a></h3>
 
 <ul>
 <li><code>--dllFiles</code> -  List of <code>dll</code> input files.</li>
@@ -138,7 +138,7 @@ the meta-data from a <code>*.dll</code> files of the package and using the XML c
 <li><code>--layoutRoots</code> -  Search directory list for the Razor Engine templates.</li>
 </ul>
 
-<h3>Other options</h3>
+<h3><a name="Other-options" class="anchor" href="#Other-options">Other options</a></h3>
 
 <ul>
 <li><code>--parameters</code> -  Property settings for the Razor Engine.</li>
@@ -153,9 +153,9 @@ the meta-data from a <code>*.dll</code> files of the package and using the XML c
 <li><code>--waitForKey</code> -  Wait for key before exit.</li>
 </ul>
 
-<h2>Examples and configuration considerations</h2>
+<h2><a name="Examples-and-configuration-considerations" class="anchor" href="#Examples-and-configuration-considerations">Examples and configuration considerations</a></h2>
 
-<h3>Basic Example</h3>
+<h3><a name="Basic-Example" class="anchor" href="#Basic-Example">Basic Example</a></h3>
 
 <p>According to the previous section, a minimum configuration for generating the library documentation from <code>*.dll</code> files
 could be configured by:</p>
@@ -204,7 +204,7 @@ you copy this file into the subdirectory <code>templates</code> of your working 
 
 <p>Note: depending on the quote evaluation scheme of your OS and shell, you may encounter unexpected errors due to misinterpretation of the string parameters.</p>
 
-<h3>Alternative configuration options</h3>
+<h3><a name="Alternative-configuration-options" class="anchor" href="#Alternative-configuration-options">Alternative configuration options</a></h3>
 
 <p>Instead of using the commandline tool, you may want to consider to use the <a href="https://visualfsharp.codeplex.com/workitem/25">F# interpreter <code>#!</code> compatibility</a> coming with F# 3.1.2.
 This feature allows you on posix systems to execute F# scripts <code>*.fsx</code> directly from a posix shell. In order to use this feature e.g. on a typical OS X or Linux system, you add as first line, at first position in your <code>fsx</code> file the F# interpreter invocation command <code>#!/usr/bin/env fsharpi --exec</code>. Alternatively, you could use the direct call to <code>fsi.exe</code>, which is part of the standard F# installation, to run your <code>generate.fsx</code> file on Windows via <code>fsi --exec generate.fsx</code> and on Mono platforms with <code>mono fsi.exe --exec generate.fsx</code> (provided proper path settings).</p>

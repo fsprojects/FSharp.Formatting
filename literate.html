@@ -40,7 +40,7 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          <h1>F# Formatting: Literate programming</h1>
+          <h1><a name="F-Formatting-Literate-programming" class="anchor" href="#F-Formatting-Literate-programming">F# Formatting: Literate programming</a></h1>
 
 <p>The <code>FSharp.Formatting</code> package comes a library <code>FSharp.Literate.dll</code> that implements the 
 idea of <em>literate programming</em>. The script uses the F# Markdown processor and code
@@ -51,7 +51,7 @@ documents (<code>*.md</code> files) containing F# snippets.</p>
 commands that you can use when writing your script files. The second section shows
 how to use the literate programming library from your F# projects.</p>
 
-<h2>Literate programming</h2>
+<h2><a name="Literate-programming" class="anchor" href="#Literate-programming">Literate programming</a></h2>
 
 <p>The script can work in two different modes, depending on the kind of input
 you want to write (and turn into HTML):</p>
@@ -63,7 +63,7 @@ comments with documentation and commands for generating HTML output</p></li>
 F# code (indented by four spaces as usual in Markdown)</p></li>
 </ul>
 
-<h3>F# Script files</h3>
+<h3><a name="F-Script-files" class="anchor" href="#F-Script-files">F# Script files</a></h3>
 
 <p>The following example shows most of the features that can be used in a literate
 F# script file. Most of the features should be quite self-explanatory:</p>
@@ -126,7 +126,7 @@ F# language.</p>
 following F# code block (until the next comment or command) should be 
 omitted from the output.</p>
 
-<h3>Markdown documents</h3>
+<h3><a name="Markdown-documents" class="anchor" href="#Markdown-documents">Markdown documents</a></h3>
 
 <p>In the Markdown mode, the entire file is a valid Markdown document, which may
 contain F# code snippets (but also other code snippets). As usual, snippets are
@@ -187,7 +187,7 @@ is other than <code>fsharp</code>, the snippet is copied to the output as <code>
 tag without any processing.</p></li>
 </ul>
 
-<h2>Typical literate setup</h2>
+<h2><a name="Typical-literate-setup" class="anchor" href="#Typical-literate-setup">Typical literate setup</a></h2>
 
 <p>The typical way to setup literate programming support in your project is to reference
 <code>FSharp.Formatting</code> using NuGet and then add a simple script file (e.g. <code>build.fsx</code>) that
@@ -223,7 +223,7 @@ the library with all the important functionality.</p>
 <p>Now we can open <code>FSharp.Literate</code> and use the <code>Literate</code> type to process individual
 documents or entire directories.</p>
 
-<h3>Processing individual files</h3>
+<h3><a name="Processing-individual-files" class="anchor" href="#Processing-individual-files">Processing individual files</a></h3>
 
 <p>The <code>Literate</code> type has two static methods <code>ProcessScriptFile</code> and <code>ProcessMarkdown</code>
 that turn an F# script file and Markdown document, respectively, into an HTML file.
@@ -283,7 +283,7 @@ will generate file with the same name (but with the <code>.html</code> extension
 this by addint a third parameter with the output file name. There is a number of 
 additional parameters you can specify - these are discussed below.</p>
 
-<h3>Processing entire directories</h3>
+<h3><a name="Processing-entire-directories" class="anchor" href="#Processing-entire-directories">Processing entire directories</a></h3>
 
 <p>If you have multiple script files and Markdown documents (this time, they need to have
 the <code>*.md</code> file extension) in a single directory, you can run the tool on a directory.
@@ -326,7 +326,7 @@ file which is included as a sample in the package):</p>
 and it includes additional parameters for specifying various information about F#
 projects.</p>
 
-<h2>Generating LaTeX output</h2>
+<h2><a name="Generating-LaTeX-output" class="anchor" href="#Generating-LaTeX-output">Generating LaTeX output</a></h2>
 
 <p>The methods used above (<code>ProcessScriptFile</code>, <code>ProcessMarkdown</code> as well as <code>ProcessDirectory</code>) 
 produce HTML output by default, but they can be also used to produce Latex output. This is done
@@ -380,7 +380,7 @@ produces the following <a href="https://github.com/tpetricek/FSharp.Formatting/r
 produces the following <a href="https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/test.pdf">formatted PDF file</a></li>
 </ul>
 
-<h2>Optional parameters</h2>
+<h2><a name="Optional-parameters" class="anchor" href="#Optional-parameters">Optional parameters</a></h2>
 
 <p>All of the three methods discussed in the previous two sections take a number of optional
 parameters that can be used to tweak how the formatting works or even to specify a different

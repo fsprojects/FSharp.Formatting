@@ -40,14 +40,14 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          <h1>F# Formatting: Output embedding</h1>
+          <h1><a name="F-Formatting-Output-embedding" class="anchor" href="#F-Formatting-Output-embedding">F# Formatting: Output embedding</a></h1>
 
 <p>A nice feature of the literate programming package (<code>FSharp.Literate.dll</code> in F# Formatting)
 is that it lets you embed the result of running the script as part of the literate output.
 This is a feature of the functions discussed in <a href="literate.html">literate programming</a> and
 it is implemented using the <a href="http://fsharp.github.io/FSharp.Compiler.Service/">F# Compiler service</a>.</p>
 
-<h2>Embedding literate script output</h2>
+<h2><a name="Embedding-literate-script-output" class="anchor" href="#Embedding-literate-script-output">Embedding literate script output</a></h2>
 
 <p>The functionality is currently available (and tested) for F# script files (<code>*.fsx</code>) that
 contain special comments to embed the Markdown text. To embed output of a script file, 
@@ -132,7 +132,7 @@ as follows:</p>
 to include the <code>it</code> value that was produced by a snippet named <code>test</code> using the <code>(*** define-output: test ***)</code> 
 command.</p>
 
-<h2>Specifying the evaluator and formatting</h2>
+<h2><a name="Specifying-the-evaluator-and-formatting" class="anchor" href="#Specifying-the-evaluator-and-formatting">Specifying the evaluator and formatting</a></h2>
 
 <p>The embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in <a href="literate.html">literate programming documentation</a>.
@@ -188,7 +188,7 @@ be used to specify e.g. defined symbols and other attributes for F# Interactive.
 of an expression fails. You can use that to do tests that verify that all the code on your
 documentation executes without errors.</p>
 
-<h2>Custom formatting functions</h2>
+<h2><a name="Custom-formatting-functions" class="anchor" href="#Custom-formatting-functions">Custom formatting functions</a></h2>
 
 <p>As mentioned earlier, values are formatted using a simple <code>"%A"</code> formatter by default.
 However, you can specify a formatting function that provides a nicer formatting for values
