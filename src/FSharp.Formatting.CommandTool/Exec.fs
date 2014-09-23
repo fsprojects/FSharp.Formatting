@@ -7,9 +7,6 @@ open FSharp.Formatting.IExecutable
 
 open System.AssemblyVersionInformation
 
-open CommandLine
-open CommandLine.Text
-
 open System.Collections.Generic
 
 /// configuration of the supported FSharp.Formatting functions 

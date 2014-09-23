@@ -1,8 +1,5 @@
 ﻿module FSharp.Formatting.IExecutable
 
-open System.Collections.Generic
-open CommandLine
-
 /// Represents a top-level command 
 /// (There are two instances, one for MetadataFormat and one for Literate)
 type IExecutable =

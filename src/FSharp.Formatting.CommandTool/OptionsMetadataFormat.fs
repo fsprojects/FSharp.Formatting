@@ -1,7 +1,5 @@
 ﻿namespace FSharp.Formatting.Options.MetadataFormat
 
-
-open System.Collections.Generic
 open CommandLine
 open CommandLine.Text
 open FSharp.MetadataFormat
