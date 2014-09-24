@@ -33,7 +33,7 @@ I hope it is also a good sample showing how to write documentation for F# projec
 
  - [Literate programming](literate.html) - if you want to use the library to generate documentation
    for your projects or if you want to use it to write nicely formatted F# blog posts, then
-   start here! This page describes the literate progra mming sample. 
+   start here! This page describes the literate programming sample. 
    
  - [Output embebedding](evaluation.html) provides more details on literate programming and
    explains how to embed results of a literate script file in the generated output. This way,
