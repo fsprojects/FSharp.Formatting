@@ -87,6 +87,7 @@ type RazorRender(layoutRoots, namespaces) =
             printfn " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText
           printfn ""
         )
+        Log.close() // wait for the message to be printed completly
         failwith "Generating HTML failed."
 
 and StringDictionary(dict:IDictionary<string, string>) =
