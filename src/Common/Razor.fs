@@ -83,7 +83,8 @@ type RazorRender(layoutRoots, namespaces) =
           use _c = Log.colored ConsoleColor.Red
           printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
           for error in ex.Errors do
-            printfn " - (%d, %d) %s" error.Line error.Column error.ErrorText
+            let errorType = if error.IsWarning then "warning" else "error"
+            printfn " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText
           printfn ""
         )
         failwith "Generating HTML failed."
