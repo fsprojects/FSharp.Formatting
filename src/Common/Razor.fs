@@ -34,7 +34,7 @@ open RazorEngine.Templating
 open RazorEngine.Configuration
 
 type RazorRender(layoutRoots, namespaces) =
-  // Create resolver & set it to the global static filed 
+  // Create resolver & set it to the global static field 
   let templateResolver = 
     { new ITemplateResolver with
         member x.Resolve name = File.ReadAllText(RazorRender.Resolve(layoutRoots, name + ".cshtml")) }
@@ -50,6 +50,23 @@ type RazorRender(layoutRoots, namespaces) =
   let templateservice = new TemplateService(config)
   do Razor.SetTemplateService(templateservice)
 
+  let handleCompile source f =
+    try
+      f ()
+    with 
+    | :? TemplateCompilationException as ex -> 
+        let csharp = Path.GetTempFileName() + ".cs"
+        File.WriteAllText(csharp, ex.SourceCode)
+        Log.run (fun () ->
+          use _c = Log.colored ConsoleColor.Red
+          printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
+          for error in ex.Errors do
+            let errorType = if error.IsWarning then "warning" else "error"
+            printfn " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText
+          printfn ""
+        )
+        Log.close() // wait for the message to be printed completly
+        failwith "Generating HTML failed."
   /// Global resolver (for use in 'DocPageTempalateBase')
   static member val Resolver = null with get, set
   /// Find file in one of the specified layout roots
@@ -66,30 +83,24 @@ type RazorRender(layoutRoots, namespaces) =
   member val Model : obj = obj() with get, set
   /// Dynamic object with more properties (?)
   member val ViewBag = new DynamicViewBag() with get,set
-
+  member x.CompileTemplate(source, ?modelType) =
+    handleCompile source (fun _ ->
+      match modelType with
+      | Some t -> Razor.Compile(source, t, source)
+      | _ -> Razor.Compile(source, source))
+  member x.ProcessFileCache(name,  ?properties) =
+    x.ViewBag <- new DynamicViewBag()
+    for k, v in defaultArg properties [] do
+      x.ViewBag.AddValue(k, v)
+    Razor.Run(name, x.Model, x.ViewBag)
   /// Process source file and return result as a string
   member x.ProcessFile(source, ?properties) = 
-    try
+    handleCompile source (fun _ ->
       x.ViewBag <- new DynamicViewBag()
       for k, v in defaultArg properties [] do
         x.ViewBag.AddValue(k, v)
       let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, source)
-      html
-    with 
-    | :? TemplateCompilationException as ex -> 
-        let csharp = Path.GetTempFileName() + ".cs"
-        File.WriteAllText(csharp, ex.SourceCode)
-        Log.run (fun () ->
-          use _c = Log.colored ConsoleColor.Red
-          printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
-          for error in ex.Errors do
-            let errorType = if error.IsWarning then "warning" else "error"
-            printfn " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText
-          printfn ""
-        )
-        Log.close() // wait for the message to be printed completly
-        failwith "Generating HTML failed."
-
+      html)
 and StringDictionary(dict:IDictionary<string, string>) =
   member x.Dictionary = dict
   /// Report more useful errors when key not found (.NET dictionary does not do this...)

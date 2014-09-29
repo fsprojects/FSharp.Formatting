@@ -899,14 +899,16 @@ type MetadataFormat =
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedModules n ]
     
+    let razor = RazorRender(layoutRoots, ["FSharp.MetadataFormat"])
+
     let moduleTemplateFile = RazorRender.Resolve(layoutRoots, moduleTemplate)
-    Parallel.pfor modules (fun () -> RazorRender(layoutRoots,["FSharp.MetadataFormat"])) (fun modul _ razor -> 
+    razor.CompileTemplate(moduleTemplateFile, typeof<ModuleInfo>)
+    for modul in modules do
       Log.logf "Generating module: %s" modul.UrlName
       razor.Model <- box (ModuleInfo.Create(modul, asm))
-      let out = razor.ProcessFile(moduleTemplateFile, props)
+      let out = razor.ProcessFileCache(moduleTemplateFile, props)
       File.WriteAllText(outDir @@ (modul.UrlName + ".html"), out)
       Log.logf "Finished module: %s" modul.UrlName
-      razor)
 
     Log.logf "Generating types..."
     let rec nestedTypes (modul:Module) = seq {
@@ -919,10 +921,17 @@ type MetadataFormat =
 
     // Generate documentation for all types
     let typeTemplateFile = RazorRender.Resolve(layoutRoots, typeTemplate)
-    Parallel.pfor types (fun () -> RazorRender(layoutRoots, ["FSharp.MetadataFormat"])) (fun typ _ razor -> 
+    razor.CompileTemplate(typeTemplateFile, typeof<TypeInfo>)
+    for typ in types do
       Log.logf "Generating type: %s" typ.UrlName
       razor.Model <- box (TypeInfo.Create(typ, asm))
-      let out = razor.ProcessFile(typeTemplateFile, props)
+      let out = razor.ProcessFileCache(typeTemplateFile, props)
       File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
       Log.logf "Finished type: %s" typ.UrlName
-      razor)
+    //Parallel.pfor types (fun () -> RazorRender(layoutRoots, ["FSharp.MetadataFormat"])) (fun typ _ razor -> 
+    //  Log.logf "Generating type: %s" typ.UrlName
+    //  razor.Model <- box (TypeInfo.Create(typ, asm))
+    //  let out = razor.ProcessFile(typeTemplateFile, props)
+    //  File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
+    //  Log.logf "Finished type: %s" typ.UrlName
+    //  razor)
