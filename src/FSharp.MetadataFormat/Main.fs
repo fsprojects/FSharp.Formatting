@@ -912,7 +912,7 @@ type MetadataFormat =
         | false, _ -> namespaces.Add(ns.Name, (ns.Modules, ns.Types))
 
     let namespaces = [ for (KeyValue(name, (mods, typs))) in namespaces -> Namespace.Create(name, mods, typs) ]
-    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces)
+    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
         
     // Generate all the HTML stuff
     Log.logf "Starting razor engine"
