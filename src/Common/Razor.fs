@@ -33,6 +33,12 @@ open RazorEngine
 open RazorEngine.Text
 open RazorEngine.Templating
 open RazorEngine.Configuration
+
+type GetMemberBinderImpl (name) =
+    inherit GetMemberBinder(name, false)
+    let notImpl () = raise <| new NotImplementedException()
+    override x.FallbackGetMember(v, sug) = notImpl()
+
 type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:System.Type) =
   let templateName =
     if templateName.EndsWith(".cshtml") then
@@ -80,24 +86,25 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:Syste
         Log.close() // wait for the message to be printed completly
         failwith "Generating HTML failed."
 
-  let withProperties properties oldViewbag  = 
-    let viewBag = new DynamicViewBag(oldViewbag)
+  let withProperties properties (oldViewbag:DynamicViewBag) = 
+    let viewBag = new DynamicViewBag() 
+    // TODO: use new DynamicViewBag(oldViewbag) and remove GetMemberBinderImpl
+    for old in oldViewbag.GetDynamicMemberNames() do
+        match oldViewbag.TryGetMember(new GetMemberBinderImpl(old)) with
+        | true, v -> viewBag.AddValue(old, v)
+        | _ -> ()
     for k, v in defaultArg properties [] do
       viewBag.AddValue(k, v)
     viewBag
 
   do
     handleCompile templateName (fun _ ->
-      //let templateString = File.ReadAllText(templateFile)
-      //if Razor.Resolve(templateName) = null then
         let templateContent = templateResolver.Resolve templateName
-        //templateCache.AddOrUpdate(templateName, templateContent, fun _ _ -> templateContent) |> ignore
         match model_type with
         | Some t -> Razor.Compile(templateContent, t, templateName)
         | None ->
             Razor.Compile(templateContent, templateName))
-        //
-        //Razor.GetTemplate(templateString, cache_name))
+
   /// Global resolver (for use in 'DocPageTempalateBase')
   static member val Resolver = null with get, set
   /// Find file in one of the specified layout roots
