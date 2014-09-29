@@ -883,11 +883,10 @@ type MetadataFormat =
         
     // Generate all the HTML stuff
     Log.logf "Starting razor engine"
-    let razor = RazorRender(layoutRoots, ["FSharp.MetadataFormat"])
-    razor.Model <- box asm
+    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.MetadataFormat"], namespaceTemplate)
 
     Log.logf "Generating: index.html"
-    let out = razor.ProcessFile(RazorRender.Resolve(layoutRoots, namespaceTemplate), props)
+    let out = razor.ProcessFile(asm, props)
     File.WriteAllText(outDir @@ "index.html", out)
 
     // Generate documentation for all modules
@@ -899,14 +898,11 @@ type MetadataFormat =
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedModules n ]
     
-    let razor = RazorRender(layoutRoots, ["FSharp.MetadataFormat"])
+    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate)
 
-    let moduleTemplateFile = RazorRender.Resolve(layoutRoots, moduleTemplate)
-    razor.CompileTemplate(moduleTemplateFile, typeof<ModuleInfo>)
     for modul in modules do
       Log.logf "Generating module: %s" modul.UrlName
-      razor.Model <- box (ModuleInfo.Create(modul, asm))
-      let out = razor.ProcessFileCache(moduleTemplateFile, props)
+      let out = razor.ProcessFile(ModuleInfo.Create(modul, asm), props)
       File.WriteAllText(outDir @@ (modul.UrlName + ".html"), out)
       Log.logf "Finished module: %s" modul.UrlName
 
@@ -920,18 +916,9 @@ type MetadataFormat =
           yield! ns.Types ]
 
     // Generate documentation for all types
-    let typeTemplateFile = RazorRender.Resolve(layoutRoots, typeTemplate)
-    razor.CompileTemplate(typeTemplateFile, typeof<TypeInfo>)
+    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate)
     for typ in types do
       Log.logf "Generating type: %s" typ.UrlName
-      razor.Model <- box (TypeInfo.Create(typ, asm))
-      let out = razor.ProcessFileCache(typeTemplateFile, props)
+      let out = razor.ProcessFile(TypeInfo.Create(typ, asm), props)
       File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
       Log.logf "Finished type: %s" typ.UrlName
-    //Parallel.pfor types (fun () -> RazorRender(layoutRoots, ["FSharp.MetadataFormat"])) (fun typ _ razor -> 
-    //  Log.logf "Generating type: %s" typ.UrlName
-    //  razor.Model <- box (TypeInfo.Create(typ, asm))
-    //  let out = razor.ProcessFile(typeTemplateFile, props)
-    //  File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
-    //  Log.logf "Finished type: %s" typ.UrlName
-    //  razor)

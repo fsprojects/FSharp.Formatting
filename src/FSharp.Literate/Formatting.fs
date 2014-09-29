@@ -73,9 +73,9 @@ module Templating =
   let private generateFile contentTag parameters templateOpt output layoutRoots =
     match templateOpt with
     | Some (file:string) when file.EndsWith("cshtml", true, CultureInfo.InvariantCulture) -> 
-        let razor = RazorRender(layoutRoots, [])
+        let razor = RazorRender(layoutRoots, [], Path.GetFileNameWithoutExtension file)
         let props = [ "Properties", dict parameters ]
-        let generated = razor.ProcessFile(file, props)
+        let generated = razor.ProcessFile(props)
         File.WriteAllText(output, generated)      
     | _ ->
         let templateOpt = templateOpt |> Option.map File.ReadAllText

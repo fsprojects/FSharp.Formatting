@@ -28,16 +28,28 @@ open System
 open System.IO
 open System.Dynamic
 open System.Collections.Generic
+open System.Collections.Concurrent
 open RazorEngine
 open RazorEngine.Text
 open RazorEngine.Templating
 open RazorEngine.Configuration
-
-type RazorRender(layoutRoots, namespaces) =
+type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:System.Type) =
+  let templateName =
+    if templateName.EndsWith(".cshtml") then
+        templateName.Substring(0, templateName.Length - 7)
+    else templateName
+  let templateCache = new ConcurrentDictionary<string, string>()
   // Create resolver & set it to the global static field 
   let templateResolver = 
     { new ITemplateResolver with
-        member x.Resolve name = File.ReadAllText(RazorRender.Resolve(layoutRoots, name + ".cshtml")) }
+        member x.Resolve name = 
+            templateCache.GetOrAdd (name, fun name -> 
+                match RazorRender.Resolve(layoutRoots, name + ".cshtml") with
+                | Some file -> File.ReadAllText(file)
+                | None -> 
+                    failwith "Could not find template file: %s\nSearching in: %A" name layoutRoots
+                    null)
+                 }
   do RazorRender.Resolver <- templateResolver
 
   // Configure templating engine
@@ -67,40 +79,68 @@ type RazorRender(layoutRoots, namespaces) =
         )
         Log.close() // wait for the message to be printed completly
         failwith "Generating HTML failed."
+
+  let withProperties properties oldViewbag  = 
+    let viewBag = new DynamicViewBag(oldViewbag)
+    for k, v in defaultArg properties [] do
+      viewBag.AddValue(k, v)
+    viewBag
+
+  do
+    handleCompile templateName (fun _ ->
+      //let templateString = File.ReadAllText(templateFile)
+      //if Razor.Resolve(templateName) = null then
+        let templateContent = templateResolver.Resolve templateName
+        //templateCache.AddOrUpdate(templateName, templateContent, fun _ _ -> templateContent) |> ignore
+        match model_type with
+        | Some t -> Razor.Compile(templateContent, t, templateName)
+        | None ->
+            Razor.Compile(templateContent, templateName))
+        //
+        //Razor.GetTemplate(templateString, cache_name))
   /// Global resolver (for use in 'DocPageTempalateBase')
   static member val Resolver = null with get, set
   /// Find file in one of the specified layout roots
   static member Resolve(layoutRoots, name) =
-    let partFileOpt =
-      layoutRoots |> Seq.tryPick (fun layoutRoot ->
-        let partFile = Path.Combine(layoutRoot, name)
-        if File.Exists(partFile) then Some partFile else None)
-    match partFileOpt with
-    | None -> failwithf "Could not find template file: %s\nSearching in: %A" name layoutRoots
-    | Some partFile -> partFile 
+    layoutRoots |> Seq.tryPick (fun layoutRoot ->
+      let partFile = Path.Combine(layoutRoot, name)
+      if File.Exists(partFile) then Some partFile else None)
+  static member ForceResolve(layoutRoots, name) =
+    match RazorRender.Resolve(layoutRoots, name) with
+    | Some f -> f
+    | None -> 
+        failwith "Could not find template file: %s\nSearching in: %A" name layoutRoots
+        
+  member internal x.HandleCompile source f = handleCompile source f
+  member internal x.TemplateName = templateName
+  member internal x.WithProperties properties = withProperties properties x.ViewBag
 
-  /// Model - whatever the user specifies for the page
-  member val Model : obj = obj() with get, set
   /// Dynamic object with more properties (?)
   member val ViewBag = new DynamicViewBag() with get,set
-  member x.CompileTemplate(source, ?modelType) =
-    handleCompile source (fun _ ->
-      match modelType with
-      | Some t -> Razor.Compile(source, t, source)
-      | _ -> Razor.Compile(source, source))
-  member x.ProcessFileCache(name,  ?properties) =
-    x.ViewBag <- new DynamicViewBag()
-    for k, v in defaultArg properties [] do
-      x.ViewBag.AddValue(k, v)
-    Razor.Run(name, x.Model, x.ViewBag)
+  member x.ProcessFile(?properties) =
+    Razor.Run(templateName, null, x.WithProperties properties)
   /// Process source file and return result as a string
-  member x.ProcessFile(source, ?properties) = 
-    handleCompile source (fun _ ->
-      x.ViewBag <- new DynamicViewBag()
-      for k, v in defaultArg properties [] do
-        x.ViewBag.AddValue(k, v)
-      let html = Razor.Parse(File.ReadAllText(source), x.Model, x.ViewBag, source)
-      html)
+  member x.ProcessFileParse(?properties) = 
+    handleCompile templateName (fun _ ->
+      Razor.Parse(templateResolver.Resolve templateName, null, x.WithProperties properties, templateName))
+      
+  member x.ProcessFileModel(model:obj,?properties) =
+    Razor.Run(templateName, model, x.WithProperties properties)
+  /// Process source file and return result as a string
+  member x.ProcessFileParseModel(model:obj, ?properties) = 
+    handleCompile templateName (fun _ ->
+      Razor.Parse(templateResolver.Resolve templateName, model, x.WithProperties properties, templateName))
+
+and RazorRender<'model>(layoutRoots, namespaces, templateName) =
+    inherit RazorRender(layoutRoots, namespaces, templateName, typeof<'model>)
+
+    member x.ProcessFile(model:'model, ?properties) =
+      Razor.Run<'model>(x.TemplateName, model, x.WithProperties properties)
+    /// Process source file and return result as a string
+    member x.ProcessFileParse(model:'model, ?properties) = 
+      x.HandleCompile x.TemplateName (fun _ ->
+        Razor.Parse<'model>(RazorRender.Resolver.Resolve x.TemplateName, model, x.WithProperties properties, x.TemplateName))
+
 and StringDictionary(dict:IDictionary<string, string>) =
   member x.Dictionary = dict
   /// Report more useful errors when key not found (.NET dictionary does not do this...)
@@ -147,7 +187,9 @@ and [<AbstractClass>] DocPageTemplateBase<'T>() =
     with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
     and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
 
-  member x.Root = x.Properties.["root"]
-
+  member x.Root = x.Properties.["root"]   
   member x.RenderPart(name, model:obj) =  
-    Razor.Parse(RazorRender.Resolver.Resolve(name), model)
+    if Razor.Resolve(name, model) = null then
+        let templateContent = RazorRender.Resolver.Resolve(name)
+        Razor.Compile(templateContent, model.GetType(), name)
+    Razor.Run(name, model)
