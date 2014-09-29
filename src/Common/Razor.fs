@@ -97,14 +97,6 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:Syste
       viewBag.AddValue(k, v)
     viewBag
 
-  do
-    handleCompile templateName (fun _ ->
-        let templateContent = templateResolver.Resolve templateName
-        match model_type with
-        | Some t -> Razor.Compile(templateContent, t, templateName)
-        | None ->
-            Razor.Compile(templateContent, templateName))
-
   /// Global resolver (for use in 'DocPageTempalateBase')
   static member val Resolver = null with get, set
   /// Find file in one of the specified layout roots
@@ -117,22 +109,29 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:Syste
     | Some f -> f
     | None -> 
         failwith "Could not find template file: %s\nSearching in: %A" name layoutRoots
-        
+  static member Run<'m>(name, model:'m, viewBag:DynamicViewBag) =
+    if Razor.Resolve<'m>(name, model) = null then
+        let templateContent = RazorRender.Resolver.Resolve(name)
+        Razor.Compile(templateContent, (if obj.ReferenceEquals(model, null) then typeof<'m> else model.GetType()), name)
+    Razor.Run<'m>(name, model, viewBag)
+      
   member internal x.HandleCompile source f = handleCompile source f
   member internal x.TemplateName = templateName
   member internal x.WithProperties properties = withProperties properties x.ViewBag
 
   /// Dynamic object with more properties (?)
-  member val ViewBag = new DynamicViewBag() with get,set
+  member val ViewBag = new DynamicViewBag() with get, set
   member x.ProcessFile(?properties) =
-    Razor.Run(templateName, null, x.WithProperties properties)
+    handleCompile templateName (fun _ ->
+      RazorRender.Run<obj>(templateName, null, x.WithProperties properties))
   /// Process source file and return result as a string
   member x.ProcessFileParse(?properties) = 
     handleCompile templateName (fun _ ->
       Razor.Parse(templateResolver.Resolve templateName, null, x.WithProperties properties, templateName))
       
   member x.ProcessFileModel(model:obj,?properties) =
-    Razor.Run(templateName, model, x.WithProperties properties)
+    handleCompile templateName (fun _ ->
+      RazorRender.Run<obj>(templateName, model, x.WithProperties properties))
   /// Process source file and return result as a string
   member x.ProcessFileParseModel(model:obj, ?properties) = 
     handleCompile templateName (fun _ ->
@@ -142,7 +141,8 @@ and RazorRender<'model>(layoutRoots, namespaces, templateName) =
     inherit RazorRender(layoutRoots, namespaces, templateName, typeof<'model>)
 
     member x.ProcessFile(model:'model, ?properties) =
-      Razor.Run<'model>(x.TemplateName, model, x.WithProperties properties)
+      x.HandleCompile x.TemplateName (fun _ ->
+        RazorRender.Run<'model>(x.TemplateName, model, x.WithProperties properties))
     /// Process source file and return result as a string
     member x.ProcessFileParse(model:'model, ?properties) = 
       x.HandleCompile x.TemplateName (fun _ ->
