@@ -61,3 +61,4 @@
 * 2.4.23 - Support generation of anchors in HTML documents
 * 2.4.24 - Include stylesheet for anchors & enable this for F# Formatting docs
 * 2.4.25 - Use Razor caching to drastically improve performance.
+* 2.4.26 - Proper release after nuget incident.
