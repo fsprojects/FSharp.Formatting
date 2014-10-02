@@ -136,31 +136,31 @@ type Literate private () =
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors ) = 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences ) = 
     let doc = 
       Literate.ParseMarkdownFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
           ?references = references )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
-    Templating.processFile doc (defaultOutput output input format) ctx
+    Templating.processFile assemblyReferences doc (defaultOutput output input format) ctx
 
 
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors ) = 
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences ) = 
     let doc = 
       Literate.ParseScriptFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
           ?references = references, ?fsiEvaluator = fsiEvaluator )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
-    Templating.processFile doc (defaultOutput output input format) ctx
+    Templating.processFile assemblyReferences doc (defaultOutput output input format) ctx
 
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors ) = 
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences ) = 
 
     // Call one or the other process function with all the arguments
     let processScriptFile file output = 
@@ -168,13 +168,13 @@ type Literate private () =
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements, 
-          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors )
+          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors, ?assemblyReferences = assemblyReferences )
     let processMarkdown file output = 
       Literate.ProcessMarkdown
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
-          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors )
+          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors, ?assemblyReferences = assemblyReferences )
      
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 

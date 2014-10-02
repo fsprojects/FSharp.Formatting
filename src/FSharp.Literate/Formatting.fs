@@ -70,10 +70,10 @@ module Templating =
 
   /// Depending on the template file, use either Razor engine
   /// or simple Html engine with {replacements} to format the document
-  let private generateFile contentTag parameters templateOpt output layoutRoots =
+  let private generateFile references contentTag parameters templateOpt output layoutRoots =
     match templateOpt with
     | Some (file:string) when file.EndsWith("cshtml", true, CultureInfo.InvariantCulture) -> 
-        let razor = RazorRender(layoutRoots, [], Path.GetFileNameWithoutExtension file)
+        let razor = RazorRender(layoutRoots, [], Path.GetFileNameWithoutExtension file, ?references = references)
         let props = [ "Properties", dict parameters ]
         let generated = razor.ProcessFile(props)
         File.WriteAllText(output, generated)      
@@ -85,7 +85,7 @@ module Templating =
   // Formate literate document
   // ------------------------------------------------------------------------------------
 
-  let processFile (doc:LiterateDocument) output ctx = 
+  let processFile references (doc:LiterateDocument) output ctx = 
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
@@ -121,4 +121,4 @@ module Templating =
         "page-source", doc.SourceFile
         contentTag, formattedDocument
         "tooltips", tipsHtml ]
-    generateFile contentTag parameters ctx.TemplateFile output ctx.LayoutRoots
+    generateFile references contentTag parameters ctx.TemplateFile output ctx.LayoutRoots
