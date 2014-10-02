@@ -565,6 +565,7 @@ module Reader =
 
   let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
     let memberName = 
+      try
         let name = memb.CompiledName.Replace(".ctor", "#ctor")
         let typeGenericParameters =
             memb.EnclosingEntity.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
@@ -599,6 +600,9 @@ module Reader =
                 "(" + System.String.Join(",", paramTypeList) + ")"
             else ""
         sprintf "%s%s%s" name typeargs paramList
+      with exn ->
+        Log.logf  "Error while building member-name for %s because: %s" memb.FullName exn.Message
+        memb.CompiledName
     match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
     | "",  None    -> ""
     | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
