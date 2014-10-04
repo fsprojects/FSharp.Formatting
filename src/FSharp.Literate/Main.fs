@@ -160,8 +160,8 @@ type Literate private () =
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences ) = 
-
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences, ?processRecursive ) = 
+    let processRecursive = defaultArg processRecursive true
     // Call one or the other process function with all the arguments
     let processScriptFile file output = 
       Literate.ProcessScriptFile
@@ -175,7 +175,7 @@ type Literate private () =
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
           ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors, ?assemblyReferences = assemblyReferences )
-     
+    
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 
       // Create output directory if it does not exist
@@ -196,6 +196,10 @@ type Literate private () =
         if changeTime > generateTime then
           printfn "Generating '%s.%s'" name ext
           func file output
+      if processRecursive then
+        for d in Directory.EnumerateDirectories(indir) do
+          let name = Path.GetFileName(d)
+          processDirectory (Path.Combine(indir, name)) (Path.Combine(outdir, name))
 
     let outputDirectory = defaultArg outputDirectory inputDirectory
     processDirectory inputDirectory outputDirectory
