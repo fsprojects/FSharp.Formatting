@@ -64,3 +64,4 @@
 * 2.4.26 - Proper release after nuget incident.
 * 2.4.27 - Better mono support and new logo.
 * 2.4.28 - Fix dependencies
+* 2.4.29 - Revert
