@@ -62,16 +62,15 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
   let config = new TemplateServiceConfiguration()
   do config.EncodedStringFactory <- new RawStringFactory()
   do config.Resolver <- templateResolver
-  let references =
+  do
     match references with
-    | Some r -> r
-    | None ->
-        let def = UseCurrentAssembliesReferenceResolver()
-        def.GetReferences () |> List.ofSeq
-  do config.ReferenceResolver <- 
-    { new IAssemblyReferenceResolver with 
-        member x.GetReferences (_, _) =
-            references |> List.toSeq }
+    | Some r -> 
+      config.ReferenceResolver <- 
+        { new IAssemblyReferenceResolver with 
+            member x.GetReferences (_, _) =
+                r |> List.toSeq }
+    | None -> ()
+
   do namespaces |> Seq.iter (config.Namespaces.Add >> ignore)
   do config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
   do config.Debug <- true 
