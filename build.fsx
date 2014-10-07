@@ -144,7 +144,7 @@ Target "NuGet" (fun _ ->
             Publish = hasBuildParam "nugetkey"
             Dependencies = 
                 ["Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireExactly
-                 "RazorEngine", GetPackageVersion "packages" "RazorEngine" |> RequireExactly
+                 "RazorEngine.N", GetPackageVersion "packages" "RazorEngine"
                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p -> 
