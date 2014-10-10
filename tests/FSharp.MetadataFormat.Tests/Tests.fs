@@ -162,3 +162,18 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   files.["fslib-nested.html"] |> should contain "Somewhat nested module"
   files.["fslib-nested-nestedtype.html"] |> should contain "Very nested member"
   files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
+
+[<Test>]
+let ``MetadataFormat handles c# dlls`` () =
+  let library = root @@ "files" @@ "CSharpFormat.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate
+    ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
+  let files = Directory.GetFiles(output)
+  
+  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
+  optIndex.IsSome |> shouldEqual true
+
+  #if INTERACTIVE
+  System.Diagnostics.Process.Start(output)
+  #endif

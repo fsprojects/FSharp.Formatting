@@ -148,7 +148,7 @@ module ValueReader =
     static member Create(publicOnly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
       let usedNames = Dictionary<_, _>()
       let nameGen (name:string) =
-        let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
+        let nice = name.Replace(".", "-").Replace("`", "-").Replace("<", "").Replace(">", "").ToLower()
         let found =
           seq { yield nice
                 for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
