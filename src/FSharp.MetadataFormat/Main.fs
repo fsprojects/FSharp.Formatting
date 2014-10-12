@@ -574,7 +574,7 @@ module Reader =
   let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
     members 
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-    |> Seq.filter (fun v -> not v.IsCompilerGenerated)
+    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
     |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readMembers ctx kind (entity:FSharpEntity) cond = 
