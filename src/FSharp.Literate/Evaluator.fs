@@ -123,6 +123,7 @@ type FsiEvaluator(?options:string[]) =
   let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
   let fsiSession = FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream)
   let evalFailed = new Event<_>()
+  let lockObj = obj()
 
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
@@ -149,7 +150,7 @@ type FsiEvaluator(?options:string[]) =
           [ CodeBlock(s.Trim()) ]
       | { ItValue = Some v }, FsiEmbedKind.ItValue
       | { Result = Some v }, FsiEmbedKind.Value ->
-          valueTransformations |> Seq.pick (fun f -> f v)
+          valueTransformations |> Seq.pick (fun f -> lock lockObj (fun () -> f v))
       | _, FsiEmbedKind.ItValue -> [ CodeBlock "No value has been returned" ]
       | _, FsiEmbedKind.Value -> [ CodeBlock "No value has been returned" ]
 
@@ -166,33 +167,34 @@ type FsiEvaluator(?options:string[]) =
     /// Note however that __SOURCE_DIRECTORY___ does not currently pick this up.
     member x.Evaluate(text:string, asExpression, ?file) =
       try
-        file |> Option.iter (fun file ->
-          let dir = Path.GetDirectoryName(file)
-          fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
-          fsiSession.EvalInteraction(sprintf "#cd @\"%s\"" dir) )
-        sbOut.Clear() |> ignore
-        sbErr.Clear() |> ignore
-        let sbConsole = new Text.StringBuilder()
-        let prev = Console.Out
-        try //try..finally to make sure console.out is re-set to prev
-          Console.SetOut(new StringWriter(sbConsole))
-          let value, itvalue =
-            if asExpression then
-                match fsiSession.EvalExpression(text) with
-                | Some value -> Some(value.ReflectionValue, value.ReflectionType), None
-                | None -> None, None
-            else
-              fsiSession.EvalInteraction(text)
-              // try get the "it" value, but silently ignore any errors
-              try 
-                match fsiSession.EvalExpression("it") with
-                | Some value -> None, Some(value.ReflectionValue, value.ReflectionType)
-                | None -> None, None
-              with _ -> None, None
-          let output = Some(sbConsole.ToString())
-          { Output = output; Result = value; ItValue = itvalue  } :> _
-        finally
-          Console.SetOut(prev)
+        lock lockObj <| fun () ->
+          file |> Option.iter (fun file ->
+            let dir = Path.GetDirectoryName(file)
+            fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
+            fsiSession.EvalInteraction(sprintf "#cd @\"%s\"" dir) )
+          sbOut.Clear() |> ignore
+          sbErr.Clear() |> ignore
+          let sbConsole = new Text.StringBuilder()
+          let prev = Console.Out
+          try //try..finally to make sure console.out is re-set to prev
+            Console.SetOut(new StringWriter(sbConsole))
+            let value, itvalue =
+              if asExpression then
+                  match fsiSession.EvalExpression(text) with
+                  | Some value -> Some(value.ReflectionValue, value.ReflectionType), None
+                  | None -> None, None
+              else
+                fsiSession.EvalInteraction(text)
+                // try get the "it" value, but silently ignore any errors
+                try 
+                  match fsiSession.EvalExpression("it") with
+                  | Some value -> None, Some(value.ReflectionValue, value.ReflectionType)
+                  | None -> None, None
+                with _ -> None, None
+            let output = Some(sbConsole.ToString())
+            { Output = output; Result = value; ItValue = itvalue  } :> _
+          finally
+            Console.SetOut(prev)
       with e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = sbErr.ToString() }
         { Output = None; Result = None; ItValue = None } :> _
