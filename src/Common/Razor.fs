@@ -44,12 +44,13 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:Syste
     if templateName.EndsWith(".cshtml") then
         templateName.Substring(0, templateName.Length - 7)
     else templateName
-  let templateCache = new ConcurrentDictionary<string, string>()
+  let templateCache = new ConcurrentDictionary<string[] * string, string>()
   // Create resolver & set it to the global static field 
   let templateResolver = 
     { new ITemplateResolver with
         member x.Resolve name = 
-            templateCache.GetOrAdd (name, fun name -> 
+            let key = Array.ofSeq layoutRoots, name
+            templateCache.GetOrAdd (key, fun (layoutRoots, name) -> 
                 match RazorRender.Resolve(layoutRoots, name + ".cshtml") with
                 | Some file -> File.ReadAllText(file)
                 | None -> 
