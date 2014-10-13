@@ -186,6 +186,7 @@ type Literate private () =
       let fsx = [ for f in Directory.GetFiles(indir, "*.fsx") -> processScriptFile, f ]
       let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
       for func, file in fsx @ mds do
+        let dir = Path.GetDirectoryName(file)
         let name = Path.GetFileNameWithoutExtension(file)
         let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
         let output = Path.Combine(outdir, sprintf "%s.%s" name ext)
@@ -194,7 +195,7 @@ type Literate private () =
         let changeTime = File.GetLastWriteTime(file)
         let generateTime = File.GetLastWriteTime(output)
         if changeTime > generateTime then
-          printfn "Generating '%s.%s'" name ext
+          printfn "Generating '%s/%s.%s'" dir name ext
           func file output
 
     let outputDirectory = defaultArg outputDirectory inputDirectory

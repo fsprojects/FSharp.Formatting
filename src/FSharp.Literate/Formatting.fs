@@ -1,9 +1,9 @@
 ﻿namespace FSharp.Literate
 
 open System.IO
+open System.Collections.Concurrent
 open System.Globalization
 open FSharp.Literate
-open RazorEngine.Templating
 open FSharp.CodeFormat
 open FSharp.Markdown
 
@@ -69,14 +69,15 @@ module Templating =
         result 
 
   /// Very basic and simple caching mechanism for RazorRender instances.
-  let private razorCache = new System.Collections.Concurrent.ConcurrentDictionary<string, RazorRender>()
+  let private razorCache = new ConcurrentDictionary<string[] * string, RazorRender>()
 
   /// Depending on the template file, use either Razor engine
   /// or simple Html engine with {replacements} to format the document
   let private generateFile contentTag parameters templateOpt output layoutRoots =
     match templateOpt with
     | Some (file:string) when file.EndsWith("cshtml", true, CultureInfo.InvariantCulture) -> 
-        let razor = razorCache.GetOrAdd(file, fun file -> RazorRender(layoutRoots, [], Path.GetFileNameWithoutExtension file))
+        let key = Array.ofSeq layoutRoots, file
+        let razor = razorCache.GetOrAdd(key, fun (layoutRoots, file) -> RazorRender(layoutRoots, [], Path.GetFileNameWithoutExtension file))
         let props = [ "Properties", dict parameters ]
         let generated = razor.ProcessFile(props)
         File.WriteAllText(output, generated)      
