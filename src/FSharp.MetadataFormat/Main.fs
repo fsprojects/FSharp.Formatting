@@ -574,7 +574,7 @@ module Reader =
   let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
     members 
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-    |> Seq.filter (fun v -> not v.IsCompilerGenerated)
+    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
     |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readMembers ctx kind (entity:FSharpEntity) cond = 
@@ -628,8 +628,7 @@ module Reader =
   // Type providers don't have their docs dumped into the xml file,
   // so we need to add them to the XmlMemberMap separately
   let registerTypeProviderXmlDocs (ctx:ReadingContext) (typ:FSharpEntity) =
-    let xmlDocSig = "T:" + typ.AccessPath + "." + typ.LogicalName
-    let xmlDoc = registerXmlDoc ctx xmlDocSig (String.concat "" typ.XmlDoc)
+    let xmlDoc = registerXmlDoc ctx typ.XmlDocSig (String.concat "" typ.XmlDoc)
     xmlDoc.Descendants(XName.Get "param")
     |> Seq.choose (fun p -> let nameAttr = p.Attribute(XName.Get "name")
                             if nameAttr = null
@@ -638,7 +637,6 @@ module Reader =
     |> Seq.iter (fun (name, xmlDoc) -> 
         let xmlDocSig = getFSharpStaticParamXmlSig typ name
         registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape xmlDoc) |> ignore)
-    xmlDocSig
 
   let rec readModulesAndTypes ctx (entities:seq<_>) = 
     let modules = readChildren ctx entities readModule (fun x -> x.IsFSharpModule) 
@@ -646,11 +644,9 @@ module Reader =
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
-    let xmlDocSig =
-        if typ.XmlDocSig = "" && typ.XmlDoc.Count > 0 && typ.IsProvided
-        then registerTypeProviderXmlDocs ctx typ
-        else typ.XmlDocSig
-    readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
+    if typ.IsProvided && typ.XmlDoc.Count > 0 then
+        registerTypeProviderXmlDocs ctx typ
+    readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
       let rec getMembers (typ:FSharpEntity) = [
