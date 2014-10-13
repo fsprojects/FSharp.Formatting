@@ -68,3 +68,4 @@
 * 2.4.30 - Fsharp.Formatting MetadataFormat no longer crashes on C# dlls
 * 2.4.31 - Basic cache for RazorRender instances in FSharp.Literate
 * 2.4.32 - Fixed regressions introduced by latest FCS
+* 2.4.33 - Fix cache using incomplete key
