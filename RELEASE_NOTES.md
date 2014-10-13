@@ -66,3 +66,4 @@
 * 2.4.28 - Fix dependencies
 * 2.4.29 - Revert
 * 2.4.30 - Fsharp.Formatting MetadataFormat no longer crashes on C# dlls
+* 2.4.31 - Basic cache for RazorRender instances in FSharp.Literate
