@@ -546,6 +546,30 @@ module Reader =
   // Reading entities
   // ----------------------------------------------------------------------------------------------
 
+  // -----------------------------------------------------------------------
+  // Hack for getting the xmldoc signature from C# assemblies
+  // FSC consistently returns emtpy strings in .XmlDocSig properties
+  // and as such Fsharp.formatting is unable to look up the correct 
+  // comment. 
+
+  let getXmlDocSigForType (typ:FSharpEntity) =
+    match (typ.XmlDocSig, typ.TryFullName)  with
+    | "", None    -> ""
+    | "", Some(n) -> sprintf "T:%s" n
+    | n , _       -> n
+
+  let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
+    if memb.IsProperty then "P" else "M"
+
+  let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
+    match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
+    | "",  None    -> ""
+    | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memb.CompiledName
+    | n, _         -> n
+
+  // 
+  // ---------------------------------------------------------------------
+
   /// Reads XML documentation comments and calls the specified function
   /// to parse the rest of the entity, unless [omit] command is set.
   /// The function is called with category name, commands & comment.
@@ -568,7 +592,7 @@ module Reader =
     |> List.ofSeq
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberFunctionOrValue) =
-    readCommentsInto ctx memb.XmlDocSig (fun cat _ comment ->
+    readCommentsInto ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
@@ -617,6 +641,7 @@ module Reader =
   // Reading modules types (mutually recursive, because of nesting)
   // ----------------------------------------------------------------------------------------------
 
+  
   // Create a xml documentation snippet and add it to the XmlMemberMap
   let registerXmlDoc (ctx:ReadingContext) xmlDocSig (xmlDoc:string) =
     let xmlDoc = if xmlDoc.Contains "<summary>" then xmlDoc else "<summary>" + xmlDoc + "</summary>"
@@ -646,7 +671,8 @@ module Reader =
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
     if typ.IsProvided && typ.XmlDoc.Count > 0 then
         registerTypeProviderXmlDocs ctx typ
-    readCommentsInto ctx typ.XmlDocSig (fun cat cmds comment ->
+    let xmlDocSig = getXmlDocSigForType typ
+    readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
       let rec getMembers (typ:FSharpEntity) = [
@@ -654,7 +680,7 @@ module Reader =
         match typ.BaseType with
         | Some baseType ->
             //TODO: would be better to reuse instead of reparsing the base type xml docs
-            let cmds, comment = readCommentAndCommands ctx baseType.TypeDefinition.XmlDocSig
+            let cmds, comment = readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition)
             match cmds with
             | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
             | _ -> ()
