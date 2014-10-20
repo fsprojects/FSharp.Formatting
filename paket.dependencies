@@ -1,7 +1,7 @@
 source http://nuget.org/api/v2
 
 nuget FAKE
-nuget FSharp.Compiler.Service
+nuget FSharp.Compiler.Service <= 0.0.67
 nuget CommandLineParser 1.9.71
 nuget Microsoft.AspNet.Razor 2.0.30506.0
 nuget RazorEngine 3.3.0

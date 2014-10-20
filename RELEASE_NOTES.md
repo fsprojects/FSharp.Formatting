@@ -69,3 +69,4 @@
 * 2.4.31 - Basic cache for RazorRender instances in FSharp.Literate
 * 2.4.32 - Fixed regressions introduced by latest FCS
 * 2.4.33 - Fix cache using incomplete key
+* 2.4.34 - Better C# support / Don't depend on broken FCS
