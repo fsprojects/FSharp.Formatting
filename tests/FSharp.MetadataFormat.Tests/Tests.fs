@@ -177,3 +177,26 @@ let ``MetadataFormat handles c# dlls`` () =
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
+
+[<Test>]
+let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
+    let library = root @@ "files" @@ "CSharpFormat.dll"
+    let output = getOutputDir()
+    MetadataFormat.Generate
+        ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
+    let fileNames = Directory.GetFiles(output)
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    files.["index.html"] |> should contain "CLikeFormat"
+    files.["index.html"] |> should contain "Provides a base class for formatting languages similar to C."
+
+[<Test>]
+let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
+    let library = root @@ "files" @@ "CSharpFormat.dll"
+    let output = getOutputDir()
+    MetadataFormat.Generate
+        ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
+    let fileNames = Directory.GetFiles(output)
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ] 
+    
+    files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "CommentRegEx"
+    files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "Regular expression string to match single line and multi-line"
