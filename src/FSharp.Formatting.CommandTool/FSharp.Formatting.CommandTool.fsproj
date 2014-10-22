@@ -44,10 +44,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CommandLine">
-      <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>False</Private>
@@ -127,6 +123,108 @@
         <When Condition="$(TargetFrameworkVersion) == 'v2.0'">
         </When>
         <When Condition="$(TargetFrameworkVersion) == 'v3.5'">
+          <ItemGroup>
+            <Reference Include="CommandLine">
+              <HintPath>..\..\packages\CommandLineParser\lib\net35\CommandLine.dll</HintPath>
+              <Private>True</Private>
+              <Paket>True</Paket>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <When Condition="$(TargetFrameworkVersion) == 'v4.0' And $(TargetFrameworkProfile) == 'Client'">
+          <ItemGroup>
+            <Reference Include="CommandLine">
+              <HintPath>..\..\packages\CommandLineParser\lib\net35\CommandLine.dll</HintPath>
+              <Private>True</Private>
+              <Paket>True</Paket>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <When Condition="$(TargetFrameworkVersion) == 'v4.0'">
+          <ItemGroup>
+            <Reference Include="CommandLine">
+              <HintPath>..\..\packages\CommandLineParser\lib\net40\CommandLine.dll</HintPath>
+              <Private>True</Private>
+              <Paket>True</Paket>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <Otherwise>
+          <ItemGroup>
+            <Reference Include="CommandLine">
+              <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+              <Private>True</Private>
+              <Paket>True</Paket>
+            </Reference>
+          </ItemGroup>
+        </Otherwise>
+      </Choose>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="CommandLine">
+          <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="CommandLine">
+          <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="CommandLine">
+          <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Windows'">
+      <ItemGroup>
+        <Reference Include="CommandLine">
+          <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
+      <ItemGroup>
+        <Reference Include="CommandLine">
+          <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="CommandLine">
+          <HintPath>..\..\packages\CommandLineParser\lib\net45\CommandLine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
+      <Choose>
+        <When Condition="$(TargetFrameworkVersion) == 'v1.0'">
+        </When>
+        <When Condition="$(TargetFrameworkVersion) == 'v1.1'">
+        </When>
+        <When Condition="$(TargetFrameworkVersion) == 'v2.0'">
+        </When>
+        <When Condition="$(TargetFrameworkVersion) == 'v3.5'">
         </When>
         <When Condition="$(TargetFrameworkVersion) == 'v4.0' And $(TargetFrameworkProfile) == 'Client'">
         </When>
@@ -141,6 +239,60 @@
         </Otherwise>
       </Choose>
     </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="RazorEngine">
+          <HintPath>..\..\packages\RazorEngine\lib\net40\RazorEngine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="RazorEngine">
+          <HintPath>..\..\packages\RazorEngine\lib\net40\RazorEngine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="RazorEngine">
+          <HintPath>..\..\packages\RazorEngine\lib\net40\RazorEngine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Windows'">
+      <ItemGroup>
+        <Reference Include="RazorEngine">
+          <HintPath>..\..\packages\RazorEngine\lib\net40\RazorEngine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
+      <ItemGroup>
+        <Reference Include="RazorEngine">
+          <HintPath>..\..\packages\RazorEngine\lib\net40\RazorEngine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="RazorEngine">
+          <HintPath>..\..\packages\RazorEngine\lib\net40\RazorEngine.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
   </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework'">
@@ -166,5 +318,59 @@
         </Otherwise>
       </Choose>
     </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="System.Web.Razor">
+          <HintPath>..\..\packages\Microsoft.AspNet.Razor\lib\net40\System.Web.Razor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="System.Web.Razor">
+          <HintPath>..\..\packages\Microsoft.AspNet.Razor\lib\net40\System.Web.Razor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="System.Web.Razor">
+          <HintPath>..\..\packages\Microsoft.AspNet.Razor\lib\net40\System.Web.Razor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Windows'">
+      <ItemGroup>
+        <Reference Include="System.Web.Razor">
+          <HintPath>..\..\packages\Microsoft.AspNet.Razor\lib\net40\System.Web.Razor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
+      <ItemGroup>
+        <Reference Include="System.Web.Razor">
+          <HintPath>..\..\packages\Microsoft.AspNet.Razor\lib\net40\System.Web.Razor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="System.Web.Razor">
+          <HintPath>..\..\packages\Microsoft.AspNet.Razor\lib\net40\System.Web.Razor.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
   </Choose>
 </Project>

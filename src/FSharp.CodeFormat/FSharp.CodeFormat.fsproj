@@ -140,5 +140,59 @@
         </Otherwise>
       </Choose>
     </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoAndroid'">
+      <ItemGroup>
+        <Reference Include="FSharp.Compiler.Service">
+          <HintPath>..\..\packages\FSharp.Compiler.Service\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'MonoTouch'">
+      <ItemGroup>
+        <Reference Include="FSharp.Compiler.Service">
+          <HintPath>..\..\packages\FSharp.Compiler.Service\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Silverlight'">
+      <ItemGroup>
+        <Reference Include="FSharp.Compiler.Service">
+          <HintPath>..\..\packages\FSharp.Compiler.Service\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'Windows'">
+      <ItemGroup>
+        <Reference Include="FSharp.Compiler.Service">
+          <HintPath>..\..\packages\FSharp.Compiler.Service\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFrameworkIdentifier) == 'WindowsPhoneApp'">
+      <ItemGroup>
+        <Reference Include="FSharp.Compiler.Service">
+          <HintPath>..\..\packages\FSharp.Compiler.Service\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="FSharp.Compiler.Service">
+          <HintPath>..\..\packages\FSharp.Compiler.Service\lib\net45\FSharp.Compiler.Service.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
   </Choose>
 </Project>
