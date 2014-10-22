@@ -874,8 +874,14 @@ type MetadataFormat =
 
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
-          if not (File.Exists xmlFile) then 
-            raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+          let xmlFileOpt =
+            Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile),
+                                     Path.GetFileNameWithoutExtension(xmlFile) + ".*")
+            |> Seq.tryFind (fun f -> Path.GetExtension(f).Equals(".xml", StringComparison.CurrentCultureIgnoreCase))
+
+          match xmlFileOpt with
+          | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+          | Some xmlFile ->
 
           Log.logf "Reading assembly: %s" dllFile
           let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
