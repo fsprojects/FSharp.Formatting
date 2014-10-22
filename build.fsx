@@ -118,7 +118,6 @@ for name in testProjects do
         !! (sprintf "tests/*/bin/Release/%s.dll" name)
         |> NUnit (fun p ->
             { p with
-                ToolPath = "packages/NUnit.Runners/tools"
                 DisableShadowCopy = true
                 TimeOut = TimeSpan.FromMinutes 20.
                 Framework = "4.0"
