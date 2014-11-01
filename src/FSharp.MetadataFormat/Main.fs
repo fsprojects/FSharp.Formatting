@@ -699,8 +699,7 @@ module Reader =
       let ivals, svals = 
           getMembers typ
           |> List.ofSeq 
-          |> List.filter (fun v -> checkAccess ctx v.Accessibility)
-          |> List.filter (fun v -> not v.IsCompilerGenerated)
+          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitMember)
           |> List.partition (fun v -> v.IsInstanceMember) 
       let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
     
