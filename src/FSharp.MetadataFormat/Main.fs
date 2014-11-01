@@ -553,19 +553,27 @@ module Reader =
   // comment. 
 
   let getXmlDocSigForType (typ:FSharpEntity) =
-    match (typ.XmlDocSig, typ.TryFullName)  with
-    | "", None    -> ""
-    | "", Some(n) -> sprintf "T:%s" n
-    | n , _       -> n
+    match typ.XmlDocSig with
+    | "" -> 
+        try
+            defaultArg 
+                (Option.map (sprintf "T:%s") typ.TryFullName)
+                ""
+        with _ -> ""
+    | n -> n
 
   let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
     if memb.IsProperty then "P" else "M"
 
   let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
-    match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
-    | "",  None    -> ""
-    | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memb.CompiledName
-    | n, _         -> n
+    match memb.XmlDocSig with
+    | "" ->
+        try
+            defaultArg 
+                (Option.map (fun n -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) n memb.CompiledName) memb.EnclosingEntity.TryFullName)
+                ""
+        with _ -> ""
+    | n -> n
 
   // 
   // ---------------------------------------------------------------------
