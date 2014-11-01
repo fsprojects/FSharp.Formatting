@@ -626,6 +626,7 @@ module Reader =
   let readUnionCases ctx (typ:FSharpEntity) =
     typ.UnionCases
     |> List.ofSeq
+    |> List.filter (fun v -> checkAccess ctx v.Accessibility)
     |> List.choose (fun case ->
       readCommentsInto ctx case.XmlDocSig (fun cat _ comment ->
         Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
