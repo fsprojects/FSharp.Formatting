@@ -54,7 +54,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:Syste
                 match RazorRender.Resolve(layoutRoots, name + ".cshtml") with
                 | Some file -> File.ReadAllText(file)
                 | None -> 
-                    failwith "Could not find template file: %s\nSearching in: %A" name layoutRoots
+                    failwithf "Could not find template file: %s\nSearching in: %A" name layoutRoots
                     null)
                  }
   do RazorRender.Resolver <- templateResolver
@@ -109,7 +109,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?model_type:Syste
     match RazorRender.Resolve(layoutRoots, name) with
     | Some f -> f
     | None -> 
-        failwith "Could not find template file: %s\nSearching in: %A" name layoutRoots
+        failwithf "Could not find template file: %s\nSearching in: %A" name layoutRoots
   static member Run<'m>(name, model:'m, viewBag:DynamicViewBag) =
     if Razor.Resolve<'m>(name, model) = null then
         let templateContent = RazorRender.Resolver.Resolve(name)
