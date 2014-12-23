@@ -516,7 +516,10 @@ module Reader =
 
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
-    | None -> dict[], Comment.Empty
+    | None -> 
+        if not (System.String.IsNullOrEmpty xmlSig) then
+            Log.logf "Warning: Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
+        dict[], Comment.Empty
     | Some el ->
         let sum = el.Element(XName.Get "summary")
         if sum = null then
@@ -889,7 +892,7 @@ type MetadataFormat =
               Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" asmName
           else
               let asm = table.[asmName] 
-              Log.logf "Parsing assembly"
+              Log.logf "Parsing assembly (with documentation file '%s')" xmlFile
               yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
