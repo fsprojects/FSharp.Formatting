@@ -877,7 +877,15 @@ type MetadataFormat =
           let xmlFileOpt =
             Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile),
                                      Path.GetFileNameWithoutExtension(xmlFile) + ".*")
-            |> Seq.tryFind (fun f -> Path.GetExtension(f).Equals(".xml", StringComparison.CurrentCultureIgnoreCase))
+            |> Seq.tryFind (fun f -> 
+                Path.GetFileName(f).Equals(Path.GetFileName(xmlFile), StringComparison.CurrentCultureIgnoreCase))
+          let xmlFileOpt =
+            match xmlFileOpt with
+            | Some v -> Some v
+            | None ->
+              Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile),
+                                       Path.GetFileNameWithoutExtension(xmlFile) + ".*")
+              |> Seq.tryFind (fun f -> Path.GetExtension(f).Equals(".xml", StringComparison.CurrentCultureIgnoreCase))
 
           match xmlFileOpt with
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
