@@ -142,6 +142,9 @@ module internal ParseScript =
     | BlockCommand(Command "include-value" ref)::blocks -> 
         let p = EmbedParagraphs(ValueReference(ref))
         transformBlocks noEval (p::acc) defs blocks
+    | BlockCommand(Command "raw" _) ::BlockSnippet(snip):: blocks -> 
+        let p = EmbedParagraphs(RawBlock(snip))
+        transformBlocks noEval (p::acc) defs blocks
 
     // Parse commands in [foo=bar,zoo], followed by a source code snippet
     //  * hide - the snippet will not be shown

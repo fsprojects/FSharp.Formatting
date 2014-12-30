@@ -41,6 +41,8 @@ type LiterateParagraph =
   | FormattedCode of Line list
   /// Ordinary formatted code snippet in non-F# language (tagged with language code)
   | LanguageTaggedCode of string * string
+  /// Block simply emitted without any formatting equivalent to <pre> tag in html
+  | RawBlock of Line list
 
   interface MarkdownEmbedParagraphs with
     member x.Render() = 

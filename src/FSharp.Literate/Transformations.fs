@@ -307,6 +307,7 @@ module internal Transformations =
   let rec replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
+        | RawBlock lines -> Some (InlineBlock (unparse lines))
         | LiterateCode(_, { Visibility = (HiddenCode | NamedCode _) }) -> None
         | FormattedCode lines 
         | LiterateCode(lines, _) -> Some (formatted.[Choice1Of2 lines])
