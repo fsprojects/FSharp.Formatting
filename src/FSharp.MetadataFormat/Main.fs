@@ -1004,11 +1004,14 @@ type MetadataFormat =
 
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
+          let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
           let xmlFileOpt =
-            Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile),
-                                     Path.GetFileNameWithoutExtension(xmlFile) + ".*")
-            |> Seq.map (fun f -> f.Remove(0, Path.GetFileNameWithoutExtension(xmlFile).Length))
-            |> Seq.tryFind (fun f -> f.Equals(".xml", StringComparison.CurrentCultureIgnoreCase))
+            Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
+            |> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
+            |> Seq.tryPick (fun (f, ext) -> 
+                if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase) 
+                  then Some(f) else None)
+
           match xmlFileOpt with
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
           | Some xmlFile ->
