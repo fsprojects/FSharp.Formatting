@@ -65,6 +65,7 @@ type Type =
   { Name : string 
     UrlName : string
     Comment : Comment 
+    Assembly : AssemblyName
 
     UnionCases : Member list
     RecordFields : Member list
@@ -74,10 +75,11 @@ type Type =
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
-  static member Create(name, url, comment, cases, fields, statParams, ctors, inst, stat) = 
+  static member Create(name, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) = 
     { Type.Name = name
       UrlName = url
       Comment = comment
+      Assembly = assembly
       UnionCases = cases
       RecordFields = fields
       StaticParameters = statParams
@@ -90,6 +92,7 @@ type Module =
   { Name : string 
     UrlName : string
     Comment : Comment
+    Assembly : AssemblyName
     
     AllMembers : Member list
 
@@ -99,8 +102,8 @@ type Module =
     ValuesAndFuncs : Member list
     TypeExtensions : Member list
     ActivePatterns : Member list }
-  static member Create(name, url, comment, modules, types, vals, exts, pats) = 
-    { Module.Name = name; UrlName = url; Comment = comment;
+  static member Create(name, url, comment, assembly, modules, types, vals, exts, pats) = 
+    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly
       AllMembers = List.concat [ vals; exts; pats ] 
       NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
@@ -136,6 +139,7 @@ module ValueReader =
 
   type ReadingContext = 
     { PublicOnly : bool
+      Assembly : AssemblyName
       XmlMemberMap : IDictionary<string, XElement>
       MarkdownComments : bool
       UniqueUrlName : string -> string
@@ -145,7 +149,7 @@ module ValueReader =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(publicOnly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
+    static member Create(publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
       let usedNames = Dictionary<_, _>()
       let nameGen (name:string) =
         let nice = name.Replace(".", "-").Replace("`", "-").Replace("<", "").Replace(">", "").ToLower()
@@ -156,6 +160,7 @@ module ValueReader =
         usedNames.Add(found, true)
         found
       { PublicOnly=publicOnly;
+        Assembly = assembly
         XmlMemberMap = map; 
         MarkdownComments = markDownComments; 
         UniqueUrlName = nameGen; 
@@ -717,7 +722,7 @@ module Reader =
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
 
       Type.Create
-        ( name, urlName, comment, cases, fields, statParams, ctors, inst, stat ))
+        ( name, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -732,7 +737,7 @@ module Reader =
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
 
       Module.Create
-        ( modul.DisplayName, urlName, comment,
+        ( modul.DisplayName, urlName, comment, ctx.Assembly,
           modules, types,
           vals, exts, pats ))
 
@@ -745,7 +750,7 @@ module Reader =
     Namespace.Create(ns, modules, types)
 
   let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments) =
-    let assemblyName = assembly.QualifiedName
+    let assemblyName = AssemblyName(assembly.QualifiedName)
     
     // Read in the supplied XML file, map its name attributes to document text 
     let doc = XDocument.Load(xmlFile)
@@ -757,7 +762,7 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments)
+    let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments)
 
     // 
     let namespaces = 
@@ -768,7 +773,7 @@ module Reader =
       |> Seq.map (readNamespace ctx) 
       |> List.ofSeq
 
-    AssemblyName(assemblyName), namespaces
+    assemblyName, namespaces
 
 // ------------------------------------------------------------------------------------------------
 // Main - generating HTML
@@ -907,7 +912,7 @@ type MetadataFormat =
         | false, _ -> namespaces.Add(ns.Name, (ns.Modules, ns.Types))
 
     let namespaces = [ for (KeyValue(name, (mods, typs))) in namespaces -> Namespace.Create(name, mods, typs) ]
-    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces)
+    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
         
     // Generate all the HTML stuff
     Log.logf "Starting razor engine"
