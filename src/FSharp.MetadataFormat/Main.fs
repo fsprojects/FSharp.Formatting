@@ -587,17 +587,54 @@ module Reader =
     | n -> n
 
   let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
-    if memb.IsProperty then "P" else "M"
+    if memb.IsEvent then "E"
+    elif memb.IsProperty then "P" 
+    else "M"
 
   let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
-    match memb.XmlDocSig with
-    | "" ->
-        try
-            defaultArg 
-                (Option.map (fun n -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) n memb.CompiledName) memb.EnclosingEntity.TryFullName)
-                ""
-        with _ -> ""
-    | n -> n
+    let memberName = 
+      try
+        let name = memb.CompiledName.Replace(".ctor", "#ctor")
+        let typeGenericParameters =
+            memb.EnclosingEntity.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
+        let methodGenericParameters =
+            memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
+        let typeArgsMap =
+            Seq.append methodGenericParameters typeGenericParameters
+            |> Seq.groupBy fst
+            |> Seq.map (fun (name, grp) -> grp |> Seq.head)
+            |> dict
+        let typeargs =
+            if memb.GenericParameters.Count > 0
+            then sprintf "``%d" memb.GenericParameters.Count
+            else ""
+                    
+        let paramList = 
+            if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0
+            then
+                let head = memb.CurriedParameterGroups.[0]
+                let paramTypeList =
+                    head 
+                    |> Seq.map (fun param ->
+                        if param.Type.IsGenericParameter then
+                            typeArgsMap.[param.Type.GenericParameter.Name]
+                        else
+                            let rec reduceAbb (t:FSharpType) =
+                                if t.IsAbbreviation
+                                then reduceAbb t.AbbreviatedType
+                                else t
+                            let paramType = reduceAbb param.Type
+                            paramType.TypeDefinition.FullName)
+                "(" + System.String.Join(",", paramTypeList) + ")"
+            else ""
+        sprintf "%s%s%s" name typeargs paramList
+      with exn ->
+        Log.logf  "Error while building member-name for %s because: %s" memb.FullName exn.Message
+        memb.CompiledName
+    match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
+    | "",  None    -> ""
+    | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
+    | n, _         -> n
 
   // 
   // ---------------------------------------------------------------------
@@ -825,6 +862,10 @@ module Reader =
           getMembers typ
           |> List.ofSeq 
           |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitMember)
+          |> List.filter (fun v -> 
+            if v.EnclosingEntity.IsFSharp then true else
+                not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
+                not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
           |> List.partition (fun v -> v.IsInstanceMember) 
       let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
     
