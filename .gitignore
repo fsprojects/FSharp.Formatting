@@ -14,3 +14,4 @@ tests/Benchmarks/testfiles/*/*.html
 *.userprefs
 *.bak
 .paket/paket.exe
+release.cmd

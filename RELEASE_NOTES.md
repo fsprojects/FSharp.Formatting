@@ -61,3 +61,14 @@
 * 2.4.23 - Support generation of anchors in HTML documents
 * 2.4.24 - Include stylesheet for anchors & enable this for F# Formatting docs
 * 2.4.25 - Version with fixed dependencies, released using Paket!
+* 2.4.25 - Use Razor caching to drastically improve performance.
+* 2.4.26 - Proper release after nuget incident.
+* 2.4.27 - Better mono support and new logo.
+* 2.4.28 - Fix dependencies
+* 2.4.29 - Revert
+* 2.4.30 - Fsharp.Formatting MetadataFormat no longer crashes on C# dlls
+* 2.4.31 - Basic cache for RazorRender instances in FSharp.Literate
+* 2.4.32 - Fixed regressions introduced by latest FCS
+* 2.4.33 - Fix cache using incomplete key
+* 2.4.34 - Better C# support / Don't depend on broken FCS
+* 2.4.36 - Better mono support 

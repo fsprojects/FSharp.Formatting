@@ -118,7 +118,6 @@ for name in testProjects do
         !! (sprintf "tests/*/bin/Release/%s.dll" name)
         |> NUnit (fun p ->
             { p with
-                ToolPath = "packages/NUnit.Runners/Tools"
                 DisableShadowCopy = true
                 TimeOut = TimeSpan.FromMinutes 20.
                 Framework = "4.0"
@@ -145,7 +144,7 @@ Target "NuGet" (fun _ ->
             Dependencies = 
                 ["Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireExactly
                  "RazorEngine", GetPackageVersion "packages" "RazorEngine" |> RequireExactly
-                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" ] })
+                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireExactly ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p -> 
         { p with   

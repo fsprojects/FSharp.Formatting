@@ -65,6 +65,7 @@ type Type =
   { Name : string 
     UrlName : string
     Comment : Comment 
+    Assembly : AssemblyName
 
     UnionCases : Member list
     RecordFields : Member list
@@ -74,10 +75,11 @@ type Type =
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
-  static member Create(name, url, comment, cases, fields, statParams, ctors, inst, stat) = 
+  static member Create(name, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) = 
     { Type.Name = name
       UrlName = url
       Comment = comment
+      Assembly = assembly
       UnionCases = cases
       RecordFields = fields
       StaticParameters = statParams
@@ -90,6 +92,7 @@ type Module =
   { Name : string 
     UrlName : string
     Comment : Comment
+    Assembly : AssemblyName
     
     AllMembers : Member list
 
@@ -99,8 +102,8 @@ type Module =
     ValuesAndFuncs : Member list
     TypeExtensions : Member list
     ActivePatterns : Member list }
-  static member Create(name, url, comment, modules, types, vals, exts, pats) = 
-    { Module.Name = name; UrlName = url; Comment = comment;
+  static member Create(name, url, comment, assembly, modules, types, vals, exts, pats) = 
+    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly
       AllMembers = List.concat [ vals; exts; pats ] 
       NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
@@ -136,6 +139,7 @@ module ValueReader =
 
   type ReadingContext = 
     { PublicOnly : bool
+      Assembly : AssemblyName
       XmlMemberMap : IDictionary<string, XElement>
       MarkdownComments : bool
       UniqueUrlName : string -> string
@@ -145,10 +149,10 @@ module ValueReader =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(publicOnly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
+    static member Create(publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
       let usedNames = Dictionary<_, _>()
       let nameGen (name:string) =
-        let nice = name.Replace(".", "-").Replace("`", "-").ToLower()
+        let nice = name.Replace(".", "-").Replace("`", "-").Replace("<", "").Replace(">", "").ToLower()
         let found =
           seq { yield nice
                 for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
@@ -156,6 +160,7 @@ module ValueReader =
         usedNames.Add(found, true)
         found
       { PublicOnly=publicOnly;
+        Assembly = assembly
         XmlMemberMap = map; 
         MarkdownComments = markDownComments; 
         UniqueUrlName = nameGen; 
@@ -512,11 +517,14 @@ module Reader =
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
    let str = full.ToString()
-   Comment.Create(str, str, [])
+   Comment.Create(str, str, [KeyValuePair("<default>", str)])
 
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
-    | None -> dict[], Comment.Empty
+    | None -> 
+        if not (System.String.IsNullOrEmpty xmlSig) then
+            Log.logf "Warning: Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
+        dict[], Comment.Empty
     | Some el ->
         let sum = el.Element(XName.Get "summary")
         if sum = null then
@@ -546,6 +554,30 @@ module Reader =
   // Reading entities
   // ----------------------------------------------------------------------------------------------
 
+  // -----------------------------------------------------------------------
+  // Hack for getting the xmldoc signature from C# assemblies
+  // FSC consistently returns emtpy strings in .XmlDocSig properties
+  // and as such Fsharp.formatting is unable to look up the correct 
+  // comment. 
+
+  let getXmlDocSigForType (typ:FSharpEntity) =
+    match (typ.XmlDocSig, typ.TryFullName)  with
+    | "", None    -> ""
+    | "", Some(n) -> sprintf "T:%s" n
+    | n , _       -> n
+
+  let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
+    if memb.IsProperty then "P" else "M"
+
+  let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
+    match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
+    | "",  None    -> ""
+    | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memb.CompiledName
+    | n, _         -> n
+
+  // 
+  // ---------------------------------------------------------------------
+
   /// Reads XML documentation comments and calls the specified function
   /// to parse the rest of the entity, unless [omit] command is set.
   /// The function is called with category name, commands & comment.
@@ -568,13 +600,13 @@ module Reader =
     |> List.ofSeq
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberFunctionOrValue) =
-    readCommentsInto ctx memb.XmlDocSig (fun cat _ comment ->
+    readCommentsInto ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
     members 
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-    |> Seq.filter (fun v -> not v.IsCompilerGenerated)
+    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
     |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readMembers ctx kind (entity:FSharpEntity) cond = 
@@ -617,6 +649,7 @@ module Reader =
   // Reading modules types (mutually recursive, because of nesting)
   // ----------------------------------------------------------------------------------------------
 
+  
   // Create a xml documentation snippet and add it to the XmlMemberMap
   let registerXmlDoc (ctx:ReadingContext) xmlDocSig (xmlDoc:string) =
     let xmlDoc = if xmlDoc.Contains "<summary>" then xmlDoc else "<summary>" + xmlDoc + "</summary>"
@@ -628,8 +661,7 @@ module Reader =
   // Type providers don't have their docs dumped into the xml file,
   // so we need to add them to the XmlMemberMap separately
   let registerTypeProviderXmlDocs (ctx:ReadingContext) (typ:FSharpEntity) =
-    let xmlDocSig = "T:" + typ.AccessPath + "." + typ.LogicalName
-    let xmlDoc = registerXmlDoc ctx xmlDocSig (String.concat "" typ.XmlDoc)
+    let xmlDoc = registerXmlDoc ctx typ.XmlDocSig (String.concat "" typ.XmlDoc)
     xmlDoc.Descendants(XName.Get "param")
     |> Seq.choose (fun p -> let nameAttr = p.Attribute(XName.Get "name")
                             if nameAttr = null
@@ -638,7 +670,6 @@ module Reader =
     |> Seq.iter (fun (name, xmlDoc) -> 
         let xmlDocSig = getFSharpStaticParamXmlSig typ name
         registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape xmlDoc) |> ignore)
-    xmlDocSig
 
   let rec readModulesAndTypes ctx (entities:seq<_>) = 
     let modules = readChildren ctx entities readModule (fun x -> x.IsFSharpModule) 
@@ -646,10 +677,9 @@ module Reader =
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
-    let xmlDocSig =
-        if typ.XmlDocSig = "" && typ.XmlDoc.Count > 0 && typ.IsProvided
-        then registerTypeProviderXmlDocs ctx typ
-        else typ.XmlDocSig
+    if typ.IsProvided && typ.XmlDoc.Count > 0 then
+        registerTypeProviderXmlDocs ctx typ
+    let xmlDocSig = getXmlDocSigForType typ
     readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
 
@@ -658,7 +688,7 @@ module Reader =
         match typ.BaseType with
         | Some baseType ->
             //TODO: would be better to reuse instead of reparsing the base type xml docs
-            let cmds, comment = readCommentAndCommands ctx baseType.TypeDefinition.XmlDocSig
+            let cmds, comment = readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition)
             match cmds with
             | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
             | _ -> ()
@@ -695,7 +725,7 @@ module Reader =
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
 
       Type.Create
-        ( name, urlName, comment, cases, fields, statParams, ctors, inst, stat ))
+        ( name, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -710,7 +740,7 @@ module Reader =
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
 
       Module.Create
-        ( modul.DisplayName, urlName, comment,
+        ( modul.DisplayName, urlName, comment, ctx.Assembly,
           modules, types,
           vals, exts, pats ))
 
@@ -723,7 +753,7 @@ module Reader =
     Namespace.Create(ns, modules, types)
 
   let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments) =
-    let assemblyName = assembly.QualifiedName
+    let assemblyName = AssemblyName(assembly.QualifiedName)
     
     // Read in the supplied XML file, map its name attributes to document text 
     let doc = XDocument.Load(xmlFile)
@@ -735,7 +765,7 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-    let ctx = ReadingContext.Create(publicOnly, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments)
+    let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments)
 
     // 
     let namespaces = 
@@ -746,7 +776,7 @@ module Reader =
       |> Seq.map (readNamespace ctx) 
       |> List.ofSeq
 
-    AssemblyName(assemblyName), namespaces
+    assemblyName, namespaces
 
 // ------------------------------------------------------------------------------------------------
 // Main - generating HTML
@@ -852,8 +882,14 @@ type MetadataFormat =
 
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
-          if not (File.Exists xmlFile) then 
-            raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+          let xmlFileOpt =
+            Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile),
+                                     Path.GetFileNameWithoutExtension(xmlFile) + ".*")
+            |> Seq.tryFind (fun f -> Path.GetExtension(f).Equals(".xml", StringComparison.CurrentCultureIgnoreCase))
+
+          match xmlFileOpt with
+          | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+          | Some xmlFile ->
 
           Log.logf "Reading assembly: %s" dllFile
           let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
@@ -861,7 +897,7 @@ type MetadataFormat =
               Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" asmName
           else
               let asm = table.[asmName] 
-              Log.logf "Parsing assembly"
+              Log.logf "Parsing assembly (with documentation file '%s')" xmlFile
               yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
@@ -879,15 +915,14 @@ type MetadataFormat =
         | false, _ -> namespaces.Add(ns.Name, (ns.Modules, ns.Types))
 
     let namespaces = [ for (KeyValue(name, (mods, typs))) in namespaces -> Namespace.Create(name, mods, typs) ]
-    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces)
+    let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
         
     // Generate all the HTML stuff
     Log.logf "Starting razor engine"
-    let razor = RazorRender(layoutRoots, ["FSharp.MetadataFormat"])
-    razor.Model <- box asm
+    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.MetadataFormat"], namespaceTemplate)
 
     Log.logf "Generating: index.html"
-    let out = razor.ProcessFile(RazorRender.Resolve(layoutRoots, namespaceTemplate), props)
+    let out = razor.ProcessFile(asm, props)
     File.WriteAllText(outDir @@ "index.html", out)
 
     // Generate documentation for all modules
@@ -899,14 +934,13 @@ type MetadataFormat =
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedModules n ]
     
-    let moduleTemplateFile = RazorRender.Resolve(layoutRoots, moduleTemplate)
-    Parallel.pfor modules (fun () -> RazorRender(layoutRoots,["FSharp.MetadataFormat"])) (fun modul _ razor -> 
+    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate)
+
+    for modul in modules do
       Log.logf "Generating module: %s" modul.UrlName
-      razor.Model <- box (ModuleInfo.Create(modul, asm))
-      let out = razor.ProcessFile(moduleTemplateFile, props)
+      let out = razor.ProcessFile(ModuleInfo.Create(modul, asm), props)
       File.WriteAllText(outDir @@ (modul.UrlName + ".html"), out)
       Log.logf "Finished module: %s" modul.UrlName
-      razor)
 
     Log.logf "Generating types..."
     let rec nestedTypes (modul:Module) = seq {
@@ -918,11 +952,9 @@ type MetadataFormat =
           yield! ns.Types ]
 
     // Generate documentation for all types
-    let typeTemplateFile = RazorRender.Resolve(layoutRoots, typeTemplate)
-    Parallel.pfor types (fun () -> RazorRender(layoutRoots, ["FSharp.MetadataFormat"])) (fun typ _ razor -> 
+    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate)
+    for typ in types do
       Log.logf "Generating type: %s" typ.UrlName
-      razor.Model <- box (TypeInfo.Create(typ, asm))
-      let out = razor.ProcessFile(typeTemplateFile, props)
+      let out = razor.ProcessFile(TypeInfo.Create(typ, asm), props)
       File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
       Log.logf "Finished type: %s" typ.UrlName
-      razor)
