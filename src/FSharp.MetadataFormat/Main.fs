@@ -136,34 +136,31 @@ type TypeInfo =
 
 module ValueReader = 
   open System.Collections.ObjectModel
+  type CrefReference =
+    { IsInternal : bool; ReferenceLink : string; NiceName : string }
+  type IUrlHolder =
+    abstract RegisterEntity : FSharpEntity -> unit
+    abstract GetUrl : FSharpEntity -> string
+    abstract ResolveCref : string -> CrefReference option
 
   type ReadingContext = 
     { PublicOnly : bool
       Assembly : AssemblyName
       XmlMemberMap : IDictionary<string, XElement>
+      UrlMap : IUrlHolder
       MarkdownComments : bool
-      UniqueUrlName : string -> string
       UrlRangeHighlight : Uri -> int -> int -> string
       SourceFolderRepository : (string * string) option }
     member x.XmlMemberLookup(key) =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments) = 
-      let usedNames = Dictionary<_, _>()
-      let nameGen (name:string) =
-        let nice = name.Replace(".", "-").Replace("`", "-").Replace("<", "").Replace(">", "").ToLower()
-        let found =
-          seq { yield nice
-                for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
-          |> Seq.find (usedNames.ContainsKey >> not)
-        usedNames.Add(found, true)
-        found
+    static member Create(publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap) = 
       { PublicOnly=publicOnly;
         Assembly = assembly
         XmlMemberMap = map; 
         MarkdownComments = markDownComments; 
-        UniqueUrlName = nameGen; 
+        UrlMap = urlMap; 
         UrlRangeHighlight = urlRangeHighlight; 
         SourceFolderRepository = sourceFolderRepo }
 
@@ -500,19 +497,40 @@ module Reader =
           KeyValuePair(k, html) ]
     Comment.Create(blurb, full, sections)
 
-  let readXmlComment (doc : XElement) = 
+  let readXmlComment (urlMap : IUrlHolder) (doc : XElement) = 
    
    let full = new StringBuilder()
-   Seq.iter (fun (x : XNode) -> if x.NodeType = XmlNodeType.Text then full.Append((x :?> XText).Value) |> ignore) (doc.Nodes())
+   let readElement (e : XElement) = 
+     Seq.iter (fun (x : XNode) -> 
+      if x.NodeType = XmlNodeType.Text then 
+       full.Append((x :?> XText).Value) |> ignore
+      elif x.NodeType = XmlNodeType.Element then
+        let elem = x :?> XElement
+        if elem.Name.LocalName = "see" || elem.Name.LocalName = "seealso" then
+         let cref = elem.Attribute(XName.Get "cref")
+         if cref <> null then
+          if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+            failwithf "Invalid cref specified in: %A" doc
+          match urlMap.ResolveCref cref.Value with
+          | Some (reference) ->
+              full.AppendFormat("<a href=\"{0}\">{1}</a>", reference.ReferenceLink, reference.NiceName) |> ignore
+          | _ ->
+              full.AppendFormat("UNRESOLVED({0})", cref.Value) |> ignore
+       ) (e.Nodes())
+   readElement doc
    full.Append("</br>") |> ignore
 
    let paras = doc.Descendants(XName.Get("para"))
    Seq.iter (fun (x : XElement) -> 
-     full.Append("<p>").Append((x ).Value).Append("</p>") |> ignore ) paras
+     full.Append("<p>") |> ignore
+     readElement x
+     full.Append("</p>") |> ignore ) paras
 
    let paras = doc.Descendants(XName.Get("remarks"))
    Seq.iter (fun (x : XElement) -> 
-     full.Append("<p class='remarks'>").Append((x ).Value).Append("</p>") |> ignore ) paras
+     full.Append("<p class='remarks'>") |> ignore
+     readElement x
+     full.Append("</p>") |> ignore ) paras
 
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
@@ -546,14 +564,12 @@ module Reader =
             cmds :> IDictionary<_, _>, readMarkdownComment doc
           else 
             let cmds = new System.Collections.Generic.Dictionary<_, _>()
-            cmds :> IDictionary<_, _>, readXmlComment sum
+            
+            cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap sum
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
-  // ----------------------------------------------------------------------------------------------
-  // Reading entities
-  // ----------------------------------------------------------------------------------------------
-
+  
   // -----------------------------------------------------------------------
   // Hack for getting the xmldoc signature from C# assemblies
   // FSC consistently returns emtpy strings in .XmlDocSig properties
@@ -577,6 +593,107 @@ module Reader =
 
   // 
   // ---------------------------------------------------------------------
+
+
+
+  let getTypeProviderXmlSig (typ:FSharpEntity) =
+    "T:" + typ.AccessPath + "." + typ.LogicalName
+    
+  let createUrlHolder ()= 
+    let toReplace =
+        ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_")] @ 
+            (Path.GetInvalidPathChars() 
+            |> Seq.append (Path.GetInvalidFileNameChars()) 
+            |> Seq.map (fun inv -> (inv.ToString(), "_")) |> Seq.toList))
+        |> Seq.distinctBy fst
+        |> Seq.toList
+    let usedNames = Dictionary<_, _>()
+    let registeredEntities = Dictionary<_, _>()
+    let entityLookup = Dictionary<_, _>()
+    let nameGen (name:string) =
+      let nice = (toReplace
+                  |> Seq.fold (fun (s:string) (inv, repl) -> s.Replace(inv, repl)) name)
+                  .ToLower()
+      let found =
+        seq { yield nice
+              for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
+        |> Seq.find (usedNames.ContainsKey >> not)
+      usedNames.Add(found, true)
+      found
+    let rec registerEntity (entity: FSharpEntity) =
+        let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
+        registeredEntities.Add(entity, newName)
+        let xmlsig = getXmlDocSigForType entity
+        if (not (System.String.IsNullOrEmpty xmlsig)) then
+            assert (xmlsig.StartsWith("T:"))
+            entityLookup.Add(xmlsig.Substring(2), entity)
+        for nested in entity.NestedEntities do registerEntity nested
+
+    let getUrl (entity:FSharpEntity) =
+        match registeredEntities.TryGetValue (entity) with
+        | true, v -> v
+        | _ -> failwithf "The entity %s was not registered before!" (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
+        
+    let removeParen (memberName:string) = 
+        let firstParen = memberName.IndexOf("(")
+        if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
+    let getTypeFromMemberName (memberName : string) =
+        let sub = removeParen memberName
+        let lastPeriod = sub.LastIndexOf(".")
+        if lastPeriod > 0 then
+            memberName.Substring(0, lastPeriod)
+        else failwithf "cannot get typename from member name: %s" memberName
+    let getNoNamespaceMemberName keepParts (memberNameNoParen:string) =
+        let splits = memberNameNoParen.Split([|'.'|])
+        let noNamespaceParts =
+            if splits.Length > keepParts then
+                Array.sub splits (splits.Length - keepParts) keepParts
+            else splits
+        System.String.Join(".", noNamespaceParts)
+
+    let lookupTypeCref typeName = 
+        match entityLookup.TryGetValue(typeName) with
+        | true, entity -> 
+            Some { IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entity); NiceName = entity.LogicalName }
+        | _ -> None
+
+    let resolveCref (cref:string) = 
+        if (cref.Length <= 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
+        let memberName = cref.Substring(2)
+        let noParen = removeParen memberName
+        match cref with
+        // Type
+        | _ when cref.StartsWith("T:") -> 
+            match lookupTypeCref (memberName) with
+            | Some ref -> Some ref
+            | None ->
+                let simple = getNoNamespaceMemberName 1 noParen
+                Some { IsInternal = false; 
+                       ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen; 
+                       NiceName = simple }
+        // Compiler was unable to resolve!
+        | _ when cref.StartsWith("!:")  ->
+            Log.logf "WARNING: Compiler was unable to resolve %s" cref
+            None
+        // Member
+        | _ ->
+            let simple = getNoNamespaceMemberName 2 noParen
+            match lookupTypeCref (getTypeFromMemberName memberName) with
+            | Some reference -> Some { reference with NiceName = simple }
+            | None ->
+                Some { IsInternal = false; 
+                       ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen; 
+                       NiceName = simple }
+    { new IUrlHolder with
+        member x.RegisterEntity entity = 
+            registerEntity entity
+        member x.GetUrl entity = getUrl entity
+        member x.ResolveCref cref = resolveCref cref
+    }
+
+  // ----------------------------------------------------------------------------------------------
+  // Reading entities
+  // ----------------------------------------------------------------------------------------------
 
   /// Reads XML documentation comments and calls the specified function
   /// to parse the rest of the entity, unless [omit] command is set.
@@ -681,7 +798,7 @@ module Reader =
         registerTypeProviderXmlDocs ctx typ
     let xmlDocSig = getXmlDocSigForType typ
     readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
-      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" typ.AccessPath typ.CompiledName)
+      let urlName = ctx.UrlMap.GetUrl typ
 
       let rec getMembers (typ:FSharpEntity) = [
         yield! typ.MembersFunctionsAndValues
@@ -731,7 +848,7 @@ module Reader =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
     
       // Properties & value bindings in the module
-      let urlName = ctx.UniqueUrlName (sprintf "%s.%s" modul.AccessPath modul.CompiledName)
+      let urlName = ctx.UrlMap.GetUrl modul
       let vals = readMembers ctx MemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
       let exts = readMembers ctx MemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
       let pats = readMembers ctx MemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
@@ -765,7 +882,12 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-    let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments)
+
+    // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
+    let urlMap = createUrlHolder()
+    assembly.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
+
+    let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap)
 
     // 
     let namespaces = 
