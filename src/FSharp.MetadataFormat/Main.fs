@@ -517,7 +517,7 @@ module Reader =
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
    let str = full.ToString()
-   Comment.Create(str, str, [])
+   Comment.Create(str, str, [KeyValuePair("<default>", str)])
 
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
