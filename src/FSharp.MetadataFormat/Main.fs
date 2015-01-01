@@ -667,11 +667,11 @@ module Reader =
       found
     let rec registerEntity (entity: FSharpEntity) =
         let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
-        registeredEntities.Add(entity, newName)
+        registeredEntities.[entity] <- newName
         let xmlsig = getXmlDocSigForType entity
         if (not (System.String.IsNullOrEmpty xmlsig)) then
             assert (xmlsig.StartsWith("T:"))
-            entityLookup.Add(xmlsig.Substring(2), entity)
+            entityLookup.[xmlsig.Substring(2)] <- entity
         for nested in entity.NestedEntities do registerEntity nested
 
     let getUrl (entity:FSharpEntity) =
@@ -682,12 +682,12 @@ module Reader =
     let removeParen (memberName:string) = 
         let firstParen = memberName.IndexOf("(")
         if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
-    let getTypeFromMemberName (memberName : string) =
+    let tryGetTypeFromMemberName (memberName : string) =
         let sub = removeParen memberName
         let lastPeriod = sub.LastIndexOf(".")
         if lastPeriod > 0 then
-            memberName.Substring(0, lastPeriod)
-        else failwithf "cannot get typename from member name: %s" memberName
+            Some (memberName.Substring(0, lastPeriod))
+        else None
     let getNoNamespaceMemberName keepParts (memberNameNoParen:string) =
         let splits = memberNameNoParen.Split([|'.'|])
         let noNamespaceParts =
@@ -721,14 +721,23 @@ module Reader =
             Log.logf "WARNING: Compiler was unable to resolve %s" cref
             None
         // Member
-        | _ ->
+        | _ when cref.[1] = ':' ->
             let simple = getNoNamespaceMemberName 2 noParen
-            match lookupTypeCref (getTypeFromMemberName memberName) with
-            | Some reference -> Some { reference with NiceName = simple }
+            match tryGetTypeFromMemberName memberName with
+            | Some typeName ->
+                match lookupTypeCref typeName with
+                | Some reference -> Some { reference with NiceName = simple }
+                | None ->
+                    Some { IsInternal = false;
+                           ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen;
+                           NiceName = simple }
             | None ->
-                Some { IsInternal = false; 
-                       ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen; 
-                       NiceName = simple }
+                Log.logf "WARNING: Assumed '%s' was a member but we cannot extract a type!" cref
+                None
+        // No idea
+        | _ ->
+            Log.logf "WARNING: Unresolved reference '%s'!" cref
+            None
     { new IUrlHolder with
         member x.RegisterEntity entity = 
             registerEntity entity
@@ -918,7 +927,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments) =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap) =
     let assemblyName = AssemblyName(assembly.QualifiedName)
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -931,10 +940,6 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-
-    // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
-    let urlMap = createUrlHolder()
-    assembly.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
 
     let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap)
 
@@ -1051,6 +1056,14 @@ type MetadataFormat =
             |> List.map (fun x -> x.SimpleName, x)
             |> dict
 
+      // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
+      let urlMap = Reader.createUrlHolder()
+
+      for dllFile in dllFiles do
+        let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
+        if table.ContainsKey asmName then
+          table.[asmName].Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
+
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
           let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
@@ -1070,9 +1083,9 @@ type MetadataFormat =
           if not (table.ContainsKey asmName) then 
               Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" asmName
           else
-              let asm = table.[asmName] 
+              let asm = table.[asmName]
               Log.logf "Parsing assembly (with documentation file '%s')" xmlFile
-              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true) ]
+              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true, urlMap) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
