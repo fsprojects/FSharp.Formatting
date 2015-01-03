@@ -119,6 +119,27 @@ You can also subscribe to the `EvaluationFailed` event which is fired whenever t
 of an expression fails. You can use that to do tests that verify that all the code on your
 documentation executes without errors.
 
+Emitting Raw Text
+-----------------
+
+When writing documents, it is sometimes required to emit, completely unaltered text. Up to this point all
+of the `commands` have decorated the code or text with some formatting for example a `pre` element. When working 
+with layout or content generation engines such as Jeykll, we sometimes need to emit plain text as declarations to
+said engines. This is where the `raw` command is useful.
+
+	(**
+		(*** raw ***)
+		Some raw text.
+	*)
+
+which would emit
+
+<pre>
+Some raw text.
+</pre>
+
+directly into the document.
+
 Custom formatting functions
 ---------------------------
 
