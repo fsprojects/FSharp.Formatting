@@ -28,8 +28,8 @@ let getOutputDir()  =
   Directory.CreateDirectory(tempFile).FullName
 
 let layoutRoots = 
-  [ __SOURCE_DIRECTORY__ @@ "../../misc/templates"
-    __SOURCE_DIRECTORY__ @@ "../../misc/templates/reference" ]
+  [ root @@ "../../misc/templates"
+    root @@ "../../misc/templates/reference" ]
 
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
@@ -128,7 +128,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   MetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], 
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
-      sourceFolder = __SOURCE_DIRECTORY__ @@ "../.." )
+      sourceFolder = root @@ "../.." )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "github-link"

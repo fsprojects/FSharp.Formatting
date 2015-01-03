@@ -152,7 +152,7 @@ Target "NuGet" (fun _ ->
             Dependencies = 
                 ["Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireExactly
                  "RazorEngine", GetPackageVersion "packages" "RazorEngine" |> RequireExactly
-                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireExactly ] })
+                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p -> 
         { p with   
