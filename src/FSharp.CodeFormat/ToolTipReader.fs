@@ -27,7 +27,7 @@ let formatMultilineString (s:string) =
 
 /// Format comment in the tool tip
 let private formatComment = function
-  | XmlCommentText(s) -> 
+  | FSharpXmlDoc.Text(s) -> 
       [ Emphasis (formatMultilineString s)
         HardLineBreak ]
   | _ ->
@@ -37,12 +37,12 @@ let private formatComment = function
 
 /// Format the element of a tool tip (comment, overloads, etc.)
 let private formatElement = function
-  | ToolTipElementNone -> []
-  | ToolTipElement(it, comment) -> 
+  | FSharpToolTipElement.None -> []
+  | FSharpToolTipElement.Single(it, comment) -> 
       [ yield! formatMultilineString it
         yield HardLineBreak
         yield! formatComment comment ]
-  | ToolTipElementGroup(items) -> 
+  | FSharpToolTipElement.Group(items) -> 
       // Trim the items to at most 10 displayed in a tool tip
       let items, trimmed = 
         if items.Length <= 10 then items, false
@@ -59,14 +59,14 @@ let private formatElement = function
             yield Emphasis [Literal (msg) ]
             yield HardLineBreak ]
 
-  | ToolTipElementCompositionError(err) -> []
+  | FSharpToolTipElement.CompositionError(err) -> []
 
 /// Format entire tool tip as a value of type ToolTipSpans      
 let private formatTip tip = 
   let spans = 
     match tip with
-    | ToolTipText([single]) -> formatElement single
-    | ToolTipText(items) -> 
+    | FSharpToolTipText([single]) -> formatElement single
+    | FSharpToolTipText(items) -> 
         [ yield Literal "Multiple items"
           yield HardLineBreak
           for first, item in Seq.mapi (fun i it -> i = 0, it) items do
@@ -84,7 +84,7 @@ let private formatTip tip =
 /// Format a tool tip, but first make sure that there is actually 
 /// some text in the tip. Returns None if no information is available
 let tryFormatTip = function
-  | ToolTipText(elems) 
+  | FSharpToolTipText(elems) 
       when elems |> List.forall (function 
-        ToolTipElementNone -> true | _ -> false) -> None
+        FSharpToolTipElement.None -> true | _ -> false) -> None
   | tip -> Some(formatTip tip)

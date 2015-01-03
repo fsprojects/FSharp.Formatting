@@ -26,15 +26,15 @@ module private Helpers =
   
   /// Mapping table that translates F# compiler representation to our union
   let private colorMap =
-    [ TokenColorKind.Comment, TokenKind.Comment
-      TokenColorKind.Identifier, TokenKind.Identifier
-      TokenColorKind.InactiveCode, TokenKind.Inactive
-      TokenColorKind.Keyword, TokenKind.Keyword
-      TokenColorKind.Number, TokenKind.Number
-      TokenColorKind.Operator, TokenKind.Operator
-      TokenColorKind.PreprocessorKeyword, TokenKind.Preprocessor
-      TokenColorKind.String, TokenKind.String
-      TokenColorKind.UpperIdentifier, TokenKind.Identifier ] |> Map.ofSeq
+    [ FSharpTokenColorKind.Comment, TokenKind.Comment
+      FSharpTokenColorKind.Identifier, TokenKind.Identifier
+      FSharpTokenColorKind.InactiveCode, TokenKind.Inactive
+      FSharpTokenColorKind.Keyword, TokenKind.Keyword
+      FSharpTokenColorKind.Number, TokenKind.Number
+      FSharpTokenColorKind.Operator, TokenKind.Operator
+      FSharpTokenColorKind.PreprocessorKeyword, TokenKind.Preprocessor
+      FSharpTokenColorKind.String, TokenKind.String
+      FSharpTokenColorKind.UpperIdentifier, TokenKind.Identifier ] |> Map.ofSeq
 
   /// Return the TokenKind corresponding to the specified F# compiler token
   let getTokenKind key = 
@@ -111,7 +111,7 @@ type CodeFormatAgent() =
     else body
 
   // Processes a single line of the snippet
-  let processSnippetLine (checkInfo:CheckFileResults) (lines:string[]) (line, lineTokens) =
+  let processSnippetLine (checkInfo:FSharpCheckFileResults) (lines:string[]) (line, lineTokens) =
 
     // Recursive processing of tokens on the line 
     // (keeps a long identifier 'island')
@@ -132,13 +132,13 @@ type CodeFormatAgent() =
           // If we're processing an identfier, see if it has any tool tip
           if (tokenInfo.TokenName = "IDENT") then
             let island = island |> List.rev
-            let tip = checkInfo.GetToolTipText(line, tokenInfo.LeftColumn + 1, lines.[line], island, identToken)
-            match ToolTipReader.tryFormatTip tip with
+            let tip = checkInfo.GetToolTipTextAlternate(line + 1, tokenInfo.LeftColumn + 1, lines.[line], island, identToken)
+            match ToolTipReader.tryFormatTip (Async.RunSynchronously tip) with
             | Some(_) as res -> res
             | _ when island.Length > 1 ->
                 // Try to find some information about the last part of the identifier 
-                let tip = checkInfo.GetToolTipText(line, tokenInfo.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ], identToken)
-                ToolTipReader.tryFormatTip tip
+                let tip = checkInfo.GetToolTipTextAlternate(line + 1, tokenInfo.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ], identToken)
+                ToolTipReader.tryFormatTip (Async.RunSynchronously tip)
             | _ -> None
           else None
 
@@ -175,14 +175,14 @@ type CodeFormatAgent() =
 
   // Create an instance of an InteractiveChecker (which does background analysis
   // in a typical IntelliSense editor integration for F#)
-  let checker = InteractiveChecker.Create()
+  let checker = FSharpChecker.Create()
 
   /// Type-checking takes some time and doesn't return information on the
   /// first call, so this function creates workflow that tries repeatedly
   let getTypeCheckInfo(untypedInfo, file, source, opts) = 
       match checker.CheckFileInProject(untypedInfo, file, 0, source, opts) |> Async.RunSynchronously with 
-      | CheckFileAnswer.Succeeded(res) -> res
-      | CheckFileAnswer.Aborted -> failwith "unexpected abort"
+      | FSharpCheckFileAnswer.Succeeded(res) -> res
+      | FSharpCheckFileAnswer.Aborted -> failwith "unexpected abort"
 
 
   // ------------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ type CodeFormatAgent() =
     let opts = 
       match options with 
       | Some(str:string) when not(String.IsNullOrEmpty(str)) -> 
-          { opts with ProjectOptions = Helpers.parseOptions str }
+          { opts with OtherOptions = Helpers.parseOptions str }
       | _ -> opts
 
     // Run the first phase - parse source into AST without type information 
@@ -256,8 +256,8 @@ type CodeFormatAgent() =
           if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
            yield 
              SourceError
-               ( (errInfo.StartLine, errInfo.StartColumn), (errInfo.EndLine, errInfo.EndColumn),
-                 (if errInfo.Severity = Severity.Error then ErrorKind.Error else ErrorKind.Warning),
+               ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
+                 (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
                  errInfo.Message ) |]
     return parsedSnippets, sourceErrors 
   }

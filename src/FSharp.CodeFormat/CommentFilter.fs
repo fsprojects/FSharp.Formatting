@@ -32,7 +32,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 //
 // --------------------------------------------------------------------------------------
 
-type Token = string * TokenInformation
+type Token = string * FSharpTokenInfo
 type SnippetLine = Token list
 type IndexedSnippetLine = int * SnippetLine
 type Snippet = IndexedSnippetLine list
@@ -105,13 +105,13 @@ let rec shrinkOmittedCode (text:StringBuilder) line content (source:Snippet) =
 let rec shrinkLine line (content:SnippetLine) (source:Snippet) = 
   match content with 
   | [] -> [], source
-  | (String.StartsAndEndsWithTrim ("(*", "*)") (String.StartsAndEndsWithTrim ("[omit:", "]") body), (tok:TokenInformation))::rest
+  | (String.StartsAndEndsWithTrim ("(*", "*)") (String.StartsAndEndsWithTrim ("[omit:", "]") body), (tok:FSharpTokenInfo))::rest
         when tok.TokenName = "COMMENT" -> 
       let line, remcontent, source, text = 
         shrinkOmittedCode (StringBuilder()) line rest source
       let line, source = shrinkLine line remcontent source
       (body, { tok with TokenName = "OMIT" + (text.ToString()) })::line, source
-  | (String.StartsWithTrim "//" (String.StartsAndEndsWith ("[fsi:", "]") fsi), (tok:TokenInformation))::rest ->
+  | (String.StartsWithTrim "//" (String.StartsAndEndsWith ("[fsi:", "]") fsi), (tok:FSharpTokenInfo))::rest ->
       let line, source = shrinkLine line rest source
       (fsi, { tok with TokenName = "FSI"})::line, source
   | (str, tok)::rest -> 
