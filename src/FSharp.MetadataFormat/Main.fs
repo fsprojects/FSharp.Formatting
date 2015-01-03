@@ -340,7 +340,7 @@ module ValueReader =
     let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList 
     let retType = v.ReturnParameter.Type
     let argInfos, retType = 
-        match argInfos, v.IsPropertyGetterMethod, v.IsPropertySetterMethod with
+        match argInfos, v.IsGetterMethod, v.IsSetterMethod with
         | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
         | _, _, true -> argInfos, None
         | [[]], true, _ -> [], Some retType
@@ -365,12 +365,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsPropertyGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsPropertyGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
