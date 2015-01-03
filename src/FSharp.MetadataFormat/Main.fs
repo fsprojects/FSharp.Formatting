@@ -291,7 +291,7 @@ module ValueReader =
       formatTypeWithPrec 2 arg.Type
     else argName
 
-  let formatArgsUsage generateTypes (v:FSharpMemberFunctionOrValue) args =
+  let formatArgsUsage generateTypes (v:FSharpMemberOrFunctionOrValue) args =
     let isItemIndexer = (v.IsInstanceMember && v.DisplayName = "Item")
     let counter = let n = ref 0 in fun () -> incr n; !n
     let unit, argSep, tupSep = 
@@ -312,7 +312,7 @@ module ValueReader =
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
   
-  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberFunctionOrValue) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) = 
     let buildUsage (args:string option) = 
       let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
@@ -340,7 +340,7 @@ module ValueReader =
     let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList 
     let retType = v.ReturnParameter.Type
     let argInfos, retType = 
-        match argInfos, v.IsGetterMethod, v.IsSetterMethod with
+        match argInfos, v.IsPropertyGetterMethod, v.IsPropertySetterMethod with
         | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
         | _, _, true -> argInfos, None
         | [[]], true, _ -> [], Some retType
@@ -365,12 +365,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when v.IsPropertyGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when v.IsPropertyGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
@@ -586,12 +586,12 @@ module Reader =
         with _ -> ""
     | n -> n
 
-  let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
+  let getMemberXmlDocsSigPrefix (memb:FSharpMemberOrFunctionOrValue) =
     if memb.IsEvent then "E"
     elif memb.IsProperty then "P" 
     else "M"
 
-  let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
+  let getXmlDocSigForMember (memb:FSharpMemberOrFunctionOrValue) =
     let memberName = 
       try
         let name = memb.CompiledName.Replace(".ctor", "#ctor")
@@ -770,11 +770,11 @@ module Reader =
     |> Seq.choose (reader ctx) 
     |> List.ofSeq
 
-  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberFunctionOrValue) =
+  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
     readCommentsInto ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
-  let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
+  let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) = 
     members 
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
     |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
@@ -870,7 +870,7 @@ module Reader =
       let ivals, svals = 
           getMembers typ
           |> List.ofSeq 
-          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitMember)
+          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitInterfaceImplementation)
           |> List.filter (fun v -> 
             if v.EnclosingEntity.IsFSharp then true else
                 not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
@@ -1020,7 +1020,7 @@ type MetadataFormat =
 
     // Read and process assmeblies and the corresponding XML files
     let assemblies = 
-      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker.Create()
+      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker.Create()
       let base1 = Path.GetTempFileName()
       let dllName = Path.ChangeExtension(base1, ".dll")
       let fileName1 = Path.ChangeExtension(base1, ".fs")
@@ -1045,7 +1045,7 @@ type MetadataFormat =
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
       for err in results.Errors  do
-         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.Severity.Error then "error" else "warning") err.Message
+         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.FSharpErrorSeverity.Error then "error" else "warning") err.Message
 
       if results.HasCriticalErrors then 
          Log.logf "**** stopping due to critical errors"
