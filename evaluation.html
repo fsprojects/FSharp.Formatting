@@ -188,6 +188,37 @@ be used to specify e.g. defined symbols and other attributes for F# Interactive.
 of an expression fails. You can use that to do tests that verify that all the code on your
 documentation executes without errors.</p>
 
+<h2><a name="Emitting-Raw-Text" class="anchor" href="#Emitting-Raw-Text">Emitting Raw Text</a></h2>
+
+<p>When writing documents, it is sometimes required to emit, completely unaltered text. Up to this point all
+of the <code>commands</code> have decorated the code or text with some formatting for example a <code>pre</code> element. When working 
+with layout or content generation engines such as Jeykll, we sometimes need to emit plain text as declarations to
+said engines. This is where the <code>raw</code> command is useful.</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">(**</span>
+<span class="c">    (*** raw ***)</span>
+<span class="c">    Some raw text.</span>
+<span class="c">*)</span></pre>
+</td>
+</tr>
+</table>
+
+<p>which would emit</p>
+
+<pre>
+Some raw text.
+</pre>
+
+<p>directly into the document.</p>
+
 <h2><a name="Custom-formatting-functions" class="anchor" href="#Custom-formatting-functions">Custom formatting functions</a></h2>
 
 <p>As mentioned earlier, values are formatted using a simple <code>"%A"</code> formatter by default.
