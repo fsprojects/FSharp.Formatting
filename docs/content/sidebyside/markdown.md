@@ -66,22 +66,3 @@ code samples:
 
 This snippet is turned into a `pre` element with the
 `lang` attribute set to `csharp`.
-
-Emitting Raw Text
------------------
-
-When writing documents, it is sometimes required to 
-emit, completely unaltered text. Up to this point all
-of the `commands` have decorated the code or text with
-some formatting for example a `pre` element. When working 
-with layout or content generation engines such as Jeykll, 
-we sometimes need to emit plain text as declarations to
-said engines. This is where the `raw` command is useful.
-
-     (**
-	      (*** raw ***)
-		  ----------------- 
-		  Here as some completely paragraph text.
-		  -----------------
-	 *)
-
