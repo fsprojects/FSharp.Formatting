@@ -299,16 +299,16 @@ let (|SkipSomeNumbers|_|) (input:string) =
   match List.ofSeq input with
   | x::xs when Char.IsDigit x -> 
       let _, rest = List.partitionUntil (Char.IsDigit >> not) xs
-      Some(rest)
+      Some(input.Length - rest.Length, rest)
   | _ -> None
 
 /// Recognizes a staring of a list (either 1. or +, *, -).
 /// Returns the rest of the line, together with the indent.
 let (|ListStart|_|) = function  
   | String.TrimStartAndCount (indent, (String.StartsWithAny ["+ "; "* "; "- "] as item)) -> 
-      Some(Unordered, indent, item.Substring(1))
-  | String.TrimStartAndCount (indent, (SkipSomeNumbers ('.' :: ' ' :: List.AsString item))) ->
-      Some(Ordered, indent, item)
+      Some(Unordered, 2, indent, item.Substring(1))
+  | String.TrimStartAndCount (indent, (SkipSomeNumbers (skipNumCount, '.' :: ' ' :: List.AsString item))) ->
+      Some(Ordered, skipNumCount+2, indent, item)
   | _ -> None
 
 /// Splits input into lines until whitespace or starting of a list and the rest.
@@ -325,7 +325,7 @@ let (|LinesUntilListOrUnindented|) =
 /// The parameter specifies whether the previous line was simple (single-line not 
 /// separated by a white line - simple items are not wrapped in <p>)
 let (|ListItem|_|) prevSimple = function
-  | ListStart(kind, indent, item)::
+  | ListStart(kind, markLength, indent, item)::
       // Take remaining lines that belong to the same item
       // (everything until an empty line or start of another list item)
       LinesUntilListOrWhite
@@ -347,8 +347,8 @@ let (|ListItem|_|) prevSimple = function
             yield line.Trim()
           for line in more do
             let trimmed = line.TrimStart()
-            if trimmed.Length >= line.Length - (indent+2) then yield trimmed
-            else yield line.Substring(indent+2) ]
+            if trimmed.Length >= line.Length - (indent+markLength) then yield trimmed
+            else yield line.Substring(indent+markLength) ]
       Some(indent, (simple, kind, lines), rest)
   | _ -> None
 
