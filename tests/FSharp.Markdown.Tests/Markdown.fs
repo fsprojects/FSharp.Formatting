@@ -1,6 +1,6 @@
 ﻿#if INTERACTIVE
 #r "../../bin/FSharp.Markdown.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #else
 module FSharp.Markdown.Tests.Parsing
@@ -11,6 +11,15 @@ open NUnit.Framework
 open FSharp.Markdown
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
+"""
+*   a
+    *   b
+    *   c
+
+
+**Note**
+"""
+|> Markdown.Parse
 
 [<Test>]
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
@@ -39,6 +48,22 @@ Some more""" |> Markdown.Parse
   |> shouldEqual [
       Heading(2, [Literal "Hello"]); 
       Paragraph [Literal "Some more"]]
+
+[<Test>]
+let ``Should be able to create nested list item with two paragraphs`` () =
+  let doc = 
+    """
+- a
+  - b
+
+    c""" |> Markdown.Parse
+  let expectedBody = 
+    [ Paragraph [Literal "b"] 
+      Paragraph [Literal "c"] ]
+  match doc.Paragraphs.Head with
+  | ListBlock(Unordered, [ [Span [Literal "a"]; ListBlock (Unordered, [ body ])] ]) ->
+      body |> shouldEqual expectedBody
+  | _ -> Assert.Fail "Expected list block with a nested list block"
 
 [<Test>]
 let ``Can escape special characters such as "*" in emphasis`` () =
@@ -183,6 +208,14 @@ let ``Transform header 2 correctly``() =
     let expected = "<h2>Header 2</h2>\r\n\r\n<h2>Header 2</h2>\r\n" |> properNewLines;
     Markdown.TransformHtml doc
     |> shouldEqual expected
+
+[<Test>] 
+let ``Transform code blocks in list correctly``() = 
+    let doc = "- code sample:\r\n\r\n\r\n    let x = 1\r\n"
+    let expected = "<ul>\r\n<li>code sample:</li>\r\n</ul>\r\n\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines; 
+    Markdown.TransformHtml doc 
+    |> shouldEqual expected 
+ 
 
 [<Test>]
 let ``Transform code blocks correctly``() =

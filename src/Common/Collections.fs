@@ -48,6 +48,10 @@ module List =
   /// specified predicate returns 'false') and a rest of the list.
   let partitionUntil p input = partitionWhile (p >> not) input
 
+  /// Partitions list into an initial sequence (while the 
+  /// specified predicate returns 'false') and a rest of the list.
+  let partitionUntilLookahead p input = partitionWhileLookahead (p >> not) input
+
   /// Iterates over the elements of the list and calls the first function for 
   /// every element. Between each two elements, the second function is called.
   let rec iterInterleaved f g input =
