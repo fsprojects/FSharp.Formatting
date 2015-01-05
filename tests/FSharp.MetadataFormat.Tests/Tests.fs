@@ -28,8 +28,8 @@ let getOutputDir()  =
   Directory.CreateDirectory(tempFile).FullName
 
 let layoutRoots = 
-  [ __SOURCE_DIRECTORY__ @@ "../../misc/templates"
-    __SOURCE_DIRECTORY__ @@ "../../misc/templates/reference" ]
+  [ root @@ "../../misc/templates"
+    root @@ "../../misc/templates/reference" ]
 
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
@@ -128,7 +128,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   MetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], 
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
-      sourceFolder = __SOURCE_DIRECTORY__ @@ "../.." )
+      sourceFolder = root @@ "../.." )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "github-link"
@@ -138,6 +138,79 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   files.["fslib-union.html"] |> should contain "github-link"
   files.["fslib-union.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   
+  #if INTERACTIVE
+  System.Diagnostics.Process.Start(output)
+  #endif
+
+[<Test>]
+let ``MetadataFormat test that cref generation works``() =
+  let libraries =
+    [ root @@ "files/crefLib/bin/Debug" @@ "crefLib1.dll"
+      root @@ "files/crefLib/bin/Debug" @@ "crefLib2.dll"
+      root @@ "files/crefLib/bin/Debug" @@ "crefLib3.dll"
+      root @@ "files/crefLib/bin/Debug" @@ "crefLib4.dll" ]
+  let output = getOutputDir()
+  printfn "Output: %s" output
+  MetadataFormat.Generate
+    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"],
+      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceFolder = __SOURCE_DIRECTORY__ @@ "../..",
+      markDownComments = false )
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // C# tests
+  // reference class in same assembly
+  files.["creflib4-class1.html"] |> should contain "Class2"
+  files.["creflib4-class1.html"] |> should contain "creflib4-class2.html"
+  // reference to another assembly
+  files.["creflib4-class2.html"] |> should contain "Class1"
+  files.["creflib4-class2.html"] |> should contain "creflib1-class1.html"
+  /// + no crash on unresolved reference.
+  files.["creflib4-class2.html"] |> should contain "Unknown__Reference"
+  /// reference to a member works.
+  files.["creflib4-class3.html"] |> should contain "Class2.Other"
+  files.["creflib4-class3.html"] |> should contain "creflib4-class2.html"
+
+  /// reference to a corelib class works.
+  files.["creflib4-class4.html"] |> should contain "Assembly"
+  files.["creflib4-class4.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+
+
+  // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
+  // reference class in same assembly
+  files.["creflib2-class1.html"] |> should contain "Class2"
+  //files.["creflib2-class1.html"] |> should contain "creflib2-class2.html"
+  // reference to another assembly
+  files.["creflib2-class2.html"] |> should contain "Class1"
+  //files.["creflib2-class2.html"] |> should contain "creflib1-class1.html"
+  /// + no crash on unresolved reference.
+  files.["creflib2-class2.html"] |> should contain "Unknown__Reference"
+  /// reference to a member works.
+  files.["creflib2-class3.html"] |> should contain "Class2.Other"
+  //files.["creflib2-class3.html"] |> should contain "creflib2-class2.html"
+
+  /// reference to a corelib class works.
+  files.["creflib2-class4.html"] |> should contain "Assembly"
+  //files.["creflib2-class4.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+
+  // F# tests (fully quallified)
+  // reference class in same assembly
+  files.["creflib2-class5.html"] |> should contain "Class2"
+  files.["creflib2-class5.html"] |> should contain "creflib2-class2.html"
+  // reference to another assembly
+  files.["creflib2-class6.html"] |> should contain "Class1"
+  files.["creflib2-class6.html"] |> should contain "creflib1-class1.html"
+  /// + no crash on unresolved reference.
+  files.["creflib2-class6.html"] |> should contain "Unknown__Reference"
+  /// reference to a member works.
+  files.["creflib2-class7.html"] |> should contain "Class2.Other"
+  files.["creflib2-class7.html"] |> should contain "creflib2-class2.html"
+
+  /// reference to a corelib class works.
+  files.["creflib2-class8.html"] |> should contain "Assembly"
+  files.["creflib2-class8.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif

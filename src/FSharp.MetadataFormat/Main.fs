@@ -291,7 +291,7 @@ module ValueReader =
       formatTypeWithPrec 2 arg.Type
     else argName
 
-  let formatArgsUsage generateTypes (v:FSharpMemberFunctionOrValue) args =
+  let formatArgsUsage generateTypes (v:FSharpMemberOrFunctionOrValue) args =
     let isItemIndexer = (v.IsInstanceMember && v.DisplayName = "Item")
     let counter = let n = ref 0 in fun () -> incr n; !n
     let unit, argSep, tupSep = 
@@ -312,7 +312,7 @@ module ValueReader =
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
   
-  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberFunctionOrValue) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) = 
     let buildUsage (args:string option) = 
       let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
@@ -340,7 +340,7 @@ module ValueReader =
     let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList 
     let retType = v.ReturnParameter.Type
     let argInfos, retType = 
-        match argInfos, v.IsGetterMethod, v.IsSetterMethod with
+        match argInfos, v.IsPropertyGetterMethod || v.HasGetterMethod, v.IsPropertySetterMethod || v.HasSetterMethod with
         | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
         | _, _, true -> argInfos, None
         | [[]], true, _ -> [], Some retType
@@ -365,12 +365,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
@@ -586,12 +586,12 @@ module Reader =
         with _ -> ""
     | n -> n
 
-  let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
+  let getMemberXmlDocsSigPrefix (memb:FSharpMemberOrFunctionOrValue) =
     if memb.IsEvent then "E"
     elif memb.IsProperty then "P" 
     else "M"
 
-  let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
+  let getXmlDocSigForMember (memb:FSharpMemberOrFunctionOrValue) =
     let memberName = 
       try
         let name = memb.CompiledName.Replace(".ctor", "#ctor")
@@ -667,11 +667,11 @@ module Reader =
       found
     let rec registerEntity (entity: FSharpEntity) =
         let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
-        registeredEntities.Add(entity, newName)
+        registeredEntities.[entity] <- newName
         let xmlsig = getXmlDocSigForType entity
         if (not (System.String.IsNullOrEmpty xmlsig)) then
             assert (xmlsig.StartsWith("T:"))
-            entityLookup.Add(xmlsig.Substring(2), entity)
+            entityLookup.[xmlsig.Substring(2)] <- entity
         for nested in entity.NestedEntities do registerEntity nested
 
     let getUrl (entity:FSharpEntity) =
@@ -682,12 +682,12 @@ module Reader =
     let removeParen (memberName:string) = 
         let firstParen = memberName.IndexOf("(")
         if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
-    let getTypeFromMemberName (memberName : string) =
+    let tryGetTypeFromMemberName (memberName : string) =
         let sub = removeParen memberName
         let lastPeriod = sub.LastIndexOf(".")
         if lastPeriod > 0 then
-            memberName.Substring(0, lastPeriod)
-        else failwithf "cannot get typename from member name: %s" memberName
+            Some (memberName.Substring(0, lastPeriod))
+        else None
     let getNoNamespaceMemberName keepParts (memberNameNoParen:string) =
         let splits = memberNameNoParen.Split([|'.'|])
         let noNamespaceParts =
@@ -721,14 +721,23 @@ module Reader =
             Log.logf "WARNING: Compiler was unable to resolve %s" cref
             None
         // Member
-        | _ ->
+        | _ when cref.[1] = ':' ->
             let simple = getNoNamespaceMemberName 2 noParen
-            match lookupTypeCref (getTypeFromMemberName memberName) with
-            | Some reference -> Some { reference with NiceName = simple }
+            match tryGetTypeFromMemberName memberName with
+            | Some typeName ->
+                match lookupTypeCref typeName with
+                | Some reference -> Some { reference with NiceName = simple }
+                | None ->
+                    Some { IsInternal = false;
+                           ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen;
+                           NiceName = simple }
             | None ->
-                Some { IsInternal = false; 
-                       ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen; 
-                       NiceName = simple }
+                Log.logf "WARNING: Assumed '%s' was a member but we cannot extract a type!" cref
+                None
+        // No idea
+        | _ ->
+            Log.logf "WARNING: Unresolved reference '%s'!" cref
+            None
     { new IUrlHolder with
         member x.RegisterEntity entity = 
             registerEntity entity
@@ -761,14 +770,14 @@ module Reader =
     |> Seq.choose (reader ctx) 
     |> List.ofSeq
 
-  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberFunctionOrValue) =
+  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
     readCommentsInto ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
-  let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
+  let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) = 
     members 
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
+    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertyGetterMethod)
     |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readMembers ctx kind (entity:FSharpEntity) cond = 
@@ -861,7 +870,7 @@ module Reader =
       let ivals, svals = 
           getMembers typ
           |> List.ofSeq 
-          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitMember)
+          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitInterfaceImplementation)
           |> List.filter (fun v -> 
             if v.EnclosingEntity.IsFSharp then true else
                 not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
@@ -918,7 +927,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments) =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap) =
     let assemblyName = AssemblyName(assembly.QualifiedName)
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -931,10 +940,6 @@ module Reader =
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
         xmlMemberMap.Add(key, value)
-
-    // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
-    let urlMap = createUrlHolder()
-    assembly.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
 
     let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap)
 
@@ -1015,7 +1020,7 @@ type MetadataFormat =
 
     // Read and process assmeblies and the corresponding XML files
     let assemblies = 
-      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker.Create()
+      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker.Create()
       let base1 = Path.GetTempFileName()
       let dllName = Path.ChangeExtension(base1, ".dll")
       let fileName1 = Path.ChangeExtension(base1, ".fs")
@@ -1040,7 +1045,7 @@ type MetadataFormat =
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
       for err in results.Errors  do
-         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.Severity.Error then "error" else "warning") err.Message
+         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.FSharpErrorSeverity.Error then "error" else "warning") err.Message
 
       if results.HasCriticalErrors then 
          Log.logf "**** stopping due to critical errors"
@@ -1050,6 +1055,14 @@ type MetadataFormat =
           results.ProjectContext.GetReferencedAssemblies()
             |> List.map (fun x -> x.SimpleName, x)
             |> dict
+
+      // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
+      let urlMap = Reader.createUrlHolder()
+
+      for dllFile in dllFiles do
+        let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
+        if table.ContainsKey asmName then
+          table.[asmName].Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
 
       [ for dllFile in dllFiles do
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
@@ -1070,9 +1083,9 @@ type MetadataFormat =
           if not (table.ContainsKey asmName) then 
               Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" asmName
           else
-              let asm = table.[asmName] 
+              let asm = table.[asmName]
               Log.logf "Parsing assembly (with documentation file '%s')" xmlFile
-              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true) ]
+              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true, urlMap) ]
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd

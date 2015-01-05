@@ -73,3 +73,4 @@
 * 2.4.34 - Better C# support / Don't depend on broken FCS
 * 2.4.36 - Better mono support 
 * 2.4.37 - Fixed XML file resolution, support "cref", improve XML comment parsing, better logging and C# support 
+* 2.5.0 - Update to latest FSharp.Compiler.Service

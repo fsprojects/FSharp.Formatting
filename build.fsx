@@ -66,6 +66,8 @@ Target "Clean" (fun _ ->
     CleanDirs ["docs/output"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/bin"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/obj"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/obj"]
 )
@@ -93,6 +95,12 @@ Target "BuildTests" (fun _ ->
 
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/files/FsLib/FsLib.sln"]
+      Excludes = [] }
+    |> MSBuildDebug "" "Rebuild"
+    |> ignore
+
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["tests/*/files/crefLib/crefLib.sln"]
       Excludes = [] }
     |> MSBuildDebug "" "Rebuild"
     |> ignore
@@ -144,7 +152,7 @@ Target "NuGet" (fun _ ->
             Dependencies = 
                 ["Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireExactly
                  "RazorEngine", GetPackageVersion "packages" "RazorEngine" |> RequireExactly
-                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireExactly ] })
+                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p -> 
         { p with   
