@@ -343,6 +343,7 @@ let (|ListItem|_|) prevSimple = function
         | String.WhiteSpace::_, (ListStart _)::_ -> false
         | (ListStart _)::_, _ -> true 
         | [], _ -> true 
+        | String.WhiteSpace::String.WhiteSpace::_, _ -> true
         | _, String.Unindented::_ -> prevSimple
         | _, _ -> false
 
