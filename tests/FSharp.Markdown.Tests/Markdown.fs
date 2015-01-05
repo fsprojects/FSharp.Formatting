@@ -1,6 +1,6 @@
 ﻿#if INTERACTIVE
 #r "../../bin/FSharp.Markdown.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #else
 module FSharp.Markdown.Tests.Parsing
@@ -39,6 +39,22 @@ Some more""" |> Markdown.Parse
   |> shouldEqual [
       Heading(2, [Literal "Hello"]); 
       Paragraph [Literal "Some more"]]
+
+[<Test>]
+let ``Should be able to create nested list item with two paragraphs`` () =
+  let doc = 
+    """
+- a
+  - b
+
+    c""" |> Markdown.Parse
+  let expectedBody = 
+    [ Paragraph [Literal "b"] 
+      Paragraph [Literal "c"] ]
+  match doc.Paragraphs.Head with
+  | ListBlock(Unordered, [ [Span [Literal "a"]; ListBlock (Unordered, [ body ])] ]) ->
+      body |> shouldEqual expectedBody
+  | _ -> Assert.Fail "Expected list block with a nested list block"
 
 [<Test>]
 let ``Can escape special characters such as "*" in emphasis`` () =

@@ -347,8 +347,8 @@ let (|ListItem|_|) prevSimple = function
             yield line.Trim()
           for line in more do
             let trimmed = line.TrimStart()
-            if trimmed.Length >= line.Length - 4 then yield trimmed
-            else yield line.Substring(4) ]
+            if trimmed.Length >= line.Length - (indent+2) then yield trimmed
+            else yield line.Substring(indent+2) ]
       Some(indent, (simple, kind, lines), rest)
   | _ -> None
 
