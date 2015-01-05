@@ -197,6 +197,13 @@ let ``Transform code spans correctly``() =
     let expected = "<p>HTML contains the <code>&lt;blink&gt;</code> tag</p>\r\n" |> properNewLines;
     Markdown.TransformHtml doc
     |> shouldEqual expected
+
+[<Test>]
+let ``Transform code blocks in list correctly``() =
+    let doc = "- code sample:\r\n\r\n    let x = 1\r\n";
+    let expected = "<ul>\r\n<li><p>code sample:</p></li>\r\n</ul>\r\n\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
     
 [<Test>]
 let ``Transform display math correctly``() =

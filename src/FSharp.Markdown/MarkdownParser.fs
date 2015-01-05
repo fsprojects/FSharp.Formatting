@@ -302,7 +302,7 @@ let (|SkipSomeNumbers|_|) (input:string) =
       Some(rest)
   | _ -> None
 
-/// Recognizes a staring of a list (either 1. or +, *, -).
+/// Recognizes a starting of a list (either 1. or +, *, -).
 /// Returns the rest of the line, together with the indent.
 let (|ListStart|_|) = function  
   | String.TrimStartAndCount (indent, (String.StartsWithAny ["+ "; "* "; "- "] as item)) -> 
@@ -311,15 +311,10 @@ let (|ListStart|_|) = function
       Some(Ordered, indent, item)
   | _ -> None
 
-/// Splits input into lines until whitespace or starting of a list and the rest.
-let (|LinesUntilListOrWhite|) = 
+/// Splits input into lines until not-indented line or whitespace or starting of a list and the rest.
+let (|LinesUntilListOrWhiteOrUnindented|) = 
   List.partitionUntil (function
-    | ListStart _ | String.WhiteSpace -> true | _ -> false)
-
-/// Splits input into lines until not-indented line or starting of a list and the rest.
-let (|LinesUntilListOrUnindented|) =
-  List.partitionUntil (function 
-    | ListStart _ | String.Unindented -> true | _ -> false)
+    | ListStart _ | String.WhiteSpace | String.Unindented -> true | _ -> false)
 
 /// Recognizes a list item until the next list item (possibly nested) or end of a list.
 /// The parameter specifies whether the previous line was simple (single-line not 
@@ -328,11 +323,11 @@ let (|ListItem|_|) prevSimple = function
   | ListStart(kind, indent, item)::
       // Take remaining lines that belong to the same item
       // (everything until an empty line or start of another list item)
-      LinesUntilListOrWhite
+      LinesUntilListOrWhiteOrUnindented
         (continued, 
             // Take more things that belong to the item - 
             // the value 'more' will contain indented paragraphs
-            (LinesUntilListOrUnindented (more, rest) as next)) ->
+            (LinesUntilListOrWhiteOrUnindented (more, rest) as next)) ->
       let simple = 
         match next, rest with 
         | String.WhiteSpace::_, (ListStart _)::_ -> false

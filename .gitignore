@@ -16,3 +16,4 @@ tests/Benchmarks/testfiles/*/*.html
 .paket/paket.exe
 release.cmd
 *.orig
+*NCrunch*
