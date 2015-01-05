@@ -310,7 +310,7 @@ let (|ListStart|_|) = function
       let endIndent = startIndent + (item.Length - trimItem.Length)
       Some(Unordered, startIndent, endIndent, item.Substring(1))
   | String.TrimStartAndCount (startIndent, (SkipSomeNumbers (skipNumCount, '.' :: ' ' :: List.AsString item))) ->
-      let trimItem = item.Substring(1).TrimStart(' ')
+      let trimItem = item.TrimStart(' ')
       let endIndent = startIndent + 2 + skipNumCount + (item.Length - trimItem.Length)
       Some(Ordered, startIndent, endIndent, trimItem)
   | _ -> None
