@@ -11,6 +11,15 @@ open NUnit.Framework
 open FSharp.Markdown
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
+"""
+*   a
+    *   b
+    *   c
+
+
+**Note**
+"""
+|> Markdown.Parse
 
 [<Test>]
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
@@ -203,7 +212,7 @@ let ``Transform header 2 correctly``() =
 [<Test>] 
 let ``Transform code blocks in list correctly``() = 
     let doc = "- code sample:\r\n\r\n\r\n    let x = 1\r\n"
-    let expected = "<ul>\r\n<li><p>code sample:</p></li>\r\n</ul>\r\n\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines; 
+    let expected = "<ul>\r\n<li>code sample:</li>\r\n</ul>\r\n\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines; 
     Markdown.TransformHtml doc 
     |> shouldEqual expected 
  
