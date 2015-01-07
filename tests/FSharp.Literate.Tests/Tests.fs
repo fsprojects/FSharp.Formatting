@@ -118,7 +118,7 @@ hello
 [<Test>]
 let ``Codeblock whitespace is preserved`` () =
   let doc = "```markup\r\n    test\r\n    blub\r\n```\r\n";
-  let expected = "<table class=\"pre\"><tr><td><pre lang=\"markup\">\r\n    test\r\n    blub\r\n</pre></td></tr></table>\r\n";
+  let expected = "<table class=\"pre\"><tr><td><pre lang=\"markup\">    test\r\n    blub\r\n</pre></td></tr></table>\r\n";
   let doc = Literate.ParseMarkdownString(doc, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain expected

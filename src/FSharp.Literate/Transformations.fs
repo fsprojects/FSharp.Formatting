@@ -40,6 +40,10 @@ module internal Transformations =
   let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
     | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, code)) 
     | CodeBlock(Let (dict []) (cmds, code)) ->
+        let code = 
+            if code.StartsWith("\r\n") then code.Substring(2)
+            elif code.StartsWith("\n") then code.Substring(1)
+            else code
         if cmds.ContainsKey("hide") then None else
         let code = 
           if cmds.ContainsKey("file") && cmds.ContainsKey("key") then 
