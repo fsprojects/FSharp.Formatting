@@ -291,6 +291,15 @@ let (|CodeBlock|_|) = function
             elif l.Length > 4 then l.Substring(4, l.Length - 4) 
             else l ]
       Some(code, rest)
+  | String.StartsWithTrim "```" header :: lines -> 
+      let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
+      let rest =
+        match rest with
+        | hd :: tl -> tl
+        | _ -> rest
+      Some (
+        (if String.IsNullOrWhiteSpace header then code else sprintf "[lang=%s]" header::code), 
+        rest)
   | _ -> None
 
 /// Matches when the input starts with a number. Returns the

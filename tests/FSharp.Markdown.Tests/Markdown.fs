@@ -225,6 +225,20 @@ let ``Transform code blocks correctly``() =
     |> shouldEqual expected
 
 [<Test>]
+let ``Transform github flavored code blocks correctly``() =
+    let doc = "code sample:\r\n\r\n```\r\n<head>\r\n<title>page title</title>\r\n</head>\r\n```\r\n";
+    let expected = "<p>code sample:</p>\r\n\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
+    
+[<Test>]
+let ``Transform github flavored language code blocks correctly``() =
+    let doc = "code sample:\r\n\r\n```markup\r\n<head>\r\n<title>page title</title>\r\n</head>\r\n```\r\n";
+    let expected = "<p>code sample:</p>\r\n\r\n<pre class=\"line-numbers language-markup\"><code class=\"language-markup\">&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
+
+[<Test>]
 let ``Transform code spans correctly``() =
     let doc = "HTML contains the `<blink>` tag";
     let expected = "<p>HTML contains the <code>&lt;blink&gt;</code> tag</p>\r\n" |> properNewLines;
