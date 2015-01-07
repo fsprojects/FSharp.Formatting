@@ -18,6 +18,8 @@ open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 
+let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
+
 // --------------------------------------------------------------------------------------
 // Test embedding code from a file
 // --------------------------------------------------------------------------------------
@@ -118,7 +120,7 @@ hello
 [<Test>]
 let ``Codeblock whitespace is preserved`` () =
   let doc = "```markup\r\n    test\r\n    blub\r\n```\r\n";
-  let expected = "<table class=\"pre\"><tr><td><pre lang=\"markup\">    test\r\n    blub\r\n</pre></td></tr></table>\r\n";
+  let expected = "<table class=\"pre\"><tr><td><pre lang=\"markup\">    test\r\n    blub\r\n</pre></td></tr></table>\r\n" |> properNewLines;
   let doc = Literate.ParseMarkdownString(doc, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain expected
