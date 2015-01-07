@@ -38,7 +38,7 @@ module internal Transformations =
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
   let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
-    | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
+    | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, code)) 
     | CodeBlock(Let (dict []) (cmds, code)) ->
         if cmds.ContainsKey("hide") then None else
         let code = 

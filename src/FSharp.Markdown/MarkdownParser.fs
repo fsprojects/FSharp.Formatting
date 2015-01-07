@@ -290,16 +290,23 @@ let (|CodeBlock|_|) = function
             if String.IsNullOrWhiteSpace l then "" 
             elif l.Length > 4 then l.Substring(4, l.Length - 4) 
             else l ]
-      Some(code, rest)
+      Some((if rest.IsEmpty then code else code @ [""]), rest)
   | String.StartsWithTrim "```" header :: lines -> 
       let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
-      let rest =
+      let code = if String.IsNullOrWhiteSpace header then code else sprintf "[lang=%s]" header::code
+      let code, rest =
         match rest with
-        | hd :: tl -> tl
-        | _ -> rest
-      Some (
-        (if String.IsNullOrWhiteSpace header then code else sprintf "[lang=%s]" header::code), 
-        rest)
+        | hd :: tl -> 
+            let idx = hd.IndexOf("```")
+            if idx > -1 && idx + 3 <= hd.Length then
+                let pre = hd.Substring(0, idx)
+                let after = hd.Substring(idx + 3)
+                code @ [pre], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
+            else
+                code, tl
+        | _ -> 
+            code, rest
+      Some (code, rest)
   | _ -> None
 
 /// Matches when the input starts with a number. Returns the

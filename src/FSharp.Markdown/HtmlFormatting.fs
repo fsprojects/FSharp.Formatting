@@ -188,14 +188,12 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       let langCode = sprintf "language-%s" cmds.["lang"]
       ctx.Writer.Write(sprintf "<pre class=\"line-numbers %s\"><code class=\"%s\">" langCode langCode)
       ctx.Writer.Write(htmlEncode code)
-      ctx.Writer.Write(ctx.Newline)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
   | CodeBlock(code) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       ctx.Writer.Write("<pre><code>")
       ctx.Writer.Write(htmlEncode code)
-      ctx.Writer.Write(ctx.Newline)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
   | TableBlock(headers, alignments, rows) ->
