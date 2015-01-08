@@ -182,15 +182,14 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</p>")
   | HorizontalRule(_) ->
       ctx.Writer.Write("<hr />")
-  | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
-    when cmds.ContainsKey("lang") ->
+  | CodeBlock({ Code = code; CodeLanguage = Some codeLanguage }) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
-      let langCode = sprintf "language-%s" cmds.["lang"]
+      let langCode = sprintf "language-%s" codeLanguage
       ctx.Writer.Write(sprintf "<pre class=\"line-numbers %s\"><code class=\"%s\">" langCode langCode)
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
-  | CodeBlock(code) ->
+  | CodeBlock({ Code = code }) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       ctx.Writer.Write("<pre><code>")
       ctx.Writer.Write(htmlEncode code)

@@ -290,10 +290,19 @@ let (|CodeBlock|_|) = function
             if String.IsNullOrWhiteSpace l then "" 
             elif l.Length > 4 then l.Substring(4, l.Length - 4) 
             else l ]
-      Some((if rest.IsEmpty then code else code @ [""]), rest)
+      Some((if rest.IsEmpty then code else code @ [""]), rest, None, None)
   | String.StartsWithTrim "```" header :: lines -> 
       let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
-      let code = if String.IsNullOrWhiteSpace header then code else sprintf "[lang=%s]" header::code
+      // langString is the part after ``` and ignoredString is the rest until the line ends.
+      let langString, ignoredString = 
+        if String.IsNullOrWhiteSpace header then None, None else 
+        let splits = header.Split((null : char array), StringSplitOptions.RemoveEmptyEntries)
+        match splits |> Seq.tryFind (fun _ -> true) with
+        | None -> None, None
+        | Some langString ->
+            let ignoredString = header.Substring(header.IndexOf(langString) + langString.Length)
+            Some langString, if String.IsNullOrWhiteSpace ignoredString then None else Some ignoredString
+      // Handle the ending line 
       let code, rest =
         match rest with
         | hd :: tl -> 
@@ -306,7 +315,7 @@ let (|CodeBlock|_|) = function
                 code, tl
         | _ -> 
             code, rest
-      Some (code, rest)
+      Some (code, rest, langString, ignoredString)
   | _ -> None
 
 /// Matches when the input starts with a number. Returns the
@@ -554,8 +563,8 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | LinkDefinition ((key, link), Lines.TrimBlankStart lines) ->
       ctx.Links.Add(key, getLinkAndTitle link)
       yield! parseParagraphs ctx lines
-  | CodeBlock(code, Lines.TrimBlankStart lines) ->
-      yield CodeBlock(code |> String.concat ctx.Newline)
+  | CodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
+      yield CodeBlock({ Code = code |> String.concat ctx.Newline; CodeLanguage = langString; IgnoredLine = ignoredLine})
       yield! parseParagraphs ctx lines 
   | Blockquote(body, Lines.TrimBlankStart rest) ->
       yield QuotedBlock(parseParagraphs ctx body |> List.ofSeq)
