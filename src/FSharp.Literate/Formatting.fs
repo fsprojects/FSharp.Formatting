@@ -35,7 +35,7 @@ module internal Formatting =
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->
-        doc.With(paragraphs = [CodeBlock (CodeBlockInfo.Create text)])
+        doc.With(paragraphs = [CodeBlock (text, "", "")])
     | LiterateSource.Script snippets ->
         let paragraphs = 
           [ for Snippet(name, lines) in snippets do

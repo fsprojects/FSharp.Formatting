@@ -42,16 +42,11 @@ and MarkdownSpans = list<MarkdownSpan>
 
 and MarkdownEmbedSpans =
   abstract Render : unit -> MarkdownSpans
-type CodeBlockInfo =
-  { Code : string
-    CodeLanguage : string option
-    IgnoredLine : string option }
-  static member Create(code, ?language, ?ignored) = 
-    { Code = code; CodeLanguage = language; IgnoredLine = ignored }
+
 type MarkdownParagraph = 
   | Heading of int * MarkdownSpans
   | Paragraph of MarkdownSpans
-  | CodeBlock of CodeBlockInfo
+  | CodeBlock of string * string * string
   | InlineBlock of string
   | ListBlock of MarkdownListKind * list<MarkdownParagraphs>
   | QuotedBlock of MarkdownParagraphs
