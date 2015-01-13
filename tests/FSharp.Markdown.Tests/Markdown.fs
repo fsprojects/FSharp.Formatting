@@ -11,15 +11,6 @@ open NUnit.Framework
 open FSharp.Markdown
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
-"""
-*   a
-    *   b
-    *   c
-
-
-**Note**
-"""
-|> Markdown.Parse
 
 [<Test>]
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
