@@ -20,10 +20,10 @@ module internal Transformations =
   /// to colorize. We skip snippets that specify non-fsharp langauge e.g. [lang=csharp].
   let rec collectCodeSnippets par = seq {
     match par with
-    | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
-        when cmds.ContainsKey("lang") && cmds.["lang"] <> "fsharp" -> ()
-    | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
-    | CodeBlock(Let (dict []) (cmds, code)) ->
+    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)), language, _) 
+        when (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp") || (cmds.ContainsKey("lang") && cmds.["lang"] <> "fsharp") -> ()
+    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)), _, _) 
+    | CodeBlock(Let (dict []) (cmds, code), _, _) ->
         let modul = 
           match cmds.TryGetValue("module") with
           | true, v -> Some v | _ -> None
@@ -38,8 +38,12 @@ module internal Transformations =
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
   let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
-    | CodeBlock(String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.TrimStart code)) 
-    | CodeBlock(Let (dict []) (cmds, code)) ->
+    | CodeBlock ((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, code)), language, _) 
+    | CodeBlock(Let (dict []) (cmds, code), language, _) ->
+        let code = 
+            if code.StartsWith("\r\n") then code.Substring(2)
+            elif code.StartsWith("\n") then code.Substring(1)
+            else code
         if cmds.ContainsKey("hide") then None else
         let code = 
           if cmds.ContainsKey("file") && cmds.ContainsKey("key") then 
@@ -53,9 +57,12 @@ module internal Transformations =
             |> String.removeSpaces
             |> String.concat "\n"
           else code
-
-        if (cmds.ContainsKey("lang")) && cmds.["lang"] <> "fsharp" then 
-          Some (EmbedParagraphs(LanguageTaggedCode(cmds.["lang"], code)))
+        let lang = 
+          match language with
+          | String.WhiteSpace when cmds.ContainsKey("lang") -> cmds.["lang"]
+          | language -> language
+        if not (String.IsNullOrWhiteSpace(lang)) && lang <> "fsharp" then 
+          Some (EmbedParagraphs(LanguageTaggedCode(lang, code)))
         else
           Some (EmbedParagraphs(FormattedCode(codeLookup.[code])))
 
@@ -266,7 +273,7 @@ module internal Transformations =
           | _ -> None
         match special with 
         | EvalFormat(Some result, _, kind) -> ctx.Evaluator.Value.Format(result, kind)
-        | EvalFormat(None, ref, _) -> [ CodeBlock("Could not find reference '" + ref + "'") ]
+        | EvalFormat(None, ref, _) -> [ CodeBlock("Could not find reference '" + ref + "'", "", "") ]
         | other -> [ EmbedParagraphs(other) ]
 
     // Traverse all other structrues recursively

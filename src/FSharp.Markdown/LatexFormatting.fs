@@ -142,7 +142,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
       ctx.LineBreak()
 
-  | CodeBlock(code) ->
+  | CodeBlock(code, _, _) ->
       ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.LineBreak()
       ctx.Writer.Write(code)
