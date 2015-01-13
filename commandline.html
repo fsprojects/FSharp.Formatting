@@ -69,7 +69,8 @@ or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/
 The format of the command line interface is:</p>
 
 <table class="pre"><tr><td><pre lang="text">fsformatting[.exe] --help 
-fsformatting[.exe] [command] [function] [options]</pre></td></tr></table>
+fsformatting[.exe] [command] [function] [options]
+</pre></td></tr></table>
 
 <p>In order to provide consistency across different shell environments, the command line tool appears to be case-insensitive by matching against lower case strings.</p>
 
@@ -91,7 +92,8 @@ library documentation from XML comments).</p>
 <p>The method <code>FSharp.Literate.ProcessDirectory</code> processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
 according to the concept of <a href="literate.html">Literate Programming</a>.</p>
 
-<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] literate --processDirectory [options]</pre></td></tr></table>
+<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] literate --processDirectory [options]
+</pre></td></tr></table>
 
 <h3><a name="Required-options" class="anchor" href="#Required-options">Required options</a></h3>
 
@@ -121,14 +123,16 @@ according to the concept of <a href="literate.html">Literate Programming</a>.</p
 
 <table class="pre"><tr><td><pre lang="text">fsformatting literate 
   --processDirectory --templateFile template-project.html 
-  --format latex --replacements &quot;page-author&quot; &quot;Tomas Petricek&quot;</pre></td></tr></table>
+  --format latex --replacements &quot;page-author&quot; &quot;Tomas Petricek&quot;
+</pre></td></tr></table>
 
 <h2><a name="Library-documentation-command" class="anchor" href="#Library-documentation-command">Library documentation command</a></h2>
 
 <p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://tpetricek.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading 
 the meta-data from a <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 
-<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] metadataFormat --generate [options]</pre></td></tr></table>
+<table class="pre"><tr><td><pre lang="text">fsformatting[.exe] metadataFormat --generate [options]
+</pre></td></tr></table>
 
 <h3><a name="Required-options-1" class="anchor" href="#Required-options-1">Required options</a></h3>
 
@@ -164,7 +168,8 @@ could be configured by:</p>
   --generate 
   --dllFiles lib1.dll &quot;lib 2.dll&quot; 
   --outDir &quot;../api-docs&quot; 
-  --layoutRoots templates</pre></td></tr></table>
+  --layoutRoots templates
+</pre></td></tr></table>
 
 <p>The following underlying configuration assumptions need to be considered when you adapt this example to your own project:</p>
 
