@@ -46,7 +46,7 @@ and MarkdownEmbedSpans =
 type MarkdownParagraph = 
   | Heading of int * MarkdownSpans
   | Paragraph of MarkdownSpans
-  | CodeBlock of string
+  | CodeBlock of string * string * string
   | InlineBlock of string
   | ListBlock of MarkdownListKind * list<MarkdownParagraphs>
   | QuotedBlock of MarkdownParagraphs

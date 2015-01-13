@@ -203,7 +203,7 @@ let ``Transform header 2 correctly``() =
 [<Test>] 
 let ``Transform code blocks in list correctly``() = 
     let doc = "- code sample:\r\n\r\n\r\n    let x = 1\r\n"
-    let expected = "<ul>\r\n<li>code sample:</li>\r\n</ul>\r\n\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines; 
+    let expected = "<ul>\r\n<li>code sample:</li>\r\n</ul>\r\n\r\n<pre><code>let x = 1</code></pre>\r\n" |> properNewLines; 
     Markdown.TransformHtml doc 
     |> shouldEqual expected 
  
@@ -211,7 +211,28 @@ let ``Transform code blocks in list correctly``() =
 [<Test>]
 let ``Transform code blocks correctly``() =
     let doc = "code sample:\r\n\r\n    <head>\r\n    <title>page title</title>\r\n    </head>\r\n";
+    let expected = "<p>code sample:</p>\r\n\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;</code></pre>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
+
+[<Test>]
+let ``Transform github flavored code blocks correctly``() =
+    let doc = "code sample:\r\n\r\n```\r\n<head>\r\n<title>page title</title>\r\n</head>\r\n```\r\n";
     let expected = "<p>code sample:</p>\r\n\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
+    
+[<Test>]
+let ``Transform github flavored language code blocks correctly``() =
+    let doc = "code sample:\r\n\r\n```markup\r\n<head>\r\n<title>page title</title>\r\n</head>\r\n```\r\n";
+    let expected = "<p>code sample:</p>\r\n\r\n<pre class=\"line-numbers language-markup\"><code class=\"language-markup\">&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    Markdown.TransformHtml doc
+    |> shouldEqual expected
+    
+[<Test>]
+let ``Transform github flavored code blocks with whitespace correctly``() =
+    let doc = "```\r\n    test\r\n    blub\r\n```\r\n";
+    let expected = "<pre><code>    test\r\n    blub\r\n</code></pre>\r\n" |> properNewLines;
     Markdown.TransformHtml doc
     |> shouldEqual expected
 

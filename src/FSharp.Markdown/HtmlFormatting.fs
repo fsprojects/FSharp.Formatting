@@ -182,11 +182,17 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</p>")
   | HorizontalRule(_) ->
       ctx.Writer.Write("<hr />")
-  | CodeBlock(code) ->
+  | CodeBlock(code, String.WhiteSpace, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       ctx.Writer.Write("<pre><code>")
       ctx.Writer.Write(htmlEncode code)
-      ctx.Writer.Write(ctx.Newline)
+      ctx.Writer.Write("</code></pre>")
+      if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
+  | CodeBlock(code, codeLanguage, _) ->
+      if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+      let langCode = sprintf "language-%s" codeLanguage
+      ctx.Writer.Write(sprintf "<pre class=\"line-numbers %s\"><code class=\"%s\">" langCode langCode)
+      ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
   | TableBlock(headers, alignments, rows) ->

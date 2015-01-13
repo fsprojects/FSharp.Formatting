@@ -56,11 +56,11 @@ printf ">>%d<<" 12343
 
   // Contains transformed output
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock "42" -> true | _ -> false)
+    | CodeBlock ("42", _, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock "85" -> true | _ -> false)
+    | CodeBlock ("85", _, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ">>12343<<" -> true | _ -> false)
+    | CodeBlock (">>12343<<", _, _) -> true | _ -> false)
 
 [<Test; Ignore>]
 let ``Can evaluate hidden code snippets`` () =
