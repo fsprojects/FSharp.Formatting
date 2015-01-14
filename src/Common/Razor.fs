@@ -39,30 +39,29 @@ type GetMemberBinderImpl (name) =
     inherit GetMemberBinder(name, false)
     let notImpl () = raise <| new NotImplementedException()
     override x.FallbackGetMember(v, sug) = notImpl()
-
-type MyTemplateService (config) =
-    inherit TemplateService(config) 
-
-    member x.Resolver = config.Resolver
-
+    
 type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System.Type, ?references : string list) =
   let templateName =
     if templateName.EndsWith(".cshtml") then
         templateName.Substring(0, templateName.Length - 7)
     else templateName
-  let templateCache = new ConcurrentDictionary<string[] * string, string>()
+  let templateCache = new ConcurrentDictionary<string[] * string, ITemplateSource>()
   // Create resolver & set it to the global static field 
-  let templateResolver = 
-    { new ITemplateResolver with
-        member x.Resolve name = 
+  let templateManager = 
+    { new ITemplateManager with
+        member x.GetKey (name, resolveType, context) = new NameOnlyTemplateKey(name, resolveType, context) :> ITemplateKey
+        member x.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
+        member x.Resolve templateKey = 
+            let name = templateKey.Name
             let key = Array.ofSeq layoutRoots, name
             templateCache.GetOrAdd (key, fun (layoutRoots, name) -> 
-                File.ReadAllText(RazorRender.Resolve(layoutRoots, name + ".cshtml"))) }
+                let file = RazorRender.Resolve(layoutRoots, name + ".cshtml")
+                new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource) }
 
   // Configure templating engine
   let config = new TemplateServiceConfiguration()
   do config.EncodedStringFactory <- new RawStringFactory()
-  do config.Resolver <- templateResolver
+  do config.TemplateManager <- templateManager
   do
     match references with
     | Some r -> 
@@ -75,7 +74,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
   do namespaces |> Seq.iter (config.Namespaces.Add >> ignore)
   do config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
   do config.Debug <- true 
-  let templateservice = new MyTemplateService(config)
+  let razorEngine = RazorEngineService.Create(config)
 
   let handleCompile source f =
     try
@@ -87,7 +86,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
         Log.run (fun () ->
           use _c = Log.colored ConsoleColor.Red
           printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
-          for error in ex.Errors do
+          for error in ex.CompilerErrors do
             let errorType = if error.IsWarning then "warning" else "error"
             printfn " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText
           printfn ""
@@ -119,33 +118,23 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
       
   member internal x.HandleCompile source f = handleCompile source f
   member internal x.TemplateName = templateName
-  member internal x.TemplateService = templateservice
-  member internal x.TemplateResolver = templateResolver
   member internal x.WithProperties properties = withProperties properties x.ViewBag
 
   /// Dynamic object with more properties (?)
   member val ViewBag = new DynamicViewBag() with get, set
 
-  member x.ProcessFile(?properties) = x.ProcessFileModel(null, ?properties = properties)
-  member x.ProcessFileParse(?properties) = x.ProcessFileParseModel(null, ?properties = properties)
+  member x.ProcessFile(?properties) = x.ProcessFileModel(null, null, ?properties = properties)
+  member x.ProcessFileDynamic(model:obj,?properties) = x.ProcessFileModel(null, model, ?properties = properties)
       
-  member x.ProcessFileModel(model:obj,?properties) =
+  member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
     handleCompile templateName (fun _ ->
-      if templateservice.Resolve(templateName, model) = null then
-          let templateContent = templateResolver.Resolve(templateName)
-          templateservice.Compile(templateContent, model.GetType(), templateName)
-      templateservice.Run(templateName, model, x.WithProperties properties))
-
-  /// Process source file and return result as a string
-  member x.ProcessFileParseModel(model:obj, ?properties) = 
-    handleCompile templateName (fun _ ->
-      templateservice.Parse(templateResolver.Resolve templateName, model, x.WithProperties properties, templateName))
+      razorEngine.RunCompile(templateName, modelType, model, x.WithProperties(properties)))
 
 and RazorRender<'model>(layoutRoots, namespaces, templateName, ?references) =
     inherit RazorRender(layoutRoots, namespaces, templateName, modeltype = typeof<'model>, ?references = references)
 
-    member x.ProcessFile(model:'model, ?properties) = x.ProcessFileModel(model, ?properties = properties)
-    member x.ProcessFileParse(model:'model, ?properties) = x.ProcessFileParseModel(model, ?properties = properties)
+    member x.ProcessFile(model:'model, ?properties) = 
+      x.ProcessFileModel(typeof<'model>, model, ?properties = properties)
 
 and StringDictionary(dict:IDictionary<string, string>) =
   member x.Dictionary = dict
@@ -193,9 +182,7 @@ and [<AbstractClass>] DocPageTemplateBase<'T>() =
     with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
     and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
 
-  member x.Root = x.Properties.["root"]   
-  member x.RenderPart(name, model:obj) = 
-    if x.TemplateService.Resolve(name, model) = null then
-        let templateContent = (x.TemplateService :?> MyTemplateService).Resolver.Resolve(name)
-        x.TemplateService.Compile(templateContent, model.GetType(), name)
-    x.TemplateService.Run(name, model, null)
+  member x.Root = x.Properties.["root"]
+
+  member x.RenderPart(name : string, model:obj) =
+    x.Include(name, model)
