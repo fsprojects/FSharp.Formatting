@@ -150,8 +150,8 @@ replaced with (hidden) `<div>` elements containing code for tool tips that appea
 when you place mouse pointer over an identifier. Optionally, you can also use 
 `{page-title}` which will be replaced with the text in a first-level heading.
 The template should also reference `style.css` and `tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/content/style.css)
-and [script](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/content/tips.js) on GitHub).
+and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/style.css)
+and [script](https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/tips.js) on GitHub).
 
 Assuming you have `template.html` in the current directory, you can write:
 *)
