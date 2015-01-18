@@ -115,7 +115,7 @@ Typical literate setup
 The typical way to setup literate programming support in your project is to reference
 `FSharp.Formatting` using NuGet and then add a simple script file (e.g. `build.fsx`) that
 calls the literate programming tools and generates the HTML (or LaTeX) output from your
-samples. You can find an [example of such file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/build.fsx)
+samples. You can find an [example of such file](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/build.fsx)
 on GitHub (and it is also copied with NuGet).
 
 The typical `build.fsx` script first needs to reference `FSharp.Literate.dll`. Assuming
@@ -139,8 +139,8 @@ documents or entire directories.
 The `Literate` type has two static methods `ProcessScriptFile` and `ProcessMarkdown`
 that turn an F# script file and Markdown document, respectively, into an HTML file.
 If you wish to specify the HTML file structure, you can provide a template. Two sample templates
-are included: for a [single file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/templates/template-file.html)
-and for a [project](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/templates/template-project.html),
+are included: for a [single file](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/templates/template-file.html)
+and for a [project](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/templates/template-project.html),
 but you can use your own. If no template is provided, the result is simply the HTML body
 of the document with HTML for tool tips appended to the end.
 
@@ -150,8 +150,8 @@ replaced with (hidden) `<div>` elements containing code for tool tips that appea
 when you place mouse pointer over an identifier. Optionally, you can also use 
 `{page-title}` which will be replaced with the text in a first-level heading.
 The template should also reference `style.css` and `tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/content/style.css)
-and [script](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/content/tips.js) on GitHub).
+and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/style.css)
+and [script](https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/tips.js) on GitHub).
 
 Assuming you have `template.html` in the current directory, you can write:
 *)
@@ -232,7 +232,7 @@ collision with standard Latex `{document}` tag). The project comes with two samp
 available as part of the NuGet package). The sample
 Latex outputs (compiled to a PDF file) look as follows:
 
- * [Sample Markdown file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/demo.md)
+ * [Sample Markdown file](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.md)
    produces the following [formatted PDF file](https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/demo.pdf)
  * [Sample F# script file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/test.fsx)
    produces the following [formatted PDF file](https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/test.pdf)
