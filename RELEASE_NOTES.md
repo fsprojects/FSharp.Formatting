@@ -76,3 +76,4 @@
 * 2.5.0 - Update to latest FSharp.Compiler.Service
 * 2.5.1 - Fix handling of codeblocks inside and after lists
 * 2.6.0 - Bundle RazorEngine and System.Web.Razor to avoid dependency clashes
+* 2.6.1 - Support for Github flavoured markdown code blocks

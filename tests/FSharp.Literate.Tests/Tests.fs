@@ -3,7 +3,7 @@
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #load "../Common/MarkdownUnit.fs"
 #load "Setup.fs"
@@ -72,6 +72,21 @@ let ``Can parse and format markdown with F# snippet`` () =
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
 
+[<Test>] 
+let ``Can parse and format markdown with Github-flavoured F# snippet`` () =
+  let content = """
+**hello**
+
+```fsharp followed by some random text
+let test = 42
+```"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
+  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+
 [<Test>]
 let ``Can generate references from indirect links`` () =
   let content = """
@@ -113,6 +128,18 @@ hello
 
     [lang=csharp]
     var a = 10 < 10;"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain "<span class=\"k\">var</span>"
+
+[<Test>]
+let ``Can format the var keyword in C# code snippet using Github-flavoured`` () =
+  let content = """
+hello
+
+```csharp
+var a = 10 < 10;
+```"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain "<span class=\"k\">var</span>"
