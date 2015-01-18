@@ -192,6 +192,27 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <p>Note that currently our code is not handling <code>&lt;parameter&gt;</code> and `<result> tags, this is 
 not so much of a problem given that given that FSharp.Formatting infers the signature via reflection.</p>
 
+<h2><a name="Optional-parameters" class="anchor" href="#Optional-parameters">Optional parameters</a></h2>
+
+<p>All of the three methods discussed in the previous two sections take a number of optional
+parameters that can be used to tweak how the formatting works:</p>
+
+<ul>
+<li><code>markDownComments</code> - specifies if you want to use the Markdown parser for in-code comments.
+With <code>markDownComments</code> enabled there is no support for <code>&lt;see cref=""&gt;</code> links, so <code>false</code> is
+recommended for C# assemblies (if not specified, <code>true</code> is used).</li>
+<li><code>typeTemplate</code> - the templates to be used for normal types (and C# types)
+(if not specified, <code>"type.cshtml"</code> is used).</li>
+<li><code>moduleTemplate</code> - the templates to be used for modules
+(if not specified, <code>"module.cshtml"</code> is used).</li>
+<li><code>namespaceTemplate</code> - the templates to be used for namespaces
+(if not specified, <code>"namespaces.cshtml"</code> is used).</li>
+<li><code>assemblyReferences</code> - The assemblies to use when compiling Razor templates.
+Use this parameter if templates fail to compile with <code>mcs</code> on Linux or Mac or
+if you need additional references in your templates
+(if not specified, we use the currently loaded assemblies).</li>
+</ul>
+
 <h2><a name="Work-in-progress" class="anchor" href="#Work-in-progress">Work in progress!</a></h2>
 
 <p>This library is under active development and it is not completely functional.
@@ -206,8 +227,8 @@ that you can use.</p>
 <div class="tip" id="fs3">namespace FSharp.MetadataFormat</div>
 <div class="tip" id="fs4">namespace System</div>
 <div class="tip" id="fs5">namespace System.IO</div>
-<div class="tip" id="fs6">type MetadataFormat =<br />&#160;&#160;static member Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(Uri -&gt; int -&gt; int -&gt; string) -&gt; unit<br />&#160;&#160;static member Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(Uri -&gt; int -&gt; int -&gt; string) -&gt; unit<br /><br />Full name: FSharp.MetadataFormat.MetadataFormat</div>
-<div class="tip" id="fs7">static member MetadataFormat.Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) -&gt; unit<br />static member MetadataFormat.Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) -&gt; unit</div>
+<div class="tip" id="fs6">type MetadataFormat =<br />&#160;&#160;static member Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit<br />&#160;&#160;static member Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit<br /><br />Full name: FSharp.MetadataFormat.MetadataFormat</div>
+<div class="tip" id="fs7">static member MetadataFormat.Generate : dllFiles:string list * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit<br />static member MetadataFormat.Generate : dllFile:string * outDir:string * layoutRoots:seq&lt;string&gt; * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit</div>
 <div class="tip" id="fs8">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : params paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...<br /><br />Full name: System.IO.Path</div>
 <div class="tip" id="fs9">Path.Combine(params paths: string []) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
 <div class="tip" id="fs10">val a : int<br /><br />Full name: Metadata.Foo.a</div>
