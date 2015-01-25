@@ -25,6 +25,10 @@ type TokenKind =
   | Number
   | Operator
   | Preprocessor
+  | TypeOrModule
+  | Function
+  | Pattern
+  | MutableVar
   | Default
 
 [<RequireQualifiedAccess>]

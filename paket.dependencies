@@ -8,3 +8,4 @@ nuget RazorEngine 3.5.0
 nuget NUnit
 nuget NUnit.Runners
 nuget NuGet.CommandLine
+nuget FSharpVSPowerTools.Core
