@@ -96,6 +96,8 @@ module private Helpers =
 // Main type that implements parsing and uses F# services
 // --------------------------------------------------------------------------------------
 
+open FSharpVSPowerTools
+
 /// Uses agent to handle formatting requests
 type CodeFormatAgent() = 
 
@@ -110,15 +112,43 @@ type CodeFormatAgent() =
       sprintf "( %s )" <| body.Trim('`')
     else body
 
+  let categoryToTokenKind = function
+      | Category.ReferenceType 
+      | Category.ValueType
+      | Category.Module -> Some TokenKind.TypeOrModule
+      | Category.Function -> Some TokenKind.Function
+      | Category.PatternCase -> Some TokenKind.Pattern
+      | Category.MutableVar -> Some TokenKind.MutableVar
+      | Category.Printf -> Some TokenKind.Printf
+      | Category.Escaped -> Some TokenKind.Escaped 
+      | _ -> None
+
   // Processes a single line of the snippet
-  let processSnippetLine (checkInfo:FSharpCheckFileResults) (lines:string[]) (line, lineTokens) =
+  let processSnippetLine (checkResults: ParseAndCheckResults) (spans: CategorizedColumnSpan<_> list) 
+                         (lines: string[]) (line: int, lineTokens: SnippetLine) =
+    let lineStr = lines.[line]
 
     // Recursive processing of tokens on the line 
     // (keeps a long identifier 'island')
-    let rec loop island (tokens:SnippetLine) = seq {
+    let rec loop island (tokens:SnippetLine) (strTokenStartCol: int option) = seq {
       match tokens with 
       | [] -> ()
       | (body, tokenInfo)::rest ->
+        let strTokenStartCol, strRange =
+            match rest with
+            | [] ->
+              match tokenInfo.ColorClass, strTokenStartCol with
+              | FSharpTokenColorKind.String, None -> None, Some (tokenInfo.LeftColumn, tokenInfo.RightColumn)
+              | FSharpTokenColorKind.String, Some x -> None, Some (x, tokenInfo.RightColumn)
+              | _, Some startCol -> None, Some (startCol, tokenInfo.LeftColumn) 
+              | _ -> None, None
+            | _ ->
+              match tokenInfo.ColorClass, strTokenStartCol with
+              | FSharpTokenColorKind.String, None -> Some tokenInfo.LeftColumn, None
+              | FSharpTokenColorKind.String, Some x -> Some x, None
+              | _, Some startCol -> None, Some (startCol, tokenInfo.LeftColumn) 
+              | _ -> None, None
+
         // Update the current identifier island 
         // (long identifier e.g. Collections.List.map)
         let island =
@@ -131,14 +161,14 @@ type CodeFormatAgent() =
         let tip =
           // If we're processing an identfier, see if it has any tool tip
           if (tokenInfo.TokenName = "IDENT") then
-            let island = island |> List.rev
-            let tip = checkInfo.GetToolTipTextAlternate(line + 1, tokenInfo.LeftColumn + 1, lines.[line], island, identToken)
-            match ToolTipReader.tryFormatTip (Async.RunSynchronously tip) with
+            let island = List.rev island
+            let tip = checkResults.GetIdentTooltip(line + 1, tokenInfo.LeftColumn + 1, lines.[line], island)
+            match Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip with 
             | Some(_) as res -> res
             | _ when island.Length > 1 ->
                 // Try to find some information about the last part of the identifier 
-                let tip = checkInfo.GetToolTipTextAlternate(line + 1, tokenInfo.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ], identToken)
-                ToolTipReader.tryFormatTip (Async.RunSynchronously tip)
+                let tip = checkResults.GetIdentTooltip(line + 1, tokenInfo.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ])
+                Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip
             | _ -> None
           else None
 
@@ -157,34 +187,78 @@ type CodeFormatAgent() =
               // way to detect this, but Visual Studio also colors these later)
               yield Token(TokenKind.Keyword, body, tip)
           | _ -> 
-              // Lookup token kind & return information about token
-              yield Token(Helpers.getTokenKind tokenInfo.ColorClass, body, tip)
+              match strTokenStartCol, strRange with
+              | Some _, _ -> () 
+              | None, None -> 
+                 let kind = 
+                   spans
+                   |> List.tryFind (fun span -> span.WordSpan.StartCol = tokenInfo.LeftColumn)
+                   |> Option.bind (fun span -> categoryToTokenKind span.Category)
+                   |> Option.getOrElse (Helpers.getTokenKind tokenInfo.ColorClass)
+                 yield Token (kind, body, tip)
+              | None, Some (strRangeStart, strRangeEnd) -> 
+                  let printfOrEscapedSpans = 
+                      spans 
+                      |> List.filter (fun span -> 
+                          (span.Category = Category.Escaped || span.Category = Category.Printf) &&
+                          span.WordSpan.StartCol >= strRangeStart &&
+                          span.WordSpan.EndCol <= strRangeEnd)
+
+                  match printfOrEscapedSpans with
+                  | [] -> yield Token (TokenKind.String, lineStr.[strRangeStart..strRangeEnd], tip)
+                  | spans ->
+                      let data =
+                        spans
+                        |> List.fold (fun points (span: CategorizedColumnSpan<_>) ->
+                            points 
+                            |> Set.add span.WordSpan.StartCol
+                            |> Set.add (span.WordSpan.EndCol - 1)) Set.empty
+                        |> Set.add (strRangeStart - 1)
+                        |> Set.add (strRangeEnd + 1)
+                        |> Set.toSeq
+                        |> Seq.pairwise
+                        |> Seq.map (fun (leftPoint, rightPoint) ->
+                            printfOrEscapedSpans 
+                            |> List.tryFind (fun span -> span.WordSpan.StartCol = leftPoint) 
+                            |> Option.bind (fun span ->
+                                 categoryToTokenKind span.Category
+                                 |> Option.map (fun kind -> span.WordSpan.StartCol, span.WordSpan.EndCol, kind))
+                            |> Option.getOrElse (leftPoint+1, rightPoint, TokenKind.String))
+                      for leftPoint, rightPoint, kind in data do
+                        yield Token (kind, lineStr.[leftPoint..rightPoint-1], tip)
 
         // Process the rest of the line
-        yield! loop island rest }
+        yield! loop island rest strTokenStartCol }
 
     // Process the current line & return info about it
-    Line (loop [] (List.ofSeq lineTokens) |> List.ofSeq)
-
+    Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
 
   /// Process snippet
-  let processSnippet checkInfo lines (source:Snippet) =
-    source |> List.map (processSnippetLine checkInfo lines)
+  let processSnippet checkResults categorizedSpans lines (snippet: Snippet) =
+    snippet 
+    |> List.map (fun snippetLine ->
+        processSnippetLine 
+            checkResults 
+            (categorizedSpans 
+             |> Map.tryFind ((fst snippetLine) + 1) 
+             |> function None -> [] | Some spans -> List.ofSeq spans) 
+            lines 
+            snippetLine)
 
 // --------------------------------------------------------------------------------------
 
   // Create an instance of an InteractiveChecker (which does background analysis
   // in a typical IntelliSense editor integration for F#)
-  let checker = FSharpChecker.Create()
+  let languageService = LanguageService() 
 
   /// Type-checking takes some time and doesn't return information on the
   /// first call, so this function creates workflow that tries repeatedly
-  let getTypeCheckInfo(untypedInfo, file, source, opts) = 
-      match checker.CheckFileInProject(untypedInfo, file, 0, source, opts) |> Async.RunSynchronously with 
-      | FSharpCheckFileAnswer.Succeeded(res) -> res
-      | FSharpCheckFileAnswer.Aborted -> failwith "unexpected abort"
-
-
+  let getTypeCheckInfo(file, source, opts) = async {
+      let! checkResults = languageService.ParseAndCheckFileInProject(opts, file, source, AllowStaleResults.No)
+      let! symbolUses = languageService.GetAllUsesOfAllSymbolsInFile (opts, file, source, AllowStaleResults.No, false, new Profiler())
+      return checkResults, symbolUses
+  }
+   
   // ------------------------------------------------------------------------------------
 
   let processSourceCode (file, source, options, defines) = async {
@@ -198,7 +272,7 @@ type CodeFormatAgent() =
 
     // Get options for a standalone script file (this adds some 
     // default references and doesn't require full project information)
-    let! opts = checker.GetProjectOptionsFromScript(file, source, DateTime.Now) 
+    let! opts = languageService.Checker.GetProjectOptionsFromScript(file, source, DateTime.Now) 
     
     // Override default options if the user specified something
     let opts = 
@@ -207,11 +281,24 @@ type CodeFormatAgent() =
           { opts with OtherOptions = Helpers.parseOptions str }
       | _ -> opts
 
-    // Run the first phase - parse source into AST without type information 
-    let untypedInfo = checker.ParseFileInProject(file, source, opts)  |> Async.RunSynchronously
     // Run the second phase - perform type checking
-    let checkInfo = getTypeCheckInfo(untypedInfo, file, source, opts)
-    let errors = checkInfo.Errors
+    let checkResults, symbolUses = getTypeCheckInfo(file, source, opts) |> Async.RunSynchronously
+    let errors = checkResults.GetErrors()
+
+    let lexer = 
+        { new LexerBase() with
+            member __.GetSymbolFromTokensAtLocation (_, line, col) =
+                let lineStr = sourceLines.[line]
+                Lexer.getSymbol source line col lineStr SymbolLookupKind.ByRightColumn opts.OtherOptions Lexer.queryLexState
+            member __.TokenizeLine line =
+                let lineStr = sourceLines.[line]
+                Lexer.tokenizeLine source opts.OtherOptions line lineStr Lexer.queryLexState } 
+
+    let categorizedSpans = 
+        SourceCodeClassifier.getCategoriesAndLocations(
+            symbolUses, checkResults, lexer, (fun line -> sourceLines.[line]), [], None)
+        |> Seq.groupBy (fun span -> span.WordSpan.Line)
+        |> Map.ofSeq
 
     /// Parse source file into a list of lines consisting of tokens 
     let tokens = Helpers.getTokens file defines sourceLines
@@ -238,7 +325,7 @@ type CodeFormatAgent() =
           Snippet(title, [])
         else
           // Process the current snippet
-          let parsed = processSnippet checkInfo sourceLines lines
+          let parsed = processSnippet checkResults categorizedSpans sourceLines lines
 
           // Remove additional whitespace from start of lines
           let spaces = Helpers.countStartingSpaces lines
@@ -252,13 +339,16 @@ type CodeFormatAgent() =
           Snippet(title, parsed))
   
     let sourceErrors = 
-      [| for errInfo in errors do
-          if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
-           yield 
-             SourceError
-               ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
-                 (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
-                 errInfo.Message ) |]
+      match errors with
+      | Some errors ->
+          [| for errInfo in errors do
+              if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+               yield 
+                 SourceError
+                   ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
+                     (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
+                     errInfo.Message ) |]
+      | None -> [||]
     return parsedSnippets, sourceErrors 
   }
  
