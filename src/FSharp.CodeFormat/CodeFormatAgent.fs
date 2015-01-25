@@ -112,14 +112,43 @@ type CodeFormatAgent() =
       sprintf "( %s )" <| body.Trim('`')
     else body
 
+  let categoryToTokenKind = function
+      | Category.ReferenceType 
+      | Category.ValueType
+      | Category.Module -> Some TokenKind.TypeOrModule
+      | Category.Function -> Some TokenKind.Function
+      | Category.PatternCase -> Some TokenKind.Pattern
+      | Category.MutableVar -> Some TokenKind.MutableVar
+      | Category.Printf -> Some TokenKind.Printf
+      | Category.Escaped -> Some TokenKind.Escaped 
+      | _ -> None
+
   // Processes a single line of the snippet
-  let processSnippetLine (checkResults: ParseAndCheckResults) (spans: CategorizedColumnSpan<_>[]) (lines:string[]) (line, lineTokens) =
+  let processSnippetLine (checkResults: ParseAndCheckResults) (spans: CategorizedColumnSpan<_> list) 
+                         (lines: string[]) (line: int, lineTokens: SnippetLine) =
+    let lineStr = lines.[line]
+
     // Recursive processing of tokens on the line 
     // (keeps a long identifier 'island')
-    let rec loop island (tokens:SnippetLine) = seq {
+    let rec loop island (tokens:SnippetLine) (strTokenStartCol: int option) = seq {
       match tokens with 
       | [] -> ()
       | (body, tokenInfo)::rest ->
+        let strTokenStartCol, strRange =
+            match rest with
+            | [] ->
+              match tokenInfo.ColorClass, strTokenStartCol with
+              | FSharpTokenColorKind.String, None -> None, Some (tokenInfo.LeftColumn, tokenInfo.RightColumn)
+              | FSharpTokenColorKind.String, Some x -> None, Some (x, tokenInfo.RightColumn)
+              | _, Some startCol -> None, Some (startCol, tokenInfo.LeftColumn) 
+              | _ -> None, None
+            | _ ->
+              match tokenInfo.ColorClass, strTokenStartCol with
+              | FSharpTokenColorKind.String, None -> Some tokenInfo.LeftColumn, None
+              | FSharpTokenColorKind.String, Some x -> Some x, None
+              | _, Some startCol -> None, Some (startCol, tokenInfo.LeftColumn) 
+              | _ -> None, None
+
         // Update the current identifier island 
         // (long identifier e.g. Collections.List.map)
         let island =
@@ -158,32 +187,63 @@ type CodeFormatAgent() =
               // way to detect this, but Visual Studio also colors these later)
               yield Token(TokenKind.Keyword, body, tip)
           | _ -> 
-              // Lookup token kind & return information about token
-              let kind = 
-                    spans 
-                    |> Array.tryFind (fun span -> 
-                        span.WordSpan.Line = line + 1 && span.WordSpan.StartCol = tokenInfo.LeftColumn)
-                    |> Option.bind (fun span ->
-                         match span.Category with
-                         | Category.ReferenceType 
-                         | Category.ValueType
-                         | Category.Module -> Some TokenKind.TypeOrModule
-                         | Category.Function -> Some TokenKind.Function
-                         | Category.PatternCase -> Some TokenKind.Pattern
-                         | Category.MutableVar -> Some TokenKind.MutableVar
-                         | _ -> None) 
-                    |> Option.getOrElse (Helpers.getTokenKind tokenInfo.ColorClass)
-              yield Token(kind, body, tip)
+              match strTokenStartCol, strRange with
+              | Some _, _ -> () 
+              | None, None -> 
+                 let kind = 
+                   spans
+                   |> List.tryFind (fun span -> span.WordSpan.StartCol = tokenInfo.LeftColumn)
+                   |> Option.bind (fun span -> categoryToTokenKind span.Category)
+                   |> Option.getOrElse (Helpers.getTokenKind tokenInfo.ColorClass)
+                 yield Token (kind, body, tip)
+              | None, Some (strRangeStart, strRangeEnd) -> 
+                  let printfOrEscapedSpans = 
+                      spans 
+                      |> List.filter (fun span -> 
+                          (span.Category = Category.Escaped || span.Category = Category.Printf) &&
+                          span.WordSpan.StartCol >= strRangeStart &&
+                          span.WordSpan.EndCol <= strRangeEnd)
+
+                  match printfOrEscapedSpans with
+                  | [] -> yield Token (TokenKind.String, lineStr.[strRangeStart..strRangeEnd], tip)
+                  | spans ->
+                      let data =
+                        spans
+                        |> List.fold (fun points (span: CategorizedColumnSpan<_>) ->
+                            points 
+                            |> Set.add span.WordSpan.StartCol
+                            |> Set.add (span.WordSpan.EndCol - 1)) Set.empty
+                        |> Set.add (strRangeStart - 1)
+                        |> Set.add (strRangeEnd + 1)
+                        |> Set.toSeq
+                        |> Seq.pairwise
+                        |> Seq.map (fun (leftPoint, rightPoint) ->
+                            printfOrEscapedSpans 
+                            |> List.tryFind (fun span -> span.WordSpan.StartCol = leftPoint) 
+                            |> Option.bind (fun span ->
+                                 categoryToTokenKind span.Category
+                                 |> Option.map (fun kind -> span.WordSpan.StartCol, span.WordSpan.EndCol, kind))
+                            |> Option.getOrElse (leftPoint+1, rightPoint, TokenKind.String))
+                      for leftPoint, rightPoint, kind in data do
+                        yield Token (kind, lineStr.[leftPoint..rightPoint-1], tip)
 
         // Process the rest of the line
-        yield! loop island rest }
+        yield! loop island rest strTokenStartCol }
 
     // Process the current line & return info about it
-    Line (loop [] (List.ofSeq lineTokens) |> List.ofSeq)
+    Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
 
   /// Process snippet
-  let processSnippet checkResults categorizedSpans lines (source:Snippet) =
-    source |> List.map (processSnippetLine checkResults categorizedSpans lines)
+  let processSnippet checkResults categorizedSpans lines (snippet: Snippet) =
+    snippet 
+    |> List.map (fun snippetLine ->
+        processSnippetLine 
+            checkResults 
+            (categorizedSpans 
+             |> Map.tryFind ((fst snippetLine) + 1) 
+             |> function None -> [] | Some spans -> List.ofSeq spans) 
+            lines 
+            snippetLine)
 
 // --------------------------------------------------------------------------------------
 
@@ -222,12 +282,12 @@ type CodeFormatAgent() =
       | _ -> opts
 
     // Run the second phase - perform type checking
-    let parseAndCheckResults, symbolUses = getTypeCheckInfo(file, source, opts) |> Async.RunSynchronously
-    let errors = parseAndCheckResults.GetErrors()
+    let checkResults, symbolUses = getTypeCheckInfo(file, source, opts) |> Async.RunSynchronously
+    let errors = checkResults.GetErrors()
 
     let lexer = 
         { new LexerBase() with
-            member __.GetSymbolFromTokensAtLocation (_tokens, line, col) =
+            member __.GetSymbolFromTokensAtLocation (_, line, col) =
                 let lineStr = sourceLines.[line]
                 Lexer.getSymbol source line col lineStr SymbolLookupKind.ByRightColumn opts.OtherOptions Lexer.queryLexState
             member __.TokenizeLine line =
@@ -236,7 +296,9 @@ type CodeFormatAgent() =
 
     let categorizedSpans = 
         SourceCodeClassifier.getCategoriesAndLocations(
-            symbolUses, parseAndCheckResults, lexer, (fun line -> sourceLines.[line]), [], None)
+            symbolUses, checkResults, lexer, (fun line -> sourceLines.[line]), [], None)
+        |> Seq.groupBy (fun span -> span.WordSpan.Line)
+        |> Map.ofSeq
 
     /// Parse source file into a list of lines consisting of tokens 
     let tokens = Helpers.getTokens file defines sourceLines
@@ -263,7 +325,7 @@ type CodeFormatAgent() =
           Snippet(title, [])
         else
           // Process the current snippet
-          let parsed = processSnippet parseAndCheckResults categorizedSpans sourceLines lines
+          let parsed = processSnippet checkResults categorizedSpans sourceLines lines
 
           // Remove additional whitespace from start of lines
           let spaces = Helpers.countStartingSpaces lines

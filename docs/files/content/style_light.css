@@ -26,6 +26,11 @@ span.f { color:#0000a0; }
 span.p { color:#800080; }
 /* mutable var or ref cell */
 span.v { color:#000000; font-weight: bold; }
+/* printf formatters */
+span.pf { color:#2b91af; }
+/* escaped chars */
+span.e { color:#ff0080; }
+/* mutable var or ref cell */
 
 
 /* inactive code */

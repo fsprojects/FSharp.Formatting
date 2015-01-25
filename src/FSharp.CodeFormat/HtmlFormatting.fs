@@ -135,6 +135,8 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         | TokenKind.Function -> "f"
         | TokenKind.Pattern -> "p"
         | TokenKind.MutableVar -> "v"
+        | TokenKind.Printf -> "pf"
+        | TokenKind.Escaped -> "e"
 
       if kind <> TokenKind.Default then
         // Colorize token & add tool tip

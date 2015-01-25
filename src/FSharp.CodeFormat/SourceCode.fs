@@ -29,6 +29,8 @@ type TokenKind =
   | Function
   | Pattern
   | MutableVar
+  | Printf
+  | Escaped
   | Default
 
 [<RequireQualifiedAccess>]
