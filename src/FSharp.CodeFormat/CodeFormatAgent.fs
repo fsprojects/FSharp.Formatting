@@ -6,13 +6,8 @@ namespace FSharp.CodeFormat
 
 open System
 open System.IO
-open System.Web
-open System.Text
-open System.Collections.Generic
-
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
-
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
@@ -85,7 +80,7 @@ module private Helpers =
   // Count the minimal number of spaces at the beginning of lines
   // (so that we can remove spaces for indented text)
   let countStartingSpaces (lines:Snippet) = 
-    [ for l, (toks:_ list) in lines do
+    [ for _, (toks:_ list) in lines do
         match toks with
         | ((text:string), info)::_ when info.TokenName = "WHITESPACE" ->
             yield text.Length - text.TrimStart([| ' ' |]).Length
@@ -98,14 +93,15 @@ module private Helpers =
 
 open FSharpVSPowerTools
 
+
+type Range = 
+  { LeftCol : int
+    RightCol : int }
+  static member Create leftCol rightCol = 
+    { LeftCol = leftCol; RightCol = rightCol }
+
 /// Uses agent to handle formatting requests
 type CodeFormatAgent() = 
-
-  // Get the number of "IDENT" token in the F# compiler
-  // (This is needed when calling compiler, and it varies depending
-  // on the version i.e. when new keywords are added). Use reflection hack!
-  let identToken = FsParser.tagOfToken(FsParser.token.IDENT("")) 
-  
   // Create keys for query tooltips for double-backtick identifiers
   let processDoubleBackticks (body : string) = 
     if body.StartsWith "``" then
@@ -113,46 +109,46 @@ type CodeFormatAgent() =
     else body
 
   let categoryToTokenKind = function
-      | Category.ReferenceType 
-      | Category.ValueType
-      | Category.Module -> Some TokenKind.TypeOrModule
-      | Category.Function -> Some TokenKind.Function
-      | Category.PatternCase -> Some TokenKind.Pattern
-      | Category.MutableVar -> Some TokenKind.MutableVar
-      | Category.Printf -> Some TokenKind.Printf
-      | Category.Escaped -> Some TokenKind.Escaped 
-      | _ -> None
+    | Category.ReferenceType 
+    | Category.ValueType
+    | Category.Module -> Some TokenKind.TypeOrModule
+    | Category.Function -> Some TokenKind.Function
+    | Category.PatternCase -> Some TokenKind.Pattern
+    | Category.MutableVar -> Some TokenKind.MutableVar
+    | Category.Printf -> Some TokenKind.Printf
+    | Category.Escaped -> Some TokenKind.Escaped 
+    | _ -> None
 
   // Processes a single line of the snippet
   let processSnippetLine (checkResults: ParseAndCheckResults) (spans: CategorizedColumnSpan<_> list) 
                          (lines: string[]) (line: int, lineTokens: SnippetLine) =
     let lineStr = lines.[line]
 
-    // Recursive processing of tokens on the line 
-    // (keeps a long identifier 'island')
-    let rec loop island (tokens:SnippetLine) (strTokenStartCol: int option) = seq {
+    // Recursive processing of tokens on the line (keeps a long identifier 'island')
+    let rec loop island (tokens: SnippetLine) (stringRange: Range option) = seq {
       match tokens with 
       | [] -> ()
-      | (body, tokenInfo)::rest ->
-        let strTokenStartCol, strRange =
+      | (body, token)::rest -> 
+        let stringRange, completedStringRange =
             match rest with
+            // it's the last token in the string
             | [] ->
-              match tokenInfo.ColorClass, strTokenStartCol with
-              | FSharpTokenColorKind.String, None -> None, Some (tokenInfo.LeftColumn, tokenInfo.RightColumn)
-              | FSharpTokenColorKind.String, Some x -> None, Some (x, tokenInfo.RightColumn)
-              | _, Some startCol -> None, Some (startCol, tokenInfo.LeftColumn) 
+              match token.ColorClass, stringRange with
+              | FSharpTokenColorKind.String, None -> 
+                  None, Some (Range.Create token.LeftColumn token.RightColumn)
+              | FSharpTokenColorKind.String, Some range -> None, Some { range with RightCol = token.RightColumn }
+              | _, Some range -> None, Some range
               | _ -> None, None
             | _ ->
-              match tokenInfo.ColorClass, strTokenStartCol with
-              | FSharpTokenColorKind.String, None -> Some tokenInfo.LeftColumn, None
-              | FSharpTokenColorKind.String, Some x -> Some x, None
-              | _, Some startCol -> None, Some (startCol, tokenInfo.LeftColumn) 
+              match token.ColorClass, stringRange with
+              | FSharpTokenColorKind.String, None -> Some (Range.Create token.LeftColumn token.RightColumn), None
+              | FSharpTokenColorKind.String, Some range -> Some { range with RightCol = token.RightColumn }, None
+              | _, Some range -> None, Some range
               | _ -> None, None
 
-        // Update the current identifier island 
-        // (long identifier e.g. Collections.List.map)
+        // Update the current identifier island (long identifier e.g. Collections.List.map)
         let island =
-          match tokenInfo.TokenName with
+          match token.TokenName with
           | "DOT" -> island         // keep what we have found so far
           | "IDENT" -> processDoubleBackticks body::island  // add current identifier
           | _ -> []                 // drop everything - not in island
@@ -160,23 +156,23 @@ type CodeFormatAgent() =
         // Find tootltip using F# compiler service & the identifier island
         let tip =
           // If we're processing an identfier, see if it has any tool tip
-          if (tokenInfo.TokenName = "IDENT") then
+          if (token.TokenName = "IDENT") then
             let island = List.rev island
-            let tip = checkResults.GetIdentTooltip(line + 1, tokenInfo.LeftColumn + 1, lines.[line], island)
+            let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 1, lines.[line], island)
             match Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip with 
             | Some(_) as res -> res
             | _ when island.Length > 1 ->
                 // Try to find some information about the last part of the identifier 
-                let tip = checkResults.GetIdentTooltip(line + 1, tokenInfo.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ])
+                let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ])
                 Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip
             | _ -> None
           else None
 
-        if tokenInfo.TokenName.StartsWith("OMIT") then 
+        if token.TokenName.StartsWith("OMIT") then 
           // Special OMIT tag - add tool tip stored in token name
           // (The text immediately follows the keyword "OMIT")
-          yield Omitted(body, tokenInfo.TokenName.Substring(4))       
-        elif tokenInfo.TokenName = "FSI" then
+          yield Omitted(body, token.TokenName.Substring(4))       
+        elif token.TokenName = "FSI" then
           // F# Interactive output - return as Output token
           yield Output(body)
         else
@@ -187,34 +183,34 @@ type CodeFormatAgent() =
               // way to detect this, but Visual Studio also colors these later)
               yield Token(TokenKind.Keyword, body, tip)
           | _ -> 
-              match strTokenStartCol, strRange with
+              match stringRange, completedStringRange with
               | Some _, _ -> () 
               | None, None -> 
                  let kind = 
                    spans
-                   |> List.tryFind (fun span -> span.WordSpan.StartCol = tokenInfo.LeftColumn)
+                   |> List.tryFind (fun span -> span.WordSpan.StartCol = token.LeftColumn)
                    |> Option.bind (fun span -> categoryToTokenKind span.Category)
-                   |> Option.getOrElse (Helpers.getTokenKind tokenInfo.ColorClass)
+                   |> Option.getOrElse (Helpers.getTokenKind token.ColorClass)
                  yield Token (kind, body, tip)
-              | None, Some (strRangeStart, strRangeEnd) -> 
+              | None, Some { LeftCol = strLeftCol; RightCol = strRightCol } -> 
                   let printfOrEscapedSpans = 
                       spans 
                       |> List.filter (fun span -> 
                           (span.Category = Category.Escaped || span.Category = Category.Printf) &&
-                          span.WordSpan.StartCol >= strRangeStart &&
-                          span.WordSpan.EndCol <= strRangeEnd)
+                          span.WordSpan.StartCol >= strLeftCol &&
+                          span.WordSpan.EndCol <= strRightCol)
 
                   match printfOrEscapedSpans with
-                  | [] -> yield Token (TokenKind.String, lineStr.[strRangeStart..strRangeEnd], tip)
+                  | [] -> yield Token (TokenKind.String, lineStr.[strLeftCol..strRightCol], tip)
                   | spans ->
                       let data =
                         spans
-                        |> List.fold (fun points (span: CategorizedColumnSpan<_>) ->
+                        |> List.fold (fun points span ->
                             points 
                             |> Set.add span.WordSpan.StartCol
                             |> Set.add (span.WordSpan.EndCol - 1)) Set.empty
-                        |> Set.add (strRangeStart - 1)
-                        |> Set.add (strRangeEnd + 1)
+                        |> Set.add (strLeftCol - 1)
+                        |> Set.add (strRightCol + 1)
                         |> Set.toSeq
                         |> Seq.pairwise
                         |> Seq.map (fun (leftPoint, rightPoint) ->
@@ -228,7 +224,7 @@ type CodeFormatAgent() =
                         yield Token (kind, lineStr.[leftPoint..rightPoint-1], tip)
 
         // Process the rest of the line
-        yield! loop island rest strTokenStartCol }
+        yield! loop island rest stringRange }
 
     // Process the current line & return info about it
     Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
@@ -369,7 +365,7 @@ type CodeFormatAgent() =
   /// Parse the source code specified by 'source', assuming that it
   /// is located in a specified 'file'. Optional arguments can be used
   /// to give compiler command line options and preprocessor definitions
-  member x.AsyncParseSource(file, source, ?options, ?defines) = async {
+  member __.AsyncParseSource(file, source, ?options, ?defines) = async {
     let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
     match res with
     | Choice1Of2 res -> return res
@@ -385,7 +381,7 @@ type CodeFormatAgent() =
   /// Parse the source code specified by 'source', assuming that it
   /// is located in a specified 'file'. Optional arguments can be used
   /// to give compiler command line options and preprocessor definitions
-  member x.ParseSource(file, source, ?options, ?defines) =
+  member __.ParseSource(file, source, ?options, ?defines) =
     let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
     match res with
     | Choice1Of2 res -> res
