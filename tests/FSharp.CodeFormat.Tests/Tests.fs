@@ -61,11 +61,18 @@ let ``Plane string is in span of 's' class when it's the last token in the line`
   getContent """let _ = "str" """ |> should contain "<span class=\"s\">&quot;str&quot;</span>"
 
 [<Test>]
-let ``Plane string is in span of 's' class when it's not the last token in the line``() = 
+let ``Plane string is in span of 's' class, there are several other tokens next to it``() = 
   let content = getContent """let _ = "str", 1 """
   content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
   content |> should not' (contain "<span class=\"s\">,</span>")
   content |> should contain (",")
+
+[<Test>]
+let ``Plane string is in span of 's' class, there is single char next to it``() = 
+  let content = getContent """let _ = ("str")"""
+  content |> should contain "> (<"
+  content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
+  content |> should contain ">)<"
 
 [<Test>]
 let ``Modules and types are in spans of 't' class``() = 
@@ -73,8 +80,8 @@ let ``Modules and types are in spans of 't' class``() =
 module Module =
   type Type() = class end
 """
-  content |> should contain "<span class=\"t\">Module</span>"
-  content |> should contain "<span class=\"t\">Type</span>"
+  content |> should contain "class=\"t\">Module</span>"
+  content |> should contain "class=\"t\">Type</span>"
 
 [<Test>]
 let ``Functions and methods are in spans of 'f' class``() = 

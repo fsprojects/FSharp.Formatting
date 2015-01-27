@@ -129,29 +129,29 @@ type CodeFormatAgent() =
       match tokens with 
       | [] -> ()
       | (body, token) :: rest -> 
-        let stringRange, completedStringRange =
+        let stringRange, completedStringRange, rest =
             match rest with
             // it's the last token in the string
             | [] ->
               match token.ColorClass, stringRange with
               | FSharpTokenColorKind.String, None -> 
-                  None, Some (Range.Create token.LeftColumn token.RightColumn)
-              | FSharpTokenColorKind.String, Some range -> None, Some { range with RightCol = token.RightColumn }
-              | _, Some range -> None, Some range
-              | _ -> None, None
+                  None, Some (Range.Create token.LeftColumn token.RightColumn), rest
+              | FSharpTokenColorKind.String, Some range -> None, Some { range with RightCol = token.RightColumn }, rest
+              | _, Some range -> None, Some range, tokens
+              | _ -> None, None, rest
             | _ ->
               match token.ColorClass, stringRange with
-              | FSharpTokenColorKind.String, None -> Some (Range.Create token.LeftColumn token.RightColumn), None
-              | FSharpTokenColorKind.String, Some range -> Some { range with RightCol = token.RightColumn }, None
-              | _, Some range -> None, Some range
-              | _ -> None, None
+              | FSharpTokenColorKind.String, None -> Some (Range.Create token.LeftColumn token.RightColumn), None, rest
+              | FSharpTokenColorKind.String, Some range -> Some { range with RightCol = token.RightColumn }, None, rest
+              | _, Some range -> None, Some range, tokens
+              | _ -> None, None, rest
 
-        match completedStringRange with
-        | None ->
+        match stringRange, completedStringRange with
+        | None, None ->
           // Update the current identifier island (long identifier e.g. Collections.List.map)
           let island =
             match token.TokenName with
-            | "DOT" -> island         // keep what we have found so far
+            | "DOT" -> island         // keep what we have found so far 
             | "IDENT" -> processDoubleBackticks body::island  // add current identifier
             | _ -> []                 // drop everything - not in island
   
@@ -185,20 +185,18 @@ type CodeFormatAgent() =
                 // way to detect this, but Visual Studio also colors these later)
                 yield Token(TokenKind.Keyword, body, tip)
             | _ -> 
-              match stringRange with
-              // we are not in string token concatenating process
-              | None ->  
-                let kind = 
-                  spans
-                  |> List.tryFind (fun span -> span.WordSpan.StartCol = token.LeftColumn)
-                  |> Option.bind (fun span -> categoryToTokenKind span.Category)
-                  |> Option.getOrElse (Helpers.getTokenKind token.ColorClass)
-                yield Token (kind, body, tip)
-              | Some _ -> ()
+              let kind = 
+                spans
+                |> List.tryFind (fun span -> span.WordSpan.StartCol = token.LeftColumn)
+                |> Option.bind (fun span -> categoryToTokenKind span.Category)
+                |> Option.getOrElse (Helpers.getTokenKind token.ColorClass)
+              yield Token (kind, body, tip)
           // Process the rest of the line
           yield! loop island rest stringRange
 
-        | Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
+        | Some _, None -> yield! loop island rest stringRange
+
+        | _, Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
           let printfOrEscapedSpans = 
               spans 
               |> List.filter (fun span -> 
@@ -230,7 +228,6 @@ type CodeFormatAgent() =
               for leftPoint, rightPoint, kind in data do
                 yield Token (kind, lineStr.[leftPoint..rightPoint-1], None)
           // Process the rest of the line
-          let rest = match rest with [] -> [] | _ -> tokens
           yield! loop island rest stringRange }
 
     // Process the current line & return info about it
