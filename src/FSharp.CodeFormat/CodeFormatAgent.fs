@@ -128,7 +128,7 @@ type CodeFormatAgent() =
     let rec loop island (tokens: SnippetLine) (stringRange: Range option) = seq {
       match tokens with 
       | [] -> ()
-      | (body, token)::rest -> 
+      | (body, token) :: rest -> 
         let stringRange, completedStringRange =
             match rest with
             // it's the last token in the string
@@ -146,85 +146,92 @@ type CodeFormatAgent() =
               | _, Some range -> None, Some range
               | _ -> None, None
 
-        // Update the current identifier island (long identifier e.g. Collections.List.map)
-        let island =
-          match token.TokenName with
-          | "DOT" -> island         // keep what we have found so far
-          | "IDENT" -> processDoubleBackticks body::island  // add current identifier
-          | _ -> []                 // drop everything - not in island
+        match completedStringRange with
+        | None ->
+          // Update the current identifier island (long identifier e.g. Collections.List.map)
+          let island =
+            match token.TokenName with
+            | "DOT" -> island         // keep what we have found so far
+            | "IDENT" -> processDoubleBackticks body::island  // add current identifier
+            | _ -> []                 // drop everything - not in island
+  
+          // Find tootltip using F# compiler service & the identifier island
+          let tip =
+            // If we're processing an identfier, see if it has any tool tip
+            if (token.TokenName = "IDENT") then
+              let island = List.rev island
+              let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 1, lines.[line], island)
+              match Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip with 
+              | Some(_) as res -> res
+              | _ when island.Length > 1 ->
+                  // Try to find some information about the last part of the identifier 
+                  let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ])
+                  Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip
+              | _ -> None
+            else None
+  
+          if token.TokenName.StartsWith("OMIT") then 
+            // Special OMIT tag - add tool tip stored in token name
+            // (The text immediately follows the keyword "OMIT")
+            yield Omitted(body, token.TokenName.Substring(4))       
+          elif token.TokenName = "FSI" then
+            // F# Interactive output - return as Output token
+            yield Output(body)
+          else
+            match tip with
+            | Some (Literal msg::_) when msg.StartsWith("custom operation:") ->
+                // If the tool-tip says this is a custom operation, then 
+                // we want to treat it as keyword (not sure if there is a better
+                // way to detect this, but Visual Studio also colors these later)
+                yield Token(TokenKind.Keyword, body, tip)
+            | _ -> 
+              match stringRange with
+              // we are not in string token concatenating process
+              | None ->  
+                let kind = 
+                  spans
+                  |> List.tryFind (fun span -> span.WordSpan.StartCol = token.LeftColumn)
+                  |> Option.bind (fun span -> categoryToTokenKind span.Category)
+                  |> Option.getOrElse (Helpers.getTokenKind token.ColorClass)
+                yield Token (kind, body, tip)
+              | Some _ -> ()
+          // Process the rest of the line
+          yield! loop island rest stringRange
 
-        // Find tootltip using F# compiler service & the identifier island
-        let tip =
-          // If we're processing an identfier, see if it has any tool tip
-          if (token.TokenName = "IDENT") then
-            let island = List.rev island
-            let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 1, lines.[line], island)
-            match Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip with 
-            | Some(_) as res -> res
-            | _ when island.Length > 1 ->
-                // Try to find some information about the last part of the identifier 
-                let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ])
-                Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip
-            | _ -> None
-          else None
+        | Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
+          let printfOrEscapedSpans = 
+              spans 
+              |> List.filter (fun span -> 
+                  (span.Category = Category.Escaped || span.Category = Category.Printf) &&
+                  span.WordSpan.StartCol >= strLeftCol &&
+                  span.WordSpan.EndCol <= strRightCol)
 
-        if token.TokenName.StartsWith("OMIT") then 
-          // Special OMIT tag - add tool tip stored in token name
-          // (The text immediately follows the keyword "OMIT")
-          yield Omitted(body, token.TokenName.Substring(4))       
-        elif token.TokenName = "FSI" then
-          // F# Interactive output - return as Output token
-          yield Output(body)
-        else
-          match tip with
-          | Some (Literal msg::_) when msg.StartsWith("custom operation:") ->
-              // If the tool-tip says this is a custom operation, then 
-              // we want to treat it as keyword (not sure if there is a better
-              // way to detect this, but Visual Studio also colors these later)
-              yield Token(TokenKind.Keyword, body, tip)
-          | _ -> 
-              match stringRange, completedStringRange with
-              | Some _, _ -> () 
-              | None, None -> 
-                 let kind = 
-                   spans
-                   |> List.tryFind (fun span -> span.WordSpan.StartCol = token.LeftColumn)
-                   |> Option.bind (fun span -> categoryToTokenKind span.Category)
-                   |> Option.getOrElse (Helpers.getTokenKind token.ColorClass)
-                 yield Token (kind, body, tip)
-              | None, Some { LeftCol = strLeftCol; RightCol = strRightCol } -> 
-                  let printfOrEscapedSpans = 
-                      spans 
-                      |> List.filter (fun span -> 
-                          (span.Category = Category.Escaped || span.Category = Category.Printf) &&
-                          span.WordSpan.StartCol >= strLeftCol &&
-                          span.WordSpan.EndCol <= strRightCol)
-
-                  match printfOrEscapedSpans with
-                  | [] -> yield Token (TokenKind.String, lineStr.[strLeftCol..strRightCol], tip)
-                  | spans ->
-                      let data =
-                        spans
-                        |> List.fold (fun points span ->
-                            points 
-                            |> Set.add span.WordSpan.StartCol
-                            |> Set.add (span.WordSpan.EndCol - 1)) Set.empty
-                        |> Set.add (strLeftCol - 1)
-                        |> Set.add (strRightCol + 1)
-                        |> Set.toSeq
-                        |> Seq.pairwise
-                        |> Seq.map (fun (leftPoint, rightPoint) ->
-                            printfOrEscapedSpans 
-                            |> List.tryFind (fun span -> span.WordSpan.StartCol = leftPoint) 
-                            |> Option.bind (fun span ->
-                                 categoryToTokenKind span.Category
-                                 |> Option.map (fun kind -> span.WordSpan.StartCol, span.WordSpan.EndCol, kind))
-                            |> Option.getOrElse (leftPoint+1, rightPoint, TokenKind.String))
-                      for leftPoint, rightPoint, kind in data do
-                        yield Token (kind, lineStr.[leftPoint..rightPoint-1], tip)
-
-        // Process the rest of the line
-        yield! loop island rest stringRange }
+          match printfOrEscapedSpans with
+          | [] -> yield Token (TokenKind.String, lineStr.[strLeftCol..strRightCol], None)
+          | spans ->
+              let data =
+                spans
+                |> List.fold (fun points span ->
+                    points 
+                    |> Set.add span.WordSpan.StartCol
+                    |> Set.add (span.WordSpan.EndCol - 1)) Set.empty
+                |> Set.add (strLeftCol - 1)
+                |> Set.add (strRightCol + 1)
+                |> Set.toSeq
+                |> Seq.pairwise
+                |> Seq.map (fun (leftPoint, rightPoint) ->
+                    printfOrEscapedSpans 
+                    |> List.tryFind (fun span -> span.WordSpan.StartCol = leftPoint) 
+                    |> Option.bind (fun span ->
+                         categoryToTokenKind span.Category
+                         |> Option.map (fun kind -> span.WordSpan.StartCol, span.WordSpan.EndCol, kind))
+                    |> Option.getOrElse (leftPoint+1, rightPoint, TokenKind.String))
+              
+              for leftPoint, rightPoint, kind in data do
+                yield Token (kind, lineStr.[leftPoint..rightPoint-1], None)
+          // Process the rest of the line
+          let rest = match rest with [] -> [] | _ -> tokens
+          yield! loop island rest stringRange }
 
     // Process the current line & return info about it
     Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
