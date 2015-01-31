@@ -4,10 +4,10 @@ open System.Reflection
 [<assembly: AssemblyTitleAttribute("FSharp.Formatting")>]
 [<assembly: AssemblyProductAttribute("FSharp.Formatting")>]
 [<assembly: AssemblyDescriptionAttribute("A package of libraries for building great F# documentation, samples and blogs")>]
-[<assembly: AssemblyVersionAttribute("2.4.38")>]
-[<assembly: AssemblyFileVersionAttribute("2.4.38")>]
+[<assembly: AssemblyVersionAttribute("2.5.1")>]
+[<assembly: AssemblyFileVersionAttribute("2.5.1")>]
 [<assembly: AssemblyCopyrightAttribute("Apache 2.0 License")>]
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] Version = "2.4.38"
+    let [<Literal>] Version = "2.5.1"

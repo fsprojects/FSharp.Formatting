@@ -216,6 +216,42 @@ let ``MetadataFormat test that cref generation works``() =
   #endif
 
 [<Test>]
+let ``MetadataFormat test that csharp support works``() =
+  let libraries =
+    [ root @@ "files/csharpSupport/bin/Debug" @@ "csharpSupport.dll" ]
+  let output = getOutputDir()
+  printfn "Output: %s" output
+  MetadataFormat.Generate
+    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"],
+      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceFolder = __SOURCE_DIRECTORY__ @@ "../..",
+      markDownComments = false )
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // C# tests
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Sample_Class"
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Event"
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
+
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
+
+  #if INTERACTIVE
+  System.Diagnostics.Process.Start(output)
+  #endif
+
+[<Test>]
 let ``MetadataFormat process XML comments in two sample F# assemblies``() = 
   let libraries = 
     [ root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
