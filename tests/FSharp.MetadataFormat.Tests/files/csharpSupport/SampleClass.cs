@@ -25,7 +25,23 @@ namespace csharpSupport
         /// <summary>
         /// My_Static_Event
         /// </summary>
-        public static event EventHandler StaticEvent;  
+        public static event EventHandler StaticEvent;
+
+        /// <summary>
+        /// My_Private_Static_Method
+        /// </summary>
+        private static void StaticPrivateMethod() { }
+
+
+        /// <summary>
+        /// My_Private_Static_Property
+        /// </summary>
+        private static string StaticPrivateProperty { get; set; }
+
+        /// <summary>
+        /// My_Private_Static_Event
+        /// </summary>
+        private static event EventHandler StaticPrivateEvent;  
     }
 
     /// <summary>
@@ -49,6 +65,24 @@ namespace csharpSupport
         /// </summary>
         public static event EventHandler StaticEvent;
 
+
+        /// <summary>
+        /// My_Private_Static_Method
+        /// </summary>
+        private static void StaticPrivateMethod() { }
+
+
+        /// <summary>
+        /// My_Private_Static_Property
+        /// </summary>
+        private static string StaticPrivateProperty { get; set; }
+
+        /// <summary>
+        /// My_Private_Static_Event
+        /// </summary>
+        private static event EventHandler StaticPrivateEvent;
+
+
         /// <summary>
         /// My_Constructor
         /// </summary>
@@ -68,6 +102,29 @@ namespace csharpSupport
         /// <summary>
         /// My_Event
         /// </summary>
-        public event EventHandler Event;  
+        public event EventHandler Event;
+
+
+        /// <summary>
+        /// My_Private_Constructor
+        /// </summary>
+        private SampleClass(int dummy) { }
+
+
+        /// <summary>
+        /// My_Private_Method
+        /// </summary>
+        private void PrivateMethod() { }
+
+
+        /// <summary>
+        /// My_Private_Property
+        /// </summary>
+        private string PrivateProperty { get; set; }
+
+        /// <summary>
+        /// My_Private_Event
+        /// </summary>
+        private event EventHandler PrivateEvent;  
     }
 }
