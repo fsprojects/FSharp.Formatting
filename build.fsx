@@ -68,6 +68,8 @@ Target "Clean" (fun _ ->
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/obj"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/bin"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/obj"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/obj"]
 )
@@ -101,6 +103,12 @@ Target "BuildTests" (fun _ ->
 
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/files/crefLib/crefLib.sln"]
+      Excludes = [] }
+    |> MSBuildDebug "" "Rebuild"
+    |> ignore
+
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["tests/*/files/csharpSupport/csharpSupport.sln"]
       Excludes = [] }
     |> MSBuildDebug "" "Rebuild"
     |> ignore
