@@ -151,6 +151,10 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
 /// Generate HTML with the specified snippets
 let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
  [| for (Snippet(title, lines)) in snippets do
+      // Skip empty lines at the beginning and at the end
+      let skipEmptyLines = Seq.skipWhile (fun (Line(spans)) -> List.isEmpty spans) >> List.ofSeq
+      let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
+
       // Generate snippet to a local StringBuilder
       let mainStr = StringBuilder()
       let ctx = { ctx with Writer = new StringWriter(mainStr) }
@@ -183,10 +187,9 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
 
       // Print all lines of the snippet inside <pre>..</pre>
       emitTag ctx.OpenTag
-      lines |> List.iteri (fun index (Line spans) ->
-        let isLast = index = linesLength - 1
+      lines |> List.iter (fun (Line spans) ->
         formatTokenSpans ctx spans
-        if not isLast then ctx.Writer.WriteLine() )
+        ctx.Writer.WriteLine() )
       emitTag ctx.CloseTag
 
       if ctx.AddLines then

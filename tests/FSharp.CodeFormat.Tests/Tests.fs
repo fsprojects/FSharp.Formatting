@@ -64,29 +64,29 @@ let ``Non-unicode characters do not cause exception`` () =
   let source = """
 // [snippet:16]
 ✘ let add I J = I+J
-// [/snippet]
+// [/snippet]"""
   let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
   errors.Length |> shouldEqual 1
   let (SourceError(_, _, _, msg)) = errors.[0] 
   msg |> should contain "✘"
 
 [<Test>]
-let ``Plane string is in span of 's' class when it's the last token in the line``() = 
+let ``Plain string is in span of 's' class when it's the last token in the line``() = 
   getContent """let _ = "str" """ |> should contain "<span class=\"s\">&quot;str&quot;</span>"
 
 [<Test>]
-let ``Plane string is in span of 's' class, there are several other tokens next to it``() = 
+let ``Plain string is in span of 's' class, there are several other tokens next to it``() = 
   let content = getContent """let _ = "str", 1 """
   content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
   content |> should not' (contain "<span class=\"s\">,</span>")
   content |> should contain (",")
 
 [<Test>]
-let ``Plane string is in span of 's' class, there is single char next to it``() = 
+let ``Plain string is in span of 's' class, there is single char next to it``() = 
   let content = getContent """let _ = ("str")"""
   content |> should contain "> (<"
   content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
-  content |> should contain ">)<"
+  content |> should contain ">)"
 
 [<Test>]
 let ``Modules and types are in spans of 't' class``() = 

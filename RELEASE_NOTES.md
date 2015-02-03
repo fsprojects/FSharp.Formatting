@@ -79,3 +79,4 @@
 * 2.6.1 - Support for Github flavoured markdown code blocks
 * 2.6.2 - Update to a new version of RazorEngine.
 * 2.6.3 - Better handling of F# snippets with invalid Unicode characters
+* 2.7.0 - Update to .NET 4.5 and use VS Power Tools for highlighting; Support categories on namespaces

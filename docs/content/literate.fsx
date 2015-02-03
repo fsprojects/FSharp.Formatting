@@ -71,6 +71,7 @@ contain F# code snippets (but also other code snippets). As usual, snippets are
 indented with four spaces. In addition, the snippets can be annotated with special
 commands. Some of them are demonstrated in the following example: 
 
+    [lang=text]
     # First-level heading
 
         [hide]
