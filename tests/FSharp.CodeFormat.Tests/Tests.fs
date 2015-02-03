@@ -66,7 +66,7 @@ let ``Non-unicode characters do not cause exception`` () =
 ✘ let add I J = I+J
 // [/snippet]"""
   let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
-  errors.Length |> shouldEqual 1
+  errors.Length |> should (be greaterThan) 0
   let (SourceError(_, _, _, msg)) = errors.[0] 
   msg |> should contain "✘"
 
