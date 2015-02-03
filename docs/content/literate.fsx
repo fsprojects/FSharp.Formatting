@@ -259,8 +259,11 @@ version of the F# compiler:
    `<pre>` tag containing the original source code of the F# Script or Markdown document.
  - `errorHandler` - a function that is used to report errors from the F# compiler 
    (if not specified, errors are printed to the standard output)
+ - `generateAnchors` - when `true`, the generated HTML will automatically include
+   anchors for all headings (and so you can click on headings to get a link
+   to a section). The default value is `false`.
  - `assemblyReferences` - The assemblies to use when compiling Razor templates.
-   Use this parameter if templates fail to compile with mcs on linux or
-   if you need additional references in your templates.
-   (if not specified, we use the currently loaded assemblies)
+   Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
+   if you need additional references in your templates
+   (if not specified, we use the currently loaded assemblies).
 *)

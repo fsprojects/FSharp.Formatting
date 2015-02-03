@@ -1,6 +1,6 @@
 ﻿#if INTERACTIVE
 #r "../../bin/FSharp.CodeFormat.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #else
 module FSharp.CodeFormat.Tests
@@ -55,3 +55,18 @@ let ``Simple code snippet is formatted as HTML``() =
   actual.Content |> should contain ">hello<"
   actual.Content |> should contain "<span class=\"n\">10</span>"
   res.ToolTip |> should contain "val hello : int"
+
+[<Test>]
+let ``Non-unicode characters do not cause exception`` () =
+  // TODO:  This does not return any snippet text because of F.C.S. error
+  // https://github.com/fsharp/FSharp.Compiler.Service/issues/291
+  // But at least, it should not cause a crash.
+  let source = """
+// [snippet:16]
+✘ let add I J = I+J
+// [/snippet]
+"""
+  let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  errors.Length |> shouldEqual 1
+  let (SourceError(_, _, _, msg)) = errors.[0] 
+  msg |> should contain "✘"

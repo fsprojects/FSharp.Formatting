@@ -90,7 +90,7 @@ module private Helpers =
         | ((text:string), info)::_ when info.TokenName = "WHITESPACE" ->
             yield text.Length - text.TrimStart([| ' ' |]).Length
         | [] -> ()
-        | _ -> yield 0 ] |> Seq.min
+        | _ -> yield 0 ] |> Seq.fold min 0
 
 // --------------------------------------------------------------------------------------
 // Main type that implements parsing and uses F# services

@@ -77,3 +77,5 @@
 * 2.5.1 - Fix handling of codeblocks inside and after lists
 * 2.6.0 - Bundle RazorEngine and System.Web.Razor to avoid dependency clashes
 * 2.6.1 - Support for Github flavoured markdown code blocks
+* 2.6.2 - Update to a new version of RazorEngine.
+* 2.6.3 - Better handling of F# snippets with invalid Unicode characters

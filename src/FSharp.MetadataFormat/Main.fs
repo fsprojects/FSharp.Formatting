@@ -63,6 +63,7 @@ type Member =
 
 type Type = 
   { Name : string 
+    Category :string
     UrlName : string
     Comment : Comment 
     Assembly : AssemblyName
@@ -75,8 +76,9 @@ type Type =
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
-  static member Create(name, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) = 
+  static member Create(name, cat, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) = 
     { Type.Name = name
+      Category = cat
       UrlName = url
       Comment = comment
       Assembly = assembly
@@ -90,6 +92,7 @@ type Type =
 
 type Module = 
   { Name : string 
+    Category : string
     UrlName : string
     Comment : Comment
     Assembly : AssemblyName
@@ -102,8 +105,8 @@ type Module =
     ValuesAndFuncs : Member list
     TypeExtensions : Member list
     ActivePatterns : Member list }
-  static member Create(name, url, comment, assembly, modules, types, vals, exts, pats) = 
-    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly
+  static member Create(name, cat, url, comment, assembly, modules, types, vals, exts, pats) = 
+    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly; Category = cat
       AllMembers = List.concat [ vals; exts; pats ] 
       NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
@@ -900,7 +903,7 @@ module Reader =
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
 
       Type.Create
-        ( name, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
+        ( name, cat, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -915,7 +918,7 @@ module Reader =
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
 
       Module.Create
-        ( modul.DisplayName, urlName, comment, ctx.Assembly,
+        ( modul.DisplayName, cat, urlName, comment, ctx.Assembly,
           modules, types,
           vals, exts, pats ))
 

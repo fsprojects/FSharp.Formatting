@@ -97,19 +97,19 @@ not so much of a problem given that given that FSharp.Formatting infers the sign
 All of the three methods discussed in the previous two sections take a number of optional
 parameters that can be used to tweak how the formatting works:
 
- - `markDownComments` - specifies if you want to use the markdown parser for in-code comments.
-   With markDownComments enabled there is no support for `<see cref="">` links, so `false` is recommended for C# assemblies.
-   (if not specified, `true` is used)
- - `typeTemplate` - the templates to be used for normal types (and C# types).
-   (if not specified, `"type.cshtml"` is used)
- - `moduleTemplate` - the templates to be used for modules.
-   (if not specified, `"module.cshtml"` is used)
- - `namespaceTemplate` - the templates to be used for namespaces.
-   (if not specified, `"namespaces.cshtml"` is used)
+ - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
+   With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
+   recommended for C# assemblies (if not specified, `true` is used).
+ - `typeTemplate` - the templates to be used for normal types (and C# types)
+   (if not specified, `"type.cshtml"` is used).
+ - `moduleTemplate` - the templates to be used for modules
+   (if not specified, `"module.cshtml"` is used).
+ - `namespaceTemplate` - the templates to be used for namespaces
+   (if not specified, `"namespaces.cshtml"` is used).
  - `assemblyReferences` - The assemblies to use when compiling Razor templates.
-   Use this parameter if templates fail to compile with mcs on linux or
-   if you need additional references in your templates.
-   (if not specified, we use the currently loaded assemblies)
+   Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
+   if you need additional references in your templates
+   (if not specified, we use the currently loaded assemblies).
 
 
 Work in progress!
