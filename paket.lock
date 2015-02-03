@@ -2,8 +2,8 @@ NUGET
   remote: http://nuget.org/api/v2
   specs:
     CommandLineParser (1.9.71)
-    FAKE (3.14.0)
-    FSharp.Compiler.Service (0.0.81)
+    FAKE (3.14.9)
+    FSharp.Compiler.Service (0.0.82)
     Microsoft.AspNet.Razor (2.0.30506.0)
     NuGet.CommandLine (2.8.3)
     NUnit (2.6.4)
