@@ -63,9 +63,10 @@ a couple of extensions:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="prep">#r</span> <span class="s">&quot;</span><span class="s">.</span><span class="s">.</span><span class="s">/</span><span class="s">.</span><span class="s">.</span><span class="s">/</span><span class="s">bin</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">MetadataFormat</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>
+<span class="prep">#r</span> <span class="s">&quot;../../bin/FSharp.MetadataFormat.dll&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">MetadataFormat</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">IO</span></pre>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">IO</span>
+</pre>
 </td>
 </tr>
 </table>
@@ -84,10 +85,11 @@ Assuming <code>root</code> is the root directory for your project, you can write
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">Generate</span>
-  ( <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 10)" onmouseover="showTip(event, 'fs1', 10)" class="i">root</span>, <span class="s">&quot;</span><span class="s">bin</span><span class="s">/</span><span class="s">YourLibrary</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>), 
-    <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 13)" onmouseover="showTip(event, 'fs1', 13)" class="i">root</span>, <span class="s">&quot;</span><span class="s">output</span><span class="s">&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs8', 14)" onmouseover="showTip(event, 'fs8', 14)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 15)" onmouseover="showTip(event, 'fs9', 15)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 16)" onmouseover="showTip(event, 'fs1', 16)" class="i">root</span>, <span class="s">&quot;</span><span class="s">templates</span><span class="s">&quot;</span>) ] )</pre>
+<span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="f">Generate</span>
+  ( <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 10)" onmouseover="showTip(event, 'fs1', 10)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
+    <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 13)" onmouseover="showTip(event, 'fs1', 13)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
+    [ <span onmouseout="hideTip(event, 'fs8', 14)" onmouseover="showTip(event, 'fs8', 14)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 15)" onmouseover="showTip(event, 'fs9', 15)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 16)" onmouseover="showTip(event, 'fs1', 16)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ] )
+</pre>
 </td>
 </tr>
 </table>
@@ -110,13 +112,14 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs6', 17)" onmouseover="showTip(event, 'fs6', 17)" class="i">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 18)" onmouseover="showTip(event, 'fs7', 18)" class="i">Generate</span>
-  ( <span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 20)" onmouseover="showTip(event, 'fs9', 20)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 21)" onmouseover="showTip(event, 'fs1', 21)" class="i">root</span>, <span class="s">&quot;</span><span class="s">bin</span><span class="s">/</span><span class="s">YourLibrary</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>), 
-    <span onmouseout="hideTip(event, 'fs8', 22)" onmouseover="showTip(event, 'fs8', 22)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 23)" onmouseover="showTip(event, 'fs9', 23)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 24)" onmouseover="showTip(event, 'fs1', 24)" class="i">root</span>, <span class="s">&quot;</span><span class="s">output</span><span class="s">&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs8', 25)" onmouseover="showTip(event, 'fs8', 25)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 26)" onmouseover="showTip(event, 'fs9', 26)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 27)" onmouseover="showTip(event, 'fs1', 27)" class="i">root</span>, <span class="s">&quot;</span><span class="s">templates</span><span class="s">&quot;</span>) ],
-    <span class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">https</span><span class="s">:</span><span class="s">/</span><span class="s">/</span><span class="s">github</span><span class="s">.</span><span class="s">com</span><span class="s">/</span><span class="s">tpetricek</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">/</span><span class="s">tree</span><span class="s">/</span><span class="s">master</span><span class="s">&quot;</span>,
-    <span class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">path</span><span class="s">/</span><span class="s">to</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">&quot;</span> )
-    </pre>
+<span onmouseout="hideTip(event, 'fs6', 17)" onmouseover="showTip(event, 'fs6', 17)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 18)" onmouseover="showTip(event, 'fs7', 18)" class="f">Generate</span>
+  ( <span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 20)" onmouseover="showTip(event, 'fs9', 20)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 21)" onmouseover="showTip(event, 'fs1', 21)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
+    <span onmouseout="hideTip(event, 'fs8', 22)" onmouseover="showTip(event, 'fs8', 22)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 23)" onmouseover="showTip(event, 'fs9', 23)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 24)" onmouseover="showTip(event, 'fs1', 24)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
+    [ <span onmouseout="hideTip(event, 'fs8', 25)" onmouseover="showTip(event, 'fs8', 25)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 26)" onmouseover="showTip(event, 'fs9', 26)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 27)" onmouseover="showTip(event, 'fs1', 27)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ],
+    <span class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/tpetricek/FSharp.Formatting/tree/master&quot;</span>,
+    <span class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span> )
+    
+</pre>
 </td>
 </tr>
 </table>
@@ -136,8 +139,9 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 <td class="snippet"><pre class="fssnip">
 <span class="c">/// [omit]</span>
 <span class="c">/// Some actual comment</span>
-<span class="k">module</span> <span class="i">Foo</span> <span class="o">=</span> 
-   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 28)" onmouseover="showTip(event, 'fs10', 28)" class="i">a</span> <span class="o">=</span> <span class="n">42</span></pre>
+<span class="k">module</span> <span class="t">Foo</span> <span class="o">=</span> 
+   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 28)" onmouseover="showTip(event, 'fs10', 28)" class="i">a</span> <span class="o">=</span> <span class="n">42</span>
+</pre>
 </td>
 </tr>
 </table>
@@ -157,12 +161,13 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs6', 29)" onmouseover="showTip(event, 'fs6', 29)" class="i">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 30)" onmouseover="showTip(event, 'fs7', 30)" class="i">Generate</span>
-  ( <span onmouseout="hideTip(event, 'fs8', 31)" onmouseover="showTip(event, 'fs8', 31)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 32)" onmouseover="showTip(event, 'fs9', 32)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 33)" onmouseover="showTip(event, 'fs1', 33)" class="i">root</span>, <span class="s">&quot;</span><span class="s">bin</span><span class="s">/</span><span class="s">YourLibrary</span><span class="s">.</span><span class="s">dll</span><span class="s">&quot;</span>), 
-    <span onmouseout="hideTip(event, 'fs8', 34)" onmouseover="showTip(event, 'fs8', 34)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 35)" onmouseover="showTip(event, 'fs9', 35)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 36)" onmouseover="showTip(event, 'fs1', 36)" class="i">root</span>, <span class="s">&quot;</span><span class="s">output</span><span class="s">&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs8', 37)" onmouseover="showTip(event, 'fs8', 37)" class="i">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 38)" onmouseover="showTip(event, 'fs9', 38)" class="i">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 39)" onmouseover="showTip(event, 'fs1', 39)" class="i">root</span>, <span class="s">&quot;</span><span class="s">templates</span><span class="s">&quot;</span>) ],
-    <span class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">https</span><span class="s">:</span><span class="s">/</span><span class="s">/</span><span class="s">github</span><span class="s">.</span><span class="s">com</span><span class="s">/</span><span class="s">tpetricek</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">/</span><span class="s">tree</span><span class="s">/</span><span class="s">master</span><span class="s">&quot;</span>,
-    <span class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">path</span><span class="s">/</span><span class="s">to</span><span class="s">/</span><span class="s">FSharp</span><span class="s">.</span><span class="s">Formatting</span><span class="s">&quot;</span>, <span class="i">markDownComments</span> <span class="o">=</span> <span class="k">false</span> )</pre>
+<span onmouseout="hideTip(event, 'fs6', 29)" onmouseover="showTip(event, 'fs6', 29)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 30)" onmouseover="showTip(event, 'fs7', 30)" class="f">Generate</span>
+  ( <span onmouseout="hideTip(event, 'fs8', 31)" onmouseover="showTip(event, 'fs8', 31)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 32)" onmouseover="showTip(event, 'fs9', 32)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 33)" onmouseover="showTip(event, 'fs1', 33)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
+    <span onmouseout="hideTip(event, 'fs8', 34)" onmouseover="showTip(event, 'fs8', 34)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 35)" onmouseover="showTip(event, 'fs9', 35)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 36)" onmouseover="showTip(event, 'fs1', 36)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
+    [ <span onmouseout="hideTip(event, 'fs8', 37)" onmouseover="showTip(event, 'fs8', 37)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 38)" onmouseover="showTip(event, 'fs9', 38)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs1', 39)" onmouseover="showTip(event, 'fs1', 39)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ],
+    <span class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/tpetricek/FSharp.Formatting/tree/master&quot;</span>,
+    <span class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span>, <span class="i">markDownComments</span> <span class="o">=</span> <span class="k">false</span> )
+</pre>
 </td>
 </tr>
 </table>
@@ -184,7 +189,8 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="c">/// &lt;para&gt;Another paragraph&lt;/para&gt;</span>
 <span class="c">/// &lt;/summary&gt;</span>
 <span class="k">module</span> <span onmouseout="hideTip(event, 'fs11', 40)" onmouseover="showTip(event, 'fs11', 40)" class="i">Foo</span> <span class="o">=</span> 
-   <span class="k">let</span> <span class="i">a</span> <span class="o">=</span> <span class="n">42</span></pre>
+   <span class="k">let</span> <span class="i">a</span> <span class="o">=</span> <span class="n">42</span>
+</pre>
 </td>
 </tr>
 </table>
