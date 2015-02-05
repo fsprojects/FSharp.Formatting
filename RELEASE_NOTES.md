@@ -83,3 +83,4 @@
 * 2.7.1 - Colorize operators in the default template
 * 2.7.2 - Improve colours and ILRepack VS Power Tools (fix #261)
 * 2.7.3 - Revert ILRepack - fails on Mono (cc #261)
+* 2.7.4 - Add simple load script for easy referencing from FSX files

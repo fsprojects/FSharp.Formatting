@@ -75,6 +75,24 @@ Target "Clean" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
+// Update the assembly version numbers in the script file.
+
+open System.IO
+
+Target "UpdateFsxVersions" (fun _ ->
+    let replacements = 
+      [ "packages/FSharp.Compiler.Service.(.*)/lib",
+        sprintf "packages/FSharp.Compiler.Service.%s/lib" (GetPackageVersion "packages" "FSharp.Compiler.Service");
+        "packages/FSharpVSPowerTools.Core.(.*)/lib",
+        sprintf "packages/FSharp.Compiler.Service.%s/lib" (GetPackageVersion "packages" "FSharpVSPowerTools.Core") ]
+    let path = "./src/FSharp.Formatting.fsx"
+    let text = File.ReadAllText(path)
+    let text = (text, replacements) ||> Seq.fold (fun text (pattern, replacement) ->
+        Text.RegularExpressions.Regex.Replace(text, pattern, replacement) )
+    File.WriteAllText(path, text)
+)
+
+// --------------------------------------------------------------------------------------
 // Build library 
 
 Target "Build" (fun _ ->
@@ -244,6 +262,7 @@ Target "All" DoNothing
 "Build" ==> "MergeVSPowerTools" ==> "All"
 "RunTests" ==> "All"
 "GenerateDocs" ==> "All"
+"UpdateFsxVersions" ==> "All"
 
 "All"
   ==> "NuGet" 
