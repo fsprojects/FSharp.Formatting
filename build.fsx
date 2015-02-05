@@ -85,29 +85,31 @@ Target "Build" (fun _ ->
     |> ignore
 )
 
-Target "MergeVSPowerTools" (fun _ -> 
+Target "MergeVSPowerTools" (fun _ ->
+    () (*
     let binDir = __SOURCE_DIRECTORY__ @@ "bin"
     CreateDir (binDir @@ "merged")
 
-    let toPack = 
+    let toPack =
         (binDir @@ "FSharp.CodeFormat.dll") + " " +
         (binDir @@ "FSharpVSPowerTools.Core.dll")
 
-    let result = 
-        ExecProcess (fun info -> 
-            info.FileName <- currentDirectory @@ "packages/ILRepack/tools/ILRepack.exe" 
-            info.Arguments <- 
-              sprintf 
-                "/internalize /verbose /lib:bin /ver:%s /out:%s %s" 
-                release.AssemblyVersion (binDir @@ "merged" @@ "FSharp.CodeFormat.dll") toPack 
-            ) (TimeSpan.FromMinutes 5.) 
+    let result =
+        ExecProcess (fun info ->
+            info.FileName <- currentDirectory @@ "packages/ILRepack/tools/ILRepack.exe"
+            info.Arguments <-
+              sprintf
+                "/internalize /verbose /lib:bin /ver:%s /out:%s %s"
+                release.AssemblyVersion (binDir @@ "merged" @@ "FSharp.CodeFormat.dll") toPack
+            ) (TimeSpan.FromMinutes 5.)
 
-    if result <> 0 then failwithf "Error during ILRepack execution." 
+    if result <> 0 then failwithf "Error during ILRepack execution."
 
-    !! (binDir @@ "merged" @@ "*.*") 
+    !! (binDir @@ "merged" @@ "*.*")
     |> CopyFiles binDir
     DeleteDir (binDir @@ "merged")
-) 
+    *)
+)
 // --------------------------------------------------------------------------------------
 // Build tests and generate tasks to run the tests in sequence
 

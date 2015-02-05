@@ -82,3 +82,4 @@
 * 2.7.0 - Update to .NET 4.5 and use VS Power Tools for highlighting; Support categories on namespaces; Fix newlines
 * 2.7.1 - Colorize operators in the default template
 * 2.7.2 - Improve colours and ILRepack VS Power Tools (fix #261)
+* 2.7.3 - Revert ILRepack - fails on Mono (cc #261)
