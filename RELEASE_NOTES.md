@@ -18,7 +18,7 @@
 * 2.2.4-beta - Experimental - get snippet from file, some evaluation stuff
 * 2.2.5-beta - Add formatting for non-fsharp code, remove indents when importing snippet
 * 2.2.6-beta - Add page-source parameter for Razor tempalting
-* 2.2.7-beta - Generate docs for some F# types, formatting improvements 
+* 2.2.7-beta - Generate docs for some F# types, formatting improvements
 * 2.2.8-beta - Add inline Latex support (thanks to Xiang Zhang!)
 * 2.2.9-beta - Update templates, support multiple DLLs in metadata format
 * 2.2.10-beta - Avoid locking assembly files in AssemblyResolve event
@@ -42,7 +42,7 @@
 * 2.4.4 - Live referesh in command line
 * 2.4.5 - Include tool tips when generating HTML using WriteHtml
 * 2.4.6 - Use --quiet (by default) to avoid calling default printer
-* 2.4.7 - Report errors from FsiEvaluator and stylesheet tweaks 
+* 2.4.7 - Report errors from FsiEvaluator and stylesheet tweaks
 * 2.4.8 - Support do-not-eval and expose StdErr from eval failed event
 * 2.4.9 - Improve LaTeX formatting and make evaluator customizable
 * 2.4.10 - Automatically wrap LaTeX code in math mode blocks
@@ -71,8 +71,8 @@
 * 2.4.32 - Fixed regressions introduced by latest FCS
 * 2.4.33 - Fix cache using incomplete key
 * 2.4.34 - Better C# support / Don't depend on broken FCS
-* 2.4.36 - Better mono support 
-* 2.4.37 - Fixed XML file resolution, support "cref", improve XML comment parsing, better logging and C# support 
+* 2.4.36 - Better mono support
+* 2.4.37 - Fixed XML file resolution, support "cref", improve XML comment parsing, better logging and C# support
 * 2.5.0 - Update to latest FSharp.Compiler.Service
 * 2.5.1 - Fix handling of codeblocks inside and after lists
 * 2.6.0 - Bundle RazorEngine and System.Web.Razor to avoid dependency clashes
@@ -81,3 +81,4 @@
 * 2.6.3 - Better handling of F# snippets with invalid Unicode characters
 * 2.7.0 - Update to .NET 4.5 and use VS Power Tools for highlighting; Support categories on namespaces; Fix newlines
 * 2.7.1 - Colorize operators in the default template
+* 2.7.2 - Improve colours and ILRepack VS Power Tools (fix #261)

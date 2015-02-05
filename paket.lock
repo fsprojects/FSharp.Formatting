@@ -6,10 +6,11 @@ NUGET
     FSharp.Compiler.Service (0.0.82)
     FSharpVSPowerTools.Core (1.7.0)
       FSharp.Compiler.Service (>= 0.0.81)
+    ILRepack (1.22.2)
     Microsoft.AspNet.Razor (3.2.2)
     NuGet.CommandLine (2.8.3)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-    RazorEngine (3.5.2)
+    RazorEngine (3.5.3)
       Microsoft.AspNet.Razor (>= 3.0.0) - >= net45
       Microsoft.AspNet.Razor (2.0.30506.0) - >= net40 < net45

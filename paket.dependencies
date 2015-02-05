@@ -9,3 +9,4 @@ nuget NUnit
 nuget NUnit.Runners
 nuget NuGet.CommandLine
 nuget FSharpVSPowerTools.Core
+nuget ILRepack 1.22.2

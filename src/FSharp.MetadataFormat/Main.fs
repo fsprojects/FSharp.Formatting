@@ -649,7 +649,7 @@ module Reader =
     
   let createUrlHolder ()= 
     let toReplace =
-        ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_")] @ 
+        ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @ 
             (Path.GetInvalidPathChars() 
             |> Seq.append (Path.GetInvalidFileNameChars()) 
             |> Seq.map (fun inv -> (inv.ToString(), "_")) |> Seq.toList))
