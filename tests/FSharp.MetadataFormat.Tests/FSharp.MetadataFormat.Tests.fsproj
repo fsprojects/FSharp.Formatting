@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.MetadataFormat.Tests</RootNamespace>
     <AssemblyName>FSharp.MetadataFormat.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>FSharp.MetadataFormat.Tests</Name>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
