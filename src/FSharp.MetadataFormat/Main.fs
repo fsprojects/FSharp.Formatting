@@ -1035,10 +1035,14 @@ type MetadataFormat =
         |> Seq.map Path.GetFullPath
         |> Seq.filter (fun file -> dllFiles |> List.exists (fun binary -> binary = file) |> not)
 
+      let blacklist =
+        [ "FSharp.Core.dll"; "mscorlib.dll" ]
+
       let dllReferences =
         libDirs
         |> Seq.collect findReferences
         |> Seq.append dllFiles
+        |> Seq.filter (fun file -> blacklist |> List.exists (fun black -> black = Path.GetFileName file) |> not)
 
       let options = 
         checker.GetProjectOptionsFromCommandLineArgs(projFileName,
