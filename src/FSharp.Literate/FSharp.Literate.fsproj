@@ -74,6 +74,7 @@
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\..\lib\FSharp.Core.dll</HintPath>
       <SpecificVersion>True</SpecificVersion>
+      <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />

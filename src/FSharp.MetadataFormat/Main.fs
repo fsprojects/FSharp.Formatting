@@ -993,6 +993,7 @@ type MetadataFormat =
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
     let libDirs = defaultArg libDirs []
+    let dllFiles = dllFiles |> List.map Path.GetFullPath
     let urlRangeHighlight =
       defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
     let sourceFolderRepo =
@@ -1029,6 +1030,20 @@ type MetadataFormat =
       let fileName1 = Path.ChangeExtension(base1, ".fs")
       let projFileName = Path.ChangeExtension(base1, ".fsproj")
       File.WriteAllText(fileName1, """module M""")
+      let findReferences libDir =
+        Directory.EnumerateFiles(libDir, "*.dll")
+        |> Seq.map Path.GetFullPath
+        |> Seq.filter (fun file -> dllFiles |> List.exists (fun binary -> binary = file) |> not)
+
+      let blacklist =
+        [ "FSharp.Core.dll"; "mscorlib.dll" ]
+
+      let dllReferences =
+        libDirs
+        |> Seq.collect findReferences
+        |> Seq.append dllFiles
+        |> Seq.filter (fun file -> blacklist |> List.exists (fun black -> black = Path.GetFileName file) |> not)
+
       let options = 
         checker.GetProjectOptionsFromCommandLineArgs(projFileName,
           [|yield "--debug:full" 
@@ -1040,10 +1055,9 @@ type MetadataFormat =
             yield "--fullpaths" 
             yield "--flaterrors" 
             yield "--target:library" 
-            for dllFile in dllFiles do
+            for dllFile in dllReferences do
               yield "-r:"+dllFile
-            for libDir in libDirs do
-              yield "-I:"+libDir
+            // Libdirs are handled above, see https://github.com/fsharp/FSharp.Compiler.Service/issues/313
             yield! otherFlags
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
