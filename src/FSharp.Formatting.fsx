@@ -3,13 +3,13 @@
 #I "."
 #I "lib/net40"
 
-// Standard NuGet locations 
-#I "../../packages/FSharp.Compiler.Service.0.0.82/lib/net40"
-#I "../../packages/FSharp.Compiler.Service.0.0.82/lib/net45"
+// Standard NuGet locations
+#I "../FSharp.Compiler.Service.0.0.82/lib/net45"
+#I "../FSharpVSPowerTools.Core.1.7.0/lib/net45"
 
-// Standard Paket locations 
-#I "../../packages/FSharp.Compiler.Service/lib/net40"
-#I "../../packages/FSharpVSPowerTools.Core/lib/net45"
+// Standard Paket locations
+#I "../FSharp.Compiler.Service/lib/net45"
+#I "../FSharpVSPowerTools.Core/lib/net45"
 
 // Try various folders that people might like
 #I "bin"

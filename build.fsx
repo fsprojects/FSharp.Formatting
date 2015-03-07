@@ -80,11 +80,11 @@ Target "Clean" (fun _ ->
 open System.IO
 
 Target "UpdateFsxVersions" (fun _ ->
+    let packages = [ "FSharp.Compiler.Service"; "FSharpVSPowerTools.Core" ]
     let replacements = 
-      [ "packages/FSharp.Compiler.Service.(.*)/lib",
-        sprintf "packages/FSharp.Compiler.Service.%s/lib" (GetPackageVersion "packages" "FSharp.Compiler.Service");
-        "packages/FSharpVSPowerTools.Core.(.*)/lib",
-        sprintf "packages/FSharp.Compiler.Service.%s/lib" (GetPackageVersion "packages" "FSharpVSPowerTools.Core") ]
+      packages |> Seq.map (fun packageName ->
+        sprintf "/%s.(.*)/lib" packageName,
+        sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName))
     let path = "./src/FSharp.Formatting.fsx"
     let text = File.ReadAllText(path)
     let text = (text, replacements) ||> Seq.fold (fun text (pattern, replacement) ->
