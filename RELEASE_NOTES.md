@@ -84,3 +84,4 @@
 * 2.7.2 - Improve colours and ILRepack VS Power Tools (fix #261)
 * 2.7.3 - Revert ILRepack - fails on Mono (cc #261)
 * 2.7.4 - Add simple load script for easy referencing from FSX files
+* 2.7.5 - Update to net45, fixes https://github.com/tpetricek/FSharp.Formatting/issues/266 on windows.
