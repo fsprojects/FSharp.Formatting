@@ -4,7 +4,7 @@
 #I "lib/net40"
 
 // Standard NuGet locations
-#I "../FSharp.Compiler.Service.0.0.82/lib/net45"
+#I "../FSharp.Compiler.Service.0.0.86/lib/net45"
 #I "../FSharpVSPowerTools.Core.1.7.0/lib/net45"
 
 // Standard Paket locations
