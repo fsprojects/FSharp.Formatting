@@ -1,0 +1,53 @@
+@using FSharp.MetadataFormat
+@{
+  Layout = "template";
+  Title = "Namespaces - " + Properties["project-name"];
+}
+
+<h1>@Model.Name</h1>
+
+@{ var nsIndex = 0; }
+@foreach (var ns in Model.Namespaces)
+{
+  nsIndex++;
+  var typedNs = (Namespace)ns;
+  var allCategories =
+    typedNs.Types.Select(t => t.Category)
+      .Concat(typedNs.Modules.Select(m => m.Category))
+      .Distinct()
+      .OrderBy(s => String.IsNullOrEmpty(s) ? "ZZZ" : s);
+  var allByCategory = 
+    allCategories
+      .Select((c, i) => new {
+        Name = String.IsNullOrEmpty(c) ? "Other namespace members" : c,
+        Index = String.Format("{0}_{1}", nsIndex, i),
+        Types = typedNs.Types.Where(t => t.Category == c).ToArray(),
+        Modules = typedNs.Modules.Where(m => m.Category == c).ToArray() })
+      .Where(c => c.Types.Length + c.Modules.Length > 0).ToArray();
+
+  <h2>@ns.Name Namespace</h2>
+  if (allByCategory.Length > 1)
+  {
+    <!-- If there is more than 1 category in the type, generate TOC -->
+    <ul>
+      @foreach (var g in allByCategory)
+      {
+        <li><a href="@("#section" + g.Index.ToString())">@g.Name</a></li>            
+      }
+    </ul>
+  }
+  foreach(var g in allByCategory) 
+  {
+    if (allByCategory.Length > 1)
+    {
+      <h3><a class="anchor" name="@("section" + g.Index)" href="#@("section" + g.Index)">@g.Name</a></h3>    
+    }
+    <div>
+    @RenderPart("part-nested", new
+    {
+      Types = g.Types,
+      Modules = g.Modules
+    })
+    </div>
+  }
+}
