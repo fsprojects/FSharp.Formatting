@@ -45,7 +45,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
     if templateName.EndsWith(".cshtml") then
         templateName.Substring(0, templateName.Length - 7)
     else templateName
-  let templateCache = new ConcurrentDictionary<string[] * string, ITemplateSource>()
+  let templateCache = new ConcurrentDictionary<string, ITemplateSource>()
   // Create resolver & set it to the global static field 
   let templateManager = 
     { new ITemplateManager with
@@ -53,16 +53,28 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
         member x.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
         member x.Resolve templateKey = 
             let name = templateKey.Name
-            let key = Array.ofSeq layoutRoots, name
-            templateCache.GetOrAdd (key, fun (layoutRoots, name) -> 
+            templateCache.GetOrAdd (name, fun name -> 
                 let file = RazorRender.Resolve(layoutRoots, name + ".cshtml")
                 new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource) }
 
   // Configure templating engine
   let config = new TemplateServiceConfiguration()
-  do config.EncodedStringFactory <- new RawStringFactory()
-  do config.TemplateManager <- templateManager
   do
+    config.EncodedStringFactory <- new RawStringFactory()
+    config.TemplateManager <- templateManager
+    // NOTE: this is good in the context of running F# Formatting via F# scripts,
+    // however when using F# Formatting as library this hides a memory leak.
+    // We cannot really know which case this is, so applications using this library
+    // should make sure they are not in the default AppDomain.
+    // And F# scripts on the other hand will not explode the temp directory.
+    config.DisableTempFileLocking  <- System.AppDomain.CurrentDomain.IsDefaultAppDomain()
+    config.Debug <- not config.DisableTempFileLocking
+    config.CachingProvider <-
+      new DefaultCachingProvider(
+        if config.DisableTempFileLocking then
+          new System.Action<string>(fun s -> ())
+        else null) :> ICachingProvider
+    
     match references with
     | Some r -> 
       config.ReferenceResolver <- 
@@ -71,9 +83,9 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
                 r |> List.toSeq |> Seq.map (CompilerReference.From) }
     | None -> ()
 
-  do namespaces |> Seq.iter (config.Namespaces.Add >> ignore)
-  do config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
-  do config.Debug <- true 
+    namespaces |> Seq.iter (config.Namespaces.Add >> ignore)
+    config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
+
   let razorEngine = RazorEngineService.Create(config)
 
   let handleCompile source f =
