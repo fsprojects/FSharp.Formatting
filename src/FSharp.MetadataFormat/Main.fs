@@ -1022,7 +1022,7 @@ type MetadataFormat =
       defaultArg asmOpt null
     ))
 
-    // Read and process assmeblies and the corresponding XML files
+    // Read and process assemblies and the corresponding XML files
     let assemblies = 
       let checker = Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker.Create()
       let base1 = Path.GetTempFileName()
