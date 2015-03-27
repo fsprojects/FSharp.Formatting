@@ -40,26 +40,87 @@ type GetMemberBinderImpl (name) =
     let notImpl () = raise <| new NotImplementedException()
     override x.FallbackGetMember(v, sug) = notImpl()
     
-type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System.Type, ?references : string list) =
-  let templateName =
-    if templateName.EndsWith(".cshtml") then
-        templateName.Substring(0, templateName.Length - 7)
-    else templateName
-  let templateCache = new ConcurrentDictionary<string, ITemplateSource>()
-  // Create resolver & set it to the global static field 
-  let templateManager = 
-    { new ITemplateManager with
-        member x.GetKey (name, resolveType, context) = new NameOnlyTemplateKey(name, resolveType, context) :> ITemplateKey
-        member x.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
-        member x.Resolve templateKey = 
-            let name = templateKey.Name
-            templateCache.GetOrAdd (name, fun name -> 
-                let file = RazorRender.Resolve(layoutRoots, name + ".cshtml")
-                new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource) }
+type StringDictionary(dict:IDictionary<string, string>) =
+  member x.Dictionary = dict
+  /// Report more useful errors when key not found (.NET dictionary does not do this...)
+  member x.Item
+    with get(k) =
+      if dict.ContainsKey(k) then dict.[k]
+      else raise (new KeyNotFoundException(sprintf "Key '%s' was not found." k))
 
-  // Configure templating engine
-  let config = new TemplateServiceConfiguration()
-  do
+type [<AbstractClass>] DocPageTemplateBase<'T>() =
+  inherit RazorEngine.Templating.TemplateBase<'T>()
+
+  member private x.tryGetViewBagValue<'C> key =
+    let vb = x.ViewBag :?> DynamicViewBag
+    let memBinder =
+        { new GetMemberBinder(key, false) with
+            member x.FallbackGetMember(y,z) = failwith "not implemented" }
+    let mutable output = ref (new Object ())
+    let result = vb.TryGetMember(memBinder, output)
+    if result && !output <> null then Some(!output :?> 'C) else None
+
+  member private x.trySetViewBagValue<'C> key (value:'C) =
+    let vb = x.ViewBag :?> DynamicViewBag
+    let memBinder =
+        { new DeleteMemberBinder(key, false) with
+            member x.FallbackDeleteMember(y,z) = failwith "not implemented" }
+    let names =
+        vb.GetDynamicMemberNames()
+        |> Seq.tryFind(fun x -> x = key)
+    match names with
+    | Some(v) ->
+        vb.TryDeleteMember(memBinder) |> ignore
+        vb.AddValue(key, value)
+    | _ -> vb.AddValue(key, value)
+
+  member x.Title
+    with get() = defaultArg (x.tryGetViewBagValue<string> "Title") ""
+    and set value = x.trySetViewBagValue<string> "Title" value
+
+  member x.Description
+    with get() = defaultArg (x.tryGetViewBagValue<string> "Description") ""
+    and set value = x.trySetViewBagValue<string> "Description" value
+
+  member x.Properties
+    with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
+    and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
+
+  member x.Root = x.Properties.["root"]
+
+  member x.RenderPart(name : string, model:obj) =
+    x.Include(name, model)
+
+/// A simple RazorEngine caching strategy, this implementation assumes that the current directory never changes.
+module RazorEngineCache =
+  /// Find file in one of the specified layout roots
+  let private tryResolve(layoutRoots, name) =
+    layoutRoots |> Seq.tryPick (fun layoutRoot ->
+      let partFile = Path.Combine(layoutRoot, name)
+      if File.Exists(partFile) then Some partFile else None)
+  let private resolve(layoutRoots, name) =
+    match tryResolve(layoutRoots, name) with
+    | Some f -> f
+    | None ->
+        failwithf "Could not find template file: %s\nSearching in: %A" name layoutRoots
+
+  /// Caching mechanism for IRazorEngineService instances.
+  let private razorCache = new ConcurrentDictionary<string list, IRazorEngineService * string list option * string list>()
+
+  let private createNew layoutRoots (references:string list option) namespaces =
+    let templateCache = new ConcurrentDictionary<string, ITemplateSource>()
+    // create manager
+    let templateManager =
+      { new ITemplateManager with
+          member x.GetKey (name, resolveType, context) = new NameOnlyTemplateKey(name, resolveType, context) :> ITemplateKey
+          member x.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
+          member x.Resolve templateKey =
+              let name = templateKey.Name
+              templateCache.GetOrAdd (name, fun name ->
+                  let file = resolve(layoutRoots, name + ".cshtml")
+                  new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource) }
+    // Configure templating engine
+    let config = new TemplateServiceConfiguration()
     config.EncodedStringFactory <- new RawStringFactory()
     config.TemplateManager <- templateManager
     // NOTE: this is good in the context of running F# Formatting via F# scripts,
@@ -86,8 +147,22 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
     namespaces |> Seq.iter (config.Namespaces.Add >> ignore)
     config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
 
-  let razorEngine = RazorEngineService.Create(config)
+    RazorEngineService.Create(config)
 
+  let Get layoutRoots namespaces references =
+    let engine, currentReferences, currentNamespaces =
+      razorCache.GetOrAdd(layoutRoots, fun roots -> createNew layoutRoots references namespaces, references, namespaces)
+    if (namespaces <> currentNamespaces) then failwith "cannot use different namespaces for the same layoutRoot"
+    if (references <> currentReferences) then failwith "cannot use different references for the same layoutRoot"
+    engine
+
+type RazorRender(layoutRoots, namespaces, templateName:string, ?references : string list) =
+  let templateName =
+    if templateName.EndsWith(".cshtml") then
+        templateName.Substring(0, templateName.Length - 7)
+    else templateName
+
+  let razorEngine = RazorEngineCache.Get layoutRoots namespaces references
   let handleCompile source f =
     try
       f ()
@@ -116,18 +191,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
     for k, v in defaultArg properties [] do
       viewBag.AddValue(k, v)
     viewBag
-  
-  /// Find file in one of the specified layout roots
-  static member TryResolve(layoutRoots, name) =
-    layoutRoots |> Seq.tryPick (fun layoutRoot ->
-      let partFile = Path.Combine(layoutRoot, name)
-      if File.Exists(partFile) then Some partFile else None)
-  static member Resolve(layoutRoots, name) =
-    match RazorRender.TryResolve(layoutRoots, name) with
-    | Some f -> f
-    | None -> 
-        failwithf "Could not find template file: %s\nSearching in: %A" name layoutRoots
-      
+
   member internal x.HandleCompile source f = handleCompile source f
   member internal x.TemplateName = templateName
   member internal x.WithProperties properties = withProperties properties x.ViewBag
@@ -137,64 +201,14 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?modeltype:System
 
   member x.ProcessFile(?properties) = x.ProcessFileModel(null, null, ?properties = properties)
   member x.ProcessFileDynamic(model:obj,?properties) = x.ProcessFileModel(null, model, ?properties = properties)
-      
+
   member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
     handleCompile templateName (fun _ ->
       razorEngine.RunCompile(templateName, modelType, model, x.WithProperties(properties)))
 
 and RazorRender<'model>(layoutRoots, namespaces, templateName, ?references) =
-    inherit RazorRender(layoutRoots, namespaces, templateName, modeltype = typeof<'model>, ?references = references)
+    inherit RazorRender(layoutRoots, namespaces, templateName, ?references = references)
 
     member x.ProcessFile(model:'model, ?properties) = 
       x.ProcessFileModel(typeof<'model>, model, ?properties = properties)
 
-and StringDictionary(dict:IDictionary<string, string>) =
-  member x.Dictionary = dict
-  /// Report more useful errors when key not found (.NET dictionary does not do this...)
-  member x.Item 
-    with get(k) = 
-      if dict.ContainsKey(k) then dict.[k] 
-      else raise (new KeyNotFoundException(sprintf "Key '%s' was not found." k))
-
-and [<AbstractClass>] DocPageTemplateBase<'T>() =
-  inherit RazorEngine.Templating.TemplateBase<'T>()
-
-  member private x.tryGetViewBagValue<'C> key =  
-    let vb = x.ViewBag :?> DynamicViewBag
-    let memBinder =
-        { new GetMemberBinder(key, false) with
-            member x.FallbackGetMember(y,z) = failwith "not implemented" }
-    let mutable output = ref (new Object ())
-    let result = vb.TryGetMember(memBinder, output)
-    if result && !output <> null then Some(!output :?> 'C) else None
-        
-  member private x.trySetViewBagValue<'C> key (value:'C) = 
-    let vb = x.ViewBag :?> DynamicViewBag
-    let memBinder =
-        { new DeleteMemberBinder(key, false) with
-            member x.FallbackDeleteMember(y,z) = failwith "not implemented" }
-    let names = 
-        vb.GetDynamicMemberNames()
-        |> Seq.tryFind(fun x -> x = key)
-    match names with
-    | Some(v) ->             
-        vb.TryDeleteMember(memBinder) |> ignore
-        vb.AddValue(key, value)
-    | _ -> vb.AddValue(key, value)
-
-  member x.Title
-    with get() = defaultArg (x.tryGetViewBagValue<string> "Title") ""
-    and set value = x.trySetViewBagValue<string> "Title" value
-
-  member x.Description
-    with get() = defaultArg (x.tryGetViewBagValue<string> "Description") ""
-    and set value = x.trySetViewBagValue<string> "Description" value
-
-  member x.Properties
-    with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
-    and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
-
-  member x.Root = x.Properties.["root"]
-
-  member x.RenderPart(name : string, model:obj) =
-    x.Include(name, model)
