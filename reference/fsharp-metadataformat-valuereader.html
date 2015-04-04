@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ValueReader - FSharp.Formatting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Formatting/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
+          <li><a href="http://fsprojects.github.io/VisualFSharpPowerTools"><img src="http://fsprojects.github.io/VisualFSharpPowerTools/img/logo.png" style="width:16px; height:16px;" /> F# PowerTools</a></li>
+          <li><a href="http://fsprojects.github.io/ProjectScaffold"><img src="https://fsprojects.github.io/ProjectScaffold/img/logo.png" style="width:16px; height:16px"> ProjectScaffold</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>ValueReader</h1>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-valuereader-crefreference.html">CrefReference</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-valuereader-iurlholder.html">IUrlHolder</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-valuereader-readingcontext.html">ReadingContext</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+            bracket str
+          </code>
+          <div class="tip" id="36">
+            <strong>Signature:</strong> str:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L218-218" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+            bracketIf cond str
+          </code>
+          <div class="tip" id="37">
+            <strong>Signature:</strong> cond:bool -&gt; str:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L221-221" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+            formatArgsUsage generateTypes v args
+          </code>
+          <div class="tip" id="38">
+            <strong>Signature:</strong> generateTypes:bool -&gt; v:FSharpMemberOrFunctionOrValue -&gt; args:&#39;?33879 list list -&gt; string<br />
+                          <strong>Type parameters:</strong> '?33879          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L297-297" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+            formatArgUsage generateTypes i arg
+          </code>
+          <div class="tip" id="39">
+            <strong>Signature:</strong> generateTypes:bool -&gt; i:int -&gt; arg:FSharpParameter -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L282-282" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+            formatSourceLocation (...)
+          </code>
+          <div class="tip" id="40">
+            <strong>Signature:</strong> urlRangeHighlight:(Uri -&gt; int -&gt; int -&gt; string) -&gt; sourceFolderRepo:(string * string) option -&gt; location:range option -&gt; string option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L170-170" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+            formatTyconRef tcref
+          </code>
+          <div class="tip" id="41">
+            <strong>Signature:</strong> tcref:FSharpEntity -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L224-224" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+            formatType typ
+          </code>
+          <div class="tip" id="42">
+            <strong>Signature:</strong> typ:FSharpType -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L278-278" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+            formatTypeApplication (...)
+          </code>
+          <div class="tip" id="43">
+            <strong>Signature:</strong> typeName:string -&gt; prec:int -&gt; prefix:bool -&gt; args:&#39;?33872 list -&gt; string<br />
+                          <strong>Type parameters:</strong> '?33872          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L228-228" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+            formatTypeArgument typar
+          </code>
+          <div class="tip" id="44">
+            <strong>Signature:</strong> typar:FSharpGenericParameter -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L212-212" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+            formatTypeArguments typars
+          </code>
+          <div class="tip" id="45">
+            <strong>Signature:</strong> typars:seq&lt;FSharpGenericParameter&gt; -&gt; string list<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L215-215" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+            formatTypesWithPrec prec sep typs
+          </code>
+          <div class="tip" id="46">
+            <strong>Signature:</strong> prec:int -&gt; sep:string -&gt; typs:&#39;?33874 list -&gt; string<br />
+                          <strong>Type parameters:</strong> '?33874          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L240-240" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+            formatTypeWithPrec prec typ
+          </code>
+          <div class="tip" id="47">
+            <strong>Signature:</strong> prec:int -&gt; typ:FSharpType -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L243-243" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+            getFSharpStaticParamXmlSig (...)
+          </code>
+          <div class="tip" id="48">
+            <strong>Signature:</strong> typeProvider:FSharpEntity -&gt; parameterName:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L453-453" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+            hasAttrib attribs
+          </code>
+          <div class="tip" id="49">
+            <strong>Signature:</strong> attribs:IList&lt;FSharpAttribute&gt; -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L197-197" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+            isAttrib attrib
+          </code>
+          <div class="tip" id="50">
+            <strong>Signature:</strong> attrib:FSharpAttribute -&gt; bool<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L194-194" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+            readFSharpField ctx field
+          </code>
+          <div class="tip" id="51">
+            <strong>Signature:</strong> ctx:ReadingContext -&gt; field:FSharpField -&gt; MemberOrValue<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L442-442" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+            readFSharpStaticParam ctx staticParam
+          </code>
+          <div class="tip" id="52">
+            <strong>Signature:</strong> ctx:ReadingContext -&gt; staticParam:FSharpStaticParameter -&gt; MemberOrValue<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L456-456" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+            readMemberOrVal ctx v
+          </code>
+          <div class="tip" id="53">
+            <strong>Signature:</strong> ctx:ReadingContext -&gt; v:FSharpMemberOrFunctionOrValue -&gt; MemberOrValue<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L318-318" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+            readUnionCase ctx case
+          </code>
+          <div class="tip" id="54">
+            <strong>Signature:</strong> ctx:ReadingContext -&gt; case:FSharpUnionCase -&gt; MemberOrValue<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L421-421" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+            tryGetLocation symbol
+          </code>
+          <div class="tip" id="55">
+            <strong>Signature:</strong> symbol:FSharpSymbol -&gt; range option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L313-313" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
+            uncapitalize s
+          </code>
+          <div class="tip" id="56">
+            <strong>Signature:</strong> s:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L191-191" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Active patterns</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Active pattern</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
+            ( |AllAndLast|_| ) list
+          </code>
+          <div class="tip" id="57">
+            <strong>Signature:</strong> list:&#39;T list -&gt; (&#39;T list * &#39;T) option<br />
+                          <strong>Type parameters:</strong> 'T          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L187-187" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
+            ( |MeasureInv|_| ) typ
+          </code>
+          <div class="tip" id="58">
+            <strong>Signature:</strong> typ:FSharpType -&gt; FSharpType option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L204-204" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
+            ( |MeasureOne|_| ) typ
+          </code>
+          <div class="tip" id="59">
+            <strong>Signature:</strong> typ:FSharpType -&gt; unit option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L208-208" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            ( |MeasureProd|_| ) typ
+          </code>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> typ:FSharpType -&gt; (FSharpType * FSharpType) option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L200-200" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <a href="/FSharp.Formatting/index.html">
+            <img src="/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">FSharp.Formatting</li>
+            <li><a href="/FSharp.Formatting">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Using F# Formatting</li>
+            <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
+            <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+            <li><a href="/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+            <li><a href="/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+            <li><a href="/FSharp.Formatting/metadata.html">Library documentation</a></li>
+            <li><a href="/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+
+            <li class="nav-header">Examples</li>
+            <li><a href="/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+            <li><a href="/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+            <li><a href="/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-literate-literate.html">Literate type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-metadataformat-metadataformat.html">MetadataFormat type</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

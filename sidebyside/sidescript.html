@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Literate script
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A package for building great F# documentation, samples and blogs">
+    <meta name="author" content="Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Formatting/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
+          <li><a href="http://fsprojects.github.io/VisualFSharpPowerTools"><img src="http://fsprojects.github.io/VisualFSharpPowerTools/img/logo.png" style="width:16px; height:16px;" /> F# PowerTools</a></li>
+          <li><a href="http://fsprojects.github.io/ProjectScaffold"><img src="https://fsprojects.github.io/ProjectScaffold/img/logo.png" style="width:16px; height:16px"> ProjectScaffold</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Literate-script" class="anchor" href="#Literate-script">Literate script</a></h1>
+
+<p>This file demonstrates how to write literate F# script
+files (<code>*.fsx</code>) that can be transformed into nice HTML
+using the <code>literate.fsx</code> script from the <a href="http://tpetricek.github.com/FSharp.Formatting">F# Formatting
+package</a>.</p>
+
+<p>As you can see, a comment starting with double asterisk
+is treated as part of the document and is transformed 
+using Markdown, which means that you can use:</p>
+
+<ul>
+<li>Unordered or ordered lists</li>
+<li>Text formatting including <strong>bold</strong> and <em>emphasis</em></li>
+</ul>
+
+<p>And numerous other <a href="http://daringfireball.net/projects/markdown">Markdown</a> features.</p>
+
+<h2><a name="Writing-F-code" class="anchor" href="#Writing-F-code">Writing F# code</a></h2>
+
+<p>Code that is not inside comment will be formatted as
+a sample snippet (which also means that you can 
+run it in Visual Studio or MonoDevelop).</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">/// The Hello World of functional languages!</span>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="f">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span> 
+  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
+  <span class="k">else</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="f">factorial</span> (<span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="f">factorial</span> <span class="n">10</span>
+</pre>
+</td>
+</tr>
+</table>
+
+<h2><a name="Hiding-code" class="anchor" href="#Hiding-code">Hiding code</a></h2>
+
+<p>If you want to include some code in the source code, 
+but omit it from the output, you can use the <code>hide</code> 
+command.</p>
+
+<p>The value will be defined in the F# code and so you
+can use it from other (visible) code and get correct
+tool tips:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="i">hidden</span>
+</pre>
+</td>
+</tr>
+</table>
+
+<h2><a name="Moving-code-around" class="anchor" href="#Moving-code-around">Moving code around</a></h2>
+
+<p>Sometimes, it is useful to first explain some code that
+has to be located at the end of the snippet (perhaps 
+because it uses some definitions discussed in the middle).
+This can be done using <code>include</code> and <code>define</code> commands.</p>
+
+<p>The following snippet gets correct tool tips, even though
+it uses <code>laterFunction</code>:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">sample</span> <span class="o">=</span> 
+  <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="f">laterFunction</span>()
+  <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="f">printfn</span> <span class="s">&quot;Got: </span><span class="pf">%s</span><span class="s">&quot;</span>
+</pre>
+</td>
+</tr>
+</table>
+
+<p>Then we can explain how <code>laterFunction</code> is defined:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="f">laterFunction</span>() <span class="o">=</span> 
+  <span class="s">&quot;Not very difficult, is it?&quot;</span>
+</pre>
+</td>
+</tr>
+</table>
+
+<p>This example covers pretty much all features that are 
+currently implemented in <code>literate.fsx</code>, but feel free 
+to <a href="https://github.com/tpetricek/FSharp.Formatting">fork the project on GitHub</a> and add more 
+features or report bugs!</p>
+
+<div class="tip" id="fs1">val factorial : x:int -&gt; int<br /><br />Full name: Sidescript.factorial<br /><em><br /><br />&#160;The Hello World of functional languages!</em></div>
+<div class="tip" id="fs2">val x : int</div>
+<div class="tip" id="fs3">val f10 : int<br /><br />Full name: Sidescript.f10</div>
+<div class="tip" id="fs4">val hidden : int<br /><br />Full name: Sidescript.hidden<br /><em><br /><br />&#160;This is a hidden answer</em></div>
+<div class="tip" id="fs5">val answer : int<br /><br />Full name: Sidescript.answer</div>
+<div class="tip" id="fs6">val laterFunction : unit -&gt; string<br /><br />Full name: Sidescript.laterFunction</div>
+<div class="tip" id="fs7">val sample : unit<br /><br />Full name: Sidescript.sample</div>
+<div class="tip" id="fs8">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+
+        </div>
+        <div class="span3">
+          <a href="/FSharp.Formatting/index.html">
+            <img src="/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">FSharp.Formatting</li>
+            <li><a href="/FSharp.Formatting">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Using F# Formatting</li>
+            <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
+            <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+            <li><a href="/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+            <li><a href="/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+            <li><a href="/FSharp.Formatting/metadata.html">Library documentation</a></li>
+            <li><a href="/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+
+            <li class="nav-header">Examples</li>
+            <li><a href="/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+            <li><a href="/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+            <li><a href="/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-literate-literate.html">Literate type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-metadataformat-metadataformat.html">MetadataFormat type</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

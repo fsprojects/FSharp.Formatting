@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Literate - FSharp.Formatting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Tomas Petricek">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Formatting/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
+          <li><a href="http://fsprojects.github.io/VisualFSharpPowerTools"><img src="http://fsprojects.github.io/VisualFSharpPowerTools/img/logo.png" style="width:16px; height:16px;" /> F# PowerTools</a></li>
+          <li><a href="http://fsprojects.github.io/ProjectScaffold"><img src="https://fsprojects.github.io/ProjectScaffold/img/logo.png" style="width:16px; height:16px"> ProjectScaffold</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Literate</h1>
+<div class="xmldoc">
+<p>This type provides three simple methods for calling the literate programming tool.
+The <code>ProcessMarkdown</code> and <code>ProcessScriptFile</code> methods process a single Markdown document
+and F# script, respectively. The <code>ProcessDirectory</code> method handles an entire directory tree
+(ooking for <code>*.fsx</code> and <code>*.md</code> files).</p>
+</div>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
+            FormatLiterateNodes(...)
+          </code>
+          <div class="tip" id="140">
+            <strong>Signature:</strong> (doc:LiterateDocument * format:OutputKind option * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; LiterateDocument<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L128-128" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+            ParseMarkdownFile(...)
+          </code>
+          <div class="tip" id="141">
+            <strong>Signature:</strong> (path:string * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:&#39;?33018 option * references:bool option * fsiEvaluator:IFsiEvaluator option) -&gt; LiterateDocument<br />
+                          <strong>Type parameters:</strong> '?33018          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L78-78" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Parse Markdown document</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
+            ParseMarkdownString(...)
+          </code>
+          <div class="tip" id="142">
+            <strong>Signature:</strong> (content:string * path:string option * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:&#39;?33020 option * references:bool option * fsiEvaluator:IFsiEvaluator option) -&gt; LiterateDocument<br />
+                          <strong>Type parameters:</strong> '?33020          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L87-87" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Parse Markdown document</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
+            ParseScriptFile(...)
+          </code>
+          <div class="tip" id="143">
+            <strong>Signature:</strong> (path:string * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:&#39;?33014 option * references:bool option * fsiEvaluator:IFsiEvaluator option) -&gt; LiterateDocument<br />
+                          <strong>Type parameters:</strong> '?33014          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L60-60" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Parse F# Script file</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
+            ParseScriptString(...)
+          </code>
+          <div class="tip" id="144">
+            <strong>Signature:</strong> (content:string * path:string option * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:&#39;?33016 option * references:bool option * fsiEvaluator:IFsiEvaluator option) -&gt; LiterateDocument<br />
+                          <strong>Type parameters:</strong> '?33016          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L69-69" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Parse F# Script file</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
+            ProcessDirectory(...)
+          </code>
+          <div class="tip" id="145">
+            <strong>Signature:</strong> (inputDirectory:string * templateFile:string option * outputDirectory:string option * format:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * fsiEvaluator:IFsiEvaluator option * replacements:(string * string) list option * includeSource:bool option * layoutRoots:string list option * generateAnchors:bool option * assemblyReferences:string list option * processRecursive:bool option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L161-161" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Process directory containing a mix of Markdown documents and F# Script files</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+            ProcessMarkdown(...)
+          </code>
+          <div class="tip" id="146">
+            <strong>Signature:</strong> (input:string * templateFile:string option * output:string option * format:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * replacements:(string * string) list option * includeSource:bool option * layoutRoots:string list option * generateAnchors:bool option * assemblyReferences:string list option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L137-137" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Process Markdown document</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+            ProcessScriptFile(...)
+          </code>
+          <div class="tip" id="147">
+            <strong>Signature:</strong> (input:string * templateFile:string option * output:string option * format:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * fsiEvaluator:IFsiEvaluator option * replacements:(string * string) list option * includeSource:bool option * layoutRoots:string list option * generateAnchors:bool option * assemblyReferences:string list option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L149-149" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Process F# Script file</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
+            WriteHtml(...)
+          </code>
+          <div class="tip" id="148">
+            <strong>Signature:</strong> (doc:LiterateDocument * writer:TextWriter * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L108-108" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+            WriteHtml(...)
+          </code>
+          <div class="tip" id="149">
+            <strong>Signature:</strong> (doc:LiterateDocument * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L99-99" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
+            WriteLatex(...)
+          </code>
+          <div class="tip" id="150">
+            <strong>Signature:</strong> (doc:LiterateDocument * writer:TextWriter * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L119-119" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
+            WriteLatex(...)
+          </code>
+          <div class="tip" id="151">
+            <strong>Signature:</strong> (doc:LiterateDocument * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Main.fs#L114-114" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <a href="/FSharp.Formatting/index.html">
+            <img src="/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">FSharp.Formatting</li>
+            <li><a href="/FSharp.Formatting">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Using F# Formatting</li>
+            <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
+            <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+            <li><a href="/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+            <li><a href="/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+            <li><a href="/FSharp.Formatting/metadata.html">Library documentation</a></li>
+            <li><a href="/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+
+            <li class="nav-header">Examples</li>
+            <li><a href="/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+            <li><a href="/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+            <li><a href="/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-literate-literate.html">Literate type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-metadataformat-metadataformat.html">MetadataFormat type</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

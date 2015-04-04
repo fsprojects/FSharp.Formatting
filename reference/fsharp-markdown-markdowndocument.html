@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Markdown extensions
- side-by-side example</title>
+    <title>MarkdownDocument - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package for building great F# documentation, samples and blogs">
+    <meta name="description" content="">
     <meta name="author" content="Tomas Petricek">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
@@ -35,82 +34,87 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-
-          <h1 style="margin-bottom:35px">Markdown extensions
- side-by-side example</h1>
-          <div class="row">
-            <div class="span5" id="hp-snippet">
-              <table class="pre"><tr><td><pre><code>Markdown extensions
-===================
-
-To use LaTex extension, you need add javascript
-link to [MathJax](http://www.mathjax.org/) in
-your template.
-
-To use inline LaTex, eclose LaTex code with `$`:
-$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $. Alternatively,
-you can also use `$$`.
-
-To use block LaTex, start a new parapgraph, with
-the first line marked as `$$$` (no close `$$$`):
-
-$$$
-A_{m,n} =
- \begin{pmatrix}
-  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
-  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
-  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
- \end{pmatrix}
-
-Use LaTex escape rule:
-
-- Escape \$ in inline mode: $ \$ $, $ \$var $
-- Other escapes: $ \&amp; \% \$ \# \_ \{ \} $
-- Using &lt; or &gt;: $ x &gt; 1 $, $ y &lt; 1 $, $ x &gt;= 1 $,
-  $ y &lt;= 1 $, $ x = 1 $
-- $ &lt;p&gt;something&lt;/p&gt; $
-
-
-</code></pre></td></tr></table>
-
-            </div>
-            <div class="span4">
-              <h1><a name="Markdown-extensions" class="anchor" href="#Markdown-extensions">Markdown extensions</a></h1>
-
-<p>To use LaTex extension, you need add javascript
-link to <a href="http://www.mathjax.org/">MathJax</a> in
-your template.</p>
-
-<p>To use inline LaTex, eclose LaTex code with <code>$</code>:
-<span class="math">\(k_{n+1} = n^2 + k_n^2 - k_{n-1}\)</span>. Alternatively,
-you can also use <code>$$</code>.</p>
-
-<p>To use block LaTex, start a new parapgraph, with
-the first line marked as <code>$$$</code> (no close <code>$$$</code>):</p>
-
-<p><span class="math">\[A_{m,n} =
- \begin{pmatrix}
-  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
-  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
-  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
- \end{pmatrix}\]</span></p>
-
-<p>Use LaTex escape rule:</p>
-
-<ul>
-<li>Escape $ in inline mode: <span class="math">\(\$\)</span>, <span class="math">\(\$var\)</span></li>
-<li>Other escapes: <span class="math">\(\&amp; \% \$ \# \_ \{ \}\)</span></li>
-<li>Using < or >: <span class="math">\(x &gt; 1\)</span>, <span class="math">\(y &lt; 1\)</span>, <span class="math">\(x &gt;= 1\)</span>,
-<span class="math">\(y &lt;= 1\)</span>, <span class="math">\(x = 1\)</span></li>
-<li><span class="math">\(&lt;p&gt;something&lt;/p&gt;\)</span></li>
-</ul>
-
-            </div>
-          </div>
-
           
+
+
+
+<h1>MarkdownDocument</h1>
+<div class="xmldoc">
+<p>Representation of a Markdown document - the representation of Paragraphs
+uses an F# discriminated union type and so is best used from F#.</p>
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
+            new(paragraphs, links)
+          </code>
+          <div class="tip" id="209">
+            <strong>Signature:</strong> (paragraphs:MarkdownParagraphs * links:IDictionary&lt;string,(string * string option)&gt;) -&gt; MarkdownDocument<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L35-35" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
+            DefinedLinks
+          </code>
+          <div class="tip" id="210">
+            <strong>Signature:</strong> IDictionary&lt;string,(string * string option)&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L39-39" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns a dictionary containing explicitly defined links</p>
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
+            Paragraphs
+          </code>
+          <div class="tip" id="211">
+            <strong>Signature:</strong> MarkdownParagraphs<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L37-37" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Returns a list of paragraphs in the document</p>
+
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
         </div>
         <div class="span3">
@@ -126,7 +130,7 @@ the first line marked as <code>$$$</code> (no close <code>$$$</code>):</p>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-              
+
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
             <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>

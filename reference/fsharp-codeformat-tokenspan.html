@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Markdown extensions
- side-by-side example</title>
+    <title>TokenSpan - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package for building great F# documentation, samples and blogs">
+    <meta name="description" content="">
     <meta name="author" content="Tomas Petricek">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
@@ -35,82 +34,97 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-
-          <h1 style="margin-bottom:35px">Markdown extensions
- side-by-side example</h1>
-          <div class="row">
-            <div class="span5" id="hp-snippet">
-              <table class="pre"><tr><td><pre><code>Markdown extensions
-===================
-
-To use LaTex extension, you need add javascript
-link to [MathJax](http://www.mathjax.org/) in
-your template.
-
-To use inline LaTex, eclose LaTex code with `$`:
-$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $. Alternatively,
-you can also use `$$`.
-
-To use block LaTex, start a new parapgraph, with
-the first line marked as `$$$` (no close `$$$`):
-
-$$$
-A_{m,n} =
- \begin{pmatrix}
-  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
-  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
-  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
- \end{pmatrix}
-
-Use LaTex escape rule:
-
-- Escape \$ in inline mode: $ \$ $, $ \$var $
-- Other escapes: $ \&amp; \% \$ \# \_ \{ \} $
-- Using &lt; or &gt;: $ x &gt; 1 $, $ y &lt; 1 $, $ x &gt;= 1 $,
-  $ y &lt;= 1 $, $ x = 1 $
-- $ &lt;p&gt;something&lt;/p&gt; $
-
-
-</code></pre></td></tr></table>
-
-            </div>
-            <div class="span4">
-              <h1><a name="Markdown-extensions" class="anchor" href="#Markdown-extensions">Markdown extensions</a></h1>
-
-<p>To use LaTex extension, you need add javascript
-link to <a href="http://www.mathjax.org/">MathJax</a> in
-your template.</p>
-
-<p>To use inline LaTex, eclose LaTex code with <code>$</code>:
-<span class="math">\(k_{n+1} = n^2 + k_n^2 - k_{n-1}\)</span>. Alternatively,
-you can also use <code>$$</code>.</p>
-
-<p>To use block LaTex, start a new parapgraph, with
-the first line marked as <code>$$$</code> (no close <code>$$$</code>):</p>
-
-<p><span class="math">\[A_{m,n} =
- \begin{pmatrix}
-  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
-  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
-  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
- \end{pmatrix}\]</span></p>
-
-<p>Use LaTex escape rule:</p>
-
-<ul>
-<li>Escape $ in inline mode: <span class="math">\(\$\)</span>, <span class="math">\(\$var\)</span></li>
-<li>Other escapes: <span class="math">\(\&amp; \% \$ \# \_ \{ \}\)</span></li>
-<li>Using < or >: <span class="math">\(x &gt; 1\)</span>, <span class="math">\(y &lt; 1\)</span>, <span class="math">\(x &gt;= 1\)</span>,
-<span class="math">\(y &lt;= 1\)</span>, <span class="math">\(x = 1\)</span></li>
-<li><span class="math">\(&lt;p&gt;something&lt;/p&gt;\)</span></li>
-</ul>
-
-            </div>
-          </div>
-
           
+
+
+
+<h1>TokenSpan</h1>
+<div class="xmldoc">
+<p>A token in a parsed F# code snippet. Aside from standard tokens reported from
+the compiler (<code>Token</code>), this also includes <code>Error</code> (wrapping the underlined
+tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <code>Output</code> for the special
+<code>[output:...]</code> tag</p>
+</div>
+  <h3>Union Cases</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Union Case</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
+            Error(ErrorKind,string,TokenSpans)
+          </code>
+          <div class="tip" id="101">
+            <strong>Signature:</strong> ErrorKind * string * TokenSpans<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/SourceCode.fs#L53-53" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
+            Omitted(string,string)
+          </code>
+          <div class="tip" id="102">
+            <strong>Signature:</strong> string * string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/SourceCode.fs#L54-54" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
+            Output(string)
+          </code>
+          <div class="tip" id="103">
+            <strong>Signature:</strong> string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/SourceCode.fs#L55-55" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
+            Token(...)
+          </code>
+          <div class="tip" id="104">
+            <strong>Signature:</strong> TokenKind * string * ToolTipSpans option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/SourceCode.fs#L52-52" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
         </div>
         <div class="span3">
@@ -126,7 +140,7 @@ the first line marked as <code>$$$</code> (no close <code>$$$</code>):</p>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-              
+
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
             <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>

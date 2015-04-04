@@ -2,13 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <!-- 
-      The Literate sample
- parameters will be replaced with the 
-      document title extracted from the <h1> element or
-      file name, if there is no <h1> heading
-    -->
-    <title>F# Script file: Side-by-side example</title>
+    <title>Literate script
+ side-by-side example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A package for building great F# documentation, samples and blogs">
     <meta name="author" content="Tomas Petricek">
@@ -16,11 +11,11 @@
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
-    
-    <link type="text/css" rel="stylesheet" href="http://tpetricek.github.io/FSharp.Formatting/content/style.css" />
-    <script src="http://tpetricek.github.io/FSharp.Formatting/content/tips.js" type="text/javascript"></script>
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Formatting/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -31,15 +26,18 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="https://github.com/fsharp/fsharpbinding">f# binding</a></li>
-          <li><a href="http://github.com/tpetricek/FSharp.Formatting">github page</a></li>
+          <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
+          <li><a href="http://fsprojects.github.io/VisualFSharpPowerTools"><img src="http://fsprojects.github.io/VisualFSharpPowerTools/img/logo.png" style="width:16px; height:16px;" /> F# PowerTools</a></li>
+          <li><a href="http://fsprojects.github.io/ProjectScaffold"><img src="https://fsprojects.github.io/ProjectScaffold/img/logo.png" style="width:16px; height:16px"> ProjectScaffold</a></li>
         </ul>
-        <h3 class="muted">F# Formatting</h3>
+        <h3 class="muted"><a href="/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          <h1 style="margin-bottom:35px">F# Script file: Side-by-side example</h1>
+
+          <h1 style="margin-bottom:35px">Literate script
+ side-by-side example</h1>
           <div class="row">
             <div class="span5" id="hp-snippet">
               <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -138,7 +136,7 @@
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">(**</span>
-<span class="c">Literate sample</span>
+<span class="c">Literate script</span>
 <span class="c">===============</span>
 
 <span class="c">This file demonstrates how to write literate F# script</span>
@@ -235,7 +233,7 @@
 
             </div>
             <div class="span4">
-              <h1><a name="Literate-sample" class="anchor" href="#Literate-sample">Literate sample</a></h1>
+              <h1><a name="Literate-script" class="anchor" href="#Literate-script">Literate script</a></h1>
 
 <p>This file demonstrates how to write literate F# script
 files (<code>*.fsx</code>) that can be transformed into nice HTML
@@ -348,43 +346,55 @@ features or report bugs!</p>
 
             </div>
           </div>
-          <div class="tip" id="fs1">val factorial : x:int -&gt; int<br /><br />Full name: Script.factorial<br /><em><br /><br />&#160;The Hello World of functional languages!</em></div>
+
+          <div class="tip" id="fs1">val factorial : x:int -&gt; int<br /><br />Full name: Sidescript.factorial<br /><em><br /><br />&#160;The Hello World of functional languages!</em></div>
 <div class="tip" id="fs2">val x : int</div>
-<div class="tip" id="fs3">val f10 : int<br /><br />Full name: Script.f10</div>
-<div class="tip" id="fs4">val hidden : int<br /><br />Full name: Script.hidden<br /><em><br /><br />&#160;This is a hidden answer</em></div>
-<div class="tip" id="fs5">val answer : int<br /><br />Full name: Script.answer</div>
-<div class="tip" id="fs6">val laterFunction : unit -&gt; string<br /><br />Full name: Script.laterFunction</div>
-<div class="tip" id="fs7">val sample : unit<br /><br />Full name: Script.sample</div>
+<div class="tip" id="fs3">val f10 : int<br /><br />Full name: Sidescript.f10</div>
+<div class="tip" id="fs4">val hidden : int<br /><br />Full name: Sidescript.hidden<br /><em><br /><br />&#160;This is a hidden answer</em></div>
+<div class="tip" id="fs5">val answer : int<br /><br />Full name: Sidescript.answer</div>
+<div class="tip" id="fs6">val laterFunction : unit -&gt; string<br /><br />Full name: Sidescript.laterFunction</div>
+<div class="tip" id="fs7">val sample : unit<br /><br />Full name: Sidescript.sample</div>
 <div class="tip" id="fs8">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-          
+
+
         </div>
         <div class="span3">
-          <a href="https://nuget.org/packages/FSharp.Formatting">
-            <img src="http://tpetricek.github.io/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          <a href="/FSharp.Formatting/index.html">
+            <img src="/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
-            <li><a href="index.html">Home page</a></li>
-            
+            <li class="nav-header">FSharp.Formatting</li>
+            <li><a href="/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="literate.html">Literate programming</a></li>
-            <li><a href="evaluation.html">Embedding output</a></li>
-            <li><a href="markdown.html">Markdown parser</a></li>
-            <li><a href="codeformat.html">F# code formatting</a></li>
-            <li><a href="metadata.html">Library documentation</a></li>
+            <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+              
+            <li class="nav-header">Using F# Formatting</li>
+            <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
+            <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+            <li><a href="/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+            <li><a href="/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+            <li><a href="/FSharp.Formatting/metadata.html">Library documentation</a></li>
+            <li><a href="/FSharp.Formatting/commandline.html">Using command line tool</a></li>
 
             <li class="nav-header">Examples</li>
-            <li><a href="sidescript.html">Literate F# script</a></li>
-            <li><a href="sidemarkdown.html">Literate Markdown file</a></li>
-            <li><a href="sideextensions.html">Markdown extensions</a></li>
+            <li><a href="/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+            <li><a href="/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+            <li><a href="/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
 
             <li class="nav-header">Documentation</li>
-            <li><a href="#">API Reference</a> (Coming soon!)</li>
+            <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-literate-literate.html">Literate type</a></li>
+            <li><a href="/FSharp.Formatting/reference/fsharp-metadataformat-metadataformat.html">MetadataFormat type</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
-</html>
+  </html>
