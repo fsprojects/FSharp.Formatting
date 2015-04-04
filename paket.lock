@@ -2,15 +2,15 @@ NUGET
   remote: http://nuget.org/api/v2
   specs:
     CommandLineParser (1.9.71)
-    FAKE (3.14.9)
-    FSharp.Compiler.Service (0.0.82)
+    FAKE (3.26.1)
+    FSharp.Compiler.Service (0.0.86)
     FSharpVSPowerTools.Core (1.7.0)
       FSharp.Compiler.Service (>= 0.0.81)
     ILRepack (1.22.2)
-    Microsoft.AspNet.Razor (3.2.2)
+    Microsoft.AspNet.Razor (3.2.3)
     NuGet.CommandLine (2.8.3)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-    RazorEngine (3.5.3)
-      Microsoft.AspNet.Razor (>= 3.0.0) - >= net45
-      Microsoft.AspNet.Razor (2.0.30506.0) - >= net40 < net45
+    RazorEngine (3.6.4)
+      Microsoft.AspNet.Razor (>= 3.0.0) - framework: >= net45
+      Microsoft.AspNet.Razor (2.0.30506.0) - framework: >= net40 < net45
