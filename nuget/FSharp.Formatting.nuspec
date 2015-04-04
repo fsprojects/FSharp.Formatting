@@ -26,7 +26,7 @@
     <file src="..\bin\RazorEngine.*" target="lib/net40" />
     <file src="..\bin\System.Web.Razor.*" target="lib/net40" />
     <!-- Loader script -->
-    <file src="..\src\FSharp.Formatting.fsx" target="." />
+    <file src="..\packages\FSharp.Formatting\FSharp.Formatting.fsx" target="FSharp.Formatting.fsx" />
     <!-- Templates & styles & literate demos -->
     <file src="..\misc\templates\*.cshtml" target="templates" />
     <file src="..\misc\templates\reference\*.cshtml" target="templates/reference" />

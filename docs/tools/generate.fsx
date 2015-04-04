@@ -24,7 +24,7 @@ let referenceBinaries =
 // --------------------------------------------------------------------------------------
 
 #I "../../packages/FAKE/tools/"
-#load "../../src/FSharp.Formatting.fsx"
+#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 #r "NuGet.Core.dll"
 #r "FakeLib.dll"
 open Fake
