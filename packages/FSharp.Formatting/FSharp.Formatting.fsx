@@ -3,6 +3,10 @@
 #I "."
 #I "lib/net40"
 #r "./lib/net40/System.Web.Razor.dll"
+// Force load
+if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2) then
+  failwith "Wrong System.Web.Razor Version loaded!"
+
 
 // Standard NuGet locations
 #I "../FSharp.Compiler.Service.0.0.87/lib/net45"

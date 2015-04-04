@@ -31,7 +31,7 @@ open Fake
 open System.IO
 open Fake.FileHelper
 
-// The following 3 lines are F# Formatting only bootstrapping...
+// The following 4 lines are F# Formatting only bootstrapping...
 ensureDirectory ("../../packages/FSharp.Formatting/lib/net40")
 File.Copy("../../packages/Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll", "../../packages/FSharp.Formatting/lib/net40/System.Web.Razor.dll", true)
 #load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
