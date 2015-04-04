@@ -80,7 +80,7 @@ Target "Clean" (fun _ ->
 open System.IO
 
 Target "UpdateFsxVersions" (fun _ ->
-    let packages = [ "FSharp.Compiler.Service"; "FSharpVSPowerTools.Core"; "RazorEngine"; "Microsoft.AspNet.Razor" ]
+    let packages = [ "FSharp.Compiler.Service"; "FSharpVSPowerTools.Core" ]
     let replacements = 
       packages |> Seq.map (fun packageName ->
         sprintf "/%s.(.*)/lib" packageName,

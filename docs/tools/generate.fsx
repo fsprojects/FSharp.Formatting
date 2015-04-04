@@ -23,13 +23,19 @@ let referenceBinaries =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
+
 #I "../../packages/FAKE/tools/"
-#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 #r "NuGet.Core.dll"
 #r "FakeLib.dll"
 open Fake
 open System.IO
 open Fake.FileHelper
+
+// The following 3 lines are F# Formatting only bootstrapping...
+ensureDirectory ("../../packages/FSharp.Formatting/lib/net40")
+File.Copy("../../packages/Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll", "../../packages/FSharp.Formatting/lib/net40/System.Web.Razor.dll")
+#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
+
 open FSharp.Literate
 open FSharp.MetadataFormat
 
