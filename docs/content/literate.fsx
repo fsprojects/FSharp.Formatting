@@ -230,13 +230,14 @@ Literate.ProcessDirectory
 Note that the `template.tex` file needs to contain `{content}` as the key where the body
 of the document is placed (this differs from `{document}` used in the HTML format to avoid
 collision with standard Latex `{document}` tag). The project comes with two samples (also 
-available as part of the NuGet package). The sample
-Latex outputs (compiled to a PDF file) look as follows:
+available as part of the NuGet package). The sample Latex (and HTML) outputs look as follows:
 
  * [Sample Markdown file](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.md)
-   produces the following [formatted PDF file](https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/demo.pdf)
- * [Sample F# script file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/test.fsx)
-   produces the following [formatted PDF file](https://github.com/tpetricek/FSharp.Formatting/raw/master/literate/outputs/test.pdf)
+   produces the following [LaTeX output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.tex)
+   and [HTML output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.html)
+ * [Sample F# script file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/demo.fsx)
+   produces the following [LaTeX output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.tex)
+   and [HTML output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.html)
 
 ## Optional parameters
 
