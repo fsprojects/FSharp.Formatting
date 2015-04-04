@@ -58,7 +58,6 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       let tag = 
         match kind with
         | TokenKind.Comment -> @"\com"
-        | TokenKind.Default -> ""
         | TokenKind.Identifier -> @"\id"
         | TokenKind.Inactive -> @"\inact"
         | TokenKind.Keyword -> @"\kwd"
@@ -66,6 +65,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         | TokenKind.Operator -> @"\ops"
         | TokenKind.Preprocessor -> @"\prep"
         | TokenKind.String -> @"\str"
+        | _ -> ""
 
       if kind <> TokenKind.Default then
         // Colorize token & add tool tip
