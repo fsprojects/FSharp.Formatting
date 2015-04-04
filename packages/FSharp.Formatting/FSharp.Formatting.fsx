@@ -4,12 +4,17 @@
 #I "lib/net40"
 
 // Standard NuGet locations
+#I "../Microsoft.AspNet.Razor.3.2.3/lib/net45"
+#I "../RazorEngine.3.6.4/lib/net45"
 #I "../FSharp.Compiler.Service.0.0.87/lib/net45"
 #I "../FSharpVSPowerTools.Core.1.8.0/lib/net45"
 
 // Standard Paket locations
+#I "../Microsoft.AspNet.Razor/lib/net45"
+#I "../RazorEngine/lib/net45"
 #I "../FSharp.Compiler.Service/lib/net45"
 #I "../FSharpVSPowerTools.Core/lib/net45"
+
 
 // Try various folders that people might like
 #I "bin"
