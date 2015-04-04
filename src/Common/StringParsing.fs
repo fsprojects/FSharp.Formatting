@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.Patterns
+module internal FSharp.Patterns
 
 open System
 open FSharp.Collections

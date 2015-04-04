@@ -2,7 +2,7 @@
 
 open FSharp.Markdown
 
-module ParseMarkdown =
+module internal ParseMarkdown =
   /// Parse the specified Markdown document and return it
   /// as `LiterateDocument` (without processing code snippets)
   let parseMarkdown file text =

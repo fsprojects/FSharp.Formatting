@@ -223,18 +223,9 @@ Target "NuGet" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
-/// Run the given buildscript with fsi.exe
-let executeFSIWithOutput workingDirectory script args =
-    let exitCode =
-        ExecProcessWithLambdas
-            (fsiStartInfo script workingDirectory args)
-            TimeSpan.MaxValue false ignore ignore
-    System.Threading.Thread.Sleep 1000
-    exitCode
-    
 Target "GenerateDocs" (fun _ ->
-    executeFSIWithOutput "docs/tools" "generate.fsx" [] |> ignore
-)
+    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:REFERENCE"; "--define:HELP"] [] then
+      failwith "generating reference documentation failed")
 
 // --------------------------------------------------------------------------------------
 // Release Scripts

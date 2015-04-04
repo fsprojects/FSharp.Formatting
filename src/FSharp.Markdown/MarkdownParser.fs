@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.Markdown.Parser
+module internal FSharp.Markdown.Parser
 
 open System
 open System.IO
@@ -46,7 +46,7 @@ let inline (|EscapedLatexInlineMathChar|_|) input =
 /// using the specified delimiters. Returns a wrapped list and the rest.
 ///
 /// This is similar to `List.Delimited`, but it skips over escaped characters.
-let inline (|DelimitedMarkdown|_|) bracket input = 
+let (|DelimitedMarkdown|_|) bracket input = 
   let startl, endl = bracket, bracket
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
@@ -63,7 +63,7 @@ let inline (|DelimitedMarkdown|_|) bracket input =
 
 
 /// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
-let inline (|DelimitedLatexDisplayMath|_|) bracket input =
+let (|DelimitedLatexDisplayMath|_|) bracket input =
   let startl, endl = bracket, bracket
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
@@ -79,7 +79,7 @@ let inline (|DelimitedLatexDisplayMath|_|) bracket input =
   else None
 
 /// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
-let inline (|DelimitedLatexInlineMath|_|) bracket input =
+let (|DelimitedLatexInlineMath|_|) bracket input =
   let startl, endl = bracket, bracket
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
@@ -114,7 +114,7 @@ let (|DirectLink|_|) = function
   | _ -> None
 
 /// Recognizes an automatic link written using `http://url` or `https://url`
-let inline (|AutoLink|_|) input =
+let (|AutoLink|_|) input =
   let linkFor (scheme:string) =
     let prefix = scheme.ToCharArray() |> Array.toList
     match input with

@@ -11,6 +11,7 @@ namespace FSharp.Collections
 // that are useful when writing parsers by hand.
 // --------------------------------------------------------------------------------------
 
+/// [omit]
 module List = 
   /// Returns a singleton list containing a specified value
   let singleton v = [v]
@@ -101,8 +102,11 @@ module List =
 // --------------------------------------------------------------------------------------
 
 /// Represents a tree with nodes containing values an a list of children
+///
+/// [omit]
 type Tree<'T> = Node of 'T * list<Tree<'T>>
 
+/// [omit]
 module Tree = 
   /// Takes all elements at the specified level and turns them into nodes
   let rec private takeAtLevel indent tail = 

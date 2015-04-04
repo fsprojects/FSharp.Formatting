@@ -1,109 +1,138 @@
 ﻿// --------------------------------------------------------------------------------------
-// Builds the documentation from the files in the 'docs' directory
+// Builds the documentation from `.fsx` and `.md` files in the 'docs/content' directory
+// (the generated documentation is stored in the 'docs/output' directory)
 // --------------------------------------------------------------------------------------
 
-#I "../../bin"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Literate.dll"
-#r "FSharp.MetadataFormat.dll"
+// Web site location for the generated documentation
+let website = "/FSharp.Formatting"
+
+let githubLink = "http://github.com/tpetricek/FSharp.Formatting"
+
+// Specify more information about your project
+let info =
+  [ "project-name", "FSharp.Formatting"
+    "project-author", "Tomas Petricek"
+    "project-summary", "A package for building great F# documentation, samples and blogs"
+    "project-github", githubLink
+    "project-nuget", "http://nuget.org/packages/FSharp.Formatting" ]
+
+let referenceBinaries = 
+  [ "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll" ]
+
+// --------------------------------------------------------------------------------------
+// For typical project, no changes are needed below
+// --------------------------------------------------------------------------------------
+
+#I "../../packages/FAKE/tools/"
+#load "../../src/FSharp.Formatting.fsx"
+#r "NuGet.Core.dll"
+#r "FakeLib.dll"
+open Fake
 open System.IO
+open Fake.FileHelper
 open FSharp.Literate
 open FSharp.MetadataFormat
 
-let (++) a b = Path.Combine(a, b)
-let source = __SOURCE_DIRECTORY__
-let template = source ++ "template.html"
-let templateSideBySide = source ++ "template-sidebyside.html"
-let sources = source ++ "../content"
-let output = source ++ "../output"
-let binDir = source ++ "../../bin"
+// When called from 'build.fsx', use the public project URL as <root>
+// otherwise, use the current 'output' directory.
+#if RELEASE
+let root = website
+#else
+let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
+#endif
 
-// When running locally, you can use your path
-let buildRoots = 
-  [ "github", "http://tpetricek.github.io/FSharp.Formatting"
-    "local", sprintf "file://%s" (Path.GetFullPath(output ++ "local")) ]
+// Paths with template/source/output locations
+let bin        = __SOURCE_DIRECTORY__ @@ "../../bin"
+let content    = __SOURCE_DIRECTORY__ @@ "../content"
+let output     = __SOURCE_DIRECTORY__ @@ "../output"
+let files      = __SOURCE_DIRECTORY__ @@ "../files"
+let templates  = __SOURCE_DIRECTORY__
+let formatting = __SOURCE_DIRECTORY__ @@ "../../misc/"
+let docTemplate = formatting @@ "templates/docpage.cshtml"
+let docTemplateSbS = templates @@ "docpage-sidebyside.cshtml"
 
-// Additional strings to be replaced in the HTML template
-let projInfo =
-  [ "page-author", "Tomas Petricek"
-    "project-author", "Tomas Petricek"
-    "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting"
-    "project-github", "http://github.com/tpetricek/FSharp.Formatting"
-    "page-description", "A package for building great F# documentation, samples and blogs"
-    "github-link", "http://github.com/tpetricek/FSharp.Formatting"
-    "project-name", "F# Formatting" ]
+// Where to look for *.csproj templates (in this order)
+let layoutRootsAll = new System.Collections.Generic.Dictionary<string, string list>()
+layoutRootsAll.Add("en",[ templates; formatting @@ "templates"
+                          formatting @@ "templates/reference" ])
+subDirectories (directoryInfo templates)
+|> Seq.iter (fun d ->
+                let name = d.Name
+                if name.Length = 2 || name.Length = 3 then
+                    layoutRootsAll.Add(
+                            name, [templates @@ name
+                                   formatting @@ "templates"
+                                   formatting @@ "templates/reference" ]))
 
-// How RazorEngine searches templates
-let layoutRoots = 
-  [ source; source ++ "reference" ]
-// Compiler options (reference the two dll files and System.Web.dll)
-let options = 
-  "--reference:\"" + source + "/../../bin/FSharp.CompilerBinding.dll\" " +
-  "--reference:\"" + source + "/../../bin/FSharp.CodeFormat.dll\" " +
-  "--reference:\"" + source + "/../../bin/FSharp.Markdown.dll\" " +
-  "--reference:System.Web.dll"
+// Copy static files and CSS + JS from F# Formatting
+let copyFiles () =
+  CopyRecursive files output true |> Log "Copying file: "
+  ensureDirectory (output @@ "content")
+  //CopyRecursive (formatting @@ "styles") (output @@ "content") true 
+  //  |> Log "Copying styles and scripts: "
 
-let generateDocs (outDirName, root) =
-  let projInfo = ("root", root) :: projInfo
-  let output = output ++ outDirName
-  // Copy all sample data files to the "data" directory
-  let copy = [ sources ++ "../files/misc", output ++ "misc"
-               sources ++ "../files/content", output ++ "content" ]
-  let rec copyRecursive source dest =
-    Directory.CreateDirectory dest |> ignore
-    for f in Directory.EnumerateFiles source do
-      File.Copy(f, dest ++ Path.GetFileName f)
-    for d in Directory.EnumerateDirectories source do
-      copyRecursive d (dest ++ Path.GetFileName d)
+let references =
+  if isMono then
+    // Workaround compiler errors in Razor-ViewEngine
+    let d = RazorEngine.Compilation.ReferenceResolver.UseCurrentAssembliesReferenceResolver()
+    let loadedList = d.GetReferences () |> Seq.map (fun r -> r.GetFile()) |> Seq.cache
+    // We replace the list and add required items manually as mcs doesn't like duplicates...
+    let getItem name = loadedList |> Seq.find (fun l -> l.Contains name)
+    [ (getItem "FSharp.Core").Replace("4.3.0.0", "4.3.1.0")
+      Path.GetFullPath "./../../packages/FSharp.Compiler.Service/lib/net40/FSharp.Compiler.Service.dll"
+      Path.GetFullPath "./../../packages/FSharp.Formatting/lib/net40/System.Web.Razor.dll"
+      Path.GetFullPath "./../../packages/FSharp.Formatting/lib/net40/RazorEngine.dll"
+      Path.GetFullPath "./../../packages/FSharp.Formatting/lib/net40/FSharp.Literate.dll"
+      Path.GetFullPath "./../../packages/FSharp.Formatting/lib/net40/FSharp.CodeFormat.dll"
+      Path.GetFullPath "./../../packages/FSharp.Formatting/lib/net40/FSharp.MetadataFormat.dll" ]
+    |> Some
+  else None
 
-  for source, target in copy do
-    if Directory.Exists target then Directory.Delete(target, true)
-    copyRecursive source target
+let binaries =
+    referenceBinaries
+    |> List.ofSeq
+    |> List.map (fun b -> bin @@ b)
 
-  // Now we can process the samples directory (with some additional references)
-  // and then we clean up the files & directories we had to create earlier
-  Literate.ProcessDirectory
-    ( sources, template, output, OutputKind.Html, replacements = projInfo, generateAnchors = true )
+let libDirs = [bin]
 
-  // Process the side-by-side scripts and markdown documents separately
-  let processScript input output scriptInfo =
-    Literate.ProcessScriptFile
-      ( input, templateSideBySide, output, compilerOptions = options,
-        replacements = scriptInfo, includeSource = true, generateAnchors = true )
-  let processMarkdown input output scriptInfo =
-    Literate.ProcessMarkdown
-      ( input, templateSideBySide, output, compilerOptions = options,
-        replacements = scriptInfo, includeSource = true, generateAnchors = true )
-  let sideBySideScripts = 
-    [ "script.fsx", "sidescript.html", "F# Script file: Side-by-side example", processScript
-      "extensions.md", "sideextensions.html", "F# Markdown: Formatting extensions", processMarkdown 
-      "markdown.md", "sidemarkdown.html", "F# Markdown: Side-by-side example", processMarkdown ]
-          
-  for file, outFile, title, proc in sideBySideScripts do
-    let scriptInfo = projInfo @ [ "custom-title", title ]
-    let changeTime = File.GetLastWriteTime(source ++ ("../content/sidebyside/" + file))
-    let generateTime = File.GetLastWriteTime(output ++ outFile)
-    if not (File.Exists(output ++ outFile)) || (changeTime > generateTime) then
-      printfn "Generating '%s'" outFile
-      proc (source ++ ("../content/sidebyside/" + file)) (output ++ outFile) scriptInfo
-
-  // Create API reference
-  let binaries = 
-    [ "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll" ]
-    |> Seq.map (fun b -> binDir ++ b)
-    |> Seq.toList
-  let referenceDir = Path.GetFullPath (output ++ "references")
-  if not <| Directory.Exists referenceDir then Directory.CreateDirectory referenceDir |> ignore
+// Build API reference from XML comments
+let buildReference () =
+  CleanDir (output @@ "reference")
   MetadataFormat.Generate
-    ( binaries, referenceDir, layoutRoots,
-      parameters = projInfo,
-      libDirs = [ binDir ],
-      //otherFlags = [],
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/blob/master/",
-      sourceFolder = "../../",
-      publicOnly = true,
-      markDownComments = false)
-      
-// Generate documentation
-buildRoots |> Seq.iter generateDocs
+    ( binaries, output @@ "reference", layoutRootsAll.["en"],
+      parameters = ("root", root)::info,
+      sourceRepo = githubLink @@ "tree/master",
+      sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
+      ?assemblyReferences = references,
+      publicOnly = true,libDirs = libDirs )
 
+// Build documentation from `fsx` and `md` files in `docs/content`
+let buildDocumentation () =
+  let subdirs = 
+    [ content, docTemplate;  
+      content @@ "sidebyside", docTemplateSbS ]
+  for dir, template in subdirs do
+    let sub = "." // Everything goes into the same output directory here
+    let langSpecificPath(lang, path:string) =
+        path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
+        |> Array.exists(fun i -> i = lang)
+    let layoutRoots =
+        let key = layoutRootsAll.Keys |> Seq.tryFind (fun i -> langSpecificPath(i, dir))
+        match key with
+        | Some lang -> layoutRootsAll.[lang]
+        | None -> layoutRootsAll.["en"] // "en" is the default language
+    Literate.ProcessDirectory
+      ( dir, template, output @@ sub, replacements = ("root", root)::info,
+        layoutRoots = layoutRoots,
+        ?assemblyReferences = references,
+        generateAnchors = true, 
+        includeSource = true ) // Only needed for 'side-by-side' pages, but does not hurt others
+
+// Generate
+copyFiles()
+#if HELP
+buildDocumentation()
+#endif
+#if REFERENCE
+buildReference()
+#endif

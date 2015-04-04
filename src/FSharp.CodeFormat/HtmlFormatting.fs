@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.CodeFormat.Html
+module internal FSharp.CodeFormat.Html
 
 open System
 open System.IO

@@ -35,11 +35,13 @@ open RazorEngine.Templating
 open RazorEngine.Configuration
 open RazorEngine.Compilation.ReferenceResolver
 
+/// [omit]
 type GetMemberBinderImpl (name) =
     inherit GetMemberBinder(name, false)
     let notImpl () = raise <| new NotImplementedException()
     override x.FallbackGetMember(v, sug) = notImpl()
     
+/// [omit]
 type StringDictionary(dict:IDictionary<string, string>) =
   member x.Dictionary = dict
   /// Report more useful errors when key not found (.NET dictionary does not do this...)
@@ -48,6 +50,7 @@ type StringDictionary(dict:IDictionary<string, string>) =
       if dict.ContainsKey(k) then dict.[k]
       else raise (new KeyNotFoundException(sprintf "Key '%s' was not found." k))
 
+/// [omit]
 type [<AbstractClass>] DocPageTemplateBase<'T>() =
   inherit RazorEngine.Templating.TemplateBase<'T>()
 
@@ -92,6 +95,8 @@ type [<AbstractClass>] DocPageTemplateBase<'T>() =
     x.Include(name, model)
 
 /// A simple RazorEngine caching strategy, this implementation assumes that the current directory never changes.
+///
+/// [omit]
 module RazorEngineCache =
   /// Find file in one of the specified layout roots
   let private tryResolve(layoutRoots, name) =
@@ -156,6 +161,7 @@ module RazorEngineCache =
     if (references <> currentReferences) then failwith "cannot use different references for the same layoutRoot"
     engine
 
+/// [omit]
 type RazorRender(layoutRoots, namespaces, templateName:string, ?references : string list) =
   let templateName =
     if templateName.EndsWith(".cshtml") then
@@ -206,6 +212,7 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?references : str
     handleCompile templateName (fun _ ->
       razorEngine.RunCompile(templateName, modelType, model, x.WithProperties(properties)))
 
+/// [omit]
 and RazorRender<'model>(layoutRoots, namespaces, templateName, ?references) =
     inherit RazorRender(layoutRoots, namespaces, templateName, ?references = references)
 

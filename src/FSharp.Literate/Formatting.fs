@@ -48,7 +48,7 @@ module internal Formatting =
 // Generates file using HTML or CSHTML (Razor) template
 // --------------------------------------------------------------------------------------
 
-module Templating =
+module internal Templating =
 
   /// Replace {parameter} in the input string with 
   /// values defined in the specified list

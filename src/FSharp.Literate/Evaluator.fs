@@ -12,6 +12,7 @@ open Microsoft.FSharp.Compiler.Interactive.Shell
 // Helpers needed by the evaluator
 // ------------------------------------------------------------------------------------------------
 
+/// [omit]
 module EvaluatorHelpers =
 
   /// Represents a simple (fake) event loop for the 'fsi' object

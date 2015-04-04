@@ -47,16 +47,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820}"
 	ProjectSection(SolutionItems) = preProject
 		docs\tools\generate.fsx = docs\tools\generate.fsx
-		docs\tools\template-sidebyside.html = docs\tools\template-sidebyside.html
-		docs\tools\template.cshtml = docs\tools\template.cshtml
-		docs\tools\template.html = docs\tools\template.html
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{D0550510-0DCE-4B40-B4FB-091668E1C5FD}"
-	ProjectSection(SolutionItems) = preProject
-		misc\templates\docpage.cshtml = misc\templates\docpage.cshtml
-		misc\templates\template.cshtml = misc\templates\template.cshtml
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{917A4F64-8304-4228-B29A-E2FB474B761B}"
 	ProjectSection(SolutionItems) = preProject

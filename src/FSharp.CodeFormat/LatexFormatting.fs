@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.CodeFormat.Latex
+module internal FSharp.CodeFormat.Latex
 
 open System
 open System.IO

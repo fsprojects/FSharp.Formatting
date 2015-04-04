@@ -3,6 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
+/// [omit]
 module FSharp.Markdown.Latex
 
 open System.IO

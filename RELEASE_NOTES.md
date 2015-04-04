@@ -85,3 +85,4 @@
 * 2.7.3 - Revert ILRepack - fails on Mono (cc #261)
 * 2.7.4 - Add simple load script for easy referencing from FSX files
 * 2.7.5 - Update to net45 (fix #266 on windows), add search path to load script, fix EntityFramework bug (#270)
+* 2.8.0 - Redesgined file caching for Razor, documentation improvements, marking some thing internal
