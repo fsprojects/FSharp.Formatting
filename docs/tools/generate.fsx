@@ -71,23 +71,6 @@ let copyFiles () =
   //CopyRecursive (formatting @@ "styles") (output @@ "content") true 
   //  |> Log "Copying styles and scripts: "
 
-let references =
-  if isMono then
-    // Workaround compiler errors in Razor-ViewEngine
-    let d = RazorEngine.Compilation.ReferenceResolver.UseCurrentAssembliesReferenceResolver()
-    let loadedList = d.GetReferences () |> Seq.map (fun r -> r.GetFile()) |> Seq.cache
-    // We replace the list and add required items manually as mcs doesn't like duplicates...
-    let getItem name = loadedList |> Seq.find (fun l -> l.Contains name)
-    [ (getItem "FSharp.Core").Replace("4.3.0.0", "4.3.1.0")
-      Path.GetFullPath(bin @@ "FSharp.Compiler.Service.dll")
-      Path.GetFullPath(bin @@ "System.Web.Razor.dll")
-      Path.GetFullPath(bin @@ "RazorEngine.dll")
-      Path.GetFullPath(bin @@ "FSharp.Literate.dll")
-      Path.GetFullPath(bin @@ "FSharp.CodeFormat.dll")
-      Path.GetFullPath(bin @@ "FSharp.MetadataFormat.dll") ]
-    |> Some
-  else None
-
 let binaries =
     referenceBinaries
     |> List.ofSeq
@@ -103,7 +86,6 @@ let buildReference () =
       parameters = ("root", root)::info,
       sourceRepo = githubLink @@ "tree/master",
       sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
-      ?assemblyReferences = references,
       publicOnly = true,libDirs = libDirs )
 
 // Build documentation from `fsx` and `md` files in `docs/content`
@@ -124,7 +106,6 @@ let buildDocumentation () =
     Literate.ProcessDirectory
       ( dir, template, output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
-        ?assemblyReferences = references,
         generateAnchors = true, 
         includeSource = true ) // Only needed for 'side-by-side' pages, but does not hurt others
 
