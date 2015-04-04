@@ -44,11 +44,12 @@ let processDocAsHtml () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.html"
   let template = relative "templates/template-file.html"
-  Literate.ProcessScriptFile(file, template, output)
+  Literate.ProcessMarkdown(file, template, output)
 
 /// Processes a single Markdown document and produce LaTeX output
 let processDocAsLatex () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.tex"
   let template = relative "templates/template-color.tex"
-  Literate.ProcessScriptFile(file, template, output, format = OutputKind.Latex)
+  Literate.ProcessMarkdown(file, template, output, format = OutputKind.Latex)
+
