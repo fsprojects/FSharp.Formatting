@@ -223,8 +223,17 @@ Target "NuGet" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
+/// Run the given buildscript with fsi.exe
+let executeFSIWithOutput workingDirectory script args =
+    let exitCode =
+        ExecProcessWithLambdas
+            (fsiStartInfo script workingDirectory args)
+            TimeSpan.MaxValue false ignore ignore
+    System.Threading.Thread.Sleep 1000
+    exitCode
+    
 Target "GenerateDocs" (fun _ ->
-    executeFSI "docs/tools" "generate.fsx" [] |> ignore
+    executeFSIWithOutput "docs/tools" "generate.fsx" [] |> ignore
 )
 
 // --------------------------------------------------------------------------------------
@@ -235,7 +244,7 @@ let gitHome = "https://github.com/tpetricek"
 Target "ReleaseDocs" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
     Branches.checkoutBranch "temp/gh-pages" "gh-pages"
-    CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
+    CopyRecursive "docs/output/github" "temp/gh-pages" true |> printfn "%A"
     CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
     CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
