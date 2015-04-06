@@ -51,7 +51,12 @@ type Literate private () =
       if references <> Some true then doc
       else Transformations.generateReferences doc
     doc              
-      
+
+  static let customize customizeDocument ctx doc =
+    match customizeDocument with
+    | Some c -> c ctx doc
+    | None -> doc
+
   // ------------------------------------------------------------------------------------
   // Parsing functions
   // ------------------------------------------------------------------------------------
@@ -136,31 +141,36 @@ type Literate private () =
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences ) = 
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?assemblyReferences, ?customizeDocument ) =
     let doc = 
       Literate.ParseMarkdownFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
           ?references = references )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
+    let doc = customize customizeDocument ctx doc
     Templating.processFile assemblyReferences doc (defaultOutput output input format) ctx
 
 
   /// Process F# Script file
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences ) = 
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots,
+      ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
     let doc = 
       Literate.ParseScriptFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
           ?references = references, ?fsiEvaluator = fsiEvaluator )
     let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
+    let doc = customize customizeDocument ctx doc
     Templating.processFile assemblyReferences doc (defaultOutput output input format) ctx
 
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors, ?assemblyReferences, ?processRecursive ) = 
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
     let processRecursive = defaultArg processRecursive true
     // Call one or the other process function with all the arguments
     let processScriptFile file output = 
@@ -168,13 +178,15 @@ type Literate private () =
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements, 
-          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors, ?assemblyReferences = assemblyReferences )
+          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors,
+          ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument )
     let processMarkdown file output = 
       Literate.ProcessMarkdown
         ( file, ?templateFile = templateFile, output = output, ?format = format, 
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
-          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors, ?assemblyReferences = assemblyReferences )
+          ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors,
+          ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument )
     
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir = 
