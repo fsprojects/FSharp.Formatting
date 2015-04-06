@@ -13,7 +13,7 @@ open FSharp.CodeFormat
 /// This type provides three simple methods for calling the literate programming tool.
 /// The `ProcessMarkdown` and `ProcessScriptFile` methods process a single Markdown document
 /// and F# script, respectively. The `ProcessDirectory` method handles an entire directory tree
-/// (ooking for `*.fsx` and `*.md` files).
+/// (looking for `*.fsx` and `*.md` files).
 type Literate private () = 
 
   /// Build default options context for formatting literate document
