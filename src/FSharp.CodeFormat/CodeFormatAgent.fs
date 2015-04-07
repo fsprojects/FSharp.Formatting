@@ -292,7 +292,8 @@ type CodeFormatAgent() =
                 Lexer.getSymbol source line col lineStr SymbolLookupKind.ByRightColumn opts.OtherOptions Lexer.queryLexState
             member __.TokenizeLine line =
                 let lineStr = sourceLines.[line]
-                Lexer.tokenizeLine source opts.OtherOptions line lineStr Lexer.queryLexState } 
+                Lexer.tokenizeLine source opts.OtherOptions line lineStr Lexer.queryLexState
+            member __.LineCount = sourceLines.Length } 
 
     let categorizedSpans = 
         SourceCodeClassifier.getCategoriesAndLocations(

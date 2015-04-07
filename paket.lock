@@ -3,9 +3,9 @@ NUGET
   specs:
     CommandLineParser (1.9.71)
     FAKE (3.26.1)
-    FSharp.Compiler.Service (0.0.86)
-    FSharpVSPowerTools.Core (1.7.0)
-      FSharp.Compiler.Service (>= 0.0.81)
+    FSharp.Compiler.Service (0.0.87)
+    FSharpVSPowerTools.Core (1.8.0)
+      FSharp.Compiler.Service (>= 0.0.87)
     ILRepack (1.22.2)
     Microsoft.AspNet.Razor (3.2.3)
     NuGet.CommandLine (2.8.3)
