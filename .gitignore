@@ -17,3 +17,7 @@ misc/literate/output/content/
 .paket/paket.exe
 release.cmd
 *.orig
+*.aux
+*.dvi
+*.out
+*.synctex

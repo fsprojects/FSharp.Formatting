@@ -12,43 +12,61 @@
 % Providing more features than usual tabular
 \usepackage{longtable}
 
-% Identifiers in color code #000000
-\newcommand{\id}[1]{\textcolor{black}{#1}}
+% NOTE: 
+% Remember to use big letters for color codes
+% Reference at http://tex.stackexchange.com/questions/18008/use-css-style-color-specifications-in-xcolor
 
-% Comments in green
-\definecolor{officegreen}{rgb}{0, 0.5, 0}
-\newcommand{\com}[1]{\textcolor{officegreen}{#1}}
+% Identifiers
+\newcommand{\id}[1]{\textcolor[HTML]{000000}{#1}}
 
-% Inactive elements in color code #808080
-\newcommand{\inact}[1]{\textcolor{gray}{#1}}
+% Strings
+\newcommand{\str}[1]{\textcolor[HTML]{A31515}{#1}}
 
-% Keywords in color code #000080
-\definecolor{navy}{rgb}{0, 0, 0.5}
-\newcommand{\kwd}[1]{\textcolor{navy}{#1}}
+% Keywords
+\newcommand{\kwd}[1]{\textcolor[HTML]{0000FF}{#1}}
 
-% Numbers in color code #008000
-\newcommand{\num}[1]{\textcolor{officegreen}{#1}}
+% Comments
+\newcommand{\com}[1]{\textcolor[HTML]{008000}{#1}}
 
-% Operators in color code #800080
-\newcommand{\ops}[1]{\textcolor{purple}{#1}}
+% Operators
+\newcommand{\ops}[1]{\textcolor[HTML]{000000}{#1}}
 
-% Preprocessors in color code #800080
-\newcommand{\prep}[1]{\textcolor{purple}{#1}}
+% Numbers
+\newcommand{\num}[1]{\textcolor[HTML]{000000}{#1}}
 
-% Strings in color code #808000
-\newcommand{\str}[1]{\textcolor{olive}{#1}}
+% Line number
+\newcommand{\lines}[1]{\textcolor[HTML]{96C2CD}{#1}}
 
-% Lines in color code #80b0b0
-% Define relative color to work correctly with \newcommand
-\definecolor{linecolor}{rgb}{0.5, 0.6875, 0.6875}
-\newcommand{\lines}[1]{\textcolor{linecolor}{#1}}
+% Types or modules
+\newcommand{\ltyp}[1]{\textcolor[HTML]{2B91AF}{#1}}
 
-% fsi output in color code #606060
-\definecolor{outputcolor}{rgb}{0.375, 0.375, 0.375}
-\newcommand{\fsi}[1]{\textcolor{outputcolor}{#1}}
+% Functions
+\newcommand{\lfun}[1]{\textcolor[HTML]{0000A0}{#1}}
 
-% Omitted parts in color code #808080
-\newcommand{\omi}[1]{\textcolor{gray}{#1}}
+% Patterns
+\newcommand{\lpat}[1]{\textcolor[HTML]{800080}{#1}}
+
+% Mutable vars
+\newcommand{\lvar}[1]{\textbf{\textcolor[HTML]{000000}{#1}}}
+
+% Printf
+\newcommand{\lprf}[1]{\textcolor[HTML]{2B91AF}{#1}}
+
+% Escaped characters
+\newcommand{\lesc}[1]{\textcolor[HTML]{FF0080}{#1}}
+
+% Inactive elements
+\newcommand{\inact}[1]{\textcolor[HTML]{808080}{#1}}
+
+% Preprocessors
+\newcommand{\prep}[1]{\textcolor[HTML]{0000FF}{#1}}
+
+% fsi output
+\newcommand{\fsi}[1]{\textcolor[HTML]{808080}{#1}}
+
+% Omitted parts
+\newcommand{\omi}[1]{\textcolor[HTML]{808080}{#1}}
+
 
 % Overriding color and style of line numbers
 \renewcommand{\theFancyVerbLine}{
