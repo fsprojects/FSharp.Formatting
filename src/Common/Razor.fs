@@ -36,6 +36,36 @@ open RazorEngine.Configuration
 open RazorEngine.Compilation.ReferenceResolver
 
 /// [omit]
+module PathHelper =
+  let private isUnix =
+    match Environment.OSVersion.Platform with
+    | PlatformID.Unix -> true
+    | PlatformID.MacOSX -> true
+    | _ -> false
+  let normalizePath p =
+    let fullPath = Path.GetFullPath(p).TrimEnd(Path.AltDirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar)
+    if isUnix then fullPath else fullPath.ToLowerInvariant()
+      
+/// [omit]
+type PathTemplateKey(name, path, t, context) =
+  let path = PathHelper.normalizePath path
+  member private x.Path = path
+  interface ITemplateKey with
+    member x.GetUniqueKeyString () = path
+    member x.Name = name
+    member x.TemplateType = t
+    member x.Context = context
+  static member Create (name, path, ?t, ?context) = 
+    let t = defaultArg t ResolveType.Global
+    let context = defaultArg context null
+    PathTemplateKey(name, path, t, context)
+  override x.Equals (other) =
+    match other with
+    | :? PathTemplateKey as p -> x.Path.Equals(p.Path)
+    | _ -> false
+  override x.GetHashCode () = x.Path.GetHashCode()
+
+/// [omit]
 type GetMemberBinderImpl (name) =
     inherit GetMemberBinder(name, false)
     let notImpl () = raise <| new NotImplementedException()
@@ -98,6 +128,13 @@ type [<AbstractClass>] DocPageTemplateBase<'T>() =
 ///
 /// [omit]
 module RazorEngineCache =
+  let cachingProvider =
+    let arg =
+      if System.AppDomain.CurrentDomain.IsDefaultAppDomain() then
+         new System.Action<string>(fun s -> ())
+      else null
+    new DefaultCachingProvider(arg) :> ICachingProvider
+
   /// Find file in one of the specified layout roots
   let private tryResolve(layoutRoots, name) =
     layoutRoots |> Seq.tryPick (fun layoutRoot ->
@@ -111,19 +148,18 @@ module RazorEngineCache =
 
   /// Caching mechanism for IRazorEngineService instances.
   let private razorCache = new ConcurrentDictionary<string list, IRazorEngineService * string list option * string list>()
-
   let private createNew layoutRoots (references:string list option) namespaces =
-    let templateCache = new ConcurrentDictionary<string, ITemplateSource>()
+    let resolveCache = new ConcurrentDictionary<string, string>()
     // create manager
     let templateManager =
       { new ITemplateManager with
-          member x.GetKey (name, resolveType, context) = new NameOnlyTemplateKey(name, resolveType, context) :> ITemplateKey
+          member x.GetKey (name, resolveType, context) =
+            let file = resolveCache.GetOrAdd(name, (fun _ -> resolve(layoutRoots, name + ".cshtml")))
+            new PathTemplateKey(name, file, resolveType, context) :> ITemplateKey
           member x.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
           member x.Resolve templateKey =
-              let name = templateKey.Name
-              templateCache.GetOrAdd (name, fun name ->
-                  let file = resolve(layoutRoots, name + ".cshtml")
-                  new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource) }
+            let file = templateKey.GetUniqueKeyString()
+            new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource }
     // Configure templating engine
     let config = new TemplateServiceConfiguration()
     config.EncodedStringFactory <- new RawStringFactory()
@@ -135,11 +171,7 @@ module RazorEngineCache =
     // And F# scripts on the other hand will not explode the temp directory.
     config.DisableTempFileLocking  <- System.AppDomain.CurrentDomain.IsDefaultAppDomain()
     config.Debug <- not config.DisableTempFileLocking
-    config.CachingProvider <-
-      new DefaultCachingProvider(
-        if config.DisableTempFileLocking then
-          new System.Action<string>(fun s -> ())
-        else null) :> ICachingProvider
+    config.CachingProvider <- cachingProvider
     
     match references with
     | Some r -> 
