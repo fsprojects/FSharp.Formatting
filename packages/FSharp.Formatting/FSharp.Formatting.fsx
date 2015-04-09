@@ -2,7 +2,7 @@
 // Standard NuGet or Paket location
 #I "."
 #I "lib/net40"
-#r "./lib/net40/System.Web.Razor.dll"
+#r "System.Web.Razor.dll"
 // Force load
 if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2) then
   failwith "Wrong System.Web.Razor Version loaded!"
