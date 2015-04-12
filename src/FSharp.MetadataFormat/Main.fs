@@ -946,8 +946,11 @@ module Reader =
         // an easy way to detect where "value" is coming from, because the entries
         // are completely identical. 
         // We just take the last here because it is the easiest to implement.
+        // Additionally we log a warning just in case this is an issue in the future.
         // See https://github.com/tpetricek/FSharp.Formatting/issues/229
         // and https://github.com/tpetricek/FSharp.Formatting/issues/287
+        if xmlMemberMap.ContainsKey key then 
+          Log.logf "Warning: Duplicate documentation for '%s', one will be ignored!" key
         xmlMemberMap.[key] <- value
 
     let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap)
