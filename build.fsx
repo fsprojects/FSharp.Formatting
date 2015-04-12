@@ -133,7 +133,7 @@ Target "MergeVSPowerTools" (fun _ ->
 
 Target "BuildTests" (fun _ ->
     { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["FSharp.Formatting.Tests.sln"]
+      Includes = ["FSharp.Formatting.sln"]
       Excludes = [] } 
     |> MSBuildRelease "" "Rebuild"
     |> ignore
