@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{768fd0e0-5cf7-4af0-98c9-4b848f9afb62}</ProjectGuid>
+    <ProjectGuid>{48effecf-ecb0-4df3-a704-b56ab07557bf}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>TestLib</RootNamespace>
     <AssemblyName>TestLib2</AssemblyName>
