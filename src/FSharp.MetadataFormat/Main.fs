@@ -942,7 +942,13 @@ module Reader =
           let attr = e.Attribute(XName.Get "name") 
           if attr <> null && not (String.IsNullOrEmpty(attr.Value)) then 
             yield attr.Value, e ] do
-        xmlMemberMap.Add(key, value)
+        // NOTE: We completely ignore duplicate keys and I don't see
+        // an easy way to detect where "value" is coming from, because the entries
+        // are completely identical. 
+        // We just take the last here because it is the easiest to implement.
+        // See https://github.com/tpetricek/FSharp.Formatting/issues/229
+        // and https://github.com/tpetricek/FSharp.Formatting/issues/287
+        xmlMemberMap.[key] <- value
 
     let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap)
 
