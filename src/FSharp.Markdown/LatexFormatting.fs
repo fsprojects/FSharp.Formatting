@@ -3,6 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
+/// [omit]
 module FSharp.Markdown.Latex
 
 open System.IO
@@ -142,7 +143,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
       ctx.LineBreak()
 
-  | CodeBlock(code) ->
+  | CodeBlock(code, _, _) ->
       ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.LineBreak()
       ctx.Writer.Write(code)

@@ -91,6 +91,41 @@ module Foo =
 Note that currently our code is not handling `<parameter>` and `<result> tags, this is 
 not so much of a problem given that given that FSharp.Formatting infers the signature via reflection.
 
+
+## Optional parameters
+
+All of the three methods discussed in the previous two sections take a number of optional
+parameters that can be used to tweak how the formatting works:
+
+
+  - `outDir` - specifies the output directory where documentation should be placed
+  - `layoutRoots` - a list of paths where Razor templates can be found
+  - `parameters` - provides additional parameters to the Razor templates
+  - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
+     the file has the same name as the DLL)
+  - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
+    With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
+    recommended for C# assemblies (if not specified, `true` is used).
+  - `typeTemplate` - the templates to be used for normal types (and C# types)
+    (if not specified, `"type.cshtml"` is used).
+  - `moduleTemplate` - the templates to be used for modules
+    (if not specified, `"module.cshtml"` is used).
+  - `namespaceTemplate` - the templates to be used for namespaces
+    (if not specified, `"namespaces.cshtml"` is used).
+  - `assemblyReferences` - The assemblies to use when compiling Razor templates.
+    Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
+    if you need additional references in your templates
+    (if not specified, we use the currently loaded assemblies).
+  - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
+    generates links to GitHub pages for each of the entity.
+  - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
+  - `libDirs` - Use this to specify additional paths where referenced DLL files can be found
+  - `otherFlags` - Additional flags that are passed to the F# compiler (you can use this if you want to 
+    specify references explicitly etc.)
+  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
+
+
+
 Work in progress!
 -----------------
 

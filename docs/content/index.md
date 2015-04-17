@@ -1,31 +1,31 @@
 ﻿F# Formatting: Documentation tools
 ==================================
 
-The F# Formatting libraries (`FSharp.CodeFormat.dll` and `FSharp.Markdown.dll`) include 
+The F# Formatting libraries (`FSharp.CodeFormat.dll`, `FSharp.Markdown.dll` and `FSharp.Literate.dll`) include 
 an F# implementation of the Markdown parser and a F# code formatter that can be used to tokenize F# 
 code and obtain information about tokens including tool-tips (as in Visual Studio and MonoDevelop) 
 with type information. The package also comes with a sample that implements literate programming for F#
 (and was used to generate this documentation).
 
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      The F# Formatting Library is available as <a href="https://nuget.org/packages/FSharp.Formatting">FSharp.Formatting on NuGet</a>.
-      To install it, run the following command in the <a href="http://docs.nuget.org/docs/start-here/using-the-package-manager-console">Package Manager Console</a>:
-      <pre>PM> Install-Package FSharp.Formatting</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div>
+ - The F# Formatting package is used by the [ProjectScaffold template](http://fsprojects.github.io/ProjectScaffold/) 
+   that is used by a large number of open source .NET projects. If you're interested in using F# Formatting
+   for generating documentation for your project, then starting with ProjectScaffold is the best option.
 
-Alternatively, you can download the [source as a ZIP file](https://github.com/tpetricek/FSharp.Formatting/zipball/master)
+ - The F# Formatting package is [available on NuGet](https://nuget.org/packages/FSharp.Formatting">FSharp.Formatting),
+   so if you want to use some of its components (for blogging, Markdown parsing, or F# code formatting),
+   then the best option is to get the package.
+
+ - The NuGet package comes with a load script `FSharp.Formatting.fsx` that references all the required DLLs
+   and paths. If you are calling F# Formatting from a script file, then it is recommended to use `#load "FSharp.Formatting.fsx"`
+   as a futre-proof way of referencing the library.
+
+You can download the [source as a ZIP file](https://github.com/tpetricek/FSharp.Formatting/zipball/master)
 or download the [compiled binaries](https://github.com/tpetricek/FSharp.Formatting/archive/release.zip) as a ZIP.
 
 Documentation
 -------------
 
-The documentation for this library is generated automatically (using the literate programming 
+The documentation for this library is generated automatically using the literate programming 
 tools that are built on top of it and are described in [literate programming page](literate.html).
 If you spot a typo, please submit a pull request! The source Markdown and F# script files are
 available in the [docs folder on GitHub](https://github.com/tpetricek/FSharp.Formatting/tree/master/docs).

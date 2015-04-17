@@ -1,5 +1,5 @@
 ﻿(**
-Literate sample
+Literate script
 ===============
 
 This file demonstrates how to write literate F# script

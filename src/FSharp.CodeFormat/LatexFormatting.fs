@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.CodeFormat.Latex
+module internal FSharp.CodeFormat.Latex
 
 open System
 open System.IO
@@ -58,7 +58,6 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       let tag = 
         match kind with
         | TokenKind.Comment -> @"\com"
-        | TokenKind.Default -> ""
         | TokenKind.Identifier -> @"\id"
         | TokenKind.Inactive -> @"\inact"
         | TokenKind.Keyword -> @"\kwd"
@@ -66,6 +65,13 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         | TokenKind.Operator -> @"\ops"
         | TokenKind.Preprocessor -> @"\prep"
         | TokenKind.String -> @"\str"
+        | TokenKind.TypeOrModule -> @"\ltyp"
+        | TokenKind.Function -> @"\lfun"
+        | TokenKind.Pattern -> @"\lpat"
+        | TokenKind.MutableVar -> @"\lvar"
+        | TokenKind.Printf -> @"\lprf"
+        | TokenKind.Escaped -> @"\lesc"
+        | _ -> ""
 
       if kind <> TokenKind.Default then
         // Colorize token & add tool tip

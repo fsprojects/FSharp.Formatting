@@ -9,11 +9,16 @@ open System.Collections.Generic
 // Special paragraphs used in literate documents
 // --------------------------------------------------------------------------------------
 
+/// Specifies visibility of a code snippet. This can be either ordinary
+/// visible code, hidden snippet or named snippet with captured output.
 type LiterateCodeVisibility = 
   | VisibleCode
   | HiddenCode
   | NamedCode of string
 
+/// Additional properties of a literate code snippet, embedded in a
+/// `LiterateParagraph.LiterateCode`. The properties specify how should
+/// a snippet be evaluated and formatted.
 type LiterateCodeOptions = 
   { /// Specifies whether the snippet is evalauted while processing
     /// Use (*** do-not-eval ***) command to set this to `false`
@@ -24,6 +29,9 @@ type LiterateCodeOptions =
     /// Specifies the visibility of the snippet in the generated HTML
     Visibility : LiterateCodeVisibility }
 
+/// Extends `MarkdownParagrap` using the `MarkdownEmbedParagraphs` case with
+/// additional kinds of paragraphs that can appear in literate F# scripts
+/// (such as various special commands to embed output of a snippet etc.)
 type LiterateParagraph =
   /// (*** include:foo ***) - Include formatted snippet from other part of the document here 
   | CodeReference of string
@@ -52,6 +60,8 @@ type LiterateParagraph =
 // Literate document information
 // --------------------------------------------------------------------------------------
 
+/// Represents the source of a literate document. This is esither Markdown (as a `string`)
+/// or parsed F# script file consisting of snippets.
 type LiterateSource = 
   | Markdown of string
   | Script of Snippet[]
@@ -98,6 +108,8 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, erro
 // Pattern matching helpers
 // --------------------------------------------------------------------------------------
 
+/// Provides active patterns for extracting `LiterateParagraph` values from
+/// Markdown documents.
 module Matching =
   let (|LiterateParagraph|_|) = function
     | EmbedParagraphs(:? LiterateParagraph as lp) -> Some lp | _ -> None

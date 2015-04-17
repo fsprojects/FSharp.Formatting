@@ -40,7 +40,7 @@ module internal Formatting =
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->
-        doc.With(paragraphs = [CodeBlock text])
+        doc.With(paragraphs = [CodeBlock (text, "", "")])
     | LiterateSource.Script snippets ->
         let paragraphs = 
           [ for Snippet(name, lines) in snippets do
@@ -53,7 +53,7 @@ module internal Formatting =
 // Generates file using HTML or CSHTML (Razor) template
 // --------------------------------------------------------------------------------------
 
-module Templating =
+module internal Templating =
 
   /// Replace {parameter} in the input string with 
   /// values defined in the specified list
@@ -73,16 +73,12 @@ module Templating =
           html.Replace("{" + key + id + "}", value)) input
         result 
 
-  /// Very basic and simple caching mechanism for RazorRender instances.
-  let private razorCache = new ConcurrentDictionary<string[] * string, RazorRender>()
-
   /// Depending on the template file, use either Razor engine
   /// or simple Html engine with {replacements} to format the document
-  let private generateFile contentTag parameters templateOpt output layoutRoots =
+  let private generateFile references contentTag parameters templateOpt output layoutRoots =
     match templateOpt with
     | Some (file:string) when file.EndsWith("cshtml", true, CultureInfo.InvariantCulture) -> 
-        let key = Array.ofSeq layoutRoots, file
-        let razor = razorCache.GetOrAdd(key, fun (layoutRoots, file) -> RazorRender(layoutRoots, [], Path.GetFileNameWithoutExtension file))
+        let razor = RazorRender(layoutRoots |> Seq.toList, [], Path.GetFileNameWithoutExtension file, ?references = references)
         let props = [ "Properties", dict parameters ]
         let generated = razor.ProcessFile(props)
         File.WriteAllText(output, generated)      
@@ -94,7 +90,7 @@ module Templating =
   // Formate literate document
   // ------------------------------------------------------------------------------------
 
-  let processFile (doc:LiterateDocument) output ctx = 
+  let processFile references (doc:LiterateDocument) output ctx = 
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
@@ -130,4 +126,4 @@ module Templating =
         "page-source", doc.SourceFile
         contentTag, formattedDocument
         "tooltips", tipsHtml ]
-    generateFile contentTag parameters ctx.TemplateFile output ctx.LayoutRoots
+    generateFile references contentTag parameters ctx.TemplateFile output ctx.LayoutRoots

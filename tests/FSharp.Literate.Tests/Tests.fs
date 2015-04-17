@@ -3,7 +3,7 @@
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"
-#r "../../packages/NUnit.2.6.3/lib/nunit.framework.dll"
+#r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #load "../Common/MarkdownUnit.fs"
 #load "Setup.fs"
@@ -17,6 +17,8 @@ open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
+
+let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
 
 // --------------------------------------------------------------------------------------
 // Test embedding code from a file
@@ -70,6 +72,21 @@ let ``Can parse and format markdown with F# snippet`` () =
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
 
+[<Test>] 
+let ``Can parse and format markdown with Github-flavoured F# snippet`` () =
+  let content = """
+**hello**
+
+```fsharp followed by some random text
+let test = 42
+```"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
+  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+
 [<Test>]
 let ``Can generate references from indirect links`` () =
   let content = """
@@ -115,6 +132,25 @@ hello
   let html = Literate.WriteHtml(doc)
   html |> should contain "<span class=\"k\">var</span>"
 
+[<Test>]
+let ``Can format the var keyword in C# code snippet using Github-flavoured`` () =
+  let content = """
+hello
+
+```csharp
+var a = 10 < 10;
+```"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain "<span class=\"k\">var</span>"
+
+[<Test>]
+let ``Codeblock whitespace is preserved`` () =
+  let doc = "```markup\r\n    test\r\n    blub\r\n```\r\n";
+  let expected = "<table class=\"pre\"><tr><td><pre lang=\"markup\">    test\r\n    blub\r\n</pre></td></tr></table>\r\n" |> properNewLines;
+  let doc = Literate.ParseMarkdownString(doc, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain expected
 
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same

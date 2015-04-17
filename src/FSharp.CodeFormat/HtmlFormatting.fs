@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.CodeFormat.Html
+module internal FSharp.CodeFormat.Html
 
 open System
 open System.IO
@@ -131,6 +131,12 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         | TokenKind.Operator -> "o"
         | TokenKind.Preprocessor -> "prep"
         | TokenKind.String -> "s"
+        | TokenKind.TypeOrModule -> "t"
+        | TokenKind.Function -> "f"
+        | TokenKind.Pattern -> "p"
+        | TokenKind.MutableVar -> "v"
+        | TokenKind.Printf -> "pf"
+        | TokenKind.Escaped -> "e"
 
       if kind <> TokenKind.Default then
         // Colorize token & add tool tip
@@ -145,6 +151,10 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
 /// Generate HTML with the specified snippets
 let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
  [| for (Snippet(title, lines)) in snippets do
+      // Skip empty lines at the beginning and at the end
+      let skipEmptyLines = Seq.skipWhile (fun (Line(spans)) -> List.isEmpty spans) >> List.ofSeq
+      let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
+
       // Generate snippet to a local StringBuilder
       let mainStr = StringBuilder()
       let ctx = { ctx with Writer = new StringWriter(mainStr) }
@@ -177,10 +187,9 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
 
       // Print all lines of the snippet inside <pre>..</pre>
       emitTag ctx.OpenTag
-      lines |> List.iteri (fun index (Line spans) ->
-        let isLast = index = linesLength - 1
+      lines |> List.iter (fun (Line spans) ->
         formatTokenSpans ctx spans
-        if not isLast then ctx.Writer.WriteLine() )
+        ctx.Writer.WriteLine() )
       emitTag ctx.CloseTag
 
       if ctx.AddLines then

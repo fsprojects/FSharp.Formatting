@@ -68,8 +68,28 @@ Target "Clean" (fun _ ->
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/obj"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/bin"]
+    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/obj"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/bin"]
     CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/obj"]
+)
+
+// --------------------------------------------------------------------------------------
+// Update the assembly version numbers in the script file.
+
+open System.IO
+
+Target "UpdateFsxVersions" (fun _ ->
+    let packages = [ "FSharp.Compiler.Service"; "FSharpVSPowerTools.Core" ]
+    let replacements = 
+      packages |> Seq.map (fun packageName ->
+        sprintf "/%s.(.*)/lib" packageName,
+        sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName))
+    let path = "./src/FSharp.Formatting.fsx"
+    let text = File.ReadAllText(path)
+    let text = (text, replacements) ||> Seq.fold (fun text (pattern, replacement) ->
+        Text.RegularExpressions.Regex.Replace(text, pattern, replacement) )
+    File.WriteAllText(path, text)
 )
 
 // --------------------------------------------------------------------------------------
@@ -83,6 +103,31 @@ Target "Build" (fun _ ->
     |> ignore
 )
 
+Target "MergeVSPowerTools" (fun _ ->
+    () (*
+    let binDir = __SOURCE_DIRECTORY__ @@ "bin"
+    CreateDir (binDir @@ "merged")
+
+    let toPack =
+        (binDir @@ "FSharp.CodeFormat.dll") + " " +
+        (binDir @@ "FSharpVSPowerTools.Core.dll")
+
+    let result =
+        ExecProcess (fun info ->
+            info.FileName <- currentDirectory @@ "packages/ILRepack/tools/ILRepack.exe"
+            info.Arguments <-
+              sprintf
+                "/internalize /verbose /lib:bin /ver:%s /out:%s %s"
+                release.AssemblyVersion (binDir @@ "merged" @@ "FSharp.CodeFormat.dll") toPack
+            ) (TimeSpan.FromMinutes 5.)
+
+    if result <> 0 then failwithf "Error during ILRepack execution."
+
+    !! (binDir @@ "merged" @@ "*.*")
+    |> CopyFiles binDir
+    DeleteDir (binDir @@ "merged")
+    *)
+)
 // --------------------------------------------------------------------------------------
 // Build tests and generate tasks to run the tests in sequence
 
@@ -101,6 +146,12 @@ Target "BuildTests" (fun _ ->
 
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/files/crefLib/crefLib.sln"]
+      Excludes = [] }
+    |> MSBuildDebug "" "Rebuild"
+    |> ignore
+
+    { BaseDirectory = __SOURCE_DIRECTORY__
+      Includes = ["tests/*/files/csharpSupport/csharpSupport.sln"]
       Excludes = [] }
     |> MSBuildDebug "" "Rebuild"
     |> ignore
@@ -149,10 +200,9 @@ Target "NuGet" (fun _ ->
             OutputPath = "bin"
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
-            Dependencies = 
-                ["Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireExactly
-                 "RazorEngine", GetPackageVersion "packages" "RazorEngine" |> RequireExactly
-                 "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireExactly ] })
+            Dependencies =
+                [ "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireExactly
+                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p -> 
         { p with   
@@ -174,8 +224,8 @@ Target "NuGet" (fun _ ->
 // Generate the documentation
 
 Target "GenerateDocs" (fun _ ->
-    executeFSI "docs/tools" "generate.fsx" [] |> ignore
-)
+    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:REFERENCE"; "--define:HELP"] [] then
+      failwith "generating reference documentation failed")
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
@@ -209,9 +259,10 @@ Target "Release" DoNothing
 Target "All" DoNothing
 
 "Clean" ==> "AssemblyInfo" ==> "Build" ==> "BuildTests"
-"Build" ==> "All"
+"Build" ==> "MergeVSPowerTools" ==> "All"
 "RunTests" ==> "All"
 "GenerateDocs" ==> "All"
+"UpdateFsxVersions" ==> "All"
 
 "All"
   ==> "NuGet" 

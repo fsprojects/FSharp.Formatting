@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{B592EE13-F065-4369-BB37-A20064E29D4F}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-	EndProjectSection
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Literate.Tests", "tests\FSharp.Literate.Tests\FSharp.Literate.Tests.fsproj", "{C22A18AB-6C54-48B4-AAC5-892499E93D4D}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat.Tests", "tests\FSharp.CodeFormat.Tests\FSharp.CodeFormat.Tests.fsproj", "{5DEBD769-D86E-4E14-ABF1-373CA91BFAA2}"
@@ -29,6 +24,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib3", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib3.csproj", "{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib4.csproj", "{98624699-1B2F-4636-A3F7-EC72343CB2FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharpSupport", "tests\FSharp.MetadataFormat.Tests\files\csharpSupport\csharpSupport.csproj", "{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -144,6 +141,16 @@ Global
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -155,5 +162,6 @@ Global
 		{55728B9D-1EDE-4A40-B439-1EB0B3F77B72} = {0BCA32CA-96E2-4E6A-9697-681E2131F40A}
 		{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441} = {0BCA32CA-96E2-4E6A-9697-681E2131F40A}
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {0BCA32CA-96E2-4E6A-9697-681E2131F40A}
+		{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C} = {0BCA32CA-96E2-4E6A-9697-681E2131F40A}
 	EndGlobalSection
 EndGlobal

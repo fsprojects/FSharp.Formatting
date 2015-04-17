@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module FSharp.Markdown.Parser
+module internal FSharp.Markdown.Parser
 
 open System
 open System.IO
@@ -46,7 +46,7 @@ let inline (|EscapedLatexInlineMathChar|_|) input =
 /// using the specified delimiters. Returns a wrapped list and the rest.
 ///
 /// This is similar to `List.Delimited`, but it skips over escaped characters.
-let inline (|DelimitedMarkdown|_|) bracket input = 
+let (|DelimitedMarkdown|_|) bracket input = 
   let startl, endl = bracket, bracket
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
@@ -63,7 +63,7 @@ let inline (|DelimitedMarkdown|_|) bracket input =
 
 
 /// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
-let inline (|DelimitedLatexDisplayMath|_|) bracket input =
+let (|DelimitedLatexDisplayMath|_|) bracket input =
   let startl, endl = bracket, bracket
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
@@ -79,7 +79,7 @@ let inline (|DelimitedLatexDisplayMath|_|) bracket input =
   else None
 
 /// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
-let inline (|DelimitedLatexInlineMath|_|) bracket input =
+let (|DelimitedLatexInlineMath|_|) bracket input =
   let startl, endl = bracket, bracket
   // Like List.partitionUntilEquals, but skip over escaped characters
   let rec loop acc = function
@@ -114,7 +114,7 @@ let (|DirectLink|_|) = function
   | _ -> None
 
 /// Recognizes an automatic link written using `http://url` or `https://url`
-let inline (|AutoLink|_|) input =
+let (|AutoLink|_|) input =
   let linkFor (scheme:string) =
     let prefix = scheme.ToCharArray() |> Array.toList
     match input with
@@ -290,7 +290,32 @@ let (|CodeBlock|_|) = function
             if String.IsNullOrWhiteSpace l then "" 
             elif l.Length > 4 then l.Substring(4, l.Length - 4) 
             else l ]
-      Some(code, rest)
+      Some((if rest.IsEmpty then code else code @ [""]), rest, "", "")
+  | String.StartsWithTrim "```" header :: lines -> 
+      let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
+      // langString is the part after ``` and ignoredString is the rest until the line ends.
+      let langString, ignoredString = 
+        if String.IsNullOrWhiteSpace header then "", "" else 
+        let splits = header.Split((null : char array), StringSplitOptions.RemoveEmptyEntries)
+        match splits |> Seq.tryFind (fun _ -> true) with
+        | None -> "", ""
+        | Some langString ->
+            let ignoredString = header.Substring(header.IndexOf(langString) + langString.Length)
+            langString, if String.IsNullOrWhiteSpace ignoredString then "" else ignoredString
+      // Handle the ending line 
+      let code, rest =
+        match rest with
+        | hd :: tl -> 
+            let idx = hd.IndexOf("```")
+            if idx > -1 && idx + 3 <= hd.Length then
+                let pre = hd.Substring(0, idx)
+                let after = hd.Substring(idx + 3)
+                code @ [pre], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
+            else
+                code, tl
+        | _ -> 
+            code, rest
+      Some (code, rest, langString, ignoredString)
   | _ -> None
 
 /// Matches when the input starts with a number. Returns the
@@ -299,16 +324,20 @@ let (|SkipSomeNumbers|_|) (input:string) =
   match List.ofSeq input with
   | x::xs when Char.IsDigit x -> 
       let _, rest = List.partitionUntil (Char.IsDigit >> not) xs
-      Some(rest)
+      Some(input.Length - rest.Length, rest)
   | _ -> None
 
 /// Recognizes a staring of a list (either 1. or +, *, -).
 /// Returns the rest of the line, together with the indent.
 let (|ListStart|_|) = function  
-  | String.TrimStartAndCount (indent, (String.StartsWithAny ["+ "; "* "; "- "] as item)) -> 
-      Some(Unordered, indent, item.Substring(1))
-  | String.TrimStartAndCount (indent, (SkipSomeNumbers ('.' :: ' ' :: List.AsString item))) ->
-      Some(Ordered, indent, item)
+  | String.TrimStartAndCount (startIndent, (String.StartsWithAny ["+ "; "* "; "- "] as item)) -> 
+      let trimItem = item.Substring(1).TrimStart(' ')
+      let endIndent = startIndent + (item.Length - trimItem.Length)
+      Some(Unordered, startIndent, endIndent, item.Substring(1))
+  | String.TrimStartAndCount (startIndent, (SkipSomeNumbers (skipNumCount, '.' :: ' ' :: List.AsString item))) ->
+      let trimItem = item.TrimStart(' ')
+      let endIndent = startIndent + 2 + skipNumCount + (item.Length - trimItem.Length)
+      Some(Ordered, startIndent, endIndent, trimItem)
   | _ -> None
 
 /// Splits input into lines until whitespace or starting of a list and the rest.
@@ -318,14 +347,15 @@ let (|LinesUntilListOrWhite|) =
 
 /// Splits input into lines until not-indented line or starting of a list and the rest.
 let (|LinesUntilListOrUnindented|) =
-  List.partitionUntil (function 
-    | ListStart _ | String.Unindented -> true | _ -> false)
+  List.partitionUntilLookahead (function 
+    | (ListStart _ | String.Unindented)::_ 
+    | String.WhiteSpace::String.WhiteSpace::_ -> true | _ -> false)
 
 /// Recognizes a list item until the next list item (possibly nested) or end of a list.
 /// The parameter specifies whether the previous line was simple (single-line not 
 /// separated by a white line - simple items are not wrapped in <p>)
 let (|ListItem|_|) prevSimple = function
-  | ListStart(kind, indent, item)::
+  | ListStart(kind, startIndent, endIndent, item)::
       // Take remaining lines that belong to the same item
       // (everything until an empty line or start of another list item)
       LinesUntilListOrWhite
@@ -338,6 +368,7 @@ let (|ListItem|_|) prevSimple = function
         | String.WhiteSpace::_, (ListStart _)::_ -> false
         | (ListStart _)::_, _ -> true 
         | [], _ -> true 
+        | String.WhiteSpace::String.WhiteSpace::_, _ -> true
         | _, String.Unindented::_ -> prevSimple
         | _, _ -> false
 
@@ -347,9 +378,9 @@ let (|ListItem|_|) prevSimple = function
             yield line.Trim()
           for line in more do
             let trimmed = line.TrimStart()
-            if trimmed.Length >= line.Length - 4 then yield trimmed
-            else yield line.Substring(4) ]
-      Some(indent, (simple, kind, lines), rest)
+            if trimmed.Length >= line.Length - endIndent then yield trimmed
+            else yield line.Substring(endIndent) ]
+      Some(startIndent, (simple, kind, lines), rest)
   | _ -> None
 
 /// Recognizes a list - returns list items with information about 
@@ -532,8 +563,8 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | LinkDefinition ((key, link), Lines.TrimBlankStart lines) ->
       ctx.Links.Add(key, getLinkAndTitle link)
       yield! parseParagraphs ctx lines
-  | CodeBlock(code, Lines.TrimBlankStart lines) ->
-      yield CodeBlock(code |> String.concat ctx.Newline)
+  | CodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
+      yield CodeBlock(code |> String.concat ctx.Newline, langString, ignoredLine)
       yield! parseParagraphs ctx lines 
   | Blockquote(body, Lines.TrimBlankStart rest) ->
       yield QuotedBlock(parseParagraphs ctx body |> List.ofSeq)

@@ -63,6 +63,7 @@ type Member =
 
 type Type = 
   { Name : string 
+    Category :string
     UrlName : string
     Comment : Comment 
     Assembly : AssemblyName
@@ -75,8 +76,9 @@ type Type =
     Constructors : Member list
     InstanceMembers : Member list
     StaticMembers : Member list }
-  static member Create(name, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) = 
+  static member Create(name, cat, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) = 
     { Type.Name = name
+      Category = cat
       UrlName = url
       Comment = comment
       Assembly = assembly
@@ -90,6 +92,7 @@ type Type =
 
 type Module = 
   { Name : string 
+    Category : string
     UrlName : string
     Comment : Comment
     Assembly : AssemblyName
@@ -102,8 +105,8 @@ type Module =
     ValuesAndFuncs : Member list
     TypeExtensions : Member list
     ActivePatterns : Member list }
-  static member Create(name, url, comment, assembly, modules, types, vals, exts, pats) = 
-    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly
+  static member Create(name, cat, url, comment, assembly, modules, types, vals, exts, pats) = 
+    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly; Category = cat
       AllMembers = List.concat [ vals; exts; pats ] 
       NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
@@ -291,7 +294,7 @@ module ValueReader =
       formatTypeWithPrec 2 arg.Type
     else argName
 
-  let formatArgsUsage generateTypes (v:FSharpMemberFunctionOrValue) args =
+  let formatArgsUsage generateTypes (v:FSharpMemberOrFunctionOrValue) args =
     let isItemIndexer = (v.IsInstanceMember && v.DisplayName = "Item")
     let counter = let n = ref 0 in fun () -> incr n; !n
     let unit, argSep, tupSep = 
@@ -312,7 +315,7 @@ module ValueReader =
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
   
-  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberFunctionOrValue) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) = 
     let buildUsage (args:string option) = 
       let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
@@ -340,7 +343,7 @@ module ValueReader =
     let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList 
     let retType = v.ReturnParameter.Type
     let argInfos, retType = 
-        match argInfos, v.IsGetterMethod, v.IsSetterMethod with
+        match argInfos, v.IsPropertyGetterMethod || v.HasGetterMethod, v.IsPropertySetterMethod || v.HasSetterMethod with
         | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
         | _, _, true -> argInfos, None
         | [[]], true, _ -> [], Some retType
@@ -365,12 +368,12 @@ module ValueReader =
     let signature =
       match argInfos with
       | [] -> retType
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
+      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
 
     let usage = 
       match argInfos with
-      | [[x]] when v.IsGetterMethod && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
       | _  -> formatArgsUsage false v argInfos
     
     let buildShortUsage length = 
@@ -586,12 +589,12 @@ module Reader =
         with _ -> ""
     | n -> n
 
-  let getMemberXmlDocsSigPrefix (memb:FSharpMemberFunctionOrValue) =
+  let getMemberXmlDocsSigPrefix (memb:FSharpMemberOrFunctionOrValue) =
     if memb.IsEvent then "E"
     elif memb.IsProperty then "P" 
     else "M"
 
-  let getXmlDocSigForMember (memb:FSharpMemberFunctionOrValue) =
+  let getXmlDocSigForMember (memb:FSharpMemberOrFunctionOrValue) =
     let memberName = 
       try
         let name = memb.CompiledName.Replace(".ctor", "#ctor")
@@ -646,7 +649,7 @@ module Reader =
     
   let createUrlHolder ()= 
     let toReplace =
-        ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_")] @ 
+        ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @ 
             (Path.GetInvalidPathChars() 
             |> Seq.append (Path.GetInvalidFileNameChars()) 
             |> Seq.map (fun inv -> (inv.ToString(), "_")) |> Seq.toList))
@@ -770,14 +773,14 @@ module Reader =
     |> Seq.choose (reader ctx) 
     |> List.ofSeq
 
-  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberFunctionOrValue) =
+  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
     readCommentsInto ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
-  let readAllMembers ctx kind (members:seq<FSharpMemberFunctionOrValue>) = 
+  let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) = 
     members 
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
+    |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertyGetterMethod)
     |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
 
   let readMembers ctx kind (entity:FSharpEntity) cond = 
@@ -870,7 +873,7 @@ module Reader =
       let ivals, svals = 
           getMembers typ
           |> List.ofSeq 
-          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitMember)
+          |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitInterfaceImplementation)
           |> List.filter (fun v -> 
             if v.EnclosingEntity.IsFSharp then true else
                 not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
@@ -900,7 +903,7 @@ module Reader =
       let stat = readAllMembers ctx MemberKind.StaticMember svals 
 
       Type.Create
-        ( name, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
+        ( name, cat, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -915,7 +918,7 @@ module Reader =
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
 
       Module.Create
-        ( modul.DisplayName, urlName, comment, ctx.Assembly,
+        ( modul.DisplayName, cat, urlName, comment, ctx.Assembly,
           modules, types,
           vals, exts, pats ))
 
@@ -970,15 +973,46 @@ type Html private() =
   static member Encode(str) = 
     System.Web.HttpUtility.HtmlEncode(str)
 
-/// Exposes metadata formatting functionality
+/// This type exposes the functionality for producing documentation from `dll` files with associated `xml` files
+/// generated by the F# or C# compiler. To generate documentation, use one of the overloades of the `Generate` method.
+/// The overloads have the following optional parameters:
+///
+///  - `outDir` - specifies the output directory where documentation should be placed
+///  - `layoutRoots` - a list of paths where Razor templates can be found
+///  - `parameters` - provides additional parameters to the Razor templates
+///  - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
+///     the file has the same name as the DLL)
+///  - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
+///    With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
+///    recommended for C# assemblies (if not specified, `true` is used).
+///  - `typeTemplate` - the templates to be used for normal types (and C# types)
+///    (if not specified, `"type.cshtml"` is used).
+///  - `moduleTemplate` - the templates to be used for modules
+///    (if not specified, `"module.cshtml"` is used).
+///  - `namespaceTemplate` - the templates to be used for namespaces
+///    (if not specified, `"namespaces.cshtml"` is used).
+///  - `assemblyReferences` - The assemblies to use when compiling Razor templates.
+///    Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
+///    if you need additional references in your templates
+///    (if not specified, we use the currently loaded assemblies).
+///  - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
+///    generates links to GitHub pages for each of the entity.
+///  - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
+///  - `libDirs` - Use this to specify additional paths where referenced DLL files can be found
+///  - `otherFlags` - Additional flags that are passed to the F# compiler (you can use this if you want to 
+///    specify references explicitly etc.)
+///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
+///
 type MetadataFormat = 
-  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
+  /// This overload generates documentation for a single file specified by the `dllFile` parameter
+  static member Generate(dllFile, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
     MetadataFormat.Generate
       ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
+        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight, ?assemblyReferences = assemblyReferences)
 
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
+  /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
+  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -990,6 +1024,7 @@ type MetadataFormat =
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
     let libDirs = defaultArg libDirs []
+    let dllFiles = dllFiles |> List.map Path.GetFullPath
     let urlRangeHighlight =
       defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
     let sourceFolderRepo =
@@ -1018,14 +1053,28 @@ type MetadataFormat =
       defaultArg asmOpt null
     ))
 
-    // Read and process assmeblies and the corresponding XML files
+    // Read and process assemblies and the corresponding XML files
     let assemblies = 
-      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.InteractiveChecker.Create()
+      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker.Create()
       let base1 = Path.GetTempFileName()
       let dllName = Path.ChangeExtension(base1, ".dll")
       let fileName1 = Path.ChangeExtension(base1, ".fs")
       let projFileName = Path.ChangeExtension(base1, ".fsproj")
       File.WriteAllText(fileName1, """module M""")
+      let findReferences libDir =
+        Directory.EnumerateFiles(libDir, "*.dll")
+        |> Seq.map Path.GetFullPath
+        |> Seq.filter (fun file -> dllFiles |> List.exists (fun binary -> binary = file) |> not)
+
+      let blacklist =
+        [ "FSharp.Core.dll"; "mscorlib.dll" ]
+
+      let dllReferences =
+        libDirs
+        |> Seq.collect findReferences
+        |> Seq.append dllFiles
+        |> Seq.filter (fun file -> blacklist |> List.exists (fun black -> black = Path.GetFileName file) |> not)
+
       let options = 
         checker.GetProjectOptionsFromCommandLineArgs(projFileName,
           [|yield "--debug:full" 
@@ -1037,15 +1086,14 @@ type MetadataFormat =
             yield "--fullpaths" 
             yield "--flaterrors" 
             yield "--target:library" 
-            for dllFile in dllFiles do
+            for dllFile in dllReferences do
               yield "-r:"+dllFile
-            for libDir in libDirs do
-              yield "-I:"+libDir
+            // Libdirs are handled above, see https://github.com/fsharp/FSharp.Compiler.Service/issues/313
             yield! otherFlags
             yield fileName1 |])
       let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
       for err in results.Errors  do
-         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.Severity.Error then "error" else "warning") err.Message
+         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.FSharpErrorSeverity.Error then "error" else "warning") err.Message
 
       if results.HasCriticalErrors then 
          Log.logf "**** stopping due to critical errors"
@@ -1106,7 +1154,7 @@ type MetadataFormat =
         
     // Generate all the HTML stuff
     Log.logf "Starting razor engine"
-    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.MetadataFormat"], namespaceTemplate)
+    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.MetadataFormat"], namespaceTemplate, ?references = assemblyReferences)
 
     Log.logf "Generating: index.html"
     let out = razor.ProcessFile(asm, props)
@@ -1121,7 +1169,7 @@ type MetadataFormat =
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedModules n ]
     
-    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate)
+    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
 
     for modul in modules do
       Log.logf "Generating module: %s" modul.UrlName
@@ -1139,7 +1187,7 @@ type MetadataFormat =
           yield! ns.Types ]
 
     // Generate documentation for all types
-    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate)
+    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
     for typ in types do
       Log.logf "Generating type: %s" typ.UrlName
       let out = razor.ProcessFile(TypeInfo.Create(typ, asm), props)

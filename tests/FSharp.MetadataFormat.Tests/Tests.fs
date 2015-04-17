@@ -28,8 +28,8 @@ let getOutputDir()  =
   Directory.CreateDirectory(tempFile).FullName
 
 let layoutRoots = 
-  [ __SOURCE_DIRECTORY__ @@ "../../misc/templates"
-    __SOURCE_DIRECTORY__ @@ "../../misc/templates/reference" ]
+  [ root @@ "../../misc/templates"
+    root @@ "../../misc/templates/reference" ]
 
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
@@ -128,7 +128,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   MetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], 
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
-      sourceFolder = __SOURCE_DIRECTORY__ @@ "../.." )
+      sourceFolder = root @@ "../.." )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> should contain "github-link"
@@ -211,6 +211,112 @@ let ``MetadataFormat test that cref generation works``() =
   files.["creflib2-class8.html"] |> should contain "Assembly"
   files.["creflib2-class8.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
 
+  #if INTERACTIVE
+  System.Diagnostics.Process.Start(output)
+  #endif
+
+[<Test>]
+let ``MetadataFormat test that csharp (publiconly) support works``() =
+  let libraries =
+    [ root @@ "files/csharpSupport/bin/Debug" @@ "csharpSupport.dll" ]
+  let output = getOutputDir()
+  printfn "Output: %s" output
+  MetadataFormat.Generate
+    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"],
+      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceFolder = __SOURCE_DIRECTORY__ @@ "../..",
+      publicOnly = true,
+      markDownComments = false )
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // C# tests
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Sample_Class"
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Event"
+
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Constructor")
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Method")
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Property")
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Event")
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
+  
+  
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Method")
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Property")
+  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Event")
+
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
+  
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
+  
+  files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Method")
+  files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Property")
+  files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Event")
+  
+  #if INTERACTIVE
+  System.Diagnostics.Process.Start(output)
+  #endif
+
+  
+[<Ignore>]
+[<Test>]
+let ``MetadataFormat test that csharp support works``() =
+  let libraries =
+    [ root @@ "files/csharpSupport/bin/Debug" @@ "csharpSupport.dll" ]
+  let output = getOutputDir()
+  printfn "Output: %s" output
+  MetadataFormat.Generate
+    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"],
+      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceFolder = __SOURCE_DIRECTORY__ @@ "../..",
+      publicOnly = false,
+      markDownComments = false )
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // C# tests
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Sample_Class"
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Event"
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Event"
+
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
+  
+  
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Event"
+
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
+  
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
+  
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Event"
+  
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif

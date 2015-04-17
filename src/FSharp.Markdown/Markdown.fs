@@ -13,16 +13,20 @@ open System.Collections.Generic
 // Definition of the Markdown format
 // --------------------------------------------------------------------------------------
 
+/// A list kind can be `Ordered` or `Unordered` corresponding to `<ol>` and `<ul>` elements
 type MarkdownListKind = 
   | Ordered 
   | Unordered
 
+/// Column in a table can be aligned to left, right, center or using the default alignment
 type MarkdownColumnAlignment =
   | AlignLeft
   | AlignRight
   | AlignCenter
   | AlignDefault
 
+/// Represents inline formatting inside a paragraph. This can be literal (with text), various
+/// formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.
 type MarkdownSpan =
   | Literal of string
   | InlineCode of string
@@ -38,15 +42,21 @@ type MarkdownSpan =
   | LatexDisplayMath of string
   | EmbedSpans of MarkdownEmbedSpans
 
+/// A type alias for a list of `MarkdownSpan` values
 and MarkdownSpans = list<MarkdownSpan>
 
+/// Provides an extensibility point for adding custom kinds of spans into a document
+/// (`MarkdownEmbedSpans` values can be embedded using `MarkdownSpan.EmbedSpans`)
 and MarkdownEmbedSpans =
   abstract Render : unit -> MarkdownSpans
 
+/// A paragraph represents a (possibly) multi-line element of a Markdown document.
+/// Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
+/// also embedded LaTeX blocks.
 type MarkdownParagraph = 
   | Heading of int * MarkdownSpans
   | Paragraph of MarkdownSpans
-  | CodeBlock of string
+  | CodeBlock of string * string * string
   | InlineBlock of string
   | ListBlock of MarkdownListKind * list<MarkdownParagraphs>
   | QuotedBlock of MarkdownParagraphs
@@ -56,10 +66,14 @@ type MarkdownParagraph =
   | TableBlock of option<MarkdownTableRow> * list<MarkdownColumnAlignment> * list<MarkdownTableRow>
   | EmbedParagraphs of MarkdownEmbedParagraphs
 
+/// A type alias for a list of paragraphs
 and MarkdownParagraphs = list<MarkdownParagraph>
 
+/// A type alias representing table row as a list of paragraphs
 and MarkdownTableRow = list<MarkdownParagraphs>
 
+/// Provides an extensibility point for adding custom kinds of paragraphs into a document
+/// (`MarkdownEmbedParagraphs` values can be embedded using `MarkdownParagraph.EmbedParagraphs`)
 and MarkdownEmbedParagraphs =
   abstract Render : unit -> MarkdownParagraphs
 
@@ -67,6 +81,8 @@ and MarkdownEmbedParagraphs =
 // Patterns that make recursive Markdown processing easier
 // --------------------------------------------------------------------------------------
 
+/// This module provides an easy way of processing Markdown documents.
+/// It lets you decompose documents into leafs and nodes with nested paragraphs.
 module Matching =
   type SpanLeafInfo = private SL of MarkdownSpan
   type SpanNodeInfo = private SN of MarkdownSpan

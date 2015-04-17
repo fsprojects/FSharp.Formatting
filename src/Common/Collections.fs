@@ -11,6 +11,7 @@ namespace FSharp.Collections
 // that are useful when writing parsers by hand.
 // --------------------------------------------------------------------------------------
 
+/// [omit]
 module List = 
   /// Returns a singleton list containing a specified value
   let singleton v = [v]
@@ -47,6 +48,10 @@ module List =
   /// Partitions list into an initial sequence (while the 
   /// specified predicate returns 'false') and a rest of the list.
   let partitionUntil p input = partitionWhile (p >> not) input
+
+  /// Partitions list into an initial sequence (while the 
+  /// specified predicate returns 'false') and a rest of the list.
+  let partitionUntilLookahead p input = partitionWhileLookahead (p >> not) input
 
   /// Iterates over the elements of the list and calls the first function for 
   /// every element. Between each two elements, the second function is called.
@@ -97,8 +102,11 @@ module List =
 // --------------------------------------------------------------------------------------
 
 /// Represents a tree with nodes containing values an a list of children
+///
+/// [omit]
 type Tree<'T> = Node of 'T * list<Tree<'T>>
 
+/// [omit]
 module Tree = 
   /// Takes all elements at the specified level and turns them into nodes
   let rec private takeAtLevel indent tail = 
