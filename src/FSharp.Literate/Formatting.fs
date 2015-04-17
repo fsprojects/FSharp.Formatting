@@ -111,8 +111,9 @@ module internal Templating =
     // To avoid clashes in templating use {contents} for Latex and older {document} for HTML
     let contentTag = 
       match ctx.OutputKind with 
-      | OutputKind.Html -> "document" 
+      | OutputKind.WikiMedia | OutputKind.Html -> "document" 
       | OutputKind.Latex -> "contents" 
+      
 
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc

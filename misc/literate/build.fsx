@@ -39,6 +39,12 @@ let processScriptAsLatex () =
   let template = relative "templates/template-color.tex"
   Literate.ProcessScriptFile(file, template, output, format = OutputKind.Latex)
 
+/// Processes a single F# script file and product WikiMedia output
+let processScriptAsWikiMedia () =
+  let file = relative "demo.fsx"
+  let output = relative "output/demo-script.wikimedia"
+  Literate.ProcessScriptFile(file, template, output, format = OutputKind.WikiMedia)
+
 /// Processes a single Markdown document and produce HTML output
 let processDocAsHtml () =
   let file = relative "demo.md"

@@ -1,0 +1,133 @@
+[[Category: Literate sample<br/>]]
+
+Literate sample<br/>
+<br/>
+This file demonstrates how to write literate F# script
+files (<code>*.fsx</code>) that can be transformed into nice HTML
+using the <code>literate.fsx</code> script from the [http://tpetricek.github.com/FSharp.Formatting F# Formatting
+package].<br/>
+<br/>
+<br/>
+As you can see, a comment starting with double asterisk
+is treated as part of the document and is transformed 
+using Markdown, which means that you can use:<br/>
+<br/>
+*Unordered or ordered lists<br/>
+<br/>
+*Text formatting including ''bold'' and '''emphasis'''<br/>
+<br/>
+<br/>
+<br/>
+And numerous other [http://daringfireball.net/projects/markdown Markdown] features.<br/>
+<br/>
+=Writing F# code=<br/>
+<br/>
+Code that is not inside comment will be formatted as
+a sample snippet (which also means that you can 
+run it in Visual Studio or MonoDevelop).<br/>
+<br/>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="c">/// The Hello World of functional languages!</span>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="f">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span> 
+  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
+  <span class="k">else</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="f">factorial</span> (<span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="f">factorial</span> <span class="n">10</span>
+</pre>
+</td>
+</tr>
+</table><br/>
+=Hiding code=<br/>
+<br/>
+If you want to include some code in the source code, 
+but omit it from the output, you can use the <code>hide</code> 
+command.<br/>
+<br/>
+<br/>
+The value will be deffined in the F# code and so you
+can use it from other (visible) code and get correct
+tool tips:<br/>
+<br/>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="i">hidden</span>
+</pre>
+</td>
+</tr>
+</table><br/>
+=Moving code around=<br/>
+<br/>
+Sometimes, it is useful to first explain some code that
+has to be located at the end of the snippet (perhaps 
+because it uses some definitions discussed in the middle).
+This can be done using <code>include</code> and <code>define</code> commands.<br/>
+<br/>
+<br/>
+The following snippet gets correct tool tips, even though
+it uses <code>laterFunction</code>:<br/>
+<br/>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">sample</span> <span class="o">=</span> 
+  <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="f">laterFunction</span>()
+  <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="f">printfn</span> <span class="s">&quot;Got: </span><span class="pf">%s</span><span class="s">&quot;</span>
+</pre>
+</td>
+</tr>
+</table><br/>
+<br/>
+Then we can explain how <code>laterFunction</code> is defined:<br/>
+<br/>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="f">laterFunction</span>() <span class="o">=</span> 
+  <span class="s">&quot;Not very difficult, is it?&quot;</span>
+</pre>
+</td>
+</tr>
+</table><br/>
+<br/>
+This example covers pretty much all features that are 
+currently implemented in <code>literate.fsx</code>, but feel free 
+to [https://github.com/tpetricek/FSharp.Formatting fork the project on GitHub] and add more 
+features or report bugs!<br/>
+<br/>
+=Other features=<br/>
+<br/>
+The tool-tips also work for double-backtick identifiers.
+This might be useful to generate nice documents from tests:<br/>
+<br/>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+<span class="l">2: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs9', 16)" onmouseover="showTip(event, 'fs9', 16)" class="f">``1 + 1 should be equal to 2``</span>() <span class="o">=</span>
+  <span class="n">1</span> <span class="o">+</span> <span class="n">1</span> <span class="o">=</span> <span class="n">2</span>
+</pre>
+</td>
+</tr>
+</table><br/>
+<br/>Others examples follow here.<br/><br/>

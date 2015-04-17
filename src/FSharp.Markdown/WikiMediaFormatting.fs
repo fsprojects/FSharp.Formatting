@@ -153,7 +153,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.LineBreak()
   | HorizontalRule(_) ->
       ctx.Writer.Write("----")
-  | CodeBlock(code) ->
+  | CodeBlock(code, _, _) ->
       ctx.LineBreak()
       ctx.Writer.Write("<pre>")
       ctx.Writer.Write(htmlEncode code)
