@@ -21,6 +21,11 @@ module internal Formatting =
         use wr = new StringWriter(sb)
         Html.formatMarkdown wr generateAnchors System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
         sb.ToString()
+    | OutputKind.WikiMedia -> 
+        let sb = new System.Text.StringBuilder()
+        use wr = new StringWriter(sb)
+        WikiMedia.formatMarkdown wr System.Environment.NewLine doc.DefinedLinks doc.Paragraphs
+        sb.ToString() 
 
   /// Try find first-level heading in the paragraph collection
   let findHeadings paragraphs generateAnchors (outputKind:OutputKind) =              

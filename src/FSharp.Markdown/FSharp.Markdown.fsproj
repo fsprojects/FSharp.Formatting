@@ -82,9 +82,9 @@
     <Compile Include="Markdown.fs" />
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="LatexFormatting.fs" />
+    <Compile Include="HtmlFormatting.fs" />
     <Compile Include="WikiMediaFormatting.fs" />
     <Compile Include="Main.fs" />
-    <Compile Include="HtmlFormatting.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
