@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
-MinimumVisualStudioVersion = 10.0.40219.1
+MinimumVisualStudioVersion = 12.0.31101.0
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Literate.Tests", "tests\FSharp.Literate.Tests\FSharp.Literate.Tests.fsproj", "{C22A18AB-6C54-48B4-AAC5-892499E93D4D}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat.Tests", "tests\FSharp.CodeFormat.Tests\FSharp.CodeFormat.Tests.fsproj", "{5DEBD769-D86E-4E14-ABF1-373CA91BFAA2}"
