@@ -115,14 +115,24 @@ type IFsiEvaluator =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
-  let inStream = new StringReader("")
   let sbOut = new Text.StringBuilder()
   let sbErr = new Text.StringBuilder()
-  let outStream = new StringWriter(sbOut)
-  let errStream = new StringWriter(sbErr)
-  let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings())
-  let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
-  let fsiSession = FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream)
+
+  let fsiSession = 
+    let inStream = new StringReader("")
+    let outStream = new StringWriter(sbOut)
+    let errStream = new StringWriter(sbErr)
+    let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings(), false)
+    let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
+    FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream)
+
+  do 
+    let fullPath = System.Reflection.Assembly.GetExecutingAssembly().Location
+    let dir, fname = Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath)
+    fsiSession.EvalInteraction("#I @\"" + dir + "\"")
+    fsiSession.EvalInteraction("#r @\"" + fname + "\"")
+    fsiSession.EvalInteraction("let fsi = new FSharp.Literate.EvaluatorHelpers.InteractiveSettings()")
+
   let evalFailed = new Event<_>()
   let lockObj = obj()
 
