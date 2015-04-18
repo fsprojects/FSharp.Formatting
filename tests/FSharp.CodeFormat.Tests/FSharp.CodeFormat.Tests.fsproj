@@ -86,7 +86,6 @@
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>
-</Project>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
       <Name>FSharp.CodeFormat</Name>

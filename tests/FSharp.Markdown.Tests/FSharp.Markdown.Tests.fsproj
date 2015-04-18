@@ -84,7 +84,6 @@
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>
-</Project>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj">
       <Name>FSharp.Markdown</Name>
