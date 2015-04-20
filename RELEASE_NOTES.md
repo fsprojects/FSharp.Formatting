@@ -1,3 +1,19 @@
+## 2.9.0 (20 April, 2015)
+ - Properly encode '>' entities (#84)
+ - Generate line numbers for non-F# code (#227)
+ - Support headings on the same line as comment (#147)
+ - Fixes in HTML encoding of non-F# code snippets (#249, #213) 
+ - Remove Razor mono workaround (#279)
+ - Add a public API to process a customized LiterateDocument (#282)
+ - Add an API to process a customized LiterateDocument (#289)
+ - Use template path if it is rooted (#281)
+ - Enable evaluation tests for literate scripts
+ - Create `fsi` object without `FSharp.Compiler.Interactive.Settings.dll`
+ - Fix #229 (Key already exists exception when parsing an assembly)
+ - Update to Visual Studio 2013 (only)
+ - Update LaTeX colors using CSS Light theme (#278)
+
+## 2.8.0 (and before 20 April, 2015)
 * 1.0.15 - Added latex support, tables and better formatting with line numbers
 * 2.0.0 - New project structure, adding MetadataFormat
 * 2.0.1 - Fixed handling of # in headers
