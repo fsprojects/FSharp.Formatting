@@ -194,11 +194,16 @@ module RazorEngineCache =
     engine
 
 /// [omit]
-type RazorRender(layoutRoots, namespaces, templateName:string, ?references : string list) =
-  let templateName =
-    if templateName.EndsWith(".cshtml") then
-        templateName.Substring(0, templateName.Length - 7)
-    else templateName
+type RazorRender(layoutRoots, namespaces, template:string, ?references : string list) =
+  // template is either a full path or a template name
+  let templatePath, templateName =
+    if Path.IsPathRooted (template) then
+      Some template, Path.GetFileNameWithoutExtension template
+    else
+      None,
+      if template.EndsWith(".cshtml") then
+          template.Substring(0, template.Length - 7)
+      else template
 
   let razorEngine = RazorEngineCache.Get layoutRoots namespaces references
   let handleCompile source f =
@@ -231,7 +236,6 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?references : str
     viewBag
 
   member internal x.HandleCompile source f = handleCompile source f
-  member internal x.TemplateName = templateName
   member internal x.WithProperties properties = withProperties properties x.ViewBag
 
   /// Dynamic object with more properties (?)
@@ -242,11 +246,15 @@ type RazorRender(layoutRoots, namespaces, templateName:string, ?references : str
 
   member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
     handleCompile templateName (fun _ ->
-      razorEngine.RunCompile(templateName, modelType, model, x.WithProperties(properties)))
+      let templateKey =
+        match templatePath with
+        | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+        | None ->  razorEngine.GetKey(templateName)
+      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
 
 /// [omit]
-and RazorRender<'model>(layoutRoots, namespaces, templateName, ?references) =
-    inherit RazorRender(layoutRoots, namespaces, templateName, ?references = references)
+and RazorRender<'model>(layoutRoots, namespaces, template, ?references) =
+    inherit RazorRender(layoutRoots, namespaces, template, ?references = references)
 
     member x.ProcessFile(model:'model, ?properties) = 
       x.ProcessFileModel(typeof<'model>, model, ?properties = properties)
