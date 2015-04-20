@@ -265,4 +265,7 @@ version of the F# compiler:
    Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
    if you need additional references in your templates
    (if not specified, we use the currently loaded assemblies).
+ - `customizeDocument` - Allows you to customize the document before writing it 
+   to the output file. This gives you the opportunity to use your own
+   code formatting code, for example to support syntax highlighting for another language. 
 *)
