@@ -14,9 +14,9 @@ type CompilerContext =
     DefinedSymbols : string option }
 
 
-/// Defines the two possible output types from literate script: HTML and LaTeX.
+/// Defines the possible output types from literate script: HTML, LaTeX and WikiMedia.
 [<RequireQualifiedAccess>]
-type OutputKind = Html | Latex
+type OutputKind = Html | Latex | WikiMedia
 
 
 /// Specifies a context that is passed to functions that generate the output

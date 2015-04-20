@@ -326,12 +326,13 @@ module internal Transformations =
         | LanguageTaggedCode(lang, code) -> 
             let inlined = 
               match ctx.OutputKind with
-              | OutputKind.Html ->
+              | OutputKind.Html | OutputKind.WikiMedia ->
                   let code = HttpUtility.HtmlEncode code
                   let code = SyntaxHighlighter.FormatCode(lang, code)
                   sprintf "<table class=\"pre\"><tr><td><pre lang=\"%s\">%s</pre></td></tr></table>" lang code
               | OutputKind.Latex ->
                   sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
+
             Some(InlineBlock(inlined))
     // Traverse all other structures recursively
     | Matching.ParagraphNested(pn, nested) ->
@@ -348,7 +349,7 @@ module internal Transformations =
     // Format all snippets and build lookup dictionary for replacements
     let formatted =
       match ctx.OutputKind with
-      | OutputKind.Html -> CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+      | OutputKind.Html | OutputKind.WikiMedia -> CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
       | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 

@@ -44,6 +44,7 @@ type Literate private () =
     | Some out, _ -> out
     | _, OutputKind.Latex -> Path.ChangeExtension(input, "tex")
     | _, OutputKind.Html -> Path.ChangeExtension(input, "html")
+    | _, OutputKind.WikiMedia -> Path.ChangeExtension(input, "wikimedia")
       
   /// Apply the specified transformations to a document
   static let transform references doc =
