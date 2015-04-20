@@ -18,7 +18,7 @@ Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 let project = "FSharp.Formatting" 
 let projectTool = "FSharp.Formatting.CommandTool" 
 
-let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"]
+let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"; "Matthias Dittrich"]
 let authorsTool = ["Friedrich Boeckh"; "Tomas Petricek"]
 
 let summary = "A package of libraries for building great F# documentation, samples and blogs"
@@ -85,7 +85,7 @@ Target "UpdateFsxVersions" (fun _ ->
       packages |> Seq.map (fun packageName ->
         sprintf "/%s.(.*)/lib" packageName,
         sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName))
-    let path = "./src/FSharp.Formatting.fsx"
+    let path = "./packages/FSharp.Formatting/FSharp.Formatting.fsx"
     let text = File.ReadAllText(path)
     let text = (text, replacements) ||> Seq.fold (fun text (pattern, replacement) ->
         Text.RegularExpressions.Regex.Replace(text, pattern, replacement) )

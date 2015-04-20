@@ -4,7 +4,8 @@ obj/
 nuget/*.nupkg
 docs/output/
 literate/outputs/*
-packages/
+packages/*
+!packages/FSharp.Formatting
 *.VisualState.xml
 TestResults.xml
 TestResult.xml
