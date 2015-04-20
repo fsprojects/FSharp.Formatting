@@ -91,13 +91,8 @@ namespace CSharpFormat
                 return code;
             else
             {
-                string c = code.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("&quot;", "\"");
-                c = c.Replace("<em>", "verynastythingthatnoonewillusebeginem")
-                     .Replace("</em>", "verynastythingthatnoonewilluseendem");
                 sf.TabSpaces = 2;
-                return sf.FormatCode(c)
-                  .Replace("verynastythingthatnoonewilluseendem", "</em>")
-                  .Replace("verynastythingthatnoonewillusebeginem", "<em>");
+                return sf.FormatCode(code);
             }
         }
     }

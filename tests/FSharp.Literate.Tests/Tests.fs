@@ -179,6 +179,17 @@ let ``Correctly encodes special HTML characters (<, >, &) in code`` () =
   let html = Literate.WriteHtml(doc)
   html |> should contain "&lt;a&gt; &amp; &lt;b&gt;"
 
+[<Test>]
+let ``Correctly encodes already encoded HTML entities and tags`` () =
+  let content = """
+    [lang=js]
+    "&amp;" + "<em>" + "&quot;"; """
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain "&amp;amp;"
+  html |> should contain "&amp;quot;"
+  html |> should contain "&lt;em&gt;"
+
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
 // --------------------------------------------------------------------------------------
