@@ -59,6 +59,16 @@ let test = 42"""
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph [Strong [Literal "hello"]] -> true | _ -> false) 
 
+[<Test>]
+let ``Can parse heading on the same line as opnening comment (#147)`` () =
+  let content = """
+(** ## Heading
+content *)
+let test = 42"""
+  let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent())
+  doc.Paragraphs |> shouldMatchPar (function
+    | Heading(2, [Literal "Heading"]) -> true | _ -> false)
+
 [<Test>] 
 let ``Can parse and format markdown with F# snippet`` () =
   let content = """

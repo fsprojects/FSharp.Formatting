@@ -102,8 +102,9 @@ module internal CodeBlockUtils =
 
       | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
           // Found a comment - yield snippet & switch to parsing comment state
+          // (Also trim leading spaces to support e.g.: `(** ## Hello **)`)
           if acc <> [] then yield blockSnippet acc
-          yield! collectComment text lines
+          yield! collectComment (text.TrimStart()) lines
 
       | x::xs ->  yield! collectSnippet (x::acc) xs
       | [] -> yield blockSnippet acc }
