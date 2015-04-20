@@ -200,6 +200,35 @@ let ``Correctly encodes already encoded HTML entities and tags`` () =
   html |> should contain "&amp;quot;"
   html |> should contain "&lt;em&gt;"
 
+[<Test>]
+let ``Generates line numbers for F# code snippets`` () =
+  let content = """
+(** Hello *)
+let a1 = 1
+let a2 = 2"""
+  let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc, lineNumbers=true)
+  html |> should contain "<p>Hello</p>"
+  html |> should contain "1:"
+  html |> should contain "2:"
+  html |> should notContain "3:"
+
+[<Test>]
+let ``Generates line numbers for non-F# code snippets`` () =
+  let content = """
+(** Hello
+
+```csharp
+var a1 = 1;
+var a2 = 2;
+``` *)"""
+  let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc, lineNumbers=true)
+  html |> should contain "<p>Hello</p>"
+  html |> should contain "1:"
+  html |> should contain "2:"
+  html |> should notContain "3:"
+
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
 // --------------------------------------------------------------------------------------

@@ -150,16 +150,19 @@ For example, if you want to experiment with the [template file of the FSharp.For
 you copy this file into the subdirectory `templates` of your working directory and specify the 
 [necessary substitution parameters](https://github.com/tpetricek/FSharp.Formatting/blob/master/docs/tools/generate.fsx#L24) as follows:
 
-<table class="pre"><tr><td><pre lang="text">fsformatting metadataFormat 
-  --generate 
-  --dllFiles lib1.dll &quot;lib 2.dll&quot; 
-  --outDir &quot;../api-docs&quot; 
-  --layoutRoots templates
-  --parameters &quot;page-author&quot; &quot;Your name(s)&quot;
-               &quot;page-description&quot; &quot;A package for ...&quot;
-	           &quot;github-link&quot; &quot;http://github.com/yourname/project&quot;
-               &quot;project-name&quot; &quot;your project name&quot;
-	           &quot;root&quot; &quot;http://yourname.github.io/project&quot;</pre></td></tr></table>	  
+<div></div>
+
+    [lang=text]
+    fsformatting metadataFormat 
+      --generate 
+      --dllFiles lib1.dll "lib 2.dll" 
+      --outDir "../api-docs" 
+      --layoutRoots templates
+      --parameters "page-author" "Your name(s)"
+                    "page-description" "A package for ..."
+	                "github-link" "http://github.com/yourname/project"
+                    "project-name" "your project name"
+	                "root" "http://yourname.github.io/project"
 	  
 	  
 Note: depending on the quote evaluation scheme of your OS and shell, you may encounter unexpected errors due to misinterpretation of the string parameters.				   
