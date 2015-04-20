@@ -152,6 +152,33 @@ let ``Codeblock whitespace is preserved`` () =
   let html = Literate.WriteHtml(doc)
   html |> should contain expected
 
+[<Test>]
+let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
+  let content = """
+    [lang=sql]
+    Æøå"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain ">Æøå<"
+
+[<Test>]
+let ``Correctly handles apostrophes in JS code block (#213)`` () =
+  let content = """
+    [lang=js]
+    var but = 'I\'m not so good...';"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain @"'I\'m not so good...'"
+
+[<Test>]
+let ``Correctly encodes special HTML characters (<, >, &) in code`` () =
+  let content = """
+    [lang=js]
+    var pre = "<a> & <b>";"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain "&lt;a&gt; &amp; &lt;b&gt;"
+
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
 // --------------------------------------------------------------------------------------

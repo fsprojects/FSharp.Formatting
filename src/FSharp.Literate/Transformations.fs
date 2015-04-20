@@ -328,7 +328,6 @@ module Transformations =
             let inlined = 
               match ctx.OutputKind with
               | OutputKind.Html ->
-                  let code = HttpUtility.HtmlEncode code
                   let code = SyntaxHighlighter.FormatCode(lang, code)
                   sprintf "<table class=\"pre\"><tr><td><pre lang=\"%s\">%s</pre></td></tr></table>" lang code
               | OutputKind.Latex ->
