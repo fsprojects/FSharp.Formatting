@@ -11,7 +11,8 @@ open FSharp.Patterns
 open FSharp.CodeFormat
 open FSharp.Markdown
 
-module internal Transformations = 
+/// [omit]
+module Transformations = 
   // ----------------------------------------------------------------------------------------------
   // Replace all code snippets (assume F#) with their nicely formatted versions
   // ----------------------------------------------------------------------------------------------
