@@ -19,6 +19,13 @@ let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
   |> shouldEqual [ Paragraph [Literal """<a href="mailto:a@b.c">hi</a>""" ]]
 
 [<Test>]
+let ``Encode '<' and '>' characters as HTML entities`` () =
+  let doc = "foo\n\n - a --> b" |> Markdown.TransformHtml
+  doc |> should contain "&gt;"
+  let doc = "foo\n\n - a <-- b" |> Markdown.TransformHtml
+  doc |> should contain "&lt;"
+
+[<Test>]
 let ``Headings ending with F# are parsed correctly`` () =
   let doc = """
 ## Hello F#

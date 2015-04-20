@@ -237,6 +237,8 @@ let rec parseChars acc input = seq {
   // Encode '<' char if it is not link or inline HTML
   | '<'::rest -> 
       yield! parseChars (';'::'t'::'l'::'&'::acc) rest      
+  | '>'::rest -> 
+      yield! parseChars (';'::'t'::'g'::'&'::acc) rest      
   | x::xs -> 
       yield! parseChars (x::acc) xs 
   | [] ->
