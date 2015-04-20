@@ -133,6 +133,13 @@ type Literate private () =
   // Processing functions that handle templating etc.
   // ------------------------------------------------------------------------------------
 
+  /// Process the given literate document
+  static member ProcessDocument
+    ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors,
+      ?replacements, ?layoutRoots, ?assemblyReferences) =
+    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
+    Templating.processFile assemblyReferences doc output ctx
+
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
