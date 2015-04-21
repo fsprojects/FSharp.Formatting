@@ -11,10 +11,12 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 // Standard NuGet locations
 #I "../FSharp.Compiler.Service.0.0.87/lib/net45"
 #I "../FSharpVSPowerTools.Core.1.8.0/lib/net45"
+#I "../RazorEngine.3.6.4/lib/net45"
 
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/net45"
 #I "../FSharpVSPowerTools.Core/lib/net45"
+#I "../RazorEngine/lib/net45"
 
 
 // Try various folders that people might like
@@ -24,6 +26,7 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 #I "lib"
 
 // Reference VS PowerTools, Razor and F# Formatting components
+#r "RazorEngine.dll"
 #r "FSharpVSPowerTools.Core.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
