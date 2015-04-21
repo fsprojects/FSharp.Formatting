@@ -24,6 +24,7 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 #I "lib"
 
 // Reference VS PowerTools, Razor and F# Formatting components
+#r "RazorEngine.dll"
 #r "FSharpVSPowerTools.Core.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
