@@ -1,6 +1,7 @@
 *.suo
 bin/
 obj/
+paket-files/
 nuget/*.nupkg
 docs/output/
 literate/outputs/*
