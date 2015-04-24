@@ -1,3 +1,6 @@
+## 2.9.2 (24 April, 2015)
+ - Require exact version of F# Compiler Service
+
 ## 2.9.1 (21 April, 2015)
  - Add back RazorEngine.dll (#302)
 
