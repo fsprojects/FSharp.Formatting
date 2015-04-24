@@ -9,7 +9,7 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 
 
 // Standard NuGet locations
-#I "../FSharp.Compiler.Service.0.0.87/lib/net45"
+#I "../FSharp.Compiler.Service.0.0.89/lib/net45"
 #I "../FSharpVSPowerTools.Core.1.8.0/lib/net45"
 
 // Standard Paket locations
