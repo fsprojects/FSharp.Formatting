@@ -7,6 +7,6 @@ nuget RazorEngine
 nuget NUnit
 nuget NUnit.Runners
 nuget NuGet.CommandLine
-nuget FSharp.Compiler.Service == 0.0.87
+nuget FSharp.Compiler.Service
 nuget FSharpVSPowerTools.Core == 1.8.0
 nuget ILRepack 1.22.2
