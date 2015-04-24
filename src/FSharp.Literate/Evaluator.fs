@@ -117,21 +117,29 @@ type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
   let sbOut = new Text.StringBuilder()
   let sbErr = new Text.StringBuilder()
-
-  let fsiSession = 
+  
+  let evalInteraction, evalExpression = 
     let inStream = new StringReader("")
     let outStream = new StringWriter(sbOut)
     let errStream = new StringWriter(sbErr)
     let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings(), false)
     let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
-    FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream)
-
+    let wrap_exception f =
+      try
+        f()
+      with exn -> raise <| new System.Exception(sprintf "FSI failed: \n\tError: %O\n\tOut: %O" errStream outStream, exn)
+    let fsiSession = wrap_exception (fun () -> FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream))
+    let evalInteraction s =
+      wrap_exception (fun () -> fsiSession.EvalInteraction(s))
+    let evalExpression s =
+      wrap_exception (fun () -> fsiSession.EvalExpression(s))
+    evalInteraction, evalExpression
   do 
     let fullPath = System.Reflection.Assembly.GetExecutingAssembly().Location
     let dir, fname = Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath)
-    fsiSession.EvalInteraction("#I @\"" + dir + "\"")
-    fsiSession.EvalInteraction("#r @\"" + fname + "\"")
-    fsiSession.EvalInteraction("let fsi = new FSharp.Literate.EvaluatorHelpers.InteractiveSettings()")
+    evalInteraction("#I @\"" + dir + "\"")
+    evalInteraction("#r @\"" + fname + "\"")
+    evalInteraction("let fsi = new FSharp.Literate.EvaluatorHelpers.InteractiveSettings()")
 
   let evalFailed = new Event<_>()
   let lockObj = obj()
@@ -181,8 +189,8 @@ type FsiEvaluator(?options:string[]) =
         lock lockObj <| fun () ->
           file |> Option.iter (fun file ->
             let dir = Path.GetDirectoryName(file)
-            fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
-            fsiSession.EvalInteraction(sprintf "#cd @\"%s\"" dir) )
+            evalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
+            evalInteraction(sprintf "#cd @\"%s\"" dir) )
           sbOut.Clear() |> ignore
           sbErr.Clear() |> ignore
           let sbConsole = new Text.StringBuilder()
@@ -191,14 +199,14 @@ type FsiEvaluator(?options:string[]) =
             Console.SetOut(new StringWriter(sbConsole))
             let value, itvalue =
               if asExpression then
-                  match fsiSession.EvalExpression(text) with
+                  match evalExpression(text) with
                   | Some value -> Some(value.ReflectionValue, value.ReflectionType), None
                   | None -> None, None
               else
-                fsiSession.EvalInteraction(text)
+                evalInteraction(text)
                 // try get the "it" value, but silently ignore any errors
                 try 
-                  match fsiSession.EvalExpression("it") with
+                  match evalExpression("it") with
                   | Some value -> None, Some(value.ReflectionValue, value.ReflectionType)
                   | None -> None, None
                 with _ -> None, None
