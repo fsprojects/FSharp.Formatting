@@ -1,8 +1,11 @@
+## 2.9.1 (21 April, 2015)
+ - Add back RazorEngine.dll (#302)
+
 ## 2.9.0 (20 April, 2015)
  - Properly encode '>' entities (#84)
  - Generate line numbers for non-F# code (#227)
  - Support headings on the same line as comment (#147)
- - Fixes in HTML encoding of non-F# code snippets (#249, #213) 
+ - Fixes in HTML encoding of non-F# code snippets (#249, #213)
  - Remove Razor mono workaround (#279)
  - Add a public API to process a customized LiterateDocument (#282)
  - Add an API to process a customized LiterateDocument (#289)
