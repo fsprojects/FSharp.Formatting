@@ -109,29 +109,33 @@ type FsiEvaluator(?options:string[]) =
     member x.Evaluate(text:string, asExpression, ?file) =
       try
         lock lockObj <| fun () ->
-          file |> Option.iter (fun file ->
-            let dir = Path.GetDirectoryName(file)
-            evalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
-            evalInteraction(sprintf "#cd @\"%s\"" dir) )
-          sbOut.Clear() |> ignore
-          sbErr.Clear() |> ignore
-          let sbConsole = new Text.StringBuilder()
-          let prev = Console.Out
-          try //try..finally to make sure console.out is re-set to prev
-            Console.SetOut(new StringWriter(sbConsole))
-            let value, itvalue =
-              if asExpression then
-                  evalExpression text, None
-              else
-                evalInteraction(text)
-                // try get the "it" value, but silently ignore any errors
-                try 
-                  None, evalExpression "it"
-                with _ -> None, None
-            let output = Some(sbConsole.ToString())
-            { Output = output; Result = value; ItValue = itvalue  } :> _
-          finally
-            Console.SetOut(prev)
+          let cwd = Directory.GetCurrentDirectory()
+          try
+            file |> Option.iter (fun file ->
+              let dir = Path.GetDirectoryName(file)
+              evalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
+              evalInteraction(sprintf "#cd @\"%s\"" dir) )
+            sbOut.Clear() |> ignore
+            sbErr.Clear() |> ignore
+            let sbConsole = new Text.StringBuilder()
+            let prev = Console.Out
+            try //try..finally to make sure console.out is re-set to prev
+              Console.SetOut(new StringWriter(sbConsole))
+              let value, itvalue =
+                if asExpression then
+                    evalExpression text, None
+                else
+                  evalInteraction(text)
+                  // try get the "it" value, but silently ignore any errors
+                  try 
+                    None, evalExpression "it"
+                  with _ -> None, None
+              let output = Some(sbConsole.ToString())
+              { Output = output; Result = value; ItValue = itvalue  } :> _
+            finally
+              Console.SetOut(prev)
+          finally 
+            System.IO.Directory.SetCurrentDirectory cwd
       with e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = sbErr.ToString() }
         { Output = None; Result = None; ItValue = None } :> _
