@@ -56,9 +56,7 @@ type IFsiEvaluator =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
-  let sbOut = new Text.StringBuilder()
-  let sbErr = new Text.StringBuilder()
-  
+
   let fsiSession = ScriptHost.CreateNew()
   let evalInteraction, evalExpression =
     fsiSession.EvalInteraction, fsiSession.TryEvalExpression
@@ -110,32 +108,28 @@ type FsiEvaluator(?options:string[]) =
       try
         lock lockObj <| fun () ->
           let cwd = Directory.GetCurrentDirectory()
+          let sbConsole = new Text.StringBuilder()
+          let prev = Console.Out
+          Console.SetOut(new StringWriter(sbConsole))
           try
             file |> Option.iter (fun file ->
               let dir = Path.GetDirectoryName(file)
               evalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
               evalInteraction(sprintf "#cd @\"%s\"" dir) )
-            sbOut.Clear() |> ignore
-            sbErr.Clear() |> ignore
-            let sbConsole = new Text.StringBuilder()
-            let prev = Console.Out
-            try //try..finally to make sure console.out is re-set to prev
-              Console.SetOut(new StringWriter(sbConsole))
-              let value, itvalue =
-                if asExpression then
-                    evalExpression text, None
-                else
-                  evalInteraction(text)
-                  // try get the "it" value, but silently ignore any errors
-                  try 
-                    None, evalExpression "it"
-                  with _ -> None, None
-              let output = Some(sbConsole.ToString())
-              { Output = output; Result = value; ItValue = itvalue  } :> _
-            finally
-              Console.SetOut(prev)
-          finally 
+            let value, itvalue =
+              if asExpression then
+                  evalExpression text, None
+              else
+                evalInteraction(text)
+                // try get the "it" value, but silently ignore any errors
+                try
+                  None, evalExpression "it"
+                with _ -> None, None
+            let output = Some(sbConsole.ToString())
+            { Output = output; Result = value; ItValue = itvalue  } :> _
+          finally
+            Console.SetOut(prev)
             System.IO.Directory.SetCurrentDirectory cwd
-      with e ->
-        evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = sbErr.ToString() }
+      with :? FsiEvaluationException as e ->
+        evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
         { Output = None; Result = None; ItValue = None } :> _
