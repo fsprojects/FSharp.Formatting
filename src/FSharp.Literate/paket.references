@@ -1,5 +1,4 @@
 File: YaafFSharpScripting.fs 
 FSharp.Compiler.Service
 Microsoft.AspNet.Razor
-FSharpVSPowerTools.Core
 RazorEngine
