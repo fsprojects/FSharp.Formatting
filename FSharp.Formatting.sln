@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 	ProjectSection(SolutionItems) = preProject
 		build.fsx = build.fsx
 		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
-		src\FSharp.Formatting.fsx = src\FSharp.Formatting.fsx
+		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
 		paket.dependencies = paket.dependencies
 		RELEASE_NOTES.md = RELEASE_NOTES.md
@@ -39,9 +39,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sidebyside", "sidebyside", "{561B2DD7-455E-4464-B585-C8768C633EFC}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\sidebyside\extensions.md = docs\content\sidebyside\extensions.md
-		docs\content\sidebyside\markdown.md = docs\content\sidebyside\markdown.md
-		docs\content\sidebyside\script.fsx = docs\content\sidebyside\script.fsx
+		docs\content\sidebyside\sideextensions.md = docs\content\sidebyside\sideextensions.md
+		docs\content\sidebyside\sidemarkdown.md = docs\content\sidebyside\sidemarkdown.md
+		docs\content\sidebyside\sidescript.fsx = docs\content\sidebyside\sidescript.fsx
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820}"

@@ -31,11 +31,20 @@ open Fake
 open System.IO
 open Fake.FileHelper
 
-// The following lines are F# Formatting only bootstrapping...
+// This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
+// If you came here from the nuspec file add your file.
+// If you add files here to make the CI happy add those files to the .nuspec file as well
+// TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
 ensureDirectory (__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/lib/net40")
-File.Copy
-  ( __SOURCE_DIRECTORY__ @@ "../../packages/Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll", 
-    __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/lib/net40/System.Web.Razor.dll", true)
+let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
+                   "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
+                   "System.Web.Razor.dll" ]
+let bundledFiles =
+  buildFiles
+  |> List.map (fun f -> 
+      __SOURCE_DIRECTORY__ @@ sprintf "../../bin/%s" f, 
+      __SOURCE_DIRECTORY__ @@ sprintf "../../packages/FSharp.Formatting/lib/net40/%s" f)
+for source, dest in bundledFiles do File.Copy(source, dest, true)
 #load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
 open FSharp.Literate
@@ -49,13 +58,15 @@ let root = website
 let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
 #endif
 
+System.IO.Directory.SetCurrentDirectory (__SOURCE_DIRECTORY__)
+
 // Paths with template/source/output locations
-let bin        = __SOURCE_DIRECTORY__ @@ "../../bin"
-let content    = __SOURCE_DIRECTORY__ @@ "../content"
-let output     = __SOURCE_DIRECTORY__ @@ "../output"
-let files      = __SOURCE_DIRECTORY__ @@ "../files"
-let templates  = __SOURCE_DIRECTORY__
-let formatting = __SOURCE_DIRECTORY__ @@ "../../misc/"
+let bin        = "../../bin"
+let content    = "../content"
+let output     = "../output"
+let files      = "../files"
+let templates  = "." 
+let formatting = "../../misc/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 let docTemplateSbS = templates @@ "docpage-sidebyside.cshtml"
 
@@ -71,6 +82,8 @@ subDirectories (directoryInfo templates)
                             name, [templates @@ name
                                    formatting @@ "templates"
                                    formatting @@ "templates/reference" ]))
+
+let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
@@ -94,13 +107,13 @@ let buildReference () =
       parameters = ("root", root)::info,
       sourceRepo = githubLink @@ "tree/master",
       sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
-      publicOnly = true,libDirs = libDirs )
+      publicOnly = true, libDirs = libDirs)
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
   let subdirs = 
-    [ content, docTemplate;  
-      content @@ "sidebyside", docTemplateSbS ]
+    [ content @@ "sidebyside", docTemplateSbS
+      content, docTemplate; ]
   for dir, template in subdirs do
     let sub = "." // Everything goes into the same output directory here
     let langSpecificPath(lang, path:string) =
@@ -114,8 +127,10 @@ let buildDocumentation () =
     Literate.ProcessDirectory
       ( dir, template, output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
-        generateAnchors = true, 
-        includeSource = true ) // Only needed for 'side-by-side' pages, but does not hurt others
+        generateAnchors = true,
+        processRecursive = false,
+        includeSource = true, // Only needed for 'side-by-side' pages, but does not hurt others
+        ?fsiEvaluator = fsiEvaluator.Value ) // Currently we don't need it but it's a good stress test to have it here.
 
 // Generate
 copyFiles()
