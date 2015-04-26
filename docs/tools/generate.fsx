@@ -58,13 +58,15 @@ let root = website
 let root = "file://" + (__SOURCE_DIRECTORY__ @@ "../output")
 #endif
 
+System.IO.Directory.SetCurrentDirectory (__SOURCE_DIRECTORY__)
+
 // Paths with template/source/output locations
-let bin        = __SOURCE_DIRECTORY__ @@ "../../bin"
-let content    = __SOURCE_DIRECTORY__ @@ "../content"
-let output     = __SOURCE_DIRECTORY__ @@ "../output"
-let files      = __SOURCE_DIRECTORY__ @@ "../files"
-let templates  = __SOURCE_DIRECTORY__
-let formatting = __SOURCE_DIRECTORY__ @@ "../../misc/"
+let bin        = "../../bin"
+let content    = "../content"
+let output     = "../output"
+let files      = "../files"
+let templates  = "." 
+let formatting = "../../misc/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 let docTemplateSbS = templates @@ "docpage-sidebyside.cshtml"
 
