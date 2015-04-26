@@ -83,8 +83,7 @@ subDirectories (directoryInfo templates)
                                    formatting @@ "templates"
                                    formatting @@ "templates/reference" ]))
 
-//let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
-let fsiEvaluator = lazy None
+let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
