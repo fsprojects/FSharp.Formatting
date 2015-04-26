@@ -38,7 +38,7 @@ open Fake.FileHelper
 ensureDirectory (__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/lib/net40")
 let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
                    "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                   "System.Web.Razor.dll" ]
+                   "System.Web.Razor.dll"; "FSharpVSPowerTools.Core.dll"; "FSharp.Compiler.Service.dll" ]
 let bundledFiles =
   buildFiles
   |> List.map (fun f -> 
