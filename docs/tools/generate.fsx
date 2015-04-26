@@ -81,7 +81,9 @@ subDirectories (directoryInfo templates)
                                    formatting @@ "templates"
                                    formatting @@ "templates/reference" ]))
 
-let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
+//let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
+let fsiEvaluator = lazy None
+
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
   CopyRecursive files output true |> Log "Copying file: "
@@ -104,13 +106,13 @@ let buildReference () =
       parameters = ("root", root)::info,
       sourceRepo = githubLink @@ "tree/master",
       sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
-      publicOnly = true,libDirs = libDirs)
+      publicOnly = true, libDirs = libDirs)
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
   let subdirs = 
-    [ content, docTemplate;  
-      content @@ "sidebyside", docTemplateSbS ]
+    [ content @@ "sidebyside", docTemplateSbS
+      content, docTemplate; ]
   for dir, template in subdirs do
     let sub = "." // Everything goes into the same output directory here
     let langSpecificPath(lang, path:string) =
@@ -124,7 +126,8 @@ let buildDocumentation () =
     Literate.ProcessDirectory
       ( dir, template, output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
-        generateAnchors = true, 
+        generateAnchors = true,
+        processRecursive = false,
         includeSource = true, // Only needed for 'side-by-side' pages, but does not hurt others
         ?fsiEvaluator = fsiEvaluator.Value ) // Currently we don't need it but it's a good stress test to have it here.
 
