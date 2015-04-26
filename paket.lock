@@ -17,4 +17,4 @@ NUGET
 GITHUB
   remote: matthid/Yaaf.FSharp.Scripting
   specs:
-    src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs (eee80e99f3f6c40eab245f085b983d40590d04d9)
+    src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs (253b322f7da2922c01685a02db45b3f3923d627e)

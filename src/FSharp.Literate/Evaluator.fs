@@ -56,9 +56,10 @@ type IFsiEvaluator =
 type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
 
-  let fsiSession = ScriptHost.CreateNew()
-  let evalInteraction, evalExpression =
-    fsiSession.EvalInteraction, fsiSession.TryEvalExpression
+  let fsiOptions = match options with
+                   | Some opts -> FsiOptions.ofArgs opts
+                   | None -> FsiOptions.Default
+  let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true)
 
   let evalFailed = new Event<_>()
   let lockObj = obj()
@@ -106,29 +107,21 @@ type FsiEvaluator(?options:string[]) =
     member x.Evaluate(text:string, asExpression, ?file) =
       try
         lock lockObj <| fun () ->
-          let cwd = Directory.GetCurrentDirectory()
-          let sbConsole = new Text.StringBuilder()
-          let prev = Console.Out
-          Console.SetOut(new StringWriter(sbConsole))
-          try
-            file |> Option.iter (fun file ->
-              let dir = Path.GetDirectoryName(file)
-              evalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
-              evalInteraction(sprintf "#cd @\"%s\"" dir) )
-            let value, itvalue =
+          let dir = match file with
+                    | Some f -> Path.GetDirectoryName f
+                    | None -> Directory.GetCurrentDirectory()
+          fsiSession.WithCurrentDirectory dir (fun () ->
+            let (output, value), itvalue =
               if asExpression then
-                  evalExpression text, None
+                fsiSession.TryEvalExpressionWithOutput text, None
               else
-                evalInteraction(text)
+                let output = fsiSession.EvalInteractionWithOutput text
                 // try get the "it" value, but silently ignore any errors
                 try
-                  None, evalExpression "it"
-                with _ -> None, None
-            let output = Some(sbConsole.ToString())
-            { Output = output; Result = value; ItValue = itvalue  } :> _
-          finally
-            Console.SetOut(prev)
-            System.IO.Directory.SetCurrentDirectory cwd
+                  (output, None), fsiSession.TryEvalExpression "it"
+                with _ -> (output, None), None
+            { Output = Some output.Output.ScriptOutput; Result = value; ItValue = itvalue  } :> _
+          )
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
         { Output = None; Result = None; ItValue = None } :> _
