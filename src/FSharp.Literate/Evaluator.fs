@@ -38,8 +38,7 @@ type FsiEvaluationFailedInfo =
     File : string option
     Exception : exn
     StdErr : string }
-    override x.ToString() = 
-      let errMessage = x.Exception.Message
+    override x.ToString() =
       let indent (s:string) = 
         s.Split([| '\n'; '\r' |], StringSplitOptions.RemoveEmptyEntries)
         |> Array.map(fun x -> "    " + x)
