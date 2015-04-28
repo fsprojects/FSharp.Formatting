@@ -17,12 +17,6 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 #I "../FSharpVSPowerTools.Core/lib/net45"
 
 
-// Try various folders that people might like
-#I "bin"
-#I "../bin"
-#I "../../bin"
-#I "lib"
-
 // Reference VS PowerTools, Razor and F# Formatting components
 #r "RazorEngine.dll"
 #r "FSharpVSPowerTools.Core.dll"

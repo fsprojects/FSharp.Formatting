@@ -18,6 +18,8 @@
   </metadata>
   <files>
     <!-- Automatically referenced by VS -->
+    <!-- When including additional .dll files here make sure you update "generate.fsx" as well 
+         (it will trigger a CI build failure when forgotten so not a problem) -->
     <file src="..\bin\CSharpFormat.*" target="lib/net40" />
     <file src="..\bin\FSharp.CodeFormat.*" target="lib/net40" />
     <file src="..\bin\FSharp.Literate.*" target="lib/net40" />
