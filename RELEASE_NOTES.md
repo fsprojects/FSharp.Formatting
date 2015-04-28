@@ -1,3 +1,8 @@
+## 2.9.3 (29 April, 2015)
+ - Simplify using FCS interaction using Yaaf.Scripting (#305)
+ - Do not load dependencies when initializing evaluator
+ - Undo require exact version of F# Compiler Service
+
 ## 2.9.2 (24 April, 2015)
  - Require exact version of F# Compiler Service
 
