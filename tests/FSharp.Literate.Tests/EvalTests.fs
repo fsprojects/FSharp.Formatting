@@ -161,4 +161,39 @@ printfn "%d" FsLab.Demo.test
   html1.Contains("42") |> shouldEqual true
   File.Delete(path)
 
+[<Test>]
+let ``Can #load script relative to the script being evaluated`` () =
+  // Generate a script file in a sub-folder of the TEMP folder
+  let file =  """module Test
+let test1 = 42
+let test2 = 43"""
+  let path = Path.GetTempFileName()
+  File.Delete(path)
+  Directory.CreateDirectory(path) |> ignore
+  File.WriteAllText(Path.Combine(path, "test.fsx"), file)
+  
+  // Eval script that #loads the script file and uses relative path
+  let content = """
+(*** define-output:t ***)
+#load @"[PATH]/test.fsx" 
+printfn "%d" Test.test1
+(*** include-output:t ***)
+(** some _markdown_  *)
+(*** define-output:t2 ***)
+#load @"[PATH]/test.fsx" 
+printfn "%d" Test.test2
+(*** include-output:t2 ***)""".Replace("[PATH]", Path.GetFileName(path))
+  // Path where this script is located (though we don't actually need to save it there)
+  let scriptPath = Path.Combine(Path.GetDirectoryName(path), "main.fsx")
+
+  let fsie = getFsiEvaluator()
+  fsie.EvaluationFailed.Add(printfn "%A")
+  let doc1 = Literate.ParseScriptString(content, scriptPath, getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.WriteHtml(doc1)
+  html1.Contains("42") |> shouldEqual true
+  html1.Contains(">markdown<") |> shouldEqual true
+  html1.Contains("43") |> shouldEqual true
+  Directory.Delete(path, true)
+
+  
   
