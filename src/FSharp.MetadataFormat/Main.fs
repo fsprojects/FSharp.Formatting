@@ -3,6 +3,7 @@
 open System
 open System.Reflection
 open System.Collections.Generic
+open Yaaf.FSharp.Scripting
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 open FSharp.Patterns
@@ -1064,64 +1065,23 @@ type MetadataFormat =
 
     // Read and process assemblies and the corresponding XML files
     let assemblies = 
-      let checker = Microsoft.FSharp.Compiler.SourceCodeServices.FSharpChecker.Create()
-      let base1 = Path.GetTempFileName()
-      let dllName = Path.ChangeExtension(base1, ".dll")
-      let fileName1 = Path.ChangeExtension(base1, ".fs")
-      let projFileName = Path.ChangeExtension(base1, ".fsproj")
-      File.WriteAllText(fileName1, """module M""")
-      let findReferences libDir =
-        Directory.EnumerateFiles(libDir, "*.dll")
-        |> Seq.map Path.GetFullPath
-        |> Seq.filter (fun file -> dllFiles |> List.exists (fun binary -> binary = file) |> not)
-
-      let blacklist =
-        [ "FSharp.Core.dll"; "mscorlib.dll" ]
-
-      let dllReferences =
-        libDirs
-        |> Seq.collect findReferences
-        |> Seq.append dllFiles
-        |> Seq.filter (fun file -> blacklist |> List.exists (fun black -> black = Path.GetFileName file) |> not)
-
-      let options = 
-        checker.GetProjectOptionsFromCommandLineArgs(projFileName,
-          [|yield "--debug:full" 
-            yield "--define:DEBUG" 
-            yield "--optimize-" 
-            yield "--out:" + dllName
-            yield "--doc:test.xml" 
-            yield "--warn:3" 
-            yield "--fullpaths" 
-            yield "--flaterrors" 
-            yield "--target:library" 
-            for dllFile in dllReferences do
-              yield "-r:"+dllFile
-            // Libdirs are handled above, see https://github.com/fsharp/FSharp.Compiler.Service/issues/313
-            yield! otherFlags
-            yield fileName1 |])
-      let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-      for err in results.Errors  do
-         Log.logf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.FSharpErrorSeverity.Error then "error" else "warning") err.Message
-
-      if results.HasCriticalErrors then 
-         Log.logf "**** stopping due to critical errors"
-         failwith "**** stopped due to critical errors"
-
-      let table = 
-          results.ProjectContext.GetReferencedAssemblies()
-            |> List.map (fun x -> x.SimpleName, x)
-            |> dict
+      let resolvedList = 
+        FSharpAssembly.LoadFiles(dllFiles, libDirs)
+        |> Seq.toList
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
       let urlMap = Reader.createUrlHolder()
 
-      for dllFile in dllFiles do
-        let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
-        if table.ContainsKey asmName then
-          table.[asmName].Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
+      resolvedList |> Seq.iter (function
+        | _, Some asm ->
+          asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
+        | _ -> ())
 
-      [ for dllFile in dllFiles do
+      resolvedList |> List.choose (function
+        | dllFile, None ->
+          Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+          None
+        | dllFile, Some asm ->
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
           let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
           let xmlFileOpt =
@@ -1134,15 +1094,8 @@ type MetadataFormat =
           match xmlFileOpt with
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
           | Some xmlFile ->
-
-          Log.logf "Reading assembly: %s" dllFile
-          let asmName = Path.GetFileNameWithoutExtension(Path.GetFileName(dllFile))
-          if not (table.ContainsKey asmName) then 
-              Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" asmName
-          else
-              let asm = table.[asmName]
-              Log.logf "Parsing assembly (with documentation file '%s')" xmlFile
-              yield Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true, urlMap) ]
+            Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true, urlMap) 
+            |> Some)
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd

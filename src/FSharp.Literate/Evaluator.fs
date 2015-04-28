@@ -5,66 +5,11 @@ open System.IO
 open FSharp.Markdown
 open FSharp.CodeFormat
 
-open Microsoft.FSharp.Compiler.ErrorLogger
-open Microsoft.FSharp.Compiler.Interactive.Shell
-
-// ------------------------------------------------------------------------------------------------
-// Helpers needed by the evaluator
-// ------------------------------------------------------------------------------------------------
-
-/// [omit]
-module EvaluatorHelpers =
-
-  /// Represents a simple (fake) event loop for the 'fsi' object
-  type SimpleEventLoop () = 
-    member x.Run () = ()
-    member x.Invoke<'T>(f:unit -> 'T) = f()
-    member x.ScheduleRestart() = ()
-
-  /// Implements a simple 'fsi' object to be passed to the FSI evaluator
-  [<Sealed>]
-  type InteractiveSettings()  = 
-      let mutable evLoop = (new SimpleEventLoop())
-      let mutable showIDictionary = true
-      let mutable showDeclarationValues = true
-      let mutable args = Environment.GetCommandLineArgs()
-      let mutable fpfmt = "g10"
-      let mutable fp = (System.Globalization.CultureInfo.InvariantCulture :> System.IFormatProvider)
-      let mutable printWidth = 78
-      let mutable printDepth = 100
-      let mutable printLength = 100
-      let mutable printSize = 10000
-      let mutable showIEnumerable = true
-      let mutable showProperties = true
-      let mutable addedPrinters = []
-
-      member self.FloatingPointFormat with get() = fpfmt and set v = fpfmt <- v
-      member self.FormatProvider with get() = fp and set v = fp <- v
-      member self.PrintWidth  with get() = printWidth and set v = printWidth <- v
-      member self.PrintDepth  with get() = printDepth and set v = printDepth <- v
-      member self.PrintLength  with get() = printLength and set v = printLength <- v
-      member self.PrintSize  with get() = printSize and set v = printSize <- v
-      member self.ShowDeclarationValues with get() = showDeclarationValues and set v = showDeclarationValues <- v
-      member self.ShowProperties  with get() = showProperties and set v = showProperties <- v
-      member self.ShowIEnumerable with get() = showIEnumerable and set v = showIEnumerable <- v
-      member self.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
-      member self.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
-      member self.CommandLineArgs with get() = args  and set v  = args <- v
-      member self.AddPrinter(printer : 'T -> string) =
-        addedPrinters <- Choice1Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
-
-      member self.EventLoop
-          with get () = evLoop
-          and set (x:SimpleEventLoop)  = ()
-
-      member self.AddPrintTransformer(printer : 'T -> obj) =
-        addedPrinters <- Choice2Of2 (typeof<'T>, (fun (x:obj) -> printer (unbox x))) :: addedPrinters
+open Yaaf.FSharp.Scripting
 
 // ------------------------------------------------------------------------------------------------
 // Evaluator
 // ------------------------------------------------------------------------------------------------
-
-open EvaluatorHelpers
 
 /// Represents a kind of thing that can be embedded 
 [<RequireQualifiedAccessAttribute>]
@@ -93,17 +38,12 @@ type FsiEvaluationFailedInfo =
     File : string option
     Exception : exn
     StdErr : string }
-    override x.ToString() = 
-      let errMessage = 
-        match x.Exception.InnerException with
-        | null -> x.Exception.Message
-        | WrappedError(err, _) -> err.Message
-        | _ -> x.Exception.InnerException.Message
+    override x.ToString() =
       let indent (s:string) = 
         s.Split([| '\n'; '\r' |], StringSplitOptions.RemoveEmptyEntries)
         |> Array.map(fun x -> "    " + x)
         |> fun x -> String.Join("\n", x)
-      sprintf "Error evaluating expression (%s)\nExpression:\n%s\nError:\n%s" x.Exception.Message (indent x.Text) (indent x.StdErr)
+      sprintf "Error evaluating expression \nExpression:\n%s\nError:\n%s" (indent x.Text) (indent x.StdErr)
 
 /// Represents an evaluator for F# snippets embedded in code
 type IFsiEvaluator =
@@ -115,23 +55,11 @@ type IFsiEvaluator =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[]) =
   // Initialize F# Interactive evaluation session
-  let sbOut = new Text.StringBuilder()
-  let sbErr = new Text.StringBuilder()
 
-  let fsiSession = 
-    let inStream = new StringReader("")
-    let outStream = new StringWriter(sbOut)
-    let errStream = new StringWriter(sbErr)
-    let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(new InteractiveSettings(), false)
-    let argv = Array.append [|"C:\\test.exe"; "--quiet"; "--noninteractive"|] (defaultArg options [||])
-    FsiEvaluationSession.Create(fsiConfig, argv, inStream, outStream, errStream)
-
-  do 
-    let fullPath = System.Reflection.Assembly.GetExecutingAssembly().Location
-    let dir, fname = Path.GetDirectoryName(fullPath), Path.GetFileName(fullPath)
-    fsiSession.EvalInteraction("#I @\"" + dir + "\"")
-    fsiSession.EvalInteraction("#r @\"" + fname + "\"")
-    fsiSession.EvalInteraction("let fsi = new FSharp.Literate.EvaluatorHelpers.InteractiveSettings()")
+  let fsiOptions = match options with
+                   | Some opts -> FsiOptions.ofArgs opts
+                   | None -> FsiOptions.Default
+  let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true)
 
   let evalFailed = new Event<_>()
   let lockObj = obj()
@@ -179,33 +107,21 @@ type FsiEvaluator(?options:string[]) =
     member x.Evaluate(text:string, asExpression, ?file) =
       try
         lock lockObj <| fun () ->
-          file |> Option.iter (fun file ->
-            let dir = Path.GetDirectoryName(file)
-            fsiSession.EvalInteraction(sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
-            fsiSession.EvalInteraction(sprintf "#cd @\"%s\"" dir) )
-          sbOut.Clear() |> ignore
-          sbErr.Clear() |> ignore
-          let sbConsole = new Text.StringBuilder()
-          let prev = Console.Out
-          try //try..finally to make sure console.out is re-set to prev
-            Console.SetOut(new StringWriter(sbConsole))
-            let value, itvalue =
+          let dir = match file with
+                    | Some f -> Path.GetDirectoryName f
+                    | None -> Directory.GetCurrentDirectory()
+          fsiSession.WithCurrentDirectory dir (fun () ->
+            let (output, value), itvalue =
               if asExpression then
-                  match fsiSession.EvalExpression(text) with
-                  | Some value -> Some(value.ReflectionValue, value.ReflectionType), None
-                  | None -> None, None
+                fsiSession.TryEvalExpressionWithOutput text, None
               else
-                fsiSession.EvalInteraction(text)
+                let output = fsiSession.EvalInteractionWithOutput text
                 // try get the "it" value, but silently ignore any errors
-                try 
-                  match fsiSession.EvalExpression("it") with
-                  | Some value -> None, Some(value.ReflectionValue, value.ReflectionType)
-                  | None -> None, None
-                with _ -> None, None
-            let output = Some(sbConsole.ToString())
-            { Output = output; Result = value; ItValue = itvalue  } :> _
-          finally
-            Console.SetOut(prev)
-      with e ->
-        evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = sbErr.ToString() }
+                try
+                  (output, None), fsiSession.TryEvalExpression "it"
+                with _ -> (output, None), None
+            { Output = Some output.Output.ScriptOutput; Result = value; ItValue = itvalue  } :> _
+          )
+      with :? FsiEvaluationException as e ->
+        evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
         { Output = None; Result = None; ItValue = None } :> _

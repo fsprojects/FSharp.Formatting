@@ -2,15 +2,19 @@ NUGET
   remote: http://nuget.org/api/v2
   specs:
     CommandLineParser (1.9.71)
-    FAKE (3.26.1)
+    FAKE (3.28.8)
     FSharp.Compiler.Service (0.0.87)
     FSharpVSPowerTools.Core (1.8.0)
       FSharp.Compiler.Service (>= 0.0.87)
     ILRepack (1.22.2)
     Microsoft.AspNet.Razor (3.2.3)
-    NuGet.CommandLine (2.8.3)
+    NuGet.CommandLine (2.8.5)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-    RazorEngine (3.6.4)
+    RazorEngine (3.6.6)
       Microsoft.AspNet.Razor (>= 3.0.0) - framework: >= net45
       Microsoft.AspNet.Razor (2.0.30506.0) - framework: >= net40 < net45
+GITHUB
+  remote: matthid/Yaaf.FSharp.Scripting
+  specs:
+    src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs (253b322f7da2922c01685a02db45b3f3923d627e)

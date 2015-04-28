@@ -10,3 +10,5 @@ nuget NuGet.CommandLine
 nuget FSharp.Compiler.Service == 0.0.87
 nuget FSharpVSPowerTools.Core == 1.8.0
 nuget ILRepack 1.22.2
+
+github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs

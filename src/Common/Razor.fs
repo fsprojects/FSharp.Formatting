@@ -249,7 +249,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
       let templateKey =
         match templatePath with
         | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
-        | None ->  razorEngine.GetKey(templateName)
+        | None -> razorEngine.GetKey(templateName)
       razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
 
 /// [omit]

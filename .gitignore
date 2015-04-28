@@ -1,11 +1,13 @@
 *.suo
 bin/
 obj/
+paket-files/
 nuget/*.nupkg
 docs/output/
 literate/outputs/*
 packages/*
 !packages/FSharp.Formatting
+packages/FSharp.Formatting/lib
 *.VisualState.xml
 TestResults.xml
 TestResult.xml
