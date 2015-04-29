@@ -102,6 +102,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib3", "tests\FSharp.Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib4.csproj", "{98624699-1B2F-4636-A3F7-EC72343CB2FD}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestLib3", "tests\FSharp.MetadataFormat.Tests\files\TestLib\TestLib3.fsproj", "{C6570591-73F7-43D8-B597-25120B8EFF6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -184,6 +186,10 @@ Global
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6570591-73F7-43D8-B597-25120B8EFF6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6570591-73F7-43D8-B597-25120B8EFF6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6570591-73F7-43D8-B597-25120B8EFF6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6570591-73F7-43D8-B597-25120B8EFF6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -207,5 +213,6 @@ Global
 		{55728B9D-1EDE-4A40-B439-1EB0B3F77B72} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
+		{C6570591-73F7-43D8-B597-25120B8EFF6E} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 	EndGlobalSection
 EndGlobal

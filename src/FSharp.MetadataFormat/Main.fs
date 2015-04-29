@@ -7,6 +7,7 @@ open Yaaf.FSharp.Scripting
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 open FSharp.Patterns
+open FSharp.CodeFormat
 
 open System.Text
 open System.IO
@@ -154,19 +155,27 @@ module ValueReader =
       UrlMap : IUrlHolder
       MarkdownComments : bool
       UrlRangeHighlight : Uri -> int -> int -> string
-      SourceFolderRepository : (string * string) option }
+      SourceFolderRepository : (string * string) option 
+      AssemblyPath : string
+      CompilerOptions : string
+      FormatAgent : CodeFormatAgent }
     member x.XmlMemberLookup(key) =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None 
-    static member Create(publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap) = 
+    static member Create
+        ( publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap,
+          assemblyPath, compilerOptions, formatAgent ) = 
       { PublicOnly=publicOnly;
         Assembly = assembly
         XmlMemberMap = map; 
         MarkdownComments = markDownComments; 
         UrlMap = urlMap; 
         UrlRangeHighlight = urlRangeHighlight; 
-        SourceFolderRepository = sourceFolderRepo }
+        SourceFolderRepository = sourceFolderRepo 
+        AssemblyPath = assemblyPath
+        CompilerOptions = compilerOptions
+        FormatAgent = formatAgent }
 
   let formatSourceLocation (urlRangeHighlight : Uri -> int -> int -> string) (sourceFolderRepo : (string * string) option) (location : range option) =
     location |> Option.bind (fun location ->
@@ -465,6 +474,7 @@ module ValueReader =
 
 module Reader =
   open FSharp.Markdown
+  open FSharp.Literate
   open System.IO
   open ValueReader
 
@@ -480,7 +490,7 @@ module Reader =
           yield line.Value ]
     String.removeSpaces lines
 
-  let readMarkdownComment (doc:MarkdownDocument) = 
+  let readMarkdownComment (doc:LiterateDocument) = 
     let groups = System.Collections.Generic.Dictionary<_, _>()
     let mutable current = "<default>"
     groups.Add(current, [])
@@ -491,13 +501,13 @@ module Reader =
           groups.Add(current, [par])
       | par -> 
           groups.[current] <- par::groups.[current]
-    let blurb = Markdown.WriteHtml(MarkdownDocument(List.rev groups.["<default>"], doc.DefinedLinks))
-    let full = Markdown.WriteHtml(doc)
+    let blurb = Literate.WriteHtml(doc.With(List.rev groups.["<default>"]))
+    let full = Literate.WriteHtml(doc)
 
     let sections = 
       [ for (KeyValue(k, v)) in groups ->
           let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
-          let html = Markdown.WriteHtml(MarkdownDocument(body, doc.DefinedLinks))
+          let html = Literate.WriteHtml(doc.With(body))
           KeyValuePair(k, html) ]
     Comment.Create(blurb, full, sections)
 
@@ -564,11 +574,13 @@ module Reader =
                     cmds.Add(k, v)
                     false
                 | _ -> true) |> String.concat "\n"
-            let doc = Markdown.Parse(text)
+            let doc = 
+              Literate.ParseMarkdownString
+                ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
+                  formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
             cmds :> IDictionary<_, _>, readMarkdownComment doc
           else 
-            let cmds = new System.Collections.Generic.Dictionary<_, _>()
-            
+            let cmds = new System.Collections.Generic.Dictionary<_, _>()            
             cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap sum
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
@@ -931,7 +943,7 @@ module Reader =
     let modules, types = readModulesAndTypes ctx entities 
     Namespace.Create(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap) =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap, codeFormatCompilerArgs) =
     let assemblyName = AssemblyName(assembly.QualifiedName)
     
     // Read in the supplied XML file, map its name attributes to document text 
@@ -953,8 +965,14 @@ module Reader =
         if xmlMemberMap.ContainsKey key then 
           Log.logf "Warning: Duplicate documentation for '%s', one will be ignored!" key
         xmlMemberMap.[key] <- value
-
-    let ctx = ReadingContext.Create(publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap)
+    
+    // Code formatting agent & options used when processing inline code snippets in comments
+    let asmPath = Path.GetDirectoryName(defaultArg assembly.FileName xmlFile)
+    let formatAgent = CodeFormat.CreateAgent()
+    let ctx = 
+      ReadingContext.Create
+        ( publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
+          markDownComments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent)
 
     // 
     let namespaces = 
@@ -1063,6 +1081,12 @@ type MetadataFormat =
       defaultArg asmOpt null
     ))
 
+    // Compiler arguments used when formatting code snippets inside Markdown comments
+    let codeFormatCompilerArgs = 
+      [ for dir in libDirs do yield sprintf "-I:\"%s\"" dir
+        for file in dllFiles do yield sprintf "-r:\"%s\"" file ]
+      |> String.concat " "
+
     // Read and process assemblies and the corresponding XML files
     let assemblies = 
       let resolvedList = 
@@ -1094,7 +1118,9 @@ type MetadataFormat =
           match xmlFileOpt with
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
           | Some xmlFile ->
-            Reader.readAssembly (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, defaultArg markDownComments true, urlMap) 
+            Reader.readAssembly 
+              ( asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight, 
+                defaultArg markDownComments true, urlMap, codeFormatCompilerArgs ) 
             |> Some)
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name = 

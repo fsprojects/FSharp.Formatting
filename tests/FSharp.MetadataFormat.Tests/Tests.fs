@@ -343,6 +343,17 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
 
 [<Test>]
+let ``MetadataFormat highlights code snippets in Markdown comments``() = 
+  let library = root @@ "files/TestLib/bin/Debug" @@ "TestLib3.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  files.["fslib-myclass.html"] |> should contain """<span class="k">let</span>"""
+  files.["fslib-myclass.html"] |> should contain """<span class="k">var</span>"""
+  files.["fslib-myclass.html"] |> should contain """val a : FsLib.MyClass"""
+
+[<Test>]
 let ``MetadataFormat handles c# dlls`` () =
   let library = root @@ "files" @@ "CSharpFormat.dll"
   let output = getOutputDir()
