@@ -19,3 +19,15 @@ type Record =
     Age : int }
   /// Additional member
   member x.Foo = 0
+
+/// To use this from C#
+///
+///     [lang=csharp]
+///     var a = new MyClass()
+///
+/// To use this from F#
+///
+///     let a = FsLib.MyClass()
+///
+type MyClass() = 
+  member x.Nothing = 0

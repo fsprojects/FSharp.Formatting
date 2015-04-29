@@ -344,7 +344,7 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
 
 [<Test>]
 let ``MetadataFormat highlights code snippets in Markdown comments``() = 
-  let library = root @@ "files/TestLib/bin/Debug" @@ "TestLib3.dll"
+  let library = root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
   let output = getOutputDir()
   MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
   let fileNames = Directory.GetFiles(output)
