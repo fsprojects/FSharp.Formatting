@@ -1090,7 +1090,7 @@ type MetadataFormat =
     // Read and process assemblies and the corresponding XML files
     let assemblies = 
       let resolvedList = 
-        FSharpAssembly.LoadFiles(dllFiles, libDirs)
+        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
         |> Seq.toList
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
