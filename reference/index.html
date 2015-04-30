@@ -51,6 +51,8 @@
             <a href="fsharp-codeformat-codeformat.html">CodeFormat</a>
           </td>
           <td class="xmldoc"><p>Exposes functionality of the F# code formatter with a nice interface</p>
+
+
 </td>
         </tr>
         <tr>
@@ -58,6 +60,8 @@
             <a href="fsharp-codeformat-codeformatagent.html">CodeFormatAgent</a>
           </td>
           <td class="xmldoc"><p>Uses agent to handle formatting requests</p>
+
+
 </td>
         </tr>
         <tr>
@@ -65,6 +69,8 @@
             <a href="fsharp-codeformat-errorkind.html">ErrorKind</a>
           </td>
           <td class="xmldoc"><p>Represents a kind of error reported from the F# compiler (warning or error)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -72,6 +78,8 @@
             <a href="fsharp-codeformat-formattedcontent.html">FormattedContent</a>
           </td>
           <td class="xmldoc"><p>Represents formatted snippets</p>
+
+
 </td>
         </tr>
         <tr>
@@ -79,6 +87,8 @@
             <a href="fsharp-codeformat-formattedsnippet.html">FormattedSnippet</a>
           </td>
           <td class="xmldoc"><p>Represents an indivudal formatted snippet with title</p>
+
+
 </td>
         </tr>
         <tr>
@@ -87,6 +97,8 @@
           </td>
           <td class="xmldoc"><p>Represents a line of source code as a list of <code>TokenSpan</code> values. This is
 a single case discriminated union with <code>Line</code> constructor.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -101,6 +113,8 @@ a single case discriminated union with <code>Line</code> constructor.</p>
           </td>
           <td class="xmldoc"><p>An F# snippet consists of a snippet title and a list of lines
 (wrapped in a single case discriminated union with <code>Snippet</code> constructor)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -110,6 +124,8 @@ a single case discriminated union with <code>Line</code> constructor.</p>
           <td class="xmldoc"><p>Error reported from the F# compiler consists of location (start and end),
 error kind and the message (wrapped in a single case discriminated union
 with constructor <code>SourceError</code>)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -119,6 +135,8 @@ with constructor <code>SourceError</code>)</p>
           <td class="xmldoc"><p>Classifies tokens reported by the F# lexer and F# PowerTools 
 (PowerTools provide additional information e.g. whether a variable
 is mutable, etc.)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -129,6 +147,8 @@ is mutable, etc.)</p>
 the compiler (<code>Token</code>), this also includes <code>Error</code> (wrapping the underlined
 tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <code>Output</code> for the special
 <code>[output:...]</code> tag</p>
+
+
 </td>
         </tr>
         <tr>
@@ -136,6 +156,8 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
             <a href="fsharp-codeformat-tokenspans.html">TokenSpans</a>
           </td>
           <td class="xmldoc"><p>A type alias representing a list of <code>TokenSpan</code> values</p>
+
+
 </td>
         </tr>
         <tr>
@@ -143,6 +165,8 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
             <a href="fsharp-codeformat-tooltipspan.html">ToolTipSpan</a>
           </td>
           <td class="xmldoc"><p>A tool tip span can be emphasized text, plain text <code>Literal</code> or a line brak</p>
+
+
 </td>
         </tr>
         <tr>
@@ -150,6 +174,8 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
             <a href="fsharp-codeformat-tooltipspans.html">ToolTipSpans</a>
           </td>
           <td class="xmldoc"><p>A tool tip consists of a list of items reported from the compiler</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -170,6 +196,8 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
           </td>
           <td class="xmldoc"><p>Specifies a context that is passed to functions 
 that need to use the F# compiler</p>
+
+
 </td>
         </tr>
         <tr>
@@ -177,6 +205,8 @@ that need to use the F# compiler</p>
             <a href="fsharp-literate-fsiembedkind.html">FsiEmbedKind</a>
           </td>
           <td class="xmldoc"><p>Represents a kind of thing that can be embedded</p>
+
+
 </td>
         </tr>
         <tr>
@@ -185,6 +215,8 @@ that need to use the F# compiler</p>
           </td>
           <td class="xmldoc"><p>Record that is reported by the <code>EvaluationFailed</code> event when something
 goes wrong during evalutaiton of an expression</p>
+
+
 </td>
         </tr>
         <tr>
@@ -193,6 +225,8 @@ goes wrong during evalutaiton of an expression</p>
           </td>
           <td class="xmldoc"><p>Represents the result of evaluating an F# snippet. This contains
 the generated console output together with a result and its static type.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -200,6 +234,8 @@ the generated console output together with a result and its static type.</p>
             <a href="fsharp-literate-fsievaluator.html">FsiEvaluator</a>
           </td>
           <td class="xmldoc"><p>A wrapper for F# interactive service that is used to evaluate inline snippets</p>
+
+
 </td>
         </tr>
         <tr>
@@ -208,6 +244,8 @@ the generated console output together with a result and its static type.</p>
           </td>
           <td class="xmldoc"><p>An interface that represents FSI evaluation result
 (we make this abstract so that evaluators can store other info)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -215,6 +253,8 @@ the generated console output together with a result and its static type.</p>
             <a href="fsharp-literate-ifsievaluator.html">IFsiEvaluator</a>
           </td>
           <td class="xmldoc"><p>Represents an evaluator for F# snippets embedded in code</p>
+
+
 </td>
         </tr>
         <tr>
@@ -225,6 +265,8 @@ the generated console output together with a result and its static type.</p>
 The <code>ProcessMarkdown</code> and <code>ProcessScriptFile</code> methods process a single Markdown document
 and F# script, respectively. The <code>ProcessDirectory</code> method handles an entire directory tree
 (looking for <code>*.fsx</code> and <code>*.md</code> files).</p>
+
+
 </td>
         </tr>
         <tr>
@@ -234,6 +276,8 @@ and F# script, respectively. The <code>ProcessDirectory</code> method handles an
           <td class="xmldoc"><p>Additional properties of a literate code snippet, embedded in a
 <code>LiterateParagraph.LiterateCode</code>. The properties specify how should
 a snippet be evaluated and formatted.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -242,6 +286,8 @@ a snippet be evaluated and formatted.</p>
           </td>
           <td class="xmldoc"><p>Specifies visibility of a code snippet. This can be either ordinary
 visible code, hidden snippet or named snippet with captured output.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -250,6 +296,8 @@ visible code, hidden snippet or named snippet with captured output.</p>
           </td>
           <td class="xmldoc"><p>Representation of a literate document - the representation of Paragraphs
 uses an F# discriminated union type and so is best used from F#.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -259,6 +307,8 @@ uses an F# discriminated union type and so is best used from F#.</p>
           <td class="xmldoc"><p>Extends <code>MarkdownParagrap</code> using the <code>MarkdownEmbedParagraphs</code> case with
 additional kinds of paragraphs that can appear in literate F# scripts
 (such as various special commands to embed output of a snippet etc.)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -267,6 +317,8 @@ additional kinds of paragraphs that can appear in literate F# scripts
           </td>
           <td class="xmldoc"><p>Represents the source of a literate document. This is esither Markdown (as a <code>string</code>)
 or parsed F# script file consisting of snippets.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -274,6 +326,8 @@ or parsed F# script file consisting of snippets.</p>
             <a href="fsharp-literate-outputkind.html">OutputKind</a>
           </td>
           <td class="xmldoc"><p>Defines the two possible output types from literate script: HTML and LaTeX.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -281,6 +335,8 @@ or parsed F# script file consisting of snippets.</p>
             <a href="fsharp-literate-processingcontext.html">ProcessingContext</a>
           </td>
           <td class="xmldoc"><p>Specifies a context that is passed to functions that generate the output</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -296,6 +352,8 @@ or parsed F# script file consisting of snippets.</p>
           </td>
           <td class="xmldoc"><p>Provides active patterns for extracting <code>LiterateParagraph</code> values from
 Markdown documents.</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -315,6 +373,8 @@ Markdown documents.</p>
           </td>
           <td class="xmldoc"><p>Static class that provides methods for formatting 
 and transforming Markdown documents.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -322,6 +382,8 @@ and transforming Markdown documents.</p>
             <a href="fsharp-markdown-markdowncolumnalignment.html">MarkdownColumnAlignment</a>
           </td>
           <td class="xmldoc"><p>Column in a table can be aligned to left, right, center or using the default alignment</p>
+
+
 </td>
         </tr>
         <tr>
@@ -330,6 +392,8 @@ and transforming Markdown documents.</p>
           </td>
           <td class="xmldoc"><p>Representation of a Markdown document - the representation of Paragraphs
 uses an F# discriminated union type and so is best used from F#.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -338,6 +402,8 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </td>
           <td class="xmldoc"><p>Provides an extensibility point for adding custom kinds of paragraphs into a document
 (<code>MarkdownEmbedParagraphs</code> values can be embedded using <code>MarkdownParagraph.EmbedParagraphs</code>)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -346,6 +412,8 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </td>
           <td class="xmldoc"><p>Provides an extensibility point for adding custom kinds of spans into a document
 (<code>MarkdownEmbedSpans</code> values can be embedded using <code>MarkdownSpan.EmbedSpans</code>)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -353,6 +421,8 @@ uses an F# discriminated union type and so is best used from F#.</p>
             <a href="fsharp-markdown-markdownlistkind.html">MarkdownListKind</a>
           </td>
           <td class="xmldoc"><p>A list kind can be <code>Ordered</code> or <code>Unordered</code> corresponding to <code>&lt;ol&gt;</code> and <code>&lt;ul&gt;</code> elements</p>
+
+
 </td>
         </tr>
         <tr>
@@ -362,6 +432,8 @@ uses an F# discriminated union type and so is best used from F#.</p>
           <td class="xmldoc"><p>A paragraph represents a (possibly) multi-line element of a Markdown document.
 Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
 also embedded LaTeX blocks.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -369,6 +441,8 @@ also embedded LaTeX blocks.</p>
             <a href="fsharp-markdown-markdownparagraphs.html">MarkdownParagraphs</a>
           </td>
           <td class="xmldoc"><p>A type alias for a list of paragraphs</p>
+
+
 </td>
         </tr>
         <tr>
@@ -377,6 +451,8 @@ also embedded LaTeX blocks.</p>
           </td>
           <td class="xmldoc"><p>Represents inline formatting inside a paragraph. This can be literal (with text), various
 formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
+
+
 </td>
         </tr>
         <tr>
@@ -384,6 +460,8 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
             <a href="fsharp-markdown-markdownspans.html">MarkdownSpans</a>
           </td>
           <td class="xmldoc"><p>A type alias for a list of <code>MarkdownSpan</code> values</p>
+
+
 </td>
         </tr>
         <tr>
@@ -391,6 +469,8 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
             <a href="fsharp-markdown-markdowntablerow.html">MarkdownTableRow</a>
           </td>
           <td class="xmldoc"><p>A type alias representing table row as a list of paragraphs</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -406,6 +486,8 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
           </td>
           <td class="xmldoc"><p>This module provides an easy way of processing Markdown documents.
 It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
+
+
 </td>
         </tr>
     </tbody>
@@ -436,6 +518,8 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
             <a href="fsharp-metadataformat-html.html">Html</a>
           </td>
           <td class="xmldoc"><p>For use in the tempaltes (lives in namespace FSharp.MetadataFormat)</p>
+
+
 </td>
         </tr>
         <tr>
@@ -491,6 +575,8 @@ generates links to GitHub pages for each of the entity.</li>
 specify references explicitly etc.)</li>
 <li><code>urlRangeHighlight</code> - A function that can be used to override the default way of generating GitHub links</li>
 </ul>
+
+
 </td>
         </tr>
         <tr>
