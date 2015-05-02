@@ -226,6 +226,10 @@ Target "NuGet" (fun _ ->
 Target "GenerateDocs" (fun _ ->
     if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:REFERENCE"; "--define:HELP"] [] then
       failwith "generating reference documentation failed")
+      
+Target "WatchDocs" (fun _ ->
+    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:WATCH"] [] then
+      failwith "generating reference documentation failed")
 
 // --------------------------------------------------------------------------------------
 // Release Scripts

@@ -128,12 +128,12 @@ type [<AbstractClass>] DocPageTemplateBase<'T>() =
 ///
 /// [omit]
 module RazorEngineCache =
-  let cachingProvider =
+  let private cachingProvider =
     let arg =
       if System.AppDomain.CurrentDomain.IsDefaultAppDomain() then
          new System.Action<string>(fun s -> ())
       else null
-    new DefaultCachingProvider(arg) :> ICachingProvider
+    new InvalidatingCachingProvider(arg)
 
   /// Find file in one of the specified layout roots
   let private tryResolve(layoutRoots, name) =
@@ -192,6 +192,15 @@ module RazorEngineCache =
     if (namespaces <> currentNamespaces) then failwith "cannot use different namespaces for the same layoutRoot"
     if (references <> currentReferences) then failwith "cannot use different references for the same layoutRoot"
     engine
+
+  /// Invalidates the given razor template files (does nothing for files which aren't already cached or unknown).
+  /// Use this API only when you know what you are doing. It leaks memory on every call, so you should only use this
+  /// In short lived applications or with an AppDomain recycle strategy in place.
+  let InvalidateCache files =
+    files
+    |> Seq.map (fun file -> PathTemplateKey.Create (file, file))
+    |> Seq.iter cachingProvider.InvalidateCache
+    razorCache.Clear()
 
 /// [omit]
 type RazorRender(layoutRoots, namespaces, template:string, ?references : string list) =
