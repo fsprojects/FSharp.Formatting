@@ -2,7 +2,7 @@ NUGET
   remote: http://nuget.org/api/v2
   specs:
     CommandLineParser (1.9.71)
-    FAKE (3.28.8)
+    FAKE (3.30.0)
     FSharp.Compiler.Service (0.0.87)
     FSharpVSPowerTools.Core (1.8.0)
       FSharp.Compiler.Service (>= 0.0.87)
@@ -17,4 +17,4 @@ NUGET
 GITHUB
   remote: matthid/Yaaf.FSharp.Scripting
   specs:
-    src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs (253b322f7da2922c01685a02db45b3f3923d627e)
+    src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs (e6f20de3b26951c811647abb990a1cd071e6fff2)
