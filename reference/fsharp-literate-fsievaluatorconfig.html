@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>MarkdownListKind - FSharp.Formatting</title>
+    <title>FsiEvaluatorConfig - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Tomas Petricek">
@@ -38,52 +38,65 @@
 
 
 
-<h1>MarkdownListKind</h1>
+<h1>FsiEvaluatorConfig</h1>
 <div class="xmldoc">
-<p>A list kind can be <code>Ordered</code> or <code>Unordered</code> corresponding to <code>&lt;ol&gt;</code> and <code>&lt;ul&gt;</code> elements</p>
+<p>Provides configuration options for the <code>FsiEvaluator</code></p>
 
 
 </div>
-  <h3>Union Cases</h3>
+  <h3>Constructors</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Union Case</td><td>Description</td></tr>
+      <tr><td>Constructor</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
-            Ordered
+          <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
+            new()
           </code>
-          <div class="tip" id="217">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="138">
+            <strong>Signature:</strong> unit -&gt; FsiEvaluatorConfig<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L18-18" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Evaluator.fs#L95-95" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           
         </td>
       </tr>
+    </tbody>
+  </table>
+  <h3>Static members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Static member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '218', 218)" onmouseover="showTip(event, '218', 218)">
-            Unordered
+          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
+            CreateNoOpFsiObject()
           </code>
-          <div class="tip" id="218">
-            <strong>Signature:</strong> <br />
+          <div class="tip" id="139">
+            <strong>Signature:</strong> unit -&gt; obj<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L19-19" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Literate/Evaluator.fs#L99-99" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Creates a dummy <code>fsi</code> object that does not affect the behaviour of F# Interactive
+(and simply ignores all operations that are done on it). You can use this to 
+e.g. disable registered printers that would open new windows etc.</p>
+
+
+
         </td>
       </tr>
     </tbody>
