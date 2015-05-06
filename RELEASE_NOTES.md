@@ -1,3 +1,11 @@
+## 2.9.5 (6 May, 2015)
+ - Provide an option to disable `fsi.AddPrinter` (#311)
+ - Generated line numbers for HTML are the same for F# and non-F#
+
+## 2.9.4 (30 April, 2015)
+ - Use `otherFlags` parameter (#308)
+ - Format code in Markdown comments (#307, #36)
+
 ## 2.9.3 (29 April, 2015)
  - Simplify using FCS interaction using Yaaf.Scripting (#305)
  - Do not load dependencies when initializing evaluator
