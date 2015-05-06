@@ -340,10 +340,11 @@ module Transformations =
                     let lines = code.Trim('\r', '\n').Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n").Split('\n')
                     let numberLength = lines.Length.ToString().Length
                     let linesLength = lines.Length
-                    writer.Write("<td class=\"lines\">")
+                    writer.WriteLine("<td class=\"lines\"><pre class=\"fssnip\">")
                     for index in 0..linesLength-1 do
                       let lineStr = (index + 1).ToString().PadLeft(numberLength)
                       writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+                    writer.WriteLine("</pre>")
                     writer.WriteLine("</td>")
 
                   writer.Write("<td class=\"snippet\">")

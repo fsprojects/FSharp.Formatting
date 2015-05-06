@@ -229,6 +229,18 @@ var a2 = 2;
   html |> should contain "2:"
   html |> should notContain "3:"
 
+[<Test>]
+let ``HTML for line numbers generated for F# and non-F# is the same``() =
+  let content1 = "    [lang=js]\n    var"
+  let content2 = "    let"
+  let doc1 = Literate.ParseMarkdownString(content1, formatAgent=getFormatAgent())
+  let doc2 = Literate.ParseMarkdownString(content2, formatAgent=getFormatAgent())
+  let html1 = Literate.WriteHtml(doc1, lineNumbers=true)
+  let html2 = Literate.WriteHtml(doc2, lineNumbers=true)
+  
+  html1.Substring(0, html1.IndexOf("1:"))
+  |> shouldEqual <| html2.Substring(0, html2.IndexOf("1:"))
+
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
 // --------------------------------------------------------------------------------------
