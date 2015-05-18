@@ -72,7 +72,7 @@ for par in parsed.Paragraphs do
 
 (**
 You can find more detailed information about the document structure and processing it
-in the upcoming [F# Deep Dives](http://manning.com/petricek2/) book.
+in the book [F# Deep Dives](http://manning.com/petricek2/).
 
 Processing document recursively
 -------------------------------
