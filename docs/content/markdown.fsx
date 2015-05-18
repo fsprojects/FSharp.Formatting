@@ -72,9 +72,7 @@ for par in parsed.Paragraphs do
 
 (**
 You can find more detailed information about the document structure and processing it
-in the upcoming [F# Deep Dives](http://manning.com/petricek2/) book. The chapter that 
-discusses the design of the Markdown processor is [available as a free sample](http://manning.com/petricek2/F_DeepDives_MEAP_ch3.pdf)
-(PDF).
+in the upcoming [F# Deep Dives](http://manning.com/petricek2/) book.
 
 Processing document recursively
 -------------------------------
