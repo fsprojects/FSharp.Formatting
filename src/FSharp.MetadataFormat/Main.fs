@@ -135,9 +135,11 @@ type ModuleInfo =
 
 type TypeInfo = 
   { Type : Type
-    Assembly : AssemblyGroup }
-  static member Create(typ, asm) = 
-    { TypeInfo.Type = typ; Assembly = asm }
+    Assembly : AssemblyGroup
+    Namespace : Option<Namespace>
+    Module : Option<Module> }
+  static member Create(typ, asm, ns, modul) = 
+    { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; Module = modul }
 
 module ValueReader = 
   open System.Collections.ObjectModel
@@ -1166,18 +1168,21 @@ type MetadataFormat =
       Log.logf "Finished module: %s" modul.UrlName
 
     Log.logf "Generating types..."
-    let rec nestedTypes (modul:Module) = seq {
-      yield! modul.NestedTypes
-      for n in modul.NestedModules do yield! nestedTypes n }
+    let createType ns modul typ =
+        TypeInfo.Create(typ, asm, ns, modul)
+
+    let rec nestedTypes (ns:Namespace) (modul:Module) = seq {
+      yield! (modul.NestedTypes |> List.map (createType (Some ns) (Some modul) ))
+      for n in modul.NestedModules do yield! nestedTypes ns n }
     let types = 
       [ for ns in asm.Namespaces do 
-          for n in ns.Modules do yield! nestedTypes n
-          yield! ns.Types ]
+          for n in ns.Modules do yield! nestedTypes ns n
+          yield! (ns.Types |> List.map (createType (Some ns) None ))  ]
 
     // Generate documentation for all types
     let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
     for typ in types do
-      Log.logf "Generating type: %s" typ.UrlName
-      let out = razor.ProcessFile(TypeInfo.Create(typ, asm), props)
-      File.WriteAllText(outDir @@ (typ.UrlName + ".html"), out)
-      Log.logf "Finished type: %s" typ.UrlName
+      Log.logf "Generating type: %s" typ.Type.UrlName
+      let out = razor.ProcessFile(typ, props)
+      File.WriteAllText(outDir @@ (typ.Type.UrlName + ".html"), out)
+      Log.logf "Finished type: %s" typ.Type.UrlName
