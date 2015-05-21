@@ -1,4 +1,5 @@
 @using FSharp.MetadataFormat
+@using Microsoft.FSharp.Core
 @{
   Layout = "template";
   Title = Model.Type.Name + " - " + Properties["project-name"];
@@ -28,6 +29,10 @@
 }
 
 <h1>@Model.Type.Name</h1>
+@if(FSharpOption<Module>.get_IsSome(@Model.Module))
+{
+<p>Module: <a href="@(Model.Module.Value.UrlName).html">@Model.Module.Value.Name</a></p>
+}
 <div class="xmldoc">
   @foreach (var sec in comment.Sections) {
     // XML comment for the type has multiple sections that can be labelled

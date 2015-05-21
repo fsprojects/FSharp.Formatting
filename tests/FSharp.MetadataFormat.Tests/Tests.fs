@@ -390,3 +390,16 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
     
     files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "CommentRegEx"
     files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "Regular expression string to match single line and multi-line"
+
+[<Test>]
+let ``MetadataFormat generates module link in nested types``() = 
+  let library = root @@ "files/TestLib/bin/Debug" @@ "TestLib2.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  
+  // Check that the link to the module is correctly generated
+  files.["fslib-class.html"] |> should notContain "Module:"
+  files.["fslib-nested-nestedtype.html"] |> should contain "Module:"
+  files.["fslib-nested-nestedtype.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
