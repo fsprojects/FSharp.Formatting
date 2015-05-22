@@ -21,6 +21,13 @@ module Nested =
     /// <summary>Very nested field</summary>
     let supernested = 42
 
+    /// <summary>
+    /// Very nested type
+    /// </summary>
+    type VeryNestedType() =
+      /// <summary>Super nested member</summary>
+      member x.Member = ""
+
   /// <summary>
   /// Somewhat nested type
   /// </summary>

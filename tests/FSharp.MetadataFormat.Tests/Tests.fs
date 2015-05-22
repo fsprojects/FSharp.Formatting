@@ -393,13 +393,24 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
 
 [<Test>]
 let ``MetadataFormat generates module link in nested types``() = 
-  let library = root @@ "files/TestLib/bin/Debug" @@ "TestLib2.dll"
+  let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
   let output = getOutputDir()
   MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
   // Check that the link to the module is correctly generated
-  files.["fslib-class.html"] |> should notContain "Module:"
   files.["fslib-nested-nestedtype.html"] |> should contain "Module:"
   files.["fslib-nested-nestedtype.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
+
+  // Only for nested types
+  files.["fslib-class.html"] |> should notContain "Module:"
+
+  // Check that the link to the module is correctly generated for types in nested modules
+  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "Module:"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "<a href=\"fslib-nested-submodule.html\">Submodule</a>"
+
+  // Check that nested submodules have links to its module
+  files.["fslib-nested-submodule.html"] |> should contain "Module:"
+  files.["fslib-nested-submodule.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
+  
