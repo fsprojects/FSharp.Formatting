@@ -130,7 +130,7 @@ type AssemblyGroup =
 type ModuleInfo = 
   { Module : Module
     Assembly : AssemblyGroup
-    Namespace : Option<Namespace>
+    Namespace : Namespace
     ParentModule : Option<Module> }
   static member Create(modul, asm, ns, parent) = 
     { ModuleInfo.Module = modul; Assembly = asm; Namespace = ns; ParentModule = parent }
@@ -138,7 +138,7 @@ type ModuleInfo =
 type TypeInfo = 
   { Type : Type
     Assembly : AssemblyGroup
-    Namespace : Option<Namespace>
+    Namespace : Namespace
     Module : Option<Module> }
   static member Create(typ, asm, ns, modul) = 
     { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; Module = modul }
@@ -1159,7 +1159,7 @@ type MetadataFormat =
       for n in modul.NestedModules do yield! nestedModules ns (Some modul) n }
     let moduleInfos = 
       [ for ns in asm.Namespaces do 
-          for n in ns.Modules do yield! nestedModules (Some ns) None n ]
+          for n in ns.Modules do yield! nestedModules ns None n ]
     
     let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
 
