@@ -29,10 +29,13 @@
 }
 
 <h1>@Model.Type.Name</h1>
-@if(FSharpOption<Module>.get_IsSome(@Model.Module))
-{
-<p>Module: <a href="@(Model.Module.Value.UrlName).html">@Model.Module.Value.Name</a></p>
-}
+<p>
+  <span>Namespace: @Model.Namespace.Name</span><br />
+  @if(FSharpOption<Module>.get_IsSome(@Model.ParentModule))
+  {
+  <span>Parent Module: <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
+  }
+</p>
 <div class="xmldoc">
   @foreach (var sec in comment.Sections) {
     // XML comment for the type has multiple sections that can be labelled
