@@ -132,6 +132,7 @@ type ModuleInfo =
     Assembly : AssemblyGroup
     Namespace : Namespace
     ParentModule : Option<Module> }
+  member this.HasParentModule = this.ParentModule.IsSome
   static member Create(modul, asm, ns, parent) = 
     { ModuleInfo.Module = modul; Assembly = asm; Namespace = ns; ParentModule = parent }
 
@@ -140,6 +141,7 @@ type TypeInfo =
     Assembly : AssemblyGroup
     Namespace : Namespace
     ParentModule : Option<Module> }
+  member this.HasParentModule = this.ParentModule.IsSome
   static member Create(typ, asm, ns, modul) = 
     { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; ParentModule = modul }
 

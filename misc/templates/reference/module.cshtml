@@ -35,7 +35,7 @@
 <h1>@Model.Module.Name</h1>
 <p>
   <span>Namespace: @Model.Namespace.Name</span><br />
-  @if(FSharpOption<Module>.get_IsSome(@Model.ParentModule))
+  @if(Model.HasParentModule)
   {
   <span>Parent Module: <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
   }
