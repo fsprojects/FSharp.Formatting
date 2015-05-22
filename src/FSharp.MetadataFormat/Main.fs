@@ -139,9 +139,9 @@ type TypeInfo =
   { Type : Type
     Assembly : AssemblyGroup
     Namespace : Namespace
-    Module : Option<Module> }
+    ParentModule : Option<Module> }
   static member Create(typ, asm, ns, modul) = 
-    { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; Module = modul }
+    { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; ParentModule = modul }
 
 module ValueReader = 
   open System.Collections.ObjectModel
@@ -1174,12 +1174,12 @@ type MetadataFormat =
         TypeInfo.Create(typ, asm, ns, modul)
 
     let rec nestedTypes ns (modul:Module) = seq {
-      yield! (modul.NestedTypes |> List.map (createType (Some ns) (Some modul) ))
+      yield! (modul.NestedTypes |> List.map (createType ns (Some modul) ))
       for n in modul.NestedModules do yield! nestedTypes ns n }
     let typesInfos = 
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedTypes ns n
-          yield! (ns.Types |> List.map (createType (Some ns) None ))  ]
+          yield! (ns.Types |> List.map (createType ns None ))  ]
 
     // Generate documentation for all types
     let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
