@@ -129,9 +129,11 @@ type AssemblyGroup =
 
 type ModuleInfo = 
   { Module : Module
-    Assembly : AssemblyGroup }
-  static member Create(modul, asm) = 
-    { ModuleInfo.Module = modul; Assembly = asm }
+    Assembly : AssemblyGroup
+    Namespace : Option<Namespace>
+    ParentModule : Option<Module> }
+  static member Create(modul, asm, ns, parent) = 
+    { ModuleInfo.Module = modul; Assembly = asm; Namespace = ns; ParentModule = parent }
 
 type TypeInfo = 
   { Type : Type
@@ -1152,37 +1154,37 @@ type MetadataFormat =
 
     // Generate documentation for all modules
     Log.logf "Generating modules..."
-    let rec nestedModules (modul:Module) = seq {
-      yield modul
-      for n in modul.NestedModules do yield! nestedModules n }
-    let modules = 
+    let rec nestedModules ns parent (modul:Module) = seq {
+      yield ModuleInfo.Create(modul, asm, ns, parent)
+      for n in modul.NestedModules do yield! nestedModules ns (Some modul) n }
+    let moduleInfos = 
       [ for ns in asm.Namespaces do 
-          for n in ns.Modules do yield! nestedModules n ]
+          for n in ns.Modules do yield! nestedModules (Some ns) None n ]
     
     let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
 
-    for modul in modules do
-      Log.logf "Generating module: %s" modul.UrlName
-      let out = razor.ProcessFile(ModuleInfo.Create(modul, asm), props)
-      File.WriteAllText(outDir @@ (modul.UrlName + ".html"), out)
-      Log.logf "Finished module: %s" modul.UrlName
+    for modulInfo in moduleInfos do
+      Log.logf "Generating module: %s" modulInfo.Module.UrlName
+      let out = razor.ProcessFile(modulInfo, props)
+      File.WriteAllText(outDir @@ (modulInfo.Module.UrlName + ".html"), out)
+      Log.logf "Finished module: %s" modulInfo.Module.UrlName
 
     Log.logf "Generating types..."
     let createType ns modul typ =
         TypeInfo.Create(typ, asm, ns, modul)
 
-    let rec nestedTypes (ns:Namespace) (modul:Module) = seq {
+    let rec nestedTypes ns (modul:Module) = seq {
       yield! (modul.NestedTypes |> List.map (createType (Some ns) (Some modul) ))
       for n in modul.NestedModules do yield! nestedTypes ns n }
-    let types = 
+    let typesInfos = 
       [ for ns in asm.Namespaces do 
           for n in ns.Modules do yield! nestedTypes ns n
           yield! (ns.Types |> List.map (createType (Some ns) None ))  ]
 
     // Generate documentation for all types
     let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
-    for typ in types do
-      Log.logf "Generating type: %s" typ.Type.UrlName
-      let out = razor.ProcessFile(typ, props)
-      File.WriteAllText(outDir @@ (typ.Type.UrlName + ".html"), out)
-      Log.logf "Finished type: %s" typ.Type.UrlName
+    for typInfo in typesInfos do
+      Log.logf "Generating type: %s" typInfo.Type.UrlName
+      let out = razor.ProcessFile(typInfo, props)
+      File.WriteAllText(outDir @@ (typInfo.Type.UrlName + ".html"), out)
+      Log.logf "Finished type: %s" typInfo.Type.UrlName
