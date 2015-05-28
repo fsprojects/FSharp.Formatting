@@ -6,7 +6,7 @@ F# Formatting: Library documentation
 ====================================
 
 The library `FSharp.MetadataFormat.dll` is a replacement for the `FsHtmlTool`
-which is available in F# PowerPack and can be used to generate documentation 
+which is available in the F# PowerPack and can be used to generate documentation 
 for F# libraries with XML comments. The F# Formatting re-implementation has
 a couple of extensions:
 
@@ -26,7 +26,7 @@ open System.IO
 (**
 Building the library documentation is easy - you just need to call
 `MetadataFormat.Generate` from your FAKE script or from F# Interactive.
-The method takes three (required) parameters - the path to your `dll`,
+The method takes three (required) parameters - the path to your `DLL`,
 output directory and directory with Razor templates.
 Assuming `root` is the root directory for your project, you can write:
 *)
@@ -41,7 +41,7 @@ Adding Go to GitHub source links
 -----------------
 You can automatically add GitHub links to each functions, values and class members for further reference.
 You need to specify two more arguments: `sourceRepo` to the GitHub repository 
-and `sourceFolder` to the folder where your dlls are built.
+and `sourceFolder` to the folder where your DLLs are built.
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 *)
 
@@ -79,7 +79,7 @@ MetadataFormat.Generate
     sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
 (**
-Example of XML documentation comment.
+An example of an XML documentation comment:
 *)
 /// <summary>
 /// Some actual comment
@@ -89,7 +89,7 @@ module Foo =
    let a = 42
 (**
 Note that currently our code is not handling `<parameter>` and `<result> tags, this is 
-not so much of a problem given that given that FSharp.Formatting infers the signature via reflection.
+not so much of a problem given that FSharp.Formatting infers the signature via reflection.
 
 
 ## Optional parameters
@@ -117,7 +117,7 @@ parameters that can be used to tweak how the formatting works:
     if you need additional references in your templates
     (if not specified, we use the currently loaded assemblies).
   - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
-    generates links to GitHub pages for each of the entity.
+    generates links to GitHub pages for each entity.
   - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
   - `libDirs` - Use this to specify additional paths where referenced DLL files can be found
   - `otherFlags` - Additional flags that are passed to the F# compiler (you can use this if you want to 
