@@ -74,8 +74,8 @@ for par in parsed.Paragraphs do
 You can find more detailed information about the document structure and how to process it
 in the book [F# Deep Dives](http://manning.com/petricek2/).
 
-Processing document recursively
--------------------------------
+Processing the document recursively
+-----------------------------------
 
 The library provides active patterns that can be used to easily process the Markdown 
 document recursively. The example in this section shows how to extract all links from the
