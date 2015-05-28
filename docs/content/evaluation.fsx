@@ -12,7 +12,7 @@ Embedding literate script output
 
 The functionality is currently available (and tested) for F# script files (`*.fsx`) that
 contain special comments to embed the Markdown text. To embed output of a script file, 
-a couple of additional special comments is added.
+a couple of additional special comments are added.
 
 The following snippet (F# Script file) demonstates the functionality:
 
@@ -113,17 +113,17 @@ If you specify the `fsiEvaluator` parameter, but don't want a specific snippet t
 command.
 
 The constructor of `FsiEvaluator` takes command line parameters for `fsi.exe` that can
-be used to specify e.g. defined symbols and other attributes for F# Interactive.
+be used to specify, for example, defined symbols and other attributes for F# Interactive.
 
 You can also subscribe to the `EvaluationFailed` event which is fired whenever the evaluation
-of an expression fails. You can use that to do tests that verify that all the code on your
+of an expression fails. You can use that to do tests that verify that all off the code in your
 documentation executes without errors.
 
 Emitting Raw Text
 -----------------
 
-When writing documents, it is sometimes required to emit, completely unaltered text. Up to this point all
-of the `commands` have decorated the code or text with some formatting for example a `pre` element. When working 
+When writing documents, it is sometimes required to emit completely unaltered text. Up to this point all
+of the `commands` have decorated the code or text with some formatting, for example a `pre` element. When working 
 with layout or content generation engines such as Jeykll, we sometimes need to emit plain text as declarations to
 said engines. This is where the `raw` command is useful.
 
