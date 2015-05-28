@@ -2,7 +2,7 @@
 F# Formatting: Markdown parser
 ==============================
 
-This page demonstrates how to use `FSharp.Markdown.dll` to parse Markdown
+This page demonstrates how to use `FSharp.Markdown.dll` to parse a Markdown
 document, process the obtained document representation and
 how to turn the code into a nicely formatted HTML.
 
