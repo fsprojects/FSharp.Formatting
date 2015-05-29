@@ -1,7 +1,7 @@
 ﻿F# Formatting: Command line tool
 ================================
 
-If you prefer to use F# Formatting tools via command line, you can use the
+If you prefer to use F# Formatting tools via the command line, you can use the
 `FSharp.Formatting.CommandTool` package, which includes an executable `fsformatting.exe`
 that gives you access to the most important functionality via a simple command line
 interface. This might be a good idea if you prefer to run F# Formatting as a separate
@@ -85,7 +85,7 @@ Library documentation command
 -----------------------------
 
 The `FSharp.MetadataFormat.Generate` method builds the [library documentation](http://tpetricek.github.io/FSharp.Formatting/metadata.html) by reading 
-the meta-data from a `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
+the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
 
     [lang=text]
     fsformatting[.exe] metadataFormat --generate [options]
@@ -127,7 +127,7 @@ could be configured by:
 The following underlying configuration assumptions need to be considered when you adapt this example to your own project:
 
 1. The commandline tool is properly installed in a directory of your system´s binaries search path. 
-If you decide to call the tool from within the intstallation directory or by using an absolute path, you will have to take the  
+If you decide to call the tool from within the installation directory or by using an absolute path, you will have to take the  
 path resolution implications of your platform (OS and shell) for the other tool options into account.
 After a clean install, the tool´s directory contains all necessary FSharp.Formatting library files, i.e. there would not be unresolved dependencies. 
 The installation of the commandline tool only [via NuGet](https://nuget.org/packages/FSharp.Formatting.CommandTool) is sufficient for this purpose. 
@@ -137,7 +137,7 @@ The installation of the commandline tool only [via NuGet](https://nuget.org/pack
 	* If you are using [FAKE - F# Make](http://fsharp.github.io/FAKE/), a separate installation of the commandline tool is not recommended 
 	as FAKE already contains this tool, see further recommendations below.
 	 
-2. On a Mono platform, the commandline need to be prefixed by the appropriate `mono` command that invokes the necessary .Net v4.0 environment for FSharp.Formatting on your platform. 
+2. On a Mono platform, the commandline needs to be prefixed by the appropriate `mono` command that invokes the necessary .NET v4.0 environment for FSharp.Formatting on your platform. 
 
 3. The example commandline is executed in the working directory that contains the target files `lib1.dll` and `lib 2.dll` as well as the
 corresponding meta-data files `lib1.xml` and `lib 2.xml`, which are the result of a previous build process of your project.
@@ -169,10 +169,10 @@ Note: depending on the quote evaluation scheme of your OS and shell, you may enc
 				   
 ### Alternative configuration options
 
-Instead of using the commandline tool, you may want to consider to use the [F# interpreter `#!` compatibility](https://visualfsharp.codeplex.com/workitem/25) coming with F# 3.1.2.
-This feature allows you on posix systems to execute F# scripts `*.fsx` directly from a posix shell. In order to use this feature e.g. on a typical OS X or Linux system, you add as first line, at first position in your `fsx` file the F# interpreter invocation command `#!/usr/bin/env fsharpi --exec`. Alternatively, you could use the direct call to `fsi.exe`, which is part of the standard F# installation, to run your `generate.fsx` file on Windows via `fsi --exec generate.fsx` and on Mono platforms with `mono fsi.exe --exec generate.fsx` (provided proper path settings).
+Instead of using the commandline tool, you may want to consider using the [F# interpreter `#!` compatibility](https://visualfsharp.codeplex.com/workitem/25) coming with F# 3.1.2.
+This feature allows you (on posix systems) to execute F# scripts `*.fsx` directly from a posix shell. In order to use this feature, for example, on a typical OS X or Linux system, you add as the first line, at the first position in your `fsx` file the F# interpreter invocation command `#!/usr/bin/env fsharpi --exec`. Alternatively, you could use the direct call to `fsi.exe`, which is part of the standard F# installation, to run your `generate.fsx` file on Windows via `fsi --exec generate.fsx` and on Mono platforms with `mono fsi.exe --exec generate.fsx` (provided proper path settings).
 
-As template for the `generate.fsx` file, you should refer to the recommended [template file](https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template), that should be easily adapted to your project´s needs. The tradeoff in both cases is that instead of installating the FSharp.Formatting commandline tool, you have to install F# and the FSharp.Formatting library on your system. As the commandline tool contains the FSharp.Formatting library and the Fsharp compiler service, the overhead is much less than it might look at first glance.
+As template for the `generate.fsx` file, you should refer to the recommended [template file](https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template), that should be easily adapted to your project´s needs. The tradeoff in both cases is that instead of installing the FSharp.Formatting commandline tool, you have to install F# and the FSharp.Formatting library on your system. As the commandline tool contains the FSharp.Formatting library and the Fsharp compiler service, the overhead is much less than it might look at first glance.
 
 If you already use [FAKE](http://fsharp.github.io) in your project, it is recommended to apply the predefined [FAKE commands](http://fsharp.github.io/FAKE/apidocs/fake-fsharpformatting.html) 
 for the document creation process. FAKE will install the FSharp.Formatting commandline tool as a dependency. Hence, a separate installation should be omitted in order to avoid 

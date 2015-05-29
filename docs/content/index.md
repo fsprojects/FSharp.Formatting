@@ -2,7 +2,7 @@
 ==================================
 
 The F# Formatting libraries (`FSharp.CodeFormat.dll`, `FSharp.Markdown.dll` and `FSharp.Literate.dll`) include 
-an F# implementation of the Markdown parser and a F# code formatter that can be used to tokenize F# 
+an F# implementation of a Markdown parser and an F# code formatter that can be used to tokenize F# 
 code and obtain information about tokens including tool-tips (as in Visual Studio and MonoDevelop) 
 with type information. The package also comes with a sample that implements literate programming for F#
 (and was used to generate this documentation).
@@ -17,7 +17,7 @@ with type information. The package also comes with a sample that implements lite
 
  - The NuGet package comes with a load script `FSharp.Formatting.fsx` that references all the required DLLs
    and paths. If you are calling F# Formatting from a script file, then it is recommended to use `#load "FSharp.Formatting.fsx"`
-   as a futre-proof way of referencing the library.
+   as a future-proof way of referencing the library.
 
 You can download the [source as a ZIP file](https://github.com/tpetricek/FSharp.Formatting/zipball/master)
 or download the [compiled binaries](https://github.com/tpetricek/FSharp.Formatting/archive/release.zip) as a ZIP.
@@ -26,7 +26,7 @@ Documentation
 -------------
 
 The documentation for this library is generated automatically using the literate programming 
-tools that are built on top of it and are described in [literate programming page](literate.html).
+tools that are built on top of it and are described in the [literate programming page](literate.html).
 If you spot a typo, please submit a pull request! The source Markdown and F# script files are
 available in the [docs folder on GitHub](https://github.com/tpetricek/FSharp.Formatting/tree/master/docs).
 I hope it is also a good sample showing how to write documentation for F# projects.

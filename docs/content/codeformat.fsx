@@ -15,8 +15,8 @@ open System.Reflection
 
 (**
 
-Starting background agent
--------------------------
+Starting a background agent
+---------------------------
 
 The `FSharp.CodeFormat` namespace contains `CodeFormat` type which is the
 entry point. The static method `CreateAgent` starts a background worker that
@@ -29,14 +29,14 @@ let formattingAgent = CodeFormat.CreateAgent(fsharpCompiler)
 (**
 If you want to process multiple snippets, it is a good idea to keep the 
 formatting agent around if possible. The agent needs to load the F# compiler
-(which needs to load various files itself) and so this takes long. As the above
+(which needs to load various files itself) and so this takes a long time. As the above
 example shows, you can specify which version of `FSharp.Compiler.dll` to use.
 
 Processing F# source
 --------------------
 
-The formatting agent provides `ParseSource` method (together with an asynchronous
-version for use from F# and also a version that returns .NET `Task` for C#).
+The formatting agent provides a `ParseSource` method (together with an asynchronous
+version for use from F# and also a version that returns a .NET `Task` for C#).
 To call the method, we define a simple F# code as a string:
 *)
 
@@ -52,10 +52,10 @@ of the script file. The file does not have to physically exist. It is used by th
 F# compiler to resolve relative references (e.g. `#r`) and to automatically name
 the module including all code in the file.
 
-You can alos specify additional parameters, such as `*.dll` references, by passing 
-third argument with compiler options (e.g. `"-r:Foo.dll -r:Bar.dll"`). 
+You can also specify additional parameters, such as `*.dll` references, by passing 
+a third argument with compiler options (e.g. `"-r:Foo.dll -r:Bar.dll"`). 
 
-This operation might take some time, so it is a good idea to use asynchronous 
+This operation might take some time, so it is a good idea to use an asynchronous 
 variant of the method. It returns two arrays - the first contains F# snippets
 in the source code and the second contains any errors reported by the compiler.
 A single source file can include multiple snippets using the same formatting tags
@@ -99,13 +99,13 @@ print the value using the F# pretty printing, so the result looks as follows:
 The `Omitted` token is generated if you use the special `(*[omit:...]*)` command.
 The `Output` token is generated if you use the `// [fsi:...]` command to format
 output returned by F# interactive. The `Error` command wraps code that should be 
-underlined with red squiggle if the code contains an error.
+underlined with a red squiggle if the code contains an error.
 
 Generating HTML output
 ----------------------
 
-Finally, the `CodeFormat` type also includes method `FormatHtml` that can be used
-to generate nice HTML output from an F# snippet. This is used, for example on 
+Finally, the `CodeFormat` type also includes a method `FormatHtml` that can be used
+to generate nice HTML output from an F# snippet. This is used, for example, on 
 [F# Snippets](http://www.fssnip.net). The following example shows how to call it:
 *)
 
@@ -120,7 +120,7 @@ for snip in html.Snippets do
 printfn "%s" html.ToolTip
 
 (**
-If the input contains multiple snippets spearated using the `//[snippet:...]` comment, e.g.:
+If the input contains multiple snippets separated using the `//[snippet:...]` comment, e.g.:
 *)
 
 (**
