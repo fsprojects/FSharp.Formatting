@@ -131,7 +131,7 @@ type ModuleInfo =
   { Module : Module
     Assembly : AssemblyGroup
     Namespace : Namespace
-    ParentModule : Option<Module> }
+    ParentModule : Module option }
   member this.HasParentModule = this.ParentModule.IsSome
   static member Create(modul, asm, ns, parent) = 
     { ModuleInfo.Module = modul; Assembly = asm; Namespace = ns; ParentModule = parent }
@@ -140,10 +140,16 @@ type TypeInfo =
   { Type : Type
     Assembly : AssemblyGroup
     Namespace : Namespace
-    ParentModule : Option<Module> }
+    ParentModule : Module option }
   member this.HasParentModule = this.ParentModule.IsSome
   static member Create(typ, asm, ns, modul) = 
     { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; ParentModule = modul }
+
+/// [omit]
+[<System.Runtime.CompilerServices.Extension>]
+module ExtensionMethods =
+   [<System.Runtime.CompilerServices.Extension>]
+   let Exists(opt : Module option) = opt.IsSome
 
 module ValueReader = 
   open System.Collections.ObjectModel
