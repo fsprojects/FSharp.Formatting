@@ -232,7 +232,7 @@ available as part of the NuGet package). The sample Latex (and HTML) outputs loo
  * [Sample Markdown file](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.md)
    produces the following [LaTeX output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.tex)
    and [HTML output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.html)
- * [Sample F# script file](https://github.com/tpetricek/FSharp.Formatting/blob/master/literate/demo.fsx)
+ * [Sample F# script file](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.fsx)
    produces the following [LaTeX output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.tex)
    and [HTML output](https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.html)
 
