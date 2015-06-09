@@ -370,7 +370,10 @@ module Transformations =
     // Format all snippets and build lookup dictionary for replacements
     let formatted =
       match ctx.OutputKind with
-      | OutputKind.Html -> CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+      | OutputKind.Html -> 
+          let openTag = "<pre class=\"fssnip\"><code lang=\"fsharp\">"
+          let closeTag = "</code></pre>"
+          CodeFormat.FormatHtml(snippets, ctx.Prefix, openTag, closeTag, ctx.GenerateLineNumbers, false)
       | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 
