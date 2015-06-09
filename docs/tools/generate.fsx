@@ -4,7 +4,11 @@
 // --------------------------------------------------------------------------------------
 
 // Web site location for the generated documentation
+#if TESTING
+let website = __SOURCE_DIRECTORY__ + "../output"
+#else
 let website = "/FSharp.Formatting"
+#endif
 
 let githubLink = "http://github.com/tpetricek/FSharp.Formatting"
 
