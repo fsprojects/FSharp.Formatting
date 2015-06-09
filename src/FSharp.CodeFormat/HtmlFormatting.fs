@@ -165,7 +165,7 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
       let linesLength = lines.Length
       let emitTag tag = 
         if String.IsNullOrEmpty(tag) |> not then 
-          ctx.Writer.WriteLine(tag)
+          ctx.Writer.Write(tag)
 
       // If we're adding lines, then generate two column table 
       // (so that the body can be easily copied)
