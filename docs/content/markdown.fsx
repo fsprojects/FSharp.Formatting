@@ -2,7 +2,7 @@
 F# Formatting: Markdown parser
 ==============================
 
-This page demonstrates how to use `FSharp.Markdown.dll` to parse Markdown
+This page demonstrates how to use `FSharp.Markdown.dll` to parse a Markdown
 document, process the obtained document representation and
 how to turn the code into a nicely formatted HTML.
 
@@ -40,7 +40,7 @@ one of the two alternative styles) followed by a paragraph with a
 _direct_ link, code snippet and one more paragraph that includes an 
 _indirect_ link. The URLs of indirect links are defined by a separate
 block as demonstrated on the last line (and they can then be easily used repeatedly
-from multiple places in the documnet.
+from multiple places in the document).
 
 Working with parsed documents
 -----------------------------
@@ -71,13 +71,11 @@ for par in parsed.Paragraphs do
   | _ -> ()
 
 (**
-You can find more detailed information about the document structure and processing it
-in the upcoming [F# Deep Dives](http://manning.com/petricek2/) book. The chapter that 
-discusses the design of the Markdown processor is [available as a free sample](http://manning.com/petricek2/F_DeepDives_MEAP_ch3.pdf)
-(PDF).
+You can find more detailed information about the document structure and how to process it
+in the book [F# Deep Dives](http://manning.com/petricek2/).
 
-Processing document recursively
--------------------------------
+Processing the document recursively
+-----------------------------------
 
 The library provides active patterns that can be used to easily process the Markdown 
 document recursively. The example in this section shows how to extract all links from the
@@ -123,7 +121,7 @@ link that uses one of the link definitions. The function simply returns the URL 
 with the link.
 
 Some span nodes (like emphasis) can contain other formatting, so we need to recursively
-process children. This is done by matching againts `Matching.SpanNodes` which is an active
+process children. This is done by matching against `Matching.SpanNodes` which is an active
 pattern that recognizes any node with children. The library also provides a _function_
 named `Matching.SpanNode` that can be used to reconstruct the same node (when you want
 to transform document). This is similar to how the `ExprShape` module for working with 
@@ -132,19 +130,19 @@ F# quotations works.
 The function `collectParLinks` processes paragraphs - a paragraph cannot directly be a 
 link so we just need to process all spans. This time, there are three options. 
 `ParagraphLeaf` represents a case where the paragraph does not contain any spans
-(a code block or e.g. `<hr>` line); the `ParagraphNested` case is used for paragraphs
-that contain ohter paragraphs (quotation) and `ParagraphSpans` is used for all other
+(a code block or, for example, a `<hr>` line); the `ParagraphNested` case is used for paragraphs
+that contain other paragraphs (quotation) and `ParagraphSpans` is used for all other
 paragraphs that contain normal text - here we call `collectSpanLinks` on all nested spans.
 
 Generating HTML output
 ----------------------
 
-Finally, the `Markdown` type also includes method `WriteHtml` that can be used
-to generate HTML document from the Markdown input. The following example shows how to call it:
+Finally, the `Markdown` type also includes a method `WriteHtml` that can be used
+to generate an HTML document from the Markdown input. The following example shows how to call it:
 *)
 let html = Markdown.WriteHtml(parsed)
 
 (**
-In addition, you can also use `Markdown.TransformHtml` to directly turn input document
-in the Markdown format into a HTML document (without the intermediate step).
+In addition, you can also use `Markdown.TransformHtml` to directly turn an input document
+in the Markdown format into an HTML document (without the intermediate step).
 *)
