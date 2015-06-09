@@ -373,7 +373,11 @@ module Transformations =
       | OutputKind.Html -> 
           let openTag = "<pre class=\"fssnip\"><code lang=\"fsharp\">"
           let closeTag = "</code></pre>"
-          CodeFormat.FormatHtml(snippets, ctx.Prefix, openTag, closeTag, ctx.GenerateLineNumbers, false)
+          let openLinesTag = "<pre class=\"fssnip\">"
+          let closeLinesTag = "</code>"
+          CodeFormat.FormatHtml
+            ( snippets, ctx.Prefix, openTag, closeTag, 
+              openLinesTag, closeLinesTag, ctx.GenerateLineNumbers, false)
       | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 
