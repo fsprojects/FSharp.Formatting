@@ -1,3 +1,6 @@
+## 2.9.6 (8 May, 2015)
+ - Generate 'fssnip' class for non-F# <pre> tags for consistency
+
 ## 2.9.5 (6 May, 2015)
  - Provide an option to disable `fsi.AddPrinter` (#311)
  - Generated line numbers for HTML are the same for F# and non-F#
