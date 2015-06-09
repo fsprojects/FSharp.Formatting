@@ -157,7 +157,7 @@ var a = 10 < 10;
 [<Test>]
 let ``Codeblock whitespace is preserved`` () =
   let doc = "```markup\r\n    test\r\n    blub\r\n```\r\n";
-  let expected = "<pre lang=\"markup\">    test\r\n    blub\r\n</pre>" |> properNewLines;
+  let expected = "lang=\"markup\">    test\r\n    blub\r\n</pre>" |> properNewLines;
   let doc = Literate.ParseMarkdownString(doc, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain expected
@@ -240,6 +240,19 @@ let ``HTML for line numbers generated for F# and non-F# is the same``() =
   
   html1.Substring(0, html1.IndexOf("1:"))
   |> shouldEqual <| html2.Substring(0, html2.IndexOf("1:"))
+
+[<Test>]
+let ``HTML for snippets generated for F# and non-F# has 'fssnip' class``() =
+  let content1 = "    [lang=js]\n    var"
+  let content2 = "    let"
+  let doc1 = Literate.ParseMarkdownString(content1, formatAgent=getFormatAgent())
+  let doc2 = Literate.ParseMarkdownString(content2, formatAgent=getFormatAgent())
+  let html1 = Literate.WriteHtml(doc1, lineNumbers=true)
+  let html2 = Literate.WriteHtml(doc2, lineNumbers=true)
+
+  // the 'fssnip' class appears for both <pre> with lines and <pre> with code
+  html1.Split([| "fssnip" |], System.StringSplitOptions.None).Length |> shouldEqual 3
+  html2.Split([| "fssnip" |], System.StringSplitOptions.None).Length |> shouldEqual 3
 
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same

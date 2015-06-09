@@ -348,7 +348,7 @@ module Transformations =
                     writer.WriteLine("</td>")
 
                   writer.Write("<td class=\"snippet\">")
-                  Printf.fprintf writer "<pre lang=\"%s\">%s</pre>" lang code
+                  Printf.fprintf writer "<pre class=\"fssnip\" lang=\"%s\">%s</pre>" lang code
                   writer.Write("</td></tr></table>")
                   sb.ToString()
 
