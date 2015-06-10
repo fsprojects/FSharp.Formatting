@@ -340,15 +340,15 @@ module Transformations =
                     let lines = code.Trim('\r', '\n').Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n").Split('\n')
                     let numberLength = lines.Length.ToString().Length
                     let linesLength = lines.Length
-                    writer.WriteLine("<td class=\"lines\"><pre class=\"fssnip\">")
+                    writer.Write("<td class=\"lines\"><pre class=\"fssnip\">")
                     for index in 0..linesLength-1 do
                       let lineStr = (index + 1).ToString().PadLeft(numberLength)
                       writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
-                    writer.WriteLine("</pre>")
+                    writer.Write("</pre>")
                     writer.WriteLine("</td>")
 
                   writer.Write("<td class=\"snippet\">")
-                  Printf.fprintf writer "<pre class=\"fssnip\" lang=\"%s\">%s</pre>" lang code
+                  Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
                   writer.Write("</td></tr></table>")
                   sb.ToString()
 
@@ -370,7 +370,14 @@ module Transformations =
     // Format all snippets and build lookup dictionary for replacements
     let formatted =
       match ctx.OutputKind with
-      | OutputKind.Html -> CodeFormat.FormatHtml(snippets, ctx.Prefix, ctx.GenerateLineNumbers, false)
+      | OutputKind.Html -> 
+          let openTag = "<pre class=\"fssnip\"><code lang=\"fsharp\">"
+          let closeTag = "</code></pre>"
+          let openLinesTag = "<pre class=\"fssnip\">"
+          let closeLinesTag = "</code>"
+          CodeFormat.FormatHtml
+            ( snippets, ctx.Prefix, openTag, closeTag, 
+              openLinesTag, closeLinesTag, ctx.GenerateLineNumbers, false)
       | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 

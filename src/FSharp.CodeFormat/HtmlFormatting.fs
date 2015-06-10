@@ -59,6 +59,8 @@ type FormattingContext =
     Writer : TextWriter 
     OpenTag : string
     CloseTag : string
+    OpenLinesTag : string
+    CloseLinesTag : string
     FormatTip : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string }
 
 // --------------------------------------------------------------------------------------
@@ -163,7 +165,7 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
       let linesLength = lines.Length
       let emitTag tag = 
         if String.IsNullOrEmpty(tag) |> not then 
-          ctx.Writer.WriteLine(tag)
+          ctx.Writer.Write(tag)
 
       // If we're adding lines, then generate two column table 
       // (so that the body can be easily copied)
@@ -173,14 +175,14 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
         ctx.Writer.Write("<td class=\"lines\">")
 
         // Generate <pre> tag for the snippet
-        emitTag ctx.OpenTag
+        emitTag ctx.OpenLinesTag
         // Print all line numbers of the snippet
         for index in 0..linesLength-1 do
           // Add line number to the beginning
           let lineStr = (index + 1).ToString().PadLeft(numberLength)
           ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
 
-        emitTag ctx.CloseTag
+        emitTag ctx.CloseLinesTag
         ctx.Writer.WriteLine("</td>")
         ctx.Writer.Write("<td class=\"snippet\">")
 
@@ -203,10 +205,11 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
-let format addLines addErrors prefix openTag closeTag (snippets:Snippet[]) = 
+let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag (snippets:Snippet[]) = 
   let tipf = ToolTipFormatter(prefix)
   let ctx =  { AddLines = addLines; GenerateErrors = addErrors
                Writer = null; FormatTip = tipf.FormatTip 
+               OpenLinesTag = openLinesTag; CloseLinesTag = closeLinesTag
                OpenTag = openTag; CloseTag = closeTag }
   
   // Generate main HTML for snippets
