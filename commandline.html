@@ -38,7 +38,7 @@
           
 <h1><a name="F-Formatting-Command-line-tool" class="anchor" href="#F-Formatting-Command-line-tool">F# Formatting: Command line tool</a></h1>
 
-<p>If you prefer to use F# Formatting tools via command line, you can use the
+<p>If you prefer to use F# Formatting tools via the command line, you can use the
 <code>FSharp.Formatting.CommandTool</code> package, which includes an executable <code>fsformatting.exe</code>
 that gives you access to the most important functionality via a simple command line
 interface. This might be a good idea if you prefer to run F# Formatting as a separate
@@ -64,14 +64,12 @@ or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/
 <p>The tool option syntax is similar to git or other popular command line tools.
 The format of the command line interface is:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip" lang="text">fsformatting[.exe] --help 
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting[.exe] --help 
 fsformatting[.exe] [command] [function] [options]
-</pre></td></tr></table>
+</code></pre></td></tr></table>
 
 <p>In order to provide consistency across different shell environments, the command line tool appears to be case-insensitive by matching against lower case strings.</p>
 
@@ -93,12 +91,10 @@ library documentation from XML comments).</p>
 <p>The method <code>FSharp.Literate.ProcessDirectory</code> processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
 according to the concept of <a href="literate.html">Literate Programming</a>.</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip" lang="text">fsformatting[.exe] literate --processDirectory [options]
-</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting[.exe] literate --processDirectory [options]
+</code></pre></td></tr></table>
 
 <h3><a name="Required-options" class="anchor" href="#Required-options">Required options</a></h3>
 
@@ -126,28 +122,24 @@ according to the concept of <a href="literate.html">Literate Programming</a>.</p
 
 <h3><a name="Example" class="anchor" href="#Example">Example</a></h3>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip" lang="text">fsformatting literate 
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting literate 
   --processDirectory --templateFile template-project.html 
   --format latex --replacements "page-author" "Tomas Petricek"
-</pre></td></tr></table>
+</code></pre></td></tr></table>
 
 <h2><a name="Library-documentation-command" class="anchor" href="#Library-documentation-command">Library documentation command</a></h2>
 
 <p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://tpetricek.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading 
-the meta-data from a <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
+the meta-data from the <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip" lang="text">fsformatting[.exe] metadataFormat --generate [options]
-</pre></td></tr></table>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting[.exe] metadataFormat --generate [options]
+</code></pre></td></tr></table>
 
 <h3><a name="Required-options-1" class="anchor" href="#Required-options-1">Required options</a></h3>
 
@@ -179,26 +171,24 @@ the meta-data from a <code>*.dll</code> files of the package and using the XML c
 <p>According to the previous section, a minimum configuration for generating the library documentation from <code>*.dll</code> files
 could be configured by:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 <span class="l">5: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip" lang="text">fsformatting metadataFormat 
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting metadataFormat 
   --generate 
   --dllFiles lib1.dll "lib 2.dll" 
   --outDir "../api-docs" 
   --layoutRoots templates
-</pre></td></tr></table>
+</code></pre></td></tr></table>
 
 <p>The following underlying configuration assumptions need to be considered when you adapt this example to your own project:</p>
 
 <ol>
 <li><p>The commandline tool is properly installed in a directory of your system´s binaries search path. 
-If you decide to call the tool from within the intstallation directory or by using an absolute path, you will have to take the
+If you decide to call the tool from within the installation directory or by using an absolute path, you will have to take the
 path resolution implications of your platform (OS and shell) for the other tool options into account.
 After a clean install, the tool´s directory contains all necessary FSharp.Formatting library files, i.e. there would not be unresolved dependencies.
 The installation of the commandline tool only <a href="https://nuget.org/packages/FSharp.Formatting.CommandTool">via NuGet</a> is sufficient for this purpose.</p>
@@ -208,7 +198,7 @@ configuration options below.</li>
 <li><p>If you are using <a href="http://fsharp.github.io/FAKE/">FAKE - F# Make</a>, a separate installation of the commandline tool is not recommended 
 as FAKE already contains this tool, see further recommendations below.</p></li>
 </ul></li>
-<li><p>On a Mono platform, the commandline need to be prefixed by the appropriate <code>mono</code> command that invokes the necessary .Net v4.0 environment for FSharp.Formatting on your platform.</p></li>
+<li><p>On a Mono platform, the commandline needs to be prefixed by the appropriate <code>mono</code> command that invokes the necessary .NET v4.0 environment for FSharp.Formatting on your platform.</p></li>
 <li><p>The example commandline is executed in the working directory that contains the target files <code>lib1.dll</code> and <code>lib 2.dll</code> as well as the
 corresponding meta-data files <code>lib1.xml</code> and <code>lib 2.xml</code>, which are the result of a previous build process of your project.</p></li>
 <li><p>The output directory is in this example within the parent directory of your working directory.</p></li>
@@ -221,8 +211,7 @@ you copy this file into the subdirectory <code>templates</code> of your working 
 
 <div></div>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -232,9 +221,8 @@ you copy this file into the subdirectory <code>templates</code> of your working 
 <span class="l"> 8: </span>
 <span class="l"> 9: </span>
 <span class="l">10: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip" lang="text">fsformatting metadataFormat 
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting metadataFormat 
   --generate 
   --dllFiles lib1.dll "lib 2.dll" 
   --outDir "../api-docs" 
@@ -244,16 +232,16 @@ you copy this file into the subdirectory <code>templates</code> of your working 
                 "github-link" "http://github.com/yourname/project"
                 "project-name" "your project name"
                 "root" "http://yourname.github.io/project"
-</pre></td></tr></table>
+</code></pre></td></tr></table>
 
 <p>Note: depending on the quote evaluation scheme of your OS and shell, you may encounter unexpected errors due to misinterpretation of the string parameters.</p>
 
 <h3><a name="Alternative-configuration-options" class="anchor" href="#Alternative-configuration-options">Alternative configuration options</a></h3>
 
-<p>Instead of using the commandline tool, you may want to consider to use the <a href="https://visualfsharp.codeplex.com/workitem/25">F# interpreter <code>#!</code> compatibility</a> coming with F# 3.1.2.
-This feature allows you on posix systems to execute F# scripts <code>*.fsx</code> directly from a posix shell. In order to use this feature e.g. on a typical OS X or Linux system, you add as first line, at first position in your <code>fsx</code> file the F# interpreter invocation command <code>#!/usr/bin/env fsharpi --exec</code>. Alternatively, you could use the direct call to <code>fsi.exe</code>, which is part of the standard F# installation, to run your <code>generate.fsx</code> file on Windows via <code>fsi --exec generate.fsx</code> and on Mono platforms with <code>mono fsi.exe --exec generate.fsx</code> (provided proper path settings).</p>
+<p>Instead of using the commandline tool, you may want to consider using the <a href="https://visualfsharp.codeplex.com/workitem/25">F# interpreter <code>#!</code> compatibility</a> coming with F# 3.1.2.
+This feature allows you (on posix systems) to execute F# scripts <code>*.fsx</code> directly from a posix shell. In order to use this feature, for example, on a typical OS X or Linux system, you add as the first line, at the first position in your <code>fsx</code> file the F# interpreter invocation command <code>#!/usr/bin/env fsharpi --exec</code>. Alternatively, you could use the direct call to <code>fsi.exe</code>, which is part of the standard F# installation, to run your <code>generate.fsx</code> file on Windows via <code>fsi --exec generate.fsx</code> and on Mono platforms with <code>mono fsi.exe --exec generate.fsx</code> (provided proper path settings).</p>
 
-<p>As template for the <code>generate.fsx</code> file, you should refer to the recommended <a href="https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template">template file</a>, that should be easily adapted to your project´s needs. The tradeoff in both cases is that instead of installating the FSharp.Formatting commandline tool, you have to install F# and the FSharp.Formatting library on your system. As the commandline tool contains the FSharp.Formatting library and the Fsharp compiler service, the overhead is much less than it might look at first glance.</p>
+<p>As template for the <code>generate.fsx</code> file, you should refer to the recommended <a href="https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template">template file</a>, that should be easily adapted to your project´s needs. The tradeoff in both cases is that instead of installing the FSharp.Formatting commandline tool, you have to install F# and the FSharp.Formatting library on your system. As the commandline tool contains the FSharp.Formatting library and the Fsharp compiler service, the overhead is much less than it might look at first glance.</p>
 
 <p>If you already use <a href="http://fsharp.github.io">FAKE</a> in your project, it is recommended to apply the predefined <a href="http://fsharp.github.io/FAKE/apidocs/fake-fsharpformatting.html">FAKE commands</a> 
 for the document creation process. FAKE will install the FSharp.Formatting commandline tool as a dependency. Hence, a separate installation should be omitted in order to avoid 

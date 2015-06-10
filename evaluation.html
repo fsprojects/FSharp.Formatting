@@ -47,12 +47,11 @@ it is implemented using the <a href="http://fsharp.github.io/FSharp.Compiler.Ser
 
 <p>The functionality is currently available (and tested) for F# script files (<code>*.fsx</code>) that
 contain special comments to embed the Markdown text. To embed output of a script file, 
-a couple of additional special comments is added.</p>
+a couple of additional special comments are added.</p>
 
 <p>The following snippet (F# Script file) demonstates the functionality:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -66,10 +65,8 @@ a couple of additional special comments is added.</p>
 <span class="l">12: </span>
 <span class="l">13: </span>
 <span class="l">14: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="c">(** </span>
+</code></td>
+<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="c">(** </span>
 <span class="c">### Evaluation demo </span>
 <span class="c">The following is a simple calculation: *)</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">test</span> <span class="o">=</span> <span class="n">40</span> <span class="o">+</span> <span class="n">2</span>
@@ -83,8 +80,7 @@ a couple of additional special comments is added.</p>
 
 <span class="c">(** And the variable `test` has the following value: *)</span>
 <span class="c">(*** include-value: test ***)</span>
-</pre>
-</td>
+</code></pre></td>
 </tr>
 </table>
 
@@ -137,8 +133,7 @@ Assuming you have all the references in place, you can now create an instance of
 <code>FsiEvaluator</code> that represents a wrapper for F# interactive and pass it to all the
 functions that parse script files or process script files:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -150,10 +145,8 @@ functions that parse script files or process script files:</p>
 <span class="l">10: </span>
 <span class="l">11: </span>
 <span class="l">12: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="i">Literate</span>
+</code></td>
+<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="i">Literate</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="i">Markdown</span>
 
 <span class="c">// Sample literate content</span>
@@ -165,8 +158,7 @@ functions that parse script files or process script files:</p>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 9)" onmouseover="showTip(event, 'fs5', 9)" class="i">fsi</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="t">FsiEvaluator</span>()
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 11)" onmouseover="showTip(event, 'fs5', 11)" class="i">doc</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 12)" onmouseover="showTip(event, 'fs5', 12)" class="t">Literate</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="f">ParseScriptString</span>(<span onmouseout="hideTip(event, 'fs5', 14)" onmouseover="showTip(event, 'fs5', 14)" class="i">content</span>, <span onmouseout="hideTip(event, 'fs5', 15)" onmouseover="showTip(event, 'fs5', 15)" class="i">fsiEvaluator</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 16)" onmouseover="showTip(event, 'fs5', 16)" class="i">fsi</span>)
 <span onmouseout="hideTip(event, 'fs5', 17)" onmouseover="showTip(event, 'fs5', 17)" class="t">Literate</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 18)" onmouseover="showTip(event, 'fs8', 18)" class="f">WriteHtml</span>(<span onmouseout="hideTip(event, 'fs5', 19)" onmouseover="showTip(event, 'fs5', 19)" class="i">doc</span>)
-</pre>
-</td>
+</code></pre></td>
 </tr>
 </table>
 
@@ -180,33 +172,29 @@ you won't accidentally run unexpected code!)</p>
 command.</p>
 
 <p>The constructor of <code>FsiEvaluator</code> takes command line parameters for <code>fsi.exe</code> that can
-be used to specify e.g. defined symbols and other attributes for F# Interactive.</p>
+be used to specify, for example, defined symbols and other attributes for F# Interactive.</p>
 
 <p>You can also subscribe to the <code>EvaluationFailed</code> event which is fired whenever the evaluation
-of an expression fails. You can use that to do tests that verify that all the code on your
+of an expression fails. You can use that to do tests that verify that all off the code in your
 documentation executes without errors.</p>
 
 <h2><a name="Emitting-Raw-Text" class="anchor" href="#Emitting-Raw-Text">Emitting Raw Text</a></h2>
 
-<p>When writing documents, it is sometimes required to emit, completely unaltered text. Up to this point all
-of the <code>commands</code> have decorated the code or text with some formatting for example a <code>pre</code> element. When working 
+<p>When writing documents, it is sometimes required to emit completely unaltered text. Up to this point all
+of the <code>commands</code> have decorated the code or text with some formatting, for example a <code>pre</code> element. When working 
 with layout or content generation engines such as Jeykll, we sometimes need to emit plain text as declarations to
 said engines. This is where the <code>raw</code> command is useful.</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="c">(**</span>
+</code></td>
+<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="c">(**</span>
 <span class="c">    (*** raw ***)</span>
 <span class="c">    Some raw text.</span>
 <span class="c">*)</span>
-</pre>
-</td>
+</code></pre></td>
 </tr>
 </table>
 
@@ -227,8 +215,7 @@ of certain types. For example, let's say that we would want to format F# lists s
 
 <p>This can be done by calling <code>RegisterTransformation</code> on the <code>FsiEvaluator</code> instance:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
 <span class="l"> 4: </span>
@@ -240,10 +227,8 @@ of certain types. For example, let's say that we would want to format F# lists s
 <span class="l">10: </span>
 <span class="l">11: </span>
 <span class="l">12: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="c">// Create evaluator &amp; register simple formatter for lists</span>
+</code></td>
+<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="c">// Create evaluator &amp; register simple formatter for lists</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 20)" onmouseover="showTip(event, 'fs5', 20)" class="i">fsiOl</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 21)" onmouseover="showTip(event, 'fs5', 21)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 22)" onmouseover="showTip(event, 'fs4', 22)" class="i">Literate</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 23)" onmouseover="showTip(event, 'fs5', 23)" class="t">FsiEvaluator</span>()
 <span onmouseout="hideTip(event, 'fs5', 24)" onmouseover="showTip(event, 'fs5', 24)" class="i">fsiOl</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 25)" onmouseover="showTip(event, 'fs9', 25)" class="f">RegisterTransformation</span>(<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs10', 26)" onmouseover="showTip(event, 'fs10', 26)" class="i">o</span>, <span onmouseout="hideTip(event, 'fs5', 27)" onmouseover="showTip(event, 'fs5', 27)" class="i">ty</span>) <span class="k">-&gt;</span>
   <span class="c">// If the type of value is an F# list, format it nicely</span>
@@ -255,8 +240,7 @@ of certain types. For example, let's say that we would want to format F# lists s
     <span class="c">// Return option value (success) with ordered list</span>
     <span onmouseout="hideTip(event, 'fs5', 45)" onmouseover="showTip(event, 'fs5', 45)" class="p">Some</span> [ <span onmouseout="hideTip(event, 'fs5', 46)" onmouseover="showTip(event, 'fs5', 46)" class="p">ListBlock</span>(<span onmouseout="hideTip(event, 'fs5', 47)" onmouseover="showTip(event, 'fs5', 47)" class="t">MarkdownListKind</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs15', 48)" onmouseover="showTip(event, 'fs15', 48)" class="p">Ordered</span>, <span onmouseout="hideTip(event, 'fs5', 49)" onmouseover="showTip(event, 'fs5', 49)" class="i">items</span>) ]
   <span class="k">else</span> <span onmouseout="hideTip(event, 'fs5', 50)" onmouseover="showTip(event, 'fs5', 50)" class="p">None</span>)
-</pre>
-</td>
+</code></pre></td>
 </tr>
 </table>
 
@@ -271,26 +255,22 @@ embed it in <code>InlineBlock</code>.</p>
 <p>To use the new <code>FsiEvaluator</code>, we can use the same style as earlier. This time, we format
 a simple list containing strings:</p>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
 <span class="l">7: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 51)" onmouseover="showTip(event, 'fs5', 51)" class="i">listy</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+</code></td>
+<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 51)" onmouseover="showTip(event, 'fs5', 51)" class="i">listy</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">### Formatting demo</span>
 <span class="s">let test = [&quot;one&quot;;&quot;two&quot;;&quot;three&quot;]</span>
 <span class="s">(*** include-value:test ***)&quot;&quot;&quot;</span>
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 52)" onmouseover="showTip(event, 'fs5', 52)" class="i">docOl</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 53)" onmouseover="showTip(event, 'fs5', 53)" class="t">Literate</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 54)" onmouseover="showTip(event, 'fs7', 54)" class="f">ParseScriptString</span>(<span onmouseout="hideTip(event, 'fs5', 55)" onmouseover="showTip(event, 'fs5', 55)" class="i">listy</span>, <span onmouseout="hideTip(event, 'fs5', 56)" onmouseover="showTip(event, 'fs5', 56)" class="i">fsiEvaluator</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 57)" onmouseover="showTip(event, 'fs5', 57)" class="i">fsiOl</span>)
 <span onmouseout="hideTip(event, 'fs5', 58)" onmouseover="showTip(event, 'fs5', 58)" class="t">Literate</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 59)" onmouseover="showTip(event, 'fs8', 59)" class="f">WriteHtml</span>(<span onmouseout="hideTip(event, 'fs5', 60)" onmouseover="showTip(event, 'fs5', 60)" class="i">docOl</span>)
-</pre>
-</td>
+</code></pre></td>
 </tr>
 </table>
 
