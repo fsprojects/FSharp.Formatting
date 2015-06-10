@@ -29,6 +29,7 @@ let referenceBinaries =
 #r "FakeLib.dll"
 open Fake
 open System.IO
+open Fake
 open Fake.FileHelper
 
 // This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
@@ -132,11 +133,67 @@ let buildDocumentation () =
         includeSource = true, // Only needed for 'side-by-side' pages, but does not hurt others
         ?fsiEvaluator = fsiEvaluator.Value ) // Currently we don't need it but it's a good stress test to have it here.
 
+let watch () =
+  printfn "Starting watching by initial building..."
+  let rebuildDocs () =
+    CleanDir output // Just in case the template changed (buildDocumentation is caching internally, maybe we should remove that)
+    copyFiles()
+    buildReference()
+    buildDocumentation()
+  rebuildDocs()
+  printfn "Watching for changes..."
+
+  let full s = Path.GetFullPath s
+  let queue = new System.Collections.Concurrent.ConcurrentQueue<_>()
+  let processTask () =
+    async {
+      let! tok = Async.CancellationToken
+      while not tok.IsCancellationRequested do
+        try
+          if queue.IsEmpty then
+            do! Async.Sleep 1000
+          else
+            let data = ref []
+            let hasData = ref true
+            while !hasData do
+              match queue.TryDequeue() with
+              | true, d ->
+                data := d :: !data
+              | _ ->
+                hasData := false
+
+            printfn "Detected changes (%A). Invalidate cache and rebuild." !data
+            FSharp.MetadataFormat.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
+            FSharp.Literate.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
+            rebuildDocs()
+            printfn "Documentation generation finished."
+        with e ->
+          printfn "Documentation generation failed: %O" e
+    }
+
+  use watcher =
+    !! (full content + "/*.*")
+    ++ (full templates + "/*.*")
+    ++ (full files + "/*.*")
+    ++ (full formatting + "templates/*.*")
+    |> WatchChanges (fun changes ->
+      changes |> Seq.iter queue.Enqueue)
+  use source = new System.Threading.CancellationTokenSource()
+  Async.Start(processTask (), source.Token)
+  printfn "Press enter to exit watching..."
+  System.Console.ReadLine() |> ignore
+  watcher.Dispose()
+  source.Cancel()
+
 // Generate
-copyFiles()
 #if HELP
+copyFiles()
 buildDocumentation()
 #endif
 #if REFERENCE
+copyFiles()
 buildReference()
+#endif
+#if WATCH
+watch()
 #endif
