@@ -44,7 +44,7 @@ namespace CSharpFormat
             }
         }
 
-        public static string FormatCode(string lang, string code)
+        public static Tuple<bool, string> FormatCode(string lang, string code)
         {
             SourceFormat sf = null;
             switch (lang)
@@ -88,11 +88,11 @@ namespace CSharpFormat
                     break;
             }
             if (sf == null)
-                return code;
+                return new Tuple<bool, string>(false, code);
             else
             {
                 sf.TabSpaces = 2;
-                return sf.FormatCode(code);
+                return new Tuple<bool, string>(true, sf.FormatCode(code));
             }
         }
     }
