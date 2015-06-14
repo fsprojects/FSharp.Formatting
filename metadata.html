@@ -55,8 +55,8 @@ a couple of extensions:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
-</code></td>
-<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;../../bin/FSharp.MetadataFormat.dll&quot;</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;../../bin/FSharp.MetadataFormat.dll&quot;</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">MetadataFormat</span>
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">IO</span>
 </code></pre></td>
@@ -73,8 +73,8 @@ Assuming <code>root</code> is the root directory for your project, you can write
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
-</code></td>
-<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="f">Generate</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="f">Generate</span>
   ( <span onmouseout="hideTip(event, 'fs4', 8)" onmouseover="showTip(event, 'fs4', 8)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 10)" onmouseover="showTip(event, 'fs4', 10)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
     <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 13)" onmouseover="showTip(event, 'fs4', 13)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
     [ <span onmouseout="hideTip(event, 'fs4', 14)" onmouseover="showTip(event, 'fs4', 14)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 15)" onmouseover="showTip(event, 'fs7', 15)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 16)" onmouseover="showTip(event, 'fs4', 16)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ] )
@@ -96,8 +96,8 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 <span class="l">5: </span>
 <span class="l">6: </span>
 <span class="l">7: </span>
-</code></td>
-<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 17)" onmouseover="showTip(event, 'fs4', 17)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 18)" onmouseover="showTip(event, 'fs6', 18)" class="f">Generate</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 17)" onmouseover="showTip(event, 'fs4', 17)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 18)" onmouseover="showTip(event, 'fs6', 18)" class="f">Generate</span>
   ( <span onmouseout="hideTip(event, 'fs4', 19)" onmouseover="showTip(event, 'fs4', 19)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 20)" onmouseover="showTip(event, 'fs7', 20)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 21)" onmouseover="showTip(event, 'fs4', 21)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
     <span onmouseout="hideTip(event, 'fs4', 22)" onmouseover="showTip(event, 'fs4', 22)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 24)" onmouseover="showTip(event, 'fs4', 24)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
     [ <span onmouseout="hideTip(event, 'fs4', 25)" onmouseover="showTip(event, 'fs4', 25)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 26)" onmouseover="showTip(event, 'fs7', 26)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 27)" onmouseover="showTip(event, 'fs4', 27)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ],
@@ -117,8 +117,8 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
-</code></td>
-<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="c">/// [omit]</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// [omit]</span>
 <span class="c">/// Some actual comment</span>
 <span class="k">module</span> <span onmouseout="hideTip(event, 'fs4', 30)" onmouseover="showTip(event, 'fs4', 30)" class="t">Foo</span> <span class="o">=</span> 
    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs8', 31)" onmouseover="showTip(event, 'fs8', 31)" class="i">a</span> <span class="o">=</span> <span class="n">42</span>
@@ -137,8 +137,8 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
-</code></td>
-<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 32)" onmouseover="showTip(event, 'fs4', 32)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 33)" onmouseover="showTip(event, 'fs6', 33)" class="f">Generate</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 32)" onmouseover="showTip(event, 'fs4', 32)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 33)" onmouseover="showTip(event, 'fs6', 33)" class="f">Generate</span>
   ( <span onmouseout="hideTip(event, 'fs4', 34)" onmouseover="showTip(event, 'fs4', 34)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 35)" onmouseover="showTip(event, 'fs7', 35)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 36)" onmouseover="showTip(event, 'fs4', 36)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
     <span onmouseout="hideTip(event, 'fs4', 37)" onmouseover="showTip(event, 'fs4', 37)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 38)" onmouseover="showTip(event, 'fs7', 38)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 39)" onmouseover="showTip(event, 'fs4', 39)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
     [ <span onmouseout="hideTip(event, 'fs4', 40)" onmouseover="showTip(event, 'fs4', 40)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 41)" onmouseover="showTip(event, 'fs7', 41)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 42)" onmouseover="showTip(event, 'fs4', 42)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ],
@@ -156,8 +156,8 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="l">4: </span>
 <span class="l">5: </span>
 <span class="l">6: </span>
-</code></td>
-<td class="snippet"><pre class="fssnip"><code lang="fsharp"><span class="c">/// &lt;summary&gt;</span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// &lt;summary&gt;</span>
 <span class="c">/// Some actual comment</span>
 <span class="c">/// &lt;para&gt;Another paragraph&lt;/para&gt;</span>
 <span class="c">/// &lt;/summary&gt;</span>
