@@ -328,8 +328,6 @@ module Transformations =
             let inlined = 
               match ctx.OutputKind with
               | OutputKind.Html ->
-                  let code = SyntaxHighlighter.FormatCode(lang, code)
-                  
                   let sb = new System.Text.StringBuilder()
                   let writer = new System.IO.StringWriter(sb)
                   writer.Write("<table class=\"pre\">")
@@ -348,7 +346,11 @@ module Transformations =
                     writer.WriteLine("</td>")
 
                   writer.Write("<td class=\"snippet\">")
-                  Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
+                  
+                  match SyntaxHighlighter.FormatCode(lang, code) with
+                  | true, code -> Printf.fprintf writer "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>" lang code
+                  | false, code -> Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
+
                   writer.Write("</td></tr></table>")
                   sb.ToString()
 
@@ -371,10 +373,10 @@ module Transformations =
     let formatted =
       match ctx.OutputKind with
       | OutputKind.Html -> 
-          let openTag = "<pre class=\"fssnip\"><code lang=\"fsharp\">"
+          let openTag = "<pre class=\"fssnip highlighted\"><code lang=\"fsharp\">"
           let closeTag = "</code></pre>"
           let openLinesTag = "<pre class=\"fssnip\">"
-          let closeLinesTag = "</code>"
+          let closeLinesTag = "</pre>"
           CodeFormat.FormatHtml
             ( snippets, ctx.Prefix, openTag, closeTag, 
               openLinesTag, closeLinesTag, ctx.GenerateLineNumbers, false)
