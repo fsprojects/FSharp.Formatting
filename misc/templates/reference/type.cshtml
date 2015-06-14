@@ -28,6 +28,13 @@
 }
 
 <h1>@Model.Type.Name</h1>
+<p>
+  <span>Namespace: @Model.Namespace.Name</span><br />
+  @if(Model.HasParentModule)
+  {
+  <span>Parent Module: <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
+  }
+</p>
 <div class="xmldoc">
   @foreach (var sec in comment.Sections) {
     // XML comment for the type has multiple sections that can be labelled
