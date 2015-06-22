@@ -101,18 +101,29 @@ namespace Manoli.Utils.CSharpFormat
 			get { return true; }
 		}
 
+		// Match group numbers for the Regex built in the constructor
+		private const int COMMENT_GROUP = 1;
+		private const int STRING_LITERAL_GROUP = 2;
+		private const int PREPROCESSOR_KEYWORD_GROUP = 3;
+		private const int KEYWORD_GROUP = 4;
+		private const int OPERATOR_GROUP = 5;
+
+		/// <summary>
+		/// A regular expression that should never match anything.
+		/// </summary>
+		private const string IMPOSSIBLE_MATCH_REGEX = "(?!.*)_{37}(?<!.*)";
+
 		/// <summary/>
 		protected CodeFormat()
 		{
 			string regKeyword = BuildRegex(Keywords);
 			string regPreproc = BuildRegex(Preprocessors);
 			string regOps = BuildRegex(Operators);
-			if (regOps.Length == 0)
-				regOps = "(?!.*)_{37}(?<!.*)"; //use something quite impossible...
-			if (regPreproc.Length == 0)
-				regPreproc = "(?!.*)_{37}(?<!.*)"; //use something quite impossible...
-			
-			//build a master regex with capturing groups
+			if (regOps.Length == 0) regOps = IMPOSSIBLE_MATCH_REGEX;
+			if (regPreproc.Length == 0) regPreproc = IMPOSSIBLE_MATCH_REGEX;
+
+			// Build a master regex with capturing groups.
+			// Note that the group numbers must with the constants COMMENT_GROUP, OPERATOR_GROUP...!
 			StringBuilder regAll = new StringBuilder();
 			regAll.Append("(");
 			regAll.Append(CommentRegEx);
@@ -126,19 +137,23 @@ namespace Manoli.Utils.CSharpFormat
 			regAll.Append(regOps);
 			regAll.Append(")");
 
-			RegexOptions caseInsensitive = CaseSensitive ? 0 : RegexOptions.IgnoreCase;
-			CodeRegex = new Regex(regAll.ToString(), RegexOptions.Singleline | caseInsensitive);
+			RegexOptions regexOptions = RegexOptions.Singleline;
+			if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
+			CodeRegex = new Regex(regAll.ToString(), regexOptions);
 		}
 
 		private string BuildRegex(string separated)
 		{
 			if (separated.Length == 0) return "";
-			separated = separated.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-			foreach (char c in new char[] { '&', '?', '*', '.', '<', '>', '[', ']', '^', '|', '(', ')', '#', '+' })
-
-				separated = separated.Replace(c.ToString(), "\\" + c);
-			separated = separated.Replace(" ", @"(?=\W|$)|(?<=^|\W)");
-			return @"(?<=^|\W)" + separated + @"(?=\W|$)";
+			var sb = new StringBuilder(separated);
+			sb.Replace("&", "&amp;");
+			sb.Replace("<", "&lt;");
+			sb.Replace(">", "&gt;");
+			foreach (char c in new char[] { '&', '?', '*', '.', '<', '>', '[', ']', '^', '|', '(', ')', '#', '+' }) {
+				sb.Replace(c.ToString(), "\\" + c);
+			}
+			sb.Replace(" ", @"(?=\W|$)|(?<=^|\W)");
+			return @"(?<=^|\W)" + sb.ToString() + @"(?=\W|$)";
 		}
 
 		/// <summary>
@@ -150,7 +165,7 @@ namespace Manoli.Utils.CSharpFormat
 		/// <returns>A string containing the HTML code fragment.</returns>
 		protected override string MatchEval(Match match)
 		{
-			if(match.Groups[1].Success) //comment
+			if(match.Groups[COMMENT_GROUP].Success)
 			{
 				StringReader reader = new StringReader(match.ToString());
 				string line;
@@ -167,19 +182,19 @@ namespace Manoli.Utils.CSharpFormat
 				}
 				return sb.ToString();
 			}
-			if(match.Groups[2].Success) //string literal
+			if(match.Groups[STRING_LITERAL_GROUP].Success)
 			{
 				return "<span class=\"s\">" + match.ToString() + "</span>";
 			}
-			if(match.Groups[3].Success) //preprocessor keyword
+			if(match.Groups[PREPROCESSOR_KEYWORD_GROUP].Success)
 			{
 				return "<span class=\"prep\">" + match.ToString() + "</span>";
 			}
-			if(match.Groups[4].Success) //keyword
+			if(match.Groups[KEYWORD_GROUP].Success)
 			{
 				return "<span class=\"k\">" + match.ToString() + "</span>";
 			}
-			if(match.Groups[5].Success) //operator
+			if(match.Groups[OPERATOR_GROUP].Success)
 			{
 				return "<span class=\"o\">" + match.ToString() + "</span>";
 			}

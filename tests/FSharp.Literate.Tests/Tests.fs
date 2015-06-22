@@ -128,7 +128,7 @@ let test = 4 + 1.0"""
   doc.Errors |> Seq.length |> should be (greaterThan 0)
 
 // --------------------------------------------------------------------------------------
-// Formatting C# code snippets
+// Formatting code snippets
 // --------------------------------------------------------------------------------------
 
 [<Test>]
@@ -182,23 +182,31 @@ let ``Correctly handles apostrophes in JS code block (#213)`` () =
 
 [<Test>]
 let ``Correctly encodes special HTML characters (<, >, &) in code`` () =
-  let content = """
-    [lang=js]
+  let forLang = sprintf """
+    [lang=%s]
     var pre = "<a> & <b>";"""
-  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.WriteHtml(doc)
-  html |> should contain "&lt;a&gt; &amp; &lt;b&gt;"
+  ["js"; "unknown-language"] |> Seq.iter (fun lang ->
+    let content = forLang lang
+    let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+    let html = Literate.WriteHtml(doc)
+    html |> should contain "&lt;a&gt; &amp; &lt;b&gt;"
+  )
 
 [<Test>]
 let ``Correctly encodes already encoded HTML entities and tags`` () =
-  let content = """
-    [lang=js]
+  let forLang = sprintf """
+    [lang=%s]
     "&amp;" + "<em>" + "&quot;"; """
-  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.WriteHtml(doc)
-  html |> should contain "&amp;amp;"
-  html |> should contain "&amp;quot;"
-  html |> should contain "&lt;em&gt;"
+  ["js"; "unknown-language"] |> Seq.iter (fun lang ->
+    let content = forLang lang
+    content |> should contain lang
+    let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+    let html = Literate.WriteHtml(doc)
+    html |> should contain "&amp;amp;"
+    html |> should contain "&amp;quot;"
+    html |> should contain "&lt;em&gt;"
+  )
+
 
 [<Test>]
 let ``Generates line numbers for F# code snippets`` () =
