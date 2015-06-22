@@ -88,11 +88,13 @@ namespace CSharpFormat
                     break;
             }
             if (sf == null)
-                return new Tuple<bool, string>(false, code);
+            {
+                return Tuple.Create(false, SourceFormat.EscapeHtml(code, tabSpaces: 2));
+            }
             else
             {
                 sf.TabSpaces = 2;
-                return new Tuple<bool, string>(true, sf.FormatCode(code));
+                return Tuple.Create(true, sf.FormatCode(code));
             }
         }
     }

@@ -163,6 +163,16 @@ namespace Manoli.Utils.CSharpFormat
 			return reader.ReadToEnd();
 		}
 
+		public static string EscapeHtml(string str, int tabSpaces)
+		{
+			var sb = new StringBuilder(str);
+			sb.Replace("&", "&amp;");
+			sb.Replace("<", "&lt;");
+			sb.Replace(">", "&gt;");
+			sb.Replace("\t", string.Empty.PadRight(tabSpaces));
+			return sb.ToString();
+		}
+
 		private Regex codeRegex;
 
 		/// <summary>
@@ -187,22 +197,16 @@ namespace Manoli.Utils.CSharpFormat
 		private string FormatCode(string source, bool lineNumbers, 
 			bool alternate, bool embedStyleSheet, bool subCode)
 		{
-			//replace special characters
-			StringBuilder sb = new StringBuilder(source);
-
-			if(!subCode)
+			// replace special characters if required
+			if (!subCode)
 			{
-				sb.Replace("&", "&amp;");
-				sb.Replace("<", "&lt;");
-				sb.Replace(">", "&gt;");
-				sb.Replace("\t", string.Empty.PadRight(_tabSpaces));
+				source = EscapeHtml(source, _tabSpaces);
 			}
-			
-			//color the code
-			source = codeRegex.Replace(sb.ToString(), new MatchEvaluator(this.MatchEval));
 
-			sb = new StringBuilder();
-			
+			// color the code
+			source = codeRegex.Replace(source, new MatchEvaluator(this.MatchEval));
+
+			var sb = new StringBuilder();
 			if (embedStyleSheet)
 			{
 				sb.Append("<style type=\"text/css\">\n");
