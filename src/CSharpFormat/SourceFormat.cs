@@ -193,8 +193,8 @@ namespace Manoli.Utils.CSharpFormat
 		/// <returns>A string containing the HTML code fragment.</returns>
 		protected abstract string MatchEval(Match match);
 
-		//does the formatting job
-		private string FormatCode(string source, bool lineNumbers, 
+		// does the formatting job
+		private string FormatCode(string source, bool lineNumbers,
 			bool alternate, bool embedStyleSheet, bool subCode)
 		{
 			// replace special characters if required
@@ -207,6 +207,7 @@ namespace Manoli.Utils.CSharpFormat
 			source = codeRegex.Replace(source, new MatchEvaluator(this.MatchEval));
 
 			var sb = new StringBuilder();
+
 			if (embedStyleSheet)
 			{
 				sb.Append("<style type=\"text/css\">\n");
@@ -214,66 +215,52 @@ namespace Manoli.Utils.CSharpFormat
 				sb.Append("</style>\n");
 			}
 
-			if (lineNumbers) //we have to process the code line by line
+			if (lineNumbers) // we have to process the code line by line
 			{
 				StringReader reader = new StringReader(source);
 				List<string> temp = new List<string>();
 				string line;
 				while ((line = reader.ReadLine()) != null) temp.Add(line);
-                                while (temp[0].Trim() == "") temp.RemoveAt(0);
-                                while (temp[temp.Count - 1].Trim() == "") temp.RemoveAt(temp.Count - 1);
+				while (temp[0].Trim() == "") temp.RemoveAt(0);
+				while (temp[temp.Count - 1].Trim() == "") temp.RemoveAt(temp.Count - 1);
 				reader.Close();
-                                int length = temp.Count.ToString().Length;
-				for(int i=0; i<temp.Count; i++) {
-					string ln = (i+1).ToString().PadLeft(length);
+				int length = temp.Count.ToString().Length;
+				for (int i = 0; i < temp.Count; i++) {
+					string ln = (i + 1).ToString().PadLeft(length);
 					sb.Append("<span class=\"l\">" + ln + ": </span>" + temp[i] + "\n");
 				}
 			}
-			else if (alternate || lineNumbers) //we have to process the code line by line
+			else if (alternate) // we have to process the code line by line
 			{
-				if(!subCode)
-					sb.Append("<div class=\"csharpcode\">\n");
+				if (!subCode) sb.Append("<div class=\"csharpcode\">\n");
 				StringReader reader = new StringReader(source);
-				int i = 0;
-				string spaces = "    ";
-				int order;
+				int i = 1;
 				string line;
-				while ((line = reader.ReadLine()) != null)
-				{
-					i++;
-					if (alternate && ((i % 2) == 1))
-					{
-						sb.Append("<pre class=\"alt\">");
+				while ((line = reader.ReadLine()) != null) {
+					if (i == 1 && string.IsNullOrWhiteSpace(line)) {
+						// Skip the first line if it is empty
+						continue;
 					}
-					else
+					bool isOdd = ((i % 2) == 1);
+					sb.Append(isOdd ? "<pre class=\"alt\">" : "<pre>");
+					if (lineNumbers)
 					{
-						sb.Append("<pre>");
-					}
-
-					if(lineNumbers)
-					{
-						order = (int)Math.Log10(i);
-						sb.Append("<span class=\"lnum\">" 
-							+ spaces.Substring(0, 3 - order) + i.ToString() 
+						sb.Append("<span class=\"lnum\">"
+							+ i.ToString().PadLeft(3)
 							+ ":  </span>");
 					}
-					
-					if(line.Length == 0)
-						sb.Append("&nbsp;");
-					else
-						sb.Append(line);
+					sb.Append((line.Length == 0) ? "&nbsp;": line);
 					sb.Append("</pre>\n");
+					i++;
 				}
 				reader.Close();
-				if(!subCode)
-					sb.Append("</div>");
+				if (!subCode) sb.Append("</div>");
 			}
-			else
+			else // neither alternate nor lineNumbers is set
 			{
 				sb.Append(source);
 			}
 			return sb.ToString();
 		}
-
 	}
 }
