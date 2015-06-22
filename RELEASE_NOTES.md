@@ -1,3 +1,6 @@
+## 2.9.9 (22 June, 2015)
+ - Fix HTML escaping of code blocks with unknown languages (#321, #322)
+
 ## 2.9.6 (8 May, 2015)
  - Generate 'fssnip' class for non-F# <pre> tags for consistency
 
