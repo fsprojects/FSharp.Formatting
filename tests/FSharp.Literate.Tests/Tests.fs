@@ -498,3 +498,9 @@ let mul a b = a * b
   let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
   doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo1"]) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo2"]) -> true | _ -> false)
+
+[<Test>]
+let ``Formatter does not crash on source that contains invalid string`` () = 
+  let source = "\"\r\"\n0"
+  let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
+  Literate.WriteHtml(doc).Length |> should (be greaterThan) 0
