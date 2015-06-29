@@ -198,7 +198,12 @@ module internal ParseScript =
     let sourceSnippets, errors = 
       ctx.FormatAgent.ParseSource
         (file, content, ?options = ctx.CompilerOptions, ?defines = ctx.DefinedSymbols)
-    let (Snippet(_, lines)) = match sourceSnippets with [| it |] -> it | _ -> failwith "multiple snippets"
-    let parsedBlocks = parseScriptFile lines
+    
+    let parsedBlocks = 
+      [ for Snippet(name, lines) in sourceSnippets do
+          if name <> null then 
+            yield BlockComment("## " + name)
+          yield! parseScriptFile(lines) ]
+
     let paragraphs, defs = transformBlocks false [] [] (List.ofSeq parsedBlocks)
     LiterateDocument(paragraphs, "", defs, LiterateSource.Script sourceSnippets, file, errors)

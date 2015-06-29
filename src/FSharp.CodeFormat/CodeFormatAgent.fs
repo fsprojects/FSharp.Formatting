@@ -315,7 +315,7 @@ type CodeFormatAgent() =
     // Split source into snippets if it contains meta-comments
     let snippets : NamedSnippet list = 
       match getSnippets None [] source sourceLines with
-      | [] -> ["Untitled", source]
+      | [] -> [null, source]
       | snippets -> snippets |> List.rev
 
     // Generate a list of snippets

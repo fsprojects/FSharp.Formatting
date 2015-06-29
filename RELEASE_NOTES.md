@@ -1,3 +1,6 @@
+## 2.9.10 (27 June, 2015)
+ - Support multiple snippets in Literate.Parse (This is obsolete, but needed for www.fssnip.net.)
+
 ## 2.9.9 (22 June, 2015)
  - Fix HTML escaping of code blocks with unknown languages (#321, #322)
 

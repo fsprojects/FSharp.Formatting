@@ -407,3 +407,27 @@ let test = 42
   tips |> should contain "test : int"
   html |> should notContain "test : int"
   html |> should contain "hello"
+
+
+[<Test>]
+let ``Can format single snippet with label using literate parser`` () =
+  let source = """
+// [snippet:demo]
+let add a b = a + b
+// [/snippet]"""
+  let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
+  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo"]) -> true | _ -> false)
+
+
+[<Test>]
+let ``Can format multiple snippets with labels using literate parser`` () =
+  let source = """
+// [snippet:demo1]
+let add a b = a + b
+// [/snippet]
+// [snippet:demo2]
+let mul a b = a * b
+// [/snippet]"""
+  let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
+  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo1"]) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo2"]) -> true | _ -> false)
