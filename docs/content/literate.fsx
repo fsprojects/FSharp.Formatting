@@ -100,7 +100,7 @@ The commands are written on the first line of the snippet, wrapped in `[...]`:
    is placed. Use this command if you need multiple versions of the same snippet
    or if you need to separate code from different snippets.
 
- - The `lang=foo` command specifies that the language of the snippet. If the language
+ - The `lang=foo` command specifies the language of the snippet. If the language
    is other than `fsharp`, the snippet is copied to the output as `<pre>` HTML
    tag without any processing.
 
