@@ -19,10 +19,10 @@
   var byCategory = members
     .GroupBy(m => m.Category)
     .OrderBy(g => String.IsNullOrEmpty(g.Key) ? "ZZZ" : g.Key)
-    .Select((g, n) => new { 
-      Index = n, 
-      GroupKey = g.Key, 
-      Members = g.OrderBy(m => m.Name), 
+    .Select((g, n) => new {
+      Index = n,
+      GroupKey = g.Key,
+      Members = g.OrderBy(m => m.Name),
       Name = String.IsNullOrEmpty(g.Key) ? "Other module members" : g.Key
     });
 
@@ -33,23 +33,23 @@
 
 <h1>@Model.Module.Name</h1>
 <p>
-  <span>Namespace: @Model.Namespace.Name</span><br />
+  <span><strong>Namespace:</strong> @Model.Namespace.Name</span><br />
   @if(Model.ParentModule.Exists())
   {
-  <span>Parent Module: <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
+  <span><strong>Parent Module:</strong> <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
   }
 </p>
 <div class="xmldoc">
   @foreach (var sec in comment.Sections) {
     // XML comment for the type has multiple sections that can be labelled
-    // with categories (to give comment for an individual category). Here, 
+    // with categories (to give comment for an individual category). Here,
     // we print only those that belong to the <default> section.
     if (!byCategory.Any(g => g.GroupKey == sec.Key))
     {
       if (sec.Key != "<default>")        {
         <h2>@sec.Key</h2>
       }
-      @sec.Value  
+      @sec.Value
     }
   }
 </div>
@@ -60,7 +60,7 @@
   <ul>
     @foreach (var g in byCategory)
     {
-      <li><a href="@("#section" + g.Index.ToString())">@g.Name</a></li>            
+      <li><a href="@("#section" + g.Index.ToString())">@g.Name</a></li>
     }
   </ul>
 }
@@ -84,7 +84,7 @@
   // that is related to this specific category.
   if (byCategory.Count() > 1)
   {
-    <h2>@g.Name<a name="@("section" + g.Index.ToString())">&#160;</a></h2>    
+    <h2>@g.Name<a name="@("section" + g.Index.ToString())">&#160;</a></h2>
     var info = comment.Sections.FirstOrDefault(kvp => kvp.Key == g.GroupKey);
     if (info.Key != null)
     {
@@ -94,19 +94,19 @@
     }
   }
 
-  @RenderPart("part-members", new { 
+  @RenderPart("part-members", new {
       Header = "Functions and values",
       TableHeader = "Function or value",
       Members = g.Members.Where(m => m.Kind == MemberKind.ValueOrFunction)
   })
 
-  @RenderPart("part-members", new { 
+  @RenderPart("part-members", new {
       Header = "Type extensions",
       TableHeader = "Type extension",
       Members = g.Members.Where(m => m.Kind == MemberKind.TypeExtension)
   })
 
-  @RenderPart("part-members", new { 
+  @RenderPart("part-members", new {
       Header = "Active patterns",
       TableHeader = "Active pattern",
       Members = g.Members.Where(m => m.Kind == MemberKind.ActivePattern)

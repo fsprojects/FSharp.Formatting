@@ -8,7 +8,7 @@
   // Get all the members & comment for the type
   var members = (IEnumerable<Member>)Model.Type.AllMembers;
   var comment = (Comment)Model.Type.Comment;
-  
+
   // Group all members by their category which is an inline annotation
   // that can be added to members using special XML comment:
   //
@@ -19,26 +19,26 @@
   var byCategory = members
     .GroupBy(m => m.Category)
     .OrderBy(g => String.IsNullOrEmpty(g.Key) ? "ZZZ" : g.Key)
-    .Select((g, n) => new { 
-      Index = n, 
-      GroupKey = g.Key, 
-      Members = g.OrderBy(m => m.Kind == MemberKind.StaticParameter ? "" : m.Name), 
-      Name = String.IsNullOrEmpty(g.Key) ? "Other type members" : g.Key 
+    .Select((g, n) => new {
+      Index = n,
+      GroupKey = g.Key,
+      Members = g.OrderBy(m => m.Kind == MemberKind.StaticParameter ? "" : m.Name),
+      Name = String.IsNullOrEmpty(g.Key) ? "Other type members" : g.Key
     });
 }
 
 <h1>@Model.Type.Name</h1>
 <p>
-  <span>Namespace: @Model.Namespace.Name</span><br />
+  <span><strong>Namespace:</strong> @Model.Namespace.Name</span><br />
   @if(Model.HasParentModule)
   {
-  <span>Parent Module: <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
+  <span><strong>Parent Module:</strong> <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
   }
 </p>
 <div class="xmldoc">
   @foreach (var sec in comment.Sections) {
     // XML comment for the type has multiple sections that can be labelled
-    // with categories (to give comment for an individual category). Here, 
+    // with categories (to give comment for an individual category). Here,
     // we print only those that belong to the <default> section.
     if (!byCategory.Any(g => g.GroupKey == sec.Key)) {
       if (sec.Key != "<default>") {
@@ -84,7 +84,7 @@
     TableHeader = "Record Field",
     Members = g.Members.Where(m => m.Kind == MemberKind.RecordField)
   })
-        
+
   @RenderPart("part-members", new {
     Header = "Static parameters",
     TableHeader = "Static parameters",
