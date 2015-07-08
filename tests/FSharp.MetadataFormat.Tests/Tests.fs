@@ -420,4 +420,14 @@ let ``MetadataFormat generates module link in nested types``() =
   // Check that nested submodules have links to its module
   files.["fslib-nested-submodule.html"] |> should contain "Parent Module:"
   files.["fslib-nested-submodule.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
-  
+
+[<Test>]
+let ``Link to other types``() =
+  let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // Check that a link to MyType exists
+  files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"

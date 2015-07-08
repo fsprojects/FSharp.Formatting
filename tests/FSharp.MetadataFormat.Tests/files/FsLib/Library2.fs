@@ -22,6 +22,12 @@ module Nested =
     /// Very nested member
     member x.Member = ""
 
+  /// This is My type
+  type MyType = int
+
+  /// This function returns a [FsLib.Nested.MyType] multiplied by 2.
+  let f x :MyType = x * 2
+
 type ITest_Issue229 = abstract member Name : string
 
 type Test_Issue229 (name) =

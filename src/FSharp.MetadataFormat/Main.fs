@@ -563,6 +563,53 @@ module Reader =
    let str = full.ToString()
    Comment.Create(str, str, [KeyValuePair("<default>", str)])
 
+  /// Returns all indirect links in a specified span node
+  let rec collectSpanIndirectLinks span = seq {
+    match span with
+    | IndirectLink(_, _, key) -> yield key
+    | Matching.SpanLeaf _ -> ()
+    | Matching.SpanNode(_, spans) ->
+      for s in spans do yield! collectSpanIndirectLinks s }
+
+  /// Returns all indirect links in the specified paragraph node
+  let rec collectParagraphIndirectLinks par = seq {
+    match par with
+    | Matching.ParagraphLeaf _ -> ()
+    | Matching.ParagraphNested(_, pars) ->
+      for ps in pars do
+        for p in ps do yield! collectParagraphIndirectLinks p
+    | Matching.ParagraphSpans(_, spans) ->
+      for s in spans do yield! collectSpanIndirectLinks s }
+
+  /// Returns whether the link is not included in the document defined links
+  let linkNotDefined (doc: LiterateDocument) (link:string) =
+    [ link; link.Replace("\r\n", ""); link.Replace("\r\n", " ");
+      link.Replace("\n", ""); link.Replace("\n", " ") ]
+    |> Seq.map (fun key -> not(doc.DefinedLinks.ContainsKey(key)) )
+    |> Seq.reduce (fun a c -> a && c)
+
+  /// Returns a tuple of the undefined link and its Cref if it exists
+  let getTypeLink (ctx:ReadingContext) undefinedLink =
+    // Append 'T:' to try to get the link from urlmap
+    match ctx.UrlMap.ResolveCref ("T:" + undefinedLink) with
+    | Some cRef -> Some (undefinedLink, cRef)
+    | None -> None
+
+  /// Ads a link to a Type to the document defined links
+  let addLinkToType (doc: LiterateDocument) link =
+    match link with
+    | Some(k, v) -> doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName)) |> ignore
+    | None -> ()
+
+  /// Adds the missiing links to types to the document defined links
+  let addMissingLinkToTypes ctx (doc: LiterateDocument) =
+    doc.Paragraphs
+      |> Seq.collect collectParagraphIndirectLinks
+      |> Seq.filter (linkNotDefined doc)
+      |> Seq.map (getTypeLink ctx)
+      |> Seq.iter (addLinkToType doc)
+    doc
+
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
     | None -> 
@@ -590,6 +637,7 @@ module Reader =
               Literate.ParseMarkdownString
                 ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
                   formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
+                |> (addMissingLinkToTypes ctx)
             cmds :> IDictionary<_, _>, readMarkdownComment doc
           else 
             let cmds = new System.Collections.Generic.Dictionary<_, _>()            
