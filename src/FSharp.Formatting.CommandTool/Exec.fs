@@ -1,5 +1,6 @@
 ﻿module FSharp.Formatting.Exec
 
+open FSharp.Formatting.Common
 open FSharp.Formatting.Options
 open FSharp.Formatting.Options.Literate
 open FSharp.Formatting.Options.MetadataFormat
@@ -63,7 +64,7 @@ type Env (argv: string []) =
             try    
                 validArgs <- parser.ParseArguments(options, commandOptions)
             with
-                | ex -> Log.logf "received 'CommandLine' parser exception. %s" (ex.ToString())
+                | ex -> Log.errorf "received 'CommandLine' parser exception. %s" (ex.ToString())
             match validArgs with
             | true -> commandOptions.Execute() 
             | false -> 
@@ -96,4 +97,4 @@ type Env (argv: string []) =
                 else 
                     x.Execute(combinedVerbCommand, options)
         finally
-            Log.close()
+            Log.source.Flush()

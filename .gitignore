@@ -24,3 +24,5 @@ release.cmd
 *.dvi
 *.out
 *.synctex
+*.log
+*.svclog

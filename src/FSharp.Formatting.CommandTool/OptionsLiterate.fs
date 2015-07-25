@@ -4,6 +4,7 @@ open CommandLine
 open CommandLine.Text
 open FSharp.Literate
 
+open FSharp.Formatting.Common
 open FSharp.Formatting.Options
 open FSharp.Formatting.Options.Common
 open FSharp.Formatting.IExecutable
@@ -133,7 +134,7 @@ type ProcessDirectoryOptions() =
                     run()
 
             with
-                | _ as ex -> Log.logf "received exception in Literate.ProcessDirectory:\n %A" ex; res <- -1
+                | _ as ex -> Log.errorf "received exception in Literate.ProcessDirectory:\n %A" ex; res <- -1
             waitForKey x.waitForKey
             res
 
