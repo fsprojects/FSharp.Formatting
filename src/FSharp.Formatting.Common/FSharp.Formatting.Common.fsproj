@@ -21,7 +21,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\FSharp.Formatting.Common.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\FSharp.Formatting.Common.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\FSharp.Formatting.Common.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\FSharp.Formatting.Common.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
