@@ -1,4 +1,5 @@
 *.suo
+.fake/
 bin/
 obj/
 paket-files/
