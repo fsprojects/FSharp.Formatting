@@ -3,6 +3,7 @@
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"
+#r "CSharpFormat.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #load "../Common/MarkdownUnit.fs"
@@ -130,6 +131,16 @@ let test = 4 + 1.0"""
 // --------------------------------------------------------------------------------------
 // Formatting code snippets
 // --------------------------------------------------------------------------------------
+
+[<Test>]
+let ``C# syntax highlighter can process html`` () =
+  let html = """
+<pre lang="csharp">
+var
+</pre>"""
+  let formatted = CSharpFormat.SyntaxHighlighter.FormatHtml(html)
+  let expected = html.Replace(" lang=\"csharp\"", "").Replace("var", "<span class=\"k\">var</span>")
+  formatted |> shouldEqual expected
 
 [<Test>]
 let ``Can format the var keyword in C# code snippet`` () =
