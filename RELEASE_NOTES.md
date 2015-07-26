@@ -1,3 +1,7 @@
+## 2.10.0 (26 July, 2015)
+ - Add detailed logging and new FSharp.Formatting.Common.dll file
+ - Fix bug in C# code formatting tool (FormatHtml)
+
 ## 2.9.10 (27 June, 2015)
  - Support multiple snippets in Literate.Parse (This is obsolete, but needed for www.fssnip.net.)
 
