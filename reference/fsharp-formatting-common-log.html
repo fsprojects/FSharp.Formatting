@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>MemberKind - FSharp.Formatting</title>
+    <title>Log - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Tomas Petricek">
@@ -38,31 +38,33 @@
 
 
 
-<h1>MemberKind</h1>
+<h1>Log</h1>
 <p>
-  <span>Namespace: FSharp.MetadataFormat</span><br />
+  <span>Namespace: FSharp.Formatting.Common</span><br />
 </p>
 <div class="xmldoc">
 </div>
-  <h3>Record Fields</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
-            ActivePattern
+          <code onmouseout="hideTip(event, '1', 1)" onmouseover="showTip(event, '1', 1)">
+            AddListener listener source
           </code>
-          <div class="tip" id="345">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="1">
+            <strong>Signature:</strong> listener:TraceListener -&gt; source:TraceSource -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L45-45" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L22-22" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -72,16 +74,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
-            Constructor
+          <code onmouseout="hideTip(event, '2', 2)" onmouseover="showTip(event, '2', 2)">
+            ConsoleListener ()
           </code>
-          <div class="tip" id="346">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="2">
+            <strong>Signature:</strong> unit -&gt; ConsoleTraceListener<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L48-48" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L8-8" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -91,16 +92,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
-            InstanceMember
+          <code onmouseout="hideTip(event, '3', 3)" onmouseover="showTip(event, '3', 3)">
+            critf f
           </code>
-          <div class="tip" id="347">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
+          <div class="tip" id="3">
+            <strong>Signature:</strong> f:StringFormat&lt;&#39;?78791,unit&gt; -&gt; &#39;?78791<br />
+                          <strong>Type parameters:</strong> '?78791          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L49-49" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L30-30" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -110,16 +110,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
-            RecordField
+          <code onmouseout="hideTip(event, '4', 4)" onmouseover="showTip(event, '4', 4)">
+            errorf f
           </code>
-          <div class="tip" id="348">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
+          <div class="tip" id="4">
+            <strong>Signature:</strong> f:StringFormat&lt;&#39;?78787,unit&gt; -&gt; &#39;?78787<br />
+                          <strong>Type parameters:</strong> '?78787          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L54-54" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L28-28" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -129,16 +128,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '349', 349)" onmouseover="showTip(event, '349', 349)">
-            StaticMember
+          <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
+            infof f
           </code>
-          <div class="tip" id="349">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
+          <div class="tip" id="5">
+            <strong>Signature:</strong> f:StringFormat&lt;&#39;?78785,unit&gt; -&gt; &#39;?78785<br />
+                          <strong>Type parameters:</strong> '?78785          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L50-50" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L27-27" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -148,16 +146,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
-            StaticParameter
+          <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
+            SetupListener (...)
           </code>
-          <div class="tip" id="350">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="6">
+            <strong>Signature:</strong> traceOptions:TraceOptions -&gt; levels:SourceLevels -&gt; listener:TraceListener -&gt; TraceListener<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L55-55" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L17-17" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -167,16 +164,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
-            TypeExtension
+          <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
+            SetupSource listeners source
           </code>
-          <div class="tip" id="351">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="7">
+            <strong>Signature:</strong> listeners:TraceListener array -&gt; source:TraceSource -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L44-44" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L12-12" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -186,16 +182,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '352', 352)" onmouseover="showTip(event, '352', 352)">
-            UnionCase
+          <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
+            source 
           </code>
-          <div class="tip" id="352">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="8">
+            <strong>Signature:</strong> TraceSource<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L53-53" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L6-6" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -205,16 +200,87 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '353', 353)" onmouseover="showTip(event, '353', 353)">
-            ValueOrFunction
+          <code onmouseout="hideTip(event, '9', 9)" onmouseover="showTip(event, '9', 9)">
+            SvclogListener file
           </code>
-          <div class="tip" id="353">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="9">
+            <strong>Signature:</strong> file:string -&gt; XmlWriterTraceListener<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L43-43" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L9-9" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '10', 10)" onmouseover="showTip(event, '10', 10)">
+            TextListener file
+          </code>
+          <div class="tip" id="10">
+            <strong>Signature:</strong> file:string -&gt; TextWriterTraceListener<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L10-10" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '11', 11)" onmouseover="showTip(event, '11', 11)">
+            traceEventf t f
+          </code>
+          <div class="tip" id="11">
+            <strong>Signature:</strong> t:TraceEventType -&gt; f:StringFormat&lt;&#39;?78783,unit&gt; -&gt; &#39;?78783<br />
+                          <strong>Type parameters:</strong> '?78783          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L25-25" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '12', 12)" onmouseover="showTip(event, '12', 12)">
+            verbf f
+          </code>
+          <div class="tip" id="12">
+            <strong>Signature:</strong> f:StringFormat&lt;&#39;?78793,unit&gt; -&gt; &#39;?78793<br />
+                          <strong>Type parameters:</strong> '?78793          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L31-31" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
+            warnf f
+          </code>
+          <div class="tip" id="13">
+            <strong>Signature:</strong> f:StringFormat&lt;&#39;?78789,unit&gt; -&gt; &#39;?78789<br />
+                          <strong>Type parameters:</strong> '?78789          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/Log.fs#L29-29" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

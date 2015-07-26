@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>MemberKind - FSharp.Formatting</title>
+    <title>Extensions - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Tomas Petricek">
@@ -38,31 +38,77 @@
 
 
 
-<h1>MemberKind</h1>
+<h1>Extensions</h1>
 <p>
-  <span>Namespace: FSharp.MetadataFormat</span><br />
+  <span>Namespace: Yaaf.FSharp.Scripting</span><br />
 </p>
 <div class="xmldoc">
 </div>
-  <h3>Record Fields</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Type extensions</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Type extension</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
-            ActivePattern
+          <code onmouseout="hideTip(event, '87', 87)" onmouseover="showTip(event, '87', 87)">
+            ChangeCurrentDirectory(dir)
           </code>
-          <div class="tip" id="345">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="87">
+            <strong>Signature:</strong> dir:string -&gt; IDisposable<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L45-45" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L445-445" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Change the current directory (so that relative paths within scripts work properly).
+Returns a handle to change the current directory back to it's initial state 
+(Because this will change the current directory of the currently running code as well!).</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '88', 88)" onmouseover="showTip(event, '88', 88)">
+            EvalExpression(text)
+          </code>
+          <div class="tip" id="88">
+            <strong>Signature:</strong> text:string -&gt; &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L425-425" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Evaluate the given expression and return its result.</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '89', 89)" onmouseover="showTip(event, '89', 89)">
+            EvalExpressionWithOutput(text)
+          </code>
+          <div class="tip" id="89">
+            <strong>Signature:</strong> text:string -&gt; InteractionResult * &#39;a<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L412-412" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -72,16 +118,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
-            Constructor
+          <code onmouseout="hideTip(event, '90', 90)" onmouseover="showTip(event, '90', 90)">
+            EvalInteraction(s)
           </code>
-          <div class="tip" id="346">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="90">
+            <strong>Signature:</strong> s:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L48-48" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L408-408" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -91,16 +136,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
-            InstanceMember
+          <code onmouseout="hideTip(event, '91', 91)" onmouseover="showTip(event, '91', 91)">
+            EvalScript(s)
           </code>
-          <div class="tip" id="347">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="91">
+            <strong>Signature:</strong> s:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L49-49" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L410-410" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -110,16 +154,57 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
-            RecordField
+          <code onmouseout="hideTip(event, '92', 92)" onmouseover="showTip(event, '92', 92)">
+            Handle(f text)
           </code>
-          <div class="tip" id="348">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="92">
+            <strong>Signature:</strong> (f:(string -&gt; &#39;?78688)) -&gt; text:string -&gt; HandledResult&lt;&#39;?78688&gt;<br />
+                          <strong>Type parameters:</strong> '?78688          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L464-464" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Handle the given evaluation function</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
+            Let(varName obj)
+          </code>
+          <div class="tip" id="93">
+            <strong>Signature:</strong> varName:string -&gt; obj:&#39;a -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L428-428" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Assigns the given object to the given name (ie "let varName = obj")</p>
+
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '94', 94)" onmouseover="showTip(event, '94', 94)">
+            Load(file)
+          </code>
+          <div class="tip" id="94">
+            <strong>Signature:</strong> file:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L54-54" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L439-439" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -129,16 +214,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '349', 349)" onmouseover="showTip(event, '349', 349)">
-            StaticMember
+          <code onmouseout="hideTip(event, '95', 95)" onmouseover="showTip(event, '95', 95)">
+            Open(ns)
           </code>
-          <div class="tip" id="349">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="95">
+            <strong>Signature:</strong> ns:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L50-50" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L435-435" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -148,16 +232,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
-            StaticParameter
+          <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
+            Reference(file)
           </code>
-          <div class="tip" id="350">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="96">
+            <strong>Signature:</strong> file:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L55-55" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L437-437" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -167,16 +250,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
-            TypeExtension
+          <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
+            TryEvalExpression(s)
           </code>
-          <div class="tip" id="351">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
+          <div class="tip" id="97">
+            <strong>Signature:</strong> s:string -&gt; (obj * Type) option<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L44-44" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L409-409" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -186,39 +268,22 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '352', 352)" onmouseover="showTip(event, '352', 352)">
-            UnionCase
+          <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
+            WithCurrentDirectory(dir f)
           </code>
-          <div class="tip" id="352">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
+          <div class="tip" id="98">
+            <strong>Signature:</strong> dir:string -&gt; (f:(unit -&gt; &#39;?78686)) -&gt; &#39;?78686<br />
+                          <strong>Type parameters:</strong> '?78686          </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L53-53" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L459-459" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
+          <p>Same as ChangeCurrentDirectory but takes a function for the scope.</p>
 
-          <code onmouseout="hideTip(event, '353', 353)" onmouseover="showTip(event, '353', 353)">
-            ValueOrFunction
-          </code>
-          <div class="tip" id="353">
-            <strong>Signature:</strong> MemberKind<br />
-              <strong>Modifiers:</strong> static<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.MetadataFormat/Main.fs#L43-43" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
+
+
         </td>
       </tr>
     </tbody>

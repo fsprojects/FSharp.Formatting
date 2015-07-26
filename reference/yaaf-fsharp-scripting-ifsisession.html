@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Range - FSharp.Formatting</title>
+    <title>IFsiSession - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Tomas Petricek">
@@ -38,78 +38,85 @@
 
 
 
-<h1>Range</h1>
+<h1>IFsiSession</h1>
 <p>
-  <span>Namespace: FSharp.CodeFormat</span><br />
+  <span>Namespace: Yaaf.FSharp.Scripting</span><br />
 </p>
 <div class="xmldoc">
+<p>Represents a simple F# interactive session.</p>
+
+
 </div>
-  <h3>Record Fields</h3>
+  <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Record Field</td><td>Description</td></tr>
+      <tr><td>Instance member</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
-            LeftCol
+          <code onmouseout="hideTip(event, '488', 488)" onmouseover="showTip(event, '488', 488)">
+            EvalInteractionWithOutput(arg1)
           </code>
-          <div class="tip" id="130">
-            <strong>Signature:</strong> int<br />
+          <div class="tip" id="488">
+            <strong>Signature:</strong> string -&gt; InteractionResult<br />
+              <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/CodeFormatAgent.fs#L98-98" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L395-395" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Evaluate the given interaction.</p>
+
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
-            RightCol
+          <code onmouseout="hideTip(event, '489', 489)" onmouseover="showTip(event, '489', 489)">
+            EvalScriptWithOutput(arg1)
           </code>
-          <div class="tip" id="131">
-            <strong>Signature:</strong> int<br />
+          <div class="tip" id="489">
+            <strong>Signature:</strong> string -&gt; InteractionResult<br />
+              <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/CodeFormatAgent.fs#L99-99" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L399-399" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Evaluate the given script.</p>
+
+
+
         </td>
       </tr>
-    </tbody>
-  </table>
-  <h3>Static members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Static member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
-            Create(leftCol rightCol)
+          <code onmouseout="hideTip(event, '490', 490)" onmouseover="showTip(event, '490', 490)">
+            TryEvalExpressionWithOutput(arg1)
           </code>
-          <div class="tip" id="132">
-            <strong>Signature:</strong> leftCol:int -&gt; rightCol:int -&gt; Range<br />
+          <div class="tip" id="490">
+            <strong>Signature:</strong> string -&gt; InteractionResult * (obj * Type) option<br />
+              <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/CodeFormatAgent.fs#L100-100" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L397-397" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Try to evaluate the given expression and return its result.</p>
+
+
+
         </td>
       </tr>
     </tbody>
