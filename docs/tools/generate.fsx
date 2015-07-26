@@ -21,7 +21,7 @@ let info =
     "project-nuget", "http://nuget.org/packages/FSharp.Formatting" ]
 
 let referenceBinaries = 
-  [ "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll" ]
+  [ "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "FSharp.Formatting.Common.dll" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below
@@ -43,7 +43,7 @@ open Fake.FileHelper
 ensureDirectory (__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/lib/net40")
 let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
                    "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                   "System.Web.Razor.dll" ]
+                   "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll" ]
 let bundledFiles =
   buildFiles
   |> List.map (fun f -> 

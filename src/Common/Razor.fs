@@ -29,6 +29,7 @@ open System.IO
 open System.Dynamic
 open System.Collections.Generic
 open System.Collections.Concurrent
+open FSharp.Formatting.Common
 open RazorEngine
 open RazorEngine.Text
 open RazorEngine.Templating
@@ -222,15 +223,16 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
     | :? TemplateCompilationException as ex -> 
         let csharp = Path.GetTempFileName() + ".cs"
         File.WriteAllText(csharp, ex.SourceCode)
-        Log.run (fun () ->
-          use _c = Log.colored ConsoleColor.Red
-          printfn "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp
-          for error in ex.CompilerErrors do
-            let errorType = if error.IsWarning then "warning" else "error"
-            printfn " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText
-          printfn ""
-        )
-        Log.close() // wait for the message to be printed completly
+        let builder = new System.Text.StringBuilder()
+        builder.AppendLine (sprintf "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp)
+         |> ignore
+        
+        for error in ex.CompilerErrors do
+          let errorType = if error.IsWarning then "warning" else "error"
+          builder.AppendLine (sprintf " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText)
+           |> ignore
+        
+        Log.critf "%s" (builder.ToString())
         failwith "Generating HTML failed."
 
   let withProperties properties (oldViewbag:DynamicViewBag) = 
