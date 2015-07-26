@@ -85,6 +85,9 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="CSharpFormat">
+      <HintPath>..\..\bin\CSharpFormat.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.CodeFormat">
       <HintPath>..\..\bin\FSharp.CodeFormat.dll</HintPath>
     </Reference>
