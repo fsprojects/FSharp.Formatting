@@ -15,19 +15,19 @@ open NUnit.Framework
 open FSharp.MetadataFormat
 
 // --------------------------------------------------------------------------------------
-// Run the metadata formatter on sample project 
+// Run the metadata formatter on sample project
 // --------------------------------------------------------------------------------------
 
 let (@@) a b = Path.Combine(a, b)
 
-let root = __SOURCE_DIRECTORY__ 
+let root = __SOURCE_DIRECTORY__
 
-let getOutputDir()  = 
+let getOutputDir()  =
   let tempFile = Path.GetTempFileName()
   File.Delete(tempFile)
   Directory.CreateDirectory(tempFile).FullName
 
-let layoutRoots = 
+let layoutRoots =
   [ root @@ "../../misc/templates"
     root @@ "../../misc/templates/reference" ]
 
@@ -40,7 +40,7 @@ let info =
     "root", "http://tpetricek.github.io/FSharp.FSharp.ProjectScaffold" ]
 
 [<Test>]
-let ``MetadataFormat works on sample Deedle assembly``() = 
+let ``MetadataFormat works on sample Deedle assembly``() =
   let library = root @@ "files" @@ "Deedle.dll"
   let output = getOutputDir()
   MetadataFormat.Generate
@@ -48,10 +48,10 @@ let ``MetadataFormat works on sample Deedle assembly``() =
       sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
-  
+
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
-  
+
   let optSeriesMod = files |> Seq.tryFind (fun s -> s.Contains "seriesmodule")
   optSeriesMod.IsSome |> shouldEqual true
 
@@ -61,7 +61,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
 
 // Ignore by default to make tests run reasonably fast
 [<Test; Ignore>]
-let ``MetadataFormat works on sample FAKE assembly``() = 
+let ``MetadataFormat works on sample FAKE assembly``() =
   let library = root @@ "files" @@ "FAKE" @@ "FakeLib.dll"
   let output = getOutputDir()
   MetadataFormat.Generate(library, output, layoutRoots, info)
@@ -72,8 +72,8 @@ let removeWhiteSpace (str:string) =
     str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
 [<Test>]
-let ``MetadataFormat works on two sample F# assemblies``() = 
-  let libraries = 
+let ``MetadataFormat works on two sample F# assemblies``() =
+  let libraries =
     [ root @@ "files/FsLib/bin/Debug" @@ "FsLib1.dll"
       root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll" ]
   let output = getOutputDir()
@@ -105,7 +105,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-record.html"] |> should contain "Foo2()"
   files.["fslib-record.html"] |> should contain "<strong>Signature:</strong> unit -&gt; int"
   files.["fslib-class.html"] |> should contain "new()"
-  files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> unit -&gt; Class"  
+  files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> unit -&gt; Class"
 
   // Check that properties are correctly generated (#114)
   files.["fslib-class.html"] |> removeWhiteSpace |> should notContain ">Member(arg1)<"
@@ -113,20 +113,20 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-class.html"] |> removeWhiteSpace |> should contain ">Member<"
   files.["fslib-class.html"] |> should notContain "<strong>Signature:</strong> unit -&gt; int"
   files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> int"
-  
+
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
 
 [<Test>]
-let ``MetadataFormat generates Go to GitHub source links``() = 
-  let libraries = 
+let ``MetadataFormat generates Go to GitHub source links``() =
+  let libraries =
     [ root @@ "files/FsLib/bin/Debug" @@ "FsLib1.dll"
       root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll" ]
   let output = getOutputDir()
   printfn "Output: %s" output
   MetadataFormat.Generate
-    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], 
+    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"],
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = root @@ "../.." )
   let fileNames = Directory.GetFiles(output)
@@ -137,7 +137,7 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   files.["fslib-union.html"] |> should contain "github-link"
   files.["fslib-union.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
-  
+
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
@@ -247,27 +247,27 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
-  
-  
+
+
   files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Method")
   files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Property")
   files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Event")
 
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
-  
+
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
-  
+
   files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Method")
   files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Property")
   files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Event")
-  
+
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
 
-  
+
 [<Ignore>]
 [<Test>]
 let ``MetadataFormat test that csharp support works``() =
@@ -301,29 +301,29 @@ let ``MetadataFormat test that csharp support works``() =
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
-  
-  
+
+
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Method"
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Property"
   files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Event"
 
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
-  
+
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
-  
+
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Method"
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Property"
   files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Event"
-  
+
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
 
 [<Test>]
-let ``MetadataFormat process XML comments in two sample F# assemblies``() = 
-  let libraries = 
+let ``MetadataFormat process XML comments in two sample F# assemblies``() =
+  let libraries =
     [ root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
       root @@ "files/TestLib/bin/Debug" @@ "TestLib2.dll" ]
   let output = getOutputDir()
@@ -343,7 +343,7 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
 
 [<Test>]
-let ``MetadataFormat highlights code snippets in Markdown comments``() = 
+let ``MetadataFormat highlights code snippets in Markdown comments``() =
   let library = root @@ "files/TestLib/bin/Debug" @@ "TestLib1.dll"
   let output = getOutputDir()
   MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
@@ -360,7 +360,7 @@ let ``MetadataFormat handles c# dlls`` () =
   MetadataFormat.Generate
     ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
   let files = Directory.GetFiles(output)
-  
+
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
 
@@ -386,19 +386,19 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
     MetadataFormat.Generate
         ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
     let fileNames = Directory.GetFiles(output)
-    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ] 
-    
+    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
     files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "CommentRegEx"
     files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "Regular expression string to match single line and multi-line"
 
 [<Test>]
-let ``MetadataFormat generates module link in nested types``() = 
+let ``MetadataFormat generates module link in nested types``() =
   let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
   let output = getOutputDir()
   MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  
+
   // Check that the modules and type files have namespace information
   files.["fslib-class.html"] |> should contain "Namespace: FsLib"
   files.["fslib-nested.html"] |> should contain "Namespace: FsLib"
@@ -431,3 +431,4 @@ let ``Link to other types``() =
 
   // Check that a link to MyType exists
   files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
+  files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"

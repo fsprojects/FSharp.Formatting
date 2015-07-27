@@ -1,14 +1,14 @@
 ﻿namespace FsLib
 
 /// Sample class
-type Class() = 
+type Class() =
   /// Readonly int property
   member x.Member = 0
 
 /// Nested module
-module Nested = 
+module Nested =
   /// Somewhat nested module
-  module Submodule = 
+  module Submodule =
     /// Very nested field
     let supernested = 42
 
@@ -18,15 +18,20 @@ module Nested =
       member x.Member = ""
 
   /// Somewhat nested type
-  type NestedType() = 
+  type NestedType() =
     /// Very nested member
     member x.Member = ""
 
   /// This is My type
   type MyType = int
 
+  type OtherType = int
+
   /// This function returns a [FsLib.Nested.MyType] multiplied by 2.
   let f x :MyType = x * 2
+
+  /// This function returns a [OtherType] multiplied by 3.
+  let f2 x :OtherType = x * 3
 
 type ITest_Issue229 = abstract member Name : string
 
@@ -36,7 +41,7 @@ type Test_Issue229 (name) =
 
     interface ITest_Issue229 with
         /// interface comment
-        member x.Name = name  
+        member x.Name = name
 
 type Test_Issue287 () =
   /// Function Foo!
