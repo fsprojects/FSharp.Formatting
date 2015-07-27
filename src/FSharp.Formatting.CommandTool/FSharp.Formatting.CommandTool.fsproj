@@ -63,9 +63,6 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
-    <Compile Include="..\Common\Log.fs">
-      <Link>Common\Log.fs</Link>
-    </Compile>
     <Compile Include="IExecutable.fs" />
     <Compile Include="Options.fs" />
     <Compile Include="OptionsMetadataFormat.fs" />
@@ -77,6 +74,11 @@
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
       <Name>FSharp.CodeFormat</Name>
       <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
       <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj">

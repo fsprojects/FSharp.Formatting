@@ -6,6 +6,7 @@ open System.Collections.Generic
 open Yaaf.FSharp.Scripting
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
+open FSharp.Formatting.Common
 open FSharp.Patterns
 open FSharp.CodeFormat
 
@@ -198,7 +199,7 @@ module ValueReader =
             // Even though ignoring case might be wrong, we do that because
             // one path might be file:///C:\... and the other file:///c:\...  :-(
             if not <| docPath.StartsWith(basePath, StringComparison.InvariantCultureIgnoreCase) then
-                Log.logf "Error occurs. Current source file '%s' doesn't reside in source folder '%s'" docPath basePath
+                Log.errorf "Current source file '%s' doesn't reside in source folder '%s'" docPath basePath
                 ""
             else
                 let relativePath = docPath.[basePath.Length..]
@@ -614,7 +615,7 @@ module Reader =
     match ctx.XmlMemberLookup(xmlSig) with 
     | None -> 
         if not (System.String.IsNullOrEmpty xmlSig) then
-            Log.logf "Warning: Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
+            Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
         dict[], Comment.Empty
     | Some el ->
         let sum = el.Element(XName.Get "summary")
@@ -705,7 +706,8 @@ module Reader =
             else ""
         sprintf "%s%s%s" name typeargs paramList
       with exn ->
-        Log.logf  "Error while building member-name for %s because: %s" memb.FullName exn.Message
+        Log.errorf "Error while building member-name for %s because: %s" memb.FullName exn.Message
+        Log.verbf "Full Exception details of previous message: %O" exn
         memb.CompiledName
     match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
     | "",  None    -> ""
@@ -794,7 +796,7 @@ module Reader =
                        NiceName = simple }
         // Compiler was unable to resolve!
         | _ when cref.StartsWith("!:")  ->
-            Log.logf "WARNING: Compiler was unable to resolve %s" cref
+            Log.warnf "Compiler was unable to resolve %s" cref
             None
         // Member
         | _ when cref.[1] = ':' ->
@@ -808,11 +810,11 @@ module Reader =
                            ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen;
                            NiceName = simple }
             | None ->
-                Log.logf "WARNING: Assumed '%s' was a member but we cannot extract a type!" cref
+                Log.warnf "Assumed '%s' was a member but we cannot extract a type!" cref
                 None
         // No idea
         | _ ->
-            Log.logf "WARNING: Unresolved reference '%s'!" cref
+            Log.warnf "Unresolved reference '%s'!" cref
             None
     { new IUrlHolder with
         member x.RegisterEntity entity = 
@@ -1023,7 +1025,7 @@ module Reader =
         // See https://github.com/tpetricek/FSharp.Formatting/issues/229
         // and https://github.com/tpetricek/FSharp.Formatting/issues/287
         if xmlMemberMap.ContainsKey key then 
-          Log.logf "Warning: Duplicate documentation for '%s', one will be ignored!" key
+          Log.warnf "Duplicate documentation for '%s', one will be ignored!" key
         xmlMemberMap.[key] <- value
     
     // Code formatting agent & options used when processing inline code snippets in comments
@@ -1119,16 +1121,16 @@ type MetadataFormat =
         match sourceFolder, sourceRepo with
         | Some folder, Some repo -> Some(folder, repo)
         | Some folder, _ ->
-            Log.logf "Repository url should be specified along with source folder."
+            Log.warnf "Repository url should be specified along with source folder."
             None
         | _, Some repo ->
-            Log.logf "Source folder should be specified along with repository url."
+            Log.warnf "Source folder should be specified along with repository url."
             None
         | _ -> None
 
     // When resolving assemblies, look in folders where all DLLs live
     AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
-      Log.logf "Resolving assembly: %s" e.Name
+      Log.verbf "Resolving assembly: %s" e.Name
       let asmName = System.Reflection.AssemblyName(e.Name)
       let asmOpt = 
         dllFiles |> Seq.tryPick (fun dll ->
@@ -1163,7 +1165,7 @@ type MetadataFormat =
 
       resolvedList |> List.choose (function
         | dllFile, None ->
-          Log.logf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+          Log.warnf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
           None
         | dllFile, Some asm ->
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
@@ -1201,15 +1203,15 @@ type MetadataFormat =
     let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
         
     // Generate all the HTML stuff
-    Log.logf "Starting razor engine"
+    Log.infof "Starting razor engine"
     let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.MetadataFormat"], namespaceTemplate, ?references = assemblyReferences)
 
-    Log.logf "Generating: index.html"
+    Log.infof "Generating: index.html"
     let out = razor.ProcessFile(asm, props)
     File.WriteAllText(outDir @@ "index.html", out)
 
     // Generate documentation for all modules
-    Log.logf "Generating modules..."
+    Log.infof "Generating modules..."
     let rec nestedModules ns parent (modul:Module) = seq {
       yield ModuleInfo.Create(modul, asm, ns, parent)
       for n in modul.NestedModules do yield! nestedModules ns (Some modul) n }
@@ -1220,12 +1222,12 @@ type MetadataFormat =
     let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
 
     for modulInfo in moduleInfos do
-      Log.logf "Generating module: %s" modulInfo.Module.UrlName
+      Log.infof "Generating module: %s" modulInfo.Module.UrlName
       let out = razor.ProcessFile(modulInfo, props)
       File.WriteAllText(outDir @@ (modulInfo.Module.UrlName + ".html"), out)
-      Log.logf "Finished module: %s" modulInfo.Module.UrlName
+      Log.infof "Finished module: %s" modulInfo.Module.UrlName
 
-    Log.logf "Generating types..."
+    Log.infof "Generating types..."
     let createType ns modul typ =
         TypeInfo.Create(typ, asm, ns, modul)
 
@@ -1240,7 +1242,7 @@ type MetadataFormat =
     // Generate documentation for all types
     let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
     for typInfo in typesInfos do
-      Log.logf "Generating type: %s" typInfo.Type.UrlName
+      Log.infof "Generating type: %s" typInfo.Type.UrlName
       let out = razor.ProcessFile(typInfo, props)
       File.WriteAllText(outDir @@ (typInfo.Type.UrlName + ".html"), out)
-      Log.logf "Finished type: %s" typInfo.Type.UrlName
+      Log.infof "Finished type: %s" typInfo.Type.UrlName

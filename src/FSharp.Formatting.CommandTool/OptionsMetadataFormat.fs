@@ -4,6 +4,7 @@ open CommandLine
 open CommandLine.Text
 open FSharp.MetadataFormat
 
+open FSharp.Formatting.Common
 open FSharp.Formatting.Options
 open FSharp.Formatting.Options.Common
 open FSharp.Formatting.IExecutable
@@ -109,7 +110,7 @@ type GenerateOptions() =
                         ?sourceFolder = (evalString x.sourceFolder),
                         ?libDirs = (evalStringArray x.libDirs)
                         )
-            with ex -> Log.logf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
+            with ex -> Log.errorf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
             waitForKey x.waitForKey
             res
 

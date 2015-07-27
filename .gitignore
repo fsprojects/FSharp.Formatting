@@ -1,4 +1,5 @@
 *.suo
+.fake/
 bin/
 obj/
 paket-files/
@@ -24,3 +25,5 @@ release.cmd
 *.dvi
 *.out
 *.synctex
+*.log
+*.svclog

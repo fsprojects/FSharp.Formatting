@@ -70,10 +70,6 @@
   -->
   <Import Project="$(SolutionDir)\.paket\paket.targets" />
   <ItemGroup>
-    <Compile Include="..\..\paket-files\matthid\Yaaf.FSharp.Scripting\src\source\Yaaf.FSharp.Scripting\YaafFSharpScripting.fs">
-      <Paket>True</Paket>
-      <Link>paket-files/YaafFSharpScripting.fs</Link>
-    </Compile>
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
@@ -83,9 +79,6 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
-    <Compile Include="..\Common\Log.fs">
-      <Link>Common\Log.fs</Link>
-    </Compile>
     <Compile Include="..\Common\Razor.fs">
       <Link>Common\Razor.fs</Link>
     </Compile>
@@ -93,6 +86,11 @@
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj">
       <Name>FSharp.Literate</Name>
       <Project>{65e6d541-0486-4383-b619-5cfc5d2ba2f0}</Project>
