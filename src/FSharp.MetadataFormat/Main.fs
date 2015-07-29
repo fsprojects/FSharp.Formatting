@@ -733,6 +733,7 @@ module Reader =
     let usedNames = Dictionary<_, _>()
     let registeredEntities = Dictionary<_, _>()
     let entityLookup = Dictionary<_, _>()
+    let niceNameEntityLookup = Dictionary<_, _>()
     let nameGen (name:string) =
       let nice = (toReplace
                   |> Seq.fold (fun (s:string) (inv, repl) -> s.Replace(inv, repl)) name)
@@ -750,6 +751,9 @@ module Reader =
         if (not (System.String.IsNullOrEmpty xmlsig)) then
             assert (xmlsig.StartsWith("T:"))
             entityLookup.[xmlsig.Substring(2)] <- entity
+            if (not(niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
+                niceNameEntityLookup.[entity.LogicalName] <- List<_>()
+            niceNameEntityLookup.[entity.LogicalName].Add(entity)
         for nested in entity.NestedEntities do registerEntity nested
 
     let getUrl (entity:FSharpEntity) =
@@ -778,7 +782,11 @@ module Reader =
         match entityLookup.TryGetValue(typeName) with
         | true, entity -> 
             Some { IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entity); NiceName = entity.LogicalName }
-        | _ -> None
+        | _ -> 
+            match niceNameEntityLookup.TryGetValue(typeName) with
+            | true, entityList ->
+                if entityList.Count = 1 then Some{ IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entityList.[0]); NiceName = entityList.[0].LogicalName } else None
+            | _ -> None
 
     let resolveCref (cref:string) = 
         if (cref.Length <= 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
