@@ -1,5 +1,8 @@
 ﻿namespace FsLib
 
+/// This type name will be duplicated in [Nested]
+type DuplicatedTypeName = int
+
 /// Sample class
 type Class() =
   /// Readonly int property
@@ -25,13 +28,23 @@ module Nested =
   /// This is My type
   type MyType = int
 
+  /// This is other type
   type OtherType = int
+
+  /// This type has the same name as [FsLib.DuplicatedTypeName]
+  type DuplicatedTypeName = int
 
   /// This function returns a [FsLib.Nested.MyType] multiplied by 2.
   let f x :MyType = x * 2
 
   /// This function returns a [OtherType] multiplied by 3.
   let f2 x :OtherType = x * 3
+
+  /// This function returns a [DuplicatedTypeName] multiplied by 4.
+  let f3 x :OtherType = x * 4
+
+  /// This function returns a [InexistentTypeName] multiplied by 5.
+  let f4 x :OtherType = x * 5
 
 type ITest_Issue229 = abstract member Name : string
 

@@ -429,6 +429,20 @@ let ``Link to other types``() =
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
-  // Check that a link to MyType exists
+  // Check that a link to MyType exists when using Full Name of the type
   files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
+
+  // Check that a link to OtherType exists when using Logical Name of the type only
   files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
+
+  // Check that a link to a module is created when using Logical Name only
+  files.["fslib-duplicatedtypename.html"] |> should contain "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\">Nested</a>"
+
+  // Check that a link to a type with a duplicated name is created when using full name
+  files.["fslib-nested-duplicatedtypename.html"] |> should contain "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "This function returns a [DuplicatedTypeName] multiplied by 4."
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "This function returns a [InexistentTypeName] multiplied by 5."

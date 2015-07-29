@@ -593,7 +593,7 @@ module Reader =
   let getTypeLink (ctx:ReadingContext) undefinedLink =
     // Append 'T:' to try to get the link from urlmap
     match ctx.UrlMap.ResolveCref ("T:" + undefinedLink) with
-    | Some cRef -> Some (undefinedLink, cRef)
+    | Some cRef -> if cRef.IsInternal then Some (undefinedLink, cRef) else None
     | None -> None
 
   /// Ads a link to a Type to the document defined links
