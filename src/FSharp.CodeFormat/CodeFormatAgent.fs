@@ -11,8 +11,6 @@ open FSharp.CodeFormat.CommentFilter
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
-module FsParser = Microsoft.FSharp.Compiler.Parser
-
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------
@@ -272,7 +270,7 @@ type CodeFormatAgent() =
 
     // Get options for a standalone script file (this adds some 
     // default references and doesn't require full project information)
-    let! opts = languageService.Checker.GetProjectOptionsFromScript(file, source, DateTime.Now) 
+    let! opts = languageService.RawChecker.GetProjectOptionsFromScript(file, source, DateTime.Now)
     
     // Override default options if the user specified something
     let opts = 
