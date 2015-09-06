@@ -1,14 +1,19 @@
 source http://nuget.org/api/v2
 
 nuget FAKE
-nuget CommandLineParser 1.9.71
+nuget CommandLineParser
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine
 nuget NUnit
 nuget NUnit.Runners
 nuget NuGet.CommandLine
-nuget FSharp.Compiler.Service == 0.0.87
-nuget FSharpVSPowerTools.Core == 1.8.0
-nuget ILRepack 1.22.2
+nuget FSharp.Compiler.Service
+// See http://fsprojects.github.io/Paket/nuget-dependencies.html
+// This basically means we need the lowest version for its dependencies (FSharp.Compiler.Service)
+// Otherwise we get runtime errors without binding redirects
+// (which we cannot control running as part of a build script).
+// See https://github.com/tpetricek/FSharp.Formatting/issues/277 as well.
+nuget FSharpVSPowerTools.Core !>= 0
+nuget ILRepack
 
 github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
