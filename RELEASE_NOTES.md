@@ -1,3 +1,6 @@
+## 2.10.2 (12 September, 2015)
+ - Fix load script (wrap logging setup in try catch properly)
+ 
 ## 2.10.1 (12 September, 2015)
  - paket update && fix compilation (#338)
  - Wrap logging setup in try catch 

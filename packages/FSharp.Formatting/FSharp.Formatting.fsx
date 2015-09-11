@@ -27,13 +27,13 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 #r "FSharp.MetadataFormat.dll"
 
 // Setup Logging for FSharp.Formatting and Yaaf.FSharp.Scripting
+module Logging = FSharp.Formatting.Common.Log
+type TraceOptions = System.Diagnostics.TraceOptions
 try
   let svclogFile = "FSharp.Formatting.svclog"
   let logFile = "FSharp.Formatting.log"
   [ svclogFile; logFile ] |> Seq.iter (fun f -> if System.IO.File.Exists f then System.IO.File.Delete f)
 
-  module Logging = FSharp.Formatting.Common.Log
-  type TraceOptions = System.Diagnostics.TraceOptions
   System.Diagnostics.Trace.AutoFlush <- true
   let allTraceOptions = TraceOptions.Callstack ||| TraceOptions.DateTime ||| TraceOptions.LogicalOperationStack |||
                         TraceOptions.ProcessId ||| TraceOptions.ThreadId ||| TraceOptions.Timestamp
