@@ -1,3 +1,6 @@
+## 2.10.3 (12 September, 2015)
+ - Require compatible F# Compiler Service in Nuspec (fix #337)
+
 ## 2.10.2 (12 September, 2015)
  - Fix load script (wrap logging setup in try catch properly)
  
