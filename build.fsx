@@ -202,7 +202,7 @@ Target "NuGet" (fun _ ->
             Publish = hasBuildParam "nugetkey"
             Dependencies =
                 [ "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireExactly
-                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" ] })
+                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> sprintf "[%s,1.3]" ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p ->
         { p with

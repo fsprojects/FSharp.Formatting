@@ -1,3 +1,13 @@
+## 2.10.3 (12 September, 2015)
+ - Require compatible F# Compiler Service in Nuspec (fix #337)
+
+## 2.10.2 (12 September, 2015)
+ - Fix load script (wrap logging setup in try catch properly)
+ 
+## 2.10.1 (12 September, 2015)
+ - paket update && fix compilation (#338)
+ - Wrap logging setup in try catch 
+ 
 ## 2.10.0 (26 July, 2015)
  - Add detailed logging and new FSharp.Formatting.Common.dll file
  - Fix bug in C# code formatting tool (FormatHtml)
