@@ -72,12 +72,13 @@ let removeWhiteSpace (str:string) =
     str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
 [<Test>]
-let ``MetadataFormat works on two sample F# assemblies``() = 
+let ``MetadataFormat works on two sample F# assemblies``() =
+  let binDir = root @@ "files" @@ "FsLib" @@ "bin" @@ "Debug" 
   let libraries = 
-    [ root @@ "files/FsLib/bin/Debug" @@ "FsLib1.dll"
-      root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll" ]
+    [ binDir @@ "FsLib1.dll"
+      binDir @@ "FsLib2.dll" ]
   let output = getOutputDir()
-  MetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
+  MetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [binDir; root @@ "../../lib"])
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -119,14 +120,15 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   #endif
 
 [<Test>]
-let ``MetadataFormat generates Go to GitHub source links``() = 
+let ``MetadataFormat generates Go to GitHub source links``() =
+  let binDir = root @@ "files" @@ "FsLib" @@ "bin" @@ "Debug"
   let libraries = 
-    [ root @@ "files/FsLib/bin/Debug" @@ "FsLib1.dll"
-      root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll" ]
+    [ binDir @@ "FsLib1.dll"
+      binDir @@ "FsLib2.dll" ]
   let output = getOutputDir()
   printfn "Output: %s" output
   MetadataFormat.Generate
-    ( libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], 
+    ( libraries, output, layoutRoots, info, libDirs = [binDir; root @@ "../../lib"], 
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = root @@ "../.." )
   let fileNames = Directory.GetFiles(output)
@@ -268,7 +270,7 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   #endif
 
   
-[<Ignore>]
+[<Ignore>] // Ignored because publicOnly=false is currently not working, see https://github.com/tpetricek/FSharp.Formatting/pull/259
 [<Test>]
 let ``MetadataFormat test that csharp support works``() =
   let libraries =
@@ -392,10 +394,11 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
     files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "Regular expression string to match single line and multi-line"
 
 [<Test>]
-let ``MetadataFormat generates module link in nested types``() = 
-  let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
+let ``MetadataFormat generates module link in nested types``() =
+  let binDir = root @@ "files/FsLib/bin/Debug"
+  let library = binDir @@ "FsLib2.dll"
   let output = getOutputDir()
-  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [binDir; root @@ "../../lib"], markDownComments = true)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
@@ -420,4 +423,17 @@ let ``MetadataFormat generates module link in nested types``() =
   // Check that nested submodules have links to its module
   files.["fslib-nested-submodule.html"] |> should contain "Parent Module:"
   files.["fslib-nested-submodule.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
+
+open System.Diagnostics
+open FSharp.Formatting.Common
+
+[<Test>]
+let ``MetadataFormat omit works without markdown``() =
+  let binDir = root @@ "files/FsLib/bin/Debug"
+  let library = binDir @@ "FsLib2.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [binDir; root @@ "../../lib"], markDownComments = false)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
+  files.ContainsKey "fslib-test_omit.html" |> should equal false

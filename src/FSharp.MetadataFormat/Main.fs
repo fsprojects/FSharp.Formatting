@@ -214,7 +214,7 @@ module ValueReader =
   let uncapitalize (s:string) =
     s.Substring(0, 1).ToLowerInvariant() + s.Substring(1)
 
-  let isAttrib<'T> (attrib: FSharpAttribute)  =
+  let isAttrib<'T> (attrib: FSharpAttribute) =
     attrib.AttributeType.CompiledName = typeof<'T>.Name
 
   let hasAttrib<'T> (attribs: IList<FSharpAttribute>) = 
@@ -338,9 +338,12 @@ module ValueReader =
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
   
-  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) =
+    // we calculate this early just in case this fails with an FCS error.
+    let requireQualifiedAccess =
+        hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes
+    
     let buildUsage (args:string option) = 
-      let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
         if String.IsNullOrWhiteSpace(s) then "" 
         elif s.StartsWith("(") then s
@@ -352,8 +355,7 @@ module ValueReader =
       // Ordinary instance members
       | _, true, _, name -> name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
-      | false, _, _, name when 
-          not (hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes) -> 
+      | false, _, _, name when not <| requireQualifiedAccess -> 
             name + " " + (defaultArg args "(...)")
       // Ordinary static members or things (?) that require fully qualified access
       | _, _, _, name -> name + (defaultArg parArgs "(...)")
@@ -577,23 +579,29 @@ module Reader =
             dict[], Comment.Empty
           else
             dict[], (Comment.Create ("", el.Value, []))
-        else 
-          if ctx.MarkdownComments then 
-            let lines = removeSpaces sum.Value
-            let cmds = new System.Collections.Generic.Dictionary<_, _>()
-            let text =
-              lines |> Seq.filter (function
+        else
+          let lines = removeSpaces sum.Value
+          let cmds = new System.Collections.Generic.Dictionary<_, _>()
+          let findCommand = (function
                 | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
+                    Some (k, v)
+                | _ -> None)
+          if ctx.MarkdownComments then
+            let text =
+              lines |> Seq.filter (findCommand >> (function
+                | Some (k, v) -> 
                     cmds.Add(k, v)
                     false
-                | _ -> true) |> String.concat "\n"
+                | _ -> true)) |> String.concat "\n"
             let doc = 
               Literate.ParseMarkdownString
                 ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
                   formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
             cmds :> IDictionary<_, _>, readMarkdownComment doc
-          else 
-            let cmds = new System.Collections.Generic.Dictionary<_, _>()            
+          else
+            lines 
+              |> Seq.choose findCommand
+              |> Seq.iter (fun (k, v) -> cmds.Add(k,v))  
             cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap sum
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
