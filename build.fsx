@@ -257,6 +257,11 @@ Target "ReleaseBinaries" (fun _ ->
     Branches.push "temp/release"
 )
 
+Target "CreateTag" (fun _ ->
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" "origin" release.NugetVersion
+)
+
 Target "Release" DoNothing
 
 // --------------------------------------------------------------------------------------
@@ -274,6 +279,7 @@ Target "All" DoNothing
   ==> "NuGet"
   ==> "ReleaseDocs"
 //  ==> "ReleaseBinaries"
+  ==> "CreateTag"
   ==> "Release"
 
 RunTargetOrDefault "All"
