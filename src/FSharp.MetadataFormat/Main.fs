@@ -1061,8 +1061,15 @@ type MetadataFormat =
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight, ?assemblyReferences = assemblyReferences)
 
+  /// generates documentation for multiple files specified by the `dllFiles` parameter
+  static member Generate(dllFiles : _ list, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
+    MetadataFormat.Generate
+      ( dllFiles :> _ seq, outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
+        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight, ?assemblyReferences = assemblyReferences)
+
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
+  static member Generate(dllFiles : _ seq, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -1074,7 +1081,7 @@ type MetadataFormat =
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
     let libDirs = defaultArg libDirs []
-    let dllFiles = dllFiles |> List.map Path.GetFullPath
+    let dllFiles = dllFiles |> List.ofSeq |> List.map Path.GetFullPath
     let urlRangeHighlight =
       defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
     let sourceFolderRepo =
