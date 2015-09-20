@@ -236,7 +236,7 @@ Target "WatchDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "https://github.com/tpetricek"
+let gitHome = "git@github.com:tpetricek"
 
 Target "ReleaseDocs" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
@@ -273,7 +273,7 @@ Target "All" DoNothing
 "All"
   ==> "NuGet"
   ==> "ReleaseDocs"
-  ==> "ReleaseBinaries"
+//  ==> "ReleaseBinaries"
   ==> "Release"
 
 RunTargetOrDefault "All"
