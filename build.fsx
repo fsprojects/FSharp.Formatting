@@ -47,14 +47,16 @@ let release = ReleaseNotesHelper.parseReleaseNotes (File.ReadLines "RELEASE_NOTE
 // Generate assembly info files with the right version & up-to-date information
 
 Target "AssemblyInfo" (fun _ ->
-  let fileName = "src/Common/AssemblyInfo.fs"
-  CreateFSharpAssemblyInfo fileName
+  let info = 
       [ Attribute.Title project
         Attribute.Product project
         Attribute.Description summary
         Attribute.Version release.AssemblyVersion
         Attribute.FileVersion release.AssemblyVersion
+        Attribute.InformationalVersion release.NugetVersion
         Attribute.Copyright license ]
+  CreateFSharpAssemblyInfo "src/Common/AssemblyInfo.fs" info
+  CreateCSharpAssemblyInfo "src/Common/AssemblyInfo.cs" info
 )
 
 // --------------------------------------------------------------------------------------

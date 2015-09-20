@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Common\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="CLikeFormat.cs" />
     <Compile Include="CodeFormat.cs" />
     <Compile Include="CPlusPlusFormat.cs" />
@@ -50,7 +53,7 @@
     <Compile Include="JavaScriptFormat.cs" />
     <Compile Include="MshFormat.cs" />
     <Compile Include="PhpFormat.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\LocalAssemblyInfo.cs" />
     <Compile Include="SourceFormat.cs" />
     <Compile Include="SyntaxHighlighter.cs" />
     <Compile Include="TsqlFormat.cs" />

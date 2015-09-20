@@ -65,6 +65,9 @@
       <Paket>True</Paket>
       <Link>paket-files/YaafFSharpScripting.fs</Link>
     </Compile>
+    <Compile Include="..\Common\AssemblyInfo.fs">
+      <Link>Common\AssemblyInfo.fs</Link>
+    </Compile>
     <Compile Include="Log.fs" />
     <None Include="paket.references" />
   </ItemGroup>
