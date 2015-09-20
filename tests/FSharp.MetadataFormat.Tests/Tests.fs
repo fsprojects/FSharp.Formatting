@@ -432,8 +432,24 @@ let ``MetadataFormat omit works without markdown``() =
   let binDir = root @@ "files/FsLib/bin/Debug"
   let library = binDir @@ "FsLib2.dll"
   let output = getOutputDir()
-  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [binDir; root @@ "../../lib"], markDownComments = false)
+  MetadataFormat.Generate
+    ([library], output, layoutRoots, info, libDirs = [binDir; root @@ "../../lib"],
+     markDownComments = false)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
+  files.ContainsKey "fslib-test_omit.html" |> should equal false
+
+[<Test>]
+let ``MetadataFormat test FsLib1``() =
+  let binDir = root @@ "files/FsLib/bin/Debug"
+  let library = binDir @@ "FsLib1.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate
+    ([ library ], output, layoutRoots, info, libDirs = [ binDir; root @@ "../../lib" ],
+     markDownComments = false)
+  let fileNames = Directory.GetFiles(output)
+
+  let files =
+      dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.ContainsKey "fslib-test_omit.html" |> should equal false

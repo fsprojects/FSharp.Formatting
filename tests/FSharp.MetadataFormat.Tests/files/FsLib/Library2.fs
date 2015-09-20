@@ -45,17 +45,6 @@ type ITestInterface =
 /// Issue 201 docs
 [<System.Runtime.CompilerServices.Extension>]
 module Test_Issue201 =
-  let internal notImpl () =
-        (raise <| System.NotSupportedException("Migration is not supported by this type, please implement GetMigrator."))
-        : 'a
-  /// Test FixScript_MSSQL Documentation
-  let FixScript_MSSQL (script:string) = script
-  /// Test FixScript_MySQL Documentation
-  let FixScript_MySQL (script:string) =
-    script.Replace(
-      "from information_schema.columns where", 
-      "FROM information_schema.columns WHERE table_schema = SCHEMA() AND")
- 
   /// Extension docs
   [<System.Runtime.CompilerServices.Extension>]
   let MyExtension (o : ITestInterface) = 
