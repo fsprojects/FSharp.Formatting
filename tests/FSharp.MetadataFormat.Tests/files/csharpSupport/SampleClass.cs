@@ -125,6 +125,17 @@ namespace csharpSupport
         /// <summary>
         /// My_Private_Event
         /// </summary>
-        private event EventHandler PrivateEvent;  
+        private event EventHandler PrivateEvent;
+
+        /// <summary>
+        /// Event triggered when WorklistText is required
+        /// </summary>
+        public delegate void WorklistTextRequested(int medicalRecordId, string accessionNo,
+          int templateId, string specificationCode, string specificationText, string aeTitle);
+
+        /// <summary>
+        /// Some Event with its own delegate
+        /// </summary>
+        public event WorklistTextRequested OnWorklistTextRequested;
     }
 }
