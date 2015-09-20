@@ -790,7 +790,7 @@ module Reader =
   /// Reads XML documentation comments and calls the specified function
   /// to parse the rest of the entity, unless [omit] command is set.
   /// The function is called with category name, commands & comment.
-  let readCommentsInto name ctx xmlDoc f =
+  let readCommentsInto (sym:FSharpSymbol) ctx xmlDoc f =
     let cmds, comment = readCommentAndCommands ctx xmlDoc
     match cmds with
     | Command "omit" _ -> None
@@ -799,7 +799,20 @@ module Reader =
       try
         Some(f cat cmds comment)
       with e ->
-        Log.errorf "Could read comments from entity '%s': %O" name e
+        let name =
+          try sym.FullName
+          with _ ->
+            try sym.DisplayName
+            with _ ->
+              let part =
+                try
+                  let ass = sym.Assembly
+                  match ass.FileName with
+                  | Some f -> f
+                  | None -> ass.QualifiedName
+                with _ -> "unknown"
+              sprintf "unknown, part of %s" part
+        Log.errorf "Could not read comments from entity '%s': %O" name e
         None
 
   let checkAccess ctx (access: FSharpAccessibility) = 
@@ -814,7 +827,7 @@ module Reader =
     |> List.ofSeq
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
-    readCommentsInto memb.FullName ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
+    readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) = 
@@ -842,7 +855,7 @@ module Reader =
     |> List.ofSeq
     |> List.filter (fun v -> checkAccess ctx v.Accessibility)
     |> List.choose (fun case ->
-      readCommentsInto case.FullName ctx case.XmlDocSig (fun cat _ comment ->
+      readCommentsInto case ctx case.XmlDocSig (fun cat _ comment ->
         Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
 
   let readRecordFields ctx (typ:FSharpEntity) =
@@ -850,14 +863,14 @@ module Reader =
     |> List.ofSeq
     |> List.filter (fun field -> not field.IsCompilerGenerated)
     |> List.choose (fun field ->
-      readCommentsInto field.FullName ctx field.XmlDocSig (fun cat _ comment ->
+      readCommentsInto field ctx field.XmlDocSig (fun cat _ comment ->
         Member.Create(field.Name, MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
 
   let readStaticParams ctx (typ:FSharpEntity) =
     typ.StaticParameters
     |> List.ofSeq
     |> List.choose (fun staticParam ->
-      readCommentsInto staticParam.FullName ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
+      readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
         Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
 
   // ----------------------------------------------------------------------------------------------
@@ -895,7 +908,7 @@ module Reader =
     if typ.IsProvided && typ.XmlDoc.Count > 0 then
         registerTypeProviderXmlDocs ctx typ
     let xmlDocSig = getXmlDocSigForType typ
-    readCommentsInto typ.FullName ctx xmlDocSig (fun cat cmds comment ->
+    readCommentsInto typ ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UrlMap.GetUrl typ
 
       let rec getMembers (typ:FSharpEntity) = [
@@ -946,7 +959,7 @@ module Reader =
         ( name, cat, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
-    readCommentsInto modul.FullName ctx modul.XmlDocSig (fun cat cmd comment ->
+    readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
     
       // Properties & value bindings in the module
       let urlName = ctx.UrlMap.GetUrl modul

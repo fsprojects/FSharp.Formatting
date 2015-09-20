@@ -1,3 +1,7 @@
+## 2.11.0-alpha2
+ - Fix https://github.com/tpetricek/FSharp.Formatting/issues/271
+ - Don't fail as long as we can recover / continue.
+
 ## 2.11.0-alpha1
  - Fix https://github.com/tpetricek/FSharp.Formatting/issues/201
 
