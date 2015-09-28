@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Main.fs" />
     <None Include="paket.references" />
+    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
