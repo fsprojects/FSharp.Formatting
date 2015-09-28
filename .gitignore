@@ -1,5 +1,6 @@
 *.suo
 .fake/
+.vs/
 bin/
 obj/
 paket-files/
