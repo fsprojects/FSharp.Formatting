@@ -1,0 +1,38 @@
+﻿<#@ template language="C#" hostspecific="True" debug="True" #>
+<#@ assembly name="$(SolutionDir)\tests\MarkdownSpecificationParser\bin\Debug\MarkdownSpecificationParser.dll" #>
+<#@ output extension="fs" #>
+// --------------------------------------------------------------------------------------
+// WARNING: THIS FILE IS AUTO-GENERATED
+// ANY CHANGE WILL BE LOST
+// PLEASE EDIT THE TestFromSpecGenerator.tt File
+// --------------------------------------------------------------------------------------
+module FSharp.Markdown.Tests.TestSpecification
+
+open FsUnit
+open NUnit.Framework
+open FSharp.Markdown
+open System.IO
+open System.Diagnostics
+
+let runTest markdown html =
+  (Markdown.TransformHtml markdown).Replace("\r\n", "\n")
+  |> should equal html
+  ()
+
+<#
+var i = 1;
+foreach (var t in MarkdownSpecificationParser.GenerateTestCasesFromSpecModule.getTestCases(@"C:\Projects\FSharp.Formatting\tests\commonmark_spec.htm")) {
+	i++;
+	var markdownText = MarkdownSpecificationParser.GenerateTestCasesFromSpecModule.toFSharpStringLiteral(t.Item1);
+	var htmlText = MarkdownSpecificationParser.GenerateTestCasesFromSpecModule.toFSharpStringLiteral(t.Item2);
+#>
+[<Test>]
+let ``CommonMark Test (<#= i #>)`` () =
+  runTest
+    <#= markdownText #>
+    <#= htmlText #>
+
+<#
+}
+#>
+

@@ -67,6 +67,9 @@
     <Compile Include="TestFiles.fs" />
     <Compile Include="Markdown.fs" />
     <Compile Include="Externals.fs" />
+    <Compile Include="..\TransformTemplateHostProject\TestFromSpecGenerator.fs">
+      <Link>TestFromSpecGenerator.fs</Link>
+    </Compile>
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
