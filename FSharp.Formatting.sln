@@ -104,12 +104,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.Me
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GenerateTestsFromSpec", "GenerateTestsFromSpec", "{A9468A4A-5425-4FE2-8266-256D1ED71052}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformTemplateHostProject", "tests\TransformTemplateHostProject\TransformTemplateHostProject.csproj", "{C3ADC8CE-533F-4812-8332-AE4ECF92E96C}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MarkdownSpecificationParser", "tests\MarkdownSpecificationParser\MarkdownSpecificationParser.fsproj", "{802A5CCE-92C0-4A48-A8CE-5E752BA09D78}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -196,14 +190,6 @@ Global
 		{91BAD90E-BF3B-4646-A1A7-1568F8F25075}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91BAD90E-BF3B-4646-A1A7-1568F8F25075}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91BAD90E-BF3B-4646-A1A7-1568F8F25075}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C3ADC8CE-533F-4812-8332-AE4ECF92E96C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3ADC8CE-533F-4812-8332-AE4ECF92E96C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3ADC8CE-533F-4812-8332-AE4ECF92E96C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3ADC8CE-533F-4812-8332-AE4ECF92E96C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{802A5CCE-92C0-4A48-A8CE-5E752BA09D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{802A5CCE-92C0-4A48-A8CE-5E752BA09D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{802A5CCE-92C0-4A48-A8CE-5E752BA09D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{802A5CCE-92C0-4A48-A8CE-5E752BA09D78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -227,8 +213,5 @@ Global
 		{55728B9D-1EDE-4A40-B439-1EB0B3F77B72} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
-		{A9468A4A-5425-4FE2-8266-256D1ED71052} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
-		{C3ADC8CE-533F-4812-8332-AE4ECF92E96C} = {A9468A4A-5425-4FE2-8266-256D1ED71052}
-		{802A5CCE-92C0-4A48-A8CE-5E752BA09D78} = {A9468A4A-5425-4FE2-8266-256D1ED71052}
 	EndGlobalSection
 EndGlobal
