@@ -214,7 +214,7 @@ module ValueReader =
   let uncapitalize (s:string) =
     s.Substring(0, 1).ToLowerInvariant() + s.Substring(1)
 
-  let isAttrib<'T> (attrib: FSharpAttribute)  =
+  let isAttrib<'T> (attrib: FSharpAttribute) =
     attrib.AttributeType.CompiledName = typeof<'T>.Name
 
   let hasAttrib<'T> (attribs: IList<FSharpAttribute>) = 
@@ -338,9 +338,12 @@ module ValueReader =
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
   
-  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) = 
+  let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) =
+    // we calculate this early just in case this fails with an FCS error.
+    let requireQualifiedAccess =
+        hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes
+    
     let buildUsage (args:string option) = 
-      let tyname = v.LogicalEnclosingEntity.DisplayName
       let parArgs = args |> Option.map (fun s -> 
         if String.IsNullOrWhiteSpace(s) then "" 
         elif s.StartsWith("(") then s
@@ -352,8 +355,7 @@ module ValueReader =
       // Ordinary instance members
       | _, true, _, name -> name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
-      | false, _, _, name when 
-          not (hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes) -> 
+      | false, _, _, name when not <| requireQualifiedAccess -> 
             name + " " + (defaultArg args "(...)")
       // Ordinary static members or things (?) that require fully qualified access
       | _, _, _, name -> name + (defaultArg parArgs "(...)")
@@ -624,24 +626,30 @@ module Reader =
             dict[], Comment.Empty
           else
             dict[], (Comment.Create ("", el.Value, []))
-        else 
-          if ctx.MarkdownComments then 
-            let lines = removeSpaces sum.Value
-            let cmds = new System.Collections.Generic.Dictionary<_, _>()
-            let text =
-              lines |> Seq.filter (function
+        else
+          let lines = removeSpaces sum.Value
+          let cmds = new System.Collections.Generic.Dictionary<_, _>()
+          let findCommand = (function
                 | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
+                    Some (k, v)
+                | _ -> None)
+          if ctx.MarkdownComments then
+            let text =
+              lines |> Seq.filter (findCommand >> (function
+                | Some (k, v) -> 
                     cmds.Add(k, v)
                     false
-                | _ -> true) |> String.concat "\n"
+                | _ -> true)) |> String.concat "\n"
             let doc = 
               Literate.ParseMarkdownString
                 ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
                   formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
                 |> (addMissingLinkToTypes ctx)
             cmds :> IDictionary<_, _>, readMarkdownComment doc
-          else 
-            let cmds = new System.Collections.Generic.Dictionary<_, _>()            
+          else
+            lines 
+              |> Seq.choose findCommand
+              |> Seq.iter (fun (k, v) -> cmds.Add(k,v))  
             cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap sum
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
@@ -838,12 +846,30 @@ module Reader =
   /// Reads XML documentation comments and calls the specified function
   /// to parse the rest of the entity, unless [omit] command is set.
   /// The function is called with category name, commands & comment.
-  let readCommentsInto ctx xmlDoc f =
+  let readCommentsInto (sym:FSharpSymbol) ctx xmlDoc f =
     let cmds, comment = readCommentAndCommands ctx xmlDoc
     match cmds with
     | Command "omit" _ -> None
     | Command "category" cat 
-    | Let "" (cat, _) -> Some(f cat cmds comment)
+    | Let "" (cat, _) ->
+      try
+        Some(f cat cmds comment)
+      with e ->
+        let name =
+          try sym.FullName
+          with _ ->
+            try sym.DisplayName
+            with _ ->
+              let part =
+                try
+                  let ass = sym.Assembly
+                  match ass.FileName with
+                  | Some f -> f
+                  | None -> ass.QualifiedName
+                with _ -> "unknown"
+              sprintf "unknown, part of %s" part
+        Log.errorf "Could not read comments from entity '%s': %O" name e
+        None
 
   let checkAccess ctx (access: FSharpAccessibility) = 
      not ctx.PublicOnly || access.IsPublic
@@ -857,7 +883,7 @@ module Reader =
     |> List.ofSeq
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
-    readCommentsInto ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
+    readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
       Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) = 
@@ -885,7 +911,7 @@ module Reader =
     |> List.ofSeq
     |> List.filter (fun v -> checkAccess ctx v.Accessibility)
     |> List.choose (fun case ->
-      readCommentsInto ctx case.XmlDocSig (fun cat _ comment ->
+      readCommentsInto case ctx case.XmlDocSig (fun cat _ comment ->
         Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
 
   let readRecordFields ctx (typ:FSharpEntity) =
@@ -893,14 +919,14 @@ module Reader =
     |> List.ofSeq
     |> List.filter (fun field -> not field.IsCompilerGenerated)
     |> List.choose (fun field ->
-      readCommentsInto ctx field.XmlDocSig (fun cat _ comment ->
+      readCommentsInto field ctx field.XmlDocSig (fun cat _ comment ->
         Member.Create(field.Name, MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
 
   let readStaticParams ctx (typ:FSharpEntity) =
     typ.StaticParameters
     |> List.ofSeq
     |> List.choose (fun staticParam ->
-      readCommentsInto ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
+      readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
         Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
 
   // ----------------------------------------------------------------------------------------------
@@ -938,7 +964,7 @@ module Reader =
     if typ.IsProvided && typ.XmlDoc.Count > 0 then
         registerTypeProviderXmlDocs ctx typ
     let xmlDocSig = getXmlDocSigForType typ
-    readCommentsInto ctx xmlDocSig (fun cat cmds comment ->
+    readCommentsInto typ ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UrlMap.GetUrl typ
 
       let rec getMembers (typ:FSharpEntity) = [
@@ -989,7 +1015,7 @@ module Reader =
         ( name, cat, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
-    readCommentsInto ctx modul.XmlDocSig (fun cat cmd comment ->
+    readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
     
       // Properties & value bindings in the module
       let urlName = ctx.UrlMap.GetUrl modul
@@ -1109,8 +1135,15 @@ type MetadataFormat =
         ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight, ?assemblyReferences = assemblyReferences)
 
+  /// generates documentation for multiple files specified by the `dllFiles` parameter
+  static member Generate(dllFiles : _ list, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
+    MetadataFormat.Generate
+      ( dllFiles :> _ seq, outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate, 
+        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight, ?assemblyReferences = assemblyReferences)
+
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  static member Generate(dllFiles, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
+  static member Generate(dllFiles : _ seq, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -1122,7 +1155,7 @@ type MetadataFormat =
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
     let libDirs = defaultArg libDirs []
-    let dllFiles = dllFiles |> List.map Path.GetFullPath
+    let dllFiles = dllFiles |> List.ofSeq |> List.map Path.GetFullPath
     let urlRangeHighlight =
       defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
     let sourceFolderRepo =

@@ -1,3 +1,8 @@
+## 2.11.0 (28 September, 2015)
+ - Fix https://github.com/tpetricek/FSharp.Formatting/issues/271
+ - Don't fail as long as we can recover / continue.
+ - Fix https://github.com/tpetricek/FSharp.Formatting/issues/201
+
 ## 2.10.3 (12 September, 2015)
  - Require compatible F# Compiler Service in Nuspec (fix #337)
 
