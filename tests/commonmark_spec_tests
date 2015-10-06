@@ -1,0 +1,3024 @@
+:(	foo	baz		bim
+)_(<pre><code>foo	baz		bim
+</code></pre>
+)::(  	foo	baz		bim
+)_(<pre><code>foo	baz		bim
+</code></pre>
+)::(    a	a
+    ὐ	a
+)_(<pre><code>a	a
+ὐ	a
+</code></pre>
+)::(  - foo
+
+	bar
+)_(<ul>
+<li>
+<p>foo</p>
+<p>bar</p>
+</li>
+</ul>
+)::(&gt;	foo	bar
+)_(<blockquote>
+<p>foo	bar</p>
+</blockquote>
+)::(    foo
+	bar
+)_(<pre><code>foo
+bar
+</code></pre>
+)::(- `one
+- two`
+)_(<ul>
+<li>`one</li>
+<li>two`</li>
+</ul>
+)::(***
+---
+___
+)_(<hr />
+<hr />
+<hr />
+)::(+++
+)_(<p>+++</p>
+)::(===
+)_(<p>===</p>
+)::(--
+**
+__
+)_(<p>--
+**
+__</p>
+)::( ***
+  ***
+   ***
+)_(<hr />
+<hr />
+<hr />
+)::(    ***
+)_(<pre><code>***
+</code></pre>
+)::(Foo
+    ***
+)_(<p>Foo
+***</p>
+)::(_____________________________________
+)_(<hr />
+)::( - - -
+)_(<hr />
+)::( **  * ** * ** * **
+)_(<hr />
+)::(-     -      -      -
+)_(<hr />
+)::(- - - -    
+)_(<hr />
+)::(_ _ _ _ a
+
+a------
+
+---a---
+)_(<p>_ _ _ _ a</p>
+<p>a------</p>
+<p>---a---</p>
+)::( *-*
+)_(<p><em>-</em></p>
+)::(- foo
+***
+- bar
+)_(<ul>
+<li>foo</li>
+</ul>
+<hr />
+<ul>
+<li>bar</li>
+</ul>
+)::(Foo
+***
+bar
+)_(<p>Foo</p>
+<hr />
+<p>bar</p>
+)::(Foo
+---
+bar
+)_(<h2>Foo</h2>
+<p>bar</p>
+)::(* Foo
+* * *
+* Bar
+)_(<ul>
+<li>Foo</li>
+</ul>
+<hr />
+<ul>
+<li>Bar</li>
+</ul>
+)::(- Foo
+- * * *
+)_(<ul>
+<li>Foo</li>
+<li>
+<hr />
+</li>
+</ul>
+)::(# foo
+## foo
+### foo
+#### foo
+##### foo
+###### foo
+)_(<h1>foo</h1>
+<h2>foo</h2>
+<h3>foo</h3>
+<h4>foo</h4>
+<h5>foo</h5>
+<h6>foo</h6>
+)::(####### foo
+)_(<p>####### foo</p>
+)::(#5 bolt
+
+#foobar
+)_(<p>#5 bolt</p>
+<p>#foobar</p>
+)::(\## foo
+)_(<p>## foo</p>
+)::(# foo *bar* \*baz\*
+)_(<h1>foo <em>bar</em> *baz*</h1>
+)::(#                  foo                     
+)_(<h1>foo</h1>
+)::( ### foo
+  ## foo
+   # foo
+)_(<h3>foo</h3>
+<h2>foo</h2>
+<h1>foo</h1>
+)::(    # foo
+)_(<pre><code># foo
+</code></pre>
+)::(foo
+    # bar
+)_(<p>foo
+# bar</p>
+)::(## foo ##
+  ###   bar    ###
+)_(<h2>foo</h2>
+<h3>bar</h3>
+)::(# foo ##################################
+##### foo ##
+)_(<h1>foo</h1>
+<h5>foo</h5>
+)::(### foo ###     
+)_(<h3>foo</h3>
+)::(### foo ### b
+)_(<h3>foo ### b</h3>
+)::(# foo#
+)_(<h1>foo#</h1>
+)::(### foo \###
+## foo #\##
+# foo \#
+)_(<h3>foo ###</h3>
+<h2>foo ###</h2>
+<h1>foo #</h1>
+)::(****
+## foo
+****
+)_(<hr />
+<h2>foo</h2>
+<hr />
+)::(Foo bar
+# baz
+Bar foo
+)_(<p>Foo bar</p>
+<h1>baz</h1>
+<p>Bar foo</p>
+)::(## 
+#
+### ###
+)_(<h2></h2>
+<h1></h1>
+<h3></h3>
+)::(Foo *bar*
+=========
+
+Foo *bar*
+---------
+)_(<h1>Foo <em>bar</em></h1>
+<h2>Foo <em>bar</em></h2>
+)::(Foo
+-------------------------
+
+Foo
+=
+)_(<h2>Foo</h2>
+<h1>Foo</h1>
+)::(   Foo
+---
+
+  Foo
+-----
+
+  Foo
+  ===
+)_(<h2>Foo</h2>
+<h2>Foo</h2>
+<h1>Foo</h1>
+)::(    Foo
+    ---
+
+    Foo
+---
+)_(<pre><code>Foo
+---
+
+Foo
+</code></pre>
+<hr />
+)::(Foo
+   ----      
+)_(<h2>Foo</h2>
+)::(Foo
+    ---
+)_(<p>Foo
+---</p>
+)::(Foo
+= =
+
+Foo
+--- -
+)_(<p>Foo
+= =</p>
+<p>Foo</p>
+<hr />
+)::(Foo  
+-----
+)_(<h2>Foo</h2>
+)::(Foo\
+----
+)_(<h2>Foo\</h2>
+)::(`Foo
+----
+`
+
+&lt;a title=&quot;a lot
+---
+of dashes&quot;/&gt;
+)_(<h2>`Foo</h2>
+<p>`</p>
+<h2>&lt;a title=&quot;a lot</h2>
+<p>of dashes&quot;/&gt;</p>
+)::(&gt; Foo
+---
+)_(<blockquote>
+<p>Foo</p>
+</blockquote>
+<hr />
+)::(- Foo
+---
+)_(<ul>
+<li>Foo</li>
+</ul>
+<hr />
+)::(Foo
+Bar
+---
+
+Foo
+Bar
+===
+)_(<p>Foo
+Bar</p>
+<hr />
+<p>Foo
+Bar
+===</p>
+)::(---
+Foo
+---
+Bar
+---
+Baz
+)_(<hr />
+<h2>Foo</h2>
+<h2>Bar</h2>
+<p>Baz</p>
+)::(
+====
+)_(<p>====</p>
+)::(---
+---
+)_(<hr />
+<hr />
+)::(- foo
+-----
+)_(<ul>
+<li>foo</li>
+</ul>
+<hr />
+)::(    foo
+---
+)_(<pre><code>foo
+</code></pre>
+<hr />
+)::(&gt; foo
+-----
+)_(<blockquote>
+<p>foo</p>
+</blockquote>
+<hr />
+)::(\&gt; foo
+------
+)_(<h2>&gt; foo</h2>
+)::(    a simple
+      indented code block
+)_(<pre><code>a simple
+  indented code block
+</code></pre>
+)::(  - foo
+
+    bar
+)_(<ul>
+<li>
+<p>foo</p>
+<p>bar</p>
+</li>
+</ul>
+)::(1.  foo
+
+    - bar
+)_(<ol>
+<li>
+<p>foo</p>
+<ul>
+<li>bar</li>
+</ul>
+</li>
+</ol>
+)::(    &lt;a/&gt;
+    *hi*
+
+    - one
+)_(<pre><code>&lt;a/&gt;
+*hi*
+
+- one
+</code></pre>
+)::(    chunk1
+
+    chunk2
+  
+ 
+ 
+    chunk3
+)_(<pre><code>chunk1
+
+chunk2
+
+
+
+chunk3
+</code></pre>
+)::(    chunk1
+      
+      chunk2
+)_(<pre><code>chunk1
+  
+  chunk2
+</code></pre>
+)::(Foo
+    bar
+
+)_(<p>Foo
+bar</p>
+)::(    foo
+bar
+)_(<pre><code>foo
+</code></pre>
+<p>bar</p>
+)::(# Header
+    foo
+Header
+------
+    foo
+----
+)_(<h1>Header</h1>
+<pre><code>foo
+</code></pre>
+<h2>Header</h2>
+<pre><code>foo
+</code></pre>
+<hr />
+)::(        foo
+    bar
+)_(<pre><code>    foo
+bar
+</code></pre>
+)::(
+    
+    foo
+    
+
+)_(<pre><code>foo
+</code></pre>
+)::(    foo  
+)_(<pre><code>foo  
+</code></pre>
+)::(```
+&lt;
+ &gt;
+```
+)_(<pre><code>&lt;
+ &gt;
+</code></pre>
+)::(~~~
+&lt;
+ &gt;
+~~~
+)_(<pre><code>&lt;
+ &gt;
+</code></pre>
+)::(```
+aaa
+~~~
+```
+)_(<pre><code>aaa
+~~~
+</code></pre>
+)::(~~~
+aaa
+```
+~~~
+)_(<pre><code>aaa
+```
+</code></pre>
+)::(````
+aaa
+```
+``````
+)_(<pre><code>aaa
+```
+</code></pre>
+)::(~~~~
+aaa
+~~~
+~~~~
+)_(<pre><code>aaa
+~~~
+</code></pre>
+)::(```
+)_(<pre><code></code></pre>
+)::(`````
+
+```
+aaa
+)_(<pre><code>
+```
+aaa
+</code></pre>
+)::(&gt; ```
+&gt; aaa
+
+bbb
+)_(<blockquote>
+<pre><code>aaa
+</code></pre>
+</blockquote>
+<p>bbb</p>
+)::(```
+
+  
+```
+)_(<pre><code>
+  
+</code></pre>
+)::(```
+```
+)_(<pre><code></code></pre>
+)::( ```
+ aaa
+aaa
+```
+)_(<pre><code>aaa
+aaa
+</code></pre>
+)::(  ```
+aaa
+  aaa
+aaa
+  ```
+)_(<pre><code>aaa
+aaa
+aaa
+</code></pre>
+)::(   ```
+   aaa
+    aaa
+  aaa
+   ```
+)_(<pre><code>aaa
+ aaa
+aaa
+</code></pre>
+)::(    ```
+    aaa
+    ```
+)_(<pre><code>```
+aaa
+```
+</code></pre>
+)::(```
+aaa
+  ```
+)_(<pre><code>aaa
+</code></pre>
+)::(   ```
+aaa
+  ```
+)_(<pre><code>aaa
+</code></pre>
+)::(```
+aaa
+    ```
+)_(<pre><code>aaa
+    ```
+</code></pre>
+)::(``` ```
+aaa
+)_(<p><code></code>
+aaa</p>
+)::(~~~~~~
+aaa
+~~~ ~~
+)_(<pre><code>aaa
+~~~ ~~
+</code></pre>
+)::(foo
+```
+bar
+```
+baz
+)_(<p>foo</p>
+<pre><code>bar
+</code></pre>
+<p>baz</p>
+)::(foo
+---
+~~~
+bar
+~~~
+# baz
+)_(<h2>foo</h2>
+<pre><code>bar
+</code></pre>
+<h1>baz</h1>
+)::(```ruby
+def foo(x)
+  return 3
+end
+```
+)_(<pre><code class="language-ruby">def foo(x)
+  return 3
+end
+</code></pre>
+)::(~~~~    ruby startline=3 $%@#$
+def foo(x)
+  return 3
+end
+~~~~~~~
+)_(<pre><code class="language-ruby">def foo(x)
+  return 3
+end
+</code></pre>
+)::(````;
+````
+)_(<pre><code class="language-;"></code></pre>
+)::(``` aa ```
+foo
+)_(<p><code>aa</code>
+foo</p>
+)::(```
+``` aaa
+```
+)_(<pre><code>``` aaa
+</code></pre>
+)::(&lt;table&gt;
+  &lt;tr&gt;
+    &lt;td&gt;
+           hi
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+okay.
+)_(<table>
+  <tr>
+    <td>
+           hi
+    </td>
+  </tr>
+</table>
+<p>okay.</p>
+)::( &lt;div&gt;
+  *hello*
+         &lt;foo&gt;&lt;a&gt;
+)_( <div>
+  *hello*
+         <foo><a>
+)::(&lt;/div&gt;
+*foo*
+)_(</div>
+*foo*
+)::(&lt;DIV CLASS=&quot;foo&quot;&gt;
+
+*Markdown*
+
+&lt;/DIV&gt;
+)_(<DIV CLASS="foo">
+<p><em>Markdown</em></p>
+</DIV>
+)::(&lt;div id=&quot;foo&quot;
+  class=&quot;bar&quot;&gt;
+&lt;/div&gt;
+)_(<div id="foo"
+  class="bar">
+</div>
+)::(&lt;div id=&quot;foo&quot; class=&quot;bar
+  baz&quot;&gt;
+&lt;/div&gt;
+)_(<div id="foo" class="bar
+  baz">
+</div>
+)::(&lt;div&gt;
+*foo*
+
+*bar*
+)_(<div>
+*foo*
+<p><em>bar</em></p>
+)::(&lt;div id=&quot;foo&quot;
+*hi*
+)_(<div id="foo"
+*hi*
+)::(&lt;div class
+foo
+)_(<div class
+foo
+)::(&lt;div *???-&amp;&amp;&amp;-&lt;---
+*foo*
+)_(<div *???-&&&-<---
+*foo*
+)::(&lt;div&gt;&lt;a href=&quot;bar&quot;&gt;*foo*&lt;/a&gt;&lt;/div&gt;
+)_(<div><a href="bar">*foo*</a></div>
+)::(&lt;table&gt;&lt;tr&gt;&lt;td&gt;
+foo
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+)_(<table><tr><td>
+foo
+</td></tr></table>
+)::(&lt;div&gt;&lt;/div&gt;
+``` c
+int x = 33;
+```
+)_(<div></div>
+``` c
+int x = 33;
+```
+)::(&lt;a href=&quot;foo&quot;&gt;
+*bar*
+&lt;/a&gt;
+)_(<a href="foo">
+*bar*
+</a>
+)::(&lt;Warning&gt;
+*bar*
+&lt;/Warning&gt;
+)_(<Warning>
+*bar*
+</Warning>
+)::(&lt;i class=&quot;foo&quot;&gt;
+*bar*
+&lt;/i&gt;
+)_(<i class="foo">
+*bar*
+</i>
+)::(&lt;/ins&gt;
+*bar*
+)_(</ins>
+*bar*
+)::(&lt;del&gt;
+*foo*
+&lt;/del&gt;
+)_(<del>
+*foo*
+</del>
+)::(&lt;del&gt;
+
+*foo*
+
+&lt;/del&gt;
+)_(<del>
+<p><em>foo</em></p>
+</del>
+)::(&lt;del&gt;*foo*&lt;/del&gt;
+)_(<p><del><em>foo</em></del></p>
+)::(&lt;pre language=&quot;haskell&quot;&gt;&lt;code&gt;
+import Text.HTML.TagSoup
+
+main :: IO ()
+main = print $ parseTags tags
+&lt;/code&gt;&lt;/pre&gt;
+)_(<pre language="haskell"><code>
+import Text.HTML.TagSoup
+
+main :: IO ()
+main = print $ parseTags tags
+</code></pre>
+)::(&lt;script type=&quot;text/javascript&quot;&gt;
+// JavaScript example
+
+document.getElementById(&quot;demo&quot;).innerHTML = &quot;Hello JavaScript!&quot;;
+&lt;/script&gt;
+)_(<script type="text/javascript">
+// JavaScript example
+
+document.getElementById("demo").innerHTML = "Hello JavaScript!";
+</script>
+)::(&lt;style
+  type=&quot;text/css&quot;&gt;
+h1 {color:red;}
+
+p {color:blue;}
+&lt;/style&gt;
+)_(<style
+  type="text/css">
+h1 {color:red;}
+
+p {color:blue;}
+</style>
+)::(&lt;style
+  type=&quot;text/css&quot;&gt;
+
+foo
+)_(<style
+  type="text/css">
+
+foo
+)::(&gt; &lt;div&gt;
+&gt; foo
+
+bar
+)_(<blockquote>
+<div>
+foo
+</blockquote>
+<p>bar</p>
+)::(- &lt;div&gt;
+- foo
+)_(<ul>
+<li>
+<div>
+</li>
+<li>foo</li>
+</ul>
+)::(&lt;style&gt;p{color:red;}&lt;/style&gt;
+*foo*
+)_(<style>p{color:red;}</style>
+<p><em>foo</em></p>
+)::(&lt;!-- foo --&gt;*bar*
+*baz*
+)_(<!-- foo -->*bar*
+<p><em>baz</em></p>
+)::(&lt;script&gt;
+foo
+&lt;/script&gt;1. *bar*
+)_(<script>
+foo
+</script>1. *bar*
+)::(&lt;!-- Foo
+
+bar
+   baz --&gt;
+)_(<!-- Foo
+
+bar
+   baz -->
+)::(&lt;?php
+
+  echo '&gt;';
+
+?&gt;
+)_(<?php
+
+  echo '>';
+
+?>
+)::(&lt;!DOCTYPE html&gt;
+)_(<!DOCTYPE html>
+)::(&lt;![CDATA[
+function matchwo(a,b)
+{
+  if (a &lt; b &amp;&amp; a &lt; 0) then {
+    return 1;
+
+  } else {
+
+    return 0;
+  }
+}
+]]&gt;
+)_(<![CDATA[
+function matchwo(a,b)
+{
+  if (a < b && a < 0) then {
+    return 1;
+
+  } else {
+
+    return 0;
+  }
+}
+]]>
+)::(  &lt;!-- foo --&gt;
+
+    &lt;!-- foo --&gt;
+)_(  <!-- foo -->
+<pre><code>&lt;!-- foo --&gt;
+</code></pre>
+)::(  &lt;div&gt;
+
+    &lt;div&gt;
+)_(  <div>
+<pre><code>&lt;div&gt;
+</code></pre>
+)::(Foo
+&lt;div&gt;
+bar
+&lt;/div&gt;
+)_(<p>Foo</p>
+<div>
+bar
+</div>
+)::(&lt;div&gt;
+bar
+&lt;/div&gt;
+*foo*
+)_(<div>
+bar
+</div>
+*foo*
+)::(Foo
+&lt;a href=&quot;bar&quot;&gt;
+baz
+)_(<p>Foo
+<a href="bar">
+baz</p>
+)::(&lt;div&gt;
+
+*Emphasized* text.
+
+&lt;/div&gt;
+)_(<div>
+<p><em>Emphasized</em> text.</p>
+</div>
+)::(&lt;div&gt;
+*Emphasized* text.
+&lt;/div&gt;
+)_(<div>
+*Emphasized* text.
+</div>
+)::(&lt;table&gt;
+
+&lt;tr&gt;
+
+&lt;td&gt;
+Hi
+&lt;/td&gt;
+
+&lt;/tr&gt;
+
+&lt;/table&gt;
+)_(<table>
+<tr>
+<td>
+Hi
+</td>
+</tr>
+</table>
+)::(&lt;table&gt;
+
+  &lt;tr&gt;
+
+    &lt;td&gt;
+      Hi
+    &lt;/td&gt;
+
+  &lt;/tr&gt;
+
+&lt;/table&gt;
+)_(<table>
+  <tr>
+<pre><code>&lt;td&gt;
+  Hi
+&lt;/td&gt;
+</code></pre>
+  </tr>
+</table>
+)::([foo]: /url &quot;title&quot;
+
+[foo]
+)_(<p><a href="/url" title="title">foo</a></p>
+)::(   [foo]: 
+      /url  
+           'the title'  
+
+[foo]
+)_(<p><a href="/url" title="the title">foo</a></p>
+)::([Foo*bar\]]:my_(url) 'title (with parens)'
+
+[Foo*bar\]]
+)_(<p><a href="my_(url)" title="title (with parens)">Foo*bar]</a></p>
+)::([Foo bar]:
+&lt;my url&gt;
+'title'
+
+[Foo bar]
+)_(<p><a href="my%20url" title="title">Foo bar</a></p>
+)::([foo]: /url '
+title
+line1
+line2
+'
+
+[foo]
+)_(<p><a href="/url" title="
+title
+line1
+line2
+">foo</a></p>
+)::([foo]: /url 'title
+
+with blank line'
+
+[foo]
+)_(<p>[foo]: /url 'title</p>
+<p>with blank line'</p>
+<p>[foo]</p>
+)::([foo]:
+/url
+
+[foo]
+)_(<p><a href="/url">foo</a></p>
+)::([foo]:
+
+[foo]
+)_(<p>[foo]:</p>
+<p>[foo]</p>
+)::([foo]: /url\bar\*baz &quot;foo\&quot;bar\baz&quot;
+
+[foo]
+)_(<p><a href="/url%5Cbar*baz" title="foo&quot;bar\baz">foo</a></p>
+)::([foo]
+
+[foo]: url
+)_(<p><a href="url">foo</a></p>
+)::([foo]
+
+[foo]: first
+[foo]: second
+)_(<p><a href="first">foo</a></p>
+)::([FOO]: /url
+
+[Foo]
+)_(<p><a href="/url">Foo</a></p>
+)::([ΑΓΩ]: /φου
+
+[αγω]
+)_(<p><a href="/%CF%86%CE%BF%CF%85">αγω</a></p>
+)::([foo]: /url
+)_()::([
+foo
+]: /url
+bar
+)_(<p>bar</p>
+)::([foo]: /url &quot;title&quot; ok
+)_(<p>[foo]: /url &quot;title&quot; ok</p>
+)::([foo]: /url
+&quot;title&quot; ok
+)_(<p>&quot;title&quot; ok</p>
+)::(    [foo]: /url &quot;title&quot;
+
+[foo]
+)_(<pre><code>[foo]: /url &quot;title&quot;
+</code></pre>
+<p>[foo]</p>
+)::(```
+[foo]: /url
+```
+
+[foo]
+)_(<pre><code>[foo]: /url
+</code></pre>
+<p>[foo]</p>
+)::(Foo
+[bar]: /baz
+
+[bar]
+)_(<p>Foo
+[bar]: /baz</p>
+<p>[bar]</p>
+)::(# [Foo]
+[foo]: /url
+&gt; bar
+)_(<h1><a href="/url">Foo</a></h1>
+<blockquote>
+<p>bar</p>
+</blockquote>
+)::([foo]: /foo-url &quot;foo&quot;
+[bar]: /bar-url
+  &quot;bar&quot;
+[baz]: /baz-url
+
+[foo],
+[bar],
+[baz]
+)_(<p><a href="/foo-url" title="foo">foo</a>,
+<a href="/bar-url" title="bar">bar</a>,
+<a href="/baz-url">baz</a></p>
+)::([foo]
+
+&gt; [foo]: /url
+)_(<p><a href="/url">foo</a></p>
+<blockquote>
+</blockquote>
+)::(aaa
+
+bbb
+)_(<p>aaa</p>
+<p>bbb</p>
+)::(aaa
+bbb
+
+ccc
+ddd
+)_(<p>aaa
+bbb</p>
+<p>ccc
+ddd</p>
+)::(aaa
+
+
+bbb
+)_(<p>aaa</p>
+<p>bbb</p>
+)::(  aaa
+ bbb
+)_(<p>aaa
+bbb</p>
+)::(aaa
+             bbb
+                                       ccc
+)_(<p>aaa
+bbb
+ccc</p>
+)::(   aaa
+bbb
+)_(<p>aaa
+bbb</p>
+)::(    aaa
+bbb
+)_(<pre><code>aaa
+</code></pre>
+<p>bbb</p>
+)::(aaa     
+bbb     
+)_(<p>aaa<br />
+bbb</p>
+)::(  
+
+aaa
+  
+
+# aaa
+
+  
+)_(<p>aaa</p>
+<h1>aaa</h1>
+)::(&gt; # Foo
+&gt; bar
+&gt; baz
+)_(<blockquote>
+<h1>Foo</h1>
+<p>bar
+baz</p>
+</blockquote>
+)::(&gt;# Foo
+&gt;bar
+&gt; baz
+)_(<blockquote>
+<h1>Foo</h1>
+<p>bar
+baz</p>
+</blockquote>
+)::(   &gt; # Foo
+   &gt; bar
+ &gt; baz
+)_(<blockquote>
+<h1>Foo</h1>
+<p>bar
+baz</p>
+</blockquote>
+)::(    &gt; # Foo
+    &gt; bar
+    &gt; baz
+)_(<pre><code>&gt; # Foo
+&gt; bar
+&gt; baz
+</code></pre>
+)::(&gt; # Foo
+&gt; bar
+baz
+)_(<blockquote>
+<h1>Foo</h1>
+<p>bar
+baz</p>
+</blockquote>
+)::(&gt; bar
+baz
+&gt; foo
+)_(<blockquote>
+<p>bar
+baz
+foo</p>
+</blockquote>
+)::(&gt; foo
+---
+)_(<blockquote>
+<p>foo</p>
+</blockquote>
+<hr />
+)::(&gt; - foo
+- bar
+)_(<blockquote>
+<ul>
+<li>foo</li>
+</ul>
+</blockquote>
+<ul>
+<li>bar</li>
+</ul>
+)::(&gt;     foo
+    bar
+)_(<blockquote>
+<pre><code>foo
+</code></pre>
+</blockquote>
+<pre><code>bar
+</code></pre>
+)::(&gt; ```
+foo
+```
+)_(<blockquote>
+<pre><code></code></pre>
+</blockquote>
+<p>foo</p>
+<pre><code></code></pre>
+)::(&gt; foo
+    - bar
+)_(<blockquote>
+<p>foo
+- bar</p>
+</blockquote>
+)::(&gt;
+)_(<blockquote>
+</blockquote>
+)::(&gt;
+&gt;  
+&gt; 
+)_(<blockquote>
+</blockquote>
+)::(&gt;
+&gt; foo
+&gt;  
+)_(<blockquote>
+<p>foo</p>
+</blockquote>
+)::(&gt; foo
+
+&gt; bar
+)_(<blockquote>
+<p>foo</p>
+</blockquote>
+<blockquote>
+<p>bar</p>
+</blockquote>
+)::(&gt; foo
+&gt; bar
+)_(<blockquote>
+<p>foo
+bar</p>
+</blockquote>
+)::(&gt; foo
+&gt;
+&gt; bar
+)_(<blockquote>
+<p>foo</p>
+<p>bar</p>
+</blockquote>
+)::(foo
+&gt; bar
+)_(<p>foo</p>
+<blockquote>
+<p>bar</p>
+</blockquote>
+)::(&gt; aaa
+***
+&gt; bbb
+)_(<blockquote>
+<p>aaa</p>
+</blockquote>
+<hr />
+<blockquote>
+<p>bbb</p>
+</blockquote>
+)::(&gt; bar
+baz
+)_(<blockquote>
+<p>bar
+baz</p>
+</blockquote>
+)::(&gt; bar
+
+baz
+)_(<blockquote>
+<p>bar</p>
+</blockquote>
+<p>baz</p>
+)::(&gt; bar
+&gt;
+baz
+)_(<blockquote>
+<p>bar</p>
+</blockquote>
+<p>baz</p>
+)::(&gt; &gt; &gt; foo
+bar
+)_(<blockquote>
+<blockquote>
+<blockquote>
+<p>foo
+bar</p>
+</blockquote>
+</blockquote>
+</blockquote>
+)::(&gt;&gt;&gt; foo
+&gt; bar
+&gt;&gt;baz
+)_(<blockquote>
+<blockquote>
+<blockquote>
+<p>foo
+bar
+baz</p>
+</blockquote>
+</blockquote>
+</blockquote>
+)::(&gt;     code
+
+&gt;    not code
+)_(<blockquote>
+<pre><code>code
+</code></pre>
+</blockquote>
+<blockquote>
+<p>not code</p>
+</blockquote>
+)::(A paragraph
+with two lines.
+
+    indented code
+
+&gt; A block quote.
+)_(<p>A paragraph
+with two lines.</p>
+<pre><code>indented code
+</code></pre>
+<blockquote>
+<p>A block quote.</p>
+</blockquote>
+)::(1.  A paragraph
+    with two lines.
+
+        indented code
+
+    &gt; A block quote.
+)_(<ol>
+<li>
+<p>A paragraph
+with two lines.</p>
+<pre><code>indented code
+</code></pre>
+<blockquote>
+<p>A block quote.</p>
+</blockquote>
+</li>
+</ol>
+)::(- one
+
+ two
+)_(<ul>
+<li>one</li>
+</ul>
+<p>two</p>
+)::(- one
+
+  two
+)_(<ul>
+<li>
+<p>one</p>
+<p>two</p>
+</li>
+</ul>
+)::( -    one
+
+     two
+)_(<ul>
+<li>one</li>
+</ul>
+<pre><code> two
+</code></pre>
+)::( -    one
+
+      two
+)_(<ul>
+<li>
+<p>one</p>
+<p>two</p>
+</li>
+</ul>
+)::(   &gt; &gt; 1.  one
+&gt;&gt;
+&gt;&gt;     two
+)_(<blockquote>
+<blockquote>
+<ol>
+<li>
+<p>one</p>
+<p>two</p>
+</li>
+</ol>
+</blockquote>
+</blockquote>
+)::(&gt;&gt;- one
+&gt;&gt;
+  &gt;  &gt; two
+)_(<blockquote>
+<blockquote>
+<ul>
+<li>one</li>
+</ul>
+<p>two</p>
+</blockquote>
+</blockquote>
+)::(-one
+
+2.two
+)_(<p>-one</p>
+<p>2.two</p>
+)::(- foo
+
+  bar
+
+- foo
+
+
+  bar
+
+- ```
+  foo
+
+
+  bar
+  ```
+
+- baz
+
+  + ```
+    foo
+
+
+    bar
+    ```
+)_(<ul>
+<li>
+<p>foo</p>
+<p>bar</p>
+</li>
+<li>
+<p>foo</p>
+</li>
+</ul>
+<p>bar</p>
+<ul>
+<li>
+<pre><code>foo
+
+
+bar
+</code></pre>
+</li>
+<li>
+<p>baz</p>
+<ul>
+<li>
+<pre><code>foo
+
+
+bar
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+)::(1.  foo
+
+    ```
+    bar
+    ```
+
+    baz
+
+    &gt; bam
+)_(<ol>
+<li>
+<p>foo</p>
+<pre><code>bar
+</code></pre>
+<p>baz</p>
+<blockquote>
+<p>bam</p>
+</blockquote>
+</li>
+</ol>
+)::(123456789. ok
+)_(<ol start="123456789">
+<li>ok</li>
+</ol>
+)::(1234567890. not ok
+)_(<p>1234567890. not ok</p>
+)::(0. ok
+)_(<ol start="0">
+<li>ok</li>
+</ol>
+)::(003. ok
+)_(<ol start="3">
+<li>ok</li>
+</ol>
+)::(-1. not ok
+)_(<p>-1. not ok</p>
+)::(- foo
+
+      bar
+)_(<ul>
+<li>
+<p>foo</p>
+<pre><code>bar
+</code></pre>
+</li>
+</ul>
+)::(  10.  foo
+
+           bar
+)_(<ol start="10">
+<li>
+<p>foo</p>
+<pre><code>bar
+</code></pre>
+</li>
+</ol>
+)::(    indented code
+
+paragraph
+
+    more code
+)_(<pre><code>indented code
+</code></pre>
+<p>paragraph</p>
+<pre><code>more code
+</code></pre>
+)::(1.     indented code
+
+   paragraph
+
+       more code
+)_(<ol>
+<li>
+<pre><code>indented code
+</code></pre>
+<p>paragraph</p>
+<pre><code>more code
+</code></pre>
+</li>
+</ol>
+)::(1.      indented code
+
+   paragraph
+
+       more code
+)_(<ol>
+<li>
+<pre><code> indented code
+</code></pre>
+<p>paragraph</p>
+<pre><code>more code
+</code></pre>
+</li>
+</ol>
+)::(   foo
+
+bar
+)_(<p>foo</p>
+<p>bar</p>
+)::(-    foo
+
+  bar
+)_(<ul>
+<li>foo</li>
+</ul>
+<p>bar</p>
+)::(-  foo
+
+   bar
+)_(<ul>
+<li>
+<p>foo</p>
+<p>bar</p>
+</li>
+</ul>
+)::(-
+  foo
+-
+  ```
+  bar
+  ```
+-
+      baz
+)_(<ul>
+<li>foo</li>
+<li>
+<pre><code>bar
+</code></pre>
+</li>
+<li>
+<pre><code>baz
+</code></pre>
+</li>
+</ul>
+)::(-
+
+  foo
+)_(<ul>
+<li></li>
+</ul>
+<p>foo</p>
+)::(- foo
+-
+- bar
+)_(<ul>
+<li>foo</li>
+<li></li>
+<li>bar</li>
+</ul>
+)::(- foo
+-   
+- bar
+)_(<ul>
+<li>foo</li>
+<li></li>
+<li>bar</li>
+</ul>
+)::(1. foo
+2.
+3. bar
+)_(<ol>
+<li>foo</li>
+<li></li>
+<li>bar</li>
+</ol>
+)::(*
+)_(<ul>
+<li></li>
+</ul>
+)::( 1.  A paragraph
+     with two lines.
+
+         indented code
+
+     &gt; A block quote.
+)_(<ol>
+<li>
+<p>A paragraph
+with two lines.</p>
+<pre><code>indented code
+</code></pre>
+<blockquote>
+<p>A block quote.</p>
+</blockquote>
+</li>
+</ol>
+)::(  1.  A paragraph
+      with two lines.
+
+          indented code
+
+      &gt; A block quote.
+)_(<ol>
+<li>
+<p>A paragraph
+with two lines.</p>
+<pre><code>indented code
+</code></pre>
+<blockquote>
+<p>A block quote.</p>
+</blockquote>
+</li>
+</ol>
+)::(   1.  A paragraph
+       with two lines.
+
+           indented code
+
+       &gt; A block quote.
+)_(<ol>
+<li>
+<p>A paragraph
+with two lines.</p>
+<pre><code>indented code
+</code></pre>
+<blockquote>
+<p>A block quote.</p>
+</blockquote>
+</li>
+</ol>
+)::(    1.  A paragraph
+        with two lines.
+
+            indented code
+
+        &gt; A block quote.
+)_(<pre><code>1.  A paragraph
+    with two lines.
+
+        indented code
+
+    &gt; A block quote.
+</code></pre>
+)::(  1.  A paragraph
+with two lines.
+
+          indented code
+
+      &gt; A block quote.
+)_(<ol>
+<li>
+<p>A paragraph
+with two lines.</p>
+<pre><code>indented code
+</code></pre>
+<blockquote>
+<p>A block quote.</p>
+</blockquote>
+</li>
+</ol>
+)::(  1.  A paragraph
+    with two lines.
+)_(<ol>
+<li>A paragraph
+with two lines.</li>
+</ol>
+)::(&gt; 1. &gt; Blockquote
+continued here.
+)_(<blockquote>
+<ol>
+<li>
+<blockquote>
+<p>Blockquote
+continued here.</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+)::(&gt; 1. &gt; Blockquote
+&gt; continued here.
+)_(<blockquote>
+<ol>
+<li>
+<blockquote>
+<p>Blockquote
+continued here.</p>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+)::(- foo
+  - bar
+    - baz
+)_(<ul>
+<li>foo
+<ul>
+<li>bar
+<ul>
+<li>baz</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+)::(- foo
+ - bar
+  - baz
+)_(<ul>
+<li>foo</li>
+<li>bar</li>
+<li>baz</li>
+</ul>
+)::(10) foo
+    - bar
+)_(<ol start="10">
+<li>foo
+<ul>
+<li>bar</li>
+</ul>
+</li>
+</ol>
+)::(10) foo
+   - bar
+)_(<ol start="10">
+<li>foo</li>
+</ol>
+<ul>
+<li>bar</li>
+</ul>
+)::(- - foo
+)_(<ul>
+<li>
+<ul>
+<li>foo</li>
+</ul>
+</li>
+</ul>
+)::(1. - 2. foo
+)_(<ol>
+<li>
+<ul>
+<li>
+<ol start="2">
+<li>foo</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+)::(- # Foo
+- Bar
+  ---
+  baz
+)_(<ul>
+<li>
+<h1>Foo</h1>
+</li>
+<li>
+<h2>Bar</h2>
+baz</li>
+</ul>
+)::(- foo
+- bar
++ baz
+)_(<ul>
+<li>foo</li>
+<li>bar</li>
+</ul>
+<ul>
+<li>baz</li>
+</ul>
+)::(1. foo
+2. bar
+3) baz
+)_(<ol>
+<li>foo</li>
+<li>bar</li>
+</ol>
+<ol start="3">
+<li>baz</li>
+</ol>
+)::(Foo
+- bar
+- baz
+)_(<p>Foo</p>
+<ul>
+<li>bar</li>
+<li>baz</li>
+</ul>
+)::(The number of windows in my house is
+14.  The number of doors is 6.
+)_(<p>The number of windows in my house is</p>
+<ol start="14">
+<li>The number of doors is 6.</li>
+</ol>
+)::(- foo
+
+- bar
+
+
+- baz
+)_(<ul>
+<li>
+<p>foo</p>
+</li>
+<li>
+<p>bar</p>
+</li>
+</ul>
+<ul>
+<li>baz</li>
+</ul>
+)::(- foo
+
+
+  bar
+- baz
+)_(<ul>
+<li>foo</li>
+</ul>
+<p>bar</p>
+<ul>
+<li>baz</li>
+</ul>
+)::(- foo
+  - bar
+    - baz
+
+
+      bim
+)_(<ul>
+<li>foo
+<ul>
+<li>bar
+<ul>
+<li>baz</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code>  bim
+</code></pre>
+)::(- foo
+- bar
+
+
+- baz
+- bim
+)_(<ul>
+<li>foo</li>
+<li>bar</li>
+</ul>
+<ul>
+<li>baz</li>
+<li>bim</li>
+</ul>
+)::(-   foo
+
+    notcode
+
+-   foo
+
+
+    code
+)_(<ul>
+<li>
+<p>foo</p>
+<p>notcode</p>
+</li>
+<li>
+<p>foo</p>
+</li>
+</ul>
+<pre><code>code
+</code></pre>
+)::(- a
+ - b
+  - c
+   - d
+    - e
+   - f
+  - g
+ - h
+- i
+)_(<ul>
+<li>a</li>
+<li>b</li>
+<li>c</li>
+<li>d</li>
+<li>e</li>
+<li>f</li>
+<li>g</li>
+<li>h</li>
+<li>i</li>
+</ul>
+)::(1. a
+
+  2. b
+
+    3. c
+)_(<ol>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+</li>
+<li>
+<p>c</p>
+</li>
+</ol>
+)::(- a
+- b
+
+- c
+)_(<ul>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+</li>
+<li>
+<p>c</p>
+</li>
+</ul>
+)::(* a
+*
+
+* c
+)_(<ul>
+<li>
+<p>a</p>
+</li>
+<li></li>
+<li>
+<p>c</p>
+</li>
+</ul>
+)::(- a
+- b
+
+  c
+- d
+)_(<ul>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+<p>c</p>
+</li>
+<li>
+<p>d</p>
+</li>
+</ul>
+)::(- a
+- b
+
+  [ref]: /url
+- d
+)_(<ul>
+<li>
+<p>a</p>
+</li>
+<li>
+<p>b</p>
+</li>
+<li>
+<p>d</p>
+</li>
+</ul>
+)::(- a
+- ```
+  b
+
+
+  ```
+- c
+)_(<ul>
+<li>a</li>
+<li>
+<pre><code>b
+
+
+</code></pre>
+</li>
+<li>c</li>
+</ul>
+)::(- a
+  - b
+
+    c
+- d
+)_(<ul>
+<li>a
+<ul>
+<li>
+<p>b</p>
+<p>c</p>
+</li>
+</ul>
+</li>
+<li>d</li>
+</ul>
+)::(* a
+  &gt; b
+  &gt;
+* c
+)_(<ul>
+<li>a
+<blockquote>
+<p>b</p>
+</blockquote>
+</li>
+<li>c</li>
+</ul>
+)::(- a
+  &gt; b
+  ```
+  c
+  ```
+- d
+)_(<ul>
+<li>a
+<blockquote>
+<p>b</p>
+</blockquote>
+<pre><code>c
+</code></pre>
+</li>
+<li>d</li>
+</ul>
+)::(- a
+)_(<ul>
+<li>a</li>
+</ul>
+)::(- a
+  - b
+)_(<ul>
+<li>a
+<ul>
+<li>b</li>
+</ul>
+</li>
+</ul>
+)::(1. ```
+   foo
+   ```
+
+   bar
+)_(<ol>
+<li>
+<pre><code>foo
+</code></pre>
+<p>bar</p>
+</li>
+</ol>
+)::(* foo
+  * bar
+
+  baz
+)_(<ul>
+<li>
+<p>foo</p>
+<ul>
+<li>bar</li>
+</ul>
+<p>baz</p>
+</li>
+</ul>
+)::(- a
+  - b
+  - c
+
+- d
+  - e
+  - f
+)_(<ul>
+<li>
+<p>a</p>
+<ul>
+<li>b</li>
+<li>c</li>
+</ul>
+</li>
+<li>
+<p>d</p>
+<ul>
+<li>e</li>
+<li>f</li>
+</ul>
+</li>
+</ul>
+)::(`hi`lo`
+)_(<p><code>hi</code>lo`</p>
+)::(\!\&quot;\#\$\%\&amp;\'\(\)\*\+\,\-\.\/\:\;\&lt;\=\&gt;\?\@\[\\\]\^\_\`\{\|\}\~
+)_(<p>!&quot;#$%&amp;'()*+,-./:;&lt;=&gt;?@[\]^_`{|}~</p>
+)::(\	\A\a\ \3\φ\«
+)_(<p>\	\A\a\ \3\φ\«</p>
+)::(\*not emphasized*
+\&lt;br/&gt; not a tag
+\[not a link](/foo)
+\`not code`
+1\. not a list
+\* not a list
+\# not a header
+\[foo]: /url &quot;not a reference&quot;
+)_(<p>*not emphasized*
+&lt;br/&gt; not a tag
+[not a link](/foo)
+`not code`
+1. not a list
+* not a list
+# not a header
+[foo]: /url &quot;not a reference&quot;</p>
+)::(\\*emphasis*
+)_(<p>\<em>emphasis</em></p>
+)::(foo\
+bar
+)_(<p>foo<br />
+bar</p>
+)::(`` \[\` ``
+)_(<p><code>\[\`</code></p>
+)::(    \[\]
+)_(<pre><code>\[\]
+</code></pre>
+)::(~~~
+\[\]
+~~~
+)_(<pre><code>\[\]
+</code></pre>
+)::(&lt;http://example.com?find=\*&gt;
+)_(<p><a href="http://example.com?find=%5C*">http://example.com?find=\*</a></p>
+)::(&lt;a href=&quot;/bar\/)&quot;&gt;
+)_(<a href="/bar\/)">
+)::([foo](/bar\* &quot;ti\*tle&quot;)
+)_(<p><a href="/bar*" title="ti*tle">foo</a></p>
+)::([foo]
+
+[foo]: /bar\* &quot;ti\*tle&quot;
+)_(<p><a href="/bar*" title="ti*tle">foo</a></p>
+)::(``` foo\+bar
+foo
+```
+)_(<pre><code class="language-foo+bar">foo
+</code></pre>
+)::(&amp;nbsp; &amp;amp; &amp;copy; &amp;AElig; &amp;Dcaron;
+&amp;frac34; &amp;HilbertSpace; &amp;DifferentialD;
+&amp;ClockwiseContourIntegral; &amp;ngE;
+)_(<p>  &amp; © Æ Ď
+¾ ℋ ⅆ
+∲ ≧̸</p>
+)::(&amp;#35; &amp;#1234; &amp;#992; &amp;#98765432; &amp;#0;
+)_(<p># Ӓ Ϡ � �</p>
+)::(&amp;#X22; &amp;#XD06; &amp;#xcab;
+)_(<p>&quot; ആ ಫ</p>
+)::(&amp;nbsp &amp;x; &amp;#; &amp;#x; &amp;ThisIsWayTooLongToBeAnEntityIsntIt; &amp;hi?;
+)_(<p>&amp;nbsp &amp;x; &amp;#; &amp;#x; &amp;ThisIsWayTooLongToBeAnEntityIsntIt; &amp;hi?;</p>
+)::(&amp;copy
+)_(<p>&amp;copy</p>
+)::(&amp;MadeUpEntity;
+)_(<p>&amp;MadeUpEntity;</p>
+)::(&lt;a href=&quot;&amp;ouml;&amp;ouml;.html&quot;&gt;
+)_(<a href="&ouml;&ouml;.html">
+)::([foo](/f&amp;ouml;&amp;ouml; &quot;f&amp;ouml;&amp;ouml;&quot;)
+)_(<p><a href="/f%C3%B6%C3%B6" title="föö">foo</a></p>
+)::([foo]
+
+[foo]: /f&amp;ouml;&amp;ouml; &quot;f&amp;ouml;&amp;ouml;&quot;
+)_(<p><a href="/f%C3%B6%C3%B6" title="föö">foo</a></p>
+)::(``` f&amp;ouml;&amp;ouml;
+foo
+```
+)_(<pre><code class="language-föö">foo
+</code></pre>
+)::(`f&amp;ouml;&amp;ouml;`
+)_(<p><code>f&amp;ouml;&amp;ouml;</code></p>
+)::(    f&amp;ouml;f&amp;ouml;
+)_(<pre><code>f&amp;ouml;f&amp;ouml;
+</code></pre>
+)::(`foo`
+)_(<p><code>foo</code></p>
+)::(`` foo ` bar  ``
+)_(<p><code>foo ` bar</code></p>
+)::(` `` `
+)_(<p><code>``</code></p>
+)::(``
+foo
+``
+)_(<p><code>foo</code></p>
+)::(`foo   bar
+  baz`
+)_(<p><code>foo bar baz</code></p>
+)::(`foo `` bar`
+)_(<p><code>foo `` bar</code></p>
+)::(`foo\`bar`
+)_(<p><code>foo\</code>bar`</p>
+)::(*foo`*`
+)_(<p>*foo<code>*</code></p>
+)::([not a `link](/foo`)
+)_(<p>[not a <code>link](/foo</code>)</p>
+)::(`&lt;a href=&quot;`&quot;&gt;`
+)_(<p><code>&lt;a href=&quot;</code>&quot;&gt;`</p>
+)::(&lt;a href=&quot;`&quot;&gt;`
+)_(<p><a href="`">`</p>
+)::(`&lt;http://foo.bar.`baz&gt;`
+)_(<p><code>&lt;http://foo.bar.</code>baz&gt;`</p>
+)::(&lt;http://foo.bar.`baz&gt;`
+)_(<p><a href="http://foo.bar.%60baz">http://foo.bar.`baz</a>`</p>
+)::(```foo``
+)_(<p>```foo``</p>
+)::(`foo
+)_(<p>`foo</p>
+)::(*foo bar*
+)_(<p><em>foo bar</em></p>
+)::(a * foo bar*
+)_(<p>a * foo bar*</p>
+)::(a*&quot;foo&quot;*
+)_(<p>a*&quot;foo&quot;*</p>
+)::(* a *
+)_(<p>* a *</p>
+)::(foo*bar*
+)_(<p>foo<em>bar</em></p>
+)::(5*6*78
+)_(<p>5<em>6</em>78</p>
+)::(_foo bar_
+)_(<p><em>foo bar</em></p>
+)::(_ foo bar_
+)_(<p>_ foo bar_</p>
+)::(a_&quot;foo&quot;_
+)_(<p>a_&quot;foo&quot;_</p>
+)::(foo_bar_
+)_(<p>foo_bar_</p>
+)::(5_6_78
+)_(<p>5_6_78</p>
+)::(пристаням_стремятся_
+)_(<p>пристаням_стремятся_</p>
+)::(aa_&quot;bb&quot;_cc
+)_(<p>aa_&quot;bb&quot;_cc</p>
+)::(foo-_(bar)_
+)_(<p>foo-<em>(bar)</em></p>
+)::(_foo*
+)_(<p>_foo*</p>
+)::(*foo bar *
+)_(<p>*foo bar *</p>
+)::(*foo bar
+*
+)_(<p>*foo bar</p>
+<ul>
+<li></li>
+</ul>
+)::(*(*foo)
+)_(<p>*(*foo)</p>
+)::(*(*foo*)*
+)_(<p><em>(<em>foo</em>)</em></p>
+)::(*foo*bar
+)_(<p><em>foo</em>bar</p>
+)::(_foo bar _
+)_(<p>_foo bar _</p>
+)::(_(_foo)
+)_(<p>_(_foo)</p>
+)::(_(_foo_)_
+)_(<p><em>(<em>foo</em>)</em></p>
+)::(_foo_bar
+)_(<p>_foo_bar</p>
+)::(_пристаням_стремятся
+)_(<p>_пристаням_стремятся</p>
+)::(_foo_bar_baz_
+)_(<p><em>foo_bar_baz</em></p>
+)::(_(bar)_.
+)_(<p><em>(bar)</em>.</p>
+)::(**foo bar**
+)_(<p><strong>foo bar</strong></p>
+)::(** foo bar**
+)_(<p>** foo bar**</p>
+)::(a**&quot;foo&quot;**
+)_(<p>a**&quot;foo&quot;**</p>
+)::(foo**bar**
+)_(<p>foo<strong>bar</strong></p>
+)::(__foo bar__
+)_(<p><strong>foo bar</strong></p>
+)::(__ foo bar__
+)_(<p>__ foo bar__</p>
+)::(__
+foo bar__
+)_(<p>__
+foo bar__</p>
+)::(a__&quot;foo&quot;__
+)_(<p>a__&quot;foo&quot;__</p>
+)::(foo__bar__
+)_(<p>foo__bar__</p>
+)::(5__6__78
+)_(<p>5__6__78</p>
+)::(пристаням__стремятся__
+)_(<p>пристаням__стремятся__</p>
+)::(__foo, __bar__, baz__
+)_(<p><strong>foo, <strong>bar</strong>, baz</strong></p>
+)::(foo-__(bar)__
+)_(<p>foo-<strong>(bar)</strong></p>
+)::(**foo bar **
+)_(<p>**foo bar **</p>
+)::(**(**foo)
+)_(<p>**(**foo)</p>
+)::(*(**foo**)*
+)_(<p><em>(<strong>foo</strong>)</em></p>
+)::(**Gomphocarpus (*Gomphocarpus physocarpus*, syn.
+*Asclepias physocarpa*)**
+)_(<p><strong>Gomphocarpus (<em>Gomphocarpus physocarpus</em>, syn.
+<em>Asclepias physocarpa</em>)</strong></p>
+)::(**foo &quot;*bar*&quot; foo**
+)_(<p><strong>foo &quot;<em>bar</em>&quot; foo</strong></p>
+)::(**foo**bar
+)_(<p><strong>foo</strong>bar</p>
+)::(__foo bar __
+)_(<p>__foo bar __</p>
+)::(__(__foo)
+)_(<p>__(__foo)</p>
+)::(_(__foo__)_
+)_(<p><em>(<strong>foo</strong>)</em></p>
+)::(__foo__bar
+)_(<p>__foo__bar</p>
+)::(__пристаням__стремятся
+)_(<p>__пристаням__стремятся</p>
+)::(__foo__bar__baz__
+)_(<p><strong>foo__bar__baz</strong></p>
+)::(__(bar)__.
+)_(<p><strong>(bar)</strong>.</p>
+)::(*foo [bar](/url)*
+)_(<p><em>foo <a href="/url">bar</a></em></p>
+)::(*foo
+bar*
+)_(<p><em>foo
+bar</em></p>
+)::(_foo __bar__ baz_
+)_(<p><em>foo <strong>bar</strong> baz</em></p>
+)::(_foo _bar_ baz_
+)_(<p><em>foo <em>bar</em> baz</em></p>
+)::(__foo_ bar_
+)_(<p><em><em>foo</em> bar</em></p>
+)::(*foo *bar**
+)_(<p><em>foo <em>bar</em></em></p>
+)::(*foo **bar** baz*
+)_(<p><em>foo <strong>bar</strong> baz</em></p>
+)::(*foo**bar**baz*
+)_(<p><em>foo</em><em>bar</em><em>baz</em></p>
+)::(***foo** bar*
+)_(<p><em><strong>foo</strong> bar</em></p>
+)::(*foo **bar***
+)_(<p><em>foo <strong>bar</strong></em></p>
+)::(*foo**bar***
+)_(<p><em>foo</em><em>bar</em>**</p>
+)::(*foo **bar *baz* bim** bop*
+)_(<p><em>foo <strong>bar <em>baz</em> bim</strong> bop</em></p>
+)::(*foo [*bar*](/url)*
+)_(<p><em>foo <a href="/url"><em>bar</em></a></em></p>
+)::(** is not an empty emphasis
+)_(<p>** is not an empty emphasis</p>
+)::(**** is not an empty strong emphasis
+)_(<p>**** is not an empty strong emphasis</p>
+)::(**foo [bar](/url)**
+)_(<p><strong>foo <a href="/url">bar</a></strong></p>
+)::(**foo
+bar**
+)_(<p><strong>foo
+bar</strong></p>
+)::(__foo _bar_ baz__
+)_(<p><strong>foo <em>bar</em> baz</strong></p>
+)::(__foo __bar__ baz__
+)_(<p><strong>foo <strong>bar</strong> baz</strong></p>
+)::(____foo__ bar__
+)_(<p><strong><strong>foo</strong> bar</strong></p>
+)::(**foo **bar****
+)_(<p><strong>foo <strong>bar</strong></strong></p>
+)::(**foo *bar* baz**
+)_(<p><strong>foo <em>bar</em> baz</strong></p>
+)::(**foo*bar*baz**
+)_(<p><em><em>foo</em>bar</em>baz**</p>
+)::(***foo* bar**
+)_(<p><strong><em>foo</em> bar</strong></p>
+)::(**foo *bar***
+)_(<p><strong>foo <em>bar</em></strong></p>
+)::(**foo *bar **baz**
+bim* bop**
+)_(<p><strong>foo <em>bar <strong>baz</strong>
+bim</em> bop</strong></p>
+)::(**foo [*bar*](/url)**
+)_(<p><strong>foo <a href="/url"><em>bar</em></a></strong></p>
+)::(__ is not an empty emphasis
+)_(<p>__ is not an empty emphasis</p>
+)::(____ is not an empty strong emphasis
+)_(<p>____ is not an empty strong emphasis</p>
+)::(foo ***
+)_(<p>foo ***</p>
+)::(foo *\**
+)_(<p>foo <em>*</em></p>
+)::(foo *_*
+)_(<p>foo <em>_</em></p>
+)::(foo *****
+)_(<p>foo *****</p>
+)::(foo **\***
+)_(<p>foo <strong>*</strong></p>
+)::(foo **_**
+)_(<p>foo <strong>_</strong></p>
+)::(**foo*
+)_(<p>*<em>foo</em></p>
+)::(*foo**
+)_(<p><em>foo</em>*</p>
+)::(***foo**
+)_(<p>*<strong>foo</strong></p>
+)::(****foo*
+)_(<p>***<em>foo</em></p>
+)::(**foo***
+)_(<p><strong>foo</strong>*</p>
+)::(*foo****
+)_(<p><em>foo</em>***</p>
+)::(foo ___
+)_(<p>foo ___</p>
+)::(foo _\__
+)_(<p>foo <em>_</em></p>
+)::(foo _*_
+)_(<p>foo <em>*</em></p>
+)::(foo _____
+)_(<p>foo _____</p>
+)::(foo __\___
+)_(<p>foo <strong>_</strong></p>
+)::(foo __*__
+)_(<p>foo <strong>*</strong></p>
+)::(__foo_
+)_(<p>_<em>foo</em></p>
+)::(_foo__
+)_(<p><em>foo</em>_</p>
+)::(___foo__
+)_(<p>_<strong>foo</strong></p>
+)::(____foo_
+)_(<p>___<em>foo</em></p>
+)::(__foo___
+)_(<p><strong>foo</strong>_</p>
+)::(_foo____
+)_(<p><em>foo</em>___</p>
+)::(**foo**
+)_(<p><strong>foo</strong></p>
+)::(*_foo_*
+)_(<p><em><em>foo</em></em></p>
+)::(__foo__
+)_(<p><strong>foo</strong></p>
+)::(_*foo*_
+)_(<p><em><em>foo</em></em></p>
+)::(****foo****
+)_(<p><strong><strong>foo</strong></strong></p>
+)::(____foo____
+)_(<p><strong><strong>foo</strong></strong></p>
+)::(******foo******
+)_(<p><strong><strong><strong>foo</strong></strong></strong></p>
+)::(***foo***
+)_(<p><strong><em>foo</em></strong></p>
+)::(_____foo_____
+)_(<p><strong><strong><em>foo</em></strong></strong></p>
+)::(*foo _bar* baz_
+)_(<p><em>foo _bar</em> baz_</p>
+)::(**foo*bar**
+)_(<p><em><em>foo</em>bar</em>*</p>
+)::(*foo __bar *baz bim__ bam*
+)_(<p><em>foo <strong>bar *baz bim</strong> bam</em></p>
+)::(**foo **bar baz**
+)_(<p>**foo <strong>bar baz</strong></p>
+)::(*foo *bar baz*
+)_(<p>*foo <em>bar baz</em></p>
+)::(*[bar*](/url)
+)_(<p>*<a href="/url">bar*</a></p>
+)::(_foo [bar_](/url)
+)_(<p>_foo <a href="/url">bar_</a></p>
+)::(*&lt;img src=&quot;foo&quot; title=&quot;*&quot;/&gt;
+)_(<p>*<img src="foo" title="*"/></p>
+)::(**&lt;a href=&quot;**&quot;&gt;
+)_(<p>**<a href="**"></p>
+)::(__&lt;a href=&quot;__&quot;&gt;
+)_(<p>__<a href="__"></p>
+)::(*a `*`*
+)_(<p><em>a <code>*</code></em></p>
+)::(_a `_`_
+)_(<p><em>a <code>_</code></em></p>
+)::(**a&lt;http://foo.bar/?q=**&gt;
+)_(<p>**a<a href="http://foo.bar/?q=**">http://foo.bar/?q=**</a></p>
+)::(__a&lt;http://foo.bar/?q=__&gt;
+)_(<p>__a<a href="http://foo.bar/?q=__">http://foo.bar/?q=__</a></p>
+)::([link](/uri &quot;title&quot;)
+)_(<p><a href="/uri" title="title">link</a></p>
+)::([link](/uri)
+)_(<p><a href="/uri">link</a></p>
+)::([link]()
+)_(<p><a href="">link</a></p>
+)::([link](&lt;&gt;)
+)_(<p><a href="">link</a></p>
+)::([link](/my uri)
+)_(<p>[link](/my uri)</p>
+)::([link](&lt;/my uri&gt;)
+)_(<p><a href="/my%20uri">link</a></p>
+)::([link](foo
+bar)
+)_(<p>[link](foo
+bar)</p>
+)::([link](&lt;foo
+bar&gt;)
+)_(<p>[link](<foo
+bar>)</p>
+)::([link]((foo)and(bar))
+)_(<p><a href="(foo)and(bar)">link</a></p>
+)::([link](foo(and(bar)))
+)_(<p>[link](foo(and(bar)))</p>
+)::([link](foo(and\(bar\)))
+)_(<p><a href="foo(and(bar))">link</a></p>
+)::([link](&lt;foo(and(bar))&gt;)
+)_(<p><a href="foo(and(bar))">link</a></p>
+)::([link](foo\)\:)
+)_(<p><a href="foo):">link</a></p>
+)::([link](#fragment)
+
+[link](http://example.com#fragment)
+
+[link](http://example.com?foo=bar&amp;baz#fragment)
+)_(<p><a href="#fragment">link</a></p>
+<p><a href="http://example.com#fragment">link</a></p>
+<p><a href="http://example.com?foo=bar&amp;baz#fragment">link</a></p>
+)::([link](foo\bar)
+)_(<p><a href="foo%5Cbar">link</a></p>
+)::([link](foo%20b&amp;auml;)
+)_(<p><a href="foo%20b%C3%A4">link</a></p>
+)::([link](&quot;title&quot;)
+)_(<p><a href="%22title%22">link</a></p>
+)::([link](/url &quot;title&quot;)
+[link](/url 'title')
+[link](/url (title))
+)_(<p><a href="/url" title="title">link</a>
+<a href="/url" title="title">link</a>
+<a href="/url" title="title">link</a></p>
+)::([link](/url &quot;title \&quot;&amp;quot;&quot;)
+)_(<p><a href="/url" title="title &quot;&quot;">link</a></p>
+)::([link](/url &quot;title &quot;and&quot; title&quot;)
+)_(<p>[link](/url &quot;title &quot;and&quot; title&quot;)</p>
+)::([link](/url 'title &quot;and&quot; title')
+)_(<p><a href="/url" title="title &quot;and&quot; title">link</a></p>
+)::([link](   /uri
+  &quot;title&quot;  )
+)_(<p><a href="/uri" title="title">link</a></p>
+)::([link] (/uri)
+)_(<p>[link] (/uri)</p>
+)::([link [foo [bar]]](/uri)
+)_(<p><a href="/uri">link [foo [bar]]</a></p>
+)::([link] bar](/uri)
+)_(<p>[link] bar](/uri)</p>
+)::([link [bar](/uri)
+)_(<p>[link <a href="/uri">bar</a></p>
+)::([link \[bar](/uri)
+)_(<p><a href="/uri">link [bar</a></p>
+)::([link *foo **bar** `#`*](/uri)
+)_(<p><a href="/uri">link <em>foo <strong>bar</strong> <code>#</code></em></a></p>
+)::([![moon](moon.jpg)](/uri)
+)_(<p><a href="/uri"><img src="moon.jpg" alt="moon" /></a></p>
+)::([foo [bar](/uri)](/uri)
+)_(<p>[foo <a href="/uri">bar</a>](/uri)</p>
+)::([foo *[bar [baz](/uri)](/uri)*](/uri)
+)_(<p>[foo <em>[bar <a href="/uri">baz</a>](/uri)</em>](/uri)</p>
+)::(![[[foo](uri1)](uri2)](uri3)
+)_(<p><img src="uri3" alt="[foo](uri2)" /></p>
+)::(*[foo*](/uri)
+)_(<p>*<a href="/uri">foo*</a></p>
+)::([foo *bar](baz*)
+)_(<p><a href="baz*">foo *bar</a></p>
+)::(*foo [bar* baz]
+)_(<p><em>foo [bar</em> baz]</p>
+)::([foo &lt;bar attr=&quot;](baz)&quot;&gt;
+)_(<p>[foo <bar attr="](baz)"></p>
+)::([foo`](/uri)`
+)_(<p>[foo<code>](/uri)</code></p>
+)::([foo&lt;http://example.com/?search=](uri)&gt;
+)_(<p>[foo<a href="http://example.com/?search=%5D(uri)">http://example.com/?search=](uri)</a></p>
+)::([foo][bar]
+
+[bar]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([link [foo [bar]]][ref]
+
+[ref]: /uri
+)_(<p><a href="/uri">link [foo [bar]]</a></p>
+)::([link \[bar][ref]
+
+[ref]: /uri
+)_(<p><a href="/uri">link [bar</a></p>
+)::([link *foo **bar** `#`*][ref]
+
+[ref]: /uri
+)_(<p><a href="/uri">link <em>foo <strong>bar</strong> <code>#</code></em></a></p>
+)::([![moon](moon.jpg)][ref]
+
+[ref]: /uri
+)_(<p><a href="/uri"><img src="moon.jpg" alt="moon" /></a></p>
+)::([foo [bar](/uri)][ref]
+
+[ref]: /uri
+)_(<p>[foo <a href="/uri">bar</a>]<a href="/uri">ref</a></p>
+)::([foo *bar [baz][ref]*][ref]
+
+[ref]: /uri
+)_(<p>[foo <em>bar <a href="/uri">baz</a></em>]<a href="/uri">ref</a></p>
+)::(*[foo*][ref]
+
+[ref]: /uri
+)_(<p>*<a href="/uri">foo*</a></p>
+)::([foo *bar][ref]
+
+[ref]: /uri
+)_(<p><a href="/uri">foo *bar</a></p>
+)::([foo &lt;bar attr=&quot;][ref]&quot;&gt;
+
+[ref]: /uri
+)_(<p>[foo <bar attr="][ref]"></p>
+)::([foo`][ref]`
+
+[ref]: /uri
+)_(<p>[foo<code>][ref]</code></p>
+)::([foo&lt;http://example.com/?search=][ref]&gt;
+
+[ref]: /uri
+)_(<p>[foo<a href="http://example.com/?search=%5D%5Bref%5D">http://example.com/?search=][ref]</a></p>
+)::([foo][BaR]
+
+[bar]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([Толпой][Толпой] is a Russian word.
+
+[ТОЛПОЙ]: /url
+)_(<p><a href="/url">Толпой</a> is a Russian word.</p>
+)::([Foo
+  bar]: /url
+
+[Baz][Foo bar]
+)_(<p><a href="/url">Baz</a></p>
+)::([foo] [bar]
+
+[bar]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([foo]
+[bar]
+
+[bar]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([foo]: /url1
+
+[foo]: /url2
+
+[bar][foo]
+)_(<p><a href="/url1">bar</a></p>
+)::([bar][foo\!]
+
+[foo!]: /url
+)_(<p>[bar][foo!]</p>
+)::([foo][ref[]
+
+[ref[]: /uri
+)_(<p>[foo][ref[]</p>
+<p>[ref[]: /uri</p>
+)::([foo][ref[bar]]
+
+[ref[bar]]: /uri
+)_(<p>[foo][ref[bar]]</p>
+<p>[ref[bar]]: /uri</p>
+)::([[[foo]]]
+
+[[[foo]]]: /url
+)_(<p>[[[foo]]]</p>
+<p>[[[foo]]]: /url</p>
+)::([foo][ref\[]
+
+[ref\[]: /uri
+)_(<p><a href="/uri">foo</a></p>
+)::([]
+
+[]: /uri
+)_(<p>[]</p>
+<p>[]: /uri</p>
+)::([
+ ]
+
+[
+ ]: /uri
+)_(<p>[
+]</p>
+<p>[
+]: /uri</p>
+)::([foo][]
+
+[foo]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([*foo* bar][]
+
+[*foo* bar]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title"><em>foo</em> bar</a></p>
+)::([Foo][]
+
+[foo]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">Foo</a></p>
+)::([foo] 
+[]
+
+[foo]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">foo</a></p>
+)::([*foo* bar]
+
+[*foo* bar]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title"><em>foo</em> bar</a></p>
+)::([[*foo* bar]]
+
+[*foo* bar]: /url &quot;title&quot;
+)_(<p>[<a href="/url" title="title"><em>foo</em> bar</a>]</p>
+)::([[bar [foo]
+
+[foo]: /url
+)_(<p>[[bar <a href="/url">foo</a></p>
+)::([Foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p><a href="/url" title="title">Foo</a></p>
+)::([foo] bar
+
+[foo]: /url
+)_(<p><a href="/url">foo</a> bar</p>
+)::(\[foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p>[foo]</p>
+)::([foo*]: /url
+
+*[foo*]
+)_(<p>*<a href="/url">foo*</a></p>
+)::([foo][bar]
+
+[foo]: /url1
+[bar]: /url2
+)_(<p><a href="/url2">foo</a></p>
+)::([foo][bar][baz]
+
+[baz]: /url
+)_(<p>[foo]<a href="/url">bar</a></p>
+)::([foo][bar][baz]
+
+[baz]: /url1
+[bar]: /url2
+)_(<p><a href="/url2">foo</a><a href="/url1">baz</a></p>
+)::([foo][bar][baz]
+
+[baz]: /url1
+[foo]: /url2
+)_(<p>[foo]<a href="/url1">bar</a></p>
+)::(![foo](/url &quot;title&quot;)
+)_(<p><img src="/url" alt="foo" title="title" /></p>
+)::(![foo *bar*]
+
+[foo *bar*]: train.jpg &quot;train &amp; tracks&quot;
+)_(<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+)::(![foo ![bar](/url)](/url2)
+)_(<p><img src="/url2" alt="foo bar" /></p>
+)::(![foo [bar](/url)](/url2)
+)_(<p><img src="/url2" alt="foo bar" /></p>
+)::(![foo *bar*][]
+
+[foo *bar*]: train.jpg &quot;train &amp; tracks&quot;
+)_(<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+)::(![foo *bar*][foobar]
+
+[FOOBAR]: train.jpg &quot;train &amp; tracks&quot;
+)_(<p><img src="train.jpg" alt="foo bar" title="train &amp; tracks" /></p>
+)::(![foo](train.jpg)
+)_(<p><img src="train.jpg" alt="foo" /></p>
+)::(My ![foo bar](/path/to/train.jpg  &quot;title&quot;   )
+)_(<p>My <img src="/path/to/train.jpg" alt="foo bar" title="title" /></p>
+)::(![foo](&lt;url&gt;)
+)_(<p><img src="url" alt="foo" /></p>
+)::(![](/url)
+)_(<p><img src="/url" alt="" /></p>
+)::(![foo] [bar]
+
+[bar]: /url
+)_(<p><img src="/url" alt="foo" /></p>
+)::(![foo] [bar]
+
+[BAR]: /url
+)_(<p><img src="/url" alt="foo" /></p>
+)::(![foo][]
+
+[foo]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="foo" title="title" /></p>
+)::(![*foo* bar][]
+
+[*foo* bar]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="foo bar" title="title" /></p>
+)::(![Foo][]
+
+[foo]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="Foo" title="title" /></p>
+)::(![foo] 
+[]
+
+[foo]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="foo" title="title" /></p>
+)::(![foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="foo" title="title" /></p>
+)::(![*foo* bar]
+
+[*foo* bar]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="foo bar" title="title" /></p>
+)::(![[foo]]
+
+[[foo]]: /url &quot;title&quot;
+)_(<p>![[foo]]</p>
+<p>[[foo]]: /url &quot;title&quot;</p>
+)::(![Foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p><img src="/url" alt="Foo" title="title" /></p>
+)::(\!\[foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p>![foo]</p>
+)::(\![foo]
+
+[foo]: /url &quot;title&quot;
+)_(<p>!<a href="/url" title="title">foo</a></p>
+)::(&lt;http://foo.bar.baz&gt;
+)_(<p><a href="http://foo.bar.baz">http://foo.bar.baz</a></p>
+)::(&lt;http://foo.bar.baz/test?q=hello&amp;id=22&amp;boolean&gt;
+)_(<p><a href="http://foo.bar.baz/test?q=hello&amp;id=22&amp;boolean">http://foo.bar.baz/test?q=hello&amp;id=22&amp;boolean</a></p>
+)::(&lt;irc://foo.bar:2233/baz&gt;
+)_(<p><a href="irc://foo.bar:2233/baz">irc://foo.bar:2233/baz</a></p>
+)::(&lt;MAILTO:FOO@BAR.BAZ&gt;
+)_(<p><a href="MAILTO:FOO@BAR.BAZ">MAILTO:FOO@BAR.BAZ</a></p>
+)::(&lt;http://foo.bar/baz bim&gt;
+)_(<p>&lt;http://foo.bar/baz bim&gt;</p>
+)::(&lt;http://example.com/\[\&gt;
+)_(<p><a href="http://example.com/%5C%5B%5C">http://example.com/\[\</a></p>
+)::(&lt;foo@bar.example.com&gt;
+)_(<p><a href="mailto:foo@bar.example.com">foo@bar.example.com</a></p>
+)::(&lt;foo+special@Bar.baz-bar0.com&gt;
+)_(<p><a href="mailto:foo+special@Bar.baz-bar0.com">foo+special@Bar.baz-bar0.com</a></p>
+)::(&lt;foo\+@bar.example.com&gt;
+)_(<p>&lt;foo+@bar.example.com&gt;</p>
+)::(&lt;&gt;
+)_(<p>&lt;&gt;</p>
+)::(&lt;heck://bing.bong&gt;
+)_(<p>&lt;heck://bing.bong&gt;</p>
+)::(&lt; http://foo.bar &gt;
+)_(<p>&lt; http://foo.bar &gt;</p>
+)::(&lt;foo.bar.baz&gt;
+)_(<p>&lt;foo.bar.baz&gt;</p>
+)::(&lt;localhost:5001/foo&gt;
+)_(<p>&lt;localhost:5001/foo&gt;</p>
+)::(http://example.com
+)_(<p>http://example.com</p>
+)::(foo@bar.example.com
+)_(<p>foo@bar.example.com</p>
+)::(&lt;a&gt;&lt;bab&gt;&lt;c2c&gt;
+)_(<p><a><bab><c2c></p>
+)::(&lt;a/&gt;&lt;b2/&gt;
+)_(<p><a/><b2/></p>
+)::(&lt;a  /&gt;&lt;b2
+data=&quot;foo&quot; &gt;
+)_(<p><a  /><b2
+data="foo" ></p>
+)::(&lt;a foo=&quot;bar&quot; bam = 'baz &lt;em&gt;&quot;&lt;/em&gt;'
+_boolean zoop:33=zoop:33 /&gt;
+)_(<p><a foo="bar" bam = 'baz <em>"</em>'
+_boolean zoop:33=zoop:33 /></p>
+)::(&lt;responsive-image src=&quot;foo.jpg&quot; /&gt;
+
+&lt;My-Tag&gt;
+foo
+&lt;/My-Tag&gt;
+)_(<responsive-image src="foo.jpg" />
+<My-Tag>
+foo
+</My-Tag>
+)::(&lt;33&gt; &lt;__&gt;
+)_(<p>&lt;33&gt; &lt;__&gt;</p>
+)::(&lt;a h*#ref=&quot;hi&quot;&gt;
+)_(<p>&lt;a h*#ref=&quot;hi&quot;&gt;</p>
+)::(&lt;a href=&quot;hi'&gt; &lt;a href=hi'&gt;
+)_(<p>&lt;a href=&quot;hi'&gt; &lt;a href=hi'&gt;</p>
+)::(&lt; a&gt;&lt;
+foo&gt;&lt;bar/ &gt;
+)_(<p>&lt; a&gt;&lt;
+foo&gt;&lt;bar/ &gt;</p>
+)::(&lt;a href='bar'title=title&gt;
+)_(<p>&lt;a href='bar'title=title&gt;</p>
+)::(&lt;/a&gt;
+&lt;/foo &gt;
+)_(</a>
+</foo >
+)::(&lt;/a href=&quot;foo&quot;&gt;
+)_(<p>&lt;/a href=&quot;foo&quot;&gt;</p>
+)::(foo &lt;!-- this is a
+comment - with hyphen --&gt;
+)_(<p>foo <!-- this is a
+comment - with hyphen --></p>
+)::(foo &lt;!-- not a comment -- two hyphens --&gt;
+)_(<p>foo &lt;!-- not a comment -- two hyphens --&gt;</p>
+)::(foo &lt;!--&gt; foo --&gt;
+
+foo &lt;!-- foo---&gt;
+)_(<p>foo &lt;!--&gt; foo --&gt;</p>
+<p>foo &lt;!-- foo---&gt;</p>
+)::(foo &lt;?php echo $a; ?&gt;
+)_(<p>foo <?php echo $a; ?></p>
+)::(foo &lt;!ELEMENT br EMPTY&gt;
+)_(<p>foo <!ELEMENT br EMPTY></p>
+)::(foo &lt;![CDATA[&gt;&amp;&lt;]]&gt;
+)_(<p>foo <![CDATA[>&<]]></p>
+)::(&lt;a href=&quot;&amp;ouml;&quot;&gt;
+)_(<a href="&ouml;">
+)::(&lt;a href=&quot;\*&quot;&gt;
+)_(<a href="\*">
+)::(&lt;a href=&quot;\&quot;&quot;&gt;
+)_(<p>&lt;a href=&quot;&quot;&quot;&gt;</p>
+)::(foo  
+baz
+)_(<p>foo<br />
+baz</p>
+)::(foo\
+baz
+)_(<p>foo<br />
+baz</p>
+)::(foo       
+baz
+)_(<p>foo<br />
+baz</p>
+)::(foo  
+     bar
+)_(<p>foo<br />
+bar</p>
+)::(foo\
+     bar
+)_(<p>foo<br />
+bar</p>
+)::(*foo  
+bar*
+)_(<p><em>foo<br />
+bar</em></p>
+)::(*foo\
+bar*
+)_(<p><em>foo<br />
+bar</em></p>
+)::(`code  
+span`
+)_(<p><code>code span</code></p>
+)::(`code\
+span`
+)_(<p><code>code\ span</code></p>
+)::(&lt;a href=&quot;foo  
+bar&quot;&gt;
+)_(<p><a href="foo  
+bar"></p>
+)::(&lt;a href=&quot;foo\
+bar&quot;&gt;
+)_(<p><a href="foo\
+bar"></p>
+)::(foo\
+)_(<p>foo\</p>
+)::(foo  
+)_(<p>foo</p>
+)::(### foo\
+)_(<h3>foo\</h3>
+)::(### foo  
+)_(<h3>foo</h3>
+)::(foo
+baz
+)_(<p>foo
+baz</p>
+)::(foo 
+ baz
+)_(<p>foo
+baz</p>
+)::(hello $.;'there
+)_(<p>hello $.;'there</p>
+)::(Foo χρῆν
+)_(<p>Foo χρῆν</p>
+)::(Multiple     spaces
+)_(<p>Multiple     spaces</p>
+):

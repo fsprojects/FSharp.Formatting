@@ -77,7 +77,7 @@ let rec formatSpan (ctx:FormattingContext) = function
   | AnchorLink(id) -> ctx.Writer.Write("<a name=\"" + id + "\">&#160;</a>") 
   | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
   | Literal(str) -> ctx.Writer.Write(str)
-  | HardLineBreak -> ctx.Writer.Write("<br />")
+  | HardLineBreak -> ctx.Writer.WriteLine("<br />")
   | IndirectLink(body, _, LookupKey ctx.Links (link, title)) 
   | DirectLink(body, (link, title)) -> 
       ctx.Writer.Write("<a href=\"")

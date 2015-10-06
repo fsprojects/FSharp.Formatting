@@ -48,28 +48,9 @@ let failingTests =
     ]
 
 let rec genTestCases (dir : string) =
-    let generate (source : string) (target : string) (verify : string) = 
-        try 
-            if File.Exists(verify) then 
-                let text = File.ReadAllText(source)
-                (use wr = new StreamWriter(target)
-                Markdown.TransformHtml(text, wr, "\r\n"))
-                let contents = File.ReadAllLines(verify)
-                File.WriteAllLines(verify, contents)
-                let targetHtml = removeWhitespace(File.ReadAllText(target))
-                let verifyHtml = removeWhitespace(File.ReadAllText(verify))
-                if not <| Set.contains (Path.GetFileName(source)) failingTests then
-                    [ TestCaseData(source, target, verifyHtml, targetHtml) ]
-                else
-                    []
-            else
-                []
-        with e -> 
-            printfn " - %s (failed)\n %A" (target.Substring(dir.Length)) e
-            []
     seq {
         for file in Directory.GetFiles(dir, "*.text") do 
-            yield! generate file (Path.ChangeExtension(file, "2.html")) (Path.ChangeExtension(file, "html"))
+            yield TestCaseData(dir, file, (Path.ChangeExtension(file, "2.html")), (Path.ChangeExtension(file, "html")))
         for d in Directory.GetDirectories(dir) do
             yield! genTestCases d
     }
@@ -79,13 +60,37 @@ let testdir = __SOURCE_DIRECTORY__ ++ Path.Combine("..","..","tests","Benchmarks
 
 let getTest() = genTestCases testdir
 
+let executeTest (dir : string) (source : string) (target : string) (verify : string) =
+  try 
+    if File.Exists(verify) then
+      let text = File.ReadAllText(source)
+      (use wr = new StreamWriter(target)
+      Markdown.TransformHtml(text, wr, "\r\n"))
+      let contents = File.ReadAllLines(verify)
+      File.WriteAllLines(verify, contents)
+      let targetHtml = removeWhitespace(File.ReadAllText(target))
+      let verifyHtml = removeWhitespace(File.ReadAllText(verify))
+      if not <| Set.contains (Path.GetFileName(source)) failingTests then
+        Some (source, target, verifyHtml, targetHtml)
+      else
+        None
+    else
+      None
+  with e -> 
+    printfn " - %s (failed)\n %A" (target.Substring(dir.Length)) e
+    None
+
 [<Test>]
 [<TestCaseSource("getTest")>]
 let ``Run external test`` (actualName : string) (expectedName : string) (actual : string) (expected : string) =
+  match executeTest actualName expectedName actual expected with
+  | Some (actualName, expectedName, actual, expected) ->
     if actual = expected then File.Delete(expectedName)
-    Assert.That(actual, Is.EqualTo(expected),
-                "Mismatch between '{0}' and the transformed '{1}'.",
-                actualName, expectedName)
+    Assert.That(
+      actual, Is.EqualTo(expected),
+      "Mismatch between '{0}' and the transformed '{1}'.",
+      actualName, expectedName)
+  | None -> ()
             
 
 

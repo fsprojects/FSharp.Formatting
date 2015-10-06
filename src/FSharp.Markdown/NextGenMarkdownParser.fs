@@ -3,7 +3,7 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-module internal FSharp.Markdown.Parser
+module internal FSharp.Markdown.NextGenParser
 
 open System
 open System.IO

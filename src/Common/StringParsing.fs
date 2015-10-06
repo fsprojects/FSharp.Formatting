@@ -34,8 +34,9 @@ module String =
   /// Returns a string trimmed from the start together with 
   /// the number of skipped whitespace characters
   let (|TrimStartAndCount|) (text:string) = 
-    let trimmed = text.TrimStart()
-    text.Length - trimmed.Length, trimmed
+    let trimmed = text.TrimStart([|' '; '\t'|])
+    let len = text.Length - trimmed.Length
+    len, text.Substring(0, len).Replace("\t", "    ").Length, trimmed
 
   /// Matches when a string starts with any of the specified sub-strings
   let (|StartsWithAny|_|) (starts:seq<string>) (text:string) = 
@@ -165,9 +166,40 @@ module Lines =
     | matching, rest when matching <> [] -> Some(matching, rest)
     | _ -> None
 
+  /// Matches when there are some lines at the beginning that are 
+  /// either empty (or whitespace) or start with at least 4 spaces (a tab counts as 4 spaces here).
+  /// Returns all such lines from the beginning until a different line and 
+  /// the number of spaces the first line started with.
+  let (|TakeCodeBlock|_|) (input:string list) =
+    let spaceNum =
+      match input with
+      | h :: _ ->
+        let head = (input |> List.head).Replace("\t", "    ") |> Seq.toList
+        let spaces, _ = List.partitionWhile (fun s -> s = ' ') head
+        spaces.Length
+      | _ -> 0
+    let startsWithSpaces (s:string) =
+      let normalized = s.Replace("\t", "    ")
+      normalized.Length >= spaceNum &&
+        normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
+    match List.partitionWhile (fun s -> 
+            String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
+    | matching, rest when matching <> [] && spaceNum >= 4 ->
+      Some(spaceNum, matching, rest)
+    | _ -> None
+
   /// Removes whitespace lines from the beginning of the list
   let (|TrimBlankStart|) = List.skipWhile (String.IsNullOrWhiteSpace)
 
+  /// Trims all lines of the current paragraph
+  let (|TrimParagraphLines|) lines =
+    lines
+    // first remove all whitespace on the beginning of the line
+    |> List.map (fun (s:string) -> s.TrimStart())
+    // Now remove all additional spaces at the end, but keep two spaces if existent
+    |> List.map (fun s ->
+      let endsWithTwoSpaces = s.EndsWith("  ")
+      s.TrimEnd([|' '|]) + if endsWithTwoSpaces then "  " else "")
 
 /// Parameterized pattern that assigns the specified value to the 
 /// first component of a tuple. Usage:
