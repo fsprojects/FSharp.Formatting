@@ -35,6 +35,7 @@ module Nested =
   type DuplicatedTypeName = int
 
   /// This function returns a [FsLib.Nested.MyType] multiplied by 2.
+  /// You will notice that `FsLib.Nested.MyType` is just an `int`
   let f x :MyType = x * 2
 
   /// This function returns a [OtherType] multiplied by 3.

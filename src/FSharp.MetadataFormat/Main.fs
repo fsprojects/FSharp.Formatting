@@ -569,7 +569,8 @@ module Reader =
   /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
     match span with
-    | IndirectLink(_, _, key) -> yield key
+    | IndirectLink _ -> yield span
+    | InlineCode _ -> yield span
     | Matching.SpanLeaf _ -> ()
     | Matching.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanIndirectLinks s }

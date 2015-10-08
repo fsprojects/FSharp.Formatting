@@ -479,3 +479,7 @@ let ``Link to other types``() =
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
   files.["fslib-nested.html"] |> should contain "This function returns a [InexistentTypeName] multiplied by 5."
+
+  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is"
+
+  files.["fslib-nested.html"]
