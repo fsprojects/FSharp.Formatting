@@ -285,7 +285,7 @@ let (|HorizontalRule|_|) (line:string) =
   loop (0, 0, 0) 0
 
 /// Recognizes a code block - lines starting with four spaces (including blank)
-let (|CodeBlock|_|) = function
+let (|NestedCodeBlock|_|) = function
   | Lines.TakeStartingWithOrBlank "    " (Lines.TrimBlank lines, rest) when lines <> [] -> 
       let code =
         [ for l in lines -> 
@@ -293,6 +293,10 @@ let (|CodeBlock|_|) = function
             elif l.Length > 4 then l.Substring(4, l.Length - 4) 
             else l ]
       Some((if rest.IsEmpty then code else code @ [""]), rest, "", "")
+  | _ -> None
+
+/// Recognizes a fenced code block - starting and ending with ```
+let (|FencedCodeBlock|_|) = function
   | String.StartsWithTrim "```" header :: lines -> 
       let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
       // langString is the part after ``` and ignoredString is the rest until the line ends.
@@ -508,6 +512,7 @@ let (|BlockquoteStart|_|) (line:string) =
 let (|TakeParagraphLines|_|) input = 
   match List.partitionWhileLookahead (function
     | Heading _ -> false
+    | FencedCodeBlock _ -> false
     | BlockquoteStart _::_ -> false
     | String.WhiteSpace::_ -> false
     | _ -> true) input with
@@ -565,7 +570,8 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
   | LinkDefinition ((key, link), Lines.TrimBlankStart lines) ->
       ctx.Links.Add(key, getLinkAndTitle link)
       yield! parseParagraphs ctx lines
-  | CodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
+  | NestedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine)
+  | FencedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
       yield CodeBlock(code |> String.concat ctx.Newline, langString, ignoredLine)
       yield! parseParagraphs ctx lines 
   | Blockquote(body, Lines.TrimBlankStart rest) ->
