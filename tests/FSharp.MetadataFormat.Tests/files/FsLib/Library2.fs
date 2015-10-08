@@ -4,14 +4,14 @@ namespace FsLib
 type DuplicatedTypeName = int
 
 /// Sample class
-type Class() =
+type Class() = 
   /// Readonly int property
   member x.Member = 0
 
 /// Nested module
-module Nested =
+module Nested = 
   /// Somewhat nested module
-  module Submodule =
+  module Submodule = 
     /// Very nested field
     let supernested = 42
 
@@ -21,7 +21,7 @@ module Nested =
       member x.Member = ""
 
   /// Somewhat nested type
-  type NestedType() =
+  type NestedType() = 
     /// Very nested member
     member x.Member = ""
 
@@ -54,7 +54,7 @@ type Test_Issue229 (name) =
 
     interface ITest_Issue229 with
         /// interface comment
-        member x.Name = name
+        member x.Name = name  
 
 type Test_Issue287 () =
   /// Function Foo!
