@@ -485,4 +485,19 @@ let ``Metadata generates cross-type links``() =
   // -------------------Inline code----------------------------------
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is"
+  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
+
+    // Check that a link to MyType exists when using Full Name of the type in a inline code
+  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "<code>DuplicatedTypeName</code> is duplicated so it should no add a cross-type link"
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
+
+  // Check that a link to a module is created when using Logical Name only
+  files.["fslib-duplicatedtypename.html"] |> should contain "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
+
+  // Check that a link to a type with a duplicated name is created when using full name
+  files.["fslib-nested-duplicatedtypename.html"] |> should contain "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
