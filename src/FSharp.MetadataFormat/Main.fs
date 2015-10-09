@@ -569,8 +569,7 @@ module Reader =
   /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
     match span with
-    | IndirectLink _ -> yield span
-    | InlineCode _ -> yield span
+    | IndirectLink (_, _, key) -> yield key
     | Matching.SpanLeaf _ -> ()
     | Matching.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanIndirectLinks s }
@@ -599,20 +598,40 @@ module Reader =
     | Some cRef -> if cRef.IsInternal then Some (undefinedLink, cRef) else None
     | None -> None
 
-  /// Ads a link to a Type to the document defined links
+  /// Adds a cross-type link to the document defined links
   let addLinkToType (doc: LiterateDocument) link =
     match link with
-    | Some(k, v) -> doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName)) |> ignore
+    | Some(k, v) -> do doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName))
     | None -> ()
 
-  /// Adds the missiing links to types to the document defined links
+  /// Wraps the span inside an `IndirectLink` if it is an inline code that can be converted to a link
+  let wrapInlineCodeLinksInSpans (ctx:ReadingContext) span =
+    match span with
+    | InlineCode(code) ->  
+        match getTypeLink ctx code with
+        | Some _ -> IndirectLink([span], code, code)
+        | None -> span
+    | _ -> span
+
+  /// Wraps inside an `IndirectLink` all inline code spans in the paragraph that can be converted to a link
+  let rec wrapInlineCodeLinksInParagraphs (ctx:ReadingContext) (para:MarkdownParagraph) =
+    match para with
+    | Matching.ParagraphLeaf _ -> para
+    | Matching.ParagraphNested(info, pars) ->
+        Matching.ParagraphNested(info, pars |> List.map (fun innerPars -> List.map (wrapInlineCodeLinksInParagraphs ctx) innerPars))
+    | Matching.ParagraphSpans(info, spans) -> Matching.ParagraphSpans(info, List.map (wrapInlineCodeLinksInSpans ctx) spans)
+
+  /// Adds the missing links to types to the document defined links
   let addMissingLinkToTypes ctx (doc: LiterateDocument) =
-    doc.Paragraphs
-      |> Seq.collect collectParagraphIndirectLinks
-      |> Seq.filter (linkNotDefined doc)
-      |> Seq.map (getTypeLink ctx)
-      |> Seq.iter (addLinkToType doc)
-    doc
+    let replacedParagraphs = doc.Paragraphs |> List.map (wrapInlineCodeLinksInParagraphs ctx)
+
+    do replacedParagraphs
+    |> Seq.collect collectParagraphIndirectLinks
+    |> Seq.filter (linkNotDefined doc)
+    |> Seq.map (getTypeLink ctx)
+    |> Seq.iter (addLinkToType doc)
+    
+    LiterateDocument(replacedParagraphs, doc.FormattedTips, doc.DefinedLinks, doc.Source, doc.SourceFile, doc.Errors)
 
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
