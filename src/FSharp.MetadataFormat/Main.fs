@@ -566,6 +566,73 @@ module Reader =
    let str = full.ToString()
    Comment.Create(str, str, [KeyValuePair("<default>", str)])
 
+  /// Returns all indirect links in a specified span node
+  let rec collectSpanIndirectLinks span = seq {
+    match span with
+    | IndirectLink (_, _, key) -> yield key
+    | Matching.SpanLeaf _ -> ()
+    | Matching.SpanNode(_, spans) ->
+      for s in spans do yield! collectSpanIndirectLinks s }
+
+  /// Returns all indirect links in the specified paragraph node
+  let rec collectParagraphIndirectLinks par = seq {
+    match par with
+    | Matching.ParagraphLeaf _ -> ()
+    | Matching.ParagraphNested(_, pars) ->
+      for ps in pars do
+        for p in ps do yield! collectParagraphIndirectLinks p
+    | Matching.ParagraphSpans(_, spans) ->
+      for s in spans do yield! collectSpanIndirectLinks s }
+
+  /// Returns whether the link is not included in the document defined links
+  let linkNotDefined (doc: LiterateDocument) (link:string) =
+    [ link; link.Replace("\r\n", ""); link.Replace("\r\n", " ");
+      link.Replace("\n", ""); link.Replace("\n", " ") ]
+    |> Seq.map (fun key -> not(doc.DefinedLinks.ContainsKey(key)) )
+    |> Seq.reduce (fun a c -> a && c)
+
+  /// Returns a tuple of the undefined link and its Cref if it exists
+  let getTypeLink (ctx:ReadingContext) undefinedLink =
+    // Append 'T:' to try to get the link from urlmap
+    match ctx.UrlMap.ResolveCref ("T:" + undefinedLink) with
+    | Some cRef -> if cRef.IsInternal then Some (undefinedLink, cRef) else None
+    | None -> None
+
+  /// Adds a cross-type link to the document defined links
+  let addLinkToType (doc: LiterateDocument) link =
+    match link with
+    | Some(k, v) -> do doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName))
+    | None -> ()
+
+  /// Wraps the span inside an `IndirectLink` if it is an inline code that can be converted to a link
+  let wrapInlineCodeLinksInSpans (ctx:ReadingContext) span =
+    match span with
+    | InlineCode(code) ->  
+        match getTypeLink ctx code with
+        | Some _ -> IndirectLink([span], code, code)
+        | None -> span
+    | _ -> span
+
+  /// Wraps inside an `IndirectLink` all inline code spans in the paragraph that can be converted to a link
+  let rec wrapInlineCodeLinksInParagraphs (ctx:ReadingContext) (para:MarkdownParagraph) =
+    match para with
+    | Matching.ParagraphLeaf _ -> para
+    | Matching.ParagraphNested(info, pars) ->
+        Matching.ParagraphNested(info, pars |> List.map (fun innerPars -> List.map (wrapInlineCodeLinksInParagraphs ctx) innerPars))
+    | Matching.ParagraphSpans(info, spans) -> Matching.ParagraphSpans(info, List.map (wrapInlineCodeLinksInSpans ctx) spans)
+
+  /// Adds the missing links to types to the document defined links
+  let addMissingLinkToTypes ctx (doc: LiterateDocument) =
+    let replacedParagraphs = doc.Paragraphs |> List.map (wrapInlineCodeLinksInParagraphs ctx)
+
+    do replacedParagraphs
+    |> Seq.collect collectParagraphIndirectLinks
+    |> Seq.filter (linkNotDefined doc)
+    |> Seq.map (getTypeLink ctx)
+    |> Seq.iter (addLinkToType doc)
+    
+    LiterateDocument(replacedParagraphs, doc.FormattedTips, doc.DefinedLinks, doc.Source, doc.SourceFile, doc.Errors)
+
   let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
     match ctx.XmlMemberLookup(xmlSig) with 
     | None -> 
@@ -597,6 +664,7 @@ module Reader =
               Literate.ParseMarkdownString
                 ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
                   formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
+                |> (addMissingLinkToTypes ctx)
             cmds :> IDictionary<_, _>, readMarkdownComment doc
           else
             lines 
@@ -693,6 +761,7 @@ module Reader =
     let usedNames = Dictionary<_, _>()
     let registeredEntities = Dictionary<_, _>()
     let entityLookup = Dictionary<_, _>()
+    let niceNameEntityLookup = Dictionary<_, _>()
     let nameGen (name:string) =
       let nice = (toReplace
                   |> Seq.fold (fun (s:string) (inv, repl) -> s.Replace(inv, repl)) name)
@@ -710,6 +779,9 @@ module Reader =
         if (not (System.String.IsNullOrEmpty xmlsig)) then
             assert (xmlsig.StartsWith("T:"))
             entityLookup.[xmlsig.Substring(2)] <- entity
+            if (not(niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
+                niceNameEntityLookup.[entity.LogicalName] <- List<_>()
+            niceNameEntityLookup.[entity.LogicalName].Add(entity)
         for nested in entity.NestedEntities do registerEntity nested
 
     let getUrl (entity:FSharpEntity) =
@@ -738,7 +810,16 @@ module Reader =
         match entityLookup.TryGetValue(typeName) with
         | true, entity -> 
             Some { IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entity); NiceName = entity.LogicalName }
-        | _ -> None
+        | _ -> 
+            match niceNameEntityLookup.TryGetValue(typeName) with
+            | true, entityList ->
+                if entityList.Count = 1 then
+                    Some{ IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entityList.[0]); NiceName = entityList.[0].LogicalName }
+                else
+                    if entityList.Count > 1 then
+                        do Log.warnf "Duplicate types found for the simple name: %s" typeName
+                    None
+            | _ -> None
 
     let resolveCref (cref:string) = 
         if (cref.Length <= 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
