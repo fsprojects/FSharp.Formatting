@@ -813,7 +813,12 @@ module Reader =
         | _ -> 
             match niceNameEntityLookup.TryGetValue(typeName) with
             | true, entityList ->
-                if entityList.Count = 1 then Some{ IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entityList.[0]); NiceName = entityList.[0].LogicalName } else None
+                if entityList.Count = 1 then
+                    Some{ IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entityList.[0]); NiceName = entityList.[0].LogicalName }
+                else
+                    if entityList.Count > 1 then
+                        do Log.warnf "Duplicate types found for the simple name: %s" typeName
+                    None
             | _ -> None
 
     let resolveCref (cref:string) = 
