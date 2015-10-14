@@ -52,6 +52,55 @@ MetadataFormat.Generate
     sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting" )
     
+
+(**
+Adding cross-type links to modules and types in the same assembly
+-----------------
+You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
+You can do this in two different ways:
+* Add a [markdown inline link](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links) were the link
+title is the name of the type you want to link.
+
+
+     /// this will generate a link to [Foo.Bar] documentation
+
+
+* Add a [Markdown inlide code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code) (using
+back-ticks) where the code is the name of the type you want to link.
+
+
+     /// This will also generate a link to `Foo.Bar` documentation
+
+
+You can use either the full name (including namespace and module) or the simple name of a type.
+If more than one type is found with the same name the link will not be generated.
+If a type with the given name is not found in the same assembly the link will not be generated.
+*)
+
+/// Contains two types [Bar] and [Foo.Baz]
+module Foo = 
+    
+    /// Bar is just an `int` and belongs to module [Foo]
+    type Bar = int
+    
+    /// Baz contains a `Foo.Bar` as its `id`
+    type Baz = { id: Bar }
+
+    /// This function operates on `Baz` types.
+    let f (b:Baz) = 
+        b.id * 42
+
+/// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`
+module Foo2 =
+    
+    /// This is not the same type as `Foo.Bar`
+    type Bar = double
+
+    /// Using the simple name for [Bar] will fail to create a link because the name is duplicated in 
+    /// [Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.
+    let f2 b =
+         b * 50
+
 (**
 Excluding APIs from the docs
 -----------------
