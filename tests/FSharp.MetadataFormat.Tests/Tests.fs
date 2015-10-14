@@ -454,15 +454,14 @@ let ``MetadataFormat test FsLib1``() =
       dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.ContainsKey "fslib-test_omit.html" |> should equal false
 
+// -------------------Indirect links----------------------------------
 [<Test>]
-let ``Metadata generates cross-type links``() =
+let ``Metadata generates cross-type links for Indirect Links``() =
   let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
   let output = getOutputDir()
   MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-
-  // -------------------Indirect links----------------------------------
 
   // Check that a link to MyType exists when using Full Name of the type
   files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
@@ -483,6 +482,12 @@ let ``Metadata generates cross-type links``() =
   files.["fslib-nested.html"] |> should contain "This function returns a [InexistentTypeName] multiplied by 5."
 
   // -------------------Inline code----------------------------------
+let ``Metadata generates cross-type links for Inline Code``() =
+  let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
   files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
