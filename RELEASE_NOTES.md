@@ -1,5 +1,5 @@
 ## 2.12.0 (18 October, 2015)
- - Update dependencies to be compatible with FSharp.Compiler.Service >=1.4.3
+ - Update dependencies to be compatible with FSharp.Compiler.Service >=1.4.0.3
 
 ## 2.11.1-alpha1 (14 October, 2015)
  - Adds methods for cross-type links #330 (https://github.com/tpetricek/FSharp.Formatting/pull/330)
