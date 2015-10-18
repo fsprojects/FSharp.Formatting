@@ -1,3 +1,6 @@
+## 2.11.1-alpha1 (14 October, 2015)
+ - Adds methods for cross-type links #330 (https://github.com/tpetricek/FSharp.Formatting/pull/330)
+
 ## 2.11.0 (28 September, 2015)
  - Fix https://github.com/tpetricek/FSharp.Formatting/issues/271
  - Don't fail as long as we can recover / continue.
