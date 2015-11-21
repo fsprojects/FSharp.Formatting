@@ -49,7 +49,8 @@ let bundledFiles =
   |> List.map (fun f -> 
       __SOURCE_DIRECTORY__ @@ sprintf "../../bin/%s" f, 
       __SOURCE_DIRECTORY__ @@ sprintf "../../packages/FSharp.Formatting/lib/net40/%s" f)
-for source, dest in bundledFiles do File.Copy(source, dest, true)
+for source, dest in bundledFiles do try File.Copy(source, dest, true) with e -> printfn "Could not copy %s to %s" source dest
+
 #load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
 open FSharp.Literate
