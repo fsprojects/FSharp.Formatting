@@ -256,10 +256,33 @@ let buildDocumentationTarget fsiargs target =
         failwith "generating reference documentation failed"
     ()
 
+let bootStrapDocumentationFiles () =
+    // This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
+    // If you came here from the nuspec file add your file.
+    // If you add files here to make the CI happy add those files to the .nuspec file as well
+    // TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
+    ensureDirectory (__SOURCE_DIRECTORY__ @@ "packages/FSharp.Formatting/lib/net40")
+    let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
+                       "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
+                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll" ]
+    let bundledFiles =
+        buildFiles
+        |> List.map (fun f -> 
+            __SOURCE_DIRECTORY__ @@ sprintf "bin/%s" f, 
+            __SOURCE_DIRECTORY__ @@ sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
+        |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
+    for source, dest in bundledFiles do
+        try
+            printfn "Copying %s to %s" source dest
+            File.Copy(source, dest, true)
+        with e -> printfn "Could not copy %s to %s, because %s" source dest e.Message
+
 Target "GenerateDocs" (fun _ ->
+    bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
       
 Target "WatchDocs" (fun _ ->
+    bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:WATCH" "Default")
 
 // --------------------------------------------------------------------------------------

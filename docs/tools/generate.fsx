@@ -36,21 +36,6 @@ open System.IO
 open Fake
 open Fake.FileHelper
 
-// This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
-// If you came here from the nuspec file add your file.
-// If you add files here to make the CI happy add those files to the .nuspec file as well
-// TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
-ensureDirectory (__SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/lib/net40")
-let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
-                   "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                   "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll" ]
-let bundledFiles =
-  buildFiles
-  |> List.map (fun f -> 
-      __SOURCE_DIRECTORY__ @@ sprintf "../../bin/%s" f, 
-      __SOURCE_DIRECTORY__ @@ sprintf "../../packages/FSharp.Formatting/lib/net40/%s" f)
-for source, dest in bundledFiles do try File.Copy(source, dest, true) with e -> printfn "Could not copy %s to %s" source dest
-
 #load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
 open FSharp.Literate
