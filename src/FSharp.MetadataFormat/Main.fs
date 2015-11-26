@@ -705,10 +705,11 @@ module Reader =
                     cmds.Add(k, v)
                     false
                 | _ -> true)) |> String.concat "\n"
-          let doc =
-            Literate.ParseMarkdownString
-              ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
-                formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
+          let doc = 
+              Literate.ParseMarkdownString
+                ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
+                  formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
+                |> (addMissingLinkToTypes ctx)
           cmds :> IDictionary<_, _>, readMarkdownComment doc
         else
           let cmds = new System.Collections.Generic.Dictionary<_, _>()
