@@ -616,7 +616,6 @@ module Reader =
    let str = full.ToString()
    Comment.Create(str, str, [KeyValuePair("<default>", str)])
 
-<<<<<<< HEAD
   /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
     match span with
@@ -684,14 +683,9 @@ module Reader =
     
     LiterateDocument(replacedParagraphs, doc.FormattedTips, doc.DefinedLinks, doc.Source, doc.SourceFile, doc.Errors)
 
-  let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
-    match ctx.XmlMemberLookup(xmlSig) with 
-    | None -> 
-=======
   let readCommentAndCommands (ctx:ReadingContext) xmlSig =
     match ctx.XmlMemberLookup(xmlSig) with
     | None ->
->>>>>>> origin/master
         if not (System.String.IsNullOrEmpty xmlSig) then
             Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
         dict[], Comment.Empty
@@ -701,7 +695,6 @@ module Reader =
           let value = if sum = null then el.Value else sum.Value
           let lines = removeSpaces value
           let cmds = new System.Collections.Generic.Dictionary<_, _>()
-<<<<<<< HEAD
           let findCommand = (function
                 | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
                     Some (k, v)
@@ -712,14 +705,6 @@ module Reader =
                     cmds.Add(k, v)
                     false
                 | _ -> true)) |> String.concat "\n"
-=======
-          let text =
-            lines |> Seq.filter (function
-              | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) ->
-                  cmds.Add(k, v)
-                  false
-              | _ -> true) |> String.concat "\n"
->>>>>>> origin/master
           let doc =
             Literate.ParseMarkdownString
               ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
