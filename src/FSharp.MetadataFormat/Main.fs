@@ -526,13 +526,21 @@ module Reader =
           KeyValuePair(k, html) ]
     Comment.Create(blurb, full, sections)
 
-  let readXmlComment (urlMap : IUrlHolder) (doc : XElement) =
+  let findCommand = (function
+    | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
+        Some (k, v)
+    | _ -> None)
+
+  let readXmlComment (urlMap : IUrlHolder) (doc : XElement) (cmds: IDictionary<_, _>)=
 
    let full = new StringBuilder()
    let rec readElement (e : XElement) =
      Seq.iter (fun (x : XNode) ->
       if x.NodeType = XmlNodeType.Text then
-       full.Append((x :?> XText).Value) |> ignore
+       let text = (x :?> XText).Value
+       match findCommand text with
+       | Some (k,v) -> cmds.Add(k,v)
+       | None -> full.Append(text) |> ignore
       elif x.NodeType = XmlNodeType.Element then
         let elem = x :?> XElement
         match elem.Name.LocalName with
@@ -690,15 +698,11 @@ module Reader =
             Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
         dict[], Comment.Empty
     | Some el ->
+        let cmds = new System.Collections.Generic.Dictionary<_, _>()
         if ctx.MarkdownComments then
           let sum = el.Element(XName.Get "summary")
           let value = if sum = null then el.Value else sum.Value
           let lines = removeSpaces value
-          let cmds = new System.Collections.Generic.Dictionary<_, _>()
-          let findCommand = (function
-                | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
-                    Some (k, v)
-                | _ -> None)
           let text =
             lines |> Seq.filter (findCommand >> (function
                 | Some (k, v) -> 
@@ -712,8 +716,7 @@ module Reader =
                 |> (addMissingLinkToTypes ctx)
           cmds :> IDictionary<_, _>, readMarkdownComment doc
         else
-          let cmds = new System.Collections.Generic.Dictionary<_, _>()
-          cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap el
+          cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap el cmds
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
