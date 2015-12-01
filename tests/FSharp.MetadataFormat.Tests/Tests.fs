@@ -428,7 +428,6 @@ open System.Diagnostics
 open FSharp.Formatting.Common
 
 [<Test>]
-[<Ignore("Test thesis is incorrect")>]
 let ``MetadataFormat omit works without markdown``() =
   let binDir = root @@ "files/FsLib/bin/Debug"
   let library = binDir @@ "FsLib2.dll"
