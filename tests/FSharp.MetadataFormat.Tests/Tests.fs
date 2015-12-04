@@ -1,4 +1,4 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 #I "../../bin"
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Compiler.Service.dll"
@@ -453,3 +453,56 @@ let ``MetadataFormat test FsLib1``() =
   let files =
       dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.ContainsKey "fslib-test_omit.html" |> should equal false
+
+// -------------------Indirect links----------------------------------
+[<Test>]
+let ``Metadata generates cross-type links for Indirect Links``() =
+  let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // Check that a link to MyType exists when using Full Name of the type
+  files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
+
+  // Check that a link to OtherType exists when using Logical Name of the type only
+  files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
+
+  // Check that a link to a module is created when using Logical Name only
+  files.["fslib-duplicatedtypename.html"] |> should contain "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\">Nested</a>"
+
+  // Check that a link to a type with a duplicated name is created when using full name
+  files.["fslib-nested-duplicatedtypename.html"] |> should contain "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "This function returns a [DuplicatedTypeName] multiplied by 4."
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "This function returns a [InexistentTypeName] multiplied by 5."
+
+  // -------------------Inline code----------------------------------
+let ``Metadata generates cross-type links for Inline Code``() =
+  let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
+  let output = getOutputDir()
+  MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
+  let fileNames = Directory.GetFiles(output)
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  // Check that a link to MyType exists when using Full Name of the type in a inline code
+  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
+
+    // Check that a link to MyType exists when using Full Name of the type in a inline code
+  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "<code>DuplicatedTypeName</code> is duplicated so it should no add a cross-type link"
+
+  // Check that a link to a type with a duplicated name is not created when using Logical name only
+  files.["fslib-nested.html"] |> should contain "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
+
+  // Check that a link to a module is created when using Logical Name only
+  files.["fslib-duplicatedtypename.html"] |> should contain "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
+
+  // Check that a link to a type with a duplicated name is created when using full name
+  files.["fslib-nested-duplicatedtypename.html"] |> should contain "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"

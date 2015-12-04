@@ -244,6 +244,12 @@ let ``Transform github flavored code blocks with whitespace correctly``() =
     |> shouldEqual expected
 
 [<Test>]
+let ``Fenced code blocks do not require newline`` () =
+    let doc = "> This is an annnotation\r\n> ```vb\r\n> Module\r\n> ```"
+    let actual = Markdown.TransformHtml(doc)
+    actual |> should contain "<pre"
+
+[<Test>]
 let ``Transform code spans correctly``() =
     let doc = "HTML contains the `<blink>` tag";
     let expected = "<p>HTML contains the <code>&lt;blink&gt;</code> tag</p>\r\n" |> properNewLines;

@@ -204,7 +204,7 @@ Target "NuGet" (fun _ ->
             Publish = hasBuildParam "nugetkey"
             Dependencies =
                 [ "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireExactly
-                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> sprintf "[%s,1.3]" ] })
+                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireExactly ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p ->
         { p with
@@ -225,13 +225,65 @@ Target "NuGet" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
+let fakePath = "packages" @@ "FAKE" @@ "tools" @@ "FAKE.exe"
+let fakeStartInfo script workingDirectory args fsiargs environmentVars =
+    (fun (info: System.Diagnostics.ProcessStartInfo) ->
+        info.FileName <- System.IO.Path.GetFullPath fakePath
+        info.Arguments <- sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
+        info.WorkingDirectory <- workingDirectory
+        let setVar k v =
+            info.EnvironmentVariables.[k] <- v
+        for (k, v) in environmentVars do
+            setVar k v
+        setVar "MSBuild" msBuildExe
+        setVar "GIT" Git.CommandHelper.gitPath
+        setVar "FSI" fsiPath)
+
+/// Run the given buildscript with FAKE.exe
+let executeFAKEWithOutput workingDirectory script fsiargs envArgs =
+    let exitCode =
+        ExecProcessWithLambdas
+            (fakeStartInfo script workingDirectory "" fsiargs envArgs)
+            TimeSpan.MaxValue false ignore ignore
+    System.Threading.Thread.Sleep 1000
+    exitCode
+
+// Documentation
+let buildDocumentationTarget fsiargs target =
+    trace (sprintf "Building documentation (%s), this could take some time, please wait..." target)
+    let exit = executeFAKEWithOutput "docs/tools" "generate.fsx" fsiargs ["target", target]
+    if exit <> 0 then
+        failwith "generating reference documentation failed"
+    ()
+
+let bootStrapDocumentationFiles () =
+    // This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
+    // If you came here from the nuspec file add your file.
+    // If you add files here to make the CI happy add those files to the .nuspec file as well
+    // TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
+    ensureDirectory (__SOURCE_DIRECTORY__ @@ "packages/FSharp.Formatting/lib/net40")
+    let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
+                       "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
+                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll" ]
+    let bundledFiles =
+        buildFiles
+        |> List.map (fun f -> 
+            __SOURCE_DIRECTORY__ @@ sprintf "bin/%s" f, 
+            __SOURCE_DIRECTORY__ @@ sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
+        |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
+    for source, dest in bundledFiles do
+        try
+            printfn "Copying %s to %s" source dest
+            File.Copy(source, dest, true)
+        with e -> printfn "Could not copy %s to %s, because %s" source dest e.Message
+
 Target "GenerateDocs" (fun _ ->
-    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:REFERENCE"; "--define:HELP"] [] then
-      failwith "generating reference documentation failed")
+    bootStrapDocumentationFiles ()
+    buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
       
 Target "WatchDocs" (fun _ ->
-    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:WATCH"] [] then
-      failwith "generating reference documentation failed")
+    bootStrapDocumentationFiles ()
+    buildDocumentationTarget "--define:WATCH" "Default")
 
 // --------------------------------------------------------------------------------------
 // Release Scripts

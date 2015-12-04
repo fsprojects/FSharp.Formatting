@@ -1,4 +1,8 @@
-﻿namespace FsLib
+namespace FsLib
+
+/// This type name will be duplicated in [Nested]
+/// This type name will be duplicated in `Nested`
+type DuplicatedTypeName = int
 
 /// Sample class
 type Class() = 
@@ -21,6 +25,32 @@ module Nested =
   type NestedType() = 
     /// Very nested member
     member x.Member = ""
+
+  /// This is My type
+  type MyType = int
+
+  /// This is other type
+  type OtherType = int
+
+  /// This type has the same name as [FsLib.DuplicatedTypeName]
+  /// This type has the same name as `FsLib.DuplicatedTypeName`
+  type DuplicatedTypeName = int
+
+  /// This function returns a [FsLib.Nested.MyType] multiplied by 2.
+  /// You will notice that `FsLib.Nested.MyType` is just an `int`
+  let f x :MyType = x * 2
+
+  /// This function returns a [OtherType] multiplied by 3.
+  /// You will notice that `OtherType` is just an `int`
+  let f2 x :OtherType = x * 3
+
+  /// This function returns a [DuplicatedTypeName] multiplied by 4.
+  /// `DuplicatedTypeName` is duplicated so it should no add a cross-type link
+  let f3 x :OtherType = x * 4
+
+  /// This function returns a [InexistentTypeName] multiplied by 5.
+  /// `InexistentTypeName` does not exists so it should no add a cross-type link
+  let f4 x :OtherType = x * 5
 
 type ITest_Issue229 = abstract member Name : string
 
