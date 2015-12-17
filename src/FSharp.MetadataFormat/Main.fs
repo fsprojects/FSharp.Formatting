@@ -698,25 +698,34 @@ module Reader =
             Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
         dict[], Comment.Empty
     | Some el ->
-        let cmds = new System.Collections.Generic.Dictionary<_, _>()
-        if ctx.MarkdownComments then
-          let sum = el.Element(XName.Get "summary")
-          let value = if sum = null then el.Value else sum.Value
-          let lines = removeSpaces value
-          let text =
-            lines |> Seq.filter (findCommand >> (function
-                | Some (k, v) -> 
-                    cmds.Add(k, v)
-                    false
-                | _ -> true)) |> String.concat "\n"
-          let doc = 
-              Literate.ParseMarkdownString
-                ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
-                  formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
-                |> (addMissingLinkToTypes ctx)
-          cmds :> IDictionary<_, _>, readMarkdownComment doc
-        else
-          cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap el cmds
+        let sum = el.Element(XName.Get "summary")
+        match sum with
+        | null when String.IsNullOrEmpty el.Value ->
+          dict[], Comment.Empty
+        | null ->
+          dict[], (Comment.Create ("", el.Value, []))
+        | sum ->
+          let lines = removeSpaces sum.Value
+          let cmds = new System.Collections.Generic.Dictionary<_, _>()
+
+          if ctx.MarkdownComments then
+            let text =
+              lines |> Seq.filter (findCommand >> (function
+                  | Some (k, v) ->
+                      cmds.Add(k, v)
+                      false
+                  | _ -> true)) |> String.concat "\n"
+            let doc =
+                Literate.ParseMarkdownString
+                  ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
+                    formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
+                  |> (addMissingLinkToTypes ctx)
+            cmds :> IDictionary<_, _>, readMarkdownComment doc
+          else
+            lines
+              |> Seq.choose findCommand
+              |> Seq.iter (fun (k, v) -> cmds.Add(k,v))
+            cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap el cmds
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
