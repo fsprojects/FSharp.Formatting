@@ -526,41 +526,99 @@ module Reader =
           KeyValuePair(k, html) ]
     Comment.Create(blurb, full, sections)
 
-  let readXmlComment (urlMap : IUrlHolder) (doc : XElement) = 
-   
+  let findCommand = (function
+    | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
+        Some (k, v)
+    | _ -> None)
+
+  let readXmlComment (urlMap : IUrlHolder) (doc : XElement) (cmds: IDictionary<_, _>)=
+
    let full = new StringBuilder()
-   let readElement (e : XElement) = 
-     Seq.iter (fun (x : XNode) -> 
-      if x.NodeType = XmlNodeType.Text then 
-       full.Append((x :?> XText).Value) |> ignore
+   let rec readElement (e : XElement) =
+     Seq.iter (fun (x : XNode) ->
+      if x.NodeType = XmlNodeType.Text then
+       let text = (x :?> XText).Value
+       match findCommand text with
+       | Some (k,v) -> cmds.Add(k,v)
+       | None -> full.Append(text) |> ignore
       elif x.NodeType = XmlNodeType.Element then
         let elem = x :?> XElement
-        if elem.Name.LocalName = "see" || elem.Name.LocalName = "seealso" then
-         let cref = elem.Attribute(XName.Get "cref")
-         if cref <> null then
-          if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-            failwithf "Invalid cref specified in: %A" doc
-          match urlMap.ResolveCref cref.Value with
-          | Some (reference) ->
+        match elem.Name.LocalName with
+        | "list" ->
+          full.Append("<ul>") |> ignore
+          readElement elem
+          full.Append("</ul>") |> ignore
+        | "item" ->
+          full.Append("<li>") |> ignore
+          full.Append(elem.Value) |> ignore
+          full.Append("</li>") |> ignore
+        | "para" ->
+          full.Append("<p class='para'>") |> ignore
+          full.Append(elem.Value) |> ignore
+          full.Append("</p>") |> ignore
+        | "see"
+        | "seealso" ->
+           let cref = elem.Attribute(XName.Get "cref")
+           if cref <> null then
+            if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+              failwithf "Invalid cref specified in: %A" doc
+            match urlMap.ResolveCref cref.Value with
+            | Some (reference) ->
               full.AppendFormat("<a href=\"{0}\">{1}</a>", reference.ReferenceLink, reference.NiceName) |> ignore
-          | _ ->
+            | _ ->
               full.AppendFormat("UNRESOLVED({0})", cref.Value) |> ignore
+        | _ ->
+          ()
        ) (e.Nodes())
    readElement doc
    full.Append("</br>") |> ignore
 
-   let paras = doc.Descendants(XName.Get("para"))
-   Seq.iter (fun (x : XElement) -> 
-     full.Append("<p>") |> ignore
-     readElement x
-     full.Append("</p>") |> ignore ) paras
+   for e in doc.Descendants(XName.Get "summary") do
+     full.Append("<p class='summary'>") |> ignore
+     readElement e
+     full.Append("</p>") |> ignore
 
-   let paras = doc.Descendants(XName.Get("remarks"))
-   Seq.iter (fun (x : XElement) -> 
-     full.Append("<p class='remarks'>") |> ignore
-     readElement x
-     full.Append("</p>") |> ignore ) paras
+   let parameters = doc.Descendants(XName.Get "params")
 
+   if Seq.length parameters > 0 then
+     full.Append("<h2>Parameters</h2>") |> ignore
+     full.Append("<dl>") |> ignore
+     for e in parameters do
+       let name = e.Attribute(XName.Get "name").Value
+       let description = e.Value
+       full.AppendFormat("<dt><span class='parameter'>{0}</span></dt><dd><p>{1}</p></dd>", name, description) |> ignore
+     full.Append("</dl>") |> ignore
+
+   for e in doc.Descendants(XName.Get "returns") do
+     full.Append("<p class='returns'>") |> ignore
+     let description = e.Value
+     full.AppendFormat("Returns: {0}",description) |> ignore
+     full.Append("</p>") |> ignore
+
+   let exceptions = doc.Descendants(XName.Get "exceptions")
+   if Seq.length exceptions > 0 then
+     full.Append("<h2>Exceptions</h2>") |> ignore
+     full.Append("<table>") |> ignore
+     for e in exceptions do
+       let cref = e.Attribute(XName.Get "cref")
+       if cref <> null then
+        if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+          failwithf "Invalid cref specified in: %A" doc
+        match urlMap.ResolveCref cref.Value with
+        | Some (reference) ->
+          full.AppendFormat("<tr><td><a href=\"{0}\">{1}</a></td><td>{2}</td></tr>", reference.ReferenceLink, reference.NiceName,e.Value) |> ignore
+        | _ ->
+          full.AppendFormat("<tr><td>UNRESOLVED({0})</td><td></td></tr>", cref.Value) |> ignore
+     full.Append("</table>") |> ignore
+
+   let remarks = doc.Descendants(XName.Get "remarks")
+   if Seq.length remarks > 0 then
+     full.Append("<h2>Remarks</h2>") |> ignore
+     for e in remarks do
+       full.Append("<p class='remarks'>") |> ignore
+       readElement e
+       full.Append("</p>") |> ignore
+   
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
    let str = full.ToString()
@@ -633,44 +691,32 @@ module Reader =
     
     LiterateDocument(replacedParagraphs, doc.FormattedTips, doc.DefinedLinks, doc.Source, doc.SourceFile, doc.Errors)
 
-  let readCommentAndCommands (ctx:ReadingContext) xmlSig = 
-    match ctx.XmlMemberLookup(xmlSig) with 
-    | None -> 
+  let readCommentAndCommands (ctx:ReadingContext) xmlSig =
+    match ctx.XmlMemberLookup(xmlSig) with
+    | None ->
         if not (System.String.IsNullOrEmpty xmlSig) then
             Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
         dict[], Comment.Empty
     | Some el ->
-        let sum = el.Element(XName.Get "summary")
-        if sum = null then
-          if String.IsNullOrEmpty el.Value then
-            dict[], Comment.Empty
-          else
-            dict[], (Comment.Create ("", el.Value, []))
-        else
-          let lines = removeSpaces sum.Value
-          let cmds = new System.Collections.Generic.Dictionary<_, _>()
-          let findCommand = (function
-                | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
-                    Some (k, v)
-                | _ -> None)
-          if ctx.MarkdownComments then
-            let text =
-              lines |> Seq.filter (findCommand >> (function
+        let cmds = new System.Collections.Generic.Dictionary<_, _>()
+        if ctx.MarkdownComments then
+          let sum = el.Element(XName.Get "summary")
+          let value = if sum = null then el.Value else sum.Value
+          let lines = removeSpaces value
+          let text =
+            lines |> Seq.filter (findCommand >> (function
                 | Some (k, v) -> 
                     cmds.Add(k, v)
                     false
                 | _ -> true)) |> String.concat "\n"
-            let doc = 
+          let doc = 
               Literate.ParseMarkdownString
                 ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"), 
                   formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
                 |> (addMissingLinkToTypes ctx)
-            cmds :> IDictionary<_, _>, readMarkdownComment doc
-          else
-            lines 
-              |> Seq.choose findCommand
-              |> Seq.iter (fun (k, v) -> cmds.Add(k,v))  
-            cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap sum
+          cmds :> IDictionary<_, _>, readMarkdownComment doc
+        else
+          cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap el cmds
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
