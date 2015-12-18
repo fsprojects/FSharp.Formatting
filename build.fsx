@@ -189,6 +189,23 @@ for name in testProjects do
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
+// TODO: Contribute this to FAKE
+type BreakingPoint =
+  | SemVer
+  | Minor
+  | Patch
+
+// See https://docs.nuget.org/create/versioning
+let RequireRange breakingPoint version =
+  let v = SemVerHelper.parse version
+  match breakingPoint with
+  | SemVer ->
+    sprintf "[%s,%d.0)" version (v.Major + 1)
+  | Minor -> // Like Semver but we assume that the increase of a minor version is already breaking
+    sprintf "[%s,%d.%d)" version v.Major (v.Minor + 1)
+  | Patch -> // Every update breaks
+    version |> RequireExactly
+
 Target "NuGet" (fun _ ->
     NuGet (fun p ->
         { p with
@@ -203,8 +220,8 @@ Target "NuGet" (fun _ ->
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies =
-                [ "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireExactly
-                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireExactly ] })
+                [ "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireRange BreakingPoint.SemVer
+                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.Minor ] })
         "nuget/FSharp.Formatting.nuspec"
     NuGet (fun p ->
         { p with
