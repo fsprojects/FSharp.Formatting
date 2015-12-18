@@ -93,6 +93,13 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
