@@ -5,8 +5,8 @@ nuget CommandLineParser
 nuget FSharp.Core
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine
-nuget NUnit
-nuget NUnit.Runners
+nuget NUnit ~> 2
+nuget NUnit.Runners ~> 2
 nuget NuGet.CommandLine
 nuget FSharp.Compiler.Service
 // See http://fsprojects.github.io/Paket/nuget-dependencies.html

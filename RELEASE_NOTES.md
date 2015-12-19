@@ -1,3 +1,6 @@
+## 2.12.1-alpha3
+ - update dependencies
+
 ## 2.12.1-alpha2 (19 December, 2015)
  - strengthen the VFSPT version.
  - Upgrade the CommandTool to F# 4 and bundle FSharp.Core with sigdata and optdata.
