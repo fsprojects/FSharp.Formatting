@@ -281,7 +281,7 @@ type CodeFormatAgent() =
 
     // Run the second phase - perform type checking
     let checkResults, symbolUses = getTypeCheckInfo(file, source, opts) |> Async.RunSynchronously
-    let errors = checkResults.GetErrors()
+    let errors = checkResults.Errors
 
     let lexer = 
         { new LexerBase() with
@@ -337,17 +337,14 @@ type CodeFormatAgent() =
           // Return parsed snippet as 'Snippet' value
           Snippet(title, parsed))
   
-    let sourceErrors = 
-      match errors with
-      | Some errors ->
-          [| for errInfo in errors do
-              if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
-               yield 
-                 SourceError
-                   ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
-                     (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
-                     errInfo.Message ) |]
-      | None -> [||]
+    let sourceErrors =
+      [| for errInfo in errors do
+          if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+            yield
+              SourceError
+                ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
+                  (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
+                  errInfo.Message ) |]
     return parsedSnippets, sourceErrors 
   }
  
