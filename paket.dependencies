@@ -2,6 +2,7 @@ source http://nuget.org/api/v2
 
 nuget FAKE
 nuget CommandLineParser
+nuget FSharp.Core
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine
 nuget NUnit

@@ -4,6 +4,7 @@ NUGET
     CommandLineParser (1.9.71)
     FAKE (4.7.1)
     FSharp.Compiler.Service (1.4.0.6)
+    FSharp.Core (4.0.0.1)
     FSharpVSPowerTools.Core (2.1.0)
       FSharp.Compiler.Service (>= 1.4.0.6)
     ILRepack (2.0.8)

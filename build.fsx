@@ -224,6 +224,13 @@ Target "NuGet" (fun _ ->
                   "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireRange BreakingPoint.Minor
                   "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.Minor ] })
         "nuget/FSharp.Formatting.nuspec"
+
+    // We need to include optdata and sigdata as well, we copy everything to be consistent
+    for file in System.IO.Directory.EnumerateFiles(@"packages\FSharp.Core\lib\net40") do
+        let source, dest = file, Path.Combine("bin", Path.GetFileName(file))
+        printfn "Copying %s to %s" source dest
+        File.Copy(source, dest, true)
+
     NuGet (fun p ->
         { p with
             Authors = authorsTool

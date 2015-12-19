@@ -1,6 +1,6 @@
 ## 2.12.1-alpha2 (19 December, 2015)
  - strengthen the VFSPT version.
- - Upgrade the CommandTool to F# 4.
+ - Upgrade the CommandTool to F# 4 and bundle FSharp.Core with sigdata and optdata.
 
 ## 2.12.1-alpha1 (18 December, 2015)
  - Fix crash when a fenced code block starts with an empty line (https://github.com/tpetricek/FSharp.Formatting/pull/361)
