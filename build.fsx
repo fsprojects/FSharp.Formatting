@@ -206,6 +206,13 @@ let RequireRange breakingPoint version =
   | Patch -> // Every update breaks
     version |> RequireExactly
 
+Target "CopyFSharpCore" (fun _ ->
+    // We need to include optdata and sigdata as well, we copy everything to be consistent
+    for file in System.IO.Directory.EnumerateFiles(@"packages\FSharp.Core\lib\net40") do
+        let source, dest = file, Path.Combine("bin", Path.GetFileName(file))
+        printfn "Copying %s to %s" source dest
+        File.Copy(source, dest, true))
+
 Target "NuGet" (fun _ ->
     NuGet (fun p ->
         { p with
@@ -224,12 +231,6 @@ Target "NuGet" (fun _ ->
                   "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireRange BreakingPoint.Minor
                   "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.Minor ] })
         "nuget/FSharp.Formatting.nuspec"
-
-    // We need to include optdata and sigdata as well, we copy everything to be consistent
-    for file in System.IO.Directory.EnumerateFiles(@"packages\FSharp.Core\lib\net40") do
-        let source, dest = file, Path.Combine("bin", Path.GetFileName(file))
-        printfn "Copying %s to %s" source dest
-        File.Copy(source, dest, true)
 
     NuGet (fun p ->
         { p with
@@ -447,11 +448,12 @@ Target "All" DoNothing
 
 "Clean" ==> "AssemblyInfo" ==> "Build" ==> "BuildTests"
 "Build" ==> "MergeVSPowerTools" ==> "All"
-"RunTests" ==> "All"
+"BuildTests" ==> "RunTests" ==> "All"
 "GenerateDocs" ==> "All"
-"DogFoodCommandTool" ==> "All"
+"Build" ==> "CopyFSharpCore" ==> "DogFoodCommandTool" ==> "All"
 "UpdateFsxVersions" ==> "All"
 
+"CopyFSharpCore" ==> "NuGet"
 "All"
   ==> "NuGet"
   ==> "ReleaseDocs"
