@@ -264,6 +264,75 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
         setVar "GIT" Git.CommandHelper.gitPath
         setVar "FSI" fsiPath)
 
+let commandToolPath = "bin" @@ "fsformatting.exe"
+let commandToolStartInfo workingDirectory environmentVars args =
+    (fun (info: System.Diagnostics.ProcessStartInfo) ->
+        info.FileName <- System.IO.Path.GetFullPath commandToolPath
+        info.Arguments <- args
+        info.WorkingDirectory <- workingDirectory
+        let setVar k v =
+            info.EnvironmentVariables.[k] <- v
+        for (k, v) in environmentVars do
+            setVar k v
+        setVar "MSBuild" msBuildExe
+        setVar "GIT" Git.CommandHelper.gitPath
+        setVar "FSI" fsiPath)
+
+/// Run the given buildscript with FAKE.exe
+let executeCommandToolWithOutput workingDirectory envArgs args =
+    let exitCode =
+        ExecProcessWithLambdas
+            (commandToolStartInfo workingDirectory envArgs args)
+            TimeSpan.MaxValue false ignore ignore
+    System.Threading.Thread.Sleep 1000
+    exitCode
+
+// Documentation
+let buildDocumentationCommandTool args =
+    trace (sprintf "Building documentation (CommandTool), this could take some time, please wait...")
+    let exit = executeCommandToolWithOutput "." [] args
+    if exit <> 0 then
+        failwith "generating documentation failed"
+    ()
+
+let createArg argName arguments =
+    (arguments : string seq)
+    |> fun files -> String.Join("\" \"", files)
+    |> fun e -> if String.IsNullOrWhiteSpace e then ""
+                else sprintf "--%s \"%s\"" argName e
+
+let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parameters sourceRepo =
+    let dllFilesArg = createArg "dllfiles" dllFiles
+    let layoutRootsArgs = createArg "layoutRoots" layoutRoots
+    let libDirArgs = createArg "libDirs" libDirs
+
+    let parametersArg =
+        parameters
+        |> Seq.collect (fun (key, value) -> [key; value])
+        |> createArg "parameters"
+
+    let reproAndFolderArg =
+        match sourceRepo with
+        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\"" repo folder
+        | _ -> ""
+
+    sprintf "metadataFormat --generate %s %s %s %s %s %s"
+        dllFilesArg (createArg "outDir" [outDir]) layoutRootsArgs libDirArgs parametersArg
+        reproAndFolderArg
+
+let commandToolLiterateArgument inDir outDir layoutRoots parameters =
+    let inDirArg = createArg "inputDirectory" [ inDir ]
+    let outDirArg = createArg "outputDirectory" [ outDir ]
+
+    let layoutRootsArgs = createArg "layoutRoots" layoutRoots
+
+    let replacementsArgs =
+        parameters
+        |> Seq.collect (fun (key, value) -> [key; value])
+        |> createArg "replacements"
+
+    sprintf "literate --processDirectory %s %s %s %s" inDirArg outDirArg layoutRootsArgs replacementsArgs
+
 /// Run the given buildscript with FAKE.exe
 let executeFAKEWithOutput workingDirectory script fsiargs envArgs =
     let exitCode =
@@ -301,6 +370,36 @@ let bootStrapDocumentationFiles () =
             printfn "Copying %s to %s" source dest
             File.Copy(source, dest, true)
         with e -> printfn "Could not copy %s to %s, because %s" source dest e.Message
+
+Target "DogFoodCommandTool" (fun _ ->
+    // generate metadata reference
+    let dllFiles =
+      [ "FSharp.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
+        "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll" ]
+        |> List.map (sprintf "bin/%s")
+    let layoutRoots =
+      [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
+    let libDirs = [ "bin/" ]
+    let parameters =
+      [ "page-author", "Matthias Dittrich"
+        "project-author", "Matthias Dittrich"
+        "page-description", "desc"
+        "github-link", "https://github.com/tpetricek/FSharp.Formatting"
+        "project-name", "FSharp.Formatting"
+        "root", "https://tpetricek.github.io/FSharp.Formatting"
+        "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
+        "project-github", "https://github.com/tpetricek/FSharp.Formatting" ]
+    CleanDir "temp/api_docs"
+    let metadataReferenceArgs =
+        commandToolMetadataFormatArgument
+            dllFiles "temp/api_docs" layoutRoots libDirs parameters None
+    buildDocumentationCommandTool metadataReferenceArgs
+
+    CleanDir "temp/literate_docs"
+    let literateArgs =
+        commandToolLiterateArgument
+            "docs/content" "temp/literate_docs" layoutRoots parameters
+    buildDocumentationCommandTool literateArgs)
 
 Target "GenerateDocs" (fun _ ->
     bootStrapDocumentationFiles ()
@@ -350,6 +449,7 @@ Target "All" DoNothing
 "Build" ==> "MergeVSPowerTools" ==> "All"
 "RunTests" ==> "All"
 "GenerateDocs" ==> "All"
+"DogFoodCommandTool" ==> "All"
 "UpdateFsxVersions" ==> "All"
 
 "All"
