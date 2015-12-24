@@ -1,4 +1,5 @@
 source http://nuget.org/api/v2
+redirects: on
 
 nuget FAKE
 nuget CommandLineParser

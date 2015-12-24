@@ -1,8 +1,9 @@
+REDIRECTS: ON
 NUGET
-  remote: http://nuget.org/api/v2
+  remote: http://www.nuget.org/api/v2
   specs:
     CommandLineParser (1.9.71)
-    FAKE (4.11.0)
+    FAKE (4.11.3)
     FSharp.Compiler.Service (1.4.2)
     FSharp.Core (4.0.0.1)
     FSharpVSPowerTools.Core (2.2.0)
@@ -12,9 +13,9 @@ NUGET
     NuGet.CommandLine (3.3.0)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
-    RazorEngine (3.7.5)
+    RazorEngine (3.7.6)
       Microsoft.AspNet.Razor (>= 3.0.0) - framework: >= net45
-      Microsoft.AspNet.Razor (2.0.30506.0) - framework: net40
+      Microsoft.AspNet.Razor (2.0.30506) - framework: net40
 GITHUB
   remote: matthid/Yaaf.FSharp.Scripting
   specs:
