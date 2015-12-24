@@ -247,7 +247,9 @@ type CodeFormatAgent() =
 
   // Create an instance of an InteractiveChecker (which does background analysis
   // in a typical IntelliSense editor integration for F#)
-  let languageService = LanguageService() 
+  let languageService = LanguageService()
+  do languageService.SetCriticalErrorHandler(fun exn str1 str2 opts ->
+      FSharp.Formatting.Common.Log.errorf "Language Service Error (%s, %s, %A): %O" str1 str2 opts exn)
 
   /// Type-checking takes some time and doesn't return information on the
   /// first call, so this function creates workflow that tries repeatedly
