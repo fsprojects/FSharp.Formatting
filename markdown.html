@@ -37,13 +37,10 @@
         <div class="span9" id="main">
           
 <h1><a name="F-Formatting-Markdown-parser" class="anchor" href="#F-Formatting-Markdown-parser">F# Formatting: Markdown parser</a></h1>
-
 <p>This page demonstrates how to use <code>FSharp.Markdown.dll</code> to parse a Markdown
 document, process the obtained document representation and
 how to turn the code into a nicely formatted HTML.</p>
-
 <p>First, we need to load the assembly and open necessary namespaces:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -52,14 +49,11 @@ how to turn the code into a nicely formatted HTML.</p>
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Parsing-documents" class="anchor" href="#Parsing-documents">Parsing documents</a></h2>
-
 <p>The F# Markdown parser recognizes the standard <a href="http://daringfireball.net/projects/markdown/">Markdown syntax</a>
-and it is not the aim of this tutorial to fully document it. 
+and it is not the aim of this tutorial to fully document it.
 The following snippet creates a simple string containing a document
 with several elements and then parses it using the <code>Markdown.Parse</code> method:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -86,21 +80,17 @@ with several elements and then parses it using the <code>Markdown.Parse</code> m
 </code></pre></td>
 </tr>
 </table>
-
-<p>The sample document consists of a first-level heading (written using 
-one of the two alternative styles) followed by a paragraph with a 
-<em>direct</em> link, code snippet and one more paragraph that includes an 
+<p>The sample document consists of a first-level heading (written using
+one of the two alternative styles) followed by a paragraph with a
+<em>direct</em> link, code snippet and one more paragraph that includes an
 <em>indirect</em> link. The URLs of indirect links are defined by a separate
 block as demonstrated on the last line (and they can then be easily used repeatedly
 from multiple places in the document).</p>
-
 <h2><a name="Working-with-parsed-documents" class="anchor" href="#Working-with-parsed-documents">Working with parsed documents</a></h2>
-
 <p>The F# Markdown processor does not turn the document directly into HTML.
-Instead, it builds a nice F# data structure that we can use to analyze, 
+Instead, it builds a nice F# data structure that we can use to analyze,
 transform and process the document. First of all the <code>DefinedLinks</code> property
 returns all indirect link definitions:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -111,11 +101,9 @@ returns all indirect link definitions:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The document content can be accessed using the <code>Paragraphs</code> property that returns
 a sequence of paragraphs or other first-level elements (headings, quotes, code snippets, etc.).
 The following snippet prints the heading of the document:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -136,22 +124,17 @@ The following snippet prints the heading of the document:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can find more detailed information about the document structure and how to process it
 in the book <a href="http://manning.com/petricek2/">F# Deep Dives</a>.</p>
-
 <h2><a name="Processing-the-document-recursively" class="anchor" href="#Processing-the-document-recursively">Processing the document recursively</a></h2>
-
-<p>The library provides active patterns that can be used to easily process the Markdown 
+<p>The library provides active patterns that can be used to easily process the Markdown
 document recursively. The example in this section shows how to extract all links from the
 document. To do that, we need to write two recursive functions. One that will process
 all paragraph-style elements and one that will process all inline formattings (inside
 paragraphs, headings etc.).</p>
-
-<p>To avoid pattern matching on every single kind of span and every single kind of 
+<p>To avoid pattern matching on every single kind of span and every single kind of
 paragraph, we can use active patterns from the <code>Matching</code> module. These can be use
 to recognize any paragraph or span that can contain child elements:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -202,39 +185,32 @@ to recognize any paragraph or span that can contain child elements:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The <code>collectSpanLinks</code> function works on individual span elements that contain inline
 formatting (emphasis, strong) and also links. The <code>DirectLink</code> node represents an inline
 link like the one pointing to <a href="http://fsharp.net">http://fsharp.net</a> while <code>IndirectLink</code> represents a
 link that uses one of the link definitions. The function simply returns the URL associated
 with the link.</p>
-
 <p>Some span nodes (like emphasis) can contain other formatting, so we need to recursively
 process children. This is done by matching against <code>Matching.SpanNodes</code> which is an active
 pattern that recognizes any node with children. The library also provides a <em>function</em>
 named <code>Matching.SpanNode</code> that can be used to reconstruct the same node (when you want
-to transform document). This is similar to how the <code>ExprShape</code> module for working with 
+to transform document). This is similar to how the <code>ExprShape</code> module for working with
 F# quotations works.</p>
-
-<p>The function <code>collectParLinks</code> processes paragraphs - a paragraph cannot directly be a 
-link so we just need to process all spans. This time, there are three options. 
+<p>The function <code>collectParLinks</code> processes paragraphs - a paragraph cannot directly be a
+link so we just need to process all spans. This time, there are three options.
 <code>ParagraphLeaf</code> represents a case where the paragraph does not contain any spans
 (a code block or, for example, a <code>&lt;hr&gt;</code> line); the <code>ParagraphNested</code> case is used for paragraphs
 that contain other paragraphs (quotation) and <code>ParagraphSpans</code> is used for all other
 paragraphs that contain normal text - here we call <code>collectSpanLinks</code> on all nested spans.</p>
-
 <h2><a name="Generating-HTML-output" class="anchor" href="#Generating-HTML-output">Generating HTML output</a></h2>
-
 <p>Finally, the <code>Markdown</code> type also includes a method <code>WriteHtml</code> that can be used
 to generate an HTML document from the Markdown input. The following example shows how to call it:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs36', 68)" onmouseover="showTip(event, 'fs36', 68)" class="i">html</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 69)" onmouseover="showTip(event, 'fs5', 69)" class="t">Markdown</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs37', 70)" onmouseover="showTip(event, 'fs37', 70)" class="f">WriteHtml</span>(<span onmouseout="hideTip(event, 'fs4', 71)" onmouseover="showTip(event, 'fs4', 71)" class="i">parsed</span>)
 </code></pre></td>
 </tr>
 </table>
-
 <p>In addition, you can also use <code>Markdown.TransformHtml</code> to directly turn an input document
 in the Markdown format into an HTML document (without the intermediate step).</p>
 
@@ -306,6 +282,7 @@ in the Markdown format into an HTML document (without the intermediate step).</p
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li class="divider"></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>

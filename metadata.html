@@ -37,21 +37,16 @@
         <div class="span9" id="main">
           
 <h1><a name="F-Formatting-Library-documentation" class="anchor" href="#F-Formatting-Library-documentation">F# Formatting: Library documentation</a></h1>
-
 <p>The library <code>FSharp.MetadataFormat.dll</code> is a replacement for the <code>FsHtmlTool</code>
-which is available in the F# PowerPack and can be used to generate documentation 
+which is available in the F# PowerPack and can be used to generate documentation
 for F# libraries with XML comments. The F# Formatting re-implementation has
 a couple of extensions:</p>
-
 <ul>
 <li>You can use Markdown instead of XML in <code>///</code> comments</li>
 <li>The HTML is generated using Razor, so it is easy to change the templates</li>
 </ul>
-
 <h2><a name="Building-library-documentation" class="anchor" href="#Building-library-documentation">Building library documentation</a></h2>
-
 <p>First, we need to load the assembly and open necessary namespaces:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -62,13 +57,11 @@ a couple of extensions:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Building the library documentation is easy - you just need to call
 <code>MetadataFormat.Generate</code> from your FAKE script or from F# Interactive.
 The method takes three (required) parameters - the path to your <code>DLL</code>,
 output directory and directory with Razor templates.
 Assuming <code>root</code> is the root directory for your project, you can write:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -81,14 +74,11 @@ Assuming <code>root</code> is the root directory for your project, you can write
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Adding-Go-to-GitHub-source-links" class="anchor" href="#Adding-Go-to-GitHub-source-links">Adding Go to GitHub source links</a></h2>
-
 <p>You can automatically add GitHub links to each functions, values and class members for further reference.
-You need to specify two more arguments: <code>sourceRepo</code> to the GitHub repository 
+You need to specify two more arguments: <code>sourceRepo</code> to the GitHub repository
 and <code>sourceFolder</code> to the folder where your DLLs are built.
 It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have synchronized contents.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -107,37 +97,32 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Adding-cross-type-links-to-modules-and-types-in-the-same-assembly" class="anchor" href="#Adding-cross-type-links-to-modules-and-types-in-the-same-assembly">Adding cross-type links to modules and types in the same assembly</a></h2>
-
 <p>You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
 You can do this in two different ways:
 * Add a <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links">markdown inline link</a> were the link
 title is the name of the type you want to link.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"> <span class="c">/// this will generate a link to [Foo.Bar] documentation</span>
 </code></pre></td>
 </tr>
 </table>
-
 <ul>
-<li>Add a <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code">Markdown inlide code</a> (using
-back-ticks) where the code is the name of the type you want to link.</li>
+<li>
+Add a <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code">Markdown inlide code</a> (using
+back-ticks) where the code is the name of the type you want to link.
+</li>
 </ul>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"> <span class="c">/// This will also generate a link to `Foo.Bar` documentation</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>You can use either the full name (including namespace and module) or the simple name of a type.
 If more than one type is found with the same name the link will not be generated.
 If a type with the given name is not found in the same assembly the link will not be generated.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -188,12 +173,9 @@ If a type with the given name is not found in the same assembly the link will no
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Excluding-APIs-from-the-docs" class="anchor" href="#Excluding-APIs-from-the-docs">Excluding APIs from the docs</a></h2>
-
 <p>If you want to exclude modules or functions from the API docs you can use the <code>[omit]</code> tag.
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -206,12 +188,9 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Classic-XML-documentation-comments" class="anchor" href="#Classic-XML-documentation-comments">Classic XML documentation comments</a></h2>
-
 <p>By default <code>FSharp.Formatting</code> will expect Markdown documentation comments, to parse XML comments
 pass the named argument <code>markDownComments</code> with value <code>false</code>.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -228,9 +207,7 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 </code></pre></td>
 </tr>
 </table>
-
 <p>An example of an XML documentation comment:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -247,50 +224,60 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 </code></pre></td>
 </tr>
 </table>
-
-<p>Note that currently our code is not handling <code>&lt;parameter&gt;</code> and `<result> tags, this is 
+<p>Note that currently our code is not handling <code>&lt;parameter&gt;</code> and `<result> tags, this is
 not so much of a problem given that FSharp.Formatting infers the signature via reflection.</p>
-
 <h2><a name="Optional-parameters" class="anchor" href="#Optional-parameters">Optional parameters</a></h2>
-
 <p>All of the three methods discussed in the previous two sections take a number of optional
 parameters that can be used to tweak how the formatting works:</p>
-
 <ul>
 <li><code>outDir</code> - specifies the output directory where documentation should be placed</li>
 <li><code>layoutRoots</code> - a list of paths where Razor templates can be found</li>
 <li><code>parameters</code> - provides additional parameters to the Razor templates</li>
-<li><code>xmlFile</code> - can be used to override the default name of the XML file (by default, we assume
-the file has the same name as the DLL)</li>
-<li><code>markDownComments</code> - specifies if you want to use the Markdown parser for in-code comments.
+<li>
+<code>xmlFile</code> - can be used to override the default name of the XML file (by default, we assume
+the file has the same name as the DLL)
+</li>
+<li>
+<code>markDownComments</code> - specifies if you want to use the Markdown parser for in-code comments.
 With <code>markDownComments</code> enabled there is no support for <code>&lt;see cref=""&gt;</code> links, so <code>false</code> is
-recommended for C# assemblies (if not specified, <code>true</code> is used).</li>
-<li><code>typeTemplate</code> - the templates to be used for normal types (and C# types)
-(if not specified, <code>"type.cshtml"</code> is used).</li>
-<li><code>moduleTemplate</code> - the templates to be used for modules
-(if not specified, <code>"module.cshtml"</code> is used).</li>
-<li><code>namespaceTemplate</code> - the templates to be used for namespaces
-(if not specified, <code>"namespaces.cshtml"</code> is used).</li>
-<li><code>assemblyReferences</code> - The assemblies to use when compiling Razor templates.
+recommended for C# assemblies (if not specified, <code>true</code> is used).
+</li>
+<li>
+<code>typeTemplate</code> - the templates to be used for normal types (and C# types)
+(if not specified, <code>"type.cshtml"</code> is used).
+</li>
+<li>
+<code>moduleTemplate</code> - the templates to be used for modules
+(if not specified, <code>"module.cshtml"</code> is used).
+</li>
+<li>
+<code>namespaceTemplate</code> - the templates to be used for namespaces
+(if not specified, <code>"namespaces.cshtml"</code> is used).
+</li>
+<li>
+<code>assemblyReferences</code> - The assemblies to use when compiling Razor templates.
 Use this parameter if templates fail to compile with <code>mcs</code> on Linux or Mac or
 if you need additional references in your templates
-(if not specified, we use the currently loaded assemblies).</li>
-<li><code>sourceFolder</code> and <code>sourceRepo</code> - When specified, the documentation generator automatically
-generates links to GitHub pages for each entity.</li>
+(if not specified, we use the currently loaded assemblies).
+</li>
+<li>
+<code>sourceFolder</code> and <code>sourceRepo</code> - When specified, the documentation generator automatically
+generates links to GitHub pages for each entity.
+</li>
 <li><code>publicOnly</code> - When set to <code>false</code>, the tool will also generate documentation for non-public members</li>
 <li><code>libDirs</code> - Use this to specify additional paths where referenced DLL files can be found</li>
-<li><code>otherFlags</code> - Additional flags that are passed to the F# compiler (you can use this if you want to 
-specify references explicitly etc.)</li>
+<li>
+<code>otherFlags</code> - Additional flags that are passed to the F# compiler (you can use this if you want to 
+specify references explicitly etc.)
+</li>
 <li><code>urlRangeHighlight</code> - A function that can be used to override the default way of generating GitHub links</li>
 </ul>
-
 <h2><a name="Work-in-progress" class="anchor" href="#Work-in-progress">Work in progress!</a></h2>
-
 <p>This library is under active development and it is not completely functional.
-For more examples of how it can be used, see the 
-<a href="https://github.com/BlueMountainCapital/FSharp.DataFrame/blob/master/tools/build.fsx">build script</a> 
-for F# DataFrame. The project also includes nice 
-<a href="https://github.com/BlueMountainCapital/FSharp.DataFrame/tree/master/tools/reference">Razor templates</a> 
+For more examples of how it can be used, see the
+<a href="https://github.com/BlueMountainCapital/FSharp.DataFrame/blob/master/tools/build.fsx">build script</a>
+for F# DataFrame. The project also includes nice
+<a href="https://github.com/BlueMountainCapital/FSharp.DataFrame/tree/master/tools/reference">Razor templates</a>
 that you can use.</p>
 
 <div class="tip" id="fs1">val root : string<br /><br />Full name: Metadata.root</div>
@@ -335,6 +322,7 @@ that you can use.</p>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li class="divider"></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>

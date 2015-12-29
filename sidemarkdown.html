@@ -112,30 +112,23 @@ This snippet is turned into a `pre` element with the
             </div>
             <div class="span4">
               <h1><a name="Literate-Markdown" class="anchor" href="#Literate-Markdown">Literate Markdown</a></h1>
-
-<p>This file demonstrates how to write Markdown document with 
-embedded F# snippets that can be transformed into nice HTML 
+<p>This file demonstrates how to write Markdown document with
+embedded F# snippets that can be transformed into nice HTML
 using the <code>literate.fsx</code> script from the <a href="http://tpetricek.github.com/FSharp.Formatting">F# Formatting
 package</a>.</p>
-
-<p>In this case, the document itself is a valid Markdown and 
+<p>In this case, the document itself is a valid Markdown and
 you can use standard Markdown features to format the text:</p>
-
 <ul>
 <li>Here is an example of unordered list and...</li>
 <li>Text formatting including <strong>bold</strong> and <em>emphasis</em></li>
 </ul>
-
 <p>For more information, see the <a href="http://daringfireball.net/projects/markdown">Markdown</a> reference.</p>
-
 <h2><a name="Writing-F-code" class="anchor" href="#Writing-F-code">Writing F# code</a></h2>
-
-<p>In standard Markdown, you can include code snippets by 
-writing a block indented by four spaces and the code 
-snippet will be turned into a <code>&lt;pre&gt;</code> element. If you do 
+<p>In standard Markdown, you can include code snippets by
+writing a block indented by four spaces and the code
+snippet will be turned into a <code>&lt;pre&gt;</code> element. If you do
 the same using Literate F# tool, the code is turned into
 a nicely formatted F# snippet:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -152,38 +145,30 @@ a nicely formatted F# snippet:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Hiding-code" class="anchor" href="#Hiding-code">Hiding code</a></h2>
-
-<p>If you want to include some code in the source code, 
-but omit it from the output, you can use the <code>hide</code> 
-command. You can also use <code>module=...</code> to specify that 
-the snippet should be placed in a separate module 
+<p>If you want to include some code in the source code,
+but omit it from the output, you can use the <code>hide</code>
+command. You can also use <code>module=...</code> to specify that
+the snippet should be placed in a separate module
 (e.g. to avoid duplicate definitions).</p>
-
-<p>The value will be deffined in the F# code that is 
-processed and so you can use it from other (visible) 
+<p>The value will be deffined in the F# code that is
+processed and so you can use it from other (visible)
 code and get correct tool tips:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 9)" onmouseover="showTip(event, 'fs4', 9)" class="i">answer</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="t">Hidden</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 11)" onmouseover="showTip(event, 'fs6', 11)" class="i">answer</span>
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Including-other-snippets" class="anchor" href="#Including-other-snippets">Including other snippets</a></h2>
-
-<p>When writing literate programs as Markdown documents, 
-you can also include snippets in other languages. 
-These will not be colorized and processed as F# 
+<p>When writing literate programs as Markdown documents,
+you can also include snippets in other languages.
+These will not be colorized and processed as F#
 code samples:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="csharp">Console.WriteLine(<span class="s">"Hello world!"</span>);
 </code></pre></td></tr></table>
-
 <p>This snippet is turned into a <code>pre</code> element with the
 <code>lang</code> attribute set to <code>csharp</code>.</p>
 
@@ -212,7 +197,7 @@ code samples:</p>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-              
+
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
             <li><a href="/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -228,6 +213,7 @@ code samples:</p>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li class="divider"></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>

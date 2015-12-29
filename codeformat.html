@@ -37,13 +37,10 @@
         <div class="span9" id="main">
           
 <h1><a name="F-Formatting-Code-formatting" class="anchor" href="#F-Formatting-Code-formatting">F# Formatting: Code formatting</a></h1>
-
-<p>This page demonstrates how to use <code>FSharp.CodeFormat.dll</code> to tokenize 
+<p>This page demonstrates how to use <code>FSharp.CodeFormat.dll</code> to tokenize
 F# source code, obtain information about the source code (mainly tooltips
 from the type-checker) and how to turn the code into a nicely formatted HTML.</p>
-
 <p>First, we need to load the assembly and open necessary namespaces:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -54,13 +51,10 @@ from the type-checker) and how to turn the code into a nicely formatted HTML.</p
 </code></pre></td>
 </tr>
 </table>
-
 <h2><a name="Starting-a-background-agent" class="anchor" href="#Starting-a-background-agent">Starting a background agent</a></h2>
-
 <p>The <code>FSharp.CodeFormat</code> namespace contains <code>CodeFormat</code> type which is the
 entry point. The static method <code>CreateAgent</code> starts a background worker that
 can be called to format snippets repeatedly:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -69,18 +63,14 @@ can be called to format snippets repeatedly:</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>If you want to process multiple snippets, it is a good idea to keep the 
+<p>If you want to process multiple snippets, it is a good idea to keep the
 formatting agent around if possible. The agent needs to load the F# compiler
 (which needs to load various files itself) and so this takes a long time. As the above
 example shows, you can specify which version of <code>FSharp.Compiler.dll</code> to use.</p>
-
 <h2><a name="Processing-F-source" class="anchor" href="#Processing-F-source">Processing F# source</a></h2>
-
 <p>The formatting agent provides a <code>ParseSource</code> method (together with an asynchronous
 version for use from F# and also a version that returns a .NET <code>Task</code> for C#).
 To call the method, we define a simple F# code as a string:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -95,28 +85,22 @@ To call the method, we define a simple F# code as a string:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>When calling the method, you need to specify a file name and the actual content
 of the script file. The file does not have to physically exist. It is used by the
 F# compiler to resolve relative references (e.g. <code>#r</code>) and to automatically name
 the module including all code in the file.</p>
-
-<p>You can also specify additional parameters, such as <code>*.dll</code> references, by passing 
+<p>You can also specify additional parameters, such as <code>*.dll</code> references, by passing
 a third argument with compiler options (e.g. <code>"-r:Foo.dll -r:Bar.dll"</code>).</p>
-
-<p>This operation might take some time, so it is a good idea to use an asynchronous 
+<p>This operation might take some time, so it is a good idea to use an asynchronous
 variant of the method. It returns two arrays - the first contains F# snippets
 in the source code and the second contains any errors reported by the compiler.
 A single source file can include multiple snippets using the same formatting tags
 as those used on <a href="http://www.fssnip.net">fssnip.net</a> as documented in the
 <a href="http://www.fssnip.net/pages/About">about page</a>.</p>
-
 <h2><a name="Working-with-returned-tokens" class="anchor" href="#Working-with-returned-tokens">Working with returned tokens</a></h2>
-
-<p>Each returned snippet is essentially just a collection of lines and each line 
+<p>Each returned snippet is essentially just a collection of lines and each line
 consists of a sequence of tokens. The following snippet prints basic information
 about the tokens of our sample snippet:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -151,12 +135,10 @@ about the tokens of our sample snippet:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The <code>TokenSpan.Token</code> is the most important kind of token. It consists of a kind
 (identifier, keyword, etc.), the original F# code and tool tip information.
-The tool tip is further formatted using a simple document format, but we simply 
+The tool tip is further formatted using a simple document format, but we simply
 print the value using the F# pretty printing, so the result looks as follows:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -165,18 +147,14 @@ print the value using the F# pretty printing, so the result looks as follows:</p
 </code></pre></td>
 </tr>
 </table>
-
 <p>The <code>Omitted</code> token is generated if you use the special <code>(*[omit:...]*)</code> command.
 The <code>Output</code> token is generated if you use the <code>// [fsi:...]</code> command to format
-output returned by F# interactive. The <code>Error</code> command wraps code that should be 
+output returned by F# interactive. The <code>Error</code> command wraps code that should be
 underlined with a red squiggle if the code contains an error.</p>
-
 <h2><a name="Generating-HTML-output" class="anchor" href="#Generating-HTML-output">Generating HTML output</a></h2>
-
 <p>Finally, the <code>CodeFormat</code> type also includes a method <code>FormatHtml</code> that can be used
-to generate nice HTML output from an F# snippet. This is used, for example, on 
+to generate nice HTML output from an F# snippet. This is used, for example, on
 <a href="http://www.fssnip.net">F# Snippets</a>. The following example shows how to call it:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -199,9 +177,7 @@ to generate nice HTML output from an F# snippet. This is used, for example, on
 </code></pre></td>
 </tr>
 </table>
-
 <p>If the input contains multiple snippets separated using the <code>//[snippet:...]</code> comment, e.g.:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
@@ -215,7 +191,6 @@ to generate nice HTML output from an F# snippet. This is used, for example, on
 <td class="snippet"><pre class="fssnip"><span class="c">// [snippet: First sample]</span>
 <span class="i">printf</span> <span class="s">"The answer is: %A"</span> <span class="n">42</span>
 <span class="c">// [/snippet]</span>
-
 <span class="c">// [snippet: Second sample]</span>
 <span class="i">printf</span> <span class="s">"Hello world!"</span>
 <span class="c">// [/snippet]</span>
@@ -223,7 +198,6 @@ to generate nice HTML output from an F# snippet. This is used, for example, on
 </td>
 </tr>
 </table>
-
 <p>then the formatter returns multiple HTML blocks. However, the generated tool tips
 are shared by all snippets (to save space) and so they are returned separately.</p>
 
@@ -300,6 +274,7 @@ are shared by all snippets (to save space) and so they are returned separately.<
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li class="divider"></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>

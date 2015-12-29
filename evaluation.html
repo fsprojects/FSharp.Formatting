@@ -37,20 +37,15 @@
         <div class="span9" id="main">
           
 <h1><a name="F-Formatting-Output-embedding" class="anchor" href="#F-Formatting-Output-embedding">F# Formatting: Output embedding</a></h1>
-
 <p>A nice feature of the literate programming package (<code>FSharp.Literate.dll</code> in F# Formatting)
 is that it lets you embed the result of running the script as part of the literate output.
 This is a feature of the functions discussed in <a href="literate.html">literate programming</a> and
 it is implemented using the <a href="http://fsharp.github.io/FSharp.Compiler.Service/">F# Compiler service</a>.</p>
-
 <h2><a name="Embedding-literate-script-output" class="anchor" href="#Embedding-literate-script-output">Embedding literate script output</a></h2>
-
 <p>The functionality is currently available (and tested) for F# script files (<code>*.fsx</code>) that
-contain special comments to embed the Markdown text. To embed output of a script file, 
+contain special comments to embed the Markdown text. To embed output of a script file,
 a couple of additional special comments are added.</p>
-
 <p>The following snippet (F# Script file) demonstates the functionality:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -83,15 +78,13 @@ a couple of additional special comments are added.</p>
 </code></pre></td>
 </tr>
 </table>
-
-<p>The script defines a variable <code>test</code> and then prints it. The comment <code>(*** define-output:test ***)</code> 
+<p>The script defines a variable <code>test</code> and then prints it. The comment <code>(*** define-output:test ***)</code>
 is used to capture the result of the printing (using the key <code>test</code>) so that it can be embedded
 later in the script. We refer to it using another special comment written as <code>(*** include-output:test ***)</code>.
 In addition, it is also possible to include the value of any variable using the comment
 <code>(*** include-value: test ***)</code>. By default, this is formatted using the <code>"%A"</code> formatter in F# (but
 the next section shows how to override this behavior). The formatted result of the above snippet looks
 as follows:</p>
-
 <blockquote>
 <h3>Evaluation demo</h3>
 <p>The following is a simple calculation:</p>
@@ -120,19 +113,15 @@ as follows:</p>
 <p>And the variable <code>test</code> has the following value:</p>
 <table class="pre"><tr><td><pre><code>42
 </code></pre></td></tr></table></blockquote>
-
-<p>In addition to the commands demonstrated in the above sample, you can also use <code>(*** include-it: test ***)</code> 
-to include the <code>it</code> value that was produced by a snippet named <code>test</code> using the <code>(*** define-output: test ***)</code> 
+<p>In addition to the commands demonstrated in the above sample, you can also use <code>(*** include-it: test ***)</code>
+to include the <code>it</code> value that was produced by a snippet named <code>test</code> using the <code>(*** define-output: test ***)</code>
 command.</p>
-
 <h2><a name="Specifying-the-evaluator-and-formatting" class="anchor" href="#Specifying-the-evaluator-and-formatting">Specifying the evaluator and formatting</a></h2>
-
-<p>The embedding of F# output requires specifying an additional parameter to the 
+<p>The embedding of F# output requires specifying an additional parameter to the
 parsing functions discussed in <a href="literate.html">literate programming documentation</a>.
 Assuming you have all the references in place, you can now create an instance of
 <code>FsiEvaluator</code> that represents a wrapper for F# interactive and pass it to all the
 functions that parse script files or process script files:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -161,60 +150,46 @@ functions that parse script files or process script files:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>When the <code>fsiEvaluator</code> parameter is specified, the script is evaluated and so you
 can use additional commands such as <code>include-value</code>. When the evaluator is <em>not</em> specified,
 it is not created automatically and so the functionality is not available (this way,
 you won't accidentally run unexpected code!)</p>
-
 <p>If you specify the <code>fsiEvaluator</code> parameter, but don't want a specific snippet to be evaluated
-(because it might throw an exception, for example), you can use the <code>(*** do-not-eval ***)</code> 
+(because it might throw an exception, for example), you can use the <code>(*** do-not-eval ***)</code>
 command.</p>
-
 <p>The constructor of <code>FsiEvaluator</code> takes command line parameters for <code>fsi.exe</code> that can
 be used to specify, for example, defined symbols and other attributes for F# Interactive.</p>
-
 <p>You can also subscribe to the <code>EvaluationFailed</code> event which is fired whenever the evaluation
 of an expression fails. You can use that to do tests that verify that all off the code in your
 documentation executes without errors.</p>
-
 <h2><a name="Emitting-Raw-Text" class="anchor" href="#Emitting-Raw-Text">Emitting Raw Text</a></h2>
-
 <p>When writing documents, it is sometimes required to emit completely unaltered text. Up to this point all
-of the <code>commands</code> have decorated the code or text with some formatting, for example a <code>pre</code> element. When working 
+of the <code>commands</code> have decorated the code or text with some formatting, for example a <code>pre</code> element. When working
 with layout or content generation engines such as Jeykll, we sometimes need to emit plain text as declarations to
 said engines. This is where the <code>raw</code> command is useful.</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">(**</span>
-<span class="c">    (*** raw ***)</span>
-<span class="c">    Some raw text.</span>
+<span class="c">	(*** raw ***)</span>
+<span class="c">	Some raw text.</span>
 <span class="c">*)</span>
 </code></pre></td>
 </tr>
 </table>
-
 <p>which would emit</p>
-
 <pre>
 Some raw text.
 </pre>
-
 <p>directly into the document.</p>
-
 <h2><a name="Custom-formatting-functions" class="anchor" href="#Custom-formatting-functions">Custom formatting functions</a></h2>
-
 <p>As mentioned earlier, values are formatted using a simple <code>"%A"</code> formatter by default.
 However, you can specify a formatting function that provides a nicer formatting for values
 of certain types. For example, let's say that we would want to format F# lists such as
 <code>[1; 2; 3]</code> as HTML ordered lists <code>&lt;ol&gt;</code>.</p>
-
 <p>This can be done by calling <code>RegisterTransformation</code> on the <code>FsiEvaluator</code> instance:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -243,18 +218,15 @@ of certain types. For example, let's say that we would want to format F# lists s
 </code></pre></td>
 </tr>
 </table>
-
 <p>The function is called with two arguments - <code>o</code> is the value to be formatted and <code>ty</code>
 is the static type of the value (as inferred by the F# compiler). The sample checks
-that the type of the value is a list (containing values of any type) and then it 
+that the type of the value is a list (containing values of any type) and then it
 casts all values in the list to <code>obj</code> (for simplicity). Then we generate Markdown
 blocks representing an ordered list. This means that the code will work for both
 LaTeX and HTML formatting - but if you only need one, you can simply produce HTML and
 embed it in <code>InlineBlock</code>.</p>
-
 <p>To use the new <code>FsiEvaluator</code>, we can use the same style as earlier. This time, we format
 a simple list containing strings:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -273,10 +245,8 @@ a simple list containing strings:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The resulting HTML formatting of the document contains the snippet that defines <code>test</code>,
 followed by a nicely formatted ordered list:</p>
-
 <blockquote>
 <h3>Formatting demo</h3>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -341,6 +311,7 @@ followed by a nicely formatted ordered list:</p>
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li class="divider"></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>

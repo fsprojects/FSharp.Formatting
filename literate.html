@@ -37,33 +37,29 @@
         <div class="span9" id="main">
           
 <h1><a name="F-Formatting-Literate-programming" class="anchor" href="#F-Formatting-Literate-programming">F# Formatting: Literate programming</a></h1>
-
-<p>The <code>FSharp.Formatting</code> package includes <code>FSharp.Literate.dll</code> that implements the 
+<p>The <code>FSharp.Formatting</code> package includes <code>FSharp.Literate.dll</code> that implements the
 idea of <em>literate programming</em>. The script uses the F# Markdown processor and code
 formatter to generate nice HTML pages from F# script files (<code>*.fsx</code> files) or Markdown
 documents (<code>*.md</code> files) containing F# snippets.</p>
-
 <p>The next section of the article discusses the two options and introduces some special
 commands that you can use when writing your script files. The second section shows
 how to use the literate programming library from your F# projects.</p>
-
 <h2><a name="Literate-programming" class="anchor" href="#Literate-programming">Literate programming</a></h2>
-
 <p>The script can work in two different modes, depending on the kind of input
 you want to write (and turn into HTML):</p>
-
 <ul>
-<li><p>Documents that are valid F# script files (<code>*.fsx</code>) and contain special
-comments with documentation and commands for generating HTML output</p></li>
-<li><p>Documents that are Markdown documents (<code>*.md</code>) and contain blocks of 
-F# code (indented by four spaces as usual in Markdown)</p></li>
+<li>
+<p>Documents that are valid F# script files (<code>*.fsx</code>) and contain special
+comments with documentation and commands for generating HTML output</p>
+</li>
+<li>
+<p>Documents that are Markdown documents (<code>*.md</code>) and contain blocks of
+F# code (indented by four spaces as usual in Markdown)</p>
+</li>
 </ul>
-
 <h3><a name="F-Script-files" class="anchor" href="#F-Script-files">F# Script files</a></h3>
-
 <p>The following example shows most of the features that can be used in a literate
 F# script file. Most of the features should be quite self-explanatory:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -96,36 +92,33 @@ F# script file. Most of the features should be quite self-explanatory:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The F# script files is processed as follows:</p>
-
 <ul>
-<li><p>A multi-line comment starting with <code>(**</code> and ending with <code>*)</code> is 
+<li>
+<p>A multi-line comment starting with <code>(**</code> and ending with <code>*)</code> is
 turned into text and is processed using the F# Markdown processor
-(which supports standard Markdown commands).</p></li>
-<li><p>A single-line comment starting with <code>(***</code> and ending with <code>***)</code> 
+(which supports standard Markdown commands).</p>
+</li>
+<li>
+<p>A single-line comment starting with <code>(***</code> and ending with <code>***)</code>
 is treated as a special command. The command can consist of
-<code>key: value</code> or <code>key=value</code> pairs or just <code>key</code> command.</p></li>
+<code>key: value</code> or <code>key=value</code> pairs or just <code>key</code> command.</p>
+</li>
 </ul>
-
 <p>Two of the supported commands are <code>define</code>, which defines a named
-snippet (such as <code>final-sample</code>) and removes the command together with 
+snippet (such as <code>final-sample</code>) and removes the command together with
 the following F# code block from the main document. The snippet can then
 be inserted elsewhere in the document using <code>include</code>. This makes it
 possible to write documents without the ordering requirements of the
 F# language.</p>
-
 <p>Another command is <code>hide</code> (without a value) which specifies that the
-following F# code block (until the next comment or command) should be 
+following F# code block (until the next comment or command) should be
 omitted from the output.</p>
-
 <h3><a name="Markdown-documents" class="anchor" href="#Markdown-documents">Markdown documents</a></h3>
-
 <p>In the Markdown mode, the entire file is a valid Markdown document, which may
 contain F# code snippets (but also other code snippets). As usual, snippets are
 indented with four spaces. In addition, the snippets can be annotated with special
 commands. Some of them are demonstrated in the following example:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -158,32 +151,31 @@ With some more documentation
     [lang=csharp]
     Console.WriteLine("Hello world!");
 </code></pre></td></tr></table>
-
 <p>When processing the document, all F# snippets are copied to a separate file that
 is type-checked using the F# compiler (to obtain colours and tool tips).
 The commands are written on the first line of the snippet, wrapped in <code>[...]</code>:</p>
-
 <ul>
-<li><p>The <code>hide</code> command specifies that the F# snippet should not be included in the
+<li>
+<p>The <code>hide</code> command specifies that the F# snippet should not be included in the
 final document. This can be used to include code that is needed to type-check
-the code, but is not visible to the reader.</p></li>
-<li><p>The <code>module=Foo</code> command can be used to specify F# <code>module</code> where the snippet
+the code, but is not visible to the reader.</p>
+</li>
+<li>
+<p>The <code>module=Foo</code> command can be used to specify F# <code>module</code> where the snippet
 is placed. Use this command if you need multiple versions of the same snippet
-or if you need to separate code from different snippets.</p></li>
-<li><p>The <code>lang=foo</code> command specifies the language of the snippet. If the language
+or if you need to separate code from different snippets.</p>
+</li>
+<li>
+<p>The <code>lang=foo</code> command specifies the language of the snippet. If the language
 is other than <code>fsharp</code>, the snippet is copied to the output as <code>&lt;pre&gt;</code> HTML
-tag without any processing.</p></li>
+tag without any processing.</p>
+</li>
 </ul>
-
 <h2><a name="Typical-literate-setup" class="anchor" href="#Typical-literate-setup">Typical literate setup</a></h2>
-
 <p>For literate programming support in your project, install the <code>FSharp.Formatting</code> nuget package.
 HTML (or LaTeX) is generated by including a simple script file similar to <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/build.fsx"><code>build.fsx</code></a> in your project.</p>
-
 <p>You can find this file in the installed nuget package folder: <code>/packages/FSharp.Formatting.2.8.0/literate/</code></p>
-
 <p>Assuming you are using <em>FSharp.Formatting 2.8.0</em> typical <code>build.fsx</code> looks like this:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -194,15 +186,11 @@ HTML (or LaTeX) is generated by including a simple script file similar to <a hre
 </code></pre></td>
 </tr>
 </table>
-
 <p><code>FSharp.Formatting.fsx</code> loads all the necessary assemblies. <code>open FSharp.Literate</code> references
 the library with all the important functionality.</p>
-
 <p>Now we can open <code>FSharp.Literate</code> and use the <code>Literate</code> type to process individual
 documents or entire directories.</p>
-
 <h3><a name="Processing-individual-files" class="anchor" href="#Processing-individual-files">Processing individual files</a></h3>
-
 <p>The <code>Literate</code> type has two static methods <code>ProcessScriptFile</code> and <code>ProcessMarkdown</code>
 that turn an F# script file and Markdown document, respectively, into an HTML file.
 If you wish to specify the HTML file structure, you can provide a template. Two sample templates
@@ -210,18 +198,15 @@ are included: for a <a href="https://github.com/tpetricek/FSharp.Formatting/blob
 and for a <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/templates/template-project.html">project</a>,
 but you can use your own. If no template is provided, the result is simply the HTML body
 of the document with HTML for tool tips appended to the end.</p>
-
 <p>The template should include two parameters that will be replaced with the actual
 HTML: <code>{document}</code> will be replaced with the formatted document; <code>{tooltips}</code> will be
 replaced with (hidden) <code>&lt;div&gt;</code> elements containing code for tool tips that appear
-when you place mouse pointer over an identifier. Optionally, you can also use 
+when you place mouse pointer over an identifier. Optionally, you can also use
 <code>{page-title}</code> which will be replaced with the text in a first-level heading.
 The template should also reference <code>style.css</code> and <code>tips.js</code> that define CSS style
 and JavaScript functions used by the generated HTML (see sample <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/style.css">stylesheet</a>
 and <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/tips.js">script</a> on GitHub).</p>
-
 <p>Assuming you have <code>template.html</code> in the current directory, you can write:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
@@ -230,10 +215,8 @@ and <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/src/FSha
 </code></pre></td>
 </tr>
 </table>
-
 <p>Then you can use the two static methods to turn single documents into HTML
 as follows:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -248,22 +231,18 @@ as follows:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>This sample uses <code>*.md</code> extension for Markdown documents, but this is not required when
 using <code>ProcessMarkdown</code>. You can use any extension you wish. By default, the methods
 will generate file with the same name (but with the <code>.html</code> extension). You can change
-this by adding a third parameter with the output file name. There are a number of 
+this by adding a third parameter with the output file name. There are a number of
 additional parameters that you can specify - these are discussed below.</p>
-
 <h3><a name="Processing-entire-directories" class="anchor" href="#Processing-entire-directories">Processing entire directories</a></h3>
-
 <p>If you have multiple script files and Markdown documents (this time, they need to have
 the <code>*.md</code> file extension) in a single directory, you can run the tool on a directory.
 It will also automatically check that files are re-generated only when they were changed.
 The following sample also uses optional parameter <code>replacements</code> to specify additional
 keywords that will be replaced in the template file (this matches the <code>template-project.html</code>
 file which is included as a sample in the package):</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -290,18 +269,14 @@ file which is included as a sample in the package):</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>The sample template <code>template-project.html</code> has been used to generate this documentation
 and it includes additional parameters for specifying various information about F#
 projects.</p>
-
 <h2><a name="Generating-LaTeX-output" class="anchor" href="#Generating-LaTeX-output">Generating LaTeX output</a></h2>
-
-<p>The methods used above (<code>ProcessScriptFile</code>, <code>ProcessMarkdown</code> as well as <code>ProcessDirectory</code>) 
+<p>The methods used above (<code>ProcessScriptFile</code>, <code>ProcessMarkdown</code> as well as <code>ProcessDirectory</code>)
 produce HTML output by default, but they can be also used to produce Latex output. This is done
 by setting the named parameter <code>format</code> to one of the two <code>OutputKind</code> cases. The following
 example shows how to call the methods to generate Latex documents:</p>
-
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -332,54 +307,73 @@ example shows how to call the methods to generate Latex documents:</p>
 </code></pre></td>
 </tr>
 </table>
-
 <p>Note that the <code>template.tex</code> file needs to contain <code>{content}</code> as the key where the body
 of the document is placed (this differs from <code>{document}</code> used in the HTML format to avoid
-collision with standard Latex <code>{document}</code> tag). The project comes with two samples (also 
+collision with standard Latex <code>{document}</code> tag). The project comes with two samples (also
 available as part of the NuGet package). The sample Latex (and HTML) outputs look as follows:</p>
-
 <ul>
-<li><a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.md">Sample Markdown file</a>
+<li>
+<a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.md">Sample Markdown file</a>
 produces the following <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.tex">LaTeX output</a>
-and <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.html">HTML output</a></li>
-<li><a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.fsx">Sample F# script file</a>
+and <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.html">HTML output</a>
+</li>
+<li>
+<a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/demo.fsx">Sample F# script file</a>
 produces the following <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.tex">LaTeX output</a>
-and <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.html">HTML output</a></li>
+and <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/misc/literate/output/demo-script.html">HTML output</a>
+</li>
 </ul>
-
 <h2><a name="Optional-parameters" class="anchor" href="#Optional-parameters">Optional parameters</a></h2>
-
 <p>All of the three methods discussed in the previous two sections take a number of optional
 parameters that can be used to tweak how the formatting works or even to specify a different
 version of the F# compiler:</p>
-
 <ul>
-<li><code>fsharpCompiler</code> - a <code>System.Reflection.Assembly</code> object that represents the 
+<li>
+<code>fsharpCompiler</code> - a <code>System.Reflection.Assembly</code> object that represents the 
 <code>FSharp.Compiler.dll</code> assembly that should be used for processing the snippets
-(specify this if you want to use custom version of the compiler!)</li>
-<li><code>prefix</code> - a string that is added to all automatically generated <code>id</code> attributes
-in the generated HTML document (to avoid collisions with other HTML elements)</li>
-<li><code>compilerOptions</code> - this can be used to pass any additional command line 
-parameters to the F# compiler (you can use any standard parameters of <code>fsc.exe</code>)</li>
+(specify this if you want to use custom version of the compiler!)
+</li>
+<li>
+<code>prefix</code> - a string that is added to all automatically generated <code>id</code> attributes
+in the generated HTML document (to avoid collisions with other HTML elements)
+</li>
+<li>
+<code>compilerOptions</code> - this can be used to pass any additional command line 
+parameters to the F# compiler (you can use any standard parameters of <code>fsc.exe</code>)
+</li>
 <li><code>lineNumbers</code> - if <code>true</code> then the generated F# snippets include line numbers.</li>
-<li><code>references</code> - if <code>true</code> then the script automatically adds a "References" 
-section with all indirect links that are defined and used in the document.</li>
-<li><code>replacements</code> - a list of key-value pairs containing additional parameters
-that should be replaced in the tempalte HTML file.</li>
-<li><code>includeSource</code> - when <code>true</code>, parameter <code>{source}</code> will be replaced with a 
-<code>&lt;pre&gt;</code> tag containing the original source code of the F# Script or Markdown document.</li>
-<li><code>errorHandler</code> - a function that is used to report errors from the F# compiler 
-(if not specified, errors are printed to the standard output)</li>
-<li><code>generateAnchors</code> - when <code>true</code>, the generated HTML will automatically include
+<li>
+<code>references</code> - if <code>true</code> then the script automatically adds a "References" 
+section with all indirect links that are defined and used in the document.
+</li>
+<li>
+<code>replacements</code> - a list of key-value pairs containing additional parameters
+that should be replaced in the tempalte HTML file.
+</li>
+<li>
+<code>includeSource</code> - when <code>true</code>, parameter <code>{source}</code> will be replaced with a 
+<code>&lt;pre&gt;</code> tag containing the original source code of the F# Script or Markdown document.
+</li>
+<li>
+<code>errorHandler</code> - a function that is used to report errors from the F# compiler 
+(if not specified, errors are printed to the standard output)
+</li>
+<li>
+<code>generateAnchors</code> - when <code>true</code>, the generated HTML will automatically include
 anchors for all headings (and so you can click on headings to get a link
-to a section). The default value is <code>false</code>.</li>
-<li><code>assemblyReferences</code> - The assemblies to use when compiling Razor templates.
+to a section). The default value is <code>false</code>.
+</li>
+<li>
+<code>assemblyReferences</code> - The assemblies to use when compiling Razor templates.
 Use this parameter if templates fail to compile with <code>mcs</code> on Linux or Mac or
 if you need additional references in your templates
-(if not specified, we use the currently loaded assemblies).</li>
-<li><code>customizeDocument</code> - Allows you to customize the document before writing it 
+(if not specified, we use the currently loaded assemblies).
+</li>
+<li>
+<code>customizeDocument</code> - Allows you to customize the document before writing it 
 to the output file. This gives you the opportunity to use your own
-code formatting code, for example to support syntax highlighting for another language.</li>
+code formatting code, for example to support syntax highlighting for another language.
+</li>
 </ul>
 
 <div class="tip" id="fs1">val helloWorld : unit -&gt; unit<br /><br />Full name: literate.helloWorld</div>
@@ -430,6 +424,7 @@ code formatting code, for example to support syntax highlighting for another lan
 
             <li class="nav-header">Documentation</li>
             <li><a href="/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li class="divider"></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
             <li><a href="/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>

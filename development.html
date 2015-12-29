@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Markdown extensions
- side-by-side example</title>
+    <title>F# Formatting: Development Topics
+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A package for building great F# documentation, samples and blogs">
     <meta name="author" content="Tomas Petricek">
@@ -35,78 +35,29 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-
-          <h1 style="margin-bottom:35px">Markdown extensions
- side-by-side example</h1>
-          <div class="row">
-            <div class="span5" id="hp-snippet">
-              <table class="pre"><tr><td><pre><code>Markdown extensions
-===================
-
-To use LaTex extension, you need add javascript
-link to [MathJax](http://www.mathjax.org/) in
-your template.
-
-To use inline LaTex, eclose LaTex code with `$`:
-$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $. Alternatively,
-you can also use `$$`.
-
-To use block LaTex, start a new parapgraph, with
-the first line marked as `$$$` (no close `$$$`):
-
-$$$
-A_{m,n} =
- \begin{pmatrix}
-  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
-  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
-  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
- \end{pmatrix}
-
-Use LaTex escape rule:
-
-- Escape \$ in inline mode: $ \$ $, $ \$var $
-- Other escapes: $ \&amp; \% \$ \# \_ \{ \} $
-- Using &lt; or &gt;: $ x &gt; 1 $, $ y &lt; 1 $, $ x &gt;= 1 $,
-  $ y &lt;= 1 $, $ x = 1 $
-- $ &lt;p&gt;something&lt;/p&gt; $
-
-
-</code></pre></td></tr></table>
-
-            </div>
-            <div class="span4">
-              <h1><a name="Markdown-extensions" class="anchor" href="#Markdown-extensions">Markdown extensions</a></h1>
-<p>To use LaTex extension, you need add javascript
-link to <a href="http://www.mathjax.org/">MathJax</a> in
-your template.</p>
-<p>To use inline LaTex, eclose LaTex code with <code>$</code>:
-<span class="math">\(k_{n+1} = n^2 + k_n^2 - k_{n-1}\)</span>. Alternatively,
-you can also use <code>$$</code>.</p>
-<p>To use block LaTex, start a new parapgraph, with
-the first line marked as <code>$$$</code> (no close <code>$$$</code>):</p>
-<p><span class="math">\[A_{m,n} =
- \begin{pmatrix}
-  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
-  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
-  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
-  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
- \end{pmatrix}\]</span></p>
-<p>Use LaTex escape rule:</p>
-<ul>
-<li>Escape $ in inline mode: <span class="math">\(\$\)</span>, <span class="math">\(\$var\)</span></li>
-<li>Other escapes: <span class="math">\(\&amp; \% \$ \# \_ \{ \}\)</span></li>
-<li>
-Using < or >: <span class="math">\(x &gt; 1\)</span>, <span class="math">\(y &lt; 1\)</span>, <span class="math">\(x &gt;= 1\)</span>,
-<span class="math">\(y &lt;= 1\)</span>, <span class="math">\(x = 1\)</span>
-</li>
-<li><span class="math">\(&lt;p&gt;something&lt;/p&gt;\)</span></li>
-</ul>
-
-            </div>
-          </div>
-
           
+<h1><a name="F-Formatting-Development-Topics" class="anchor" href="#F-Formatting-Development-Topics">F# Formatting: Development Topics</a></h1>
+<h2><a name="Improve-Common-Mark-Test-Coverage" class="anchor" href="#Improve-Common-Mark-Test-Coverage">Improve Common-Mark Test Coverage</a></h2>
+<p>See <a href="https://github.com/tpetricek/FSharp.Formatting/pull/343">https://github.com/tpetricek/FSharp.Formatting/pull/343</a></p>
+<h2><a name="Update-Common-Mark-Test-Suite" class="anchor" href="#Update-Common-Mark-Test-Suite">Update Common-Mark Test Suite</a></h2>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="o">.</span><span class="o">/</span><span class="i">build</span><span class="o">.</span><span class="i">sh</span> <span class="i">CreateTestJson</span>
+<span class="i">git</span> <span class="i">add</span> <span class="o">-</span><span class="i">A</span>
+<span class="i">git</span> <span class="i">commit</span> <span class="o">-</span><span class="i">m</span> <span class="s">&quot;Update Common-Mark test suite&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="More-information" class="anchor" href="#More-information">More information</a></h2>
+<p>The project is hosted on <a href="https://github.com/tpetricek/FSharp.Formatting">GitHub</a> where you can
+<a href="https://github.com/tpetricek/FSharp.Formatting/issues">report issues</a>, fork the project and submit pull requests.
+Thanks to <a href="https://github.com/ovatsus">Gustavo Guerra</a> for a great build script and
+<a href="https://github.com/forki">Steffen Forkmann</a> for the great build tool <a href="https://github.com/fsharp/FAKE">FAKE</a>.
+The library is available under Apache 2.0. For more information see the
+<a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License file</a> in the GitHub repository.</p>
+
 
         </div>
         <div class="span3">
