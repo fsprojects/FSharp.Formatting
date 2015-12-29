@@ -48,6 +48,15 @@ module String =
   /// The matched string is trimmed from all whitespace.
   let (|StartsWithTrim|_|) (start:string) (text:string) = 
     if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+  /// Matches when a string starts with the specified sub-string (ignoring whitespace at the start)
+  /// The matched string is trimmed from all whitespace.
+  let (|StartsWithTrimIgnoreStartWhitespace|_|) (start:string) (text:string) =
+    if text.Contains(start) then
+      let beforeStart = text.Substring(0, text.IndexOf(start))
+      if String.IsNullOrWhiteSpace (beforeStart) then
+        Some(beforeStart.Length, text.Substring(beforeStart.Length + start.Length).Trim())
+      else None
+    else None
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
@@ -186,9 +195,9 @@ module Lines =
     | matching, rest when matching <> [] -> Some(matching, rest)
     | _ -> None
 
-  /// Matches when there are some lines at the beginning that are 
+  /// Matches when there are some lines at the beginning that are
   /// either empty (or whitespace) or start with at least 4 spaces (a tab counts as 4 spaces here).
-  /// Returns all such lines from the beginning until a different line and 
+  /// Returns all such lines from the beginning until a different line and
   /// the number of spaces the first line started with.
   let (|TakeCodeBlock|_|) (input:string list) =
     let spaceNum =
@@ -202,7 +211,7 @@ module Lines =
       let normalized = s.Replace("\t", "    ")
       normalized.Length >= spaceNum &&
         normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
-    match List.partitionWhile (fun s -> 
+    match List.partitionWhile (fun s ->
             String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
     | matching, rest when matching <> [] && spaceNum >= 4 ->
       Some(spaceNum, matching, rest)

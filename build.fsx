@@ -280,21 +280,37 @@ let commandToolStartInfo workingDirectory environmentVars args =
         setVar "FSI" fsiPath)
 
 /// Run the given buildscript with FAKE.exe
-let executeCommandToolWithOutput workingDirectory envArgs args =
+let executeWithOutput configStartInfo =
     let exitCode =
         ExecProcessWithLambdas
-            (commandToolStartInfo workingDirectory envArgs args)
+            configStartInfo
             TimeSpan.MaxValue false ignore ignore
     System.Threading.Thread.Sleep 1000
     exitCode
 
+let executeWithRedirect errorF messageF configStartInfo =
+    let exitCode =
+        ExecProcessWithLambdas
+            configStartInfo
+            TimeSpan.MaxValue true errorF messageF
+    System.Threading.Thread.Sleep 1000
+    exitCode
+
+let executeHelper executer traceMsg failMessage configStartInfo =
+    trace traceMsg
+    let exit = executer configStartInfo
+    if exit <> 0 then
+        failwith failMessage
+    ()
+
+let execute = executeHelper executeWithOutput
+
 // Documentation
 let buildDocumentationCommandTool args =
-    trace (sprintf "Building documentation (CommandTool), this could take some time, please wait...")
-    let exit = executeCommandToolWithOutput "." [] args
-    if exit <> 0 then
-        failwith "generating documentation failed"
-    ()
+  execute
+    "Building documentation (CommandTool), this could take some time, please wait..."
+    "generating documentation failed"
+    (commandToolStartInfo "." [] args)
 
 let createArg argName arguments =
     (arguments : string seq)
@@ -334,22 +350,13 @@ let commandToolLiterateArgument inDir outDir layoutRoots parameters =
 
     sprintf "literate --processDirectory %s %s %s %s" inDirArg outDirArg layoutRootsArgs replacementsArgs
 
-/// Run the given buildscript with FAKE.exe
-let executeFAKEWithOutput workingDirectory script fsiargs envArgs =
-    let exitCode =
-        ExecProcessWithLambdas
-            (fakeStartInfo script workingDirectory "" fsiargs envArgs)
-            TimeSpan.MaxValue false ignore ignore
-    System.Threading.Thread.Sleep 1000
-    exitCode
-
 // Documentation
 let buildDocumentationTarget fsiargs target =
-    trace (sprintf "Building documentation (%s), this could take some time, please wait..." target)
-    let exit = executeFAKEWithOutput "docs/tools" "generate.fsx" fsiargs ["target", target]
-    if exit <> 0 then
-        failwith "generating reference documentation failed"
-    ()
+    execute
+      (sprintf "Building documentation (%s), this could take some time, please wait..." target)
+      "generating reference documentation failed"
+      (fakeStartInfo "generate.fsx" "docs/tools" "" fsiargs ["target", target])
+
 
 let bootStrapDocumentationFiles () =
     // This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
@@ -446,6 +453,54 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
+#r "System.IO.Compression"
+#r "System.IO.Compression.FileSystem"
+Target "DownloadPython" (fun _ ->
+  if not isUnix then
+    let w = new System.Net.WebClient()
+    let zipFile = "temp"@@"cpython.zip"
+    if File.Exists zipFile then File.Delete zipFile
+    w.DownloadFile("https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip", zipFile)
+    let cpython = "temp"@@"CPython"
+    CleanDir cpython
+    System.IO.Compression.ZipFile.ExtractToDirectory(zipFile, cpython)
+    let cpythonStdLib = cpython@@"stdlib"
+    CleanDir cpythonStdLib
+    System.IO.Compression.ZipFile.ExtractToDirectory(cpython@@"python35.zip", cpythonStdLib)
+)
+
+Target "CreateTestJson" (fun _ ->
+    let targetPath = "temp/CommonMark"
+    CleanDir targetPath
+    Git.Repository.clone targetPath "https://github.com/jgm/CommonMark.git" "."
+
+    let pythonExe, stdLib =
+      if not isUnix then
+        System.IO.Path.GetFullPath ("temp"@@"CPython"@@"python.exe"),
+        System.IO.Path.GetFullPath ("temp"@@"CPython"@@"stdlib")
+      else "python", ""
+
+    let resultFile = "temp"@@"commonmark-tests.json"
+    if File.Exists resultFile then File.Delete resultFile
+    ( use fileStream = new StreamWriter(File.Open(resultFile, System.IO.FileMode.Create))
+      executeHelper
+        (executeWithRedirect traceError fileStream.WriteLine)
+        "Creating test json file, this could take some time, please wait..."
+        "generating documentation failed"
+        (fun info ->
+            info.FileName <- pythonExe
+            info.Arguments <- "test/spec_tests.py --dump-tests"
+            info.WorkingDirectory <- targetPath
+            let setVar k v =
+                info.EnvironmentVariables.[k] <- v
+            if not isUnix then
+              setVar "PYTHONPATH" stdLib
+            setVar "MSBuild" msBuildExe
+            setVar "GIT" Git.CommandHelper.gitPath
+            setVar "FSI" fsiPath))
+    File.Copy(resultFile, "tests"@@"commonmark_spec.json")
+)
+
 "Clean" ==> "AssemblyInfo" ==> "Build" ==> "BuildTests"
 "Build" ==> "MergeVSPowerTools" ==> "All"
 "BuildTests" ==> "RunTests" ==> "All"
@@ -460,5 +515,7 @@ Target "All" DoNothing
 //  ==> "ReleaseBinaries"
   ==> "CreateTag"
   ==> "Release"
+
+"DownloadPython" ==> "CreateTestJson"
 
 RunTargetOrDefault "All"

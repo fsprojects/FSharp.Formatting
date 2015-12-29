@@ -60,7 +60,6 @@
     </Compile>
     <Compile Include="Markdown.fs" />
     <Compile Include="MarkdownParser.fs" />
-    <Compile Include="NextGenMarkdownParser.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />

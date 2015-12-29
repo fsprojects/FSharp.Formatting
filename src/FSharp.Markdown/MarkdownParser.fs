@@ -294,16 +294,23 @@ let (|NestedCodeBlock|_|) = function
   | Lines.TakeStartingWithOrBlank "    " (Lines.TrimBlank lines, rest) when lines <> [] ->
       let code =
         [ for l in lines ->
-            if String.IsNullOrWhiteSpace l then ""
+            if l.Length < 5 && String.IsNullOrWhiteSpace l then ""
             elif l.Length > 4 then l.Substring(4, l.Length - 4)
             else l ]
-      Some((if rest.IsEmpty then code else code @ [""]), rest, "", "")
+      Some(code @ [""], rest, "", "")
   | _ -> None
 
 /// Recognizes a fenced code block - starting and ending with ```
 let (|FencedCodeBlock|_|) = function
-  | String.StartsWithTrim "```" header :: lines ->
+  | String.StartsWithTrimIgnoreStartWhitespace "```" (indent, header) :: lines ->
       let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
+      let handleIndent (l:string) =
+        if l.Length <= indent && String.IsNullOrWhiteSpace l then ""
+        elif l.Length > indent && String.IsNullOrWhiteSpace (l.Substring(0, indent)) then l.Substring(indent, l.Length - indent)
+        else l.TrimStart()
+      let code =
+        [ for l in code -> handleIndent l ]
+
       // langString is the part after ``` and ignoredString is the rest until the line ends.
       let langString, ignoredString =
         if String.IsNullOrWhiteSpace header then "", "" else
@@ -321,7 +328,7 @@ let (|FencedCodeBlock|_|) = function
             if idx > -1 && idx + 3 <= hd.Length then
                 let pre = hd.Substring(0, idx)
                 let after = hd.Substring(idx + 3)
-                code @ [pre], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
+                code @ [handleIndent pre], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
             else
                 code, tl
         | _ ->
