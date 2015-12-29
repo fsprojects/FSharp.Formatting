@@ -217,7 +217,7 @@ let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
     Æøå"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain ">Æøå<"
+  html |> should contain (sprintf ">Æøå%s<" System.Environment.NewLine)
 
 [<Test>]
 let ``Correctly handles code starting with whitespace`` () =
@@ -226,7 +226,7 @@ let ``Correctly handles code starting with whitespace`` () =
       inner"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain ">  inner<"
+  html |> should contain ">  inner"
 
 [<Test>]
 let ``Correctly handles code which garbage after commands`` () =
@@ -236,16 +236,7 @@ let ``Correctly handles code which garbage after commands`` () =
       inner"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain ">  inner<"
-
-[<Test>]
-let ``Correctly handles code after the commands`` () =
-  // This will work, but trigger a warning!
-  let content = """
-    [lang=unknown] let this be some code"""
-  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.WriteHtml(doc)
-  html |> should contain " let this be some code"
+  html |> should contain ">  inner"
 
 [<Test>]
 let ``Correctly handles apostrophes in JS code block (#213)`` () =

@@ -1,6 +1,7 @@
 source http://nuget.org/api/v2
 redirects: on
 
+nuget FSharp.Data
 nuget FAKE
 nuget CommandLineParser
 nuget FSharp.Core

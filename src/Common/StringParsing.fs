@@ -34,8 +34,9 @@ module String =
   /// Returns a string trimmed from the start together with 
   /// the number of skipped whitespace characters
   let (|TrimStartAndCount|) (text:string) = 
-    let trimmed = text.TrimStart()
-    text.Length - trimmed.Length, trimmed
+    let trimmed = text.TrimStart([|' '; '\t'|])
+    let len = text.Length - trimmed.Length
+    len, text.Substring(0, len).Replace("\t", "    ").Length, trimmed
 
   /// Matches when a string starts with any of the specified sub-strings
   let (|StartsWithAny|_|) (starts:seq<string>) (text:string) = 
@@ -47,6 +48,22 @@ module String =
   /// The matched string is trimmed from all whitespace.
   let (|StartsWithTrim|_|) (start:string) (text:string) = 
     if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+
+  /// Matches when a string starts with the specified sub-string (ignoring whitespace at the start)
+  /// The matched string is trimmed from all whitespace.
+  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string) =
+    if text.Contains(start) then
+      let beforeStart = text.Substring(0, text.IndexOf(start))
+      if String.IsNullOrWhiteSpace (beforeStart) then
+        let startAndRest = text.Substring(beforeStart.Length)
+        let startNum =
+          Seq.windowed start.Length startAndRest
+          |> Seq.map (fun chars -> System.String(chars))
+          |> Seq.takeWhile ((=) start)
+          |> Seq.length
+        Some(startNum, beforeStart.Length, text.Substring(beforeStart.Length + (start.Length * startNum)).Trim())
+      else None
+    else None
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
@@ -151,6 +168,13 @@ module List =
   /// using the specified delimiter. Returns a wrapped list and the rest.
   let inline (|Delimited|_|) str = (|DelimitedWith|_|) str str
 
+  let inline (|DelimitedNTimes|_|) str input =
+    let strs, items = List.partitionWhile (fun i -> i = str) input
+    match strs with
+    | h :: _ ->
+      (|Delimited|_|) (List.init strs.Length (fun _ -> str)) input
+    | _ -> None
+
   /// Matches a list if it starts with a bracketed list. Nested brackets
   /// are skipped (by counting opening and closing brackets) and can be 
   /// escaped using the '\' symbol.
@@ -185,9 +209,40 @@ module Lines =
     | matching, rest when matching <> [] -> Some(matching, rest)
     | _ -> None
 
+  /// Matches when there are some lines at the beginning that are
+  /// either empty (or whitespace) or start with at least 4 spaces (a tab counts as 4 spaces here).
+  /// Returns all such lines from the beginning until a different line and
+  /// the number of spaces the first line started with.
+  let (|TakeCodeBlock|_|) (input:string list) =
+    let spaceNum = 4
+      //match input with
+      //| h :: _ ->
+      //  let head = (input |> List.head).Replace("\t", "    ") |> Seq.toList
+      //  let spaces, _ = List.partitionWhile (fun s -> s = ' ') head
+      //  spaces.Length
+      //| _ -> 0
+    let startsWithSpaces (s:string) =
+      let normalized = s.Replace("\t", "    ")
+      normalized.Length >= spaceNum &&
+        normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
+    match List.partitionWhile (fun s ->
+            String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
+    | matching, rest when matching <> [] && spaceNum >= 4 ->
+      Some(spaceNum, matching, rest)
+    | _ -> None
+
   /// Removes whitespace lines from the beginning of the list
   let (|TrimBlankStart|) = List.skipWhile (String.IsNullOrWhiteSpace)
 
+  /// Trims all lines of the current paragraph
+  let (|TrimParagraphLines|) lines =
+    lines
+    // first remove all whitespace on the beginning of the line
+    |> List.map (fun (s:string) -> s.TrimStart())
+    // Now remove all additional spaces at the end, but keep two spaces if existent
+    |> List.map (fun s ->
+      let endsWithTwoSpaces = s.EndsWith("  ")
+      s.TrimEnd([|' '|]) + if endsWithTwoSpaces then "  " else "")
 
 /// Parameterized pattern that assigns the specified value to the 
 /// first component of a tuple. Usage:
