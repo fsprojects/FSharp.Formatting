@@ -10,7 +10,7 @@
     <RootNamespace>FSharp.Markdown</RootNamespace>
     <AssemblyName>
     </AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <Name>FSharp.Markdown</Name>
@@ -64,6 +64,13 @@
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

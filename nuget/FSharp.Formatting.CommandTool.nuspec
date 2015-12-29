@@ -21,6 +21,7 @@
   <files>
     <!-- Copy all binaries to tools folder -->
     <file src="..\bin\*" target="tools" />
+
     <!-- Templates & styles & literate demos -->
     <file src="..\misc\templates\*.cshtml" target="templates" />
     <file src="..\misc\templates\reference\*.cshtml" target="templates/reference" />

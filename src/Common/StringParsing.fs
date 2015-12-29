@@ -79,6 +79,26 @@ module String =
     if n = 0 || n % repeated.Length <> 0 then None
     else Some(n/repeated.Length, text.Substring(n, text.Length - n)) 
 
+  /// Ignores everything until a end-line character is detected, returns the remaining string.
+  let (|SkipSingleLine|) (text:string) =
+    let rec tryEol eolList =
+      match eolList with
+      | h : string :: t ->
+        match text.IndexOf(h) with
+        | i when i < 0 -> tryEol t
+        | i ->
+          text.Substring (i + h.Length)
+      | _ ->
+        text
+    let result = tryEol [ "\r\n"; "\n" ]
+    let skipped = text.Substring(0, text.Length - result.Length)
+    if not <| String.IsNullOrWhiteSpace(skipped) then
+      FSharp.Formatting.Common.Log.warnf "skipped '%s' which contains non-whitespace character!" skipped
+    if result = text then
+      FSharp.Formatting.Common.Log.warnf "could not skip a line of %s, because no line-ending character was found!" text
+    result
+
+
   /// Matches when a string starts with a sub-string wrapped using the 
   /// opening and closing sub-string specified in the parameter.
   /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped

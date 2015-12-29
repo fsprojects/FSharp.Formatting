@@ -1,3 +1,9 @@
+## 2.12.1 (24 December, 2015)
+ - update dependencies
+ - Upgrade the CommandTool to F# 4 and bundle FSharp.Core with sigdata and optdata.
+ - Fix crash when a fenced code block starts with an empty line (https://github.com/tpetricek/FSharp.Formatting/pull/361)
+ - Support for all known xml elements (https://github.com/tpetricek/FSharp.Formatting/pull/331)
+ 
 ## 2.12.0 (18 October, 2015)
  - Update dependencies to be compatible with FSharp.Compiler.Service >=1.4.0.3
 

@@ -247,7 +247,9 @@ type CodeFormatAgent() =
 
   // Create an instance of an InteractiveChecker (which does background analysis
   // in a typical IntelliSense editor integration for F#)
-  let languageService = LanguageService() 
+  let languageService = LanguageService()
+  do languageService.SetCriticalErrorHandler(fun exn str1 str2 opts ->
+      FSharp.Formatting.Common.Log.errorf "Language Service Error (%s, %s, %A): %O" str1 str2 opts exn)
 
   /// Type-checking takes some time and doesn't return information on the
   /// first call, so this function creates workflow that tries repeatedly
@@ -281,7 +283,7 @@ type CodeFormatAgent() =
 
     // Run the second phase - perform type checking
     let checkResults, symbolUses = getTypeCheckInfo(file, source, opts) |> Async.RunSynchronously
-    let errors = checkResults.GetErrors()
+    let errors = checkResults.Errors
 
     let lexer = 
         { new LexerBase() with
@@ -337,17 +339,14 @@ type CodeFormatAgent() =
           // Return parsed snippet as 'Snippet' value
           Snippet(title, parsed))
   
-    let sourceErrors = 
-      match errors with
-      | Some errors ->
-          [| for errInfo in errors do
-              if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
-               yield 
-                 SourceError
-                   ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
-                     (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
-                     errInfo.Message ) |]
-      | None -> [||]
+    let sourceErrors =
+      [| for errInfo in errors do
+          if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+            yield
+              SourceError
+                ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
+                  (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
+                  errInfo.Message ) |]
     return parsedSnippets, sourceErrors 
   }
  

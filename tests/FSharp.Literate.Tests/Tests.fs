@@ -123,6 +123,19 @@ let test = 42
     | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
 
 [<Test>]
+let ``Can parse and format markdown with Github-flavoured F# snippet starting and ending with empty lines`` () =
+  let content = """
+```fsharp
+
+let test = 42
+
+```"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
+  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Paragraphs |> shouldMatchPar (function
+    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+
+[<Test>]
 let ``Can generate references from indirect links`` () =
   let content = """
 (** 
@@ -205,6 +218,34 @@ let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain ">Æøå<"
+
+[<Test>]
+let ``Correctly handles code starting with whitespace`` () =
+  let content = """
+    [lang=unknown]
+      inner"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain ">  inner<"
+
+[<Test>]
+let ``Correctly handles code which garbage after commands`` () =
+  // This will trigger a warning!
+  let content = """
+    [lang=unknown] some ignored garbage
+      inner"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain ">  inner<"
+
+[<Test>]
+let ``Correctly handles code after the commands`` () =
+  // This will work, but trigger a warning!
+  let content = """
+    [lang=unknown] let this be some code"""
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  html |> should contain " let this be some code"
 
 [<Test>]
 let ``Correctly handles apostrophes in JS code block (#213)`` () =
