@@ -29,14 +29,16 @@ type MemberOrValue =
     Modifiers : string list 
     TypeArguments : string list 
     Signature : string
-    SourceLocation : string option }
+    SourceLocation : string option
+    CompiledName : string option }
   member x.FormatUsage(maxLength) = x.Usage(maxLength)
   member x.FormatTypeArguments = String.concat ", " x.TypeArguments
   member x.FormatModifiers = String.concat " " x.Modifiers
   member x.FormatSourceLocation = defaultArg x.SourceLocation ""
-  static member Create(usage, mods, typars, sign, location) =
+  member x.FormatCompiledName = defaultArg x.CompiledName ""
+  static member Create(usage, mods, typars, sign, location, compiledName) =
     { Usage = usage; Modifiers = mods; TypeArguments = typars;
-      Signature = sign; SourceLocation = location }
+      Signature = sign; SourceLocation = location; CompiledName = compiledName }
 
 type MemberKind = 
   // In a module
@@ -189,6 +191,12 @@ module ValueReader =
         AssemblyPath = assemblyPath
         CompilerOptions = compilerOptions
         FormatAgent = formatAgent }
+
+  let inline private getCompiledName (s : ^a when ^a :> FSharpSymbol) =
+    let compiledName = (^a : (member CompiledName : string) (s))
+    match compiledName = s.DisplayName with
+    | true -> None
+    | _    -> Some compiledName
 
   let formatSourceLocation (urlRangeHighlight : Uri -> int -> int -> string) (sourceFolderRepo : (string * string) option) (location : range option) =
     location |> Option.bind (fun location ->
@@ -408,7 +416,7 @@ module ValueReader =
     // If there is a signature file, we should go for implementation file
     let loc = tryGetLocation v
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location)
+    MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location, getCompiledName v)
 
     (*
 
@@ -462,7 +470,7 @@ module ValueReader =
     let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
     let loc = tryGetLocation case
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
+    MemberOrValue.Create(usage, modifiers, typeparams, signature, location, getCompiledName case)
 
   let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
     let usage (maxLength:int) = field.Name
@@ -473,7 +481,7 @@ module ValueReader =
     let signature = formatType field.FieldType
     let loc = tryGetLocation field
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
+    MemberOrValue.Create(usage, modifiers, typeparams, signature, location, if field.Name <> field.DisplayName then Some field.Name else None)
 
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName = 
     "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
@@ -485,7 +493,7 @@ module ValueReader =
     let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
     let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(usage, modifiers, typeparams, signature, location)
+    MemberOrValue.Create(usage, modifiers, typeparams, signature, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
 
 module Reader =
   open FSharp.Markdown
