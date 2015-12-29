@@ -173,8 +173,7 @@ let rec parseChars acc input = seq {
   // Inline code delimited either using double `` or single `
   // (if there are spaces around, then body can contain more backticks)
   | List.DelimitedWith ['`'; ' '] [' '; '`'] (body, rest)
-  | List.Delimited ['`'; '`'] (body, rest)
-  | List.Delimited ['`'] (body, rest) ->
+  | List.DelimitedNTimes '`' (body, rest) ->
       yield! accLiterals.Value
       yield InlineCode(String(Array.ofList body).Trim())
       yield! parseChars [] rest
@@ -300,10 +299,23 @@ let (|NestedCodeBlock|_|) = function
       Some(code @ [""], rest, "", "")
   | _ -> None
 
-/// Recognizes a fenced code block - starting and ending with ```
+/// Recognizes a fenced code block - starting and ending with at least ``` or ~~~
 let (|FencedCodeBlock|_|) = function
-  | String.StartsWithTrimIgnoreStartWhitespace "```" (indent, header) :: lines ->
-      let code, rest = lines |> List.partitionUntil (fun line -> line.Contains "```")
+  | String.StartsWithNTimesTrimIgnoreStartWhitespace "~" (Let "~" (start,num), indent, header) :: lines
+  //    when num > 2
+  | String.StartsWithNTimesTrimIgnoreStartWhitespace "`" (Let "`" (start,num), indent, header) :: lines
+      when num > 2 ->
+    let mutable endStr = String.replicate num start
+    if header.Contains (start) then None // info string cannot contain backspaces
+    else
+      let code, rest = lines |> List.partitionUntil (fun line ->
+        match [line] with
+        // end cannot contain info string afterwards (see http://spec.commonmark.org/0.23/#example-104)
+        // end must be indended with less then 4 spaces: http://spec.commonmark.org/0.23/#example-95
+        | String.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && not (h.Contains start) ->
+          endStr <- String.replicate n start
+          true
+        | _ -> false)
       let handleIndent (l:string) =
         if l.Length <= indent && String.IsNullOrWhiteSpace l then ""
         elif l.Length > indent && String.IsNullOrWhiteSpace (l.Substring(0, indent)) then l.Substring(indent, l.Length - indent)
@@ -324,11 +336,11 @@ let (|FencedCodeBlock|_|) = function
       let code, rest =
         match rest with
         | hd :: tl ->
-            let idx = hd.IndexOf("```")
-            if idx > -1 && idx + 3 <= hd.Length then
+            let idx = hd.IndexOf(endStr)
+            if idx > -1 && idx + endStr.Length <= hd.Length then
                 let pre = hd.Substring(0, idx)
-                let after = hd.Substring(idx + 3)
-                code @ [handleIndent pre], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
+                let after = hd.Substring(idx + endStr.Length)
+                code @ [""], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
             else
                 code, tl
         | _ ->

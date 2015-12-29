@@ -48,13 +48,20 @@ module String =
   /// The matched string is trimmed from all whitespace.
   let (|StartsWithTrim|_|) (start:string) (text:string) = 
     if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+
   /// Matches when a string starts with the specified sub-string (ignoring whitespace at the start)
   /// The matched string is trimmed from all whitespace.
-  let (|StartsWithTrimIgnoreStartWhitespace|_|) (start:string) (text:string) =
+  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string) =
     if text.Contains(start) then
       let beforeStart = text.Substring(0, text.IndexOf(start))
       if String.IsNullOrWhiteSpace (beforeStart) then
-        Some(beforeStart.Length, text.Substring(beforeStart.Length + start.Length).Trim())
+        let startAndRest = text.Substring(beforeStart.Length)
+        let startNum =
+          Seq.windowed start.Length startAndRest
+          |> Seq.map (fun chars -> System.String(chars))
+          |> Seq.takeWhile ((=) start)
+          |> Seq.length
+        Some(startNum, beforeStart.Length, text.Substring(beforeStart.Length + (start.Length * startNum)).Trim())
       else None
     else None
 
@@ -160,6 +167,13 @@ module List =
   /// Matches a list if it starts with a sub-list that is delimited
   /// using the specified delimiter. Returns a wrapped list and the rest.
   let inline (|Delimited|_|) str = (|DelimitedWith|_|) str str
+
+  let inline (|DelimitedNTimes|_|) str input =
+    let strs, items = List.partitionWhile (fun i -> i = str) input
+    match strs with
+    | h :: _ ->
+      (|Delimited|_|) (List.init strs.Length (fun _ -> str)) input
+    | _ -> None
 
   /// Matches a list if it starts with a bracketed list. Nested brackets
   /// are skipped (by counting opening and closing brackets) and can be 

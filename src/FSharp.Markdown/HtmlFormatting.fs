@@ -192,7 +192,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   | CodeBlock(code, codeLanguage, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       let langCode = sprintf "language-%s" codeLanguage
-      ctx.Writer.Write(sprintf "<pre class=\"line-numbers %s\"><code class=\"%s\">" langCode langCode)
+      ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
