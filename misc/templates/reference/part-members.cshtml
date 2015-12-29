@@ -32,6 +32,10 @@
             </a>
           }
           @it.Comment.FullText
+          @if (!String.IsNullOrEmpty(it.Details.FormatCompiledName))
+          {
+              @:<p>CompiledName: <code>@it.Details.FormatCompiledName</code></p>
+          }
         </td>
       </tr>
     }
