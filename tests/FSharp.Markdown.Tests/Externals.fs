@@ -80,7 +80,6 @@ let executeTest (dir : string) (source : string) (target : string) (verify : str
     printfn " - %s (failed)\n %A" (target.Substring(dir.Length)) e
     None
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 [<TestCaseSource("getTest")>]
 let ``Run external test`` (actualName : string) (expectedName : string) (actual : string) (expected : string) =

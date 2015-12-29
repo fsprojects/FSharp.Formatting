@@ -38,7 +38,6 @@ let ``Commonmark specification`` (section:string) (markdown : string) (html : st
   (Markdown.TransformHtml(markdown, "\n"))
   |> should equal html
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 let ``manual markdown test: show a blockquote with a code block`` () =
   let markdown = """Blockquotes can contain other Markdown elements, including headers, lists,
@@ -56,7 +55,6 @@ and code blocks:
 Any decent text editor should make email-style quoting easy."""
   let html = """<p>Blockquotes can contain other Markdown elements, including headers, lists,
 and code blocks:</p>
-
 <pre><code>&gt; ## This is a header.
 &gt; 
 &gt; 1.   This is the first list item.
@@ -66,7 +64,6 @@ and code blocks:</p>
 &gt; 
 &gt;     return shell_exec("echo $input | $markdown_script");
 </code></pre>
-
 <p>Any decent text editor should make email-style quoting easy.</p>
 """
   (Markdown.TransformHtml(markdown))
@@ -83,12 +80,10 @@ let ``manual markdown test: use spaces in the first line of a code block (indent
 
 will turn into:"""
   let html = """<p>For example, this:</p>
-
 <pre><code>    &lt;div class="footer"&gt;
         &amp;copy; 2004 Foo Corporation
     &lt;/div&gt;
 </code></pre>
-
 <p>will turn into:</p>
 """
   (Markdown.TransformHtml(markdown))
@@ -103,10 +98,14 @@ let ``manual markdown test: use tabs for defining a list`` () =
   indented with spaces
 "
   let html = """<ul>
-<li><p>this is a list item
-indented with tabs</p></li>
-<li><p>this is a list item
-indented with spaces</p></li>
+<li>
+<p>this is a list item
+indented with tabs</p>
+</li>
+<li>
+<p>this is a list item
+indented with spaces</p>
+</li>
 </ul>
 """
   (Markdown.TransformHtml(markdown))
@@ -121,10 +120,14 @@ with a continuation line
   indented with spaces
 "
   let html = """<ul>
-<li><p>this is a list item
-with a continuation line</p></li>
-<li><p>this is a list item
-indented with spaces</p></li>
+<li>
+<p>this is a list item
+with a continuation line</p>
+</li>
+<li>
+<p>this is a list item
+indented with spaces</p>
+</li>
 </ul>
 """
   (Markdown.TransformHtml(markdown))
@@ -152,50 +155,55 @@ with a continuation line</p>
   (Markdown.TransformHtml(markdown))
   |> should equal html
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 let ``manual markdown test: test code block (with tabs) in list`` () =
   let markdown = "- \t  Code Block
 "
   let html = "<ul>
-<li><pre><code>  Code Block
-</code></pre></li>
-</ul>"
+<li>
+<pre><code>  Code Block
+</code></pre>
+</li>
+</ul>
+"
   (Markdown.TransformHtml(markdown))
   |> should equal html
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 let ``manual markdown test: test code block (with spaces) in list`` () =
   let markdown = "-       Code Block
 "
   let html = "<ul>
-<li><pre><code>  Code Block
-</code></pre></li>
-</ul>"
+<li>
+<pre><code>  Code Block
+</code></pre>
+</li>
+</ul>
+"
   (Markdown.TransformHtml(markdown))
   |> should equal html
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 let ``manual markdown test: blockquote with continuation`` () =
   let markdown = "> blockquote
 with continuation
 "
-  let html = "<blockquote><p>blockquote
-with continuation
-</p></blockquote>"
+  let html = "<blockquote>
+<p>blockquote
+with continuation</p>
+</blockquote>
+"
   (Markdown.TransformHtml(markdown))
   |> should equal html
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 let ``manual markdown test: blockquote without continuation`` () =
   let markdown = "> blockquote
 # without continuation
 "
-  let html = "<blockquote><p>blockquote
-</p></blockquote>
+  let html = "<blockquote>
+<p>blockquote</p>
+</blockquote>
 <h1>without continuation</h1>
 "
   (Markdown.TransformHtml(markdown))

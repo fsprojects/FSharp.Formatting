@@ -175,65 +175,63 @@ let ``Transform images correctly``() =
 [<Test>]
 let ``Transform blockquotes correctly``() =
     let doc = "Here is a quote\r\n\r\n> Sample blockquote\r\n";
-    let expected = "<p>Here is a quote</p>\r\n\r\n<blockquote>\r\n  <p>Sample blockquote</p>\r\n</blockquote>\r\n" |> properNewLines;
+    let expected = "<p>Here is a quote</p>\r\n<blockquote>\r\n<p>Sample blockquote</p>\r\n</blockquote>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
 [<Test>]
 let ``Transform numbered lists correctly``() =
     let doc = "A numbered list:\r\n\n1. a\n2. b\n3. c\r\n";
-    let expected = "<p>A numbered list:</p>\r\n\r\n<ol>\r\n<li>a</li>\r\n<li>b</li>\r\n<li>c</li>\r\n</ol>\r\n" |> properNewLines;
+    let expected = "<p>A numbered list:</p>\r\n<ol>\r\n<li>a</li>\r\n<li>b</li>\r\n<li>c</li>\r\n</ol>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
 [<Test>]
 let ``Transform bulleted lists correctly``() =
     let doc = "A bulleted list:\r\n\r\n- a\r\n- b\r\n- c\r\n";
-    let expected = "<p>A bulleted list:</p>\r\n\r\n<ul>\r\n<li>a</li>\r\n<li>b</li>\r\n<li>c</li>\r\n</ul>\r\n" |> properNewLines;
+    let expected = "<p>A bulleted list:</p>\r\n<ul>\r\n<li>a</li>\r\n<li>b</li>\r\n<li>c</li>\r\n</ul>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
 [<Test>]
 let ``Transform header 1 correctly``() =
     let doc = "#Header 1\nHeader 1\r\n========";
-    let expected = "<h1>Header 1</h1>\r\n\r\n<h1>Header 1</h1>\r\n" |> properNewLines;
+    let expected = "<h1>Header 1</h1>\r\n<h1>Header 1</h1>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
 [<Test>]
 let ``Transform header 2 correctly``() =
     let doc = "##Header 2\nHeader 2\r\n--------";
-    let expected = "<h2>Header 2</h2>\r\n\r\n<h2>Header 2</h2>\r\n" |> properNewLines;
+    let expected = "<h2>Header 2</h2>\r\n<h2>Header 2</h2>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>] 
 let ``Transform code blocks in list correctly``() = 
     let doc = "- code sample:\r\n\r\n\r\n    let x = 1\r\n"
-    let expected = "<ul>\r\n<li>code sample:</li>\r\n</ul>\r\n\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines; 
+    let expected = "<ul>\r\n<li>code sample:</li>\r\n</ul>\r\n<pre><code>let x = 1\r\n</code></pre>\r\n" |> properNewLines
     Markdown.TransformHtml doc 
     |> shouldEqual expected 
 
-[<Ignore>] // TODO: Re-enable after we match the specs
 [<Test>]
 let ``Transform code blocks correctly``() =
     let doc = "code sample:\r\n\r\n    <head>\r\n    <title>page title</title>\r\n    </head>\r\n";
-    let expected = "<p>code sample:</p>\r\n\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    let expected = "<p>code sample:</p>\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
 [<Test>]
 let ``Transform github flavored code blocks correctly``() =
     let doc = "code sample:\r\n\r\n```\r\n<head>\r\n<title>page title</title>\r\n</head>\r\n```\r\n";
-    let expected = "<p>code sample:</p>\r\n\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    let expected = "<p>code sample:</p>\r\n<pre><code>&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
     
 [<Test>]
 let ``Transform github flavored language code blocks correctly``() =
     let doc = "code sample:\r\n\r\n```markup\r\n<head>\r\n<title>page title</title>\r\n</head>\r\n```\r\n";
-    let expected = "<p>code sample:</p>\r\n\r\n<pre class=\"line-numbers language-markup\"><code class=\"language-markup\">&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines;
+    let expected = "<p>code sample:</p>\r\n<pre><code class=\"language-markup\">&lt;head&gt;\r\n&lt;title&gt;page title&lt;/title&gt;\r\n&lt;/head&gt;\r\n</code></pre>\r\n" |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqual expected
     
@@ -281,7 +279,7 @@ let ``Transform escaped characters correctly``() =
 [<Test>]
 let ``Transform horizontal rules correctly``() =
     let doc = "* * *\r\n\r\n***\r\n\r\n*****\r\n\r\n- - -\r\n\r\n---------------------------------------\r\n\r\n";
-    let expected = "<hr />\r\n\r\n<hr />\r\n\r\n<hr />\r\n\r\n<hr />\r\n\r\n<hr />\r\n" |> properNewLines;
+    let expected = "<hr />\r\n<hr />\r\n<hr />\r\n<hr />\r\n<hr />\r\n" |> properNewLines
     Markdown.Parse(doc).Paragraphs
     |> shouldEqual [ HorizontalRule '*'; HorizontalRule '*'; HorizontalRule '*'; HorizontalRule '-'; HorizontalRule '-' ]
     Markdown.TransformHtml doc

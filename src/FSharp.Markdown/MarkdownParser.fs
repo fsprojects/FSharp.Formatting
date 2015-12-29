@@ -290,12 +290,11 @@ let (|HorizontalRule|_|) (line:string) =
 
 /// Recognizes a code block - lines starting with four spaces (including blank)
 let (|NestedCodeBlock|_|) = function
-  | Lines.TakeStartingWithOrBlank "    " (Lines.TrimBlank lines, rest) when lines <> [] ->
+  | Lines.TakeCodeBlock (numspaces, Lines.TrimBlank lines, rest) when lines <> [] ->
       let code =
         [ for l in lines ->
-            if l.Length < 5 && String.IsNullOrWhiteSpace l then ""
-            elif l.Length > 4 then l.Substring(4, l.Length - 4)
-            else l ]
+            if String.IsNullOrEmpty l then ""
+            else trimSpaces 4 l ]
       Some(code @ [""], rest, "", "")
   | _ -> None
 
@@ -312,7 +311,7 @@ let (|FencedCodeBlock|_|) = function
         match [line] with
         // end cannot contain info string afterwards (see http://spec.commonmark.org/0.23/#example-104)
         // end must be indended with less then 4 spaces: http://spec.commonmark.org/0.23/#example-95
-        | String.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && not (h.Contains start) ->
+        | String.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && String.IsNullOrWhiteSpace h ->
           endStr <- String.replicate n start
           true
         | _ -> false)
@@ -342,7 +341,7 @@ let (|FencedCodeBlock|_|) = function
                 let after = hd.Substring(idx + endStr.Length)
                 code @ [""], (if String.IsNullOrWhiteSpace after then tl else after :: tl)
             else
-                code, tl
+                code @ [""], tl
         | _ ->
             code, rest
       Some (code, rest, langString, ignoredString)
@@ -368,7 +367,7 @@ let (|ListStart|_|) = function
       let li = item.Substring(2)
       let (String.TrimStartAndCount (startIndent2, spaces2, _)) = li
       let endIndent =
-        startIndent +
+        startIndent + 2 +
         // Handle case of code block
         if startIndent2 >= 5 then 1 else startIndent2
       Some(Unordered, startIndent, endIndent, li)
@@ -408,23 +407,30 @@ let (|ListItem|_|) prevSimple = function
             // the value 'more' will contain indented paragraphs
             (LinesUntilListOrUnindented (more, rest) as next)) ->
       let simple =
-        match next, rest with
-        | String.WhiteSpace::_, (ListStart _)::_ -> false
-        | (ListStart _)::_, _ -> true
-        | [], _ -> true
-        | String.WhiteSpace::[], _ -> true
-        | String.WhiteSpace::String.WhiteSpace::_, _ -> true
-        | _, String.Unindented::_ -> prevSimple
-        | _, _ -> false
+        match item with
+        | String.TrimStartAndCount (_, spaces, _) when spaces >= 4->
+          // Code Block
+          false
+        | _ ->
+          match next, rest with
+          | String.WhiteSpace::_, (ListStart _)::_ -> false
+          | (ListStart _)::_, _ -> true
+          | [], _ -> true
+          | [ String.WhiteSpace ], _ -> true
+          | String.WhiteSpace::String.WhiteSpace::_, _ -> true
+          | _, String.Unindented::_ -> prevSimple
+          | _, _ -> false
 
       let lines =
         [ yield item
           for line in continued do
             yield line.Trim()
           for line in more do
-            let trimmed = line.TrimStart()
-            if trimmed.Length >= line.Length - endIndent then yield trimmed
-            else yield line.Substring(endIndent) ]
+            let trimmed = trimSpaces endIndent line
+            yield trimmed ]
+            //let trimmed = line.TrimStart()
+            //if trimmed.Length >= line.Length - endIndent then yield trimmed
+            //else yield line.Substring(endIndent) ]
       Some(startIndent, (simple, kind, lines), rest)
   | _ -> None
 
@@ -567,14 +573,19 @@ let (|HtmlBlock|_|) = function
   | _ -> None
 
 /// Continues taking lines until a whitespace line or start of a blockquote
-let (|LinesUntilBlockquoteOrWhite|) =
-  List.partitionUntil (function
-    | BlockquoteStart _ | String.WhiteSpace -> true | _ -> false)
+let (|LinesUntilBlockquoteEnds|) input =
+  List.partitionUntilLookahead (fun next ->
+    match next with
+    | BlockquoteStart _ :: _
+    | Heading _
+    | String.WhiteSpace :: _ -> true
+    | _ ->
+      false) input
 
 /// Recognizes blockquote - continues taking paragraphs
 /// starting with '>' until there is something else
 let rec (|Blockquote|_|) = function
-  | BlockquoteStart(line)::LinesUntilBlockquoteOrWhite(continued, Lines.TrimBlankStart rest) ->
+  | BlockquoteStart(line)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart rest) ->
       let moreLines, rest =
         match rest with
         | Blockquote(lines, rest) -> lines, rest
@@ -615,7 +626,7 @@ let rec parseParagraphs (ctx:ParsingContext) lines = seq {
       yield CodeBlock(code |> String.concat ctx.Newline, langString, ignoredLine)
       yield! parseParagraphs ctx lines
   | Blockquote(body, Lines.TrimBlankStart rest) ->
-      yield QuotedBlock(parseParagraphs ctx body |> List.ofSeq)
+      yield QuotedBlock(parseParagraphs ctx (body @ [""]) |> List.ofSeq)
       yield! parseParagraphs ctx rest
   | EmacsTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest)
   | PipeTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest) ->

@@ -214,13 +214,13 @@ module Lines =
   /// Returns all such lines from the beginning until a different line and
   /// the number of spaces the first line started with.
   let (|TakeCodeBlock|_|) (input:string list) =
-    let spaceNum =
-      match input with
-      | h :: _ ->
-        let head = (input |> List.head).Replace("\t", "    ") |> Seq.toList
-        let spaces, _ = List.partitionWhile (fun s -> s = ' ') head
-        spaces.Length
-      | _ -> 0
+    let spaceNum = 4
+      //match input with
+      //| h :: _ ->
+      //  let head = (input |> List.head).Replace("\t", "    ") |> Seq.toList
+      //  let spaces, _ = List.partitionWhile (fun s -> s = ' ') head
+      //  spaces.Length
+      //| _ -> 0
     let startsWithSpaces (s:string) =
       let normalized = s.Replace("\t", "    ")
       normalized.Length >= spaceNum &&

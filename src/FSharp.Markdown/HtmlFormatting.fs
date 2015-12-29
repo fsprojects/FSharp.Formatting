@@ -60,7 +60,7 @@ type FormattingContext =
     ParagraphIndent : unit -> unit }
 
 let bigBreak (ctx:FormattingContext) () =
-  ctx.Writer.Write(ctx.Newline + ctx.Newline)
+  ctx.Writer.Write(ctx.Newline)
 let smallBreak (ctx:FormattingContext) () =
   ctx.Writer.Write(ctx.Newline)
 let noBreak (ctx:FormattingContext) () = ()
@@ -155,7 +155,11 @@ let formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
     |> String.concat "-"
     |> fun name -> if String.IsNullOrWhiteSpace name then "header" else name
     |> ctx.UniqueNameGenerator.GetName
-
+let withInner ctx f =
+  use sb = new StringWriter()
+  let newCtx = { ctx with Writer = sb }
+  f newCtx
+  sb.ToString()
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
@@ -230,15 +234,25 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("<" + tag + ">" + ctx.Newline)
       for body in items do
         ctx.Writer.Write("<li>")
-        body |> List.iterInterleaved 
-                  (formatParagraph { ctx with LineBreak = noBreak ctx }) 
-                  (fun () -> ctx.Writer.Write(ctx.Newline))
+        match body with
+        // Simple Paragraph
+        | [ Paragraph [MarkdownSpan.Literal s] ] when not (s.Contains(ctx.Newline)) ->
+          ctx.Writer.Write s
+        | _ ->
+          let inner =
+            withInner ctx (fun ctx ->
+              body |> List.iterInterleaved
+                    (formatParagraph { ctx with LineBreak = noBreak ctx })
+                    (fun () -> ctx.Writer.Write(ctx.Newline)))
+          let wrappedInner =
+            if inner.Contains(ctx.Newline) then ctx.Newline + inner + ctx.Newline else inner
+          ctx.Writer.Write(wrappedInner)
         ctx.Writer.Write("</li>" + ctx.Newline)
       ctx.Writer.Write("</" + tag + ">")
   | QuotedBlock(body) ->
       ctx.ParagraphIndent()
       ctx.Writer.Write("<blockquote>" + ctx.Newline)
-      formatParagraphs { ctx with ParagraphIndent = fun () -> ctx.ParagraphIndent(); ctx.Writer.Write("  ") } body
+      formatParagraphs { ctx with ParagraphIndent = fun () -> ctx.ParagraphIndent() (*; ctx.Writer.Write("  ")*) } body
       ctx.ParagraphIndent()
       ctx.Writer.Write("</blockquote>")
   | Span spans -> 

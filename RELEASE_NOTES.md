@@ -1,3 +1,10 @@
+## 2.12.2 (30 December, 2015)
+ - Be compatible with the common-mark spec for 'Fenced code blocks' and 'Indented code blocks'.
+   See https://github.com/tpetricek/FSharp.Formatting/pull/343.
+   Please follow-up by adding support for more sections of the spec!
+   Just add the section to https://github.com/tpetricek/FSharp.Formatting/blob/master/tests/FSharp.Markdown.Tests/CommonMarkSpecTest.fs#L20
+   and fix the newly enabled tests.
+
 ## 2.12.1 (24 December, 2015)
  - update dependencies
  - Upgrade the CommandTool to F# 4 and bundle FSharp.Core with sigdata and optdata.
