@@ -1,10 +1,13 @@
+## 2.13.1 (12 January, 2016)
+ - Make logging to file optional using environment variable
+
 ## 2.13.0 (30 December, 2015)
  - Be compatible with the common-mark spec for 'Fenced code blocks' and 'Indented code blocks'.
    See https://github.com/tpetricek/FSharp.Formatting/pull/343.
    Please follow-up by adding support for more sections of the spec!
    Just add the section to https://github.com/tpetricek/FSharp.Formatting/blob/master/tests/FSharp.Markdown.Tests/CommonMarkSpecTest.fs#L20
    and fix the newly enabled tests.
- - Add ComiledName to members with F# specific naming (https://github.com/tpetricek/FSharp.Formatting/pull/372)
+ - Add CompiledName to members with F# specific naming (https://github.com/tpetricek/FSharp.Formatting/pull/372)
 
 ## 2.12.1 (24 December, 2015)
  - update dependencies
