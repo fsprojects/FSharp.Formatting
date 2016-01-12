@@ -29,25 +29,41 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 // Setup Logging for FSharp.Formatting and Yaaf.FSharp.Scripting
 module Logging = FSharp.Formatting.Common.Log
 type TraceOptions = System.Diagnostics.TraceOptions
-try
-  let svclogFile = "FSharp.Formatting.svclog"
-  let logFile = "FSharp.Formatting.log"
-  [ svclogFile; logFile ] |> Seq.iter (fun f -> if System.IO.File.Exists f then System.IO.File.Delete f)
 
-  System.Diagnostics.Trace.AutoFlush <- true
-  let allTraceOptions = TraceOptions.Callstack ||| TraceOptions.DateTime ||| TraceOptions.LogicalOperationStack |||
-                        TraceOptions.ProcessId ||| TraceOptions.ThreadId ||| TraceOptions.Timestamp
+// By default, we log to console only. Other modes are enabled by setting
+// the `FSHARP_FORMATTING_LOG` environment variable.
+let logToFile, logToConsole = 
+  match System.Environment.GetEnvironmentVariable("FSHARP_FORMATTING_LOG") with
+  | "ALL" -> true, true
+  | "NONE" -> false, false
+  | "FILE_ONLY" -> true, false 
+  | _ -> false, true
+
+try
+  let allTraceOptions = 
+    TraceOptions.Callstack ||| TraceOptions.DateTime ||| TraceOptions.LogicalOperationStack |||
+    TraceOptions.ProcessId ||| TraceOptions.ThreadId ||| TraceOptions.Timestamp
   let noTraceOptions = TraceOptions.None
-  let listeners =
-    [|Logging.SvclogListener svclogFile
-      |> Logging.SetupListener allTraceOptions System.Diagnostics.SourceLevels.All
-      Logging.ConsoleListener()
-      |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Information |]
-  let sources =
+  let svclogFile = "FSharp.Formatting.svclog"
+  System.Diagnostics.Trace.AutoFlush <- true
+
+  let setupListener listener =
     [ FSharp.Formatting.Common.Log.source
       Yaaf.FSharp.Scripting.Log.source ]
+    |> Seq.iter (fun source ->
+        source.Switch.Level <- System.Diagnostics.SourceLevels.All
+        Logging.AddListener listener source)
 
-  sources |> Seq.iter (Logging.SetupSource listeners)
+  if logToConsole then
+    Logging.ConsoleListener()
+    |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Information
+    |> setupListener
+
+  if logToFile then 
+    if System.IO.File.Exists svclogFile then System.IO.File.Delete svclogFile
+    Logging.SvclogListener svclogFile
+    |> Logging.SetupListener allTraceOptions System.Diagnostics.SourceLevels.All
+    |> setupListener
 
   // Test that everything works
   Logging.infof "FSharp.Formatting Logging setup!"
