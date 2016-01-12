@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ParagraphLeafInfo - FSharp.Formatting</title>
+    <title>Diagnostics and debugging
+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
+    <meta name="description" content="A package for building great F# documentation, samples and blogs">
     <meta name="author" content="Tomas Petricek">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
@@ -35,16 +36,65 @@
       <div class="row">
         <div class="span9" id="main">
           
+<h1><a name="Diagnostics-and-debugging" class="anchor" href="#Diagnostics-and-debugging">Diagnostics and debugging</a></h1>
+<p>The F# Formatting library has an extensive logging to help developers diagnose
+potential issues. If you encounter any issues with F# Formatting, this
+page gives you all the information you need to create a log file with detailed
+trace of what is going one. This may give you some hints on what is wrong &amp; a
+detailed report that you can send when <a href="https://github.com/tpetricek/FSharp.Formatting/issues">submitting an
+issue</a>.</p>
+<h2><a name="Setting-up-logging" class="anchor" href="#Setting-up-logging">Setting up logging</a></h2>
+<p>Logging is enabled when you reference F# Formatting using the <code>FSharp.Formatting.fsx</code>
+load script. If you're not using the load script, you can enable logging manually
+(just see <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/packages/FSharp.Formatting/FSharp.Formatting.fsx">how this is done in the load script</a>).</p>
+<p>By default, F# Formatting logs some information to the console output.
+Detailed logging is enabled by setting an environment variable <code>FSHARP_FORMATTING_LOG</code> to
+<code>ALL</code>. The log file <code>FSharp.Formatting.svclog</code> will be placed in the directory from where
+you run the tool. If you are using <a href="https://github.com/fsprojects/ProjectScaffold">ProjectScaffold</a>,
+then this is the folder from where you run the <code>build.sh</code> or <code>build.cmd</code> script.</p>
+<p>You can set <code>FSHARP_FORMATTING_LOG</code> as follows:</p>
+<ul>
+<li>
+<code>NONE</code> - Disable all logging. F# Formatting will not print anything to the console
+and it will also not produce a log file (this is not recomended, but you might need
+this if you want to suppress all output).
+</li>
+<li>
+<code>ALL</code> - Enables detailed logging to a file <code>FSharp.Formatting.svclog</code> and keeps 
+printing of basic information to console too.
+</li>
+<li>
+<code>FILE_ONLY</code> - Enables detailed logging to a file <code>FSharp.Formatting.svclog</code> but disables
+printing of basic information to console.
+</li>
+<li>
+Any other value (default) - Print basic information to console and do not produce
+a detailed log file.
+</li>
+</ul>
+<h2><a name="Enabling-logging-on-Windows" class="anchor" href="#Enabling-logging-on-Windows">Enabling logging on Windows</a></h2>
+<p>On Windows, you can set environment variables by going to system properties
+(this varies depending on the OS version, but generally right click on
+"My Computer" and select a link or button saying something like "Change settings").</p>
+<p>This should open a new dialog, where you can go to "Advanced", and click on the
+"Environment Variables" button. Here, you can add the variable as either per-user
+or per-system and save it.</p>
+<h2><a name="Enabling-logging-on-Mac-Linux" class="anchor" href="#Enabling-logging-on-Mac-Linux">Enabling logging on Mac/Linux</a></h2>
+<p>If you're using Linux or Mac, then the easiest option is to set the
+variable from Terminal and then start either Xamarin Studio or the build script from terminal. Note that
+if you set the environment variable from terminal, but launch Xamarin Studio
+from Dock or in some other way, it will not see the variable!</p>
+<p>The following should do the trick (assuming the folder <code>/Users/tomasp/Temp</code> exists):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">export FSHARP_FORMATTING_LOG=ALL
+open -n /Applications/Xamarin\ Studio.app/
+</code></pre></td></tr></table>
+<p>This will set the variable and start a new instance of Xamarin Studio in the current
+context. Once it appears, reporduce the operation that causes the error, close
+Xamarin Studio and look at the log file.</p>
 
-
-
-<h1>ParagraphLeafInfo</h1>
-<p>
-  <span>Namespace: FSharp.Markdown</span><br />
-  <span>Parent Module: <a href="fsharp-markdown-matching.html">Matching</a></span>
-</p>
-<div class="xmldoc">
-</div>
 
         </div>
         <div class="span3">
