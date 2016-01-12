@@ -1,3 +1,6 @@
+## 2.13.2 (12 January, 2016)
+ - Improve the load script to fix FsLab issue (https://github.com/fslaborg/FsLab/issues/98)
+
 ## 2.13.1 (12 January, 2016)
  - Make logging to file optional using environment variable
 
