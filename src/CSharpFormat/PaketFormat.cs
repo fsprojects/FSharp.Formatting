@@ -25,7 +25,7 @@ namespace Manoli.Utils.CSharpFormat
         /// </summary>
         protected override string Operators
         {
-            get { return "= == > < >= <= ~> /"; }
+            get { return "= == > < >= <= ~>"; }
         }
         
         /// <summary>
