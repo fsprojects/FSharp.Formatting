@@ -1,4 +1,4 @@
-#region Copyright © 2001-2003 Jean-Claude Manoli [jc@manoli.net]
+#region Copyright Â© 2001-2003 Jean-Claude Manoli [jc@manoli.net]
 /*
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the author(s) be held liable for any damages arising from
@@ -86,6 +86,14 @@ namespace Manoli.Utils.CSharpFormat
 		{
 			get;
 		}
+    
+		/// <summary>
+		/// Can be overridden to provide a list of tokes to be recognized as numbers.
+		/// </summary>
+		protected virtual string NumberRegEx
+		{
+			get { return @"[+-]?\d+(?:\.\d+)?"; }
+		}
 
 		/// <summary>
 		/// Determines if the language is case sensitive.
@@ -107,6 +115,7 @@ namespace Manoli.Utils.CSharpFormat
 		private const int PREPROCESSOR_KEYWORD_GROUP = 3;
 		private const int KEYWORD_GROUP = 4;
 		private const int OPERATOR_GROUP = 5;
+		private const int NUMBER_GROUP = 6;
 
 		/// <summary>
 		/// A regular expression that should never match anything.
@@ -135,6 +144,8 @@ namespace Manoli.Utils.CSharpFormat
 			regAll.Append(regKeyword);
 			regAll.Append(")|(");
 			regAll.Append(regOps);
+			regAll.Append(")|(");
+			regAll.Append(NumberRegEx);
 			regAll.Append(")");
 
 			RegexOptions regexOptions = RegexOptions.Singleline;
@@ -197,6 +208,10 @@ namespace Manoli.Utils.CSharpFormat
 			if(match.Groups[OPERATOR_GROUP].Success)
 			{
 				return "<span class=\"o\">" + match.ToString() + "</span>";
+			}
+			if(match.Groups[NUMBER_GROUP].Success)
+			{
+				return "<span class=\"n\">" + match.ToString() + "</span>";
 			}
 			System.Diagnostics.Debug.Assert(false, "None of the above!");
 			return ""; //none of the above

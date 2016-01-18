@@ -90,6 +90,9 @@ namespace CSharpFormat
                 case "aspx":
                     sf = new HtmlFormat();
                     break;
+                case "paket":
+                    sf = new PaketFormat();
+                    break;
             }
             if (sf == null)
             {
