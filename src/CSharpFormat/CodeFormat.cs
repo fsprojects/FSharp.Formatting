@@ -115,7 +115,7 @@ namespace Manoli.Utils.CSharpFormat
 		private const int PREPROCESSOR_KEYWORD_GROUP = 3;
 		private const int KEYWORD_GROUP = 4;
 		private const int OPERATOR_GROUP = 5;
-    private const int NUMBER_GROUP = 6;
+		private const int NUMBER_GROUP = 6;
 
 		/// <summary>
 		/// A regular expression that should never match anything.
