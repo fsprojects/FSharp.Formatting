@@ -19,5 +19,21 @@ namespace Manoli.Utils.CSharpFormat
         {
             get { return @"\(\*.*?\*\)|(?<!\:)//.*?(?=\r|\n)"; }
         }
+        
+        /// <summary>
+        /// Packet operators
+        /// </summary>
+        protected override string Operators
+        {
+            get { return "= == > < >= <= ~> /"; }
+        }
+        
+        /// <summary>
+        /// Matches version numbers
+        /// </summary>
+        protected override string NumberRegEx
+        {
+          get { return @"\b\d+(\.\d+)*\b"; }
+        }
     }
 }
