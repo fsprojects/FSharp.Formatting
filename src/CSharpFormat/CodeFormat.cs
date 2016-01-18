@@ -87,13 +87,13 @@ namespace Manoli.Utils.CSharpFormat
 			get;
 		}
     
-    /// <summary>
+		/// <summary>
 		/// Can be overridden to provide a list of tokes to be recognized as numbers.
 		/// </summary>
-    protected virtual string NumberRegEx
-    {
-      get { return @"[+-]?\d+(?:\.\d+)?"; }
-    }
+		protected virtual string NumberRegEx
+		{
+			get { return @"[+-]?\d+(?:\.\d+)?"; }
+		}
 
 		/// <summary>
 		/// Determines if the language is case sensitive.
@@ -144,9 +144,9 @@ namespace Manoli.Utils.CSharpFormat
 			regAll.Append(regKeyword);
 			regAll.Append(")|(");
 			regAll.Append(regOps);
-      regAll.Append(")|(");
-      regAll.Append(NumberRegEx);
-      regAll.Append(")");
+			regAll.Append(")|(");
+			regAll.Append(NumberRegEx);
+			regAll.Append(")");
 
 			RegexOptions regexOptions = RegexOptions.Singleline;
 			if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
@@ -209,7 +209,7 @@ namespace Manoli.Utils.CSharpFormat
 			{
 				return "<span class=\"o\">" + match.ToString() + "</span>";
 			}
-      if(match.Groups[NUMBER_GROUP].Success)
+			if(match.Groups[NUMBER_GROUP].Success)
 			{
 				return "<span class=\"n\">" + match.ToString() + "</span>";
 			}
