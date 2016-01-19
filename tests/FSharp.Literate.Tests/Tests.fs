@@ -315,38 +315,37 @@ let ``Correctly handles Paket coloring`` () =
     // HTTP resources
     http http://www.fssnip.net/1n decrypt.fs"""
     
-    let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-    let html = Literate.WriteHtml(doc)
-    
-    html |> should contain "<span class=\"k\">nuget </span>"
-    html |> should contain "<span class=\"k\">github </span>"
-    html |> should contain "<span class=\"k\">gist </span>"
-    html |> should contain "<span class=\"k\">http </span>"
-    html |> should contain "<span class=\"k\">references</span>"
-    html |> should contain "<span class=\"k\">framework</span>"
-    html |> should contain "<span class=\"k\">content</span>"
-    html |> should contain "<span class=\"k\">import_targets</span>"
-    html |> should contain "<span class=\"k\">copy_local</span>"
-    html |> should contain "<span class=\"k\">redirects</span>"
-    html |> should contain "<span class=\"k\">strategy</span>"
-    html |> should contain "<span class=\"k\">version_in_path</span>"
-    
-    html |> should contain "<span class=\"o\">~&gt;</span>"
-    html |> should contain "<span class=\"o\">&gt;=</span>"
-    html |> should contain "<span class=\"o\">==</span>"
-    html |> should contain "<span class=\"o\">!</span><span class=\"o\">~&gt;</span>"
-    html |> should contain "<span class=\"o\">@</span><span class=\"o\">~&gt;</span>"
-    html |> should contain "<span class=\"o\">@</span><span class=\"o\">&gt;</span>"
-    
-    
-    html |> should contain "<span class=\"n\">3.4</span>"
-    html |> should contain "<span class=\"n\">2.6.3</span>"
-    
-    html |> should contain "<span class=\"c\">// NuGet packages</span>"
-    html |> should contain "<span class=\"c\">// nuget.org</span>"
-    
-    html |> should contain @"https://nuget.org/api/v2"
-    html |> should contain @"http://www.fssnip.net/1n"
+  let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
+  let html = Literate.WriteHtml(doc)
+  
+  html |> should contain "<span class=\"k\">nuget </span>"
+  html |> should contain "<span class=\"k\">github </span>"
+  html |> should contain "<span class=\"k\">gist </span>"
+  html |> should contain "<span class=\"k\">http </span>"
+  html |> should contain "<span class=\"k\">references</span>"
+  html |> should contain "<span class=\"k\">framework</span>"
+  html |> should contain "<span class=\"k\">content</span>"
+  html |> should contain "<span class=\"k\">import_targets</span>"
+  html |> should contain "<span class=\"k\">copy_local</span>"
+  html |> should contain "<span class=\"k\">redirects</span>"
+  html |> should contain "<span class=\"k\">strategy</span>"
+  html |> should contain "<span class=\"k\">version_in_path</span>"
+  
+  html |> should contain "<span class=\"o\">~&gt;</span>"
+  html |> should contain "<span class=\"o\">&gt;=</span>"
+  html |> should contain "<span class=\"o\">==</span>"
+  html |> should contain "<span class=\"o\">!</span><span class=\"o\">~&gt;</span>"
+  html |> should contain "<span class=\"o\">@</span><span class=\"o\">~&gt;</span>"
+  html |> should contain "<span class=\"o\">@</span><span class=\"o\">&gt;</span>"
+
+  html |> should contain "<span class=\"n\">3.4</span>"
+  html |> should contain "<span class=\"n\">2.6.3</span>"
+
+  html |> should contain "<span class=\"c\">// NuGet packages</span>"
+  html |> should contain "<span class=\"c\">// nuget.org</span>"
+  
+  html |> should contain @"https://nuget.org/api/v2"
+  html |> should contain @"http://www.fssnip.net/1n"
 
 [<Test>]
 let ``Generates line numbers for F# code snippets`` () =
