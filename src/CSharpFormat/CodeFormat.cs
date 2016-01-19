@@ -141,7 +141,7 @@ namespace Manoli.Utils.CSharpFormat
 		protected string ConcatenateRegex(string commentRegex, string stringRegex, string preprocessorRegex,
 		  string keywordRegex, string operatorsRegex, string numberRegex)
 		{
-      // Build a master regex with capturing groups.
+			// Build a master regex with capturing groups.
 			// Note that the group numbers must with the constants COMMENT_GROUP, OPERATOR_GROUP...!
 			StringBuilder regAll = new StringBuilder();
 			regAll.Append("(");
@@ -159,12 +159,12 @@ namespace Manoli.Utils.CSharpFormat
 			regAll.Append(")");
       
 			return regAll.ToString();
-    }
+		}
 
 		protected string BuildRegex(string separated)
 		{
 			if (separated.Length == 0) return "";
-      var sb = new StringBuilder(separated);
+			var sb = new StringBuilder(separated);
       
 			Sanitize(sb);
 			
@@ -181,7 +181,7 @@ namespace Manoli.Utils.CSharpFormat
 			foreach (var c in new char[] { '&', '?', '*', '.', '<', '>', '[', ']', '^', '|', '(', ')', '#', '+' }) {
 				sb.Replace(c.ToString(), "\\" + c);
 			}
-    }
+		}
 
 		/// <summary>
 		/// Called to evaluate the HTML fragment corresponding to each 
