@@ -1,3 +1,9 @@
+## 2.13.4 (20 January, 2016)
+ - Colors paket keywords (#379)
+
+## 2.13.3 (18 January, 2016)
+ - Adds PaketFormat to not color URLs as comments in Paket files (#349)
+
 ## 2.13.2 (12 January, 2016)
  - Improve the load script to fix FsLab issue (https://github.com/fslaborg/FsLab/issues/98)
 
