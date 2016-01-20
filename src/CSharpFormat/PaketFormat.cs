@@ -21,11 +21,20 @@ namespace Manoli.Utils.CSharpFormat
         }
         
         /// <summary>
-        /// Packet operators
+        /// Paket operators
         /// </summary>
         protected override string Operators
         {
-            get { return "= == > < >= <= ~>"; }
+            get { return "== >= <= ~> ! @ ~ : < > ="; }
+        }
+        
+        /// <summary>
+        /// Paket Keywords
+        /// </summary>
+        protected override string Keywords
+        {
+            get { return "source nuget\\s github\\s gist\\s git\\s http\\s group framework version_in_path content " 
+              + "copy_local redirects import_targets references strategy NUGET GITHUB GROUP GIT specs remote File"; }
         }
         
         /// <summary>
@@ -34,6 +43,33 @@ namespace Manoli.Utils.CSharpFormat
         protected override string NumberRegEx
         {
           get { return @"\b\d+(\.\d+)*\b"; }
+        }
+        
+        public PaketFormat()
+        {
+            var regKeyword = BuildKeywordsRegex(Keywords);
+            var regPreproc = BuildRegex(Preprocessors);
+            var regOps = BuildRegex(Operators);
+            
+            if (regOps.Length == 0) regOps = IMPOSSIBLE_MATCH_REGEX;
+            if (regPreproc.Length == 0) regPreproc = IMPOSSIBLE_MATCH_REGEX;
+
+            var regAll = ConcatenateRegex(CommentRegEx, StringRegEx, regPreproc, regKeyword, regOps, NumberRegEx);
+
+            RegexOptions regexOptions = RegexOptions.Singleline;
+            if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
+            CodeRegex = new Regex(regAll.ToString(), regexOptions);
+        }
+      
+        protected string BuildKeywordsRegex(string separated)
+        {
+            if (separated.Length == 0) return "";
+            var sb = new StringBuilder(separated);
+          
+            Sanitize(sb);
+            
+            sb.Replace(" ", @"\b|\b");
+            return @"\b" + sb.ToString() + @"\b";
         }
     }
 }

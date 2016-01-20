@@ -120,7 +120,7 @@ namespace Manoli.Utils.CSharpFormat
 		/// <summary>
 		/// A regular expression that should never match anything.
 		/// </summary>
-		private const string IMPOSSIBLE_MATCH_REGEX = "(?!.*)_{37}(?<!.*)";
+		protected const string IMPOSSIBLE_MATCH_REGEX = "(?!.*)_{37}(?<!.*)";
 
 		/// <summary/>
 		protected CodeFormat()
@@ -131,40 +131,56 @@ namespace Manoli.Utils.CSharpFormat
 			if (regOps.Length == 0) regOps = IMPOSSIBLE_MATCH_REGEX;
 			if (regPreproc.Length == 0) regPreproc = IMPOSSIBLE_MATCH_REGEX;
 
+			var regAll = ConcatenateRegex(CommentRegEx, StringRegEx, regPreproc, regKeyword, regOps, NumberRegEx);
+
+			var regexOptions = RegexOptions.Singleline;
+			if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
+			CodeRegex = new Regex(regAll.ToString(), regexOptions);
+		}
+    
+		protected string ConcatenateRegex(string commentRegex, string stringRegex, string preprocessorRegex,
+		  string keywordRegex, string operatorsRegex, string numberRegex)
+		{
 			// Build a master regex with capturing groups.
 			// Note that the group numbers must with the constants COMMENT_GROUP, OPERATOR_GROUP...!
 			StringBuilder regAll = new StringBuilder();
 			regAll.Append("(");
-			regAll.Append(CommentRegEx);
+			regAll.Append(commentRegex);
 			regAll.Append(")|(");
-			regAll.Append(StringRegEx);
+			regAll.Append(stringRegex);
 			regAll.Append(")|(");
-			regAll.Append(regPreproc);
+			regAll.Append(preprocessorRegex);
 			regAll.Append(")|(");
-			regAll.Append(regKeyword);
+			regAll.Append(keywordRegex);
 			regAll.Append(")|(");
-			regAll.Append(regOps);
+			regAll.Append(operatorsRegex);
 			regAll.Append(")|(");
-			regAll.Append(NumberRegEx);
+			regAll.Append(numberRegex);
 			regAll.Append(")");
-
-			RegexOptions regexOptions = RegexOptions.Singleline;
-			if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
-			CodeRegex = new Regex(regAll.ToString(), regexOptions);
+      
+			return regAll.ToString();
 		}
 
-		private string BuildRegex(string separated)
+		protected string BuildRegex(string separated)
 		{
 			if (separated.Length == 0) return "";
 			var sb = new StringBuilder(separated);
+      
+			Sanitize(sb);
+			
+			sb.Replace(" ", @"(?=\W|$)|(?<=^|\W)");
+			return @"(?<=^|\W)" + sb.ToString() + @"(?=\W|$)";
+		}
+
+		protected void Sanitize(StringBuilder sb)
+		{
 			sb.Replace("&", "&amp;");
 			sb.Replace("<", "&lt;");
 			sb.Replace(">", "&gt;");
-			foreach (char c in new char[] { '&', '?', '*', '.', '<', '>', '[', ']', '^', '|', '(', ')', '#', '+' }) {
+      
+			foreach (var c in new char[] { '&', '?', '*', '.', '<', '>', '[', ']', '^', '|', '(', ')', '#', '+' }) {
 				sb.Replace(c.ToString(), "\\" + c);
 			}
-			sb.Replace(" ", @"(?=\W|$)|(?<=^|\W)");
-			return @"(?<=^|\W)" + sb.ToString() + @"(?=\W|$)";
 		}
 
 		/// <summary>
