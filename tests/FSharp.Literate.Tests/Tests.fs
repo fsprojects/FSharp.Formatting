@@ -313,8 +313,11 @@ let ``Correctly handles Paket coloring`` () =
     gist Thorium/1972349 timestamp.fs
     
     // HTTP resources
-    http http://www.fssnip.net/1n decrypt.fs"""
+    http http://www.fssnip.net/1n decrypt.fs
     
+    // GIT tags
+    git file:///C:\Users\Steffen\AskMe >= 1 alpha      // at least 1.0 including alpha versions
+    """
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   
@@ -346,6 +349,9 @@ let ``Correctly handles Paket coloring`` () =
   
   html |> should contain @"https://nuget.org/api/v2"
   html |> should contain @"http://www.fssnip.net/1n"
+  
+  html |> should contain @"file:///C:\Users\Steffen\AskMe"
+  html |> should contain "<span class=\"c\">// at least 1.0 including alpha versions</span>"
 
 [<Test>]
 let ``Generates line numbers for F# code snippets`` () =
