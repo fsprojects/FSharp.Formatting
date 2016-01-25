@@ -1,3 +1,7 @@
+## 2.13.5 (25 January, 2016)
+ - Fixes issues in PaketFormat (#381) - colorize HTTP and file prefix 
+ - Reliable getTypeLink (#380) - avoid crashes
+ 
 ## 2.13.4 (20 January, 2016)
  - Colors paket keywords (#379)
 
