@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <!-- 
+    <!--
       The Literate sample
- parameters will be replaced with the 
+ parameters will be replaced with the
       document title extracted from the <h1> element or
       file name, if there is no <h1> heading
     -->
@@ -12,7 +12,6 @@
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="http://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -36,7 +35,7 @@ using the <code>literate.fsx</code> script from the <a href="http://tpetricek.gi
 package</a>.</p>
 
 <p>As you can see, a comment starting with double asterisk
-is treated as part of the document and is transformed 
+is treated as part of the document and is transformed
 using Markdown, which means that you can use:</p>
 
 <ul>
@@ -49,7 +48,7 @@ using Markdown, which means that you can use:</p>
 <h2>Writing F# code</h2>
 
 <p>Code that is not inside comment will be formatted as
-a sample snippet (which also means that you can 
+a sample snippet (which also means that you can
 run it in Visual Studio or MonoDevelop).</p>
 
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -63,8 +62,8 @@ run it in Visual Studio or MonoDevelop).</p>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="c">/// The Hello World of functional languages!</span>
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="f">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span> 
-  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span> 
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="f">factorial</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">x</span> <span class="o">=</span>
+  <span class="k">if</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="i">x</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span class="n">1</span>
   <span class="k">else</span> <span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">x</span> <span class="o">*</span> (<span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="f">factorial</span> (<span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">x</span> <span class="o">-</span> <span class="n">1</span>))
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="i">f10</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="f">factorial</span> <span class="n">10</span>
@@ -75,8 +74,8 @@ run it in Visual Studio or MonoDevelop).</p>
 
 <h2>Hiding code</h2>
 
-<p>If you want to include some code in the source code, 
-but omit it from the output, you can use the <code>hide</code> 
+<p>If you want to include some code in the source code,
+but omit it from the output, you can use the <code>hide</code>
 command.</p>
 
 <p>The value will be deffined in the F# code and so you
@@ -97,7 +96,7 @@ tool tips:</p>
 <h2>Moving code around</h2>
 
 <p>Sometimes, it is useful to first explain some code that
-has to be located at the end of the snippet (perhaps 
+has to be located at the end of the snippet (perhaps
 because it uses some definitions discussed in the middle).
 This can be done using <code>include</code> and <code>define</code> commands.</p>
 
@@ -111,7 +110,7 @@ it uses <code>laterFunction</code>:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">sample</span> <span class="o">=</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 13)" onmouseover="showTip(event, 'fs7', 13)" class="i">sample</span> <span class="o">=</span>
   <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="f">laterFunction</span>()
   <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="f">printfn</span> <span class="s">&quot;Got: </span><span class="pf">%s</span><span class="s">&quot;</span>
 </pre>
@@ -127,16 +126,16 @@ it uses <code>laterFunction</code>:</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="f">laterFunction</span>() <span class="o">=</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="f">laterFunction</span>() <span class="o">=</span>
   <span class="s">&quot;Not very difficult, is it?&quot;</span>
 </pre>
 </td>
 </tr>
 </table>
 
-<p>This example covers pretty much all features that are 
-currently implemented in <code>literate.fsx</code>, but feel free 
-to <a href="https://github.com/tpetricek/FSharp.Formatting">fork the project on GitHub</a> and add more 
+<p>This example covers pretty much all features that are
+currently implemented in <code>literate.fsx</code>, but feel free
+to <a href="https://github.com/tpetricek/FSharp.Formatting">fork the project on GitHub</a> and add more
 features or report bugs!</p>
 
 <h2>Other features</h2>
@@ -168,7 +167,7 @@ This might be useful to generate nice documents from tests:</p>
 <div class="tip" id="fs7">val sample : unit<br /><br />Full name: Demo.sample</div>
 <div class="tip" id="fs8">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
 <div class="tip" id="fs9">val ( 1 + 1 should be equal to 2 ) : unit -&gt; bool<br /><br />Full name: Demo.( 1 + 1 should be equal to 2 )</div>
-          
+
         </div>
         <div class="span1"></div>
       </div>
