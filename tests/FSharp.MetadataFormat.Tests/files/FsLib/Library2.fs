@@ -90,3 +90,7 @@ module Test_Issue201Extensions =
 type Test_Omit() =
   /// This Should not be displayed
   member x.Foo a = ()
+
+/// Test ` ` test
+type Test_Empty_Code_Block() =
+  let empty = ()

@@ -482,6 +482,7 @@ let ``Metadata generates cross-type links for Indirect Links``() =
   files.["fslib-nested.html"] |> should contain "This function returns a [InexistentTypeName] multiplied by 5."
 
   // -------------------Inline code----------------------------------
+[<Test>]
 let ``Metadata generates cross-type links for Inline Code``() =
   let library = root @@ "files/FsLib/bin/Debug" @@ "FsLib2.dll"
   let output = getOutputDir()
