@@ -659,15 +659,10 @@ module Reader =
 
   /// Returns a tuple of the undefined link and its Cref if it exists
   let getTypeLink (ctx:ReadingContext) undefinedLink =
-    try 
-        // Log.infof "Get type link of:%s " undefinedLink 
-        // Append 'T:' to try to get the link from urlmap
-        match ctx.UrlMap.ResolveCref ("T:" + undefinedLink) with
-        | Some cRef -> if cRef.IsInternal then Some (undefinedLink, cRef) else None
-        | None -> None
-    with 
-    | ex -> 
-        None
+    // Append 'T:' to try to get the link from urlmap
+    match ctx.UrlMap.ResolveCref ("T:" + undefinedLink) with
+    | Some cRef -> if cRef.IsInternal then Some (undefinedLink, cRef) else None
+    | None -> None
 
   /// Adds a cross-type link to the document defined links
   let addLinkToType (doc: LiterateDocument) link =
@@ -890,7 +885,7 @@ module Reader =
             | _ -> None
 
     let resolveCref (cref:string) = 
-        if (cref.Length <= 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
+        if (cref.Length < 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
         let memberName = cref.Substring(2)
         let noParen = removeParen memberName
         match cref with
