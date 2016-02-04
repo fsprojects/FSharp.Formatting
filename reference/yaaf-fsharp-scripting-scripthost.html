@@ -8,7 +8,6 @@
     <meta name="author" content="Tomas Petricek">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
-    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -53,15 +52,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '513', 513)" onmouseover="showTip(event, '513', 513)">
+          <code onmouseout="hideTip(event, '516', 516)" onmouseover="showTip(event, '516', 516)">
             Create(...)
           </code>
-          <div class="tip" id="513">
+          <div class="tip" id="516">
             <strong>Signature:</strong> (opts:FsiOptions * fsiObj:obj option * reportGlobal:bool option * outWriter:TextWriter option * fsiOutWriter:TextWriter option * errWriter:TextWriter option * fsiErrWriter:TextWriter option * preventStdOut:bool option) -&gt; IFsiSession<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L1235-1235" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L1258-1258" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -73,22 +72,26 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '514', 514)" onmouseover="showTip(event, '514', 514)">
+          <code onmouseout="hideTip(event, '517', 517)" onmouseover="showTip(event, '517', 517)">
             CreateForwardWriter(...)
           </code>
-          <div class="tip" id="514">
+          <div class="tip" id="517">
             <strong>Signature:</strong> (f:(string -&gt; unit) * revertRedirect:bool option * removeNewLines:bool option) -&gt; TextWriter<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L1204-1204" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L1222-1222" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Creates a forwarder Textwriter, which forwards all output to the given function.
 Set revertRedirect only to "false" if you know that f doesn't print anything to the stdout.
 When revertRedirect is true we capture the Console.Out property and set it before calling f.
-RemoveNewLines</p>
+removeNewLines handles the newline characters properly and calls f for every new line instead of every call to
+to the underlaying writers.
+The difference is that with removeNewLines you should use printfn and get lines without newline characters.
+On the other hand without removeNewLines you are called on every TextWriter.Write call,
+so you might be called multiple times for a single lines or a single time for multiple lines.</p>
 
 
         </td>
@@ -96,15 +99,15 @@ RemoveNewLines</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '515', 515)" onmouseover="showTip(event, '515', 515)">
+          <code onmouseout="hideTip(event, '518', 518)" onmouseover="showTip(event, '518', 518)">
             CreateNew(...)
           </code>
-          <div class="tip" id="515">
+          <div class="tip" id="518">
             <strong>Signature:</strong> (defines:string list option * fsiObj:obj option * reportGlobal:bool option * outWriter:TextWriter option * fsiOutWriter:TextWriter option * errWriter:TextWriter option * fsiErrWriter:TextWriter option * preventStdOut:bool option) -&gt; IFsiSession<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L1246-1246" class="github-link">
+            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L1269-1269" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
