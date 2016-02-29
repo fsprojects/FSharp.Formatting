@@ -65,6 +65,10 @@ namespace CSharpFormat
                 case "javascript":
                     sf = new JavaScriptFormat();
                     break;
+                case "ts":
+                case "typescript":
+                    sf = new TypeScriptFormat();
+                    break;                  
                 case "vb":
                 case "basic":
                     sf = new VisualBasicFormat();

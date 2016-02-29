@@ -58,6 +58,7 @@
     <Compile Include="SourceFormat.cs" />
     <Compile Include="SyntaxHighlighter.cs" />
     <Compile Include="TsqlFormat.cs" />
+    <Compile Include="TypeScriptFormat.cs" />
     <Compile Include="VisualBasicFormat.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
