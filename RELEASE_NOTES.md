@@ -1,3 +1,6 @@
+## 2.13.6 (29 February, 2016)
+ - Added TypeScript to the CSharpFormat project (#386)
+
 ## 2.13.5 (25 January, 2016)
  - Fixes issues in PaketFormat (#381) - colorize HTTP and file prefix 
  - Reliable getTypeLink (#380) - avoid crashes
