@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <!--
+      The Tutorial 1: types, values and lists
+ parameters will be replaced with the
+      document title extracted from the <h1> element or
+      file name, if there is no <h1> heading
+    -->
+    <title>Tutorial 1: types, values and lists
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="content/style.css" />
+    <script src="content/tips.js" type="text/javascript"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="row" style="margin-top:30px">
+        <div class="span1"></div>
+        <div class="span10" id="main">
+          <h1>Tutorial 1: types, values and lists</h1>
+<h2>Content</h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Syntax</p></th>
+<th><p>Name</p></th>
+<th><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>let</code> <em>name</em> [<code>:</code><em>typename</em>] <code>=</code> <em>exp</em></p></td>
+<td><p>let binding</p></td>
+<td><p>Defines identifier <em>name</em> to be equal to <em>exp</em> <br> for all subsequent expressions in current block<br> <em>typename</em> is optional because types will<br>be inferred by compiler.</p></td>
+</tr>
+<tr class="even">
+<td><p><code>let</code><em>fname</em> <em>p</em><code>=</code><em>exp</em></p></td>
+<td><p>function <br> let binding</p></td>
+<td><p>Defines function <em>fname</em> with parameter <em>p</em> <br>to be equal to expression <em>exp</em> which may contain <em>p</em>.</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>let</code><em>fname</em> <code>(</code><em>p</em><code>:</code><em>typename</em><code>) =</code><em>exp</em></p></td>
+<td><p>as above</p></td>
+<td><p>Types can be added to any parameters as shown</p></td>
+</tr>
+<tr class="even">
+<td><p><code>(</code><em>e1</em><code>,</code><em>e2</em><code>,</code>...<code>,</code><em>en</em><code>)</code></p></td>
+<td><p>n-tuple value</p></td>
+<td><p><em>ei</em> can be arbitrary expressions. <br> Like a record but with unnamed elements <br> and no type definition</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>[</code><em>e1</em><code>;</code>...<code>;</code><em>en</em> <code>]</code></p></td>
+<td><p>list</p></td>
+<td><p>All the <em>ei</em> must be the same type. <br>List elements are separated by <code>;</code> not <code>,</code>.</p></td>
+</tr>
+<tr class="even">
+<td><p><code>[</code><em>e1</em><code>..</code><em>e2</em><code>]</code></p></td>
+<td></td>
+<td><p>List of all integers from <em>e1</em> to <em>e2</em>.<br> <em>e1</em>,<em>e2</em> must be <em>int</em></p></td>
+</tr>
+<tr class="odd">
+<td><p><code>fun</code><em>p1</em><code>-&gt;</code><em>e1</em></p></td>
+<td><p>anonymous<br> function</p></td>
+<td><p>Like <code>let</code><em>name</em> <em>p1</em><code>=</code><em>e1</em></p></td>
+</tr>
+<tr class="even">
+<td><p><code>(</code> <em>op</em> <code>)</code></p></td>
+<td><p>functionised<br> operator</p></td>
+<td><p><em>op</em> must be a binary operator.<br><code>(</code> <em>op</em> <code>) a b</code> is equivalent to <code>a</code> <em>op</em> <code>b</code>.<br> Mostly used to feed operators to <br>list processing functions</p></td>
+</tr>
+<tr class="odd">
+<td><hr /></td>
+<td><hr /></td>
+<td><hr /></td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr class="header">
+<th><p>Type</p></th>
+<th><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>a'</code></p></td>
+<td><p><em>polymorphic</em> type variable can fit any specific type</p></td>
+</tr>
+<tr class="even">
+<td><p><code>int</code> <br> <code>float</code> <br> <code>string</code><br> <code>bool</code></p></td>
+<td><p>Basic types</p></td>
+</tr>
+<tr class="odd">
+<td><p><em>t1</em><code>-&gt;</code><em>t2</em></p></td>
+<td><p>Type of function with parameter type <em>t1</em> and result type <em>t2</em></p></td>
+</tr>
+<tr class="even">
+<td><p><em>t1</em><code>*</code><em>t2</em></p></td>
+<td><p>Type of 2-tuple with first element type <em>t1</em>, second type <em>t2</em>.</p></td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<tbody>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr class="header">
+<th><p>Op</p></th>
+<th><p>Function</p></th>
+<th><p>Type</p></th>
+<th><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>+</code><br> <code>-</code><br> <code>*</code><br> <code>/</code></p></td>
+<td></td>
+<td><p class = "text-center"> `float->float->float` <br> or <br> `int->int->int`</td>
+<td><p>arithmetic</p></td>
+</tr>
+<tr class="even">
+<td><p><code>**</code></p></td>
+<td></td>
+<td><p><code>float-&gt;float-&gt;float</code></p></td>
+<td><p>power operator</p></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td><p><code>List.map</code> <br> <code>List.map f lst</code></p></td>
+<td><p><code>('a-&gt;'b') -&gt; 'a list -&gt; 'b list</code></p></td>
+<td><p>map <code>f</code> over <code>lst</code></p></td>
+</tr>
+<tr class="even">
+<td></td>
+<td><p><code>List.reduce</code><br><code>List.reduce f lst</code></p></td>
+<td><p><code>('a-&gt;'a-&gt;'a) -&gt; 'a list -&gt; 'a</code></p></td>
+<td><p>reduce list to value using <code>f</code></p></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td><p><code>List.filter</code><br> <code>list.filter f lst</code></p></td>
+<td><p><code>('a-&gt;bool)-&gt; 'a list -&gt; 'a list</code></p></td>
+<td><p>filter <code>lst</code> to contain only elements<br> for which <code>f</code> returns true</p></td>
+</tr>
+<tr class="even">
+<td><p><code>|&gt;</code></p></td>
+<td></td>
+<td><p><code>'a -&gt; ('a -&gt; 'b)</code></p></td>
+<td><p>Pipeline operator: <code>x |&gt; f</code> = <code>f x</code></p></td>
+</tr>
+<tr class="odd">
+<td><hr /></td>
+<td><hr /></td>
+<td><hr /></td>
+<td><hr /></td>
+</tr>
+</tbody>
+</table>
+
+
+          
+        </div>
+        <div class="span1"></div>
+      </div>
+    </div>
+  </body>
+</html>

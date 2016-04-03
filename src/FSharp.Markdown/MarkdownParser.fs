@@ -450,7 +450,7 @@ let rec (|ListItems|_|) prevSimple = function
 // Code for parsing pipe tables
 
 // Splits table row into deliminated parts escaping inline code and latex
-let rec PipeTableFindSplits (delim : char array) (line : char list) = 
+let rec pipeTableFindSplits (delim : char array) (line : char list) = 
     let cLstToStr (x : char list) = 
         x
         |> Array.ofList
@@ -472,7 +472,7 @@ let rec PipeTableFindSplits (delim : char array) (line : char list) =
     | Some x when line = [] -> [ "" ]
     | Some x -> 
         let chunkSize = List.length line - List.length x - 1
-        cLstToStr (Seq.take chunkSize line |> Seq.toList) :: PipeTableFindSplits delim x
+        cLstToStr (Seq.take chunkSize line |> Seq.toList) :: pipeTableFindSplits delim x
 
 
     
@@ -491,7 +491,7 @@ let (|TableCellSeparator|_|) = function
 /// Returns list of strings between delimiters.
 let (|PipeTableRow|_|) (size : option<int>) delimiters (line : string) = 
     let parts = 
-        PipeTableFindSplits delimiters (line.ToCharArray() |> Array.toList)
+        pipeTableFindSplits delimiters (line.ToCharArray() |> Array.toList)
         |> List.toArray
         |> Array.map (fun s -> s.Trim())
     
