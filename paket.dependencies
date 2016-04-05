@@ -10,7 +10,7 @@ nuget RazorEngine
 nuget NUnit ~> 2
 nuget NUnit.Runners ~> 2
 nuget NuGet.CommandLine
-nuget FSharp.Compiler.Service == 2.0.0.3
+nuget FSharp.Compiler.Service == 2.0.0.6
 // See http://fsprojects.github.io/Paket/nuget-dependencies.html
 // This basically means we need the lowest version for its dependencies (FSharp.Compiler.Service)
 // Otherwise we get runtime errors without binding redirects
