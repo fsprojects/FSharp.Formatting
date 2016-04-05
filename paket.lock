@@ -3,22 +3,22 @@ NUGET
   remote: http://www.nuget.org/api/v2
   specs:
     CommandLineParser (1.9.71)
-    FAKE (4.19.0)
+    FAKE (4.22.8)
     FSharp.Compiler.Service (2.0.0.3)
     FSharp.Core (4.0.0.1)
     FSharp.Data (2.2.5)
-      Zlib.Portable (>= 1.10.0) - framework: portable-net40+sl50+wp80+win80
-    FSharpVSPowerTools.Core (2.3.0)
+      Zlib.Portable (>= 1.10) - framework: portable-net40+sl50+wp80+win80
+    FSharpVSPowerTools.Core (2.3)
       FSharp.Compiler.Service (>= 2.0.0.3)
     ILRepack (2.0.10)
     Microsoft.AspNet.Razor (3.2.3)
-    NuGet.CommandLine (3.3.0)
+    NuGet.CommandLine (3.3)
     NUnit (2.6.4)
     NUnit.Runners (2.6.4)
     RazorEngine (3.7.7)
-      Microsoft.AspNet.Razor (>= 3.0.0) - framework: >= net45
+      Microsoft.AspNet.Razor (>= 3.0) - framework: >= net45
       Microsoft.AspNet.Razor (2.0.30506) - framework: net40
-    Zlib.Portable (1.11.0) - framework: portable-net40+sl50+wp80+win80
+    Zlib.Portable (1.11) - framework: portable-net40+sl50+wp80+win80
 GITHUB
   remote: matthid/Yaaf.FSharp.Scripting
   specs:
