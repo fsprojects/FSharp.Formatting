@@ -229,7 +229,7 @@ Target "NuGet" (fun _ ->
             Dependencies =
                 [ // From experience they always break something at the moment :(
                   "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireRange BreakingPoint.Minor
-                  "FSharp.Compiler.Service", "[2.0.0.3]" // GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.Minor
+                  "FSharp.Compiler.Service", "[2.0.0.6]" // GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.Minor
                    ] })
         "nuget/FSharp.Formatting.nuspec"
 
