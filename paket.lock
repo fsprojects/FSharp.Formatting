@@ -4,7 +4,7 @@ NUGET
   specs:
     CommandLineParser (1.9.71)
     FAKE (4.22.8)
-    FSharp.Compiler.Service (2.0.0.3)
+    FSharp.Compiler.Service (2.0.0.6)
     FSharp.Core (4.0.0.1)
     FSharp.Data (2.2.5)
       Zlib.Portable (>= 1.10) - framework: portable-net40+sl50+wp80+win80
