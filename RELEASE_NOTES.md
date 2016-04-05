@@ -1,3 +1,6 @@
+## 2.14.1 (5 April, 2016)
+* Temporarily pin FSharp.Compiler.Service
+
 ## 2.13.6 (29 February, 2016)
  - Added TypeScript to the CSharpFormat project (#386)
 
