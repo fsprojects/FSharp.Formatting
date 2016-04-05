@@ -1,10 +1,14 @@
+## 2.14.1 (5 April, 2016)
+ - Temporarily pin FSharp.Compiler.Service (#395)
+ - Cache is new keyword in Paket (#392)
+
 ## 2.13.6 (29 February, 2016)
  - Added TypeScript to the CSharpFormat project (#386)
 
 ## 2.13.5 (25 January, 2016)
- - Fixes issues in PaketFormat (#381) - colorize HTTP and file prefix 
+ - Fixes issues in PaketFormat (#381) - colorize HTTP and file prefix
  - Reliable getTypeLink (#380) - avoid crashes
- 
+
 ## 2.13.4 (20 January, 2016)
  - Colors paket keywords (#379)
 
@@ -30,7 +34,7 @@
  - Upgrade the CommandTool to F# 4 and bundle FSharp.Core with sigdata and optdata.
  - Fix crash when a fenced code block starts with an empty line (https://github.com/tpetricek/FSharp.Formatting/pull/361)
  - Support for all known xml elements (https://github.com/tpetricek/FSharp.Formatting/pull/331)
- 
+
 ## 2.12.0 (18 October, 2015)
  - Update dependencies to be compatible with FSharp.Compiler.Service >=1.4.0.3
 
@@ -47,11 +51,11 @@
 
 ## 2.10.2 (12 September, 2015)
  - Fix load script (wrap logging setup in try catch properly)
- 
+
 ## 2.10.1 (12 September, 2015)
  - paket update && fix compilation (#338)
- - Wrap logging setup in try catch 
- 
+ - Wrap logging setup in try catch
+
 ## 2.10.0 (26 July, 2015)
  - Add detailed logging and new FSharp.Formatting.Common.dll file
  - Fix bug in C# code formatting tool (FormatHtml)
