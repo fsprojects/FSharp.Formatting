@@ -34,7 +34,7 @@ namespace Manoli.Utils.CSharpFormat
         protected override string Keywords
         {
             get { return "source nuget\\s github\\s gist\\s git\\s http\\s group framework version_in_path content " 
-              + "copy_local redirects import_targets references strategy lowest_matching NUGET GITHUB GROUP GIT HTTP specs remote File"; }
+              + "copy_local redirects import_targets references cache strategy lowest_matching NUGET GITHUB GROUP GIT HTTP specs remote File"; }
         }
         
         /// <summary>
