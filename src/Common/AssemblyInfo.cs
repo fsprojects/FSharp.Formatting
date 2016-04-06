@@ -4,12 +4,12 @@ using System.Reflection;
 [assembly: AssemblyTitleAttribute("FSharp.Formatting")]
 [assembly: AssemblyProductAttribute("FSharp.Formatting")]
 [assembly: AssemblyDescriptionAttribute("A package of libraries for building great F# documentation, samples and blogs")]
-[assembly: AssemblyVersionAttribute("2.14.1")]
-[assembly: AssemblyFileVersionAttribute("2.14.1")]
-[assembly: AssemblyInformationalVersionAttribute("2.14.1")]
+[assembly: AssemblyVersionAttribute("2.14.2")]
+[assembly: AssemblyFileVersionAttribute("2.14.2")]
+[assembly: AssemblyInformationalVersionAttribute("2.14.2")]
 [assembly: AssemblyCopyrightAttribute("Apache 2.0 License")]
 namespace System {
     internal static class AssemblyVersionInformation {
-        internal const string Version = "2.14.1";
+        internal const string Version = "2.14.2";
     }
 }

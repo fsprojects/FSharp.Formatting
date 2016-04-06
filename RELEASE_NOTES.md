@@ -1,3 +1,7 @@
+## 2.14.2 (6 April, 2016)
+ - Add code to parse table rows correctly (#394)
+ - Also fixes (#388) Markdown parser doesn't recognize inline code `x | y` inside table cell
+
 ## 2.14.1 (5 April, 2016)
  - Temporarily pin FSharp.Compiler.Service (#395)
  - Cache is new keyword in Paket (#392)
