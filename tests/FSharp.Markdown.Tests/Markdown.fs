@@ -321,3 +321,14 @@ let ``Transform tables with delimiters in code or math correctly``() =
 </table>     """ |> properNewLines
     Markdown.TransformHtml doc
     |> shouldEqualNoWhiteSpace expected
+
+[<Test>]
+let ``Parse and transform empty blockquote followed by content``() =
+    let doc = ">a
+>
+a"
+    let expected = [ QuotedBlock [ Paragraph [ Literal "a" ] ]
+                     Paragraph [ Literal "a" ] ]
+
+    (Markdown.Parse doc).Paragraphs
+    |> shouldEqual expected
