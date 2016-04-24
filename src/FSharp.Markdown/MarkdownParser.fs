@@ -630,12 +630,21 @@ let (|LinesUntilBlockquoteEnds|) input =
 /// Recognizes blockquote - continues taking paragraphs
 /// starting with '>' until there is something else
 let rec (|Blockquote|_|) = function
+  | EmptyBlockquote(Lines.TrimBlankStart rest) ->
+      Some ([""], rest)
   | BlockquoteStart(line)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart rest) ->
       let moreLines, rest =
         match rest with
         | Blockquote(lines, rest) -> lines, rest
         | _ -> [], rest
       Some (line::continued @ moreLines, rest)
+  | _ -> None
+
+/// Recognizes a special case: an empty blockquote line should terminate
+/// the blockquote if the next line is not a blockquote
+and (|EmptyBlockquote|_|) = function
+  | BlockquoteStart(String.WhiteSpace) :: Blockquote(_) -> None
+  | BlockquoteStart(String.WhiteSpace) :: rest -> Some rest
   | _ -> None
 
 /// Recognizes Latex block - start with "$$$"
