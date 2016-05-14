@@ -20,7 +20,8 @@ open FSharp.Markdown
 let enabledSections =
   [ "Fenced code blocks"
     "Indented code blocks"
-    "Paragraphs" ]
+    "Paragraphs"
+    "Precedence" ]
 
 let getTests () =
   sample
