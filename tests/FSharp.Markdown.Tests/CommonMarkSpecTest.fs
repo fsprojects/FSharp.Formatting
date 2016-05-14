@@ -21,7 +21,8 @@ let enabledSections =
   [ "Fenced code blocks"
     "Indented code blocks"
     "Paragraphs"
-    "Precedence" ]
+    "Precedence"
+    "Tabs" ]
 
 let getTests () =
   sample
