@@ -2,7 +2,13 @@ var currentTip = null;
 var currentTipElement = null;
 
 function hideTip(evt, name, unique) {
+    // Fix flicker when tooltip overlaps parent element
+    // See http://www.quirksmode.org/js/events_mouse.html
+    if (!evt) var evt = window.event;
+    var movedInto = evt.relatedTarget || evt.toElement;
     var el = document.getElementById(name);
+    // Avoid flicker: don't hide if we're moving into the tooltip div
+    if (movedInto == el) return;
     el.style.display = "none";
     currentTip = null;
 }
