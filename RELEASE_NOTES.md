@@ -1,3 +1,8 @@
+## 2.14.3 (26 May, 2016)
+ - Fixes issues with comments and keywords in Paket highlighter (#408)
+ - Fix tooltip flickering in CSS (#406)
+ - End blockquote on a line with an empty blockquote (fix #355) (#400)
+ 
 ## 2.14.2 (6 April, 2016)
  - Add code to parse table rows correctly (#394)
  - Also fixes (#388) Markdown parser doesn't recognize inline code `x | y` inside table cell
