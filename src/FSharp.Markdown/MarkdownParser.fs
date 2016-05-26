@@ -449,6 +449,35 @@ let rec (|ListItems|_|) prevSimple = function
 
 // Code for parsing pipe tables
 
+// Splits table row into deliminated parts escaping inline code and latex
+let rec pipeTableFindSplits (delim : char array) (line : char list) = 
+    let cLstToStr (x : char list) = 
+        x
+        |> Array.ofList
+        |> System.String.Concat
+    
+    let rec ptfs delim line = 
+        match line with
+        | DelimitedLatexDisplayMath [ '$'; '$' ] (body, rest) -> ptfs delim rest
+        | DelimitedLatexInlineMath [ '$' ] (body, rest) -> ptfs delim rest
+        | List.DelimitedWith [ '`'; ' ' ] [ ' '; '`' ] (body, rest) -> ptfs delim rest
+        | List.DelimitedNTimes '`' (body, rest) -> ptfs delim rest
+        | x :: rest when Array.exists ((=) x) delim -> Some rest
+        | '\\' :: _ :: rest | _ :: rest -> ptfs delim rest
+        | [] -> None
+    
+    let rest = ptfs delim line
+    match rest with
+    | None -> [ cLstToStr line ]
+    | Some x when line = [] -> [ "" ]
+    | Some x -> 
+        let chunkSize = List.length line - List.length x - 1
+        cLstToStr (Seq.take chunkSize line |> Seq.toList) :: pipeTableFindSplits delim x
+
+
+    
+    
+
 /// Recognizes alignment specified in the passed separator line.
 let (|TableCellSeparator|_|) = function
   | String.StartsAndEndsWith (":", ":") (String.EqualsRepeated "-") -> Some(AlignCenter)
@@ -460,13 +489,29 @@ let (|TableCellSeparator|_|) = function
 /// Recognizes row of pipe table.
 /// The function takes number of expected columns and array of delimiters.
 /// Returns list of strings between delimiters.
-let (|PipeTableRow|_|) (size:option<int>) delimiters (line:string) =
-  let parts = line.Split(delimiters) |> Array.map (fun s -> s.Trim())
-  let n = parts.Length
-  let m = if size.IsNone then 1 else size.Value
-  let x = if String.IsNullOrEmpty parts.[0] && n > m then 1 else 0
-  let y = if String.IsNullOrEmpty parts.[n - 1] && n - x > m then n - 2 else n - 1
-  if n = 1 || (size.IsSome && y - x + 1 <> m) then None else Some(parts.[x..y] |> Array.toList)
+let (|PipeTableRow|_|) (size : option<int>) delimiters (line : string) = 
+    let parts = 
+        pipeTableFindSplits delimiters (line.ToCharArray() |> Array.toList)
+        |> List.toArray
+        |> Array.map (fun s -> s.Trim())
+    
+    let n = parts.Length
+    
+    let m = 
+        if size.IsNone then 1
+        else size.Value
+    
+    let x = 
+        if String.IsNullOrEmpty parts.[0] && n > m then 1
+        else 0
+    
+    let y = 
+        if String.IsNullOrEmpty parts.[n - 1] && n - x > m then n - 2
+        else n - 1
+    
+    if n = 1 || (size.IsSome && y - x + 1 <> m) then None
+    else Some(parts.[x..y] |> Array.toList)
+
 
 /// Recognizes separator row of pipe table.
 /// Returns list of alignments.
@@ -585,12 +630,21 @@ let (|LinesUntilBlockquoteEnds|) input =
 /// Recognizes blockquote - continues taking paragraphs
 /// starting with '>' until there is something else
 let rec (|Blockquote|_|) = function
+  | EmptyBlockquote(Lines.TrimBlankStart rest) ->
+      Some ([""], rest)
   | BlockquoteStart(line)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart rest) ->
       let moreLines, rest =
         match rest with
         | Blockquote(lines, rest) -> lines, rest
         | _ -> [], rest
       Some (line::continued @ moreLines, rest)
+  | _ -> None
+
+/// Recognizes a special case: an empty blockquote line should terminate
+/// the blockquote if the next line is not a blockquote
+and (|EmptyBlockquote|_|) = function
+  | BlockquoteStart(String.WhiteSpace) :: Blockquote(_) -> None
+  | BlockquoteStart(String.WhiteSpace) :: rest -> Some rest
   | _ -> None
 
 /// Recognizes Latex block - start with "$$$"

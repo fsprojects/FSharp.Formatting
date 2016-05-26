@@ -12,6 +12,9 @@ open FSharp.Markdown
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
 
+let shouldEqualNoWhiteSpace (x:string) (y:string) =
+    shouldEqual (x.Split()) (y.Split())
+
 [<Test>]
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
   let doc = """<a href="mailto:a@b.c">hi</a>""" |> Markdown.Parse
@@ -283,4 +286,59 @@ let ``Transform horizontal rules correctly``() =
     Markdown.Parse(doc).Paragraphs
     |> shouldEqual [ HorizontalRule '*'; HorizontalRule '*'; HorizontalRule '*'; HorizontalRule '-'; HorizontalRule '-' ]
     Markdown.TransformHtml doc
+    |> shouldEqual expected
+
+let ``Transform tables with delimiters in code or math correctly``() =
+    let doc = """| a | b | 
+|---|---|
+| 1 |$|$|
+|`|`|123|
+| 3 | 4
+---------
+"""
+    let expected = """
+          <table>
+<thead>
+<tr class="header">
+<th><p>a</p></th>
+<th><p>b</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>1</p></td>
+<td><p><span class="math">\(|\)</span></p></td>
+</tr>
+<tr class="even">
+<td><p><code>|</code></p></td>
+<td><p>123</p></td>
+</tr>
+<tr class="odd">
+<td><p>3</p></td>
+<td><p>4</p></td>
+</tr>
+</tbody>
+</table>     """ |> properNewLines
+    Markdown.TransformHtml doc
+    |> shouldEqualNoWhiteSpace expected
+
+[<Test>]
+let ``Parse empty blockquote followed by content``() =
+    let doc = ">
+a"
+    let expected = [ QuotedBlock []
+                     Paragraph [ Literal "a" ] ]
+
+    (Markdown.Parse doc).Paragraphs
+    |> shouldEqual expected
+
+[<Test>]
+let ``Parse blockquote teriminated by empty blockquote line and followed by content``() =
+    let doc = ">a
+>
+a"
+    let expected = [ QuotedBlock [ Paragraph [ Literal "a" ] ]
+                     Paragraph [ Literal "a" ] ]
+
+    (Markdown.Parse doc).Paragraphs
     |> shouldEqual expected

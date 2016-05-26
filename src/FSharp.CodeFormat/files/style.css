@@ -36,6 +36,7 @@ div.tip
 	border:1px solid #606060;
 	background:#ffffd0;
 	display:none;
+	pointer-events:none;
 }
 
 h2
