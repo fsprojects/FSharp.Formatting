@@ -581,11 +581,10 @@ let (|EmacsTableBlock|_|) input =
     loop true None [] emptyCur rest
   | _ -> None
 
-
 /// Recognizes a start of a blockquote
 let (|BlockquoteStart|_|) (line:string) =
   let regex =
-    "^ *" // Maybe leading spaces
+    "^ {0,3}" // Up to three leading spaces
     + ">" // Blockquote character
     + "\s?" // Maybe one whitespace character
     + "(.*)" // Capture everything else
