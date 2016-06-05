@@ -6,8 +6,8 @@
 module internal FSharp.Markdown.Parser
 
 open System
-open System.IO
 open System.Collections.Generic
+open System.Text.RegularExpressions
 
 open FSharp.Patterns
 open FSharp.Collections
@@ -581,22 +581,16 @@ let (|EmacsTableBlock|_|) input =
     loop true None [] emptyCur rest
   | _ -> None
 
-
 /// Recognizes a start of a blockquote
 let (|BlockquoteStart|_|) (line:string) =
-  let rec spaces i =
-    // Too many spaces or beyond the end of line
-    if i = 4 || i = line.Length then None
-    elif line.[i] = '>' then
-      // Blockquote - does it have additional space?
-      let start =
-        if (i + 1) = line.Length || line.[i+1] <> ' ' then i + 1
-        else i + 2
-      Some(line.Substring(start))
-    elif line.[i] = ' ' then spaces (i + 1)
-    //elif line.[i] = '\t' then spaces (i + 4)
-    else None
-  spaces 0
+  let regex =
+    "^ {0,3}" // Up to three leading spaces
+    + ">" // Blockquote character
+    + "\s?" // Maybe one whitespace character
+    + "(.*)" // Capture everything else
+  let match' = Regex.Match(line, regex)
+  if match'.Success then Some (match'.Groups.Item(1)).Value
+  else None
 
 /// Takes lines that belong to a continuing paragraph until
 /// a white line or start of other paragraph-item is found

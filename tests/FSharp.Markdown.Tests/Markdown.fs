@@ -342,3 +342,11 @@ a"
 
     (Markdown.Parse doc).Paragraphs
     |> shouldEqual expected
+
+[<Test>]
+let ``Parse blockquote with three leading spaces``() =
+    let doc = "   >a"
+    let expected = [ QuotedBlock [ Paragraph [ Literal "a" ] ] ]
+
+    (Markdown.Parse doc).Paragraphs
+    |> shouldEqual expected
