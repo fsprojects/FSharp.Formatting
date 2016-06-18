@@ -229,9 +229,10 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
         
         for error in ex.CompilerErrors do
           let errorType = if error.IsWarning then "warning" else "error"
-          builder.AppendLine (sprintf " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText)
+          builder.AppendLine (sprintf " - %s %s: (%d, %d) %s" errorType error.ErrorNumber error.Line error.Column error.ErrorText)
            |> ignore
         
+        Log.verbf "Failed Source Code was: \n\n%s" ex.SourceCode
         Log.critf "%s" (builder.ToString())
         failwith "Generating HTML failed."
 

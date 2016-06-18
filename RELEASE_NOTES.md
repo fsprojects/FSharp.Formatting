@@ -1,3 +1,10 @@
+## 2.14.5-alpha1
+ - Improve error reporting to debug 'https://github.com/fsprojects/ProjectScaffold/issues/252'
+
+## 2.14.4 (2 Juni, 2016)
+ -  Use `#I __SOURCE_DIRECTORY__` in the loads script (more reliable)
+ 
+
 ## 2.14.3 (26 May, 2016)
  - Fixes issues with comments and keywords in Paket highlighter (#408)
  - Fix tooltip flickering in CSS (#406)
