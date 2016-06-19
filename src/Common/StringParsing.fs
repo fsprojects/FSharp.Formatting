@@ -14,44 +14,57 @@ open FSharp.Collections
 
 module String =
   /// Matches when a string is a whitespace or null
-  let (|WhiteSpace|_|) s = 
+  let (|WhiteSpaceS|_|) (s) = 
+    if String.IsNullOrWhiteSpace(s) then Some() else None
+
+  /// Matches when a string is a whitespace or null
+  let (|WhiteSpace|_|) (s, n: int) = 
     if String.IsNullOrWhiteSpace(s) then Some() else None
 
   /// Matches when a string does starts with non-whitespace
-  let (|Unindented|_|) (s:string) = 
+  let (|Unindented|_|) (s:string, n:int) = 
     if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then Some() else None
 
   /// Returns a string trimmed from both start and end
-  let (|TrimBoth|) (text:string) = text.Trim()
+  let (|TrimBothS|) (text:string) = text.Trim()
+  /// Returns a string trimmed from both start and end
+  let (|TrimBoth|) (text:string, n:int) = (text.Trim(), n)
   /// Returns a string trimmed from the end
-  let (|TrimEnd|) (text:string) = text.TrimEnd()
+  let (|TrimEnd|) (text:string, n:int) = (text.TrimEnd(), n)
   /// Returns a string trimmed from the start
-  let (|TrimStart|) (text:string) = text.TrimStart()
+  let (|TrimStart|) (text:string, n:int) = (text.TrimStart(), n)
 
   /// Retrusn a string trimmed from the end using characters given as a parameter
-  let (|TrimEndUsing|) chars (text:string) = text.TrimEnd(Array.ofSeq chars)
+  let (|TrimEndUsing|) chars (text:string, n:int) = text.TrimEnd(Array.ofSeq chars)
 
   /// Returns a string trimmed from the start together with 
   /// the number of skipped whitespace characters
-  let (|TrimStartAndCount|) (text:string) = 
+  let (|TrimStartAndCount|) (text:string, n:int) = 
     let trimmed = text.TrimStart([|' '; '\t'|])
     let len = text.Length - trimmed.Length
-    len, text.Substring(0, len).Replace("\t", "    ").Length, trimmed
+    len, text.Substring(0, len).Replace("\t", "    ").Length, (trimmed, n)
 
   /// Matches when a string starts with any of the specified sub-strings
-  let (|StartsWithAny|_|) (starts:seq<string>) (text:string) = 
+  let (|StartsWithAny|_|) (starts:seq<string>) (text:string, n:int) = 
     if starts |> Seq.exists (text.StartsWith) then Some() else None
   /// Matches when a string starts with the specified sub-string
-  let (|StartsWith|_|) (start:string) (text:string) = 
+  let (|StartsWithS|_|) (start:string) (text:string) = 
     if text.StartsWith(start) then Some(text.Substring(start.Length)) else None
   /// Matches when a string starts with the specified sub-string
+  let (|StartsWith|_|) (start:string) (text:string, n:int) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length), n) else None
+  /// Matches when a string starts with the specified sub-string
   /// The matched string is trimmed from all whitespace.
-  let (|StartsWithTrim|_|) (start:string) (text:string) = 
+  let (|StartsWithTrimS|_|) (start:string) (text:string) = 
     if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+  /// Matches when a string starts with the specified sub-string
+  /// The matched string is trimmed from all whitespace.
+  let (|StartsWithTrim|_|) (start:string) (text:string, n:int) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length).Trim(), n) else None
 
   /// Matches when a string starts with the specified sub-string (ignoring whitespace at the start)
   /// The matched string is trimmed from all whitespace.
-  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string) =
+  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string, n:int) =
     if text.Contains(start) then
       let beforeStart = text.Substring(0, text.IndexOf(start))
       if String.IsNullOrWhiteSpace (beforeStart) then
@@ -67,11 +80,25 @@ module String =
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
-  let (|StartsAndEndsWith|_|) (starts, ends) (s:string) =
+  let (|StartsAndEndsWithS|_|) (starts, ends) (s:string) =
     if s.StartsWith(starts) && s.EndsWith(ends) && 
        s.Length >= starts.Length + ends.Length then 
       Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
     else None
+
+  /// Matches when a string starts with the given value and ends 
+  /// with a given value (and returns the rest of it)
+  let (|StartsAndEndsWith|_|) (starts, ends) (s:string, n:int) =
+    if s.StartsWith(starts) && s.EndsWith(ends) && 
+       s.Length >= starts.Length + ends.Length then 
+      Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length), n)
+    else None
+
+  /// Matches when a string starts with the given value and ends 
+  /// with a given value (and returns trimmed body)
+  let (|StartsAndEndsWithTrimS|_|) args = function
+    | StartsAndEndsWithS args (TrimBothS res) -> Some res
+    | _ -> None
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns trimmed body)
@@ -85,7 +112,7 @@ module String =
   ///
   ///    let (StartsWithRepeated "/\" (2, " abc")) = "/\/\ abc"
   ///
-  let (|StartsWithRepeated|_|) (repeated:string) (text:string) = 
+  let (|StartsWithRepeated|_|) (repeated:string) (text:string, ln:int) = 
     let rec loop i = 
       if i = text.Length then i
       elif text.[i] <> repeated.[i % repeated.Length] then i
@@ -93,7 +120,7 @@ module String =
 
     let n = loop 0 
     if n = 0 || n % repeated.Length <> 0 then None
-    else Some(n/repeated.Length, text.Substring(n, text.Length - n)) 
+    else Some(n/repeated.Length, (text.Substring(n, text.Length - n), ln)) 
 
   /// Ignores everything until a end-line character is detected, returns the remaining string.
   let (|SkipSingleLine|) (text:string) =
@@ -114,12 +141,11 @@ module String =
       FSharp.Formatting.Common.Log.warnf "could not skip a line of %s, because no line-ending character was found!" text
     result
 
-
   /// Matches when a string starts with a sub-string wrapped using the 
   /// opening and closing sub-string specified in the parameter.
   /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
   /// text together with the rest.
-  let (|StartsWithWrapped|_|) (starts:string, ends:string) (text:string) = 
+  let (|StartsWithWrappedS|_|) (starts:string, ends:string) (text:string) = 
     if text.StartsWith(starts) then 
       let id = text.IndexOf(ends, starts.Length)
       if id >= 0 then 
@@ -129,10 +155,24 @@ module String =
       else None
     else None
 
+  /// Matches when a string starts with a sub-string wrapped using the 
+  /// opening and closing sub-string specified in the parameter.
+  /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
+  /// text together with the rest.
+  let (|StartsWithWrapped|_|) (starts:string, ends:string) (text:string, n:int) = 
+    if text.StartsWith(starts) then 
+      let id = text.IndexOf(ends, starts.Length)
+      if id >= 0 then 
+        let wrapped = text.Substring(starts.Length, id - starts.Length)
+        let rest = text.Substring(id + ends.Length, text.Length - id - ends.Length)
+        Some(wrapped, (rest, n))
+      else None
+    else None
+
   /// Matches when a string consists of some number of 
   /// complete repetitions of a specified sub-string.
-  let (|EqualsRepeated|_|) repeated = function
-    | StartsWithRepeated repeated (n, "") -> Some()
+  let (|EqualsRepeated|_|) (repeated, n:int) = function
+    | StartsWithRepeated repeated (n, ("", _)) -> Some()
     | _ -> None 
 
   /// Given a list of lines indented with certan number of whitespace 
@@ -197,8 +237,8 @@ module Lines =
   /// Removes blank lines from the start and the end of a list
   let (|TrimBlank|) lines = 
     lines
-    |> List.skipWhile String.IsNullOrWhiteSpace |> List.rev
-    |> List.skipWhile String.IsNullOrWhiteSpace |> List.rev
+    |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s) |> List.rev
+    |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s) |> List.rev
 
   /// Matches when there are some lines at the beginning that are 
   /// either empty (or whitespace) or start with the specified string.
@@ -213,7 +253,7 @@ module Lines =
   /// either empty (or whitespace) or start with at least 4 spaces (a tab counts as 4 spaces here).
   /// Returns all such lines from the beginning until a different line and
   /// the number of spaces the first line started with.
-  let (|TakeCodeBlock|_|) (input:string list) =
+  let (|TakeCodeBlock|_|) (input:(string * int) list) =
     let spaceNum = 4
       //match input with
       //| h :: _ ->
@@ -225,20 +265,20 @@ module Lines =
       let normalized = s.Replace("\t", "    ")
       normalized.Length >= spaceNum &&
         normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
-    match List.partitionWhile (fun s ->
+    match List.partitionWhile (fun (s, n) ->
             String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
     | matching, rest when matching <> [] && spaceNum >= 4 ->
       Some(spaceNum, matching, rest)
     | _ -> None
 
   /// Removes whitespace lines from the beginning of the list
-  let (|TrimBlankStart|) = List.skipWhile (String.IsNullOrWhiteSpace)
+  let (|TrimBlankStart|) = List.skipWhile (fun (s:string, n:int) -> String.IsNullOrWhiteSpace s)
 
   /// Trims all lines of the current paragraph
   let (|TrimParagraphLines|) lines =
     lines
     // first remove all whitespace on the beginning of the line
-    |> List.map (fun (s:string) -> s.TrimStart())
+    |> List.map (fun (s:string, n:int) -> s.TrimStart())
     // Now remove all additional spaces at the end, but keep two spaces if existent
     |> List.map (fun s ->
       let endsWithTwoSpaces = s.EndsWith("  ")
@@ -258,7 +298,21 @@ open System.Collections.Generic
 /// recognize `key1=value, key2=value` and also `key1:value, key2:value`
 /// The key of the command should be identifier with just 
 /// characters in it - otherwise, the parsing fails.
-let (|ParseCommands|_|) (str:string) = 
+let (|ParseCommandsS|_|) (str:string) = 
+  let kvs = 
+    [ for cmd in str.Split(',') do
+        let kv = cmd.Split([| '='; ':' |])
+        if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
+        elif kv.Length = 1 then yield kv.[0].Trim(), "" ] 
+  let allKeysValid = 
+    kvs |> Seq.forall (fst >> Seq.forall (fun c -> Char.IsLetter c || c = '_' || c = '-'))
+  if allKeysValid && kvs <> [] then Some(dict kvs) else None
+
+/// Utility for parsing commands. Commands can be used in different places. We 
+/// recognize `key1=value, key2=value` and also `key1:value, key2:value`
+/// The key of the command should be identifier with just 
+/// characters in it - otherwise, the parsing fails.
+let (|ParseCommands|_|) (str:string, n:int) = 
   let kvs = 
     [ for cmd in str.Split(',') do
         let kv = cmd.Split([| '='; ':' |])

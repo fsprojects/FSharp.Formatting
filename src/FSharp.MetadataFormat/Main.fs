@@ -519,7 +519,7 @@ module Reader =
     groups.Add(current, [])
     for par in doc.Paragraphs do
       match par with 
-      | Heading(2, [Literal text]) -> 
+      | Heading(2, [Literal(text, _)], _) -> 
           current <- text.Trim()
           groups.Add(current, [par])
       | par -> 
@@ -546,7 +546,7 @@ module Reader =
      Seq.iter (fun (x : XNode) ->
       if x.NodeType = XmlNodeType.Text then
        let text = (x :?> XText).Value
-       match findCommand text with
+       match findCommand (text, 0) with
        | Some (k,v) -> cmds.Add(k,v)
        | None -> full.Append(text) |> ignore
       elif x.NodeType = XmlNodeType.Element then
@@ -635,7 +635,7 @@ module Reader =
   /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
     match span with
-    | IndirectLink (_, _, key) -> yield key
+    | IndirectLink (_, _, key, _) -> yield key
     | Matching.SpanLeaf _ -> ()
     | Matching.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanIndirectLinks s }
@@ -673,9 +673,9 @@ module Reader =
   /// Wraps the span inside an `IndirectLink` if it is an inline code that can be converted to a link
   let wrapInlineCodeLinksInSpans (ctx:ReadingContext) span =
     match span with
-    | InlineCode(code) ->  
+    | InlineCode(code, r) ->  
         match getTypeLink ctx code with
-        | Some _ -> IndirectLink([span], code, code)
+        | Some _ -> IndirectLink([span], code, code, r)
         | None -> span
     | _ -> span
 
@@ -713,7 +713,7 @@ module Reader =
         | null ->
           dict[], (Comment.Create ("", el.Value, []))
         | sum ->
-          let lines = removeSpaces sum.Value
+          let lines = removeSpaces sum.Value |> Seq.map (fun s -> (s, 0))
           let cmds = new System.Collections.Generic.Dictionary<_, _>()
 
           if ctx.MarkdownComments then
@@ -722,7 +722,7 @@ module Reader =
                   | Some (k, v) ->
                       cmds.Add(k, v)
                       false
-                  | _ -> true)) |> String.concat "\n"
+                  | _ -> true)) |> Seq.map fst |> String.concat "\n"
             let doc =
                 Literate.ParseMarkdownString
                   ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),

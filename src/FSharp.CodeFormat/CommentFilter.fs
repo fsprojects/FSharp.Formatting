@@ -49,12 +49,12 @@ let rec getSnippets (state:NamedSnippet option) (snippets:NamedSnippet list)
   match source with 
   | [] -> snippets
   | (line, tokens)::rest ->
-    let text = lines.[line].Trim()
+    let text = lines.[line].Trim(), line
     match state, text with
 
     // We're not inside a snippet and we found a beginning of one
     | None, String.StartsWithTrim "//" (String.StartsWithTrim "[snippet:" title) ->
-        let title = title.Substring(0, title.IndexOf(']'))
+        let title = (fst title).Substring(0, (fst title).IndexOf(']'))
         getSnippets (Some(title, [])) snippets rest lines
     // Not inside a snippet and there is a usual line
     | None, _ -> 
@@ -92,7 +92,7 @@ let rec shrinkOmittedCode (text:StringBuilder) line content (source:Snippet) =
   // Take the next line, merge comments and continue looking for end
   | [], (line, content)::source -> 
       shrinkOmittedCode (text.Append("\n")) line (mergeComments content None []) source
-  | (String.StartsAndEndsWithTrim ("(*", "*)") "[/omit]", tok)::rest, source 
+  | (String.StartsAndEndsWithTrimS ("(*", "*)") "[/omit]", tok)::rest, source 
         when tok.TokenName = "COMMENT" ->
       line, rest, source, text
   | (str, tok)::rest, _ -> 
@@ -105,13 +105,13 @@ let rec shrinkOmittedCode (text:StringBuilder) line content (source:Snippet) =
 let rec shrinkLine line (content:SnippetLine) (source:Snippet) = 
   match content with 
   | [] -> [], source
-  | (String.StartsAndEndsWithTrim ("(*", "*)") (String.StartsAndEndsWithTrim ("[omit:", "]") body), (tok:FSharpTokenInfo))::rest
+  | (String.StartsAndEndsWithTrimS ("(*", "*)") (String.StartsAndEndsWithTrimS ("[omit:", "]") body), (tok:FSharpTokenInfo))::rest
         when tok.TokenName = "COMMENT" -> 
       let line, remcontent, source, text = 
         shrinkOmittedCode (StringBuilder()) line rest source
       let line, source = shrinkLine line remcontent source
       (body, { tok with TokenName = "OMIT" + (text.ToString()) })::line, source
-  | (String.StartsWithTrim "//" (String.StartsAndEndsWith ("[fsi:", "]") fsi), (tok:FSharpTokenInfo))::rest ->
+  | (String.StartsWithTrimS "//" (String.StartsAndEndsWithS ("[fsi:", "]") fsi), (tok:FSharpTokenInfo))::rest ->
       let line, source = shrinkLine line rest source
       (fsi, { tok with TokenName = "FSI"})::line, source
   | (str, tok)::rest -> 

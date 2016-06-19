@@ -48,17 +48,19 @@ type Markdown =
     use reader = new StringReader(text)
     let lines = 
       [ let line = ref ""
+        let mutable lineNo = 1
         while (line := reader.ReadLine(); line.Value <> null) do
-          yield line.Value
+          yield (line.Value, lineNo)
+          lineNo <- lineNo + 1
         if text.EndsWith(newline) then
-          yield "" ]
+          yield ("", lineNo) ]
       //|> Utils.replaceTabs 4
     let links = Dictionary<_, _>()
     //let (Lines.TrimBlank lines) = lines
-    let ctx : ParsingContext = { Newline = newline; Links = links }
+    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some({ Line = 1 }) }
     let paragraphs =
       lines
-      |> FSharp.Collections.List.skipWhile String.IsNullOrWhiteSpace
+      |> FSharp.Collections.List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
       |> parseParagraphs ctx
       |> List.ofSeq
     MarkdownDocument(paragraphs, links)

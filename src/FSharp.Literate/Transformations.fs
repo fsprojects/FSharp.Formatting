@@ -21,10 +21,10 @@ module Transformations =
   /// to colorize. We skip snippets that specify non-fsharp langauge e.g. [lang=csharp].
   let rec collectCodeSnippets par = seq {
     match par with
-    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), language, _)
+    | CodeBlock((String.StartsWithWrappedS ("[", "]") (ParseCommandsS cmds, String.SkipSingleLine code)), language, _, _)
         when (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp") || (cmds.ContainsKey("lang") && cmds.["lang"] <> "fsharp") -> ()
-    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), _, _)
-    | CodeBlock(Let (dict []) (cmds, code), _, _) ->
+    | CodeBlock((String.StartsWithWrappedS ("[", "]") (ParseCommandsS cmds, String.SkipSingleLine code)), _, _, _)
+    | CodeBlock(Let (dict []) (cmds, code), _, _, _) ->
         let modul = 
           match cmds.TryGetValue("module") with
           | true, v -> Some v | _ -> None
@@ -39,8 +39,8 @@ module Transformations =
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
   let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
-    | CodeBlock ((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), language, _)
-    | CodeBlock(Let (dict []) (cmds, code), language, _) ->
+    | CodeBlock ((String.StartsWithWrappedS ("[", "]") (ParseCommandsS cmds, String.SkipSingleLine code)), language, _, r)
+    | CodeBlock(Let (dict []) (cmds, code), language, _, r) ->
         if cmds.ContainsKey("hide") then None else
         let code = 
           if cmds.ContainsKey("file") && cmds.ContainsKey("key") then 
@@ -56,12 +56,12 @@ module Transformations =
           else code
         let lang = 
           match language with
-          | String.WhiteSpace when cmds.ContainsKey("lang") -> cmds.["lang"]
+          | String.WhiteSpaceS when cmds.ContainsKey("lang") -> cmds.["lang"]
           | language -> language
         if not (String.IsNullOrWhiteSpace(lang)) && lang <> "fsharp" then 
-          Some (EmbedParagraphs(LanguageTaggedCode(lang, code)))
+          Some (EmbedParagraphs(LanguageTaggedCode(lang, code), r))
         else
-          Some (EmbedParagraphs(FormattedCode(codeLookup.[code])))
+          Some (EmbedParagraphs(FormattedCode(codeLookup.[code]), r))
 
     // Recursively process nested paragraphs, other nodes return without change
     | Matching.ParagraphNested(pn, nested) ->
@@ -116,7 +116,7 @@ module Transformations =
     // Collect IndirectLinks in a span
     let rec collectSpanReferences span = seq { 
       match span with
-      | IndirectLink(_, _, key) -> yield key
+      | IndirectLink(_, _, key, _) -> yield key
       | Matching.SpanLeaf _ -> ()
       | Matching.SpanNode(_, spans) ->
           for s in spans do yield! collectSpanReferences s }
@@ -137,13 +137,13 @@ module Transformations =
   let replaceReferences (refIndex:IDictionary<string, int>) =
     // Replace IndirectLinks with a nice link given a single span element
     let rec replaceSpans = function
-      | IndirectLink(body, original, key) ->
-          [ yield IndirectLink(body, original, key)
+      | IndirectLink(body, original, key, r) ->
+          [ yield IndirectLink(body, original, key, r)
             match refIndex.TryGetValue(key) with
             | true, i -> 
-                yield Literal "&#160;["
-                yield DirectLink([Literal (string i)], ("#rf" + DateTime.Now.ToString("yyMMddhh"), None))
-                yield Literal "]"
+                yield Literal("&#160;[", r)
+                yield DirectLink([Literal (string i, r)], ("#rf" + DateTime.Now.ToString("yyMMddhh"), None), r)
+                yield Literal("]", r)
             | _ -> () ]
       | Matching.SpanLeaf(sl) -> [Matching.SpanLeaf(sl)]
       | Matching.SpanNode(nd, spans) -> 
@@ -179,18 +179,18 @@ module Transformations =
           if colon > 0 then
             let auth = title.Substring(0, colon)
             let name = title.Substring(colon + 1, title.Length - 1 - colon)
-            yield [Span [ Literal (sprintf "[%d] " i)
-                          DirectLink([Literal (name.Trim())], (link, Some title))
-                          Literal (" - " + auth)] ] 
+            yield [Span([ Literal (sprintf "[%d] " i, None)
+                          DirectLink([Literal (name.Trim(), None)], (link, Some title), None)
+                          Literal (" - " + auth, None)], None) ] 
           else
-            yield [Span [ Literal (sprintf "[%d] " i)
-                          DirectLink([Literal title], (link, Some title))]]  ]
+            yield [Span([ Literal (sprintf "[%d] " i, None)
+                          DirectLink([Literal(title, None)], (link, Some title), None)], None)]  ]
 
     // Return the document together with dictionary for looking up indices
     let id = DateTime.Now.ToString("yyMMddhh")
-    [ Paragraph [AnchorLink id];
-      Heading(3, [Literal "References"])
-      ListBlock(MarkdownListKind.Unordered, refList) ], refLookup
+    [ Paragraph([AnchorLink(id, None)], None)
+      Heading(3, [Literal("References", None)], None)
+      ListBlock(MarkdownListKind.Unordered, refList, None) ], refLookup
 
   /// Turn all indirect links into a references 
   /// and add paragraph to the document
@@ -270,8 +270,8 @@ module Transformations =
           | _ -> None
         match special with 
         | EvalFormat(Some result, _, kind) -> ctx.Evaluator.Value.Format(result, kind)
-        | EvalFormat(None, ref, _) -> [ CodeBlock("Could not find reference '" + ref + "'", "", "") ]
-        | other -> [ EmbedParagraphs(other) ]
+        | EvalFormat(None, ref, _) -> [ CodeBlock("Could not find reference '" + ref + "'", "", "", None) ]
+        | other -> [ EmbedParagraphs(other, None) ]
 
     // Traverse all other structrues recursively
     | Matching.ParagraphNested(pn, nested) ->
@@ -311,7 +311,7 @@ module Transformations =
   let rec replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
     | Matching.LiterateParagraph(special) -> 
         match special with
-        | RawBlock lines -> Some (InlineBlock (unparse lines))
+        | RawBlock lines -> Some (InlineBlock(unparse lines, None))
         | LiterateCode(_, { Visibility = (HiddenCode | NamedCode _) }) -> None
         | FormattedCode lines 
         | LiterateCode(lines, _) -> Some (formatted.[Choice1Of2 lines])
@@ -352,7 +352,7 @@ module Transformations =
 
               | OutputKind.Latex ->
                   sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
-            Some(InlineBlock(inlined))
+            Some(InlineBlock(inlined, None))
     // Traverse all other structures recursively
     | Matching.ParagraphNested(pn, nested) ->
         let nested = List.map (List.choose (replaceSpecialCodes ctx formatted)) nested
@@ -379,7 +379,7 @@ module Transformations =
       | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, ctx.GenerateLineNumbers)
     let lookup = 
       [ for (key, _), fmtd in Seq.zip replacements formatted.Snippets -> 
-          key, InlineBlock(fmtd.Content) ] |> dict 
+          key, InlineBlock(fmtd.Content, None) ] |> dict 
     
     // Replace original snippets with formatted HTML/Latex and return document
     let newParagraphs = List.choose (replaceSpecialCodes ctx lookup) doc.Paragraphs

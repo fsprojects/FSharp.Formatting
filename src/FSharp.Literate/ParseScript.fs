@@ -35,7 +35,7 @@ module internal CodeBlockUtils =
     let rec readComments inWhite acc = function
       | Token(TokenKind.Comment, text, _)::tokens when not inWhite-> 
           readComments false (text::acc) tokens
-      | Token(TokenKind.Default, String.WhiteSpace _, _)::tokens ->
+      | Token(TokenKind.Default, String.WhiteSpaceS _, _)::tokens ->
           readComments true acc tokens
       | [] -> Some(String.concat "" (List.rev acc))
       | _ -> None
@@ -54,7 +54,7 @@ module internal CodeBlockUtils =
         cend
 
     match lines with
-    | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
+    | (ConcatenatedComments(String.StartsAndEndsWithS ("(***", "***)") (ParseCommandsS cmds)))::lines ->
         // Ended with a command, yield comment, command & parse the next as a snippet
         let cend = findCommentEnd comment
         yield BlockComment (comment.Substring(0, cend))
@@ -68,7 +68,7 @@ module internal CodeBlockUtils =
         yield BlockComment (comment.Substring(0, cend))
         yield! collectSnippet [] lines
 
-    | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
+    | (Line[Token(TokenKind.Comment, String.StartsWithS "(**" text, _)])::lines ->
         // Another block of Markdown comment starting... 
         // Yield the previous snippet block and continue parsing more comments
         let cend = findCommentEnd comment
@@ -94,13 +94,13 @@ module internal CodeBlockUtils =
       BlockSnippet res
     seq {
       match lines with 
-      | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
+      | (ConcatenatedComments(String.StartsAndEndsWithS ("(***", "***)") (ParseCommandsS cmds)))::lines ->
           // Found a special command, yield snippet, command and parse another snippet
           if acc <> [] then yield blockSnippet acc
           yield BlockCommand cmds
           yield! collectSnippet [] lines
 
-      | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
+      | (Line[Token(TokenKind.Comment, String.StartsWithS "(**" text, _)])::lines ->
           // Found a comment - yield snippet & switch to parsing comment state
           // (Also trim leading spaces to support e.g.: `(** ## Hello **)`)
           if acc <> [] then yield blockSnippet acc
@@ -132,19 +132,19 @@ module internal ParseScript =
     
     // Reference to code snippet defined later
     | BlockCommand(Command "include" ref)::blocks -> 
-        let p = EmbedParagraphs(CodeReference(ref))
+        let p = EmbedParagraphs(CodeReference(ref), None)
         transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "include-output" ref)::blocks -> 
-        let p = EmbedParagraphs(OutputReference(ref))
+        let p = EmbedParagraphs(OutputReference(ref), None)
         transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "include-it" ref)::blocks -> 
-        let p = EmbedParagraphs(ItValueReference(ref))
+        let p = EmbedParagraphs(ItValueReference(ref), None)
         transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "include-value" ref)::blocks -> 
-        let p = EmbedParagraphs(ValueReference(ref))
+        let p = EmbedParagraphs(ValueReference(ref), None)
         transformBlocks noEval (p::acc) defs blocks
     | BlockCommand(Command "raw" _) ::BlockSnippet(snip):: blocks -> 
-        let p = EmbedParagraphs(RawBlock(snip))
+        let p = EmbedParagraphs(RawBlock(snip), None)
         transformBlocks noEval (p::acc) defs blocks
 
     // Parse commands in [foo=bar,zoo], followed by a source code snippet
@@ -166,7 +166,7 @@ module internal ParseScript =
           { Evaluate = not (noEval || cmds.ContainsKey("do-not-eval"))
             OutputName = outputName
             Visibility = visibility }
-        let code = EmbedParagraphs(LiterateCode(snip, opts))
+        let code = EmbedParagraphs(LiterateCode(snip, opts), None)
         transformBlocks noEval (code::acc) defs blocks
 
     // Unknown command
@@ -178,7 +178,7 @@ module internal ParseScript =
         transformBlocks noEval acc defs blocks
     // Ordinary F# code snippet
     | BlockSnippet(snip)::blocks ->
-        let p = EmbedParagraphs(FormattedCode(snip))
+        let p = EmbedParagraphs(FormattedCode(snip), None)
         transformBlocks noEval (p::acc) defs blocks
     // Markdown documentation block  
     | BlockComment(text)::blocks ->

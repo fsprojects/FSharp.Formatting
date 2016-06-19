@@ -61,10 +61,10 @@ a
 
 b""", __SOURCE_DIRECTORY__ @@ "Test.fsx")
     //[/test]
-  doc.Paragraphs |> shouldMatchPar (function Paragraph [Literal "a"] -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchPar (function Paragraph [Literal "b"] -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Paragraph([Literal("a", Some({ Line = 2 }))], Some({ Line = 2 })) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Paragraph([Literal("b", Some({ Line = 6 }))], Some({ Line = 6 })) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function 
-    | EmbedParagraphs(:? LiterateParagraph as cd) ->
+    | EmbedParagraphs(:? LiterateParagraph as cd, Some({ Line = 4 })) ->
         match cd with LanguageTaggedCode("csharp", text) -> text.Contains "magic" | _ -> false
     | _ -> false)
 
@@ -82,7 +82,7 @@ let test = 42"""
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false) 
+    | Paragraph([Strong([Literal("hello", Some({ Line = 1 }))], Some({ Line = 1 }))], Some({ Line = 1 })) -> true | _ -> false) 
 
 [<Test>]
 let ``Can parse heading on the same line as opnening comment (#147)`` () =
@@ -92,7 +92,7 @@ content *)
 let test = 42"""
   let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent())
   doc.Paragraphs |> shouldMatchPar (function
-    | Heading(2, [Literal "Heading"]) -> true | _ -> false)
+    | Heading(2, [Literal("Heading", Some({ Line = 1 }))], Some({ Line = 1 })) -> true | _ -> false)
 
 [<Test>] 
 let ``Can parse and format markdown with F# snippet`` () =
@@ -105,7 +105,7 @@ let ``Can parse and format markdown with F# snippet`` () =
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+    | Paragraph([Strong([Literal("hello", Some({ Line = 2 }))], Some({ Line = 2 }))], Some({ Line = 2 })) -> true | _ -> false)
 
 [<Test>] 
 let ``Can parse and format markdown with Github-flavoured F# snippet`` () =
@@ -120,7 +120,7 @@ let test = 42
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+    | Paragraph([Strong([Literal("hello", Some({ Line = 2 }))], Some({ Line = 2 }))], Some({ Line = 2 })) -> true | _ -> false)
 
 [<Test>]
 let ``Can parse and format markdown with Github-flavoured F# snippet starting and ending with empty lines`` () =
@@ -144,9 +144,9 @@ some [link][ref] to
   [ref]: http://there "Author: Article"
 *)"""
   let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent(), references=true)
-  doc.Paragraphs |> shouldMatchPar (function ListBlock(_, _) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchSpan (function Literal("Article") -> true | _ -> false) 
-  doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author") -> true | _ -> false) 
+  doc.Paragraphs |> shouldMatchPar (function ListBlock(_, _, _) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchSpan (function Literal("Article", None) -> true | _ -> false) 
+  doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author", None) -> true | _ -> false) 
 
 [<Test>]
 let ``Can report errors in F# code snippets (in F# script file)`` () =
@@ -581,7 +581,7 @@ let ``Can format single snippet with label using literate parser`` () =
 let add a b = a + b
 // [/snippet]"""
   let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
-  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo"]) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal("demo", Some({ Line = 1 }))], Some({ Line = 1 })) -> true | _ -> false)
 
 
 [<Test>]
@@ -594,8 +594,8 @@ let add a b = a + b
 let mul a b = a * b
 // [/snippet]"""
   let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
-  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo1"]) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal "demo2"]) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal("demo1", Some({ Line = 1 }))], Some({ Line = 1 })) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal("demo2", Some({ Line = 1 }))], Some({ Line = 1 })) -> true | _ -> false)
 
 [<Test>]
 let ``Formatter does not crash on source that contains invalid string`` () = 
