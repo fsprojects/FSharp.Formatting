@@ -21,9 +21,9 @@ module Transformations =
   /// to colorize. We skip snippets that specify non-fsharp langauge e.g. [lang=csharp].
   let rec collectCodeSnippets par = seq {
     match par with
-    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommandsS cmds, String.SkipSingleLine code)), language, _, _)
+    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), language, _, _)
         when (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp") || (cmds.ContainsKey("lang") && cmds.["lang"] <> "fsharp") -> ()
-    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommandsS cmds, String.SkipSingleLine code)), _, _, _)
+    | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), _, _, _)
     | CodeBlock(Let (dict []) (cmds, code), _, _, _) ->
         let modul = 
           match cmds.TryGetValue("module") with
@@ -39,7 +39,7 @@ module Transformations =
   /// Replace CodeBlock elements with formatted HTML that was processed by the F# snippets tool
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
   let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) = function
-    | CodeBlock ((String.StartsWithWrapped ("[", "]") (ParseCommandsS cmds, String.SkipSingleLine code)), language, _, r)
+    | CodeBlock ((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), language, _, r)
     | CodeBlock(Let (dict []) (cmds, code), language, _, r) ->
         if cmds.ContainsKey("hide") then None else
         let code = 

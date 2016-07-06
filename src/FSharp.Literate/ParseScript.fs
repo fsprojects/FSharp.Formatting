@@ -54,7 +54,7 @@ module internal CodeBlockUtils =
         cend
 
     match lines with
-    | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommandsS cmds)))::lines ->
+    | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
         // Ended with a command, yield comment, command & parse the next as a snippet
         let cend = findCommentEnd comment
         yield BlockComment (comment.Substring(0, cend))
@@ -94,7 +94,7 @@ module internal CodeBlockUtils =
       BlockSnippet res
     seq {
       match lines with 
-      | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommandsS cmds)))::lines ->
+      | (ConcatenatedComments(String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds)))::lines ->
           // Found a special command, yield snippet, command and parse another snippet
           if acc <> [] then yield blockSnippet acc
           yield BlockCommand cmds
