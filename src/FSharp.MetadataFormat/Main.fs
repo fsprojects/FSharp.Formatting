@@ -535,7 +535,7 @@ module Reader =
     Comment.Create(blurb, full, sections)
 
   let findCommand = (function
-    | String.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
+    | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) -> 
         Some (k, v)
     | _ -> None)
 

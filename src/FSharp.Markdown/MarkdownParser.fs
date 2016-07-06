@@ -18,7 +18,7 @@ open FSharp.Collections
 
 /// Splits a link formatted as `http://link "title"` into a link part
 /// and an optional title part (may be wrapped using quote or double-quotes)
-let getLinkAndTitle (String.TrimBoth(input, n)) =
+let getLinkAndTitle (StringPosition.TrimBoth(input, n)) =
   let url, title =
     if input.Length = 0 then "", None else
     let c = input.[input.Length - 1]
@@ -250,7 +250,7 @@ let rec parseChars acc input (ctx:ParsingContext) = seq {
       yield! accLiterals.Value }
 
 /// Parse body of a paragraph into a list of Markdown inline spans
-let parseSpans (String.TrimBoth(s, n)) ctx =
+let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
   parseChars [] (s.ToCharArray() |> List.ofArray) ctx |> List.ofSeq
 
 let rec trimSpaces numSpaces (s:string) =
@@ -265,11 +265,11 @@ let rec trimSpaces numSpaces (s:string) =
 
 /// Recognizes heading, either prefixed with #s or followed by === or --- line
 let (|Heading|_|) = function
-  | (String.TrimBoth header) :: (String.TrimEnd (String.EqualsRepeated("=", 0))) :: rest ->
+  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("=", 0))) :: rest ->
       Some(1, header, rest)
-  | (String.TrimBoth header) :: (String.TrimEnd (String.EqualsRepeated("-", 0))) :: rest ->
+  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("-", 0))) :: rest ->
       Some(2, header, rest)
-  | String.StartsWithRepeated "#" (n, (header, ln)) :: rest ->
+  | StringPosition.StartsWithRepeated "#" (n, (header, ln)) :: rest ->
       let header =
         // Drop "##" at the end, but only when it is preceded by some whitespace
         // (For example "## Hello F#" should be "Hello F#")
@@ -306,9 +306,9 @@ let (|NestedCodeBlock|_|) = function
 
 /// Recognizes a fenced code block - starting and ending with at least ``` or ~~~
 let (|FencedCodeBlock|_|) = function
-  | String.StartsWithNTimesTrimIgnoreStartWhitespace "~" (Let "~" (start,num), indent, header) :: lines
+  | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "~" (Let "~" (start,num), indent, header) :: lines
   //    when num > 2
-  | String.StartsWithNTimesTrimIgnoreStartWhitespace "`" (Let "`" (start,num), indent, header) :: lines
+  | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "`" (Let "`" (start,num), indent, header) :: lines
       when num > 2 ->
     let mutable endStr = String.replicate num start
     if header.Contains (start) then None // info string cannot contain backspaces
@@ -317,7 +317,7 @@ let (|FencedCodeBlock|_|) = function
         match [line] with
         // end cannot contain info string afterwards (see http://spec.commonmark.org/0.23/#example-104)
         // end must be indended with less then 4 spaces: http://spec.commonmark.org/0.23/#example-95
-        | String.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && String.IsNullOrWhiteSpace h ->
+        | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && String.IsNullOrWhiteSpace h ->
           endStr <- String.replicate n start
           true
         | _ -> false)
@@ -365,23 +365,23 @@ let (|SkipSomeNumbers|_|) (input:string, n:int) =
 /// Recognizes a staring of a list (either 1. or +, *, -).
 /// Returns the rest of the line, together with the indent.
 let (|ListStart|_|) = function
-  | String.TrimStartAndCount
+  | StringPosition.TrimStartAndCount
       (startIndent, spaces,
         // NOTE: a tab character after +, * or - isn't supported by the reference implementation
         // (it will be parsed as paragraph for 0.22)
-        (String.StartsWithAny ["+ "; "* "; "- " (*; "+\t"; "*\t"; "-\t"*)] as item)) ->
+        (StringPosition.StartsWithAny ["+ "; "* "; "- " (*; "+\t"; "*\t"; "-\t"*)] as item)) ->
       let li = ((fst item).Substring(2), snd item)
-      let (String.TrimStartAndCount (startIndent2, spaces2, _)) = li
+      let (StringPosition.TrimStartAndCount (startIndent2, spaces2, _)) = li
       let endIndent =
         startIndent + 2 +
         // Handle case of code block
         if startIndent2 >= 5 then 1 else startIndent2
       Some(Unordered, startIndent, endIndent, li)
-  | String.TrimStartAndCount // Remove leading spaces
+  | StringPosition.TrimStartAndCount // Remove leading spaces
       (startIndent, spaces,
        (SkipSomeNumbers // read a number
           (skipNumCount, '.' :: ' ' :: List.AsString item))) ->
-      let (String.TrimStartAndCount (startIndent2, spaces2, _)) = (item, 0)
+      let (StringPosition.TrimStartAndCount (startIndent2, spaces2, _)) = (item, 0)
       let endIndent =
         startIndent + 2 + skipNumCount +
         // Handle case of code block
@@ -392,13 +392,13 @@ let (|ListStart|_|) = function
 /// Splits input into lines until whitespace or starting of a list and the rest.
 let (|LinesUntilListOrWhite|) =
   List.partitionUntil (function
-    | ListStart _ | String.WhiteSpace -> true | _ -> false)
+    | ListStart _ | StringPosition.WhiteSpace -> true | _ -> false)
 
 /// Splits input into lines until not-indented line or starting of a list and the rest.
 let (|LinesUntilListOrUnindented|) =
   List.partitionUntilLookahead (function
-    | (ListStart _ | String.Unindented)::_
-    | String.WhiteSpace::String.WhiteSpace::_ -> true | _ -> false)
+    | (ListStart _ | StringPosition.Unindented)::_
+    | StringPosition.WhiteSpace::StringPosition.WhiteSpace::_ -> true | _ -> false)
 
 /// Recognizes a list item until the next list item (possibly nested) or end of a list.
 /// The parameter specifies whether the previous line was simple (single-line not
@@ -414,17 +414,17 @@ let (|ListItem|_|) prevSimple = function
             (LinesUntilListOrUnindented (more, rest) as next)) ->
       let simple =
         match item with
-        | String.TrimStartAndCount (_, spaces, _) when spaces >= 4->
+        | StringPosition.TrimStartAndCount (_, spaces, _) when spaces >= 4->
           // Code Block
           false
         | _ ->
           match next, rest with
-          | String.WhiteSpace::_, (ListStart _)::_ -> false
+          | StringPosition.WhiteSpace::_, (ListStart _)::_ -> false
           | (ListStart _)::_, _ -> true
           | [], _ -> true
-          | [ String.WhiteSpace ], _ -> true
-          | String.WhiteSpace::String.WhiteSpace::_, _ -> true
-          | _, String.Unindented::_ -> prevSimple
+          | [ StringPosition.WhiteSpace ], _ -> true
+          | StringPosition.WhiteSpace::StringPosition.WhiteSpace::_, _ -> true
+          | _, StringPosition.Unindented::_ -> prevSimple
           | _, _ -> false
 
       let lines =
@@ -486,10 +486,10 @@ let rec pipeTableFindSplits (delim : char array) (line : char list) =
 
 /// Recognizes alignment specified in the passed separator line.
 let (|TableCellSeparator|_|) = function
-  | String.StartsAndEndsWith (":", ":") (String.EqualsRepeated("-", 0)) -> Some(AlignCenter)
-  | String.StartsWith ":" (String.EqualsRepeated("-", 0)) -> Some(AlignLeft)
-  | String.StartsAndEndsWith ("", ":") (String.EqualsRepeated("-", 0)) -> Some(AlignRight)
-  | String.EqualsRepeated("-", 0) -> Some(AlignDefault)
+  | StringPosition.StartsAndEndsWith (":", ":") (StringPosition.EqualsRepeated("-", 0)) -> Some(AlignCenter)
+  | StringPosition.StartsWith ":" (StringPosition.EqualsRepeated("-", 0)) -> Some(AlignLeft)
+  | StringPosition.StartsAndEndsWith ("", ":") (StringPosition.EqualsRepeated("-", 0)) -> Some(AlignRight)
+  | StringPosition.EqualsRepeated("-", 0) -> Some(AlignDefault)
   | _ -> None
 
 /// Recognizes row of pipe table.
@@ -562,9 +562,9 @@ let (|EmacsTableLine|_|) (grid:option<int []>) (c:char) (check:string * int -> b
 
 /// Recognizes emacs table
 let (|EmacsTableBlock|_|) (input) =
-  let isCellSep = String.(|EqualsRepeated|_|)("-", 0) >> Option.isSome
+  let isCellSep = StringPosition.(|EqualsRepeated|_|)("-", 0) >> Option.isSome
   let isAlignedCellSep = ( |TableCellSeparator|_| ) >> Option.isSome
-  let isHeadCellSep = String.(|EqualsRepeated|_|)("=", 0) >> Option.isSome
+  let isHeadCellSep = StringPosition.(|EqualsRepeated|_|)("=", 0) >> Option.isSome
   let isText (s:string, n:int) = true
   match input with
   | (EmacsTableLine None '+' isAlignedCellSep (grid, parts)) :: rest ->
@@ -605,7 +605,7 @@ let (|TakeParagraphLines|_|) input =
     | Heading _ -> false
     | FencedCodeBlock _ -> false
     | BlockquoteStart _::_ -> false
-    | String.WhiteSpace::_ -> false
+    | StringPosition.WhiteSpace::_ -> false
     | _ -> true) input with
   | matching, rest when matching <> [] -> Some(matching, rest)
   | _ -> None
@@ -623,7 +623,7 @@ let (|LinesUntilBlockquoteEnds|) input =
     match next with
     | BlockquoteStart _ :: _
     | Heading _
-    | String.WhiteSpace :: _ -> true
+    | StringPosition.WhiteSpace :: _ -> true
     | _ ->
       false) input
 
@@ -643,8 +643,8 @@ let rec (|Blockquote|_|) = function
 /// Recognizes a special case: an empty blockquote line should terminate
 /// the blockquote if the next line is not a blockquote
 and (|EmptyBlockquote|_|) = function
-  | BlockquoteStart(String.WhiteSpace) :: Blockquote(_) -> None
-  | BlockquoteStart(String.WhiteSpace) :: rest -> Some rest
+  | BlockquoteStart(StringPosition.WhiteSpace) :: Blockquote(_) -> None
+  | BlockquoteStart(StringPosition.WhiteSpace) :: rest -> Some rest
   | _ -> None
 
 /// Recognizes Latex block - start with "$$$"
@@ -656,10 +656,10 @@ let (|LatexBlock|_|) (lines:(string * int) list) = lines |> function
 
 /// Recognize a definition of a link as in `[key]: http://url ...`
 let (|LinkDefinition|_|) = function
-  | ( String.StartsWithWrapped ("[", "]:") (wrapped, String.TrimBoth link)
-    | String.StartsWithWrapped (" [", "]:") (wrapped, String.TrimBoth link)
-    | String.StartsWithWrapped ("  [", "]:") (wrapped, String.TrimBoth link)
-    | String.StartsWithWrapped ("   [", "]:") (wrapped, String.TrimBoth link) ) :: rest ->
+  | ( StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link)
+    | StringPosition.StartsWithWrapped (" [", "]:") (wrapped, StringPosition.TrimBoth link)
+    | StringPosition.StartsWithWrapped ("  [", "]:") (wrapped, StringPosition.TrimBoth link)
+    | StringPosition.StartsWithWrapped ("   [", "]:") (wrapped, StringPosition.TrimBoth link) ) :: rest ->
         Some((wrapped, link), rest)
   | _ -> None
 

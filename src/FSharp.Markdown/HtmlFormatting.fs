@@ -187,7 +187,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</p>")
   | HorizontalRule(_, _) ->
       ctx.Writer.Write("<hr />")
-  | CodeBlock(code, String.WhiteSpaceS, _, _) ->
+  | CodeBlock(code, String.WhiteSpace, _, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       ctx.Writer.Write("<pre><code>")
       ctx.Writer.Write(htmlEncode code)

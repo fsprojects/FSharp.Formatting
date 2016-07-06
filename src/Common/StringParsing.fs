@@ -14,9 +14,83 @@ open FSharp.Collections
 
 module String =
   /// Matches when a string is a whitespace or null
-  let (|WhiteSpaceS|_|) (s) = 
+  let (|WhiteSpace|_|) (s) = 
     if String.IsNullOrWhiteSpace(s) then Some() else None
 
+  /// Returns a string trimmed from both start and end
+  let (|TrimBoth|) (text:string) = text.Trim()
+
+  /// Matches when a string starts with the specified sub-string
+  let (|StartsWith|_|) (start:string) (text:string) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length)) else None
+
+  /// Matches when a string starts with the specified sub-string
+  /// The matched string is trimmed from all whitespace.
+  let (|StartsWithTrim|_|) (start:string) (text:string) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+
+  /// Matches when a string starts with the given value and ends 
+  /// with a given value (and returns the rest of it)
+  let (|StartsAndEndsWith|_|) (starts, ends) (s:string) =
+    if s.StartsWith(starts) && s.EndsWith(ends) && 
+       s.Length >= starts.Length + ends.Length then 
+      Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
+    else None
+
+  /// Matches when a string starts with the given value and ends 
+  /// with a given value (and returns trimmed body)
+  let (|StartsAndEndsWithTrim|_|) args = function
+    | StartsAndEndsWith args (TrimBoth res) -> Some res
+    | _ -> None
+
+  /// Matches when a string starts with a sub-string wrapped using the 
+  /// opening and closing sub-string specified in the parameter.
+  /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
+  /// text together with the rest.
+  let (|StartsWithWrapped|_|) (starts:string, ends:string) (text:string) = 
+    if text.StartsWith(starts) then 
+      let id = text.IndexOf(ends, starts.Length)
+      if id >= 0 then 
+        let wrapped = text.Substring(starts.Length, id - starts.Length)
+        let rest = text.Substring(id + ends.Length, text.Length - id - ends.Length)
+        Some(wrapped, rest)
+      else None
+    else None
+
+  /// Ignores everything until a end-line character is detected, returns the remaining string.
+  let (|SkipSingleLine|) (text:string) =
+    let rec tryEol eolList =
+      match eolList with
+      | h : string :: t ->
+        match text.IndexOf(h) with
+        | i when i < 0 -> tryEol t
+        | i ->
+          text.Substring (i + h.Length)
+      | _ ->
+        text
+    let result = tryEol [ "\r\n"; "\n" ]
+    let skipped = text.Substring(0, text.Length - result.Length)
+    if not <| String.IsNullOrWhiteSpace(skipped) then
+      FSharp.Formatting.Common.Log.warnf "skipped '%s' which contains non-whitespace character!" skipped
+    if result = text then
+      FSharp.Formatting.Common.Log.warnf "could not skip a line of %s, because no line-ending character was found!" text
+    result
+
+  /// Given a list of lines indented with certan number of whitespace 
+  /// characters (spaces), remove the spaces from the beginning of each line 
+  /// and return the string as a list of lines
+  let removeSpaces lines =
+    let spaces =
+      lines 
+      |> Seq.filter (String.IsNullOrWhiteSpace >> not)
+      |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
+      |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
+    lines 
+    |> Seq.map (fun line -> 
+        if String.IsNullOrWhiteSpace(line) then ""
+        else line.Substring(spaces))
+
+module StringPosition =
   /// Matches when a string is a whitespace or null
   let (|WhiteSpace|_|) (s, n: int) = 
     if String.IsNullOrWhiteSpace(s) then Some() else None
@@ -24,9 +98,7 @@ module String =
   /// Matches when a string does starts with non-whitespace
   let (|Unindented|_|) (s:string, n:int) = 
     if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then Some() else None
-
-  /// Returns a string trimmed from both start and end
-  let (|TrimBothS|) (text:string) = text.Trim()
+      
   /// Returns a string trimmed from both start and end
   let (|TrimBoth|) (text:string, n:int) = (text.Trim(), n)
   /// Returns a string trimmed from the end
@@ -47,16 +119,11 @@ module String =
   /// Matches when a string starts with any of the specified sub-strings
   let (|StartsWithAny|_|) (starts:seq<string>) (text:string, n:int) = 
     if starts |> Seq.exists (text.StartsWith) then Some() else None
-  /// Matches when a string starts with the specified sub-string
-  let (|StartsWithS|_|) (start:string) (text:string) = 
-    if text.StartsWith(start) then Some(text.Substring(start.Length)) else None
+
   /// Matches when a string starts with the specified sub-string
   let (|StartsWith|_|) (start:string) (text:string, n:int) = 
     if text.StartsWith(start) then Some(text.Substring(start.Length), n) else None
-  /// Matches when a string starts with the specified sub-string
-  /// The matched string is trimmed from all whitespace.
-  let (|StartsWithTrimS|_|) (start:string) (text:string) = 
-    if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+  
   /// Matches when a string starts with the specified sub-string
   /// The matched string is trimmed from all whitespace.
   let (|StartsWithTrim|_|) (start:string) (text:string, n:int) = 
@@ -80,25 +147,11 @@ module String =
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
-  let (|StartsAndEndsWithS|_|) (starts, ends) (s:string) =
-    if s.StartsWith(starts) && s.EndsWith(ends) && 
-       s.Length >= starts.Length + ends.Length then 
-      Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
-    else None
-
-  /// Matches when a string starts with the given value and ends 
-  /// with a given value (and returns the rest of it)
   let (|StartsAndEndsWith|_|) (starts, ends) (s:string, n:int) =
     if s.StartsWith(starts) && s.EndsWith(ends) && 
        s.Length >= starts.Length + ends.Length then 
       Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length), n)
     else None
-
-  /// Matches when a string starts with the given value and ends 
-  /// with a given value (and returns trimmed body)
-  let (|StartsAndEndsWithTrimS|_|) args = function
-    | StartsAndEndsWithS args (TrimBothS res) -> Some res
-    | _ -> None
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns trimmed body)
@@ -122,39 +175,6 @@ module String =
     if n = 0 || n % repeated.Length <> 0 then None
     else Some(n/repeated.Length, (text.Substring(n, text.Length - n), ln)) 
 
-  /// Ignores everything until a end-line character is detected, returns the remaining string.
-  let (|SkipSingleLine|) (text:string) =
-    let rec tryEol eolList =
-      match eolList with
-      | h : string :: t ->
-        match text.IndexOf(h) with
-        | i when i < 0 -> tryEol t
-        | i ->
-          text.Substring (i + h.Length)
-      | _ ->
-        text
-    let result = tryEol [ "\r\n"; "\n" ]
-    let skipped = text.Substring(0, text.Length - result.Length)
-    if not <| String.IsNullOrWhiteSpace(skipped) then
-      FSharp.Formatting.Common.Log.warnf "skipped '%s' which contains non-whitespace character!" skipped
-    if result = text then
-      FSharp.Formatting.Common.Log.warnf "could not skip a line of %s, because no line-ending character was found!" text
-    result
-
-  /// Matches when a string starts with a sub-string wrapped using the 
-  /// opening and closing sub-string specified in the parameter.
-  /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
-  /// text together with the rest.
-  let (|StartsWithWrappedS|_|) (starts:string, ends:string) (text:string) = 
-    if text.StartsWith(starts) then 
-      let id = text.IndexOf(ends, starts.Length)
-      if id >= 0 then 
-        let wrapped = text.Substring(starts.Length, id - starts.Length)
-        let rest = text.Substring(id + ends.Length, text.Length - id - ends.Length)
-        Some(wrapped, rest)
-      else None
-    else None
-
   /// Matches when a string starts with a sub-string wrapped using the 
   /// opening and closing sub-string specified in the parameter.
   /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
@@ -174,21 +194,6 @@ module String =
   let (|EqualsRepeated|_|) (repeated, n:int) = function
     | StartsWithRepeated repeated (n, ("", _)) -> Some()
     | _ -> None 
-
-  /// Given a list of lines indented with certan number of whitespace 
-  /// characters (spaces), remove the spaces from the beginning of each line 
-  /// and return the string as a list of lines
-  let removeSpaces lines =
-    let spaces =
-      lines 
-      |> Seq.filter (String.IsNullOrWhiteSpace >> not)
-      |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
-      |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
-    lines 
-    |> Seq.map (fun line -> 
-        if String.IsNullOrWhiteSpace(line) then ""
-        else line.Substring(spaces))
-
 
 module List =
   /// Matches a list if it starts with a sub-list that is delimited
