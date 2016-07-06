@@ -30,19 +30,19 @@ type MarkdownColumnAlignment =
 /// Represents inline formatting inside a paragraph. This can be literal (with text), various
 /// formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.
 type MarkdownSpan =
-  | Literal of string * MarkdownRange option
-  | InlineCode of string * MarkdownRange option
-  | Strong of MarkdownSpans * MarkdownRange option
-  | Emphasis of MarkdownSpans * MarkdownRange option
-  | AnchorLink of string * MarkdownRange option
-  | DirectLink of MarkdownSpans * (string * option<string>) * MarkdownRange option
-  | IndirectLink of MarkdownSpans * string * string * MarkdownRange option
-  | DirectImage of string * (string * option<string>) * MarkdownRange option
-  | IndirectImage of string * string * string * MarkdownRange option
-  | HardLineBreak of MarkdownRange option
-  | LatexInlineMath of string * MarkdownRange option
-  | LatexDisplayMath of string * MarkdownRange option
-  | EmbedSpans of MarkdownEmbedSpans * MarkdownRange option
+  | Literal of text:string * range:MarkdownRange option
+  | InlineCode of code:string * range:MarkdownRange option
+  | Strong of spans:MarkdownSpans * range:MarkdownRange option
+  | Emphasis of spans:MarkdownSpans * range:MarkdownRange option
+  | AnchorLink of link:string * range:MarkdownRange option
+  | DirectLink of spans:MarkdownSpans * linkAndTitle:(string * option<string>) * range:MarkdownRange option
+  | IndirectLink of spans:MarkdownSpans * link:string * key:string * range:MarkdownRange option
+  | DirectImage of body:string * linkAndTitle:(string * option<string>) * range:MarkdownRange option
+  | IndirectImage of body:string * link:string * key:string * range:MarkdownRange option
+  | HardLineBreak of range:MarkdownRange option
+  | LatexInlineMath of string * range:MarkdownRange option
+  | LatexDisplayMath of string * range:MarkdownRange option
+  | EmbedSpans of customSpans:MarkdownEmbedSpans * range:MarkdownRange option
 
 /// A type alias for a list of `MarkdownSpan` values
 and MarkdownSpans = list<MarkdownSpan>
@@ -56,17 +56,17 @@ and MarkdownEmbedSpans =
 /// Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
 /// also embedded LaTeX blocks.
 type MarkdownParagraph = 
-  | Heading of int * MarkdownSpans * MarkdownRange option
-  | Paragraph of MarkdownSpans * MarkdownRange option
-  | CodeBlock of string * string * string * MarkdownRange option
-  | InlineBlock of string * MarkdownRange option
-  | ListBlock of MarkdownListKind * list<MarkdownParagraphs> * MarkdownRange option
-  | QuotedBlock of MarkdownParagraphs * MarkdownRange option
-  | Span of MarkdownSpans * MarkdownRange option
-  | LatexBlock of list<string> * MarkdownRange option
-  | HorizontalRule of char * MarkdownRange option
-  | TableBlock of option<MarkdownTableRow> * list<MarkdownColumnAlignment> * list<MarkdownTableRow> * MarkdownRange option
-  | EmbedParagraphs of MarkdownEmbedParagraphs * MarkdownRange option
+  | Heading of n:int * spans:MarkdownSpans * range:MarkdownRange option
+  | Paragraph of spans:MarkdownSpans * range:MarkdownRange option
+  | CodeBlock of code:string * language:string * ignoredLine:string * range:MarkdownRange option
+  | InlineBlock of code:string * range:MarkdownRange option
+  | ListBlock of kind:MarkdownListKind * items:list<MarkdownParagraphs> * range:MarkdownRange option
+  | QuotedBlock of paragraphs:MarkdownParagraphs * range:MarkdownRange option
+  | Span of spans:MarkdownSpans * range:MarkdownRange option
+  | LatexBlock of body:list<string> * range:MarkdownRange option
+  | HorizontalRule of c:char * range:MarkdownRange option
+  | TableBlock of headers:option<MarkdownTableRow> * alignments:list<MarkdownColumnAlignment> * rows:list<MarkdownTableRow> * range:MarkdownRange option
+  | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
 
 /// A type alias for a list of paragraphs
 and MarkdownParagraphs = list<MarkdownParagraph>
