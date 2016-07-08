@@ -12,6 +12,7 @@ open System.Collections.Generic
 open FSharp.Patterns
 open FSharp.Markdown.Parser
 open FSharp.Markdown.Html
+open FSharp.Formatting.Common
 
 module private Utils  =
   /// Replace tabs with four spaces - tab will end at the 
@@ -50,14 +51,14 @@ type Markdown =
       [ let line = ref ""
         let mutable lineNo = 1
         while (line := reader.ReadLine(); line.Value <> null) do
-          yield (line.Value, lineNo)
+          yield (line.Value, { StartLine = lineNo; StartColumn = 0; EndLine = lineNo; EndColumn = line.Value.Length })
           lineNo <- lineNo + 1
         if text.EndsWith(newline) then
-          yield ("", lineNo) ]
+          yield ("", { StartLine = lineNo; StartColumn = 0; EndLine = lineNo; EndColumn = 0 }) ]
       //|> Utils.replaceTabs 4
     let links = Dictionary<_, _>()
     //let (Lines.TrimBlank lines) = lines
-    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some({ Line = 1 }) }
+    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some(MRange.Zero) }
     let paragraphs =
       lines
       |> FSharp.Collections.List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)

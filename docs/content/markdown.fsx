@@ -10,7 +10,10 @@ First, we need to load the assembly and open necessary namespaces:
 *)
 
 #r "../../bin/FSharp.Markdown.dll"
+#r "../../bin/FSharp.Formatting.Common.dll"
 open FSharp.Markdown
+open FSharp.Formatting.Common
+
 
 (**
 Parsing documents
@@ -64,7 +67,7 @@ The following snippet prints the heading of the document:
 // Iterate over all the paragraph elements
 for par in parsed.Paragraphs do
   match par with
-  | Heading(1, [Literal text]) -> 
+  | Heading(1, [Literal(text, _)], _) -> 
       // Recognize heading that has a simple content
       // containing just a literal (no other formatting)
       printfn "%s" text
@@ -92,8 +95,8 @@ to recognize any paragraph or span that can contain child elements:
 /// Returns all links in a specified span node
 let rec collectSpanLinks span = seq {
   match span with
-  | DirectLink(_, (url, _)) -> yield url
-  | IndirectLink(_, _, key) -> yield fst (parsed.DefinedLinks.[key])
+  | DirectLink(_, (url, _), _) -> yield url
+  | IndirectLink(_, _, key, _) -> yield fst (parsed.DefinedLinks.[key])
   | Matching.SpanLeaf _ -> ()
   | Matching.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanLinks s }

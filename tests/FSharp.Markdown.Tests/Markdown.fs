@@ -9,6 +9,7 @@ module FSharp.Markdown.Tests.Parsing
 open FsUnit
 open NUnit.Framework
 open FSharp.Markdown
+open FSharp.Formatting.Common
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
 
@@ -19,7 +20,7 @@ let shouldEqualNoWhiteSpace (x:string) (y:string) =
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
   let doc = """<a href="mailto:a@b.c">hi</a>""" |> Markdown.Parse
   doc.Paragraphs
-  |> shouldEqual [ Paragraph([Literal("""<a href="mailto:a@b.c">hi</a>""", Some({ Line = 1 })) ], Some({ Line = 1 }))]
+  |> shouldEqual [ Paragraph([Literal("""<a href="mailto:a@b.c">hi</a>""", Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 29 })) ], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 29 }))]
 
 [<Test>]
 let ``Encode '<' and '>' characters as HTML entities`` () =
@@ -36,8 +37,8 @@ Some more""" |> Markdown.Parse
 
   doc.Paragraphs
   |> shouldEqual [
-      Heading(2, [Literal("Hello F#", Some({ Line = 2 }))], Some({ Line = 2 }))
-      Paragraph([Literal("Some more", Some({ Line = 3 }))], Some({ Line = 3 }))]
+      Heading(2, [Literal("Hello F#", Some({ StartLine = 2; StartColumn = 3; EndLine = 2; EndColumn = 11 }))], Some({ StartLine = 2; StartColumn = 0; EndLine = 2; EndColumn = 11 }))
+      Paragraph([Literal("Some more", Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 9 }))], Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 9 }))]
 
 [<Test>]
 let ``Headings ending with spaces followed by # are parsed correctly`` () =
@@ -47,8 +48,8 @@ Some more""" |> Markdown.Parse
 
   doc.Paragraphs
   |> shouldEqual [
-      Heading(2, [Literal("Hello", Some({ Line = 2 }))], Some({ Line = 2 }))
-      Paragraph([Literal("Some more", Some({ Line = 3 }))], Some({ Line = 3 }))]
+      Heading(2, [Literal("Hello", Some({ StartLine = 2; StartColumn = 3; EndLine = 2; EndColumn = 8 }))], Some({ StartLine = 2; StartColumn = 0; EndLine = 2; EndColumn = 13 }))
+      Paragraph([Literal("Some more", Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 9 }))], Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 9 }))]
 
 [<Test>]
 let ``Should be able to create nested list item with two paragraphs`` () =
@@ -59,38 +60,38 @@ let ``Should be able to create nested list item with two paragraphs`` () =
 
     c""" |> Markdown.Parse
   let expectedBody = 
-    [ Paragraph([Literal("b", Some({ Line = 3 }))] , Some({ Line = 3 }))
-      Paragraph([Literal("c", Some({ Line = 5 }))], Some({ Line = 5 })) ]
+    [ Paragraph([Literal("b", Some({ StartLine = 3; StartColumn = 4; EndLine = 3; EndColumn = 5 }))] , Some({ StartLine = 3; StartColumn = 4; EndLine = 3; EndColumn = 5 }))
+      Paragraph([Literal("c", Some({ StartLine = 5; StartColumn = 4; EndLine = 5; EndColumn = 5 }))], Some({ StartLine = 5; StartColumn = 4; EndLine = 5; EndColumn = 5 })) ]
   match doc.Paragraphs.Head with
-  | ListBlock(Unordered, [ [Span([Literal("a", Some({ Line = 2 }))], _); ListBlock(Unordered, [ body ], _)] ], _) ->
+  | ListBlock(Unordered, [ [Span([Literal("a", Some({ StartLine = 2; StartColumn = 2; EndLine = 2; EndColumn = 3 }))], _); ListBlock(Unordered, [ body ], _)] ], _) ->
       body |> shouldEqual expectedBody
   | _ -> Assert.Fail "Expected list block with a nested list block"
 
 [<Test>]
 let ``Can escape special characters such as "*" in emphasis`` () =
   let doc = """*foo\*\*bar*""" |> Markdown.Parse
-  let expected = Paragraph([Emphasis([Literal("foo**bar", Some({ Line = 1 }))], Some({ Line = 1 }))], Some({ Line = 1 }))
+  let expected = Paragraph([Emphasis([Literal("foo**bar", Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 8 }))], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 12 }))], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 12 }))
   doc.Paragraphs.Head 
   |> shouldEqual expected
 
 [<Test>]
 let ``Can escape special characters in LaTex inline math`` () =
   let doc = """test \$ is: $foo\$\$bar<>\$\&\%\$\#\_\{\}$""" |> Markdown.Parse
-  let expected = Paragraph([Literal("test $ is: ", Some({ Line = 1 })); LatexInlineMath("foo\$\$bar<>\$\&\%\$\#\_\{\}", Some({ Line = 1 }))], Some({ Line = 1 }))
+  let expected = Paragraph([Literal("test $ is: ", Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 11 })); LatexInlineMath("foo\$\$bar<>\$\&\%\$\#\_\{\}", Some({ StartLine = 1; StartColumn = 12; EndLine = 1; EndColumn = 40 }))], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 42 }))
   doc.Paragraphs.Head
   |> shouldEqual expected
 
 [<Test>]
 let ``Test special character _ in LaTex inline math`` () =
     let doc = """$\bigcap_{x \in A} p_{x}A$""" |> Markdown.Parse
-    let expected = Paragraph([ LatexInlineMath("\\bigcap_{x \\in A} p_{x}A", Some({ Line = 1 })) ], Some({ Line = 1 }))
+    let expected = Paragraph([ LatexInlineMath("\\bigcap_{x \\in A} p_{x}A", Some({ StartLine = 1; StartColumn = 1; EndLine = 1; EndColumn = 25 })) ], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 26 }))
     doc.Paragraphs.Head
     |> shouldEqual expected
       
 [<Test>]
 let ``Inline code can contain backticks when wrapped with spaces`` () =
   let doc = """` ``h`` `""" |> Markdown.Parse
-  let expected = Paragraph([InlineCode("``h``", Some({ Line = 1 }))], Some({ Line = 1 }))
+  let expected = Paragraph([InlineCode("``h``", Some({ StartLine = 1; StartColumn = 2; EndLine = 1; EndColumn = 7 }))], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 9 }))
   doc.Paragraphs.Head 
   |> shouldEqual expected
 
@@ -284,7 +285,7 @@ let ``Transform horizontal rules correctly``() =
     let doc = "* * *\r\n\r\n***\r\n\r\n*****\r\n\r\n- - -\r\n\r\n---------------------------------------\r\n\r\n";
     let expected = "<hr />\r\n<hr />\r\n<hr />\r\n<hr />\r\n<hr />\r\n" |> properNewLines
     Markdown.Parse(doc).Paragraphs
-    |> shouldEqual [ HorizontalRule('*', Some({ Line = 1 })); HorizontalRule('*', Some({ Line = 3 })); HorizontalRule('*', Some({ Line = 5 })); HorizontalRule('-', Some({ Line = 7 })); HorizontalRule('-', Some({ Line = 9 })) ]
+    |> shouldEqual [ HorizontalRule('*', Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 5 })); HorizontalRule('*', Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 3 })); HorizontalRule('*', Some({ StartLine = 5; StartColumn = 0; EndLine = 5; EndColumn = 5 })); HorizontalRule('-', Some({ StartLine = 7; StartColumn = 0; EndLine = 7; EndColumn = 5 })); HorizontalRule('-', Some({ StartLine = 9; StartColumn = 0; EndLine = 9; EndColumn = 39 })) ]
     Markdown.TransformHtml doc
     |> shouldEqual expected
 
@@ -326,8 +327,8 @@ let ``Transform tables with delimiters in code or math correctly``() =
 let ``Parse empty blockquote followed by content``() =
     let doc = ">
 a"
-    let expected = [ QuotedBlock([], Some({ Line = 1 }))
-                     Paragraph([ Literal("a", Some({ Line = 2 })) ], Some({ Line = 2 })) ]
+    let expected = [ QuotedBlock([], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 1 }))
+                     Paragraph([ Literal("a", Some({ StartLine = 2; StartColumn = 0; EndLine = 2; EndColumn = 1 })) ], Some({ StartLine = 2; StartColumn = 0; EndLine = 2; EndColumn = 1 })) ]
 
     (Markdown.Parse doc).Paragraphs
     |> shouldEqual expected
@@ -337,8 +338,8 @@ let ``Parse blockquote teriminated by empty blockquote line and followed by cont
     let doc = ">a
 >
 a"
-    let expected = [ QuotedBlock([ Paragraph([ Literal("a", Some({ Line = 1 })) ], Some({ Line = 1 })) ], Some({ Line = 1 }))
-                     Paragraph([ Literal("a", Some({ Line = 3 })) ], Some({ Line = 3 })) ]
+    let expected = [ QuotedBlock([ Paragraph([ Literal("a", Some({ StartLine = 1; StartColumn = 1; EndLine = 1; EndColumn = 2 })) ], Some({ StartLine = 1; StartColumn = 1; EndLine = 1; EndColumn = 2 })) ], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 2 }))
+                     Paragraph([ Literal("a", Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 1 })) ], Some({ StartLine = 3; StartColumn = 0; EndLine = 3; EndColumn = 1 })) ]
 
     (Markdown.Parse doc).Paragraphs
     |> shouldEqual expected
@@ -346,7 +347,7 @@ a"
 [<Test>]
 let ``Parse blockquote with three leading spaces``() =
     let doc = "   >a"
-    let expected = [ QuotedBlock([ Paragraph([ Literal("a", Some({ Line = 1 })) ], Some({ Line = 1 })) ], Some({ Line = 1 })) ]
+    let expected = [ QuotedBlock([ Paragraph([ Literal("a", Some({ StartLine = 1; StartColumn = 4; EndLine = 1; EndColumn = 5 })) ], Some({ StartLine = 1; StartColumn = 4; EndLine = 1; EndColumn = 5 })) ], Some({ StartLine = 1; StartColumn = 0; EndLine = 1; EndColumn = 5 })) ]
 
     (Markdown.Parse doc).Paragraphs
     |> shouldEqual expected

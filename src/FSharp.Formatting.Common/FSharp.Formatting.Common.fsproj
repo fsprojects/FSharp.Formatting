@@ -69,6 +69,7 @@
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Log.fs" />
+    <Compile Include="Range.fs" />
     <None Include="paket.references" />
     <Content Include="app.config" />
   </ItemGroup>

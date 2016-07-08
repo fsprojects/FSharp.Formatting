@@ -7,6 +7,7 @@ module internal FSharp.Patterns
 
 open System
 open FSharp.Collections
+open FSharp.Formatting.Common
 
 // --------------------------------------------------------------------------------------
 // Active patterns that simplify parsing of strings and lists of strings (lines)
@@ -92,46 +93,55 @@ module String =
 
 module StringPosition =
   /// Matches when a string is a whitespace or null
-  let (|WhiteSpace|_|) (s, n: int) = 
+  let (|WhiteSpace|_|) (s, n: MarkdownRange) = 
     if String.IsNullOrWhiteSpace(s) then Some() else None
 
   /// Matches when a string does starts with non-whitespace
-  let (|Unindented|_|) (s:string, n:int) = 
+  let (|Unindented|_|) (s:string, n:MarkdownRange) = 
     if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then Some() else None
       
   /// Returns a string trimmed from both start and end
-  let (|TrimBoth|) (text:string, n:int) = (text.Trim(), n)
+  let (|TrimBoth|) (text:string, n:MarkdownRange) = 
+    let trimmedStart = text.TrimStart()
+    let trimmed = trimmedStart.TrimEnd()
+    (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmedStart.Length; EndColumn = n.EndColumn - trimmedStart.Length + trimmed.Length })
   /// Returns a string trimmed from the end
-  let (|TrimEnd|) (text:string, n:int) = (text.TrimEnd(), n)
+  let (|TrimEnd|) (text:string, n:MarkdownRange) = 
+    let trimmed = text.TrimEnd()
+    (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
   /// Returns a string trimmed from the start
-  let (|TrimStart|) (text:string, n:int) = (text.TrimStart(), n)
+  let (|TrimStart|) (text:string, n:MarkdownRange) = 
+    let trimmed = text.TrimStart()
+    (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
-  /// Retrusn a string trimmed from the end using characters given as a parameter
-  let (|TrimEndUsing|) chars (text:string, n:int) = text.TrimEnd(Array.ofSeq chars)
+  /// Returns a string trimmed from the end using characters given as a parameter
+  let (|TrimEndUsing|) chars (text:string, n:MarkdownRange) = 
+    let trimmed = text.TrimEnd(Array.ofSeq chars)
+    (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
 
   /// Returns a string trimmed from the start together with 
   /// the number of skipped whitespace characters
-  let (|TrimStartAndCount|) (text:string, n:int) = 
+  let (|TrimStartAndCount|) (text:string, n:MarkdownRange) = 
     let trimmed = text.TrimStart([|' '; '\t'|])
     let len = text.Length - trimmed.Length
-    len, text.Substring(0, len).Replace("\t", "    ").Length, (trimmed, n)
+    len, text.Substring(0, len).Replace("\t", "    ").Length, (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
   /// Matches when a string starts with any of the specified sub-strings
-  let (|StartsWithAny|_|) (starts:seq<string>) (text:string, n:int) = 
+  let (|StartsWithAny|_|) (starts:seq<string>) (text:string, n:MarkdownRange) = 
     if starts |> Seq.exists (text.StartsWith) then Some() else None
 
   /// Matches when a string starts with the specified sub-string
-  let (|StartsWith|_|) (start:string) (text:string, n:int) = 
-    if text.StartsWith(start) then Some(text.Substring(start.Length), n) else None
+  let (|StartsWith|_|) (start:string) (text:string, n:MarkdownRange) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length), { n with StartColumn = n.StartColumn + text.Length - start.Length }) else None
   
   /// Matches when a string starts with the specified sub-string
   /// The matched string is trimmed from all whitespace.
-  let (|StartsWithTrim|_|) (start:string) (text:string, n:int) = 
-    if text.StartsWith(start) then Some(text.Substring(start.Length).Trim(), n) else None
+  let (|StartsWithTrim|_|) (start:string) (text:string, n:MarkdownRange) = 
+    if text.StartsWith(start) then Some(text.Substring(start.Length).Trim(), { n with StartColumn = n.StartColumn + text.Length - start.Length }) else None
 
   /// Matches when a string starts with the specified sub-string (ignoring whitespace at the start)
   /// The matched string is trimmed from all whitespace.
-  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string, n:int) =
+  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string, n:MarkdownRange) =
     if text.Contains(start) then
       let beforeStart = text.Substring(0, text.IndexOf(start))
       if String.IsNullOrWhiteSpace (beforeStart) then
@@ -147,10 +157,10 @@ module StringPosition =
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
-  let (|StartsAndEndsWith|_|) (starts, ends) (s:string, n:int) =
+  let (|StartsAndEndsWith|_|) (starts, ends) (s:string, n:MarkdownRange) =
     if s.StartsWith(starts) && s.EndsWith(ends) && 
        s.Length >= starts.Length + ends.Length then 
-      Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length), n)
+      Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length), { n with StartColumn = n.StartColumn + s.Length - starts.Length; EndColumn = n.EndColumn - s.Length + ends.Length })
     else None
 
   /// Matches when a string starts with the given value and ends 
@@ -165,7 +175,7 @@ module StringPosition =
   ///
   ///    let (StartsWithRepeated "/\" (2, " abc")) = "/\/\ abc"
   ///
-  let (|StartsWithRepeated|_|) (repeated:string) (text:string, ln:int) = 
+  let (|StartsWithRepeated|_|) (repeated:string) (text:string, ln:MarkdownRange) = 
     let rec loop i = 
       if i = text.Length then i
       elif text.[i] <> repeated.[i % repeated.Length] then i
@@ -173,25 +183,25 @@ module StringPosition =
 
     let n = loop 0 
     if n = 0 || n % repeated.Length <> 0 then None
-    else Some(n/repeated.Length, (text.Substring(n, text.Length - n), ln)) 
+    else Some(n/repeated.Length, (text.Substring(n, text.Length - n), { ln with StartColumn = n })) 
 
   /// Matches when a string starts with a sub-string wrapped using the 
   /// opening and closing sub-string specified in the parameter.
   /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
   /// text together with the rest.
-  let (|StartsWithWrapped|_|) (starts:string, ends:string) (text:string, n:int) = 
+  let (|StartsWithWrapped|_|) (starts:string, ends:string) (text:string, n:MarkdownRange) = 
     if text.StartsWith(starts) then 
       let id = text.IndexOf(ends, starts.Length)
       if id >= 0 then 
         let wrapped = text.Substring(starts.Length, id - starts.Length)
         let rest = text.Substring(id + ends.Length, text.Length - id - ends.Length)
-        Some(wrapped, (rest, n))
+        Some(wrapped, (rest, { n with StartColumn = id + ends.Length }))
       else None
     else None
 
   /// Matches when a string consists of some number of 
   /// complete repetitions of a specified sub-string.
-  let (|EqualsRepeated|_|) (repeated, n:int) = function
+  let (|EqualsRepeated|_|) (repeated, n:MarkdownRange) = function
     | StartsWithRepeated repeated (n, ("", _)) -> Some()
     | _ -> None 
 
@@ -201,7 +211,7 @@ module List =
   let inline (|DelimitedWith|_|) startl endl input = 
     if List.startsWith startl input then
       match List.partitionUntilEquals endl (List.skip startl.Length input) with 
-      | Some(pre, post) -> Some(pre, List.skip endl.Length post)
+      | Some(pre, post) -> Some(pre, List.skip endl.Length post, startl.Length, endl.Length)
       | None -> None
     else None
 
@@ -258,7 +268,7 @@ module Lines =
   /// either empty (or whitespace) or start with at least 4 spaces (a tab counts as 4 spaces here).
   /// Returns all such lines from the beginning until a different line and
   /// the number of spaces the first line started with.
-  let (|TakeCodeBlock|_|) (input:(string * int) list) =
+  let (|TakeCodeBlock|_|) (input:(string * MarkdownRange) list) =
     let spaceNum = 4
       //match input with
       //| h :: _ ->
@@ -277,17 +287,18 @@ module Lines =
     | _ -> None
 
   /// Removes whitespace lines from the beginning of the list
-  let (|TrimBlankStart|) = List.skipWhile (fun (s:string, n:int) -> String.IsNullOrWhiteSpace s)
+  let (|TrimBlankStart|) = List.skipWhile (fun (s:string, n:MarkdownRange) -> String.IsNullOrWhiteSpace s)
 
   /// Trims all lines of the current paragraph
   let (|TrimParagraphLines|) lines =
     lines
     // first remove all whitespace on the beginning of the line
-    |> List.map (fun (s:string, n:int) -> s.TrimStart())
+    |> List.map StringPosition.(|TrimStart|)
     // Now remove all additional spaces at the end, but keep two spaces if existent
-    |> List.map (fun s ->
+    |> List.map (fun (s, n) ->
       let endsWithTwoSpaces = s.EndsWith("  ")
-      s.TrimEnd([|' '|]) + if endsWithTwoSpaces then "  " else "")
+      let trimmed = s.TrimEnd([|' '|]) + if endsWithTwoSpaces then "  " else ""
+      (trimmed, { n with EndColumn = n.EndColumn - s.Length + trimmed.Length }))
 
 /// Parameterized pattern that assigns the specified value to the 
 /// first component of a tuple. Usage:

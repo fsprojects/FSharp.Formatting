@@ -8,12 +8,11 @@ namespace FSharp.Markdown
 open System
 open System.IO
 open System.Collections.Generic
+open FSharp.Formatting.Common
 
 // --------------------------------------------------------------------------------------
 // Definition of the Markdown format
 // --------------------------------------------------------------------------------------
-
-type MarkdownRange = { Line : int }
 
 /// A list kind can be `Ordered` or `Unordered` corresponding to `<ol>` and `<ul>` elements
 type MarkdownListKind = 
@@ -40,8 +39,8 @@ type MarkdownSpan =
   | DirectImage of body:string * linkAndTitle:(string * option<string>) * range:MarkdownRange option
   | IndirectImage of body:string * link:string * key:string * range:MarkdownRange option
   | HardLineBreak of range:MarkdownRange option
-  | LatexInlineMath of string * range:MarkdownRange option
-  | LatexDisplayMath of string * range:MarkdownRange option
+  | LatexInlineMath of code:string * range:MarkdownRange option
+  | LatexDisplayMath of code:string * range:MarkdownRange option
   | EmbedSpans of customSpans:MarkdownEmbedSpans * range:MarkdownRange option
 
 /// A type alias for a list of `MarkdownSpan` values

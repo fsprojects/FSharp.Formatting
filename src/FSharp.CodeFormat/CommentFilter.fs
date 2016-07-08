@@ -11,6 +11,7 @@ open System.Web
 
 open FSharp.Patterns
 open FSharp.Collections
+open FSharp.Formatting.Common
 
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
@@ -34,7 +35,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 type Token = string * FSharpTokenInfo
 type SnippetLine = Token list
-type IndexedSnippetLine = int * SnippetLine
+type IndexedSnippetLine = MarkdownRange * SnippetLine
 type Snippet = IndexedSnippetLine list
 type NamedSnippet = string * Snippet
 
@@ -49,7 +50,7 @@ let rec getSnippets (state:NamedSnippet option) (snippets:NamedSnippet list)
   match source with 
   | [] -> snippets
   | (line, tokens)::rest ->
-    let text = lines.[line].Trim(), line
+    let text = lines.[line.StartLine].Trim(), line
     match state, text with
 
     // We're not inside a snippet and we found a beginning of one

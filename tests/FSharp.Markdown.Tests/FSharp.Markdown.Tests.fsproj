@@ -95,6 +95,11 @@
 	-->
   <Import Project="$(SolutionDir)\.paket\paket.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj">
       <Name>FSharp.Markdown</Name>
       <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
