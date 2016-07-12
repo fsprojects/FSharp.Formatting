@@ -67,7 +67,7 @@ The following snippet prints the heading of the document:
 // Iterate over all the paragraph elements
 for par in parsed.Paragraphs do
   match par with
-  | Heading(1, [Literal(text, _)], _) -> 
+  | Heading(size=1; body=[Literal(text=text)]) -> 
       // Recognize heading that has a simple content
       // containing just a literal (no other formatting)
       printfn "%s" text

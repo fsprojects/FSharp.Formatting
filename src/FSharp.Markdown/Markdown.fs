@@ -31,12 +31,12 @@ type MarkdownColumnAlignment =
 type MarkdownSpan =
   | Literal of text:string * range:MarkdownRange option
   | InlineCode of code:string * range:MarkdownRange option
-  | Strong of spans:MarkdownSpans * range:MarkdownRange option
-  | Emphasis of spans:MarkdownSpans * range:MarkdownRange option
+  | Strong of body:MarkdownSpans * range:MarkdownRange option
+  | Emphasis of body:MarkdownSpans * range:MarkdownRange option
   | AnchorLink of link:string * range:MarkdownRange option
-  | DirectLink of spans:MarkdownSpans * linkAndTitle:(string * option<string>) * range:MarkdownRange option
-  | IndirectLink of spans:MarkdownSpans * link:string * key:string * range:MarkdownRange option
-  | DirectImage of body:string * linkAndTitle:(string * option<string>) * range:MarkdownRange option
+  | DirectLink of body:MarkdownSpans * linkAndTitle:(string * option<string>) * range:MarkdownRange option
+  | IndirectLink of body:MarkdownSpans * link:string * key:string * range:MarkdownRange option
+  | DirectImage of body:string * link:string * title:option<string> * range:MarkdownRange option
   | IndirectImage of body:string * link:string * key:string * range:MarkdownRange option
   | HardLineBreak of range:MarkdownRange option
   | LatexInlineMath of code:string * range:MarkdownRange option
@@ -55,15 +55,15 @@ and MarkdownEmbedSpans =
 /// Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
 /// also embedded LaTeX blocks.
 type MarkdownParagraph = 
-  | Heading of n:int * spans:MarkdownSpans * range:MarkdownRange option
-  | Paragraph of spans:MarkdownSpans * range:MarkdownRange option
+  | Heading of size:int * body:MarkdownSpans * range:MarkdownRange option
+  | Paragraph of body:MarkdownSpans * range:MarkdownRange option
   | CodeBlock of code:string * language:string * ignoredLine:string * range:MarkdownRange option
   | InlineBlock of code:string * range:MarkdownRange option
   | ListBlock of kind:MarkdownListKind * items:list<MarkdownParagraphs> * range:MarkdownRange option
   | QuotedBlock of paragraphs:MarkdownParagraphs * range:MarkdownRange option
-  | Span of spans:MarkdownSpans * range:MarkdownRange option
+  | Span of body:MarkdownSpans * range:MarkdownRange option
   | LatexBlock of body:list<string> * range:MarkdownRange option
-  | HorizontalRule of c:char * range:MarkdownRange option
+  | HorizontalRule of character:char * range:MarkdownRange option
   | TableBlock of headers:option<MarkdownTableRow> * alignments:list<MarkdownColumnAlignment> * rows:list<MarkdownTableRow> * range:MarkdownRange option
   | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
 

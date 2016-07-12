@@ -58,7 +58,7 @@ type Markdown =
       //|> Utils.replaceTabs 4
     let links = Dictionary<_, _>()
     //let (Lines.TrimBlank lines) = lines
-    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some(MRange.Zero) }
+    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some(MarkdownRange.Zero) }
     let paragraphs =
       lines
       |> FSharp.Collections.List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)

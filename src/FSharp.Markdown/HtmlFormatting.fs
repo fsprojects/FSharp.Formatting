@@ -98,7 +98,7 @@ let rec formatSpan (ctx:FormattingContext) = function
       ctx.Writer.Write(original)
 
   | IndirectImage(body, _, LookupKey ctx.Links (link, title), _) 
-  | DirectImage(body, (link, title), _) -> 
+  | DirectImage(body, link, title, _) -> 
       ctx.Writer.Write("<img src=\"")
       ctx.Writer.Write(htmlEncodeQuotes link)
       ctx.Writer.Write("\" alt=\"")

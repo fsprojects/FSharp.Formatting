@@ -72,7 +72,7 @@ let rec formatSpan (ctx:FormattingContext) = function
       ctx.Writer.Write("}")
 
   | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) 
-  | DirectImage(body, (link, _), _) 
+  | DirectImage(body, link, _, _) 
   | IndirectImage(body, link, _, _) ->
       // Use the technique introduced at
       // http://stackoverflow.com/q/14014827

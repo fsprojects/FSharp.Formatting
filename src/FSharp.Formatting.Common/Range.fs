@@ -2,7 +2,8 @@
 
 type MarkdownRange = { StartLine : int; StartColumn : int; EndLine : int; EndColumn : int }
 
-module MRange =
+[<CompilationRepresentation (CompilationRepresentationFlags.ModuleSuffix)>]
+module MarkdownRange =
     let Zero = { StartLine = 0; StartColumn = 0; EndLine = 0; EndColumn = 0 }
 
     let MergeRanges (ranges:MarkdownRange list) =

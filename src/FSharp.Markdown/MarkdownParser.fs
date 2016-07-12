@@ -155,10 +155,18 @@ type ParsingContext =
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx:ParsingContext) = seq {
 
-  // Zero or one literals, depending whether there is some accumulated input
+  // Zero or one literals, depending whether there is some accumulated input and update the ctx
   let accLiterals = Lazy.Create(fun () ->
     if List.isEmpty acc then ([], ctx)
-    else ([Literal(String(List.rev acc |> Array.ofList), match ctx.CurrentRange with | Some(n) -> Some({ n with EndColumn = n.StartColumn + acc.Length }) | None -> None)], { ctx with CurrentRange = match ctx.CurrentRange with | Some(n) -> Some({ n with StartColumn = n.StartColumn + acc.Length }) | None -> None }) )
+    else
+      let range = match ctx.CurrentRange with 
+                  | Some(n) -> Some({ n with EndColumn = n.StartColumn + acc.Length }) 
+                  | None -> None
+      let ctx = { ctx with CurrentRange = match ctx.CurrentRange with 
+                                          | Some(n) -> Some({ n with StartColumn = n.StartColumn + acc.Length }) 
+                                          | None -> None }
+      let text = String(List.rev acc |> Array.ofList)
+      ([Literal(text, range)], ctx) )
 
   match input with
   // Recognizes explicit line-break at the end of line
@@ -218,7 +226,7 @@ let rec parseChars acc input (ctx:ParsingContext) = seq {
   | DirectLink (body, link, rest) ->
       let (value, ctx) = accLiterals.Value
       yield! value
-      let info = getLinkAndTitle (String(Array.ofList link), MRange.Zero)
+      let info = getLinkAndTitle (String(Array.ofList link), MarkdownRange.Zero)
       yield DirectLink(parseChars [] body ctx |> List.ofSeq, info, ctx.CurrentRange)
       yield! parseChars [] rest ctx
   | IndirectLink(body, link, original, rest) ->
@@ -237,7 +245,8 @@ let rec parseChars acc input (ctx:ParsingContext) = seq {
   | '!'::DirectLink (body, link, rest) ->
       let (value, ctx) = accLiterals.Value
       yield! value
-      yield DirectImage(String(Array.ofList body), getLinkAndTitle (String(Array.ofList link), MRange.Zero), ctx.CurrentRange)
+      let link, title = getLinkAndTitle (String(Array.ofList link), MarkdownRange.Zero)
+      yield DirectImage(String(Array.ofList body), link, title, ctx.CurrentRange)
       yield! parseChars [] rest ctx
   | '!'::IndirectLink(body, link, original, rest) ->
       let (value, ctx) = accLiterals.Value
@@ -281,9 +290,9 @@ let rec trimSpaces numSpaces (s:string) =
 
 /// Recognizes heading, either prefixed with #s or followed by === or --- line
 let (|Heading|_|) = function
-  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("=", MRange.Zero))) :: rest ->
+  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("=", MarkdownRange.Zero))) :: rest ->
       Some(1, header, rest)
-  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("-", MRange.Zero))) :: rest ->
+  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("-", MarkdownRange.Zero))) :: rest ->
       Some(2, header, rest)
   | StringPosition.StartsWithRepeated "#" (n, StringPosition.TrimBoth(header, ln)) :: rest ->
       let header =
@@ -398,12 +407,12 @@ let (|ListStart|_|) = function
       (startIndent, spaces,
        (SkipSomeNumbers // read a number
           (skipNumCount, '.' :: ' ' :: List.AsString item))) ->
-      let (StringPosition.TrimStartAndCount (startIndent2, spaces2, _)) = (item, MRange.Zero)
+      let (StringPosition.TrimStartAndCount (startIndent2, spaces2, _)) = (item, MarkdownRange.Zero)
       let endIndent =
         startIndent + 2 + skipNumCount +
         // Handle case of code block
         if startIndent2 >= 5 then 1 else startIndent2
-      Some(Ordered, startIndent, endIndent, (item, MRange.Zero))
+      Some(Ordered, startIndent, endIndent, (item, MarkdownRange.Zero))
   | _ -> None
 
 /// Splits input into lines until whitespace or starting of a list and the rest.
@@ -503,10 +512,10 @@ let rec pipeTableFindSplits (delim : char array) (line : char list) =
 
 /// Recognizes alignment specified in the passed separator line.
 let (|TableCellSeparator|_|) = function
-  | StringPosition.StartsAndEndsWith (":", ":") (StringPosition.EqualsRepeated("-", MRange.Zero)) -> Some(AlignCenter)
-  | StringPosition.StartsWith ":" (StringPosition.EqualsRepeated("-", MRange.Zero)) -> Some(AlignLeft)
-  | StringPosition.StartsAndEndsWith ("", ":") (StringPosition.EqualsRepeated("-", MRange.Zero)) -> Some(AlignRight)
-  | StringPosition.EqualsRepeated("-", MRange.Zero) -> Some(AlignDefault)
+  | StringPosition.StartsAndEndsWith (":", ":") (StringPosition.EqualsRepeated("-", MarkdownRange.Zero)) -> Some(AlignCenter)
+  | StringPosition.StartsWith ":" (StringPosition.EqualsRepeated("-", MarkdownRange.Zero)) -> Some(AlignLeft)
+  | StringPosition.StartsAndEndsWith ("", ":") (StringPosition.EqualsRepeated("-", MarkdownRange.Zero)) -> Some(AlignRight)
+  | StringPosition.EqualsRepeated("-", MarkdownRange.Zero) -> Some(AlignDefault)
   | _ -> None
 
 /// Recognizes row of pipe table.
@@ -579,9 +588,9 @@ let (|EmacsTableLine|_|) (grid:option<int []>) (c:char) (check:string * Markdown
 
 /// Recognizes emacs table
 let (|EmacsTableBlock|_|) (input) =
-  let isCellSep = StringPosition.(|EqualsRepeated|_|)("-", MRange.Zero) >> Option.isSome
+  let isCellSep = StringPosition.(|EqualsRepeated|_|)("-", MarkdownRange.Zero) >> Option.isSome
   let isAlignedCellSep = ( |TableCellSeparator|_| ) >> Option.isSome
-  let isHeadCellSep = StringPosition.(|EqualsRepeated|_|)("=", MRange.Zero) >> Option.isSome
+  let isHeadCellSep = StringPosition.(|EqualsRepeated|_|)("=", MarkdownRange.Zero) >> Option.isSome
   let isText (s:string, n:MarkdownRange) = true
   match input with
   | (EmacsTableLine None '+' isAlignedCellSep (grid, parts)) :: rest ->
@@ -650,7 +659,7 @@ let (|LinesUntilBlockquoteEnds|) input =
 /// starting with '>' until there is something else
 let rec (|Blockquote|_|) = function
   | EmptyBlockquote(Lines.TrimBlankStart rest) ->
-      Some ([("", MRange.Zero)], rest)
+      Some ([("", MarkdownRange.Zero)], rest)
   | BlockquoteStart(line)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart rest) ->
       let moreLines, rest =
         match rest with
@@ -700,7 +709,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
       yield CodeBlock(code |> String.concat ctx.Newline, langString, ignoredLine, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
   | Blockquote(body, Lines.TrimBlankStart rest) ->
-      yield QuotedBlock(parseParagraphs ctx (body @ [("", MRange.Zero)]) |> List.ofSeq, ctx.CurrentRange)
+      yield QuotedBlock(parseParagraphs ctx (body @ [("", MarkdownRange.Zero)]) |> List.ofSeq, ctx.CurrentRange)
       yield! parseParagraphs ctx rest
   | EmacsTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest)
   | PipeTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest) ->
@@ -739,7 +748,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
         let items =
           [ for (Node((simple, _, body), nested)) in nodes ->
               [ if not simple then yield! parseParagraphs ctx body
-                else yield Span(parseSpans(String.concat ctx.Newline (body |> List.map fst), body |> List.map snd |> MRange.MergeRanges) ctx, ctx.CurrentRange)
+                else yield Span(parseSpans(String.concat ctx.Newline (body |> List.map fst), body |> List.map snd |> MarkdownRange.MergeRanges) ctx, ctx.CurrentRange)
                 if nested <> [] then
                   yield formatTree nested ] ]
         ListBlock(kind, items, ctx.CurrentRange)
@@ -769,7 +778,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
       yield InlineBlock(all, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
   | TakeParagraphLines(Lines.TrimParagraphLines lines, Lines.TrimBlankStart rest) ->
-      yield Paragraph (parseSpans (lines |> List.map fst |> String.concat ctx.Newline, lines |> List.map snd |> MRange.MergeRanges) ctx, ctx.CurrentRange)
+      yield Paragraph (parseSpans (lines |> List.map fst |> String.concat ctx.Newline, lines |> List.map snd |> MarkdownRange.MergeRanges) ctx, ctx.CurrentRange)
       yield! parseParagraphs ctx rest
 
   | Lines.TrimBlankStart [] -> ()
