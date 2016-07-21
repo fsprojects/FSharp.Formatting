@@ -1,3 +1,5 @@
 Microsoft.AspNet.Razor
 NUnit
+NUnit.Runners
 RazorEngine
+File:FsUnit.fs

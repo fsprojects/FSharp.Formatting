@@ -3,8 +3,8 @@
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Compiler.Service.dll"
 #r "RazorEngine.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
-#load "../Common/FsUnit.fs"
+#r "../../packages/NUnit/lib/net45/nunit.framework.dll"
+#load "../paket-files/FsUnit.fs"
 #else
 module FSharp.MetadataFormat.Tests
 #endif
@@ -60,7 +60,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   #endif
 
 // Ignore by default to make tests run reasonably fast
-[<Test; Ignore>]
+[<Test>]
 let ``MetadataFormat works on sample FAKE assembly``() = 
   let library = root @@ "files" @@ "FAKE" @@ "FakeLib.dll"
   let output = getOutputDir()
@@ -83,37 +83,37 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // Check that all comments appear in the output
-  files.["fslib-class.html"] |> should contain "Readonly int property"
-  files.["fslib-record.html"] |> should contain "This is name"
-  files.["fslib-record.html"] |> should contain "Additional member"
-  files.["fslib-union.html"] |> should contain "Hello of int"
-  files.["index.html"] |> should contain "Sample class"
-  files.["index.html"] |> should contain "Union sample"
-  files.["index.html"] |> should contain "Record sample"
-  files.["fslib-nested.html"] |> should contain "Somewhat nested type"
-  files.["fslib-nested.html"] |> should contain "Somewhat nested module"
-  files.["fslib-nested-nestedtype.html"] |> should contain "Very nested member"
-  files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
+  files.["fslib-class.html"] |> shouldContainText "Readonly int property"
+  files.["fslib-record.html"] |> shouldContainText "This is name"
+  files.["fslib-record.html"] |> shouldContainText "Additional member"
+  files.["fslib-union.html"] |> shouldContainText "Hello of int"
+  files.["index.html"] |> shouldContainText "Sample class"
+  files.["index.html"] |> shouldContainText "Union sample"
+  files.["index.html"] |> shouldContainText "Record sample"
+  files.["fslib-nested.html"] |> shouldContainText "Somewhat nested type"
+  files.["fslib-nested.html"] |> shouldContainText "Somewhat nested module"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "Very nested member"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "Very nested field"
 
   // Check that union fields are correctly generated
-  files.["fslib-union.html"] |> should contain "World(string,int)"
+  files.["fslib-union.html"] |> shouldContainText "World(string,int)"
 #if FSHARP_31
-  files.["fslib-union.html"] |> should contain "Naming(rate,string)"
+  files.["fslib-union.html"] |> shouldContainText "Naming(rate,string)"
 #endif
 
   // Check that methods with no arguments are correctly generated (#113)
-  files.["fslib-record.html"] |> should notContain "Foo2(arg1)"
-  files.["fslib-record.html"] |> should contain "Foo2()"
-  files.["fslib-record.html"] |> should contain "<strong>Signature:</strong> unit -&gt; int"
-  files.["fslib-class.html"] |> should contain "new()"
-  files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> unit -&gt; Class"  
+  files.["fslib-record.html"] |> shouldNotContainText "Foo2(arg1)"
+  files.["fslib-record.html"] |> shouldContainText "Foo2()"
+  files.["fslib-record.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; int"
+  files.["fslib-class.html"] |> shouldContainText "new()"
+  files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; Class"  
 
   // Check that properties are correctly generated (#114)
-  files.["fslib-class.html"] |> removeWhiteSpace |> should notContain ">Member(arg1)<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> should notContain ">Member()<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> should contain ">Member<"
-  files.["fslib-class.html"] |> should notContain "<strong>Signature:</strong> unit -&gt; int"
-  files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> int"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member(arg1)<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member()<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">Member<"
+  files.["fslib-class.html"] |> shouldNotContainText "<strong>Signature:</strong> unit -&gt; int"
+  files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> int"
   
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
@@ -133,12 +133,12 @@ let ``MetadataFormat generates Go to GitHub source links``() =
       sourceFolder = root @@ "../.." )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.["fslib-class.html"] |> should contain "github-link"
-  files.["fslib-class.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
-  files.["fslib-record.html"] |> should contain "github-link"
-  files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
-  files.["fslib-union.html"] |> should contain "github-link"
-  files.["fslib-union.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "github-link"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "github-link"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "github-link"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
@@ -163,55 +163,55 @@ let ``MetadataFormat test that cref generation works``() =
 
   // C# tests
   // reference class in same assembly
-  files.["creflib4-class1.html"] |> should contain "Class2"
-  files.["creflib4-class1.html"] |> should contain "creflib4-class2.html"
+  files.["creflib4-class1.html"] |> shouldContainText "Class2"
+  files.["creflib4-class1.html"] |> shouldContainText "creflib4-class2.html"
   // reference to another assembly
-  files.["creflib4-class2.html"] |> should contain "Class1"
-  files.["creflib4-class2.html"] |> should contain "creflib1-class1.html"
+  files.["creflib4-class2.html"] |> shouldContainText "Class1"
+  files.["creflib4-class2.html"] |> shouldContainText "creflib1-class1.html"
   /// + no crash on unresolved reference.
-  files.["creflib4-class2.html"] |> should contain "Unknown__Reference"
+  files.["creflib4-class2.html"] |> shouldContainText "Unknown__Reference"
   /// reference to a member works.
-  files.["creflib4-class3.html"] |> should contain "Class2.Other"
-  files.["creflib4-class3.html"] |> should contain "creflib4-class2.html"
+  files.["creflib4-class3.html"] |> shouldContainText "Class2.Other"
+  files.["creflib4-class3.html"] |> shouldContainText "creflib4-class2.html"
 
   /// reference to a corelib class works.
-  files.["creflib4-class4.html"] |> should contain "Assembly"
-  files.["creflib4-class4.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  files.["creflib4-class4.html"] |> shouldContainText "Assembly"
+  files.["creflib4-class4.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
 
 
   // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
   // reference class in same assembly
-  files.["creflib2-class1.html"] |> should contain "Class2"
-  //files.["creflib2-class1.html"] |> should contain "creflib2-class2.html"
+  files.["creflib2-class1.html"] |> shouldContainText "Class2"
+  //files.["creflib2-class1.html"] |> shouldContainText "creflib2-class2.html"
   // reference to another assembly
-  files.["creflib2-class2.html"] |> should contain "Class1"
-  //files.["creflib2-class2.html"] |> should contain "creflib1-class1.html"
+  files.["creflib2-class2.html"] |> shouldContainText "Class1"
+  //files.["creflib2-class2.html"] |> shouldContainText "creflib1-class1.html"
   /// + no crash on unresolved reference.
-  files.["creflib2-class2.html"] |> should contain "Unknown__Reference"
+  files.["creflib2-class2.html"] |> shouldContainText "Unknown__Reference"
   /// reference to a member works.
-  files.["creflib2-class3.html"] |> should contain "Class2.Other"
-  //files.["creflib2-class3.html"] |> should contain "creflib2-class2.html"
+  files.["creflib2-class3.html"] |> shouldContainText "Class2.Other"
+  //files.["creflib2-class3.html"] |> shouldContainText "creflib2-class2.html"
 
   /// reference to a corelib class works.
-  files.["creflib2-class4.html"] |> should contain "Assembly"
-  //files.["creflib2-class4.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  files.["creflib2-class4.html"] |> shouldContainText "Assembly"
+  //files.["creflib2-class4.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
 
   // F# tests (fully quallified)
   // reference class in same assembly
-  files.["creflib2-class5.html"] |> should contain "Class2"
-  files.["creflib2-class5.html"] |> should contain "creflib2-class2.html"
+  files.["creflib2-class5.html"] |> shouldContainText "Class2"
+  files.["creflib2-class5.html"] |> shouldContainText "creflib2-class2.html"
   // reference to another assembly
-  files.["creflib2-class6.html"] |> should contain "Class1"
-  files.["creflib2-class6.html"] |> should contain "creflib1-class1.html"
+  files.["creflib2-class6.html"] |> shouldContainText "Class1"
+  files.["creflib2-class6.html"] |> shouldContainText "creflib1-class1.html"
   /// + no crash on unresolved reference.
-  files.["creflib2-class6.html"] |> should contain "Unknown__Reference"
+  files.["creflib2-class6.html"] |> shouldContainText "Unknown__Reference"
   /// reference to a member works.
-  files.["creflib2-class7.html"] |> should contain "Class2.Other"
-  files.["creflib2-class7.html"] |> should contain "creflib2-class2.html"
+  files.["creflib2-class7.html"] |> shouldContainText "Class2.Other"
+  files.["creflib2-class7.html"] |> shouldContainText "creflib2-class2.html"
 
   /// reference to a corelib class works.
-  files.["creflib2-class8.html"] |> should contain "Assembly"
-  files.["creflib2-class8.html"] |> should contain "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  files.["creflib2-class8.html"] |> shouldContainText "Assembly"
+  files.["creflib2-class8.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
 
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
@@ -234,43 +234,43 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
 
   // C# tests
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Sample_Class"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Sample_Class"
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Constructor"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Method"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Property"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Event"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Method"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Property"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Event"
 
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Constructor")
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Method")
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Property")
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Event")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ( "My_Private_Constructor")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ( "My_Private_Method")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ( "My_Private_Property")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ( "My_Private_Event")
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Static_Event"
   
   
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Method")
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Property")
-  files.["csharpsupport-sampleclass.html"] |> should not' (contain "My_Private_Static_Event")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ("My_Private_Static_Method")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ("My_Private_Static_Property")
+  files.["csharpsupport-sampleclass.html"] |> shouldNotContainText ("My_Private_Static_Event")
 
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Sample_Class"
   
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Event"
   
-  files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Method")
-  files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Property")
-  files.["csharpsupport-samplestaticclass.html"] |> should not' (contain "My_Private_Static_Event")
+  files.["csharpsupport-samplestaticclass.html"] |> shouldNotContainText ("My_Private_Static_Method")
+  files.["csharpsupport-samplestaticclass.html"] |> shouldNotContainText ("My_Private_Static_Property")
+  files.["csharpsupport-samplestaticclass.html"] |> shouldNotContainText ("My_Private_Static_Event")
   
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
   #endif
 
   
-[<Ignore>] // Ignored because publicOnly=false is currently not working, see https://github.com/tpetricek/FSharp.Formatting/pull/259
+[<Ignore("Ignored because publicOnly=false is currently not working, see https://github.com/tpetricek/FSharp.Formatting/pull/259")>]
 [<Test>]
 let ``MetadataFormat test that csharp support works``() =
   let libraries =
@@ -288,36 +288,36 @@ let ``MetadataFormat test that csharp support works``() =
 
   // C# tests
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Sample_Class"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Sample_Class"
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Constructor"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Method"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Property"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Event"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Method"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Property"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Event"
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Constructor"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Method"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Property"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Event"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Constructor"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Method"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Property"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Event"
 
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Method"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Property"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Static_Event"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Static_Event"
   
   
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Method"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Property"
-  files.["csharpsupport-sampleclass.html"] |> should contain "My_Private_Static_Event"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Static_Method"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Static_Property"
+  files.["csharpsupport-sampleclass.html"] |> shouldContainText "My_Private_Static_Event"
 
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Sample_Class"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Sample_Class"
   
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Method"
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Property"
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Static_Event"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Static_Event"
   
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Method"
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Property"
-  files.["csharpsupport-samplestaticclass.html"] |> should contain "My_Private_Static_Event"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Method"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Property"
+  files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Event"
   
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
@@ -332,17 +332,17 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   MetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = false)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.["fslib-class.html"] |> should contain "Readonly int property"
-  files.["fslib-record.html"] |> should contain "This is name"
-  files.["fslib-record.html"] |> should contain "Additional member"
-  files.["fslib-union.html"] |> should contain "Hello of int"
-  files.["index.html"] |> should contain "Sample class"
-  files.["index.html"] |> should contain "Union sample"
-  files.["index.html"] |> should contain "Record sample"
-  files.["fslib-nested.html"] |> should contain "Somewhat nested type"
-  files.["fslib-nested.html"] |> should contain "Somewhat nested module"
-  files.["fslib-nested-nestedtype.html"] |> should contain "Very nested member"
-  files.["fslib-nested-submodule.html"] |> should contain "Very nested field"
+  files.["fslib-class.html"] |> shouldContainText "Readonly int property"
+  files.["fslib-record.html"] |> shouldContainText "This is name"
+  files.["fslib-record.html"] |> shouldContainText "Additional member"
+  files.["fslib-union.html"] |> shouldContainText "Hello of int"
+  files.["index.html"] |> shouldContainText "Sample class"
+  files.["index.html"] |> shouldContainText "Union sample"
+  files.["index.html"] |> shouldContainText "Record sample"
+  files.["fslib-nested.html"] |> shouldContainText "Somewhat nested type"
+  files.["fslib-nested.html"] |> shouldContainText "Somewhat nested module"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "Very nested member"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "Very nested field"
 
 [<Test>]
 let ``MetadataFormat highlights code snippets in Markdown comments``() = 
@@ -351,9 +351,9 @@ let ``MetadataFormat highlights code snippets in Markdown comments``() =
   MetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root @@ "../../lib"], markDownComments = true)
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.["fslib-myclass.html"] |> should contain """<span class="k">let</span>"""
-  files.["fslib-myclass.html"] |> should contain """<span class="k">var</span>"""
-  files.["fslib-myclass.html"] |> should contain """val a : FsLib.MyClass"""
+  files.["fslib-myclass.html"] |> shouldContainText """<span class="k">let</span>"""
+  files.["fslib-myclass.html"] |> shouldContainText """<span class="k">var</span>"""
+  files.["fslib-myclass.html"] |> shouldContainText """val a : FsLib.MyClass"""
 
 [<Test>]
 let ``MetadataFormat handles c# dlls`` () =
@@ -378,8 +378,8 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
         ( library, output, layoutRoots, info, libDirs = [root @@ "../../lib"])
     let fileNames = Directory.GetFiles(output)
     let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-    files.["index.html"] |> should contain "CLikeFormat"
-    files.["index.html"] |> should contain "Provides a base class for formatting languages similar to C."
+    files.["index.html"] |> shouldContainText "CLikeFormat"
+    files.["index.html"] |> shouldContainText "Provides a base class for formatting languages similar to C."
 
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
@@ -390,8 +390,8 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
     let fileNames = Directory.GetFiles(output)
     let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ] 
     
-    files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "CommentRegEx"
-    files.["manoli-utils-csharpformat-clikeformat.html"] |> should contain "Regular expression string to match single line and multi-line"
+    files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "CommentRegEx"
+    files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "Regular expression string to match single line and multi-line"
 
 [<Test>]
 let ``MetadataFormat generates module link in nested types``() =
@@ -403,26 +403,26 @@ let ``MetadataFormat generates module link in nested types``() =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
   // Check that the modules and type files have namespace information
-  files.["fslib-class.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested-nestedtype.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested-submodule.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "Namespace: FsLib"
+  files.["fslib-class.html"] |> shouldContainText "Namespace: FsLib"
+  files.["fslib-nested.html"] |> shouldContainText "Namespace: FsLib"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "Namespace: FsLib"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "Namespace: FsLib"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Namespace: FsLib"
 
   // Check that the link to the module is correctly generated
-  files.["fslib-nested-nestedtype.html"] |> should contain "Parent Module:"
-  files.["fslib-nested-nestedtype.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "Parent Module:"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"fslib-nested.html\">Nested</a>"
 
   // Only for nested types
-  files.["fslib-class.html"] |> should notContain "Parent Module:"
+  files.["fslib-class.html"] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
-  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "Parent Module:"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "<a href=\"fslib-nested-submodule.html\">Submodule</a>"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Parent Module:"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"fslib-nested-submodule.html\">Submodule</a>"
 
   // Check that nested submodules have links to its module
-  files.["fslib-nested-submodule.html"] |> should contain "Parent Module:"
-  files.["fslib-nested-submodule.html"] |> should contain "<a href=\"fslib-nested.html\">Nested</a>"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "Parent Module:"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"fslib-nested.html\">Nested</a>"
 
 open System.Diagnostics
 open FSharp.Formatting.Common
@@ -438,7 +438,7 @@ let ``MetadataFormat omit works without markdown``() =
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
-  files.ContainsKey "fslib-test_omit.html" |> should equal false
+  files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 [<Test>]
 let ``MetadataFormat test FsLib1``() =
@@ -452,7 +452,7 @@ let ``MetadataFormat test FsLib1``() =
 
   let files =
       dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.ContainsKey "fslib-test_omit.html" |> should equal false
+  files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 // -------------------Indirect links----------------------------------
 [<Test>]
@@ -464,22 +464,22 @@ let ``Metadata generates cross-type links for Indirect Links``() =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // Check that a link to MyType exists when using Full Name of the type
-  files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
 
   // Check that a link to OtherType exists when using Logical Name of the type only
-  files.["fslib-nested.html"] |> should contain "This function returns a <a href=\"fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
 
   // Check that a link to a module is created when using Logical Name only
-  files.["fslib-duplicatedtypename.html"] |> should contain "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\">Nested</a>"
+  files.["fslib-duplicatedtypename.html"] |> shouldContainText "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\">Nested</a>"
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.["fslib-nested-duplicatedtypename.html"] |> should contain "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
+  files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.["fslib-nested.html"] |> should contain "This function returns a [DuplicatedTypeName] multiplied by 4."
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a [DuplicatedTypeName] multiplied by 4."
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.["fslib-nested.html"] |> should contain "This function returns a [InexistentTypeName] multiplied by 5."
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a [InexistentTypeName] multiplied by 5."
 
   // -------------------Inline code----------------------------------
 [<Test>]
@@ -491,19 +491,19 @@ let ``Metadata generates cross-type links for Inline Code``() =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
+  files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
 
     // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.["fslib-nested.html"] |> should contain "You will notice that <a href=\"fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
+  files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.["fslib-nested.html"] |> should contain "<code>DuplicatedTypeName</code> is duplicated so it should no add a cross-type link"
+  files.["fslib-nested.html"] |> shouldContainText "<code>DuplicatedTypeName</code> is duplicated so it should no add a cross-type link"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.["fslib-nested.html"] |> should contain "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
+  files.["fslib-nested.html"] |> shouldContainText "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
 
   // Check that a link to a module is created when using Logical Name only
-  files.["fslib-duplicatedtypename.html"] |> should contain "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
+  files.["fslib-duplicatedtypename.html"] |> shouldContainText "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.["fslib-nested-duplicatedtypename.html"] |> should contain "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
+  files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"

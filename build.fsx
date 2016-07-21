@@ -10,6 +10,7 @@ open System.IO
 open Fake
 open Fake.AssemblyInfoFile
 open Fake.Git
+open Fake.Testing
 open Fake.ReleaseNotesHelper
 
 Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
@@ -177,12 +178,11 @@ for name in testProjects do
     let taskName = sprintf "RunTest_%s" name
     Target taskName <| fun () ->
         !! (sprintf "tests/*/bin/Release/%s.dll" name)
-        |> NUnit (fun p ->
-            { p with
-                DisableShadowCopy = true
-                TimeOut = TimeSpan.FromMinutes 20.
-                Framework = "4.0"
-                OutputFile = "TestResults.xml" })
+        |> NUnit3 (fun p ->
+            { p with 
+                TimeOut = TimeSpan.FromMinutes 20. 
+                ToolPath = ""
+            })
     taskName ==> "RunTests" |> ignore
     "BuildTests" ==> taskName |> ignore
 

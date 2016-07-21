@@ -1,7 +1,7 @@
 ﻿#if INTERACTIVE
 #r "../../bin/FSharp.CodeFormat.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
-#load "../Common/FsUnit.fs"
+#r "../../packages/NUnit/lib/net45/nunit.framework.dll"
+#load "../paket-files/FsUnit.fs"
 #else
 module FSharp.CodeFormat.Tests
 #endif
@@ -51,10 +51,10 @@ let getContent = getContentAndToolTip >> fst
 [<Test>]
 let ``Simple code snippet is formatted as HTML``() = 
   let content, tooltip = getContentAndToolTip """let hello = 10"""
-  content |> should contain "<span class=\"k\">let</span>"
-  content |> should contain ">hello<"
-  content |> should contain "<span class=\"n\">10</span>"
-  tooltip |> should contain "val hello : int" 
+  content |> shouldContainText "<span class=\"k\">let</span>"
+  content |> shouldContainText ">hello<"
+  content |> shouldContainText "<span class=\"n\">10</span>"
+  tooltip |> shouldContainText "val hello : int" 
 
 [<Test>]
 let ``Non-unicode characters do not cause exception`` () =
@@ -66,27 +66,27 @@ let ``Non-unicode characters do not cause exception`` () =
 ✘ let add I J = I+J
 // [/snippet]"""
   let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
-  errors.Length |> should (be greaterThan) 0
+  errors.Length |> shouldBeGreaterThan 0
   let (SourceError(_, _, _, msg)) = errors.[0] 
-  msg |> should contain "✘"
+  msg |> shouldContain '✘'
 
 [<Test>]
 let ``Plain string is in span of 's' class when it's the last token in the line``() = 
-  getContent """let _ = "str" """ |> should contain "<span class=\"s\">&quot;str&quot;</span>"
+  getContent """let _ = "str" """ |> shouldContainText "<span class=\"s\">&quot;str&quot;</span>"
 
 [<Test>]
 let ``Plain string is in span of 's' class, there are several other tokens next to it``() = 
   let content = getContent """let _ = "str", 1 """
-  content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
-  content |> should not' (contain "<span class=\"s\">,</span>")
-  content |> should contain (",")
+  content |> shouldContainText "<span class=\"s\">&quot;str&quot;</span>"
+  content |> shouldNotContainText "<span class=\"s\">,</span>"
+  content |> shouldContain ','
 
 [<Test>]
 let ``Plain string is in span of 's' class, there is single char next to it``() = 
   let content = getContent """let _ = ("str")"""
-  content |> should contain "> (<"
-  content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
-  content |> should contain ">)"
+  content |> shouldContainText "> (<"
+  content |> shouldContainText "<span class=\"s\">&quot;str&quot;</span>"
+  content |> shouldContainText ">)"
 
 [<Test>]
 let ``Modules and types are in spans of 't' class``() = 
@@ -94,8 +94,8 @@ let ``Modules and types are in spans of 't' class``() =
 module Module =
   type Type() = class end
 """
-  content |> should contain "class=\"t\">Module</span>"
-  content |> should contain "class=\"t\">Type</span>"
+  content |> shouldContainText "class=\"t\">Module</span>"
+  content |> shouldContainText "class=\"t\">Type</span>"
 
 [<Test>]
 let ``Functions and methods are in spans of 'f' class``() = 
@@ -106,26 +106,26 @@ module M =
         member __.Method x = ()
     let func2 x y = x + y
 """
-  content |> should contain "class=\"f\">func1</span>"
-  content |> should contain "class=\"f\">Method</span>"
-  content |> should contain "class=\"f\">func2</span>"
+  content |> shouldContainText "class=\"f\">func1</span>"
+  content |> shouldContainText "class=\"f\">Method</span>"
+  content |> shouldContainText "class=\"f\">func2</span>"
 
 [<Test>]
 let ``Printf formatters are in spans of 'pf' class``() = 
   let content = getContent """let _ = sprintf "a %A b %0.3fD" """
-  content |> should contain "class=\"s\">&quot;a </span>"
-  content |> should contain "class=\"pf\">%A</span>"
-  content |> should contain "class=\"s\"> b </span>"
-  content |> should contain "class=\"pf\">%0.3f</span>"
-  content |> should contain "class=\"s\">D&quot;</span>"
+  content |> shouldContainText "class=\"s\">&quot;a </span>"
+  content |> shouldContainText "class=\"pf\">%A</span>"
+  content |> shouldContainText "class=\"s\"> b </span>"
+  content |> shouldContainText "class=\"pf\">%0.3f</span>"
+  content |> shouldContainText "class=\"s\">D&quot;</span>"
 
 [<Test>]
 let ``Escaped characters are in spans of 'e' class``() = 
   let content = getContent """let _ = sprintf "a \n\tD\uA0A0 \t" """
-  content |> should contain "class=\"s\">&quot;a </span>"
-  content |> should contain "class=\"e\">\\n</span>"
-  content |> should contain "class=\"e\">\\t</span>"
-  content |> should contain "class=\"s\">D</span>"
-  content |> should contain "class=\"e\">\\uA0A0</span>"
-  content |> should contain "class=\"s\"> </span>"
-  content |> should contain "class=\"e\">\\t</span>"
+  content |> shouldContainText "class=\"s\">&quot;a </span>"
+  content |> shouldContainText "class=\"e\">\\n</span>"
+  content |> shouldContainText "class=\"e\">\\t</span>"
+  content |> shouldContainText "class=\"s\">D</span>"
+  content |> shouldContainText "class=\"e\">\\uA0A0</span>"
+  content |> shouldContainText "class=\"s\"> </span>"
+  content |> shouldContainText "class=\"e\">\\t</span>"
