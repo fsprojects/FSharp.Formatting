@@ -181,7 +181,6 @@ for name in testProjects do
         |> NUnit3 (fun p ->
             { p with 
                 TimeOut = TimeSpan.FromMinutes 20. 
-                ToolPath = ""
             })
     taskName ==> "RunTests" |> ignore
     "BuildTests" ==> taskName |> ignore
