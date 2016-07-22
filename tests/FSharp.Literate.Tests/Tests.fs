@@ -5,7 +5,7 @@
 #r "FSharp.Markdown.dll"
 #r "CSharpFormat.dll"
 #r "../../packages/NUnit/lib/net45/nunit.framework.dll"
-#load "../paket-files/FsUnit.fs"
+#load "../../paket-files/forki/FsUnit.fs"
 #load "../Common/MarkdownUnit.fs"
 #load "Setup.fs"
 #else

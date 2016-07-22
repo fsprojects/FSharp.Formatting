@@ -4,7 +4,7 @@
 #r "FSharp.Compiler.Service.dll"
 #r "RazorEngine.dll"
 #r "../../packages/NUnit/lib/net45/nunit.framework.dll"
-#load "../paket-files/FsUnit.fs"
+#load "../../paket-files/forki/FsUnit.fs"
 #else
 module FSharp.MetadataFormat.Tests
 #endif
