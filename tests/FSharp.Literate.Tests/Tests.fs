@@ -3,6 +3,7 @@
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"
+#r "../../bin/FSharp.Compiler.Service.dll"
 #r "CSharpFormat.dll"
 #r "../../packages/NUnit/lib/net45/nunit.framework.dll"
 #load "../../paket-files/forki/FsUnit.fs"
@@ -18,7 +19,6 @@ open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-
 
 module Logging = FSharp.Formatting.Common.Log
 type TraceOptions = System.Diagnostics.TraceOptions
