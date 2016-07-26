@@ -1,16 +1,15 @@
-REDIRECTS: ON
 NUGET
-  remote: http://www.nuget.org/api/v2
+  remote: http://api.nuget.org/v3/index.json
     CommandLineParser (1.9.71)
-    FAKE (4.34.5)
-    FSharp.Compiler.Service (2.0.0.6)
+    FAKE (4.35)
+    FSharp.Compiler.Service (3.0)
     FSharp.Core (4.0.0.1)
-    FSharp.Data (2.3.1)
+    FSharp.Data (2.3.2)
       Zlib.Portable (>= 1.11) - framework: portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
     FSharpVSPowerTools.Core (2.4)
       FSharp.Compiler.Service (>= 2.0.0.8)
     ILRepack (2.0.10)
-    Microsoft.AspNet.Razor (3.2.3)
+    Microsoft.AspNet.Razor (3.2.3) - framework: >= net45
     NuGet.CommandLine (3.4.3)
     NUnit (3.4.1)
     NUnit.ConsoleRunner (3.4.1)

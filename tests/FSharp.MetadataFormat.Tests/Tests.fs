@@ -66,7 +66,7 @@ let ``MetadataFormat works on sample FAKE assembly``() =
   let output = getOutputDir()
   MetadataFormat.Generate(library, output, layoutRoots, info)
   let files = Directory.GetFiles(output)
-  files |> Seq.length |> shouldEqual 166
+  files |> Seq.length |> shouldEqual 165
 
 let removeWhiteSpace (str:string) =
     str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
