@@ -546,7 +546,7 @@ module Reader =
      Seq.iter (fun (x : XNode) ->
       if x.NodeType = XmlNodeType.Text then
        let text = (x :?> XText).Value
-       match findCommand (text, MarkdownRange.Zero) with
+       match findCommand (text, MarkdownRange.zero) with
        | Some (k,v) -> cmds.Add(k,v)
        | None -> full.Append(text) |> ignore
       elif x.NodeType = XmlNodeType.Element then
@@ -713,7 +713,7 @@ module Reader =
         | null ->
           dict[], (Comment.Create ("", el.Value, []))
         | sum ->
-          let lines = removeSpaces sum.Value |> Seq.map (fun s -> (s, MarkdownRange.Zero))
+          let lines = removeSpaces sum.Value |> Seq.map (fun s -> (s, MarkdownRange.zero))
           let cmds = new System.Collections.Generic.Dictionary<_, _>()
 
           if ctx.MarkdownComments then

@@ -9,8 +9,8 @@ how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../../bin/FSharp.Markdown.dll"
 #r "../../bin/FSharp.Formatting.Common.dll"
+#r "../../bin/FSharp.Markdown.dll"
 open FSharp.Markdown
 open FSharp.Formatting.Common
 
@@ -95,12 +95,12 @@ to recognize any paragraph or span that can contain child elements:
 /// Returns all links in a specified span node
 let rec collectSpanLinks span = seq {
   match span with
-  | DirectLink(_, (url, _), _) -> yield url
-  | IndirectLink(_, _, key, _) -> yield fst (parsed.DefinedLinks.[key])
+  | DirectLink(link=url) -> yield url
+  | IndirectLink(key=key) -> yield fst (parsed.DefinedLinks.[key])
   | Matching.SpanLeaf _ -> ()
   | Matching.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanLinks s }
-
+      
 /// Returns all links in the specified paragraph node
 let rec collectParLinks par = seq {
   match par with

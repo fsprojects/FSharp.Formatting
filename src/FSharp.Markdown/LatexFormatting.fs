@@ -63,7 +63,7 @@ let rec formatSpan (ctx:FormattingContext) = function
 
   | AnchorLink _ -> ()
   | IndirectLink(body, _, LookupKey ctx.Links (link, _), _) 
-  | DirectLink(body, (link, _), _)
+  | DirectLink(body, link, _, _)
   | IndirectLink(body, link, _, _) ->
       ctx.Writer.Write(@"\href{")
       ctx.Writer.Write(latexEncode link)

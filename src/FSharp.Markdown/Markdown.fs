@@ -34,8 +34,8 @@ type MarkdownSpan =
   | Strong of body:MarkdownSpans * range:MarkdownRange option
   | Emphasis of body:MarkdownSpans * range:MarkdownRange option
   | AnchorLink of link:string * range:MarkdownRange option
-  | DirectLink of body:MarkdownSpans * linkAndTitle:(string * option<string>) * range:MarkdownRange option
-  | IndirectLink of body:MarkdownSpans * link:string * key:string * range:MarkdownRange option
+  | DirectLink of body:MarkdownSpans * link:string * title:option<string> * range:MarkdownRange option
+  | IndirectLink of body:MarkdownSpans * original:string * key:string * range:MarkdownRange option
   | DirectImage of body:string * link:string * title:option<string> * range:MarkdownRange option
   | IndirectImage of body:string * link:string * key:string * range:MarkdownRange option
   | HardLineBreak of range:MarkdownRange option
@@ -102,7 +102,7 @@ module Matching =
         SpanLeaf(SL span)
     | Strong(spans, _)
     | Emphasis(spans , _)
-    | DirectLink(spans, _, _)
+    | DirectLink(spans, _, _, _)
     | IndirectLink(spans, _, _, _) -> 
         SpanNode(SN span, spans)
 
@@ -111,7 +111,7 @@ module Matching =
     match span with
     | Strong(_, r) -> Strong(spans , r)
     | Emphasis(_, r) -> Emphasis(spans, r)
-    | DirectLink(_, a, r) -> DirectLink(spans, a, r)
+    | DirectLink(_, l, t, r) -> DirectLink(spans, l, t, r)
     | IndirectLink(_, a, b, r) -> IndirectLink(spans, a, b, r) 
     | _ -> invalidArg "" "Incorrect SpanNodeInfo"
 

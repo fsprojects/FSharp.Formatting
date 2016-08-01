@@ -142,7 +142,7 @@ module Transformations =
             match refIndex.TryGetValue(key) with
             | true, i -> 
                 yield Literal("&#160;[", r)
-                yield DirectLink([Literal (string i, r)], ("#rf" + DateTime.Now.ToString("yyMMddhh"), None), r)
+                yield DirectLink([Literal (string i, r)], "#rf" + DateTime.Now.ToString("yyMMddhh"), None, r)
                 yield Literal("]", r)
             | _ -> () ]
       | Matching.SpanLeaf(sl) -> [Matching.SpanLeaf(sl)]
@@ -180,11 +180,11 @@ module Transformations =
             let auth = title.Substring(0, colon)
             let name = title.Substring(colon + 1, title.Length - 1 - colon)
             yield [Span([ Literal (sprintf "[%d] " i, None)
-                          DirectLink([Literal (name.Trim(), None)], (link, Some title), None)
+                          DirectLink([Literal (name.Trim(), None)], link, Some title, None)
                           Literal (" - " + auth, None)], None) ] 
           else
             yield [Span([ Literal (sprintf "[%d] " i, None)
-                          DirectLink([Literal(title, None)], (link, Some title), None)], None)]  ]
+                          DirectLink([Literal(title, None)], link, Some title, None)], None)]  ]
 
     // Return the document together with dictionary for looking up indices
     let id = DateTime.Now.ToString("yyMMddhh")

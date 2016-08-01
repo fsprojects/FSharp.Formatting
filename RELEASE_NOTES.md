@@ -1,3 +1,7 @@
+## 3.0.0-beta01 (1 August, 2016)
+ - MarkdownSpan and MarkdownParagraph now use named DUs
+ - Add range to MarkdownParagraph and MarkdownSpan (#411)
+
 ## 2.14.3 (26 May, 2016)
  - Fixes issues with comments and keywords in Paket highlighter (#408)
  - Fix tooltip flickering in CSS (#406)

@@ -79,7 +79,7 @@ let rec formatSpan (ctx:FormattingContext) = function
   | Literal(str, _) -> ctx.Writer.Write(str)
   | HardLineBreak(_) -> ctx.Writer.Write("<br />" + ctx.Newline)
   | IndirectLink(body, _, LookupKey ctx.Links (link, title), _) 
-  | DirectLink(body, (link, title), _) -> 
+  | DirectLink(body, link, title, _) -> 
       ctx.Writer.Write("<a href=\"")
       ctx.Writer.Write(htmlEncode link)
       match title with 
@@ -144,7 +144,7 @@ let formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
             | Literal(str, _) -> yield! extractWords str
             | Strong(body, _) -> yield! gathers body
             | Emphasis(body, _) -> yield! gathers body
-            | DirectLink(body, _, _) -> yield! gathers body
+            | DirectLink(body, _, _, _) -> yield! gathers body
             | _ -> ()
         }
 

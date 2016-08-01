@@ -23,7 +23,6 @@ entry point. The static method `CreateAgent` starts a background worker that
 can be called to format snippets repeatedly:
 *)
 
-let fsharpCompiler = Assembly.Load("FSharp.Compiler")
 let formattingAgent = CodeFormat.CreateAgent()
 
 (**
