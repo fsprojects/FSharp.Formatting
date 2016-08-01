@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 12.0.31101.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
@@ -104,6 +104,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib4.csproj", "{98624699-1B2F-4636-A3F7-EC72343CB2FD}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AFB9168D-4763-472D-B895-F61A049B75BF}"
+	ProjectSection(SolutionItems) = preProject
+		tests\commonmark_spec.json = tests\commonmark_spec.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
