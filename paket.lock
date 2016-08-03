@@ -1,7 +1,7 @@
 NUGET
   remote: http://api.nuget.org/v3/index.json
     CommandLineParser (1.9.71)
-    FAKE (4.35)
+    FAKE (4.36)
     FSharp.Compiler.Service (3.0)
     FSharp.Core (4.0.0.1)
     FSharp.Data (2.3.2)
