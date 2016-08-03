@@ -2,11 +2,14 @@
  - MarkdownSpan and MarkdownParagraph now use named DUs
  - Add range to MarkdownParagraph and MarkdownSpan (#411)
 
+## 2.14.4 (3 June, 2016)
+ - Use `#I __SOURCE_DIRECTORY__` in the loads script (more reliable)
+
 ## 2.14.3 (26 May, 2016)
  - Fixes issues with comments and keywords in Paket highlighter (#408)
  - Fix tooltip flickering in CSS (#406)
  - End blockquote on a line with an empty blockquote (fix #355) (#400)
- 
+
 ## 2.14.2 (6 April, 2016)
  - Add code to parse table rows correctly (#394)
  - Also fixes (#388) Markdown parser doesn't recognize inline code `x | y` inside table cell

@@ -65,7 +65,7 @@ title is the name of the type you want to link.
      /// this will generate a link to [Foo.Bar] documentation
 
 
-* Add a [Markdown inlide code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code) (using
+* Add a [Markdown inline code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code) (using
 back-ticks) where the code is the name of the type you want to link.
 
 
