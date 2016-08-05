@@ -403,11 +403,11 @@ let ``MetadataFormat generates module link in nested types``() =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   
   // Check that the modules and type files have namespace information
-  files.["fslib-class.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested-nestedtype.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested-submodule.html"] |> should contain "Namespace: FsLib"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "Namespace: FsLib"
+  files.["fslib-class.html"] |> should contain "<strong>Namespace:</strong> FsLib"
+  files.["fslib-nested.html"] |> should contain "<strong>Namespace:</strong> FsLib"
+  files.["fslib-nested-nestedtype.html"] |> should contain "<strong>Namespace:</strong> FsLib"
+  files.["fslib-nested-submodule.html"] |> should contain "<strong>Namespace:</strong> FsLib"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> should contain "<strong>Namespace:</strong> FsLib"
 
   // Check that the link to the module is correctly generated
   files.["fslib-nested-nestedtype.html"] |> should contain "Parent Module:"
