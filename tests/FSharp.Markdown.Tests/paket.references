@@ -1,2 +1,4 @@
 NUnit
+NUnit.Runners
 FSharp.Data
+File:FsUnit.fs

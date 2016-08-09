@@ -3,9 +3,10 @@
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"
+#r "../../bin/FSharp.Compiler.Service.dll"
 #r "CSharpFormat.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
-#load "../Common/FsUnit.fs"
+#r "../../packages/NUnit/lib/net45/nunit.framework.dll"
+#load "../../paket-files/forki/FsUnit.fs"
 #load "../Common/MarkdownUnit.fs"
 #load "Setup.fs"
 #else
@@ -18,7 +19,6 @@ open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-
 
 module Logging = FSharp.Formatting.Common.Log
 type TraceOptions = System.Diagnostics.TraceOptions
@@ -155,7 +155,7 @@ let ``Can report errors in F# code snippets (in F# script file)`` () =
 
     let test = 4 + 1.0"""
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
-  doc.Errors |> Seq.length |> should be (greaterThan 0)
+  doc.Errors |> Seq.length |> shouldBeGreaterThan 0
 
 [<Test>]
 let ``Can report errors in F# code snippets (in Markdown document)`` () =
@@ -163,7 +163,7 @@ let ``Can report errors in F# code snippets (in Markdown document)`` () =
 (** **hello** *)
 let test = 4 + 1.0"""
   let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent())
-  doc.Errors |> Seq.length |> should be (greaterThan 0)
+  doc.Errors |> Seq.length |> shouldBeGreaterThan 0
 
 // --------------------------------------------------------------------------------------
 // Formatting code snippets
@@ -188,7 +188,7 @@ hello
     var a = 10 < 10;"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain "<span class=\"k\">var</span>"
+  html |> shouldContainText "<span class=\"k\">var</span>"
 
 [<Test>]
 let ``Can format the var keyword in C# code snippet using Github-flavoured`` () =
@@ -200,7 +200,7 @@ var a = 10 < 10;
 ```"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain "<span class=\"k\">var</span>"
+  html |> shouldContainText "<span class=\"k\">var</span>"
 
 [<Test>]
 let ``Codeblock whitespace is preserved`` () =
@@ -208,7 +208,7 @@ let ``Codeblock whitespace is preserved`` () =
   let expected = "lang=\"markup\">    test\r\n    blub\r\n</" |> properNewLines;
   let doc = Literate.ParseMarkdownString(doc, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain expected
+  html |> shouldContainText expected
 
 [<Test>]
 let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
@@ -217,7 +217,7 @@ let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
     Æøå"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain (sprintf ">Æøå%s<" System.Environment.NewLine)
+  html |> shouldContainText (sprintf ">Æøå%s<" System.Environment.NewLine)
 
 [<Test>]
 let ``Correctly handles code starting with whitespace`` () =
@@ -226,7 +226,7 @@ let ``Correctly handles code starting with whitespace`` () =
       inner"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain ">  inner"
+  html |> shouldContainText ">  inner"
 
 [<Test>]
 let ``Correctly handles code which garbage after commands`` () =
@@ -236,7 +236,7 @@ let ``Correctly handles code which garbage after commands`` () =
       inner"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain ">  inner"
+  html |> shouldContainText ">  inner"
 
 [<Test>]
 let ``Correctly handles apostrophes in JS code block (#213)`` () =
@@ -245,7 +245,7 @@ let ``Correctly handles apostrophes in JS code block (#213)`` () =
     var but = 'I\'m not so good...';"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain @"'I\'m not so good...'"
+  html |> shouldContainText @"'I\'m not so good...'"
 
 [<Test>]
 let ``Correctly encodes special HTML characters (<, >, &) in code`` () =
@@ -256,7 +256,7 @@ let ``Correctly encodes special HTML characters (<, >, &) in code`` () =
     let content = forLang lang
     let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
     let html = Literate.WriteHtml(doc)
-    html |> should contain "&lt;a&gt; &amp; &lt;b&gt;"
+    html |> shouldContainText "&lt;a&gt; &amp; &lt;b&gt;"
   )
 
 [<Test>]
@@ -266,12 +266,12 @@ let ``Correctly encodes already encoded HTML entities and tags`` () =
     "&amp;" + "<em>" + "&quot;"; """
   ["js"; "unknown-language"] |> Seq.iter (fun lang ->
     let content = forLang lang
-    content |> should contain lang
+    content |> shouldContainText lang
     let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
     let html = Literate.WriteHtml(doc)
-    html |> should contain "&amp;amp;"
-    html |> should contain "&amp;quot;"
-    html |> should contain "&lt;em&gt;"
+    html |> shouldContainText "&amp;amp;"
+    html |> shouldContainText "&amp;quot;"
+    html |> shouldContainText "&lt;em&gt;"
   )
 
 [<Test>]
@@ -281,7 +281,7 @@ let ``Urls should not be recognized as comments in Paket code blocks`` () =
     source https://nuget.org/api/v2"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain @"https://nuget.org/api/v2"
+  html |> shouldContainText @"https://nuget.org/api/v2"
   
 [<Test>]
 let ``Path to network share should not be recognized as comments in Paket code blocks`` () =
@@ -290,7 +290,7 @@ let ``Path to network share should not be recognized as comments in Paket code b
     cache //hive/dependencies"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should notContain "<span class=\"c\">//hive/dependencies</span>"
+  html |> shouldNotContainText "<span class=\"c\">//hive/dependencies</span>"
 
 [<Test>]
 let ``Correctly handles Paket coloring`` () =
@@ -334,44 +334,44 @@ let ``Correctly handles Paket coloring`` () =
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   
-  html |> should contain "<span class=\"k\">nuget</span>"
-  html |> should contain "<span class=\"k\">github</span>"
-  html |> should contain "<span class=\"k\">git</span>"
-  html |> should contain "<span class=\"k\">gist</span>"
-  html |> should contain "<span class=\"k\">http</span>"
-  html |> should contain "<span class=\"k\">references</span>"
-  html |> should contain "<span class=\"k\">framework</span>"
-  html |> should contain "<span class=\"k\">content</span>"
-  html |> should contain "<span class=\"k\">import_targets</span>"
-  html |> should contain "<span class=\"k\">copy_local</span>"
-  html |> should contain "<span class=\"k\">copy_content_to_output_dir</span>"
-  html |> should contain "<span class=\"k\">lowest_matching</span>"
-  html |> should contain "<span class=\"k\">redirects</span>"
-  html |> should contain "<span class=\"k\">strategy</span>"
-  html |> should contain "<span class=\"k\">version_in_path</span>"
+  html |> shouldContainText "<span class=\"k\">nuget</span>"
+  html |> shouldContainText "<span class=\"k\">github</span>"
+  html |> shouldContainText "<span class=\"k\">git</span>"
+  html |> shouldContainText "<span class=\"k\">gist</span>"
+  html |> shouldContainText "<span class=\"k\">http</span>"
+  html |> shouldContainText "<span class=\"k\">references</span>"
+  html |> shouldContainText "<span class=\"k\">framework</span>"
+  html |> shouldContainText "<span class=\"k\">content</span>"
+  html |> shouldContainText "<span class=\"k\">import_targets</span>"
+  html |> shouldContainText "<span class=\"k\">copy_local</span>"
+  html |> shouldContainText "<span class=\"k\">copy_content_to_output_dir</span>"
+  html |> shouldContainText "<span class=\"k\">lowest_matching</span>"
+  html |> shouldContainText "<span class=\"k\">redirects</span>"
+  html |> shouldContainText "<span class=\"k\">strategy</span>"
+  html |> shouldContainText "<span class=\"k\">version_in_path</span>"
   
-  html |> should notContain "<span class=\"k\">http</span>s"
-  html |> should notContain ".<span class=\"k\">git</span>"
+  html |> shouldNotContainText "<span class=\"k\">http</span>s"
+  html |> shouldNotContainText ".<span class=\"k\">git</span>"
   
-  html |> should contain "<span class=\"o\">~&gt;</span>"
-  html |> should contain "<span class=\"o\">&gt;=</span>"
-  html |> should contain "<span class=\"o\">==</span>"
-  html |> should contain "<span class=\"o\">!</span><span class=\"o\">~&gt;</span>"
-  html |> should contain "<span class=\"o\">@</span><span class=\"o\">~&gt;</span>"
-  html |> should contain "<span class=\"o\">@</span><span class=\"o\">&gt;</span>"
+  html |> shouldContainText "<span class=\"o\">~&gt;</span>"
+  html |> shouldContainText "<span class=\"o\">&gt;=</span>"
+  html |> shouldContainText "<span class=\"o\">==</span>"
+  html |> shouldContainText "<span class=\"o\">!</span><span class=\"o\">~&gt;</span>"
+  html |> shouldContainText "<span class=\"o\">@</span><span class=\"o\">~&gt;</span>"
+  html |> shouldContainText "<span class=\"o\">@</span><span class=\"o\">&gt;</span>"
 
-  html |> should contain "<span class=\"n\">3.4</span>"
-  html |> should contain "<span class=\"n\">2.6.3</span>"
+  html |> shouldContainText "<span class=\"n\">3.4</span>"
+  html |> shouldContainText "<span class=\"n\">2.6.3</span>"
 
-  html |> should contain "<span class=\"c\">// NuGet packages</span>"
-  html |> should contain "<span class=\"c\">// nuget.org</span>"
-  html |> should notContain "<span class=\"c\">//hive/dependencies</span>"
+  html |> shouldContainText "<span class=\"c\">// NuGet packages</span>"
+  html |> shouldContainText "<span class=\"c\">// nuget.org</span>"
+  html |> shouldNotContainText "<span class=\"c\">//hive/dependencies</span>"
   
-  html |> should contain @"https://nuget.org/api/v2"
-  html |> should contain @"http://www.fssnip.net/1n"
+  html |> shouldContainText @"https://nuget.org/api/v2"
+  html |> shouldContainText @"http://www.fssnip.net/1n"
   
-  html |> should contain @"file:///C:\Users\Steffen\AskMe"
-  html |> should contain "<span class=\"c\">// at least 1.0 including alpha versions</span>"
+  html |> shouldContainText @"file:///C:\Users\Steffen\AskMe"
+  html |> shouldContainText "<span class=\"c\">// at least 1.0 including alpha versions</span>"
 
 [<Test>]
 let ``Generates line numbers for F# code snippets`` () =
@@ -381,10 +381,10 @@ let a1 = 1
 let a2 = 2"""
   let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc, lineNumbers=true)
-  html |> should contain "<p>Hello</p>"
-  html |> should contain "1:"
-  html |> should contain "2:"
-  html |> should notContain "3:"
+  html |> shouldContainText "<p>Hello</p>"
+  html |> shouldContainText "1:"
+  html |> shouldContainText "2:"
+  html |> shouldNotContainText "3:"
 
 [<Test>]
 let ``Generates line numbers for non-F# code snippets`` () =
@@ -397,10 +397,10 @@ var a2 = 2;
 ``` *)"""
   let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc, lineNumbers=true)
-  html |> should contain "<p>Hello</p>"
-  html |> should contain "1:"
-  html |> should contain "2:"
-  html |> should notContain "3:"
+  html |> shouldContainText "<p>Hello</p>"
+  html |> shouldContainText "1:"
+  html |> shouldContainText "2:"
+  html |> shouldNotContainText "3:"
 
 [<Test>]
 let ``HTML for line numbers generated for F# and non-F# is the same``() =
@@ -458,16 +458,16 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using HTML temp
   let simpleMd = __SOURCE_DIRECTORY__ @@ "files/simple.md"
   use temp = new TempFile()
   Literate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
-  temp.Content |> should contain "</a>"
-  temp.Content |> should contain "val hello : string"
+  temp.Content |> shouldContainText "</a>"
+  temp.Content |> shouldContainText "val hello : string"
 
 [<Test>]
 let ``Code and HTML is formatted with a tooltip in F# Script file using HTML template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
   Literate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
-  temp.Content |> should contain "</a>"
-  temp.Content |> should contain "val hello : string"
+  temp.Content |> shouldContainText "</a>"
+  temp.Content |> shouldContainText "val hello : string"
 
 [<Test>]
 let ``Code and HTML is formatted with a tooltip in F# Script file using Razor template``() =
@@ -476,9 +476,9 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using Razor te
   Literate.ProcessScriptFile
     ( simpleFsx, templateCsHtml, temp.File, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "files"] )
-  temp.Content |> should contain "</a>"
-  temp.Content |> should contain "val hello : string"
-  temp.Content |> should contain "<title>Heading"
+  temp.Content |> shouldContainText "</a>"
+  temp.Content |> shouldContainText "val hello : string"
+  temp.Content |> shouldContainText "<title>Heading"
 
 // --------------------------------------------------------------------------------------
 // Test processing simple files using the NuGet included templates
@@ -501,8 +501,8 @@ let ``Can process fsx file using the template included in NuGet package``() =
   Literate.ProcessScriptFile
     ( simpleFsx, docPageTemplate, temp.File, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
-  temp.Content |> should contain "val hello : string"
-  temp.Content |> should contain "<title>Heading"
+  temp.Content |> shouldContainText "val hello : string"
+  temp.Content |> shouldContainText "<title>Heading"
 
 [<Test>]
 let ``Can process md file using the template included in NuGet package``() =
@@ -511,8 +511,8 @@ let ``Can process md file using the template included in NuGet package``() =
   Literate.ProcessMarkdown
     ( simpleMd, docPageTemplate, temp.File, 
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
-  temp.Content |> should contain "val hello : string"
-  temp.Content |> should contain "<title>Heading"
+  temp.Content |> shouldContainText "val hello : string"
+  temp.Content |> shouldContainText "<title>Heading"
 
 
 [<Test>]
@@ -540,7 +540,7 @@ hello
     |> Seq.length"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  html |> should contain "Some"
+  html |> shouldContainText "Some"
 
 
 [<Test>]
@@ -569,9 +569,9 @@ let test = 42
   let doc2 = Literate.FormatLiterateNodes(doc,format=OutputKind.Html)
   let html = Literate.WriteHtml(doc2.With(formattedTips=""))
   let tips = doc2.FormattedTips
-  tips |> should contain "test : int"
-  html |> should notContain "test : int"
-  html |> should contain "hello"
+  tips |> shouldContainText "test : int"
+  html |> shouldNotContainText "test : int"
+  html |> shouldContainText "hello"
 
 
 [<Test>]
@@ -601,4 +601,4 @@ let mul a b = a * b
 let ``Formatter does not crash on source that contains invalid string`` () = 
   let source = "\"\r\"\n0"
   let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
-  Literate.WriteHtml(doc).Length |> should (be greaterThan) 0
+  Literate.WriteHtml(doc).Length |> shouldBeGreaterThan 0

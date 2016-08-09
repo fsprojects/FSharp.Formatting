@@ -1,7 +1,7 @@
 ﻿#if INTERACTIVE
 #r "../../bin/FSharp.Markdown.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
-#load "../Common/FsUnit.fs"
+#r "../../packages/NUnit/lib/net45/nunit.framework.dll"
+#load "../../paket-files/forki/FsUnit.fs"
 #else
 module FSharp.Markdown.Tests.Parsing
 #endif
@@ -24,9 +24,9 @@ let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
 [<Test>]
 let ``Encode '<' and '>' characters as HTML entities`` () =
   let doc = "foo\n\n - a --> b" |> Markdown.TransformHtml
-  doc |> should contain "&gt;"
+  doc |> shouldContainText "&gt;"
   let doc = "foo\n\n - a <-- b" |> Markdown.TransformHtml
-  doc |> should contain "&lt;"
+  doc |> shouldContainText "&lt;"
 
 [<Test>]
 let ``Headings ending with F# are parsed correctly`` () =
@@ -249,7 +249,7 @@ let ``Transform github flavored code blocks with whitespace correctly``() =
 let ``Fenced code blocks do not require newline`` () =
     let doc = "> This is an annnotation\r\n> ```vb\r\n> Module\r\n> ```"
     let actual = Markdown.TransformHtml(doc)
-    actual |> should contain "<pre"
+    actual |> shouldContainText "<pre"
 
 [<Test>]
 let ``Transform code spans correctly``() =

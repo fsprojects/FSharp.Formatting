@@ -1,22 +1,18 @@
-source http://nuget.org/api/v2
-redirects: on
+source https://api.nuget.org/v3/index.json
+redirects: force, lowest_matching: true
 
 nuget FSharp.Data
 nuget FAKE
-nuget CommandLineParser
 nuget FSharp.Core
-nuget Microsoft.AspNet.Razor
 nuget RazorEngine
-nuget NUnit ~> 2
-nuget NUnit.Runners ~> 2
+nuget NUnit
+nuget NUnit.Runners
 nuget NuGet.CommandLine
-nuget FSharp.Compiler.Service == 2.0.0.6
-// See http://fsprojects.github.io/Paket/nuget-dependencies.html
-// This basically means we need the lowest version for its dependencies (FSharp.Compiler.Service)
-// Otherwise we get runtime errors without binding redirects
-// (which we cannot control running as part of a build script).
-// See https://github.com/tpetricek/FSharp.Formatting/issues/277 as well.
 nuget FSharpVSPowerTools.Core !>= 0
 nuget ILRepack
 
 github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+github forki/FsUnit FsUnit.fs 
+
+source http://nuget.org/api/v2
+nuget CommandLineParser

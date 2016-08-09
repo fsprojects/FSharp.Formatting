@@ -39,7 +39,7 @@ let getTests () =
 let ``Commonmark specification`` (section:string) (markdown : string) (html : string) =
   printfn "Markdown: '%s'" markdown
   (Markdown.TransformHtml(markdown, "\n"))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: show a blockquote with a code block`` () =
@@ -70,7 +70,7 @@ and code blocks:</p>
 <p>Any decent text editor should make email-style quoting easy.</p>
 """
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 
 [<Test>]
@@ -90,7 +90,7 @@ will turn into:"""
 <p>will turn into:</p>
 """
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
   
 [<Test>]
 let ``manual markdown test: use tabs for defining a list`` () =
@@ -112,7 +112,7 @@ indented with spaces</p>
 </ul>
 """
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: test if we support continuation lines`` () =
@@ -134,7 +134,7 @@ indented with spaces</p>
 </ul>
 """
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: test if we can handle paragraph ending with two spaces`` () =
@@ -145,7 +145,7 @@ with a continuation line
 with a continuation line</p>
 "
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: test that we don't trim tab character at the end`` () =
@@ -156,7 +156,7 @@ with a continuation line
 with a continuation line</p>
 "
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: test code block (with tabs) in list`` () =
@@ -170,7 +170,7 @@ let ``manual markdown test: test code block (with tabs) in list`` () =
 </ul>
 "
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: test code block (with spaces) in list`` () =
@@ -184,7 +184,7 @@ let ``manual markdown test: test code block (with spaces) in list`` () =
 </ul>
 "
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: blockquote with continuation`` () =
@@ -197,7 +197,7 @@ with continuation</p>
 </blockquote>
 "
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
 
 [<Test>]
 let ``manual markdown test: blockquote without continuation`` () =
@@ -210,4 +210,4 @@ let ``manual markdown test: blockquote without continuation`` () =
 <h1>without continuation</h1>
 "
   (Markdown.TransformHtml(markdown))
-  |> should equal html
+  |> shouldEqual html
