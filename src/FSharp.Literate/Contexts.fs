@@ -18,8 +18,18 @@ type CompilerContext =
 [<RequireQualifiedAccess>]
 type OutputKind = Html | Latex
 
-/// Defines type of function responsible for generating output
-type Generator = (string list option) -> string -> list<string * string> -> string option -> string -> seq<string> -> unit
+
+/// Defines input type for output generator
+type GeneratorInput =
+  {
+     References   : string list option
+     ContentTag   : string
+     Parameters   : (string * string) list
+     TemplateFile : string option
+     OutputFile   : string
+     LayoutRoots  : string seq
+  }
+
 
 /// Specifies a context that is passed to functions that generate the output
 type ProcessingContext =
@@ -40,4 +50,4 @@ type ProcessingContext =
     // Where to look for templates
     LayoutRoots : seq<string>
     // Function generating output
-    Generator : Generator }
+    Generator : GeneratorInput -> unit }

@@ -93,4 +93,13 @@ module Templating =
         "page-source", doc.SourceFile
         contentTag, formattedDocument
         "tooltips", tipsHtml ]
-    ctx.Generator references contentTag parameters ctx.TemplateFile output ctx.LayoutRoots
+    let gi = {
+      References   = references
+      ContentTag   = contentTag
+      Parameters   = parameters
+      TemplateFile = ctx.TemplateFile
+      OutputFile   = output
+      LayoutRoots  = ctx.LayoutRoots
+    }
+
+    ctx.Generator gi

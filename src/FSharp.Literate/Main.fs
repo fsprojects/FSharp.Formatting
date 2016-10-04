@@ -37,9 +37,9 @@ type Literate private () =
 
   /// Depending on the template file, use either Razor engine
   /// or simple Html engine with {replacements} to format the document
-  static let generatePlainFile references contentTag parameters templateOpt output layoutRoots =
-    let templateOpt = templateOpt |> Option.map File.ReadAllText
-    File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
+  static let generatePlainFile (gi : GeneratorInput) =
+    let templateOpt = gi.TemplateFile |> Option.map File.ReadAllText
+    File.WriteAllText(gi.OutputFile, replaceParameters gi.ContentTag gi.Parameters templateOpt)
 
 
   /// Build default options context for formatting literate document
