@@ -2,9 +2,9 @@
 
 open FSharp.CodeFormat
 
-/// Specifies a context that is passed to functions 
+/// Specifies a context that is passed to functions
 /// that need to use the F# compiler
-type CompilerContext = 
+type CompilerContext =
   { // An instance of the F# code formatting agent
     FormatAgent : CodeFormatAgent
     // F# interactive evaluator
@@ -18,8 +18,11 @@ type CompilerContext =
 [<RequireQualifiedAccess>]
 type OutputKind = Html | Latex
 
+/// Defines type of function responsible for generating output
+type Generator = (string list option) -> string -> list<string * string> -> string option -> string -> seq<string> -> unit
+
 /// Specifies a context that is passed to functions that generate the output
-type ProcessingContext = 
+type ProcessingContext =
   { // Path to the template file
     TemplateFile : string option
     // Short prefix code added to all HTML 'id' elements
@@ -34,5 +37,7 @@ type ProcessingContext =
     GenerateHeaderAnchors : bool
     // The output format
     OutputKind : OutputKind
-    // Where to look for Razor templates, when using Razor
-    LayoutRoots : seq<string> }
+    // Where to look for templates
+    LayoutRoots : seq<string>
+    // Function generating output
+    Generator : Generator }

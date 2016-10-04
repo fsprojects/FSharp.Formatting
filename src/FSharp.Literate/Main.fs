@@ -14,43 +14,71 @@ open FSharp.CodeFormat
 /// The `ProcessMarkdown` and `ProcessScriptFile` methods process a single Markdown document
 /// and F# script, respectively. The `ProcessDirectory` method handles an entire directory tree
 /// (looking for `*.fsx` and `*.md` files).
-type Literate private () = 
+type Literate private () =
+
+  /// Replace {parameter} in the input string with
+  /// values defined in the specified list
+  static let replaceParameters (contentTag:string) (parameters:seq<string * string>) input =
+    match input with
+    | None ->
+        // If there is no template, return just document + tooltips
+        let lookup = parameters |> dict
+        lookup.[contentTag] + "\n\n" + lookup.["tooltips"]
+    | Some input ->
+        // First replace keys with some uglier keys and then replace them with values
+        // (in case one of the keys appears in some other value)
+        let id = System.Guid.NewGuid().ToString("d")
+        let input = parameters |> Seq.fold (fun (html:string) (key, value) ->
+          html.Replace("{" + key + "}", "{" + key + id + "}")) input
+        let result = parameters |> Seq.fold (fun (html:string) (key, value) ->
+          html.Replace("{" + key + id + "}", value)) input
+        result
+
+
+  /// Depending on the template file, use either Razor engine
+  /// or simple Html engine with {replacements} to format the document
+  static let generatePlainFile references contentTag parameters templateOpt output layoutRoots =
+    let templateOpt = templateOpt |> Option.map File.ReadAllText
+    File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
+
 
   /// Build default options context for formatting literate document
-  static let formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots =
-    { TemplateFile = templateFile 
+  static let formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots generator=
+    { TemplateFile = templateFile
       Replacements = defaultArg replacements []
       GenerateLineNumbers = defaultArg lineNumbers true
       IncludeSource = defaultArg includeSource false
       Prefix = defaultArg prefix "fs"
       OutputKind = defaultArg format OutputKind.Html
       GenerateHeaderAnchors = defaultArg generateAnchors false
-      LayoutRoots = defaultArg layoutRoots [] }
-  
+      LayoutRoots = defaultArg layoutRoots []
+      Generator = defaultArg generator generatePlainFile
+      }
+
   /// Build default options context for parsing literate scripts/documents
-  static let parsingContext formatAgent evaluator compilerOptions definedSymbols = 
+  static let parsingContext formatAgent evaluator compilerOptions definedSymbols =
     let agent =
       match formatAgent with
       | Some agent -> agent
       | _ -> CodeFormat.CreateAgent()
     { FormatAgent = agent
       CompilerOptions = compilerOptions
-      Evaluator = evaluator 
+      Evaluator = evaluator
       DefinedSymbols = Option.map (String.concat ",") definedSymbols }
-  
+
   /// Get default output file name, given various information
   static let defaultOutput output input kind =
-    match output, defaultArg kind OutputKind.Html with 
+    match output, defaultArg kind OutputKind.Html with
     | Some out, _ -> out
     | _, OutputKind.Latex -> Path.ChangeExtension(input, "tex")
     | _, OutputKind.Html -> Path.ChangeExtension(input, "html")
-      
+
   /// Apply the specified transformations to a document
   static let transform references doc =
-    let doc = 
+    let doc =
       if references <> Some true then doc
       else Transformations.generateReferences doc
-    doc              
+    doc
 
   static let customize customizeDocument ctx doc =
     match customizeDocument with
@@ -60,9 +88,9 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
   // Parsing functions
   // ------------------------------------------------------------------------------------
-  
+
   /// Parse F# Script file
-  static member ParseScriptFile 
+  static member ParseScriptFile
     ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
@@ -71,7 +99,7 @@ type Literate private () =
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse F# Script file
-  static member ParseScriptString 
+  static member ParseScriptString
     ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
@@ -83,7 +111,7 @@ type Literate private () =
   static member ParseMarkdownFile
     ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
-    ParseMarkdown.parseMarkdown path (File.ReadAllText path) 
+    ParseMarkdown.parseMarkdown path (File.ReadAllText path)
     |> transform references
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
@@ -102,7 +130,7 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
 
   static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None generateAnchors None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
@@ -111,18 +139,18 @@ type Literate private () =
     sb.ToString()
 
   static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None generateAnchors None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
     Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   static member WriteLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
   static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext None (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
@@ -131,7 +159,7 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
 
   static member FormatLiterateNodes(doc:LiterateDocument, ?format, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext None format prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext None format prefix lineNumbers None generateAnchors None None None
     Transformations.replaceLiterateParagraphs ctx doc
 
   // ------------------------------------------------------------------------------------
@@ -141,65 +169,65 @@ type Literate private () =
   /// Process the given literate document
   static member ProcessDocument
     ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors,
-      ?replacements, ?layoutRoots, ?assemblyReferences) =
-    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
+      ?replacements, ?layoutRoots, ?assemblyReferences, ?generator) =
+    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots generator
     Templating.processFile assemblyReferences doc output ctx
 
   /// Process Markdown document
   static member ProcessMarkdown
-    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
-      ?assemblyReferences, ?customizeDocument ) =
-    let doc = 
+      ?assemblyReferences, ?customizeDocument, ?generator ) =
+    let doc =
       Literate.ParseMarkdownFile
-        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
+        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
           ?references = references )
-    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
+    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots generator
     let doc = customize customizeDocument ctx doc
     Templating.processFile assemblyReferences doc (defaultOutput output input format) ctx
 
 
   /// Process F# Script file
   static member ProcessScriptFile
-    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots,
-      ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
-    let doc = 
+      ?generateAnchors, ?assemblyReferences, ?customizeDocument, ?generator ) =
+    let doc =
       Literate.ParseScriptFile
-        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, 
+        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
           ?references = references, ?fsiEvaluator = fsiEvaluator )
-    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots
+    let ctx = formattingContext templateFile format prefix lineNumbers includeSource generateAnchors replacements layoutRoots generator
     let doc = customize customizeDocument ctx doc
     Templating.processFile assemblyReferences doc (defaultOutput output input format) ctx
 
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
-    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions, 
+    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
       ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
     let processRecursive = defaultArg processRecursive true
     // Call one or the other process function with all the arguments
-    let processScriptFile file output = 
+    let processScriptFile file output =
       Literate.ProcessScriptFile
-        ( file, ?templateFile = templateFile, output = output, ?format = format, 
-          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
-          ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements, 
+        ( file, ?templateFile = templateFile, output = output, ?format = format,
+          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+          ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
           ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors,
           ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument )
-    let processMarkdown file output = 
+    let processMarkdown file output =
       Literate.ProcessMarkdown
-        ( file, ?templateFile = templateFile, output = output, ?format = format, 
-          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions, 
-          ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements, 
+        ( file, ?templateFile = templateFile, output = output, ?format = format,
+          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+          ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
           ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors,
           ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument )
-    
+
     /// Recursively process all files in the directory tree
-    let rec processDirectory indir outdir = 
+    let rec processDirectory indir outdir =
       // Create output directory if it does not exist
       if Directory.Exists(outdir) |> not then
-        try Directory.CreateDirectory(outdir) |> ignore 
+        try Directory.CreateDirectory(outdir) |> ignore
         with _ -> failwithf "Cannot create directory '%s'" outdir
 
       let fsx = [ for f in Directory.GetFiles(indir, "*.fsx") -> processScriptFile, f ]
