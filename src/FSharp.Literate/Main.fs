@@ -205,7 +205,7 @@ type Literate private () =
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
-      ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
+      ?assemblyReferences, ?processRecursive, ?customizeDocument, ?generator ) =
     let processRecursive = defaultArg processRecursive true
     // Call one or the other process function with all the arguments
     let processScriptFile file output =
@@ -214,14 +214,14 @@ type Literate private () =
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
           ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors,
-          ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument )
+          ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument, ?generator = generator )
     let processMarkdown file output =
       Literate.ProcessMarkdown
         ( file, ?templateFile = templateFile, output = output, ?format = format,
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
           ?includeSource = includeSource, ?layoutRoots = layoutRoots, ?generateAnchors = generateAnchors,
-          ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument )
+          ?assemblyReferences = assemblyReferences, ?customizeDocument = customizeDocument, ?generator = generator )
 
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir =
