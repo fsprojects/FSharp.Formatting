@@ -45,6 +45,18 @@
       <Name>FSharp.MetadataFormat.fsproj</Name>
       <Project>{bc4946ba-2724-4524-ac50-dfc49ee154a1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj">
+      <Name>FSharp.Literate.fsproj</Name>
+      <Project>{65e6d541-0486-4383-b619-5cfc5d2ba2f0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj">
+      <Name>FSharp.Markdown.fsproj</Name>
+      <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
+      <Name>FSharp.CodeFormat.fsproj</Name>
+      <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../Common/AssemblyInfo.fs">

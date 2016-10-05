@@ -1,6 +1,8 @@
 namespace FSharp.Formatting.Razor
 
 open FSharp.MetadataFormat
+open FSharp.Formatting
+open FSharp.Literate
 open FSharp.Formatting.Common
 open System.IO
 
@@ -96,3 +98,74 @@ type RazorMetadataFormat private() =
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
     |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
 
+type RazorLiterate private () =
+  static let defaultOutput output input kind =
+    match output, defaultArg kind OutputKind.Html with
+    | Some out, _ -> out
+    | _, OutputKind.Latex -> Path.ChangeExtension(input, "tex")
+    | _, OutputKind.Html -> Path.ChangeExtension(input, "html")
+
+  static let replaceParameters (contentTag:string) (parameters:seq<string * string>) input =
+    match input with
+    | None ->
+        // If there is no template, return just document + tooltips
+        let lookup = parameters |> dict
+        lookup.[contentTag] + "\n\n" + lookup.["tooltips"]
+    | Some input ->
+        // First replace keys with some uglier keys and then replace them with values
+        // (in case one of the keys appears in some other value)
+        let id = System.Guid.NewGuid().ToString("d")
+        let input = parameters |> Seq.fold (fun (html:string) (key, value) ->
+          html.Replace("{" + key + "}", "{" + key + id + "}")) input
+        let result = parameters |> Seq.fold (fun (html:string) (key, value) ->
+          html.Replace("{" + key + id + "}", value)) input
+        result
+
+
+  static let generateFile references contentTag parameters templateOpt output layoutRoots =
+    match templateOpt with
+    | Some (file:string) when file.EndsWith("cshtml", true, System.Globalization.CultureInfo.InvariantCulture) ->
+      let razor = RazorRender(layoutRoots |> Seq.toList, [], file, ?references = references)
+      let props = [ "Properties", dict parameters ]
+      let generated = razor.ProcessFile(props)
+      File.WriteAllText(output, generated)
+    | _ ->
+      let templateOpt = templateOpt |> Option.map File.ReadAllText
+      File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
+
+  static member ProcessDocument
+    ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?layoutRoots, ?assemblyReferences) =
+      let res = Literate.ProcessDocument(doc,output, ?format = format, ?prefix = prefix, ?lineNumbers = lineNumbers, ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?replacements = replacements)
+      generateFile assemblyReferences res.ContentTag res.Parameters templateFile output (defaultArg layoutRoots [])
+
+
+  static member ProcessMarkdown
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?assemblyReferences, ?customizeDocument ) =
+
+      let res = Literate.ProcessMarkdown(input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                                         ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                                         ?replacements = replacements, ?customizeDocument = customizeDocument )
+      generateFile assemblyReferences res.ContentTag res.Parameters templateFile (defaultOutput output input format) (defaultArg layoutRoots [])
+
+  static member ProcessScriptFile
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots,
+      ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
+        let res = Literate.ProcessScriptFile(input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                                             ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                                             ?replacements = replacements, ?customizeDocument = customizeDocument )
+        generateFile assemblyReferences res.ContentTag res.Parameters templateFile (defaultOutput output input format) (defaultArg layoutRoots [])
+
+  static member ProcessDirectory
+    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
+        let outputDirectory = defaultArg outputDirectory inputDirectory
+
+        let res = Literate.ProcessDirectory(inputDirectory, outputDirectory, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                                             ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                                             ?replacements = replacements, ?customizeDocument = customizeDocument, ?processRecursive = processRecursive)
+
+        res |> List.iter (fun (path, res) ->  generateFile assemblyReferences res.ContentTag res.Parameters templateFile path (defaultArg layoutRoots []))
