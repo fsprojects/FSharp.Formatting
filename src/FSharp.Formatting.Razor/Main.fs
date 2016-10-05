@@ -155,7 +155,7 @@ type RazorLiterate private () =
       ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
         let res = Literate.ProcessScriptFile(input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
                                              ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-                                             ?replacements = replacements, ?customizeDocument = customizeDocument )
+                                             ?replacements = replacements, ?customizeDocument = customizeDocument, ?fsiEvaluator = fsiEvaluator )
         generateFile assemblyReferences res.ContentTag res.Parameters templateFile (defaultOutput output input format) (defaultArg layoutRoots [])
 
   static member ProcessDirectory
@@ -166,6 +166,6 @@ type RazorLiterate private () =
 
         let res = Literate.ProcessDirectory(inputDirectory, outputDirectory, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
                                              ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-                                             ?replacements = replacements, ?customizeDocument = customizeDocument, ?processRecursive = processRecursive)
+                                             ?replacements = replacements, ?customizeDocument = customizeDocument, ?processRecursive = processRecursive, ?fsiEvaluator = fsiEvaluator)
 
         res |> List.iter (fun (path, res) ->  generateFile assemblyReferences res.ContentTag res.Parameters templateFile path (defaultArg layoutRoots []))

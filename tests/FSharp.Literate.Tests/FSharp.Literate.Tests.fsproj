@@ -104,7 +104,7 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
   </ItemGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
 	</Target>
@@ -132,6 +132,10 @@
       <Name>FSharp.Markdown</Name>
       <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
       <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj">
+      <Name>FSharp.Formatting.Razor.fsproj</Name>
+      <Project>{c6b3c274-71a8-4239-ba9a-1af7b2f7c736}</Project>
     </ProjectReference>
   </ItemGroup>
   <Choose>

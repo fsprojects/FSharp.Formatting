@@ -18,6 +18,7 @@ open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
+open FSharp.Formatting.Razor
 
 
 module Logging = FSharp.Formatting.Common.Log
@@ -51,7 +52,7 @@ let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewL
 
 [<Test>]
 let ``Can embed content from an external file`` () =
-  let doc = 
+  let doc =
     //[test]
     // magic
     Literate.ParseMarkdownString("""
@@ -63,7 +64,7 @@ b""", __SOURCE_DIRECTORY__ @@ "Test.fsx")
     //[/test]
   doc.Paragraphs |> shouldMatchPar (function Paragraph([Literal("a", Some({ StartLine = 2 }))], Some({ StartLine = 2 })) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function Paragraph([Literal("b", Some({ StartLine = 6 }))], Some({ StartLine = 6 })) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchPar (function 
+  doc.Paragraphs |> shouldMatchPar (function
     | EmbedParagraphs(:? LiterateParagraph as cd, Some({ StartLine = 4 })) ->
         match cd with LanguageTaggedCode("csharp", text) -> text.Contains "magic" | _ -> false
     | _ -> false)
@@ -82,7 +83,7 @@ let test = 42"""
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph([Strong([Literal("hello", Some({ StartLine = 1 }))], Some({ StartLine = 1 }))], Some({ StartLine = 1 })) -> true | _ -> false) 
+    | Paragraph([Strong([Literal("hello", Some({ StartLine = 1 }))], Some({ StartLine = 1 }))], Some({ StartLine = 1 })) -> true | _ -> false)
 
 [<Test>]
 let ``Can parse heading on the same line as opnening comment (#147)`` () =
@@ -94,7 +95,7 @@ let test = 42"""
   doc.Paragraphs |> shouldMatchPar (function
     | Heading(2, [Literal("Heading", Some({ StartLine = 1 }))], Some({ StartLine = 1 })) -> true | _ -> false)
 
-[<Test>] 
+[<Test>]
 let ``Can parse and format markdown with F# snippet`` () =
   let content = """
 **hello**
@@ -107,7 +108,7 @@ let ``Can parse and format markdown with F# snippet`` () =
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", Some({ StartLine = 2 }))], Some({ StartLine = 2 }))], Some({ StartLine = 2 })) -> true | _ -> false)
 
-[<Test>] 
+[<Test>]
 let ``Can parse and format markdown with Github-flavoured F# snippet`` () =
   let content = """
 **hello**
@@ -138,15 +139,15 @@ let test = 42
 [<Test>]
 let ``Can generate references from indirect links`` () =
   let content = """
-(** 
+(**
 some [link][ref] to
 
   [ref]: http://there "Author: Article"
 *)"""
   let doc = Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent(), references=true)
   doc.Paragraphs |> shouldMatchPar (function ListBlock(_, _, _) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchSpan (function Literal("Article", None) -> true | _ -> false) 
-  doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author", None) -> true | _ -> false) 
+  doc.Paragraphs |> shouldMatchSpan (function Literal("Article", None) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchSpan (function Literal(" - Author", None) -> true | _ -> false)
 
 [<Test>]
 let ``Can report errors in F# code snippets (in F# script file)`` () =
@@ -282,7 +283,7 @@ let ``Urls should not be recognized as comments in Paket code blocks`` () =
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
   html |> should contain @"https://nuget.org/api/v2"
-  
+
 [<Test>]
 let ``Path to network share should not be recognized as comments in Paket code blocks`` () =
   let content = """
@@ -307,7 +308,7 @@ let ``Correctly handles Paket coloring`` () =
     lowest_matching: true
     source https://nuget.org/api/v2 // nuget.org
     cache //hive/dependencies
-    
+
     // NuGet packages
     nuget NUnit ~> 2.6.3
     nuget FAKE ~> 3.4
@@ -317,23 +318,23 @@ let ``Correctly handles Paket coloring`` () =
     nuget Example @~> 1.2 // use "max" version resolution strategy
     nuget Example2 !~> 1.2 // use "min" version resolution strategy
     nuget Example-A @> 0
-    
+
     // Files from GitHub repositories
     github forki/FsUnit FsUnit.fs
     git https://github.com/fsprojects/Paket.git master
-    
+
     // Gist files
     gist Thorium/1972349 timestamp.fs
-    
+
     // HTTP resources
     http http://www.fssnip.net/1n decrypt.fs
-    
+
     // GIT tags
     git file:///C:\Users\Steffen\AskMe >= 1 alpha      // at least 1.0 including alpha versions
     """
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
   let html = Literate.WriteHtml(doc)
-  
+
   html |> should contain "<span class=\"k\">nuget</span>"
   html |> should contain "<span class=\"k\">github</span>"
   html |> should contain "<span class=\"k\">git</span>"
@@ -349,10 +350,10 @@ let ``Correctly handles Paket coloring`` () =
   html |> should contain "<span class=\"k\">redirects</span>"
   html |> should contain "<span class=\"k\">strategy</span>"
   html |> should contain "<span class=\"k\">version_in_path</span>"
-  
+
   html |> should notContain "<span class=\"k\">http</span>s"
   html |> should notContain ".<span class=\"k\">git</span>"
-  
+
   html |> should contain "<span class=\"o\">~&gt;</span>"
   html |> should contain "<span class=\"o\">&gt;=</span>"
   html |> should contain "<span class=\"o\">==</span>"
@@ -366,10 +367,10 @@ let ``Correctly handles Paket coloring`` () =
   html |> should contain "<span class=\"c\">// NuGet packages</span>"
   html |> should contain "<span class=\"c\">// nuget.org</span>"
   html |> should notContain "<span class=\"c\">//hive/dependencies</span>"
-  
+
   html |> should contain @"https://nuget.org/api/v2"
   html |> should contain @"http://www.fssnip.net/1n"
-  
+
   html |> should contain @"file:///C:\Users\Steffen\AskMe"
   html |> should contain "<span class=\"c\">// at least 1.0 including alpha versions</span>"
 
@@ -410,7 +411,7 @@ let ``HTML for line numbers generated for F# and non-F# is the same``() =
   let doc2 = Literate.ParseMarkdownString(content2, formatAgent=getFormatAgent())
   let html1 = Literate.WriteHtml(doc1, lineNumbers=true)
   let html2 = Literate.WriteHtml(doc2, lineNumbers=true)
-  
+
   html1.Substring(0, html1.IndexOf("1:"))
   |> shouldEqual <| html2.Substring(0, html2.IndexOf("1:"))
 
@@ -454,10 +455,10 @@ let templateHtml = __SOURCE_DIRECTORY__ @@ "files/template.html"
 let templateCsHtml = __SOURCE_DIRECTORY__ @@ "files/template.cshtml"
 
 [<Test>]
-let ``Code and HTML is formatted with a tooltip in Markdown file using HTML template``() = 
+let ``Code and HTML is formatted with a tooltip in Markdown file using HTML template``() =
   let simpleMd = __SOURCE_DIRECTORY__ @@ "files/simple.md"
   use temp = new TempFile()
-  Literate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
+  RazorLiterate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
   temp.Content |> should contain "</a>"
   temp.Content |> should contain "val hello : string"
 
@@ -465,7 +466,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using HTML temp
 let ``Code and HTML is formatted with a tooltip in F# Script file using HTML template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
-  Literate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
+  RazorLiterate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
   temp.Content |> should contain "</a>"
   temp.Content |> should contain "val hello : string"
 
@@ -473,8 +474,8 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using HTML tem
 let ``Code and HTML is formatted with a tooltip in F# Script file using Razor template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
-  Literate.ProcessScriptFile
-    ( simpleFsx, templateCsHtml, temp.File, 
+  RazorLiterate.ProcessScriptFile
+    ( simpleFsx, templateCsHtml, temp.File,
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "files"] )
   temp.Content |> should contain "</a>"
   temp.Content |> should contain "val hello : string"
@@ -498,8 +499,8 @@ let docPageTemplate = __SOURCE_DIRECTORY__ @@ "../../misc/templates/docpage.csht
 let ``Can process fsx file using the template included in NuGet package``() =
   let simpleFsx = __SOURCE_DIRECTORY__ @@ "files/simple.fsx"
   use temp = new TempFile()
-  Literate.ProcessScriptFile
-    ( simpleFsx, docPageTemplate, temp.File, 
+  RazorLiterate.ProcessScriptFile
+    ( simpleFsx, docPageTemplate, temp.File,
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
   temp.Content |> should contain "val hello : string"
   temp.Content |> should contain "<title>Heading"
@@ -508,8 +509,8 @@ let ``Can process fsx file using the template included in NuGet package``() =
 let ``Can process md file using the template included in NuGet package``() =
   let simpleMd = __SOURCE_DIRECTORY__ @@ "files/simple.md"
   use temp = new TempFile()
-  Literate.ProcessMarkdown
-    ( simpleMd, docPageTemplate, temp.File, 
+  RazorLiterate.ProcessMarkdown
+    ( simpleMd, docPageTemplate, temp.File,
       layoutRoots = [__SOURCE_DIRECTORY__ @@ "../../misc/templates"], replacements = info)
   temp.Content |> should contain "val hello : string"
   temp.Content |> should contain "<title>Heading"
@@ -518,7 +519,7 @@ let ``Can process md file using the template included in NuGet package``() =
 [<Test>]
 let ``Gives nice error when parsing unclosed comment`` () =
   let content = """
-(** **hello** 
+(** **hello**
 let test = 42"""
   try
     Literate.ParseScriptString(content, "C" @@ "A.fsx", getFormatAgent()) |> ignore
@@ -528,7 +529,7 @@ let test = 42"""
   | _ -> failwith "not correct error"
 
 // --------------------------------------------------------------------------------------
-// Formatting F# code snippets 
+// Formatting F# code snippets
 // --------------------------------------------------------------------------------------
 
 [<Test>]
@@ -598,7 +599,7 @@ let mul a b = a * b
   doc.Paragraphs |> shouldMatchPar (function Heading(_, [Literal("demo2", Some({ StartLine = 1 }))], Some({ StartLine = 1 })) -> true | _ -> false)
 
 [<Test>]
-let ``Formatter does not crash on source that contains invalid string`` () = 
+let ``Formatter does not crash on source that contains invalid string`` () =
   let source = "\"\r\"\n0"
   let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
   Literate.WriteHtml(doc).Length |> should (be greaterThan) 0
