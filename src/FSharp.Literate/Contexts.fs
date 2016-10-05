@@ -20,22 +20,16 @@ type OutputKind = Html | Latex
 
 
 /// Defines input type for output generator
-type GeneratorInput =
+type GeneratorOutput =
   {
-     References   : string list option
      ContentTag   : string
      Parameters   : (string * string) list
-     TemplateFile : string option
-     OutputFile   : string
-     LayoutRoots  : string seq
   }
 
 
 /// Specifies a context that is passed to functions that generate the output
 type ProcessingContext =
-  { // Path to the template file
-    TemplateFile : string option
-    // Short prefix code added to all HTML 'id' elements
+  { // Short prefix code added to all HTML 'id' elements
     Prefix : string
     // Additional replacements to be made in the template file
     Replacements : list<string * string>
@@ -46,8 +40,4 @@ type ProcessingContext =
     // Auto-generate anchors for headers
     GenerateHeaderAnchors : bool
     // The output format
-    OutputKind : OutputKind
-    // Where to look for templates
-    LayoutRoots : seq<string>
-    // Function generating output
-    Generator : GeneratorInput -> unit }
+    OutputKind : OutputKind }

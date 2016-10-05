@@ -57,7 +57,7 @@ module Templating =
   // Formate literate document
   // ------------------------------------------------------------------------------------
 
-  let processFile references (doc:LiterateDocument) output ctx =
+  let processFile (doc:LiterateDocument) output ctx =
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
@@ -93,13 +93,8 @@ module Templating =
         "page-source", doc.SourceFile
         contentTag, formattedDocument
         "tooltips", tipsHtml ]
-    let gi = {
-      References   = references
+
+    {
       ContentTag   = contentTag
       Parameters   = parameters
-      TemplateFile = ctx.TemplateFile
-      OutputFile   = output
-      LayoutRoots  = ctx.LayoutRoots
     }
-
-    ctx.Generator gi
