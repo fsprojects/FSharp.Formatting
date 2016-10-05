@@ -96,6 +96,11 @@
       <Project>{bc4946ba-2724-4524-ac50-dfc49ee154a1}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj">
+      <Name>FSharp.Formatting.Razor.fsproj</Name>
+      <Project>{c6b3c274-71a8-4239-ba9a-1af7b2f7c736}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
