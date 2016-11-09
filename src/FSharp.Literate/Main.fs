@@ -210,7 +210,7 @@ type Literate private () =
             let changeTime = File.GetLastWriteTime(file)
             let generateTime = File.GetLastWriteTime(output)
             if changeTime > generateTime then
-              yield file,(func file output) ]
+              yield output,(func file output) ]
       let resRec =
         [ if processRecursive then
             for d in Directory.EnumerateDirectories(indir) do
