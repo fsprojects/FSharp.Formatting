@@ -94,7 +94,7 @@ let libDirs = [bin]
 // Build API reference from XML comments
 let buildReference () =
   CleanDir (output @@ "reference")
-  MetadataFormat.Generate
+  RazorMetadataFormat.Generate
     ( binaries, output @@ "reference", layoutRootsAll.["en"],
       parameters = ("root", root)::info,
       sourceRepo = githubLink @@ "tree/master",
@@ -116,7 +116,7 @@ let buildDocumentation () =
         match key with
         | Some lang -> layoutRootsAll.[lang]
         | None -> layoutRootsAll.["en"] // "en" is the default language
-    Literate.ProcessDirectory
+    RazorLiterate.ProcessDirectory
       ( dir, template, output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
         generateAnchors = true,
