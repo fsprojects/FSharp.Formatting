@@ -20,7 +20,7 @@ let info =
     "project-github", githubLink
     "project-nuget", "http://nuget.org/packages/FSharp.Formatting" ]
 
-let referenceBinaries = 
+let referenceBinaries =
   [ "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "FSharp.Formatting.Common.dll" ]
 
 // --------------------------------------------------------------------------------------
@@ -40,6 +40,7 @@ open Fake.FileHelper
 
 open FSharp.Literate
 open FSharp.MetadataFormat
+open FSharp.Formatting.Razor
 
 // When called from 'build.fsx', use the public project URL as <root>
 // otherwise, use the current 'output' directory.
@@ -56,7 +57,7 @@ let bin        = "../../bin"
 let content    = "../content"
 let output     = "../output"
 let files      = "../files"
-let templates  = "." 
+let templates  = "."
 let formatting = "../../misc/"
 let docTemplate = formatting @@ "templates/docpage.cshtml"
 let docTemplateSbS = templates @@ "docpage-sidebyside.cshtml"
@@ -80,7 +81,7 @@ let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
 let copyFiles () =
   CopyRecursive files output true |> Log "Copying file: "
   ensureDirectory (output @@ "content")
-  //CopyRecursive (formatting @@ "styles") (output @@ "content") true 
+  //CopyRecursive (formatting @@ "styles") (output @@ "content") true
   //  |> Log "Copying styles and scripts: "
 
 let binaries =
@@ -102,7 +103,7 @@ let buildReference () =
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
-  let subdirs = 
+  let subdirs =
     [ content @@ "sidebyside", docTemplateSbS
       content, docTemplate; ]
   for dir, template in subdirs do
