@@ -154,8 +154,8 @@ let watch () =
                 hasData := false
 
             printfn "Detected changes (%A). Invalidate cache and rebuild." !data
-            FSharp.MetadataFormat.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
-            FSharp.Literate.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
+            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
+            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
             rebuildDocs()
             printfn "Documentation generation finished."
         with e ->
