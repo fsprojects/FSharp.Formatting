@@ -185,9 +185,22 @@ module RazorEngineCache =
 
   let Get layoutRoots namespaces references =
     let engine, currentReferences, currentNamespaces =
-      razorCache.GetOrAdd(layoutRoots, fun roots -> createNew layoutRoots references namespaces, references, namespaces)
-    if (namespaces <> currentNamespaces) then failwith "cannot use different namespaces for the same layoutRoot"
-    if (references <> currentReferences) then failwith "cannot use different references for the same layoutRoot"
+      razorCache.AddOrUpdate(
+        layoutRoots,
+        (fun _ -> createNew layoutRoots references namespaces, references, namespaces),
+        (fun _ (oldEngine, oldReferences, oldNamespaces) ->
+            let useCache =
+                if namespaces <> oldNamespaces then
+                    Log.warnf "Invalidating cache because of different namespaces (%A <> %A) for the same layoutRoot (%A)" namespaces oldNamespaces layoutRoots
+                    false
+                elif references <> oldReferences then
+                    Log.warnf "Invalidating cache because of different references (%A <> %A) for the same layoutRoot (%A)"  references oldReferences layoutRoots
+                    false
+                else true
+            if useCache then
+                oldEngine, oldReferences, oldNamespaces
+            else
+                createNew layoutRoots references namespaces, references, namespaces))
     engine
 
   /// Invalidates the given razor template files (does nothing for files which aren't already cached or unknown).

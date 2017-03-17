@@ -155,7 +155,6 @@ let watch () =
 
             printfn "Detected changes (%A). Invalidate cache and rebuild." !data
             FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
-            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
             rebuildDocs()
             printfn "Documentation generation finished."
         with e ->
