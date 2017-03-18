@@ -1,7 +1,6 @@
 REDIRECTS: ON
 NUGET
   remote: http://www.nuget.org/api/v2
-  specs:
     CommandLineParser (1.9.71)
     FAKE (4.22.8)
     FSharp.Compiler.Service (2.0.0.6)
@@ -21,5 +20,4 @@ NUGET
     Zlib.Portable (1.11) - framework: portable-net40+sl50+wp80+win80
 GITHUB
   remote: matthid/Yaaf.FSharp.Scripting
-  specs:
     src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs (48789eeb63382a6934966472e270e87880cb49ed)

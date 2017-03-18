@@ -29,6 +29,7 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.MetadataFormat.dll"
+#r "FSharp.Formatting.Razor.dll"
 
 // Setup Logging for FSharp.Formatting and Yaaf.FSharp.Scripting
 module Logging = FSharp.Formatting.Common.Log

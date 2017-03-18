@@ -1,8 +1,4 @@
-﻿#if METADATAFORMAT
-namespace FSharp.MetadataFormat
-#else
-namespace FSharp.Literate
-#endif
+﻿namespace FSharp.Formatting.Razor
 
 // --------------------------------------------------------------------------------------
 // Helpers for parallel processing
@@ -11,13 +7,13 @@ namespace FSharp.Literate
 open System
 open System.Threading.Tasks
 
-module internal Parallel = 
+module internal Parallel =
   /// Parallel for loop with local state
-  let pfor (input:seq<'TSource>) (localInit:unit -> 'TLocal) 
+  let pfor (input:seq<'TSource>) (localInit:unit -> 'TLocal)
            (body:'TSource -> ParallelLoopState -> 'TLocal -> 'TLocal) =
     Parallel.ForEach
-      ( input, Func<'TLocal>(localInit), 
-        Func<'TSource, ParallelLoopState, 'TLocal, 'TLocal>(body), 
+      ( input, Func<'TLocal>(localInit),
+        Func<'TSource, ParallelLoopState, 'TLocal, 'TLocal>(body),
         Action<'TLocal>(fun _ -> ()) ) |> ignore
 
 // --------------------------------------------------------------------------------------
@@ -46,7 +42,7 @@ module PathHelper =
   let normalizePath p =
     let fullPath = Path.GetFullPath(p).TrimEnd(Path.AltDirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar)
     if isUnix then fullPath else fullPath.ToLowerInvariant()
-      
+
 /// [omit]
 type PathTemplateKey(name, path, t, context) =
   let path = PathHelper.normalizePath path
@@ -56,7 +52,7 @@ type PathTemplateKey(name, path, t, context) =
     member x.Name = name
     member x.TemplateType = t
     member x.Context = context
-  static member Create (name, path, ?t, ?context) = 
+  static member Create (name, path, ?t, ?context) =
     let t = defaultArg t ResolveType.Global
     let context = defaultArg context null
     PathTemplateKey(name, path, t, context)
@@ -71,7 +67,7 @@ type GetMemberBinderImpl (name) =
     inherit GetMemberBinder(name, false)
     let notImpl () = raise <| new NotImplementedException()
     override x.FallbackGetMember(v, sug) = notImpl()
-    
+
 /// [omit]
 type StringDictionary(dict:IDictionary<string, string>) =
   member x.Dictionary = dict
@@ -173,11 +169,11 @@ module RazorEngineCache =
     config.DisableTempFileLocking  <- System.AppDomain.CurrentDomain.IsDefaultAppDomain()
     config.Debug <- not config.DisableTempFileLocking
     config.CachingProvider <- cachingProvider
-    
+
     match references with
-    | Some r -> 
-      config.ReferenceResolver <- 
-        { new IReferenceResolver with 
+    | Some r ->
+      config.ReferenceResolver <-
+        { new IReferenceResolver with
             member x.GetReferences (_, _) =
                 r |> List.toSeq |> Seq.map (CompilerReference.From) }
     | None -> ()
@@ -189,9 +185,22 @@ module RazorEngineCache =
 
   let Get layoutRoots namespaces references =
     let engine, currentReferences, currentNamespaces =
-      razorCache.GetOrAdd(layoutRoots, fun roots -> createNew layoutRoots references namespaces, references, namespaces)
-    if (namespaces <> currentNamespaces) then failwith "cannot use different namespaces for the same layoutRoot"
-    if (references <> currentReferences) then failwith "cannot use different references for the same layoutRoot"
+      razorCache.AddOrUpdate(
+        layoutRoots,
+        (fun _ -> createNew layoutRoots references namespaces, references, namespaces),
+        (fun _ (oldEngine, oldReferences, oldNamespaces) ->
+            let useCache =
+                if namespaces <> oldNamespaces then
+                    Log.warnf "Invalidating cache because of different namespaces (%A <> %A) for the same layoutRoot (%A)" namespaces oldNamespaces layoutRoots
+                    false
+                elif references <> oldReferences then
+                    Log.warnf "Invalidating cache because of different references (%A <> %A) for the same layoutRoot (%A)"  references oldReferences layoutRoots
+                    false
+                else true
+            if useCache then
+                oldEngine, oldReferences, oldNamespaces
+            else
+                createNew layoutRoots references namespaces, references, namespaces))
     engine
 
   /// Invalidates the given razor template files (does nothing for files which aren't already cached or unknown).
@@ -219,24 +228,24 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
   let handleCompile source f =
     try
       f ()
-    with 
-    | :? TemplateCompilationException as ex -> 
+    with
+    | :? TemplateCompilationException as ex ->
         let csharp = Path.GetTempFileName() + ".cs"
         File.WriteAllText(csharp, ex.SourceCode)
         let builder = new System.Text.StringBuilder()
         builder.AppendLine (sprintf "\nProcessing the file '%s' failed\nSource written to: '%s'\nCompilation errors:" source csharp)
          |> ignore
-        
+
         for error in ex.CompilerErrors do
           let errorType = if error.IsWarning then "warning" else "error"
           builder.AppendLine (sprintf " - %s: (%d, %d) %s" errorType error.Line error.Column error.ErrorText)
            |> ignore
-        
+
         Log.critf "%s" (builder.ToString())
         failwith "Generating HTML failed."
 
-  let withProperties properties (oldViewbag:DynamicViewBag) = 
-    let viewBag = new DynamicViewBag() 
+  let withProperties properties (oldViewbag:DynamicViewBag) =
+    let viewBag = new DynamicViewBag()
     // TODO: use new DynamicViewBag(oldViewbag) and remove GetMemberBinderImpl
     for old in oldViewbag.GetDynamicMemberNames() do
         match oldViewbag.TryGetMember(new GetMemberBinderImpl(old)) with
@@ -267,6 +276,6 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
 and RazorRender<'model>(layoutRoots, namespaces, template, ?references) =
     inherit RazorRender(layoutRoots, namespaces, template, ?references = references)
 
-    member x.ProcessFile(model:'model, ?properties) = 
+    member x.ProcessFile(model:'model, ?properties) =
       x.ProcessFileModel(typeof<'model>, model, ?properties = properties)
 

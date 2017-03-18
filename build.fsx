@@ -47,7 +47,7 @@ let release = ReleaseNotesHelper.parseReleaseNotes (File.ReadLines "RELEASE_NOTE
 // Generate assembly info files with the right version & up-to-date information
 
 Target "AssemblyInfo" (fun _ ->
-  let info = 
+  let info =
       [ Attribute.Title project
         Attribute.Product project
         Attribute.Description summary
@@ -367,11 +367,11 @@ let bootStrapDocumentationFiles () =
     ensureDirectory (__SOURCE_DIRECTORY__ @@ "packages/FSharp.Formatting/lib/net40")
     let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
                        "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll" ]
+                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll" ]
     let bundledFiles =
         buildFiles
-        |> List.map (fun f -> 
-            __SOURCE_DIRECTORY__ @@ sprintf "bin/%s" f, 
+        |> List.map (fun f ->
+            __SOURCE_DIRECTORY__ @@ sprintf "bin/%s" f,
             __SOURCE_DIRECTORY__ @@ sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
     for source, dest in bundledFiles do
@@ -384,7 +384,7 @@ Target "DogFoodCommandTool" (fun _ ->
     // generate metadata reference
     let dllFiles =
       [ "FSharp.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll" ]
+        "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "FSharp.Formatting.Razor.dll" ]
         |> List.map (sprintf "bin/%s")
     let layoutRoots =
       [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
@@ -413,7 +413,7 @@ Target "DogFoodCommandTool" (fun _ ->
 Target "GenerateDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
-      
+
 Target "WatchDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:WATCH" "Default")
