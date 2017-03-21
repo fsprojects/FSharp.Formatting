@@ -11,4 +11,4 @@ if errorlevel 1 (
 )
 
 packages\FAKE\tools\FAKE.exe build.fsx %*
-pause
+
