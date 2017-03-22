@@ -20,13 +20,11 @@ module internal Parallel =
 // Tools for calling razor engine
 // --------------------------------------------------------------------------------------
 
-open System
 open System.IO
 open System.Dynamic
 open System.Collections.Generic
 open System.Collections.Concurrent
 open FSharp.Formatting.Common
-open RazorEngine
 open RazorEngine.Text
 open RazorEngine.Templating
 open RazorEngine.Configuration

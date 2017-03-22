@@ -2,8 +2,8 @@
 
 open System.IO
 open System.Diagnostics
-let (++) a b = Path.Combine(a, b)
-let testdir = __SOURCE_DIRECTORY__ ++ Path.Combine("..", "..", "tests")
+let (</>) a b = Path.Combine(a, b)
+let testdir = __SOURCE_DIRECTORY__ </> Path.Combine("..", "..", "tests")
 
 open FSharp.Data
 type CommonMarkSpecJson = JsonProvider<"../../tests/commonmark_spec.json">

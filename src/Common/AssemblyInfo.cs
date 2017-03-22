@@ -10,6 +10,12 @@ using System.Reflection;
 [assembly: AssemblyCopyrightAttribute("Apache 2.0 License")]
 namespace System {
     internal static class AssemblyVersionInformation {
-        internal const string Version = "3.0.0";
+        internal const System.String AssemblyTitle = "FSharp.Formatting";
+        internal const System.String AssemblyProduct = "FSharp.Formatting";
+        internal const System.String AssemblyDescription = "A package of libraries for building great F# documentation, samples and blogs";
+        internal const System.String AssemblyVersion = "3.0.0";
+        internal const System.String AssemblyFileVersion = "3.0.0";
+        internal const System.String AssemblyInformationalVersion = "3.0.0-beta01";
+        internal const System.String AssemblyCopyright = "Apache 2.0 License";
     }
 }

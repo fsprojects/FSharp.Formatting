@@ -1,3 +1,7 @@
+FSharp.Core
 Microsoft.AspNet.Razor
-NUnit
 RazorEngine
+
+group Test
+FsUnit
+NUnit
