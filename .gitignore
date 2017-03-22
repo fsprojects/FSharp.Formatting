@@ -19,7 +19,6 @@ misc/literate/output/content/
 *.sln.DotSettings.user
 *.userprefs
 *.bak
-.paket/paket.exe
 release.cmd
 *.orig
 *.aux

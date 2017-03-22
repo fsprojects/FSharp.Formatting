@@ -97,13 +97,28 @@ Target "UpdateFsxVersions" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library
 
+//Target "Build" (fun _ ->
+//    { BaseDirectory = __SOURCE_DIRECTORY__
+//      Includes = ["FSharp.Formatting.sln"]
+//      Excludes = [] }
+//    |> MSBuildRelease "" "Build"
+//    |> ignore
+//)
+
+let solutionFile = "FSharp.Formatting.sln"
+
+
+let msbuild14 = ProgramFilesX86</>"MSBuild"</>"14.0"</>"Bin"</>"MSBuild.exe"
+
+if isWindows && fileExists msbuild14 then 
+    setEnvironVar "MSBUILD"  msbuild14
+
 Target "Build" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["FSharp.Formatting.sln"]
-      Excludes = [] }
-    |> MSBuildRelease "" "Build"
+    !! solutionFile
+    |> MSBuildRelease "" "Rebuild"
     |> ignore
 )
+
 
 Target "MergeVSPowerTools" (fun _ ->
     () (*
