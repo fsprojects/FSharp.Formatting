@@ -32,6 +32,10 @@ let getOutputDir()  =
   File.Delete(tempFile)
   Directory.CreateDirectory(tempFile).FullName
 
+let removeWhiteSpace (str:string) =
+    str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
+
+
 let layoutRoots =
   [ root </> "../../misc/templates"
     root </> "../../misc/templates/reference" ]
@@ -73,8 +77,6 @@ let ``MetadataFormat works on sample FAKE assembly``() =
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
-let removeWhiteSpace (str:string) =
-    str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
 [<Test>]
 let ``MetadataFormat works on two sample F# assemblies``() =
@@ -116,7 +118,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   // Check that properties are correctly generated (#114)
   files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member(arg1)<"
   files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member()<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">Member<"
   files.["fslib-class.html"] |> shouldNotContainText "<strong>Signature:</strong> unit -&gt; int"
   files.["fslib-class.html"] |> should contain "<strong>Signature:</strong> int"
 
