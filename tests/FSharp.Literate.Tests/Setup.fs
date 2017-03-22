@@ -8,7 +8,7 @@ open System.Reflection
 // Setup - find the compiler assembly etc.
 // --------------------------------------------------------------------------------------
 
-let (@@) a b = Path.Combine(a, b)
+let (</>) a b = Path.Combine(a, b)
 
 type TempFile() =
   let file = Path.GetTempFileName()

@@ -3,6 +3,7 @@
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #else
+[<NUnit.Framework.TestFixture >]
 module FSharp.Markdown.Tests.Parsing
 #endif
 
@@ -10,6 +11,7 @@ open FsUnit
 open NUnit.Framework
 open FSharp.Markdown
 open FSharp.Formatting.Common
+open FsUnitTyped
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
 

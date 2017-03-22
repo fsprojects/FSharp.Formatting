@@ -1,7 +1,7 @@
 ﻿#if INTERACTIVE
 #r "../../bin/FSharp.CodeFormat.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
-#load "../Common/FsUnit.fs"
+#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
+#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #else
 module FSharp.CodeFormat.Tests
 #endif
@@ -9,6 +9,7 @@ module FSharp.CodeFormat.Tests
 open FsUnit
 open NUnit.Framework
 open FSharp.CodeFormat
+open FsUnitTyped
 
 // --------------------------------------------------------------------------------------
 // Initialization - find F# compiler dll, setup formatting agent

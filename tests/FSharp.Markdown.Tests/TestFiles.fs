@@ -7,15 +7,15 @@ open FSharp.Markdown
 open System.IO
 open System.Diagnostics
 
-let (++) a b = Path.Combine(a, b)
-let testdir = __SOURCE_DIRECTORY__ ++ Path.Combine("..","..","tests")
+let (</>) a b = Path.Combine(a, b)
+let testdir = __SOURCE_DIRECTORY__ </> Path.Combine("..","..","tests")
 
 // --------------------------------------------------------------------------------------
 // Run performance benchmarks
 // --------------------------------------------------------------------------------------
 
 let benchmark file count =
-  let text = File.ReadAllText(testdir ++ "benchmark" ++ file)
+  let text = File.ReadAllText(testdir </> "benchmark" </> file)
 
   let sw = new Stopwatch()
   sw.Start()
@@ -68,5 +68,5 @@ let rec runTests dir =
 // --------------------------------------------------------------------------------------
 
 let runAll () =
-  runTests (testdir ++ "testfiles")
+  runTests (testdir </> "testfiles")
   benchmarks ()

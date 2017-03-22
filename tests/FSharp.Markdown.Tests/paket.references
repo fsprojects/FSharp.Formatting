@@ -1,2 +1,6 @@
-NUnit
+FSharp.Core
 FSharp.Data
+
+group Test
+FsUnit
+group Test

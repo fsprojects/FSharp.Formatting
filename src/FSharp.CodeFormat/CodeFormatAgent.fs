@@ -258,7 +258,7 @@ type CodeFormatAgent() =
       let! symbolUses = languageService.GetAllUsesOfAllSymbolsInFile (opts, file, source, AllowStaleResults.No, false, new Profiler())
       return checkResults, symbolUses
   }
-   
+
   // ------------------------------------------------------------------------------------
 
   let processSourceCode (file, source, options, defines) = async {
