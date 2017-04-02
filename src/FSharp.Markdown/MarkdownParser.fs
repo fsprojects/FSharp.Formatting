@@ -156,7 +156,7 @@ type ParsingContext =
 let rec parseChars acc input (ctx:ParsingContext) = seq {
 
   // Zero or one literals, depending whether there is some accumulated input and update the ctx
-  let accLiterals = Lazy.Create(fun () ->
+  let accLiterals = Lazy<_>.Create (fun () ->
     if List.isEmpty acc then ([], ctx)
     else
       let range = match ctx.CurrentRange with 
