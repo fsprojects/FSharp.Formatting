@@ -7,7 +7,7 @@ nuget FAKE
 nuget CommandLineParser
 nuget FSharp.Core  redirects:force
 nuget Microsoft.AspNet.Razor
-nuget RazorEngine 3.9.3 //framework: net45
+nuget RazorEngine 3.9.3 framework: net45
 nuget NuGet.CommandLine
 nuget FSharp.Compiler.Service content:none
 nuget ILRepack
