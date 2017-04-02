@@ -65,7 +65,9 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         | TokenKind.Operator -> @"\ops"
         | TokenKind.Preprocessor -> @"\prep"
         | TokenKind.String -> @"\str"
-        | TokenKind.TypeOrModule -> @"\ltyp"
+        | TokenKind.Module
+        | TokenKind.ValueType
+        | TokenKind.ReferenceType -> @"\ltyp"
         | TokenKind.Function -> @"\lfun"
         | TokenKind.Pattern -> @"\lpat"
         | TokenKind.MutableVar -> @"\lvar"

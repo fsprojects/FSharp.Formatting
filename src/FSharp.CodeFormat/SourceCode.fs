@@ -29,11 +29,20 @@ type TokenKind =
   | Inactive
   | Number
   | Operator
+  | Punctuation
   | Preprocessor
-  | TypeOrModule
+  | Module
+  | ReferenceType 
+  | ValueType
+  | Interface
+  | TypeArgument
+  | Property
+  | Enumeration
+  | UnionCase
   | Function
   | Pattern
   | MutableVar
+  | Disposable
   | Printf
   | Escaped
   | Default
