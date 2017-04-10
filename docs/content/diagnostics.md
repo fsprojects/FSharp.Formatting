@@ -6,14 +6,14 @@ potential issues. If you encounter any issues with F# Formatting, this
 page gives you all the information you need to create a log file with detailed
 trace of what is going one. This may give you some hints on what is wrong & a
 detailed report that you can send when [submitting an
-issue](https://github.com/tpetricek/FSharp.Formatting/issues).
+issue](https://github.com/fsprojects/FSharp.Formatting/issues).
 
 Setting up logging
 ------------------
 
 Logging is enabled when you reference F# Formatting using the `FSharp.Formatting.fsx`
 load script. If you're not using the load script, you can enable logging manually
-(just see [how this is done in the load script](https://github.com/tpetricek/FSharp.Formatting/blob/master/packages/FSharp.Formatting/FSharp.Formatting.fsx)).
+(just see [how this is done in the load script](https://github.com/fsprojects/FSharp.Formatting/blob/master/packages/FSharp.Formatting/FSharp.Formatting.fsx)).
 
 By default, F# Formatting logs some information to the console output. 
 Detailed logging is enabled by setting an environment variable `FSHARP_FORMATTING_LOG` to 

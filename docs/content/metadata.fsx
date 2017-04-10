@@ -49,7 +49,7 @@ MetadataFormat.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ],
-    sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting" )
     
 
@@ -125,7 +125,7 @@ MetadataFormat.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ],
-    sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
 (**
 An example of an XML documentation comment:

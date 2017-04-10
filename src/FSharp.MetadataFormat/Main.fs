@@ -1144,8 +1144,8 @@ module Reader =
         // are completely identical. 
         // We just take the last here because it is the easiest to implement.
         // Additionally we log a warning just in case this is an issue in the future.
-        // See https://github.com/tpetricek/FSharp.Formatting/issues/229
-        // and https://github.com/tpetricek/FSharp.Formatting/issues/287
+        // See https://github.com/fsprojects/FSharp.Formatting/issues/229
+        // and https://github.com/fsprojects/FSharp.Formatting/issues/287
         if xmlMemberMap.ContainsKey key then 
           Log.warnf "Duplicate documentation for '%s', one will be ignored!" key
         xmlMemberMap.[key] <- value

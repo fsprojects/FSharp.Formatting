@@ -19,8 +19,7 @@ process, e.g. for resource management reasons.
   <div class="span1"></div>
 </div>
 
-Alternatively, you can download the [source as a ZIP file](https://github.com/tpetricek/FSharp.Formatting/zipball/master)
-or download the [compiled binaries](https://github.com/tpetricek/FSharp.Formatting/archive/release.zip) as a ZIP.
+Alternatively, you can download the [source as a ZIP file](https://github.com/fsprojects/FSharp.Formatting/zipball/master).
 
 Using the tool
 --------------
@@ -84,7 +83,7 @@ according to the concept of [Literate Programming](literate.html).
 Library documentation command
 -----------------------------
 
-The `FSharp.MetadataFormat.Generate` method builds the [library documentation](http://tpetricek.github.io/FSharp.Formatting/metadata.html) by reading 
+The `FSharp.MetadataFormat.Generate` method builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
 the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
 
     [lang=text]
@@ -146,9 +145,9 @@ corresponding meta-data files `lib1.xml` and `lib 2.xml`, which are the result o
 
 5. The example assumes that the necessary `template.html` file (and in case, those files it draws in as dependencies) reside in the subdirectory `templates` of your working directory. 
 It is implicitely also assumed that this template does not contain substitution parameters. If you want to use this feature, you need to add the desired parameter list. 
-For example, if you want to experiment with the [template file of the FSharp.Formatting project](https://github.com/tpetricek/FSharp.Formatting/blob/master/docs/tools/template.html), 
+For example, if you want to experiment with the [template file of the FSharp.Formatting project](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/tools/template.html), 
 you copy this file into the subdirectory `templates` of your working directory and specify the 
-[necessary substitution parameters](https://github.com/tpetricek/FSharp.Formatting/blob/master/docs/tools/generate.fsx#L24) as follows:
+[necessary substitution parameters](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/tools/generate.fsx#L24) as follows:
 
 <div></div>
 
@@ -176,5 +175,5 @@ As template for the `generate.fsx` file, you should refer to the recommended [te
 
 If you already use [FAKE](http://fsharp.github.io) in your project, it is recommended to apply the predefined [FAKE commands](http://fsharp.github.io/FAKE/apidocs/fake-fsharpformatting.html) 
 for the document creation process. FAKE will install the FSharp.Formatting commandline tool as a dependency. Hence, a separate installation should be omitted in order to avoid 
-a cluttered environment on your system. Alternatively, you can also use a [FAKE target definition](https://github.com/tpetricek/FSharp.Formatting/blob/master/build.fsx#L176), 
+a cluttered environment on your system. Alternatively, you can also use a [FAKE target definition](https://github.com/fsprojects/FSharp.Formatting/blob/master/build.fsx#L176), 
 that invokes the recommended [template file](https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template) as in the previous configuration option.

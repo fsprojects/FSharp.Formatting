@@ -5,7 +5,7 @@ Literate sample
 This file demonstrates how to write literate F# script
 files (`*.fsx`) that can be transformed into nice HTML
 using the `literate.fsx` script from the [F# Formatting
-package](http://tpetricek.github.com/FSharp.Formatting).
+package](http://fsprojects.github.io/FSharp.Formatting).
 
 As you can see, a comment starting with double asterisk
 is treated as part of the document and is transformed 
@@ -81,7 +81,7 @@ currently implemented in `literate.fsx`, but feel free
 to [fork the project on GitHub][fs] and add more 
 features or report bugs!
 
-  [fs]: https://github.com/tpetricek/FSharp.Formatting
+  [fs]: https://github.com/fsprojects/FSharp.Formatting
 
 *)
 
