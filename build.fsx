@@ -1,4 +1,4 @@
-System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
+﻿System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
 
 // --------------------------------------------------------------------------------------
 // FAKE build script
@@ -141,11 +141,11 @@ Target "MergeVSPowerTools" (fun _ ->
 // Build tests and generate tasks to run the tests in sequence
 
 Target "BuildTests" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["FSharp.Formatting.sln"]
-      Excludes = [] }
-    |> MSBuildRelease "" "Build"
-    |> ignore
+    {   BaseDirectory = __SOURCE_DIRECTORY__
+        Includes = ["FSharp.Formatting.sln"]
+        Excludes = [] 
+    }   |> MSBuildRelease "" "Build"
+        |> ignore
 
     { BaseDirectory = __SOURCE_DIRECTORY__
       Includes = ["tests/*/files/FsLib/FsLib.sln"]
