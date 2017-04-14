@@ -7,7 +7,7 @@ redirects: on
 nuget FSharp.Data
 nuget FAKE
 nuget CommandLineParser
-nuget FSharp.Core  redirects:force
+nuget FSharp.Core  redirects:force, content:none
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine 3.9.3 framework: net45
 nuget FSharp.Compiler.Service content:none
