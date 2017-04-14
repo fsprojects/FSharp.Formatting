@@ -51,11 +51,11 @@ let getContent = getContentAndToolTip >> fst
 
 [<Test>]
 let ``Simple code snippet is formatted as HTML``() = 
-  let content, tooltip = getContentAndToolTip """let hello = 10"""
-  content |> should contain "<span class=\"k\">let</span>"
-  content |> should contain ">hello<"
-  content |> should contain "<span class=\"n\">10</span>"
-  tooltip |> should contain "val hello : int" 
+    let content, tooltip = getContentAndToolTip """let hello = 10"""
+    content |> should contain "<span class=\"k\">let</span>"
+    content |> should contain ">hello<"
+    content |> should contain "<span class=\"n\">10</span>"
+    tooltip |> should contain "val hello : int" 
 
 [<Test>]
 let ``Non-unicode characters do not cause exception`` () =
@@ -78,16 +78,16 @@ let ``Plain string is in span of 's' class when it's the last token in the line`
 [<Test>]
 let ``Plain string is in span of 's' class, there are several other tokens next to it``() = 
   let content = getContent """let _ = "str", 1 """
-  content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
+  content |> shouldContainText "<span class=\"s\">&quot;str&quot;</span>"
   content |> should not' (contain "<span class=\"s\">,</span>")
-  content |> should contain (",")
+  content |> shouldContainText (",")
 
 [<Test>]
 let ``Plain string is in span of 's' class, there is single char next to it``() = 
   let content = getContent """let _ = ("str")"""
-  content |> should contain "> (<"
-  content |> should contain "<span class=\"s\">&quot;str&quot;</span>"
-  content |> should contain ">)"
+  content |> shouldContainText "> (<"
+  content |> shouldContainText "<span class=\"s\">&quot;str&quot;</span>"
+  content |> shouldContainText ">)"
 
 [<Test>]
 let ``Modules and types are in spans of 't' class``() = 
@@ -95,8 +95,8 @@ let ``Modules and types are in spans of 't' class``() =
 module Module =
   type Type() = class end
 """
-  content |> should contain "class=\"t\">Module</span>"
-  content |> should contain "class=\"t\">Type</span>"
+  content |> shouldContainText "class=\"t\">Module</span>"
+  content |> shouldContainText "class=\"t\">Type</span>"
 
 [<Test>]
 let ``Functions and methods are in spans of 'f' class``() = 
@@ -107,26 +107,26 @@ module M =
         member __.Method x = ()
     let func2 x y = x + y
 """
-  content |> should contain "class=\"f\">func1</span>"
-  content |> should contain "class=\"f\">Method</span>"
-  content |> should contain "class=\"f\">func2</span>"
+  content |> shouldContainText "class=\"f\">func1</span>"
+  content |> shouldContainText "class=\"f\">Method</span>"
+  content |> shouldContainText "class=\"f\">func2</span>"
 
 [<Test>]
 let ``Printf formatters are in spans of 'pf' class``() = 
   let content = getContent """let _ = sprintf "a %A b %0.3fD" """
-  content |> should contain "class=\"s\">&quot;a </span>"
-  content |> should contain "class=\"pf\">%A</span>"
-  content |> should contain "class=\"s\"> b </span>"
-  content |> should contain "class=\"pf\">%0.3f</span>"
-  content |> should contain "class=\"s\">D&quot;</span>"
+  content |> shouldContainText "class=\"s\">&quot;a </span>"
+  content |> shouldContainText "class=\"pf\">%A</span>"
+  content |> shouldContainText "class=\"s\"> b </span>"
+  content |> shouldContainText "class=\"pf\">%0.3f</span>"
+  content |> shouldContainText "class=\"s\">D&quot;</span>"
 
 [<Test>]
 let ``Escaped characters are in spans of 'e' class``() = 
   let content = getContent """let _ = sprintf "a \n\tD\uA0A0 \t" """
-  content |> should contain "class=\"s\">&quot;a </span>"
-  content |> should contain "class=\"e\">\\n</span>"
-  content |> should contain "class=\"e\">\\t</span>"
-  content |> should contain "class=\"s\">D</span>"
-  content |> should contain "class=\"e\">\\uA0A0</span>"
-  content |> should contain "class=\"s\"> </span>"
-  content |> should contain "class=\"e\">\\t</span>"
+  content |> shouldContainText "class=\"s\">&quot;a </span>"
+  content |> shouldContainText "class=\"e\">\\n</span>"
+  content |> shouldContainText "class=\"e\">\\t</span>"
+  content |> shouldContainText "class=\"s\">D</span>"
+  content |> shouldContainText "class=\"e\">\\uA0A0</span>"
+  content |> shouldContainText "class=\"s\"> </span>"
+  content |> shouldContainText "class=\"e\">\\t</span>"
