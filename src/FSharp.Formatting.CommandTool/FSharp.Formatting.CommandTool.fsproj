@@ -52,7 +52,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
@@ -66,6 +65,7 @@
     <Compile Include="OptionsLiterate.fs" />
     <Compile Include="Exec.fs" />
     <Compile Include="Program.fs" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">

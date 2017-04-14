@@ -13,42 +13,41 @@ type ToolTipSpans = list<ToolTipSpan>
 
 /// A tool tip span can be emphasized text, plain text `Literal` or a line brak
 and ToolTipSpan = 
-  | Emphasis of ToolTipSpans
-  | Literal of string
-  | HardLineBreak
+    | Emphasis of ToolTipSpans
+    | Literal of string
+    | HardLineBreak
 
-/// Classifies tokens reported by the F# lexer and F# PowerTools 
-/// (PowerTools provide additional information e.g. whether a variable
-/// is mutable, etc.)
-[<RequireQualifiedAccess>]
+/// Classifies tokens reported by the FCS
+[<Struct>][<RequireQualifiedAccess>]
 type TokenKind = 
-  | Keyword
-  | String
-  | Comment
-  | Identifier
-  | Inactive
-  | Number
-  | Operator
-  | Punctuation
-  | Preprocessor
-  | Module
-  | ReferenceType 
-  | ValueType
-  | Interface
-  | TypeArgument
-  | Property
-  | Enumeration
-  | UnionCase
-  | Function
-  | Pattern
-  | MutableVar
-  | Disposable
-  | Printf
-  | Escaped
-  | Default
+    | Keyword
+    | String
+    | Comment
+    | Identifier
+    | Inactive
+    | Number
+    | Operator
+    | Punctuation
+    | Preprocessor
+    | Module
+    | ReferenceType 
+    | ValueType
+    | Interface
+    | TypeArgument
+    | Property
+    | Enumeration
+    | UnionCase
+    | Function
+    | Pattern
+    | MutableVar
+    | Disposable
+    | Printf
+    | Escaped
+    | Default
+
 
 /// Represents a kind of error reported from the F# compiler (warning or error)
-[<RequireQualifiedAccess>]
+[<Struct>][<RequireQualifiedAccess>]
 type ErrorKind = 
   | Error
   | Warning

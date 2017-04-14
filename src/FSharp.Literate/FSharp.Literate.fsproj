@@ -68,6 +68,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
@@ -85,7 +86,6 @@
     <Compile Include="Transformations.fs" />
     <Compile Include="Formatting.fs" />
     <Compile Include="Main.fs" />
-    <None Include="paket.references" />
     <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>

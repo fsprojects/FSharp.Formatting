@@ -76,6 +76,7 @@
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
+    <Content Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
@@ -86,6 +87,7 @@
       <Link>Common\StringParsing.fs</Link>
     </Compile>
     <Compile Include="Pervasive.fs" />
+    <Compile Include="Constants.fs" />
     <Compile Include="CommentFilter.fs" />
     <Compile Include="SourceCode.fs" />
     <Compile Include="ToolTipReader.fs" />
@@ -93,7 +95,6 @@
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />
-    <Content Include="paket.references" />
     <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>

@@ -38,38 +38,6 @@
     <DocumentationFile>..\..\bin\FSharp.Markdown.xml</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Web">
-      <Private>False</Private>
-    </Reference>
-    <Content Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\Common\AssemblyInfo.fs">
-      <Link>Common\AssemblyInfo.fs</Link>
-    </Compile>
-    <Compile Include="..\Common\Collections.fs">
-      <Link>Common\Collections.fs</Link>
-    </Compile>
-    <Compile Include="..\Common\StringParsing.fs">
-      <Link>Common\StringParsing.fs</Link>
-    </Compile>
-    <Compile Include="Markdown.fs" />
-    <Compile Include="MarkdownParser.fs" />
-    <Compile Include="HtmlFormatting.fs" />
-    <Compile Include="LatexFormatting.fs" />
-    <Compile Include="Main.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
-      <Name>FSharp.Formatting.Common</Name>
-      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -915,4 +883,35 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <None Include="paket.references" />
+    <Compile Include="..\Common\AssemblyInfo.fs">
+      <Link>Common\AssemblyInfo.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\Collections.fs">
+      <Link>Common\Collections.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\StringParsing.fs">
+      <Link>Common\StringParsing.fs</Link>
+    </Compile>
+    <Compile Include="Markdown.fs" />
+    <Compile Include="MarkdownParser.fs" />
+    <Compile Include="HtmlFormatting.fs" />
+    <Compile Include="LatexFormatting.fs" />
+    <Compile Include="Main.fs" />
+    <Content Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web">
+      <Private>False</Private>
+    </Reference>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

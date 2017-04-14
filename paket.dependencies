@@ -1,5 +1,7 @@
 source https://api.nuget.org/v3/index.json
 source https://nuget.org/api/v2
+source https://dotnet.myget.org/F/dotnet-corefxlab/api/v3/index.json
+
 redirects: on
 
 nuget FSharp.Data
@@ -8,9 +10,10 @@ nuget CommandLineParser
 nuget FSharp.Core  redirects:force
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine 3.9.3 framework: net45
-nuget NuGet.CommandLine
 nuget FSharp.Compiler.Service content:none
 nuget ILRepack
+nuget Argu
+
 
 github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 

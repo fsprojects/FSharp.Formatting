@@ -81,6 +81,7 @@
   -->
   <Import Project="$(SolutionDir)\.paket\paket.targets" />
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
@@ -91,7 +92,6 @@
       <Link>Common\StringParsing.fs</Link>
     </Compile>
     <Compile Include="Main.fs" />
-    <None Include="paket.references" />
     <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>

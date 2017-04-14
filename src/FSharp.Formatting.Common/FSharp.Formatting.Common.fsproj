@@ -73,6 +73,7 @@
   </Target>
   -->
   <ItemGroup>
+    <None Include="paket.references" />
     <Compile Include="..\..\paket-files\matthid\Yaaf.FSharp.Scripting\src\source\Yaaf.FSharp.Scripting\YaafFSharpScripting.fs">
       <Paket>True</Paket>
       <Link>paket-files/YaafFSharpScripting.fs</Link>
@@ -82,7 +83,6 @@
     </Compile>
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
-    <None Include="paket.references" />
     <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
