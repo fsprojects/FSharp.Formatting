@@ -3,6 +3,7 @@
 .vs/
 bin/
 obj/
+/.paket/paket.exe
 paket-files/
 nuget/*.nupkg
 docs/output/
@@ -27,3 +28,5 @@ release.cmd
 *.synctex
 *.log
 *.svclog
+
+.paket/paket.exe

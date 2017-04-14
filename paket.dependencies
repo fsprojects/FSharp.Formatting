@@ -5,6 +5,7 @@ source https://dotnet.myget.org/F/dotnet-corefxlab/api/v3/index.json
 redirects: on
 
 nuget FSharp.Data
+nuget FSharp.Compiler.Tools
 nuget FAKE
 nuget CommandLineParser
 nuget FSharp.Core  redirects:force, content:none
