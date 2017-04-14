@@ -46,7 +46,6 @@ NUGET
       System.Text.Encoding.Extensions (>= 4.3) - framework: >= netstandard16
       System.Threading (>= 4.3) - framework: >= netstandard16
       System.Threading.Tasks (>= 4.3) - framework: >= netstandard16
-    FSharp.Compiler.Tools (4.1.5)
     FSharp.Core (4.1.12) - content: none, redirects: force
       System.Collections (>= 4.0.11) - framework: >= netstandard16
       System.Console (>= 4.0) - framework: >= netstandard16
@@ -156,7 +155,7 @@ NUGET
       System.Threading.Timer (>= 4.3) - framework: >= net451, >= netstandard12
       System.Xml.ReaderWriter (>= 4.3) - framework: >= netstandard10
       System.Xml.XDocument (>= 4.3) - framework: >= netstandard10
-    RazorEngine (3.9.3) - framework: net45
+    RazorEngine (3.9.3) - framework: >= net45
       Microsoft.AspNet.Razor (>= 3.0) - framework: >= net45
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - content: none, framework: >= net463, >= netstandard16
     runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - content: none, framework: >= net463, >= netstandard16

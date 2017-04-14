@@ -30,3 +30,4 @@ release.cmd
 *.svclog
 
 .paket/paket.exe
+fsbuild.targets

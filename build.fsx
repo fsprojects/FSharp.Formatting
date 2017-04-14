@@ -102,7 +102,7 @@ let solutionFile = "FSharp.Formatting.sln"
 
 let msbuild14 = ProgramFilesX86</>"MSBuild"</>"14.0"</>"Bin"</>"MSBuild.exe"
 
-if isWindows && fileExists msbuild14 then 
+if isWindows && fileExists msbuild14 then
     setEnvironVar "MSBUILD"  msbuild14
 
 Target "Build" (fun _ ->
@@ -143,7 +143,7 @@ Target "MergeVSPowerTools" (fun _ ->
 Target "BuildTests" (fun _ ->
     {   BaseDirectory = __SOURCE_DIRECTORY__
         Includes = ["FSharp.Formatting.sln"]
-        Excludes = [] 
+        Excludes = []
     }   |> MSBuildRelease "" "Build"
         |> ignore
 
@@ -172,7 +172,7 @@ Target "BuildTests" (fun _ ->
     |> ignore
 )
 
-open Fake.Testing 
+open Fake.Testing
 
 let testProjects =
   [ "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";

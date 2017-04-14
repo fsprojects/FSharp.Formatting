@@ -12,14 +12,14 @@ namespace FSharp.CodeFormat
 type ToolTipSpans = list<ToolTipSpan>
 
 /// A tool tip span can be emphasized text, plain text `Literal` or a line brak
-and ToolTipSpan = 
+and ToolTipSpan =
     | Emphasis of ToolTipSpans
     | Literal of string
     | HardLineBreak
 
 /// Classifies tokens reported by the FCS
-[<Struct>][<RequireQualifiedAccess>]
-type TokenKind = 
+[<RequireQualifiedAccess>]
+type TokenKind =
     | Keyword
     | String
     | Comment
@@ -30,7 +30,7 @@ type TokenKind =
     | Punctuation
     | Preprocessor
     | Module
-    | ReferenceType 
+    | ReferenceType
     | ValueType
     | Interface
     | TypeArgument
@@ -47,8 +47,8 @@ type TokenKind =
 
 
 /// Represents a kind of error reported from the F# compiler (warning or error)
-[<Struct>][<RequireQualifiedAccess>]
-type ErrorKind = 
+[<RequireQualifiedAccess>]
+type ErrorKind =
   | Error
   | Warning
 
@@ -56,7 +56,7 @@ type ErrorKind =
 /// the compiler (`Token`), this also includes `Error` (wrapping the underlined
 /// tokens), `Omitted` for the special `[omit:...]` tags and `Output` for the special
 /// `[output:...]` tag
-type TokenSpan = 
+type TokenSpan =
   | Token of TokenKind * string * ToolTipSpans option
   | Error of ErrorKind * string * TokenSpans
   | Omitted of string * string
