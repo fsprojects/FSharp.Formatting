@@ -11,6 +11,7 @@ open System.Web
 open System.Text
 open System.Collections.Generic
 open FSharp.CodeFormat
+open FSharp.CodeFormat.Constants
 
 // --------------------------------------------------------------------------------------
 // Context used by the formatter
@@ -124,30 +125,30 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       // Get CSS class name of the token
       let color = 
         match kind with
-        | TokenKind.Comment -> "c"
-        | TokenKind.Default -> ""
-        | TokenKind.Identifier -> "id"
-        | TokenKind.Inactive -> "inactive"
-        | TokenKind.Keyword -> "k"
-        | TokenKind.Number -> "n"
-        | TokenKind.Operator -> "o"
-        | TokenKind.Preprocessor -> "prep"
-        | TokenKind.String -> "s"
-        | TokenKind.Module -> "m"
-        | TokenKind.ReferenceType -> "rt"
-        | TokenKind.ValueType -> "vt"
-        | TokenKind.Function -> "f"
-        | TokenKind.Pattern -> "pat"
-        | TokenKind.MutableVar -> "v"
-        | TokenKind.Printf -> "pf"
-        | TokenKind.Escaped -> "esc"
-        | TokenKind.Disposable -> "d"
-        | TokenKind.TypeArgument -> "ta"
-        | TokenKind.Punctuation -> "p"
-        | TokenKind.Enumeration -> "e"
-        | TokenKind.Interface -> "if"
-        | TokenKind.Property -> "prop"
-        | TokenKind.UnionCase -> "u"
+        | TokenKind.Comment       -> CSS.Comment       
+        | TokenKind.Default       -> CSS.Default       
+        | TokenKind.Identifier    -> CSS.Identifier    
+        | TokenKind.Inactive      -> CSS.Inactive      
+        | TokenKind.Keyword       -> CSS.Keyword       
+        | TokenKind.Number        -> CSS.Number        
+        | TokenKind.Operator      -> CSS.Operator      
+        | TokenKind.Preprocessor  -> CSS.Preprocessor  
+        | TokenKind.String        -> CSS.String        
+        | TokenKind.Module        -> CSS.Module        
+        | TokenKind.ReferenceType -> CSS.ReferenceType 
+        | TokenKind.ValueType     -> CSS.ValueType     
+        | TokenKind.Function      -> CSS.Function      
+        | TokenKind.Pattern       -> CSS.Pattern       
+        | TokenKind.MutableVar    -> CSS.MutableVar    
+        | TokenKind.Printf        -> CSS.Printf        
+        | TokenKind.Escaped       -> CSS.Escaped       
+        | TokenKind.Disposable    -> CSS.Disposable    
+        | TokenKind.TypeArgument  -> CSS.TypeArgument  
+        | TokenKind.Punctuation   -> CSS.Punctuation   
+        | TokenKind.Enumeration   -> CSS.Enumeration   
+        | TokenKind.Interface     -> CSS.Interface     
+        | TokenKind.Property      -> CSS.Property      
+        | TokenKind.UnionCase     -> CSS.UnionCase     
 
       if kind <> TokenKind.Default then
         // Colorize token & add tool tip

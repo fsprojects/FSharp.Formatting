@@ -96,9 +96,10 @@ module private Helpers =
 
 
 
-type Range = 
-  { LeftCol : int
-    RightCol : int }
+type [<Struct>] Range = { 
+    LeftCol : int
+    RightCol : int 
+} with
   static member Create leftCol rightCol = 
     { LeftCol = leftCol; RightCol = rightCol }
 
