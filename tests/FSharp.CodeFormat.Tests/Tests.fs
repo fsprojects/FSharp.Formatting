@@ -54,9 +54,9 @@ let getContent = getContentAndToolTip >> fst
 [<Test>]
 let ``Simple code snippet is formatted as HTML``() = 
     let content, tooltip = getContentAndToolTip """let hello = 10"""
-    content |> shouldContainText <| sprintf "<span class=\"%s\">let</span>" CSS.Keyword
+    content |> shouldContainText (sprintf "<span class=\"%s\">let</span>" CSS.Keyword)
     content |> shouldContainText ">hello<"
-    content |> shouldContainText <| sprintf "<span class=\"%s\">10</span>" CSS.Number
+    content |> shouldContainText (sprintf "<span class=\"%s\">10</span>" CSS.Number)
     tooltip |> shouldContainText "val hello : int" 
 
 [<Test>]
@@ -75,21 +75,21 @@ let ``Non-unicode characters do not cause exception`` () =
 
 [<Test>]
 let ``Plain string is in span of 's' class when it's the last token in the line``() = 
-  getContent """let _ = "str" """ |> shouldContainText <| sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String
+  getContent """let _ = "str" """ |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
 
 [<Test>]
 let ``Plain string is in span of 's' class, there are several other tokens next to it``() = 
   let content = getContent """let _ = "str", 1 """
-  content |> shouldContainText <| sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String
-  content |> shouldNotContainText <| sprintf  "<span class=\"%s\">,</span>" CSS.String
+  content |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
+  content |> shouldNotContainText (sprintf  "<span class=\"%s\">,</span>" CSS.String)
   content |> shouldContainText ","
 
 [<Test>]
-let ``Plain string is in span of 's' class, there is single char next to it``() = 
+let ``Plain string is in span of 's' class, there is punctuation next to it``() = 
   let content = getContent """let _ = ("str")"""
-  content |> shouldContainText "> (<"
-  content |> shouldContainText <| sprintf  "<span class=\"%s\">&quot;str&quot;</span>" CSS.String
-  content |> shouldContainText ">)"
+  content |> shouldContainText (sprintf "<span class=\"%s\">(</span>" CSS.Punctuation)
+  content |> shouldContainText (sprintf  "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
+  content |> shouldContainText (sprintf "<span class=\"%s\">)</span>" CSS.Punctuation)
 
 [<Test>]
 let ``Modules and types are in spans of 't' class``() = 
@@ -109,26 +109,26 @@ module M =
         member __.Method x = ()
     let func2 x y = x + y
 """
-  content |> shouldContainText <| sprintf "class=\"%s\">func1</span>" CSS.Function
-  content |> shouldContainText <| sprintf "class=\"%s\">Method</span>" CSS.Function
-  content |> shouldContainText <| sprintf "class=\"%s\">func2</span>" CSS.Function
+  content |> shouldContainText (sprintf "class=\"%s\">func1</span>" CSS.Function )
+  content |> shouldContainText (sprintf "class=\"%s\">Method</span>" CSS.Function)
+  content |> shouldContainText (sprintf "class=\"%s\">func2</span>" CSS.Function )
 
 [<Test>]
 let ``Printf formatters are in spans of 'pf' class``() = 
   let content = getContent """let _ = sprintf "a %A b %0.3fD" """
-  content |> shouldContainText <| sprintf "class=\"%s\">&quot;a </span>" CSS.String
-  content |> shouldContainText <| sprintf "class=\"%s\">%%A</span>" CSS.Printf
-  content |> shouldContainText <| sprintf "class=\"%s\"> b </span>" CSS.String
-  content |> shouldContainText <| sprintf "class=\"%s\">%%0.3f</span>" CSS.Printf
-  content |> shouldContainText <| sprintf "class=\"%s\">D&quot;</span>" CSS.String
+  content |> shouldContainText (sprintf "class=\"%s\">&quot;a </span>" CSS.String)
+  content |> shouldContainText (sprintf "class=\"%s\">%%A</span>" CSS.Printf     )
+  content |> shouldContainText (sprintf "class=\"%s\"> b </span>" CSS.String     )
+  content |> shouldContainText (sprintf "class=\"%s\">%%0.3f</span>" CSS.Printf  )
+  content |> shouldContainText (sprintf "class=\"%s\">D&quot;</span>" CSS.String )
 
 [<Test>]
 let ``Escaped characters are in spans of 'esc' class``() = 
   let content = getContent """let _ = sprintf "a \n\tD\uA0A0 \t" """
-  content |> shouldContainText <| sprintf "class=\"%s\">&quot;a </span>" CSS.String
-  content |> shouldContainText <| sprintf "class=\"%s\">\\n</span>" CSS.Escaped
-  content |> shouldContainText <| sprintf "class=\"%s\">\\t</span>" CSS.Escaped
-  content |> shouldContainText <| sprintf "class=\"%s\">D</span>" CSS.String
-  content |> shouldContainText <| sprintf "class=\"%s\">\\uA0A0</span>" CSS.Escaped
-  content |> shouldContainText <| sprintf "class=\"%s\"> </span>" CSS.String
-  content |> shouldContainText <| sprintf "class=\"%s\">\\t</span>" CSS.Escaped
+  content |> shouldContainText (sprintf "class=\"%s\">&quot;a </span>" CSS.String)
+  content |> shouldContainText (sprintf "class=\"%s\">\\n</span>" CSS.Escaped)
+  content |> shouldContainText (sprintf "class=\"%s\">\\t</span>" CSS.Escaped)
+  content |> shouldContainText (sprintf "class=\"%s\">D</span>" CSS.String)
+  content |> shouldContainText (sprintf "class=\"%s\">\\uA0A0</span>" CSS.Escaped)
+  content |> shouldContainText (sprintf "class=\"%s\"> </span>" CSS.String)
+  content |> shouldContainText (sprintf "class=\"%s\">\\t</span>" CSS.Escaped)

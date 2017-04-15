@@ -103,9 +103,9 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-nested-submodule.html"] |> shouldContainText "Very nested field"
 
   // Check that union fields are correctly generated
-  files.["fslib-union.html"] |> should contain "World(string,int)"
+  files.["fslib-union.html"] |> shouldContainText "World(string,int)"
 #if FSHARP_31
-  files.["fslib-union.html"] |> should contain "Naming(rate,string)"
+  files.["fslib-union.html"] |> shouldContainText "Naming(rate,string)"
 #endif
 
   // Check that methods with no arguments are correctly generated (#113)
@@ -140,12 +140,12 @@ let ``MetadataFormat generates Go to GitHub source links``() =
       sourceFolder = (root </> "../..") )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.["fslib-class.html"] |> should contain "github-link"
-  files.["fslib-class.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
-  files.["fslib-record.html"] |> should contain "github-link"
-  files.["fslib-record.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
-  files.["fslib-union.html"] |> should contain "github-link"
-  files.["fslib-union.html"] |> should contain "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "github-link"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "github-link"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "github-link"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
 
   #if INTERACTIVE
   System.Diagnostics.Process.Start(output)
@@ -445,7 +445,7 @@ let ``MetadataFormat omit works without markdown``() =
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
-  files.ContainsKey "fslib-test_omit.html" |> should equal false
+  files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 [<Test>]
 let ``MetadataFormat test FsLib1``() =
@@ -459,7 +459,7 @@ let ``MetadataFormat test FsLib1``() =
 
   let files =
       dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.ContainsKey "fslib-test_omit.html" |> should equal false
+  files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 // -------------------Indirect links----------------------------------
 [<Test>]
