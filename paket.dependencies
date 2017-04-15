@@ -19,8 +19,6 @@ github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharp
 
 group Test 
     source https://api.nuget.org/v3/index.json
-    redirects: on
 
     nuget FsUnit 3.0.0 //framework:net45
-    nuget NUnit
-    nuget NUnit.Console
+    nuget NUnit 3.6.0

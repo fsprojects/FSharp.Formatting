@@ -3,6 +3,7 @@
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #else
+[<NUnit.Framework.TestFixture>]
 module FSharp.CodeFormat.Tests
 #endif
 
@@ -67,13 +68,13 @@ let ``Non-unicode characters do not cause exception`` () =
 ✘ let add I J = I+J
 // [/snippet]"""
   let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
-  errors.Length |> should (be greaterThan) 0
+  errors.Length |> shouldBeGreaterThan 0
   let (SourceError(_, _, _, msg)) = errors.[0] 
-  msg |> should contain "✘"
+  msg |> shouldContainText "✘"
 
 [<Test>]
 let ``Plain string is in span of 's' class when it's the last token in the line``() = 
-  getContent """let _ = "str" """ |> should contain "<span class=\"s\">&quot;str&quot;</span>"
+  getContent """let _ = "str" """ |> shouldContainText "<span class=\"s\">&quot;str&quot;</span>"
 
 [<Test>]
 let ``Plain string is in span of 's' class, there are several other tokens next to it``() = 
