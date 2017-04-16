@@ -3,10 +3,10 @@
 open System
 open System.Reflection
 open System.Collections.Generic
-open Yaaf.FSharp.Scripting
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 open FSharp.Formatting.Common
+open FSharp.Formatting.Scripting
 open FSharp.Patterns
 open FSharp.CodeFormat
 

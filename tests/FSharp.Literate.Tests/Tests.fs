@@ -35,13 +35,14 @@ do
         |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Information |]
     let sources =
       [ FSharp.Formatting.Common.Log.source
-        Yaaf.FSharp.Scripting.Log.source ]
+        //Yaaf.FSharp.Scripting.Log.source 
+      ]
 
     sources |> Seq.iter (Logging.SetupSource listeners)
 
     // Test that everything works
     Logging.infof "FSharp.Formatting Logging setup!"
-    Yaaf.FSharp.Scripting.Log.infof "Yaaf.FSharp.Scripting Logging setup!"
+    //Yaaf.FSharp.Scripting.Log.infof "Yaaf.FSharp.Scripting Logging setup!"
   with e ->
     printfn "FSharp.Formatting Logging setup failed: %A" e
 

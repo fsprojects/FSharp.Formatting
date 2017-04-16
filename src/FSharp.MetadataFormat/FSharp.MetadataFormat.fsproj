@@ -14,6 +14,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
+    <DefineConstants>NET461</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,17 +22,17 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>..\..\bin\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;METADATAFORMAT</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;DEBUG;METADATAFORMAT</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\bin\FSharp.MetadataFormat.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>portable</DebugType>
-    <DefineConstants>METADATAFORMAT</DefineConstants>
+    <DefineConstants>$(DefineConstants);METADATAFORMAT</DefineConstants>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\bin\</OutputPath>
-    <DefineConstants>TRACE;METADATAFORMAT</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;METADATAFORMAT</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\bin\FSharp.MetadataFormat.xml</DocumentationFile>
   </PropertyGroup>
@@ -88,6 +89,9 @@
     </Compile>
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\Scripting.fs">
+      <Link>Common\Scripting.fs</Link>
     </Compile>
     <Compile Include="Main.fs" />
     <Content Include="app.config" />

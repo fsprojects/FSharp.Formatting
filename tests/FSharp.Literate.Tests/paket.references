@@ -1,6 +1,7 @@
 FSharp.Core
 Microsoft.AspNet.Razor
 RazorEngine
+FSharp.Compiler.Service
 
 group Test
 FsUnit

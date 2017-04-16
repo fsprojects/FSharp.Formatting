@@ -142,7 +142,8 @@ Target "RunTests" (fun _ ->
     testAssemblies
     |> NUnit3 (fun p ->
         { p with
-            ShadowCopy = true
+            ProcessModel = NUnit3ProcessModel.SingleProcessModel
+            ShadowCopy = false
             TimeOut = TimeSpan.FromMinutes 20.
             ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
             OutputDir = "TestResults.xml" })
@@ -171,16 +172,16 @@ let RequireRange breakingPoint version =
 Target "CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
     for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
-        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName(file)),  Path.Combine("lib", Path.GetFileName(file))
+        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName file),  Path.Combine("lib", Path.GetFileName file)
         printfn "Copying %s to %s" source binDest
-        File.Copy(source, binDest, true)
-        File.Copy(source, libDest, true)
+        File.Copy (source, binDest, true)
+        File.Copy (source, libDest, true)
     
     for file in System.IO.Directory.EnumerateFiles("packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8") do
-        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName(file)), Path.Combine("lib", Path.GetFileName(file))
+        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName file), Path.Combine("lib", Path.GetFileName file)
         printfn "Copying %s to %s" source binDest
-        File.Copy(source, binDest, true)
-        File.Copy(source, libDest, true)
+        File.Copy (source, binDest, true)
+        File.Copy (source, libDest, true)
 )
     
 

@@ -10,6 +10,7 @@
     <AssemblyName>FSharp.Literate</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <Name>FSharp.Literate</Name>
+    <DefineConstants>NET461</DefineConstants>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
   </PropertyGroup>
@@ -19,7 +20,7 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>..\..\bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\bin\FSharp.Literate.xml</DocumentationFile>
   </PropertyGroup>
@@ -28,7 +29,7 @@
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\bin\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\bin\FSharp.Literate.xml</DocumentationFile>
   </PropertyGroup>
@@ -74,6 +75,9 @@
     </Compile>
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\Scripting.fs">
+      <Link>Common\Scripting.fs</Link>
     </Compile>
     <Compile Include="Document.fs" />
     <Compile Include="Evaluator.fs" />
