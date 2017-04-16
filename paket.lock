@@ -796,6 +796,7 @@ NUGET
     NUnit (3.6)
       NETStandard.Library (>= 1.6) - framework: >= net463, >= netstandard16
       System.Runtime.Loader (>= 4.0) - framework: >= net463, >= netstandard16
+    NUnit.ConsoleRunner (3.6.1)
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - framework: >= net10, >= netstandard16
     runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - framework: >= net10, >= netstandard16
     runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - framework: >= net10, >= netstandard16

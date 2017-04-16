@@ -64,16 +64,13 @@ Target "AssemblyInfo" (fun _ ->
 
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp" ]
-    CleanDirs ["docs/output"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/obj"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/obj"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/obj"]
+    !! "bin"
+    ++ "temp"
+    ++ "docs/output"
+    ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
+    ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
+    |> CleanDirs
+
 )
 
 // --------------------------------------------------------------------------------------
@@ -82,15 +79,19 @@ Target "Clean" (fun _ ->
 open System.IO
 
 Target "UpdateFsxVersions" (fun _ ->
-    let packages = [ "FSharp.Compiler.Service"; "FSharpVSPowerTools.Core" ]
+    let packages = [ "FSharp.Compiler.Service" ]
     let replacements =
-      packages |> Seq.map (fun packageName ->
-        sprintf "/%s.(.*)/lib" packageName,
-        sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName))
+        packages |> Seq.map (fun packageName ->
+            sprintf "/%s.(.*)/lib" packageName,
+            sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName)
+        )
     let path = "./packages/FSharp.Formatting/FSharp.Formatting.fsx"
     let text = File.ReadAllText(path)
-    let text = (text, replacements) ||> Seq.fold (fun text (pattern, replacement) ->
-        Text.RegularExpressions.Regex.Replace(text, pattern, replacement) )
+    let text =
+        (text, replacements)
+        ||> Seq.fold (fun text (pattern, replacement) ->
+            Text.RegularExpressions.Regex.Replace (text, pattern, replacement)
+        )
     File.WriteAllText(path, text)
 )
 
@@ -112,33 +113,9 @@ Target "Build" (fun _ ->
 )
 
 
-Target "MergeVSPowerTools" (fun _ ->
-    () (*
-    let binDir = __SOURCE_DIRECTORY__ @@ "bin"
-    CreateDir (binDir @@ "merged")
 
-    let toPack =
-        (binDir @@ "FSharp.CodeFormat.dll") + " " +
-        (binDir @@ "FSharpVSPowerTools.Core.dll")
-
-    let result =
-        ExecProcess (fun info ->
-            info.FileName <- currentDirectory @@ "packages/ILRepack/tools/ILRepack.exe"
-            info.Arguments <-
-              sprintf
-                "/internalize /verbose /lib:bin /ver:%s /out:%s %s"
-                release.AssemblyVersion (binDir @@ "merged" @@ "FSharp.CodeFormat.dll") toPack
-            ) (TimeSpan.FromMinutes 5.)
-
-    if result <> 0 then failwithf "Error during ILRepack execution."
-
-    !! (binDir @@ "merged" @@ "*.*")
-    |> CopyFiles binDir
-    DeleteDir (binDir @@ "merged")
-    *)
-)
-// --------------------------------------------------------------------------------------
 // Build tests and generate tasks to run the tests in sequence
+// --------------------------------------------------------------------------------------
 
 Target "BuildTests" (fun _ ->
     {   BaseDirectory = __SOURCE_DIRECTORY__
@@ -178,21 +155,36 @@ let testProjects =
   [ "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
     "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
 
-Target "RunTests" <| ignore
+let testAssemblies =
+    [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
+        "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
+    |> List.map (fun asm -> sprintf "tests/%s/bin/Release/%s.dll" asm asm)
+
+Target "RunTests" (fun _ ->
+    testAssemblies
+    |> NUnit3 (fun p ->
+        { p with
+            ShadowCopy = true
+            TimeOut = TimeSpan.FromMinutes 20.
+            ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
+            OutputDir = "TestResults.xml" })
+
+)
 
 // For each test project file, generate a new "RunTest_Xyz" which
 // runs the test (to process them sequentially which is needed in Travis)
-for name in testProjects do
-    let taskName = sprintf "RunTest_%s" name
-    Target taskName <| fun () ->
-        !! (sprintf "tests/*/bin/Release/%s.dll" name)
-        |> NUnit3 (fun p ->
-            { p with
-                ShadowCopy = true
-                TimeOut = TimeSpan.FromMinutes 20.
-                OutputDir = "TestResults.xml" })
-    taskName ==> "RunTests" |> ignore
-    "BuildTests" ==> taskName |> ignore
+// for name in testProjects do
+//     let taskName = sprintf "RunTest_%s" name
+//     Target taskName <| fun () ->
+//         !! (sprintf "tests/*/bin/Release/%s.dll" name)
+//         |> NUnit3 (fun p ->
+//             { p with
+//                 ShadowCopy = true
+//                 TimeOut = TimeSpan.FromMinutes 20.
+//                 ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
+//                 OutputDir = "TestResults.xml" })
+//     taskName ==> "RunTests" |> ignore
+//     "BuildTests" ==> taskName |> ignore
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -216,7 +208,7 @@ let RequireRange breakingPoint version =
 
 Target "CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
-    for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net40") do
+    for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
         let source, dest = file, Path.Combine("bin", Path.GetFileName(file))
         printfn "Copying %s to %s" source dest
         File.Copy(source, dest, true))
@@ -510,14 +502,29 @@ Target "CreateTestJson" (fun _ ->
     File.Copy(resultFile, "tests"</>"commonmark_spec.json")
 )
 
-"Clean" ==> "AssemblyInfo" ==> "Build" ==> "BuildTests"
-"Build" ==> "MergeVSPowerTools" ==> "All"
-"BuildTests" ==> "RunTests" ==> "All"
+"Clean"
+  ==> "AssemblyInfo"
+  ==> "Build"
+  ==> "BuildTests"
+
+
+"Build" ==> "All"
+
+"BuildTests"
+  ==> "RunTests"
+  ==> "All"
+
 "GenerateDocs" ==> "All"
-"Build" ==> "CopyFSharpCore" ==> "DogFoodCommandTool" ==> "All"
+
+"Build"
+  ==> "CopyFSharpCore"
+  ==> "DogFoodCommandTool"
+  ==> "All"
+
 "UpdateFsxVersions" ==> "All"
 
 "CopyFSharpCore" ==> "NuGet"
+
 "All"
   ==> "NuGet"
   ==> "ReleaseDocs"
