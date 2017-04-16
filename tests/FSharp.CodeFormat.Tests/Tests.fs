@@ -122,7 +122,7 @@ let ``Printf formatters are in spans of 'pf' class``() =
   content |> shouldContainText (sprintf "class=\"%s\">%%0.3f</span>" CSS.Printf  )
   content |> shouldContainText (sprintf "class=\"%s\">D&quot;</span>" CSS.String )
 
-[<Test>]
+[<Test>][<Ignore "FCS doesn't currently have semantic highlighting for escaped chars in a string">]
 let ``Escaped characters are in spans of 'esc' class``() = 
   let content = getContent """let _ = sprintf "a \n\tD\uA0A0 \t" """
   content |> shouldContainText (sprintf "class=\"%s\">&quot;a </span>" CSS.String)
