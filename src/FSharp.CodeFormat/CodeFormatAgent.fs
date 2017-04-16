@@ -174,10 +174,6 @@ type CodeFormatAgent() =
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with 
                         | Some(_) as res -> res
-                        //| _ when island.Length > 1 ->
-                        //    // Try to find some information about the last part of the identifier 
-                        //    let tip = checkResults.GetIdentTooltip(line + 1, token.LeftColumn + 2, lines.[line], [ processDoubleBackticks body ])
-                        //    Async.RunSynchronously tip |> Option.bind ToolTipReader.tryFormatTip
                         | _ -> None
                     else None
   
@@ -243,7 +239,7 @@ type CodeFormatAgent() =
         // Process the current line & return info about it
         Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
 
-  /// Process snippet
+    /// Process snippet
     let processSnippet checkResults categorizedRanges lines (snippet: Snippet) =
         snippet 
         |> List.map (fun snippetLine ->
@@ -255,24 +251,14 @@ type CodeFormatAgent() =
                 lines 
                 ((fst snippetLine).StartLine, snd snippetLine))
 
-// --------------------------------------------------------------------------------------
+    // --------------------------------------------------------------------------------------
 
-  // Create an instance of an InteractiveChecker (which does background analysis
-  // in a typical IntelliSense editor integration for F#)
+    // Create an instance of an InteractiveChecker (which does background analysis
+    // in a typical IntelliSense editor integration for F#)
     let fsChecker = FSharpChecker.Create()
-  //do fsChecker.SetCriticalErrorHandler(fun exn str1 str2 opts ->
-  //    FSharp.Formatting.Common.Log.errorf "Language Service Error (%s, %s, %A): %O" str1 str2 opts exn)
 
-  /// Type-checking takes some time and doesn't return information on the
-  /// first call, so this function creates workflow that tries repeatedly
-  //let getTypeCheckInfo(filePath, source, opts) = asyncMaybe {
-      
 
-  //    let! symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile () |> liftAsync
-  //    return checkResults, symbolUses
-  //}
-
-  // ------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------
 
     let processSourceCode (filePath, source, options, defines) = asyncMaybe {
 
@@ -295,7 +281,6 @@ type CodeFormatAgent() =
             | _ -> opts
 
         // Run the second phase - perform type checking
-        //let! (checkResults, symbolUses) = getTypeCheckInfo(file, source, opts) 
         let! _parseResults, parsedInput, checkResults = fsChecker.ParseAndCheckDocument(filePath, source,opts,false)
         let! symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile () |> liftAsync
         let errors = checkResults.Errors
@@ -357,12 +342,11 @@ type CodeFormatAgent() =
       // ------------------------------------------------------------------------------------
       // Agent that implements the parsing & formatting
   
-    let agent = MailboxProcessor.Start(fun agent -> async {
+    let agent = MailboxProcessor.Start (fun agent -> async {
         while true do
           // Receive parameters for the next parsing request
           let! request, (chnl:AsyncReplyChannel<_>) = agent.Receive()
           try
-            //let! res, errs = processSourceCode request
             let! result = processSourceCode request
             match result with 
             | Some (res,errs) ->
