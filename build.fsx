@@ -171,9 +171,18 @@ let RequireRange breakingPoint version =
 Target "CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
     for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
-        let source, dest = file, Path.Combine("bin", Path.GetFileName(file))
-        printfn "Copying %s to %s" source dest
-        File.Copy(source, dest, true))
+        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName(file)),  Path.Combine("lib", Path.GetFileName(file))
+        printfn "Copying %s to %s" source binDest
+        File.Copy(source, binDest, true)
+        File.Copy(source, libDest, true)
+    
+    for file in System.IO.Directory.EnumerateFiles("packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8") do
+        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName(file)), Path.Combine("lib", Path.GetFileName(file))
+        printfn "Copying %s to %s" source binDest
+        File.Copy(source, binDest, true)
+        File.Copy(source, libDest, true)
+)
+    
 
 Target "NuGet" (fun _ ->
     NuGet (fun p ->

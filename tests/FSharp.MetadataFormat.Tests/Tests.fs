@@ -1,4 +1,5 @@
 ﻿#if INTERACTIVE
+System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
 #I "../../bin"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.MetadataFormat.dll"
