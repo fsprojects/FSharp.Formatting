@@ -59,9 +59,9 @@ Target "AssemblyInfo" (fun _ ->
   CreateCSharpAssemblyInfo "src/Common/AssemblyInfo.cs" info
 )
 
-// --------------------------------------------------------------------------------------
-// Clean build results
 
+// Clean build results
+// --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
     !! "bin"
@@ -70,11 +70,11 @@ Target "Clean" (fun _ ->
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
     |> CleanDirs
-
 )
 
-// --------------------------------------------------------------------------------------
+
 // Update the assembly version numbers in the script file.
+// --------------------------------------------------------------------------------------
 
 open System.IO
 
@@ -95,9 +95,9 @@ Target "UpdateFsxVersions" (fun _ ->
     File.WriteAllText(path, text)
 )
 
-// --------------------------------------------------------------------------------------
-// Build library
 
+// Build library
+// --------------------------------------------------------------------------------------
 
 let solutionFile = "FSharp.Formatting.sln"
 
@@ -118,47 +118,25 @@ Target "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target "BuildTests" (fun _ ->
-    {   BaseDirectory = __SOURCE_DIRECTORY__
-        Includes = ["FSharp.Formatting.sln"]
-        Excludes = []
-    }   |> MSBuildRelease "" "Build"
-        |> ignore
+    let debugBuild sln =
+        {   BaseDirectory = __SOURCE_DIRECTORY__
+            Includes = [sln]
+            Excludes = []
+        }   |> MSBuildDebug "" "Build" |> ignore
 
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/FsLib/FsLib.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Build"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/crefLib/crefLib.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Build"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/csharpSupport/csharpSupport.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Build"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/TestLib/TestLib.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Build"
-    |> ignore
+    debugBuild "tests/*/files/FsLib/FsLib.sln"
+    debugBuild "tests/*/files/crefLib/crefLib.sln"
+    debugBuild "tests/*/files/csharpSupport/csharpSupport.sln"
+    debugBuild "tests/*/files/TestLib/TestLib.sln"
 )
 
 open Fake.Testing
-
-let testProjects =
-  [ "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
-    "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
 
 let testAssemblies =
     [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
         "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
     |> List.map (fun asm -> sprintf "tests/%s/bin/Release/%s.dll" asm asm)
+
 
 Target "RunTests" (fun _ ->
     testAssemblies
@@ -168,23 +146,7 @@ Target "RunTests" (fun _ ->
             TimeOut = TimeSpan.FromMinutes 20.
             ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
             OutputDir = "TestResults.xml" })
-
 )
-
-// For each test project file, generate a new "RunTest_Xyz" which
-// runs the test (to process them sequentially which is needed in Travis)
-// for name in testProjects do
-//     let taskName = sprintf "RunTest_%s" name
-//     Target taskName <| fun () ->
-//         !! (sprintf "tests/*/bin/Release/%s.dll" name)
-//         |> NUnit3 (fun p ->
-//             { p with
-//                 ShadowCopy = true
-//                 TimeOut = TimeSpan.FromMinutes 20.
-//                 ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
-//                 OutputDir = "TestResults.xml" })
-//     taskName ==> "RunTests" |> ignore
-//     "BuildTests" ==> taskName |> ignore
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -249,8 +211,10 @@ Target "NuGet" (fun _ ->
         "nuget/FSharp.Formatting.CommandTool.nuspec"
 )
 
-// --------------------------------------------------------------------------------------
+
 // Generate the documentation
+// --------------------------------------------------------------------------------------
+
 
 let fakePath = "packages" </> "FAKE" </> "tools" </> "FAKE.exe"
 let fakeStartInfo script workingDirectory args fsiargs environmentVars =
