@@ -15,6 +15,7 @@ open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
+open FSharp.Formatting.Common
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------
@@ -22,21 +23,19 @@ open FSharp.CodeFormat.CommentFilter
 module private Helpers = 
   
   /// Mapping table that translates F# compiler representation to our union
-  let private colorMap =
-    [ FSharpTokenColorKind.Comment, TokenKind.Comment
-      FSharpTokenColorKind.Identifier, TokenKind.Identifier
-      FSharpTokenColorKind.InactiveCode, TokenKind.Inactive
-      FSharpTokenColorKind.Keyword, TokenKind.Keyword
-      FSharpTokenColorKind.Number, TokenKind.Number
-      FSharpTokenColorKind.Operator, TokenKind.Operator
-      FSharpTokenColorKind.Punctuation, TokenKind.Punctuation
-      FSharpTokenColorKind.PreprocessorKeyword, TokenKind.Preprocessor
-      FSharpTokenColorKind.String, TokenKind.String
-      FSharpTokenColorKind.UpperIdentifier, TokenKind.Identifier ] |> Map.ofSeq
-
-  /// Return the TokenKind corresponding to the specified F# compiler token
-  let getTokenKind key = 
-    defaultArg (Map.tryFind key colorMap) TokenKind.Default
+  let getTokenKind = function
+  | FSharpTokenColorKind.Comment             -> TokenKind.Comment
+  | FSharpTokenColorKind.Identifier          -> TokenKind.Identifier
+  | FSharpTokenColorKind.InactiveCode        -> TokenKind.Inactive
+  | FSharpTokenColorKind.Keyword             -> TokenKind.Keyword
+  | FSharpTokenColorKind.Number              -> TokenKind.Number
+  | FSharpTokenColorKind.Operator            -> TokenKind.Operator
+  | FSharpTokenColorKind.Punctuation         -> TokenKind.Punctuation
+  | FSharpTokenColorKind.PreprocessorKeyword -> TokenKind.Preprocessor
+  | FSharpTokenColorKind.String              -> TokenKind.String
+  | FSharpTokenColorKind.UpperIdentifier     -> TokenKind.Identifier 
+  | FSharpTokenColorKind.Text
+  | FSharpTokenColorKind.Default | _         -> TokenKind.Default
 
   // Parse command line options - split string by space, but if there is something
   // enclosed in double quotes "..." then ignore spaces in the quoted text
@@ -67,18 +66,22 @@ module private Helpers =
     let sourceTok =   FSharpSourceTokenizer(defaultArg defines [], file)
 
     // Parse lines using the tokenizer
-    [ let state = ref 0L
-      for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
-        let tokenizer = sourceTok.CreateLineTokenizer(line)
-        let rec parseLine() = seq {
-          match tokenizer.ScanToken(!state) with
-          | Some(tok), nstate ->
-              let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
-              yield str, tok
-              state := nstate
-              yield! parseLine()
-          | None, nstate -> state := nstate }
-        yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine() |> List.ofSeq ]
+    let indexedSnippetLines =
+        [   let state = ref 0L
+            for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
+                let tokenizer = sourceTok.CreateLineTokenizer(line)
+                let rec parseLine() = seq {
+                    match tokenizer.ScanToken(!state) with
+                    | Some(tok), nstate ->
+                        let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
+                        yield str, tok
+                        state := nstate
+                        yield! parseLine()
+                    | None, nstate -> state := nstate 
+                }
+                yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine() |> List.ofSeq 
+        ]
+    indexedSnippetLines
 
   // Count the minimal number of spaces at the beginning of lines
   // (so that we can remove spaces for indented text)
@@ -88,7 +91,8 @@ module private Helpers =
         | ((text:string), info)::_ when info.TokenName = "WHITESPACE" ->
             yield text.Length - text.TrimStart([| ' ' |]).Length
         | [] -> ()
-        | _ -> yield 0 ] |> Seq.fold min 0
+        | _ -> yield 0 
+    ] |> Seq.fold min 0
 
 // --------------------------------------------------------------------------------------
 // Main type that implements parsing and uses F# services
@@ -112,21 +116,21 @@ type CodeFormatAgent() =
         else body
 
     let categoryToTokenKind = function
-        | SemanticClassificationType.Enumeration -> Some TokenKind.Enumeration
-        | SemanticClassificationType.Function -> Some TokenKind.Function
-        | SemanticClassificationType.Interface -> Some TokenKind.Interface
-        | SemanticClassificationType.Module -> Some TokenKind.Module
-        | SemanticClassificationType.MutableVar -> Some TokenKind.MutableVar
-        | SemanticClassificationType.Printf -> Some TokenKind.Printf
-        | SemanticClassificationType.Property -> Some TokenKind.Property
-        | SemanticClassificationType.ReferenceType -> Some TokenKind.ReferenceType
-        | SemanticClassificationType.UnionCase -> Some TokenKind.UnionCase
-        | SemanticClassificationType.ValueType  -> Some TokenKind.ValueType
-        | SemanticClassificationType.Disposable -> Some TokenKind.Disposable
-        | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
-        | SemanticClassificationType.TypeArgument -> Some TokenKind.TypeArgument 
-        | SemanticClassificationType.Operator -> Some TokenKind.Operator
-        | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword
+    | SemanticClassificationType.Enumeration -> Some TokenKind.Enumeration
+    | SemanticClassificationType.Function -> Some TokenKind.Function
+    | SemanticClassificationType.Interface -> Some TokenKind.Interface
+    | SemanticClassificationType.Module -> Some TokenKind.Module
+    | SemanticClassificationType.MutableVar -> Some TokenKind.MutableVar
+    | SemanticClassificationType.Printf -> Some TokenKind.Printf
+    | SemanticClassificationType.Property -> Some TokenKind.Property
+    | SemanticClassificationType.ReferenceType -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.UnionCase -> Some TokenKind.UnionCase
+    | SemanticClassificationType.ValueType  -> Some TokenKind.ValueType
+    | SemanticClassificationType.Disposable -> Some TokenKind.Disposable
+    | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
+    | SemanticClassificationType.TypeArgument -> Some TokenKind.TypeArgument 
+    | SemanticClassificationType.Operator -> Some TokenKind.Operator
+    | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword
 
 
     // Processes a single line of the snippet
@@ -138,6 +142,9 @@ type CodeFormatAgent() =
         let rec loop island (tokens: SnippetLine) (stringRange: Range option) = seq {
             match tokens with 
             | [] -> ()
+            | (body, token)::rest when token.ColorClass = FSharpTokenColorKind.Keyword ->
+                yield FSharp.CodeFormat.Token (TokenKind.Keyword, body, None)
+                yield! loop [] rest None
             | (body, token) :: rest -> 
             let stringRange, completedStringRange, rest =
                 match rest with
@@ -146,13 +153,16 @@ type CodeFormatAgent() =
                     match token.ColorClass, stringRange with
                     | FSharpTokenColorKind.String, None -> 
                         None, Some (Range.Create token.LeftColumn token.RightColumn), rest
-                    | FSharpTokenColorKind.String, Some range -> None, Some { range with RightCol = token.RightColumn }, rest
+                    | FSharpTokenColorKind.String, Some range -> 
+                        None, Some { range with RightCol = token.RightColumn }, rest
                     | _, Some range -> None, Some range, tokens
                     | _ -> None, None, rest
                 | _ ->
                     match token.ColorClass, stringRange with
-                    | FSharpTokenColorKind.String, None -> Some (Range.Create token.LeftColumn token.RightColumn), None, rest
-                    | FSharpTokenColorKind.String, Some range -> Some { range with RightCol = token.RightColumn }, None, rest
+                    | FSharpTokenColorKind.String, None -> 
+                        Some (Range.Create token.LeftColumn token.RightColumn), None, rest
+                    | FSharpTokenColorKind.String, Some range -> 
+                        Some { range with RightCol = token.RightColumn }, None, rest
                     | _, Some range -> None, Some range, tokens
                     | _ -> None, None, rest
 
@@ -200,9 +210,9 @@ type CodeFormatAgent() =
                     yield FSharp.CodeFormat.Token (kind, body, tip)
                 // Process the rest of the line
                 yield! loop island rest stringRange
-            | Some _, None -> yield! loop island rest stringRange
+            | Some _x, None -> yield! loop island rest stringRange
 
-            | _, Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
+            | _x, Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
               let printfOrEscapedSpans = 
                   semanticRanges 
                   |> Array.filter (fun (range,category) -> 
@@ -234,7 +244,8 @@ type CodeFormatAgent() =
                   for leftPoint, rightPoint, kind in data do
                     yield FSharp.CodeFormat.Token (kind, lineStr.[leftPoint..rightPoint-1], None)
               // Process the rest of the line
-              yield! loop island rest stringRange }
+              yield! loop island rest stringRange 
+        }
 
         // Process the current line & return info about it
         Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
@@ -243,6 +254,7 @@ type CodeFormatAgent() =
     let processSnippet checkResults categorizedRanges lines (snippet: Snippet) =
         snippet 
         |> List.map (fun snippetLine ->
+            
             processSnippetLine 
                 checkResults 
                 (categorizedRanges 
@@ -264,11 +276,11 @@ type CodeFormatAgent() =
 
         // Read the source code into an array of lines
         use reader = new StringReader(source)
-        let sourceLines = 
-            [|  let line = ref ""
-                while (line := reader.ReadLine(); line.Value <> null) do
-                    yield line.Value |]
-
+        let sourceLines = [|  
+            let line = ref ""
+            while (line := reader.ReadLine(); line.Value <> null) do
+                yield line.Value 
+        |]
         // Get options for a standalone script file (this adds some 
         // default references and doesn't require full project information)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now) |> liftAsync
@@ -303,39 +315,42 @@ type CodeFormatAgent() =
 
         // Split source into snippets if it contains meta-comments
         let snippets : NamedSnippet list = 
-          match getSnippets None [] source sourceLines with
-          | [] -> [null, source]
-          | snippets -> snippets |> List.rev
+            match getSnippets None [] source sourceLines with
+            | [] -> [null, source]
+            | snippets -> snippets |> List.rev
 
         // Generate a list of snippets
         let parsedSnippets = 
-          snippets |> List.map (fun (title, lines) -> 
-            if lines.Length = 0 then
-              // Skip empty snippets
-              Snippet(title, [])
-            else
-              // Process the current snippet
-              let parsed = processSnippet checkResults classifications sourceLines lines
+            snippets |> List.map (fun (title, lines) -> 
+                if lines.Length = 0 then
+                    // Skip empty snippets
+                    Snippet(title, [])
+                else
+                // Process the current snippet
+                let parsed = processSnippet checkResults classifications sourceLines lines
 
-              // Remove additional whitespace from start of lines
-              let spaces = Helpers.countStartingSpaces lines
-              let parsed =  parsed |> List.map (function
-                | Line ((Token(kind, body, tip))::rest) ->
-                    let body = body.Substring(spaces)
-                    Line ((Token(kind, body, tip))::rest)
-                | line -> line)
-          
-              // Return parsed snippet as 'Snippet' value
-              Snippet(title, parsed))
+                // Remove additional whitespace from start of lines
+                let spaces = Helpers.countStartingSpaces lines
+                let parsed =  parsed |> List.map (function
+                    | Line ((Token(kind, body, tip))::rest) ->
+                        let body = body.Substring(spaces)
+                        Line ((Token(kind, body, tip))::rest)
+                    | line -> line
+                    )
+                // Return parsed snippet as 'Snippet' value
+                Snippet(title, parsed)
+            )
   
-        let sourceErrors =
-          [| for errInfo in errors do
-              if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
-                yield
-                  SourceError
-                    ( (errInfo.StartLineAlternate - 1, errInfo.StartColumn), (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
-                      (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
-                      errInfo.Message ) |]
+        let sourceErrors = [| 
+            for errInfo in errors do
+                if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+                    yield SourceError( 
+                        (errInfo.StartLineAlternate - 1, errInfo.StartColumn), 
+                        (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
+                        (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
+                        errInfo.Message 
+                    ) 
+        |]
         return parsedSnippets, sourceErrors 
     }
  
