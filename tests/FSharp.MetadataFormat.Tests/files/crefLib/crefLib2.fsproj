@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>crefLib2</RootNamespace>
     <AssemblyName>crefLib2</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.0.0</TargetFSharpCoreVersion>
     <Name>crefLib2</Name>
     <TargetFrameworkProfile />
@@ -33,22 +33,6 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\crefLib2.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Library2.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="crefLib1.fsproj">
-      <Name>crefLib1</Name>
-      <Project>{a0c8dd00-bd08-48d6-b257-5a838e5da819}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -76,6 +60,21 @@
     </When>
   </Choose>
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <ItemGroup>
+    <None Include="crefLib2.paket.references" />
+    <Compile Include="Library2.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <ProjectReference Include="crefLib1.fsproj">
+      <Name>crefLib1</Name>
+      <Project>{a0c8dd00-bd08-48d6-b257-5a838e5da819}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
