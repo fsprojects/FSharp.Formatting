@@ -2,6 +2,7 @@
 .fake/
 .vs/
 bin/
+lib/
 obj/
 /.paket/paket.exe
 paket-files/
