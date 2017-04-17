@@ -83,7 +83,7 @@ module FSharpAssemblyHelper =
       let fsCore4300Dir = fsCore "4.0" "4.3.0.0"
       let fsCore4310Dir = fsCore "4.0" "4.3.1.0"
       let fsCore4400Dir = fsCore "4.0" "4.4.0.0"
-      let fsCore4410Dir = fsCore "4.0" "4.4.1.0"
+      //let fsCore4410Dir = fsCore "4.0" "4.4.1.0"
 
       let loadedFsCoreVersion =
         let ass = typeof<FSharp.Core.EntryPointAttribute>.Assembly
@@ -99,7 +99,7 @@ module FSharpAssemblyHelper =
           yield System.IO.Directory.GetCurrentDirectory()
           // Prefer the currently loaded version
           yield fsCore "4.0" loadedFsCoreVersion
-          yield fsCore4410Dir
+          //yield fsCore4410Dir
           yield fsCore4400Dir
           yield fsCore4310Dir
           yield fsCore4300Dir

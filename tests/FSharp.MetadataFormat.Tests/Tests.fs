@@ -26,8 +26,21 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 // --------------------------------------------------------------------------------------
 
 let (</>) a b = Path.Combine(a, b)
+let fullpath = Path.GetFullPath
+let fullpaths = List.map fullpath
 
-let root = __SOURCE_DIRECTORY__
+let root = __SOURCE_DIRECTORY__ |> fullpath
+
+
+// NOTE - For these tests to run properly they require the output of all the metadata
+// test project to be directed to the directory below
+let testBin = __SOURCE_DIRECTORY__ </> "../bin" |> fullpath
+
+#if INTERACTIVE 
+;;
+printfn "\n-- Root - %s" root;;
+printfn "\n-- TestBin - %s" testBin;;
+#endif 
 
 let getOutputDir()  =
   let tempFile = Path.GetTempFileName()
@@ -50,10 +63,15 @@ let info =
     "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
     "root", "http://tpetricek.github.io/FSharp.FSharp.ProjectScaffold" ]
 
-let generate (libraries:string list) dirs useMarkdown =
+let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
-        let metadata = MetadataFormat.Generate (libraries,parameters=info,libDirs = dirs@[root; root </> "../../bin"],markDownComments = useMarkdown)
+        let metadata = MetadataFormat.Generate (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
         RazorMetadataFormat.Generate (metadata, output, layoutRoots)
+
+        let fileNames = Directory.GetFiles(output)
+        let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+        files
+
     with e ->
         printfn "Failed to Generate Metadata -\n%s\n\n%s\n" e.Message e.StackTrace
         System.AppDomain.CurrentDomain.GetAssemblies ()
@@ -71,7 +89,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   let output = getOutputDir()
 
   RazorMetadataFormat.Generate
-    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"],
+    ( library, output, layoutRoots, info, libDirs = [testBin],
       sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
@@ -82,9 +100,9 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   let optSeriesMod = files |> Seq.tryFind (fun s -> s.Contains "seriesmodule")
   optSeriesMod.IsSome |> shouldEqual true
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 
 [<Test; Ignore "Ignore by default to make tests run reasonably fast">]
@@ -98,12 +116,11 @@ let ``MetadataFormat works on sample FAKE assembly``() =
 
 [<Test>]
 let ``MetadataFormat works on two sample F# assemblies``() =
-  let binDir = root </> "files" </> "FsLib" </> "bin" </> "Debug"
   let libraries =
-    [ binDir </> "FsLib1.dll"
-      binDir </> "FsLib2.dll" ]
+    [ testBin </> "FsLib1.dll"
+      testBin </> "FsLib2.dll" ]
   let output = getOutputDir()
-  RazorMetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [binDir; root </> "../../lib"; root </> "../../bin"])
+  RazorMetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [testBin])
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -140,20 +157,19 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-class.html"] |> shouldNotContainText "<strong>Signature:</strong> unit -&gt; int"
   files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> int"
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 [<Test>]
 let ``MetadataFormat generates Go to GitHub source links``() =
-  let binDir = root </> "files" </> "FsLib" </> "bin" </> "Debug"
   let libraries =
-    [ binDir </> "FsLib1.dll"
-      binDir </> "FsLib2.dll" ]
+    [ testBin  </> "FsLib1.dll"
+      testBin  </> "FsLib2.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
-    ( libraries, output, layoutRoots, info, libDirs = [binDir; root </> "../../lib"],
+    ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = (root </> "../..") )
   let fileNames = Directory.GetFiles(output)
@@ -165,21 +181,21 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   files.["fslib-union.html"] |> shouldContainText "github-link"
   files.["fslib-union.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 [<Test>]
 let ``MetadataFormat test that cref generation works``() =
   let libraries =
-    [ root </> "files/crefLib/bin/Debug" </> "crefLib1.dll"
-      root </> "files/crefLib/bin/Debug" </> "crefLib2.dll"
-      root </> "files/crefLib/bin/Debug" </> "crefLib3.dll"
-      root </> "files/crefLib/bin/Debug" </> "crefLib4.dll" ]
+    [ testBin  </> "crefLib1.dll"
+      testBin  </> "crefLib2.dll"
+      testBin  </> "crefLib3.dll"
+      testBin  </> "crefLib4.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
-    ( libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"],
+    ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       markDownComments = false )
@@ -238,18 +254,18 @@ let ``MetadataFormat test that cref generation works``() =
   files.["creflib2-class8.html"] |> shouldContainText "Assembly"
   files.["creflib2-class8.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 [<Test>]
 let ``MetadataFormat test that csharp (publiconly) support works``() =
   let libraries =
-    [ root </> "files/csharpSupport/bin/Debug" </> "csharpSupport.dll" ]
+    [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
-    ( libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"],
+    ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = true,
@@ -290,20 +306,20 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   files.["csharpsupport-samplestaticclass.html"] |> shouldNotContainText "My_Private_Static_Property"
   files.["csharpsupport-samplestaticclass.html"] |> shouldNotContainText "My_Private_Static_Event"
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 
 [<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/tpetricek/FSharp.Formatting/pull/259" >]
 [<Test>]
 let ``MetadataFormat test that csharp support works``() =
   let libraries =
-    [ root </> "files/csharpSupport/bin/Debug" </> "csharpSupport.dll" ]
+    [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
-    ( libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"],
+    ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
       sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = false,
@@ -344,22 +360,17 @@ let ``MetadataFormat test that csharp support works``() =
   files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Property"
   files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Event"
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 [<Test>]
 let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   let libraries =
-    [ root </> "files/TestLib/bin/Debug" </> "TestLib1.dll"
-      root </> "files/TestLib/bin/Debug" </> "TestLib2.dll" ]
-  let output = getOutputDir()
-
-  generate libraries [] false
-
+    [ testBin  </> "TestLib1.dll"
+      testBin </> "TestLib2.dll" ] |> fullpaths
+  let files = generate libraries  false
   //RazorMetadataFormat.Generate(libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"], markDownComments = false)
-  let fileNames = Directory.GetFiles(output)
-  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "Readonly int property"
   files.["fslib-record.html"] |> shouldContainText "This is name"
   files.["fslib-record.html"] |> shouldContainText "Additional member"
@@ -374,71 +385,57 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
 
 [<Test>]
 let ``MetadataFormat highlights code snippets in Markdown comments``() =
-  let library = root </> "files/TestLib/bin/Debug" </> "TestLib1.dll"
-  let output = getOutputDir()
+  let library = testBin </> "TestLib1.dll" |> fullpath
   //RazorMetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root </> "../../lib"], markDownComments = true)
   
-  generate [library] [] true
+  let files = generate [library] true
 
-  let fileNames = Directory.GetFiles(output)
-  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-myclass.html"] |> shouldContainText """<span class="k">let</span>"""
   files.["fslib-myclass.html"] |> shouldContainText """<span class="k">var</span>"""
   files.["fslib-myclass.html"] |> shouldContainText """val a : FsLib.MyClass"""
 
 [<Test>]
 let ``MetadataFormat handles c# dlls`` () =
-  let library = root </> "files" </> "CSharpFormat.dll"
-  let output = getOutputDir()
+  let library = testBin </> "CSharpFormat.dll" |> fullpath
   //RazorMetadataFormat.Generate
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
   
-  generate [library] [] false
-  let files = Directory.GetFiles(output)
+  let files = (generate [library] false).Values
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
 
-  #if INTERACTIVE
-  System.Diagnostics.Process.Start(output)
-  #endif
+  //#if INTERACTIVE
+  //System.Diagnostics.Process.Start(output)
+  //#endif
 
 [<Test>]
 let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
-    let library = root </> "files" </> "CSharpFormat.dll"
-    let output = getOutputDir()
+    let library = testBin  </> "CSharpFormat.dll" |> fullpath
+
     //RazorMetadataFormat.Generate
     //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
-    generate [library] [] false
-    let fileNames = Directory.GetFiles(output)
-    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    let files = generate [library]  false
+
     files.["index.html"] |> shouldContainText "CLikeFormat"
     files.["index.html"] |> shouldContainText "Provides a base class for formatting languages similar to C."
 
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
-    let library = root </> "files" </> "CSharpFormat.dll"
-    let output = getOutputDir()
+    let library = testBin </> "CSharpFormat.dll" |> fullpath
     
-    generate [library] [] false
-
-    let fileNames = Directory.GetFiles(output)
-    let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+    let files = generate [library] false
 
     files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "CommentRegEx"
     files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "Regular expression string to match single line and multi-line"
 
 [<Test>]
 let ``MetadataFormat generates module link in nested types``() =
-  let binDir = root </> "files/FsLib/bin/Debug"
-  let library = binDir </> "FsLib2.dll"
-  let output = getOutputDir()
-  
-  generate [library] [binDir] false
 
-  let fileNames = Directory.GetFiles(output)
-  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  let library =  testBin  </> "FsLib2.dll"
+  
+  let files = generate [library] false
 
   // Check that the modules and type files have namespace information
   files.["fslib-class.html"] |> shouldContainText "Namespace: FsLib"
@@ -467,41 +464,26 @@ open FSharp.Formatting.Common
 
 [<Test>]
 let ``MetadataFormat omit works without markdown``() =
-  let binDir = root </> "files/FsLib/bin/Debug"
-  let library = binDir </> "FsLib2.dll"
-  let output = getOutputDir()
+  let library = testBin </> "FsLib2.dll" |> fullpath
 
-  generate [library] [binDir] false
+  let files = generate [library] false
     
-  let fileNames = Directory.GetFiles(output)
-  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-
   files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 [<Test>]
 let ``MetadataFormat test FsLib1``() =
-  let binDir = root </> "files/FsLib/bin/Debug"
-  let library = binDir </> "FsLib1.dll"
-  let output = getOutputDir()
+  let library = testBin </> "FsLib1.dll" |> fullpath
 
-  generate [library] [binDir] false
-    
-  let fileNames = Directory.GetFiles(output)
+  let files = generate [library] false
 
-  let files =
-      dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 // -------------------Indirect links----------------------------------
 [<Test>]
 let ``Metadata generates cross-type links for Indirect Links``() =
-  let library = root </> "files/FsLib/bin/Debug" </> "FsLib2.dll"
-  let output = getOutputDir()
+  let library = testBin </> "FsLib2.dll" |> fullpath
 
-  generate [library] [] true
-  
-  let fileNames = Directory.GetFiles(output)
-  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  let files = generate [library]  true
 
   // Check that a link to MyType exists when using Full Name of the type
   files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
@@ -524,13 +506,9 @@ let ``Metadata generates cross-type links for Indirect Links``() =
   // -------------------Inline code----------------------------------
 [<Test>]
 let ``Metadata generates cross-type links for Inline Code``() =
-  let library = root </> "files/FsLib/bin/Debug" </> "FsLib2.dll"
-  let output = getOutputDir()
+  let library = testBin </> "FsLib2.dll" |> fullpath
 
-  generate [library] [] true
-
-  let fileNames = Directory.GetFiles(output)
-  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  let files = generate [library] true
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
   files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
@@ -549,3 +527,48 @@ let ``Metadata generates cross-type links for Inline Code``() =
 
   // Check that a link to a type with a duplicated name is created when using full name
   files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
+
+
+let runtest testfn =
+    try testfn ()
+    with e -> printfn "Error -\n%s\n\nStackTrace -\n%s\n\n\TargetSite -\n%s\n" e.Message e.StackTrace e.TargetSite.Name
+#if INTERACTIVE
+;;
+printfn "Metadata generates cross-type links for Inline Code"
+runtest ``Metadata generates cross-type links for Inline Code``;;
+
+printfn "Metadata generates cross-type links for Indirect Links"
+runtest ``Metadata generates cross-type links for Indirect Links``;;
+
+printfn "MetadataFormat test FsLib1"
+runtest ``MetadataFormat test FsLib1``;;
+
+printfn "MetadataFormat omit works without markdown"
+runtest ``MetadataFormat omit works without markdown``;;
+
+printfn "MetadataFormat generates module link in nested types"
+runtest ``MetadataFormat generates module link in nested types``;;
+runtest ``MetadataFormat processes C# properties on types and includes xml comments in docs``;;
+
+printfn "MetadataFormat handles c# dlls"
+runtest ``MetadataFormat handles c# dlls``;;
+
+printfn "MetadataFormat highlights code snippets in Markdown comments"
+runtest ``MetadataFormat highlights code snippets in Markdown comments``;;
+
+printfn "MetadataFormat process XML comments in two sample F# assemblies"
+runtest ``MetadataFormat process XML comments in two sample F# assemblies``;;
+
+printfn "MetadataFormat works on sample Deedle assembly"
+runtest ``MetadataFormat works on sample Deedle assembly``;; 
+
+printfn "MetadataFormat works on two sample F# assemblies"
+runtest ``MetadataFormat works on two sample F# assemblies``;;
+
+printfn "MetadataFormat test that csharp (publiconly) support works"
+runtest ``MetadataFormat test that csharp (publiconly) support works``;;
+
+printfn "MetadataFormat test that cref generation works"
+runtest ``MetadataFormat test that cref generation works``;;
+
+#endif
