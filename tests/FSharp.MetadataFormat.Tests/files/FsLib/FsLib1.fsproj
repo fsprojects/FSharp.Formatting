@@ -31,15 +31,6 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\FsLib1.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Library1.fs" />
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -1389,4 +1380,14 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <None Include="FsLib1.paket.references" />
+    <Compile Include="Library1.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
 </Project>

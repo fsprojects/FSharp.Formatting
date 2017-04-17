@@ -130,6 +130,11 @@
       <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj">
+      <Name>FSharp.MetadataFormat</Name>
+      <Project>{bc4946ba-2724-4524-ac50-dfc49ee154a1}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">
