@@ -143,7 +143,7 @@ Target "RunTests" (fun _ ->
     testAssemblies
     |> NUnit3 (fun p ->
         { p with
-            ShadowCopy = false
+            ShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
             OutputDir = "TestResults.xml" })

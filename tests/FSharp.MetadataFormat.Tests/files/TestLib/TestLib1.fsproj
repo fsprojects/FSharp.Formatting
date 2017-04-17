@@ -17,17 +17,17 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>\..\..\..\bin</OutputPath>
+    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>\..\..\..\bin\TestLib1.XML</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)\tests\bin\TestLib1.XML</DocumentationFile>
     <!--<DocumentationFile>bin\Debug\TestLib1.xml</DocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <!--<DocumentationFile>bin\Release\TestLib1.XML</DocumentationFile>-->
