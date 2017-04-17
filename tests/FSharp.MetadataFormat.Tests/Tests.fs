@@ -400,7 +400,7 @@ let ``MetadataFormat handles c# dlls`` () =
   //RazorMetadataFormat.Generate
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
   
-  let files = (generate [library] false).Values
+  let files = (generate [library] false).Keys
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
