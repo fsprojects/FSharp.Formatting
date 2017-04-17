@@ -118,6 +118,12 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Common", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
+	ProjectSection(SolutionItems) = preProject
+		.paket\paket.exe.config = .paket\paket.exe.config
+		.paket\paket.targets = .paket\paket.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
