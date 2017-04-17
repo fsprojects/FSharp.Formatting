@@ -64,14 +64,18 @@ Target "AssemblyInfo" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
-    !! "bin"
-    ++ "temp"
-    ++ "docs/output"
-    ++ "tests/bin"
-    ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
-    ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
+    let dirs =
+        !! "bin"
+        ++ "temp"
+        ++ "docs/output"
+        ++ "tests/bin"
+        ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
+        ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
+        |> Seq.toList
+    dirs
     |> CleanDirs
-    CreateDir "tests/bin"
+    dirs
+    |> Seq.iter ensureDirectory
 )
 
 
