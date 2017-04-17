@@ -71,6 +71,7 @@ Target "Clean" (fun _ ->
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
     |> CleanDirs
+    CreateDir "tests/bin"
 )
 
 
