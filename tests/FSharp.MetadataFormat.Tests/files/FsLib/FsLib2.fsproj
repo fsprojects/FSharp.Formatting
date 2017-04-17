@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Library2.fs" />
     <None Include="FsLib2.fsproj.paket.references" />
+    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

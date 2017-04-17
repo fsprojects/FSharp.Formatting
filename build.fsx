@@ -67,6 +67,7 @@ Target "Clean" (fun _ ->
     !! "bin"
     ++ "temp"
     ++ "docs/output"
+    ++ "tests/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
     |> CleanDirs

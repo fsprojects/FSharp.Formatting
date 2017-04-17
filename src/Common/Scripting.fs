@@ -83,7 +83,7 @@ module FSharpAssemblyHelper =
       let fsCore4300Dir = fsCore "4.0" "4.3.0.0"
       let fsCore4310Dir = fsCore "4.0" "4.3.1.0"
       let fsCore4400Dir = fsCore "4.0" "4.4.0.0"
-      //let fsCore4410Dir = fsCore "4.0" "4.4.1.0"
+      let fsCore4410Dir = fsCore "4.0" "4.4.1.0"
 
       let loadedFsCoreVersion =
         let ass = typeof<FSharp.Core.EntryPointAttribute>.Assembly
@@ -126,8 +126,8 @@ module FSharpAssemblyHelper =
       let findFSCore dllFiles libDirs =
         // lets find ourself some FSharp.Core.dll
         let tried =
-          dllFiles @ (fscoreResolveDirs libDirs
-                      |> List.map (fun (l:string) -> getLib l "FSharp.Core"))
+          dllFiles @ (fscoreResolveDirs libDirs |> List.map (fun (l:string) -> getLib l "FSharp.Core"))
+
         match tried |> Seq.tryPick tryCheckFsCore with
         | Some s -> s
         | None ->
