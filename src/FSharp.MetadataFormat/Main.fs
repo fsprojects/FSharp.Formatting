@@ -1295,11 +1295,19 @@ type MetadataFormat =
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
           let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
           let xmlFileOpt =
-            Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
-            |> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
-            |> Seq.tryPick (fun (f, ext) ->
-                if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
-                  then Some(f) else None)
+            //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
+            Directory.EnumerateFiles(Path.GetDirectoryName xmlFile)
+            |> Seq.filter (fun file -> 
+                let fileNoExt = Path.GetFileNameWithoutExtension file
+                let ext = Path.GetExtension file
+                xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
+                && ext.Equals(".xml",StringComparison.OrdinalIgnoreCase)
+            )
+            |> Seq.tryHead
+            //|> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
+            //|> Seq.tryPick (fun (f, ext) ->
+            //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
+            //      then Some(f) else None)
 
           match xmlFileOpt with
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)

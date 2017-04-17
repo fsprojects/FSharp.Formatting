@@ -28,6 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
+    <DocumentationFile>$(SolutionDir)\tests\bin\csharpSupport.xml</DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
