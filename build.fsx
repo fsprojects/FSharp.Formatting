@@ -122,7 +122,8 @@ Target "BuildTests" (fun _ ->
         {   BaseDirectory = __SOURCE_DIRECTORY__
             Includes = [sln]
             Excludes = []
-        }   |> MSBuildDebug "" "Build" |> ignore
+        //}   |> MSBuildDebug "" "Build" |> ignore
+        }   |> MSBuildDebug "tests/bin" "Build" |> ignore
 
     debugBuild "tests/*/files/FsLib/FsLib.sln"
     debugBuild "tests/*/files/crefLib/crefLib.sln"
@@ -135,14 +136,13 @@ open Fake.Testing
 let testAssemblies =
     [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
         "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
-    |> List.map (fun asm -> sprintf "tests/%s/bin/Release/%s.dll" asm asm)
+    |> List.map (fun asm -> sprintf "tests/bin/%s.dll" asm)
 
 
 Target "RunTests" (fun _ ->
     testAssemblies
     |> NUnit3 (fun p ->
         { p with
-            ProcessModel = NUnit3ProcessModel.SingleProcessModel
             ShadowCopy = false
             TimeOut = TimeSpan.FromMinutes 20.
             ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
@@ -172,16 +172,24 @@ let RequireRange breakingPoint version =
 Target "CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
     for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
-        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName file),  Path.Combine("lib", Path.GetFileName file)
+        let source, binDest = file, "bin" </> Path.GetFileName file
         printfn "Copying %s to %s" source binDest
         File.Copy (source, binDest, true)
-        File.Copy (source, libDest, true)
+)
+
+
+Target "SetupLibForTests" (fun _ ->    
     
-    for file in System.IO.Directory.EnumerateFiles("packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8") do
-        let source, binDest, libDest = file, Path.Combine("bin", Path.GetFileName file), Path.Combine("lib", Path.GetFileName file)
-        printfn "Copying %s to %s" source binDest
-        File.Copy (source, binDest, true)
-        File.Copy (source, libDest, true)
+    let copyPackageFiles dir =
+        let dir = Path.GetFullPath dir
+        for file in System.IO.Directory.EnumerateFiles dir do
+            let source, libDest = file, "tests"</>"bin"</>(Path.GetFileName file)
+            tracefn "Copying %s to %s" source libDest
+            File.Copy (source, libDest, true)
+    [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
+        "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
+        "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"    
+    ] |> List.iter copyPackageFiles
 )
     
 
@@ -478,6 +486,8 @@ Target "CreateTestJson" (fun _ ->
 
 "Clean"
   ==> "AssemblyInfo"
+  ==> "CopyFSharpCore"
+  ==> "SetupLibForTests"
   ==> "Build"
   ==> "BuildTests"
 
@@ -491,7 +501,7 @@ Target "CreateTestJson" (fun _ ->
 "GenerateDocs" ==> "All"
 
 "Build"
-  ==> "CopyFSharpCore"
+
   ==> "DogFoodCommandTool"
   ==> "All"
 

@@ -37,10 +37,11 @@ let (|FsiBoolArg|_|) argName s =
         | _ -> None
     | _ -> None
 
+let checker = FSharpChecker.Create(msbuildEnabled=false)
 
-module internal FSharpAssemblyHelper =
+module FSharpAssemblyHelper =
       open System.IO
-      let checker = FSharpChecker.Create()
+      
 #if NET40
       let defaultFrameworkVersion = "4.0"
 #endif
@@ -85,7 +86,7 @@ module internal FSharpAssemblyHelper =
       let fsCore4410Dir = fsCore "4.0" "4.4.1.0"
 
       let loadedFsCoreVersion =
-        let ass = typedefof<option<_>>.Assembly
+        let ass = typeof<FSharp.Core.EntryPointAttribute>.Assembly
         let name = ass.GetName()
         name.Version.ToString()
       let fscoreResolveDirs libDirs =
@@ -106,8 +107,7 @@ module internal FSharpAssemblyHelper =
                      |> Seq.singleton
                  with :? NotSupportedException -> Seq.empty
           yield! try Path.GetDirectoryName
-                        (typeof<Microsoft.FSharp.Compiler.Interactive
-                         .Shell.Settings.InteractiveSettings>.Assembly.Location)
+                        (typeof<Microsoft.FSharp.Compiler.Interactive.Shell.Settings.InteractiveSettings>.Assembly.Location)
                      |> Seq.singleton
                  with :? NotSupportedException -> Seq.empty
           if isMono then
@@ -216,6 +216,7 @@ module internal FSharpAssemblyHelper =
 #endif
 
       let getProjectReferences frameworkVersion otherFlags libDirs dllFiles =
+          
           let otherFlags = defaultArg otherFlags Seq.empty
           let libDirs = defaultArg libDirs Seq.empty |> Seq.toList
           let dllFiles = dllFiles |> Seq.toList
@@ -796,34 +797,37 @@ module TypeNameHelper =
       let rec fallbackName (t:System.Type) =
           t.Name
       and getFSharpTypeName (t:System.Type) =
-          let optFsharpName =
-#if !NETSTANDARD1_5
-              match FSharpAssembly.FromAssembly t.Assembly with
-#else
-              match FSharpAssembly.FromAssembly (t.GetTypeInfo().Assembly) with
-#endif
-              | Some fsAssembly ->
-                  match fsAssembly.FindType t with
-                  | Some entity -> Some entity.DisplayName
+        try
+              let optFsharpName =
+                  match FSharpAssembly.FromAssembly (t.GetTypeInfo().Assembly) with
+                  | Some fsAssembly ->
+                      match fsAssembly.FindType t with
+                      | Some entity -> Some entity.DisplayName
+                      | None -> None
                   | None -> None
-              | None -> None
-          match optFsharpName with
-          | Some fsharpName -> fsharpName
-          | None -> fallbackName t
+              match optFsharpName with
+              | Some fsharpName -> fsharpName
+              | None -> fallbackName t
+         with e ->
+            sprintf "Couldn't get FSharpName from Assembly\n%s\n%s\n" e.Message e.StackTrace
+            |> Debug.WriteLine
+            fallbackName t
 
   type Type with
       /// The name of the current type instance in F# source code.
       member x.FSharpName = TypeNameHelper.getFSharpTypeName x
       /// Gets the FullName of the current type in F# source code.
-      member x.FSharpFullName = x.Namespace + "." + x.FSharpName
+      member x.FSharpFullName = 
+        if x.IsGenericType then
+            let gt = x.GetGenericTypeDefinition()
+            gt.Namespace + "." + gt.FSharpName
+        else
+          x.Namespace + "." + x.FSharpName
 
-  module internal TypeParamHelper =
-#if !NETSTANDARD1_5
-      let rec getFSharpTypeParameterList (t:System.Type) =
-#else
+  module TypeParamHelper =
+
       let rec getFSharpTypeParameterList (tk:System.Type) =
           let t = tk.GetTypeInfo()
-#endif
           let builder = new System.Text.StringBuilder()
           if t.IsGenericType then
               let args = t.GetGenericArguments()
