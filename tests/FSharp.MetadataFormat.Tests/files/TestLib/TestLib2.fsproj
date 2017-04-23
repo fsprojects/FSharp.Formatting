@@ -9,6 +9,7 @@
     <AssemblyName>TestLib2</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <DocumentationFile>$(SolutionDir)\tests\bin\TestLib2.xml</DocumentationFile>
     <Name>TestLib1</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -19,7 +20,6 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>$(SolutionDir)\tests\bin\TestLib2.XML</DocumentationFile>
     <!--<DocumentationFile>bin\Debug\TestLib2.xml</DocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

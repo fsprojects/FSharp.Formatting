@@ -71,6 +71,7 @@ Target "Clean" (fun _ ->
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
     |> CleanDirs
+    // in case the above pattern is empty as it only matches existing stuff
     ["bin"; "temp"; "docs/output"; "tests/bin"]
     |> Seq.iter ensureDirectory
 )

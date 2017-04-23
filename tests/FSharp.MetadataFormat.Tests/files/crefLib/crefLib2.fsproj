@@ -10,6 +10,7 @@
     <RootNamespace>crefLib2</RootNamespace>
     <AssemblyName>crefLib2</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <DocumentationFile>$(SolutionDir)\tests\bin\crefLib2.xml</DocumentationFile>
     <Name>crefLib2</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,7 +22,6 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>$(SolutionDir)\tests\bin\crefLib2.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,6 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>$(SolutionDir)\tests\bin\crefLib2.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>

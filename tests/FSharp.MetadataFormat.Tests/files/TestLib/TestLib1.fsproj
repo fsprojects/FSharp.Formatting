@@ -10,6 +10,7 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <Name>TestLib1</Name>
+    <DocumentationFile>$(SolutionDir)\tests\bin\TestLib1.xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,7 +22,6 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>$(SolutionDir)\tests\bin\TestLib1.xml</DocumentationFile>
     <!--<DocumentationFile>bin\Debug\TestLib1.xml</DocumentationFile>-->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
