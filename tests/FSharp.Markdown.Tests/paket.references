@@ -3,4 +3,4 @@ FSharp.Data
 
 group Test
 FsUnit
-group Test
+NUnit

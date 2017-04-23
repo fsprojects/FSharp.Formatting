@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.Razor
+﻿namespace FSharp.Formatting.Razor
 
 open FSharp.MetadataFormat
 open FSharp.Formatting
@@ -97,6 +97,11 @@ type RazorMetadataFormat private() =
      MetadataFormat.Generate(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
     |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
+
+
+  static member Generate(generatedMetadata:FSharp.MetadataFormat.GeneratorOutput, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
+        generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences generatedMetadata
+
 
 type RazorLiterate private () =
   static let defaultOutput output input kind =

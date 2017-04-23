@@ -2,24 +2,23 @@
 // Standard NuGet or Paket location
 #I __SOURCE_DIRECTORY__
 #I "lib/net40"
-#r "./lib/net40/System.Web.Razor.dll"
+#r "../Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll"
 // Force load
 if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2) then
   failwith "Wrong System.Web.Razor Version loaded!"
 
+#r "../System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
 
 // Standard NuGet locations
-#I "../FSharp.Compiler.Service.2.0.0.6/lib/net45"
-#I "../FSharpVSPowerTools.Core.2.3.0/lib/net45"
+//#I "../FSharp.Compiler.Service.12.0.2/lib/net45"
 
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/net45"
-#I "../FSharpVSPowerTools.Core/lib/net45"
+//#I "../FSharpVSPowerTools.Core/lib/net45"
 
 
 // Reference VS PowerTools, Razor and F# Formatting components
 #r "RazorEngine.dll"
-#r "FSharpVSPowerTools.Core.dll"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"

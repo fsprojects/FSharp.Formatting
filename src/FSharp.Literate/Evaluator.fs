@@ -4,8 +4,8 @@ open System
 open System.IO
 open FSharp.Markdown
 open FSharp.CodeFormat
+open FSharp.Formatting.Scripting
 
-open Yaaf.FSharp.Scripting
 
 // ------------------------------------------------------------------------------------------------
 // Evaluator

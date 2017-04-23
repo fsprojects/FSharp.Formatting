@@ -11,6 +11,7 @@ open System.Web
 open System.Text
 open System.Collections.Generic
 open FSharp.CodeFormat
+open FSharp.CodeFormat.Constants
 
 // --------------------------------------------------------------------------------------
 // Context used by the formatter
@@ -18,50 +19,55 @@ open FSharp.CodeFormat
 
 /// Mutable type that formats tool tips and keeps the generated HTML
 type ToolTipFormatter(prefix) = 
-  let tips = new Dictionary<ToolTipSpans, int * string>()
-  let mutable count = 0
-  let mutable uniqueId = 0
+    let tips = new Dictionary<ToolTipSpans, int * string>()
+    let mutable count = 0
+    let mutable uniqueId = 0
 
-  /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
-  member x.FormatTip (tip:ToolTipSpans) overlapping formatFunction = 
-    uniqueId <- uniqueId + 1
-    let stringIndex =
-      match tips.TryGetValue(tip) with
-      | true, (idx, _) -> idx
-      | _ -> 
-        count <- count + 1
-        tips.Add(tip, (count, formatFunction tip))
-        count
-    // stringIndex is the index of the tool tip
-    // uniqueId is globally unique id of the occurrence
-    if overlapping then
-      // The <span> may contain other <span>, so we need to 
-      // get the element and check where the mouse goes...
-      String.Format
-        ( "id=\"{0}t{1}\" onmouseout=\"hideTip(event, '{0}{1}', {2})\" " + 
-          "onmouseover=\"showTip(event, '{0}{1}', {2}, document.getElementById('{0}t{1}'))\" ",
-          prefix, stringIndex, uniqueId )
-    else
-      String.Format
-        ( "onmouseout=\"hideTip(event, '{0}{1}', {2})\" " + 
-          "onmouseover=\"showTip(event, '{0}{1}', {2})\" ",
-          prefix, stringIndex, uniqueId )
+    /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
+    member x.FormatTip (tip:ToolTipSpans) overlapping formatFunction = 
+        uniqueId <- uniqueId + 1
+        let stringIndex =
+            match tips.TryGetValue(tip) with
+            | true, (idx, _) -> idx
+            | _ -> 
+            count <- count + 1
+            tips.Add(tip, (count, formatFunction tip))
+            count
+        // stringIndex is the index of the tool tip
+        // uniqueId is globally unique id of the occurrence
+        if overlapping then
+            // The <span> may contain other <span>, so we need to 
+            // get the element and check where the mouse goes...
+            String.Format(   
+                "id=\"{0}t{1}\" onmouseout=\"hideTip(event, '{0}{1}', {2})\" " + 
+                "onmouseover=\"showTip(event, '{0}{1}', {2}, document.getElementById('{0}t{1}'))\" ",
+                prefix, stringIndex, uniqueId 
+            )
+        else
+            String.Format(
+                "onmouseout=\"hideTip(event, '{0}{1}', {2})\" " + 
+                "onmouseover=\"showTip(event, '{0}{1}', {2})\" ",
+                prefix, stringIndex, uniqueId 
+            )
   
-  /// Returns all generated tool tip elements
-  member x.WriteTipElements (writer:TextWriter) = 
-    for (KeyValue(_, (index, html))) in tips do
-      writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
+
+    /// Returns all generated tool tip elements
+    member x.WriteTipElements (writer:TextWriter) = 
+        for (KeyValue(_, (index, html))) in tips do
+            writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
+
 
 /// Represents context used by the formatter
-type FormattingContext = 
-  { AddLines : bool
+type FormattingContext = { 
+    AddLines       : bool
     GenerateErrors : bool
-    Writer : TextWriter 
-    OpenTag : string
-    CloseTag : string
-    OpenLinesTag : string
-    CloseLinesTag : string
-    FormatTip : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string }
+    Writer         : TextWriter 
+    OpenTag        : string
+    CloseTag       : string
+    OpenLinesTag   : string
+    CloseLinesTag  : string
+    FormatTip      : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string 
+}
 
 // --------------------------------------------------------------------------------------
 // Formats various types from 'SourceCode.fs' as HTML
@@ -115,39 +121,48 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       ctx.Writer.Write("</span>")
       
   | Token(kind, body, tip) ->
-      // Generate additional attributes for ToolTip
-      let tipAttributes = 
+    // Generate additional attributes for ToolTip
+    let tipAttributes = 
         match tip with
         | Some(tip) -> ctx.FormatTip tip false formatToolTipSpans
         | _ -> ""
 
-      // Get CSS class name of the token
-      let color = 
+    // Get CSS class name of the token
+    let color = 
         match kind with
-        | TokenKind.Comment -> "c"
-        | TokenKind.Default -> ""
-        | TokenKind.Identifier -> "i"
-        | TokenKind.Inactive -> "inactive"
-        | TokenKind.Keyword -> "k"
-        | TokenKind.Number -> "n"
-        | TokenKind.Operator -> "o"
-        | TokenKind.Preprocessor -> "prep"
-        | TokenKind.String -> "s"
-        | TokenKind.TypeOrModule -> "t"
-        | TokenKind.Function -> "f"
-        | TokenKind.Pattern -> "p"
-        | TokenKind.MutableVar -> "v"
-        | TokenKind.Printf -> "pf"
-        | TokenKind.Escaped -> "e"
+        | TokenKind.Comment       -> CSS.Comment       
+        | TokenKind.Default       -> CSS.Default       
+        | TokenKind.Identifier    -> CSS.Identifier    
+        | TokenKind.Inactive      -> CSS.Inactive      
+        | TokenKind.Keyword       -> CSS.Keyword       
+        | TokenKind.Number        -> CSS.Number        
+        | TokenKind.Operator      -> CSS.Operator      
+        | TokenKind.Preprocessor  -> CSS.Preprocessor  
+        | TokenKind.String        -> CSS.String        
+        | TokenKind.Module        -> CSS.Module        
+        | TokenKind.ReferenceType -> CSS.ReferenceType 
+        | TokenKind.ValueType     -> CSS.ValueType     
+        | TokenKind.Function      -> CSS.Function      
+        | TokenKind.Pattern       -> CSS.Pattern       
+        | TokenKind.MutableVar    -> CSS.MutableVar    
+        | TokenKind.Printf        -> CSS.Printf        
+        | TokenKind.Escaped       -> CSS.Escaped       
+        | TokenKind.Disposable    -> CSS.Disposable    
+        | TokenKind.TypeArgument  -> CSS.TypeArgument  
+        | TokenKind.Punctuation   -> CSS.Punctuation   
+        | TokenKind.Enumeration   -> CSS.Enumeration   
+        | TokenKind.Interface     -> CSS.Interface     
+        | TokenKind.Property      -> CSS.Property      
+        | TokenKind.UnionCase     -> CSS.UnionCase     
 
-      if kind <> TokenKind.Default then
+    if kind <> TokenKind.Default then
         // Colorize token & add tool tip
         ctx.Writer.Write("<span ")
         ctx.Writer.Write(tipAttributes)
         ctx.Writer.Write("class=\"" + color + "\">")
         ctx.Writer.Write(HttpUtility.HtmlEncode(body))
         ctx.Writer.Write("</span>")
-      else       
+    else       
         ctx.Writer.Write(HttpUtility.HtmlEncode(body)) )
 
 /// Generate HTML with the specified snippets
@@ -206,15 +221,20 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
 let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag (snippets:Snippet[]) = 
-  let tipf = ToolTipFormatter(prefix)
-  let ctx =  { AddLines = addLines; GenerateErrors = addErrors
-               Writer = null; FormatTip = tipf.FormatTip 
-               OpenLinesTag = openLinesTag; CloseLinesTag = closeLinesTag
-               OpenTag = openTag; CloseTag = closeTag }
-  
-  // Generate main HTML for snippets
-  let snippets = formatSnippets ctx snippets
-  // Generate HTML with ToolTip tags
-  let tipStr = StringBuilder()
-  tipf.WriteTipElements(new StringWriter(tipStr))
-  snippets, tipStr.ToString()
+    let tipf = ToolTipFormatter prefix
+    let ctx =  { 
+        AddLines       = addLines 
+        GenerateErrors = addErrors
+        Writer         = null 
+        FormatTip      = tipf.FormatTip 
+        OpenLinesTag   = openLinesTag
+        CloseLinesTag  = closeLinesTag
+        OpenTag        = openTag 
+        CloseTag       = closeTag 
+    }
+    // Generate main HTML for snippets
+    let snippets = formatSnippets ctx snippets
+    // Generate HTML with ToolTip tags
+    let tipStr = StringBuilder()
+    tipf.WriteTipElements(new StringWriter(tipStr))
+    snippets, tipStr.ToString()

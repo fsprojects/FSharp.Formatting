@@ -3,10 +3,10 @@
 open System
 open System.Reflection
 open System.Collections.Generic
-open Yaaf.FSharp.Scripting
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 open FSharp.Formatting.Common
+open FSharp.Formatting.Scripting
 open FSharp.Patterns
 open FSharp.CodeFormat
 
@@ -1232,7 +1232,7 @@ type MetadataFormat =
 
     let otherFlags = defaultArg otherFlags []
     let publicOnly = defaultArg publicOnly true
-    let libDirs = defaultArg libDirs []
+    let libDirs = defaultArg libDirs [] |> List.map Path.GetFullPath
     let dllFiles = dllFiles |> List.ofSeq |>  List.map Path.GetFullPath
     let urlRangeHighlight =
       defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
@@ -1256,8 +1256,12 @@ type MetadataFormat =
           let root = Path.GetDirectoryName(dll)
           let file = root @@ (asmName.Name + ".dll")
           if File.Exists(file) then
-            let bytes = File.ReadAllBytes(file)
-            Some(System.Reflection.Assembly.Load(bytes))
+            try 
+                let bytes = File.ReadAllBytes(file)
+                Some(System.Reflection.Assembly.Load(bytes))
+            with e ->
+              Log.errorf "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace 
+              None
           else None )
       defaultArg asmOpt null
     ))
@@ -1271,7 +1275,8 @@ type MetadataFormat =
     // Read and process assemblies and the corresponding XML files
     let assemblies =
       let resolvedList =
-        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
+        //FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
+        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags,manualResolve=true)
         |> Seq.toList
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
@@ -1290,11 +1295,19 @@ type MetadataFormat =
           let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
           let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
           let xmlFileOpt =
-            Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
-            |> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
-            |> Seq.tryPick (fun (f, ext) ->
-                if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
-                  then Some(f) else None)
+            //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
+            Directory.EnumerateFiles(Path.GetDirectoryName xmlFile)
+            |> Seq.filter (fun file -> 
+                let fileNoExt = Path.GetFileNameWithoutExtension file
+                let ext = Path.GetExtension file
+                xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
+                && ext.Equals(".xml",StringComparison.OrdinalIgnoreCase)
+            )
+            |> Seq.tryHead
+            //|> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
+            //|> Seq.tryPick (fun (f, ext) ->
+            //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
+            //      then Some(f) else None)
 
           match xmlFileOpt with
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)

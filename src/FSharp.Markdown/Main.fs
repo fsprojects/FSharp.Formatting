@@ -15,17 +15,19 @@ open FSharp.Markdown.Html
 open FSharp.Formatting.Common
 
 module private Utils  =
-  /// Replace tabs with four spaces - tab will end at the 
-  /// first column that is divisible by four.
-  let replaceTabs size = List.map (fun (line:string) ->
-    if line.IndexOf('\t') = -1 then line else
-    let chars = ResizeArray<_>()
-    for i in 0 .. line.Length - 1 do
-      if line.[i] <> '\t' then chars.Add(line.[i])
-      else 
-        chars.Add(' ')
-        while chars.Count % size <> 0 do chars.Add(' ')
-    String(chars.ToArray()) )
+    /// Replace tabs with four spaces - tab will end at the 
+    /// first column that is divisible by four.
+    let replaceTabs size = 
+        List.map (fun (line:string) ->
+            if line.IndexOf '\t' = -1 then line else
+            let chars = ResizeArray<_>()
+            for i in 0 .. line.Length - 1 do
+                if line.[i] <> '\t' then chars.Add line.[i]
+                else 
+                chars.Add ' '
+                while chars.Count % size <> 0 do chars.Add ' '
+            String (chars.ToArray()) 
+        )
 
 // --------------------------------------------------------------------------------------
 // Expose Markdown transformer functions as an overloaded static method (C# friendly)

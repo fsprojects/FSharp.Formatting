@@ -1,4 +1,4 @@
-FSharp.Core
+FSharp.Core redirects: force
 FSharp.Compiler.Service
 Microsoft.AspNet.Razor
 RazorEngine
