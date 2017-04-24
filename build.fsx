@@ -393,11 +393,11 @@ Target "DogFoodCommandTool" (fun _ ->
       [ "page-author", "Matthias Dittrich"
         "project-author", "Matthias Dittrich"
         "page-description", "desc"
-        "github-link", "https://github.com/tpetricek/FSharp.Formatting"
+        "github-link", "https://github.com/fsprojects/FSharp.Formatting"
         "project-name", "FSharp.Formatting"
-        "root", "https://tpetricek.github.io/FSharp.Formatting"
+        "root", "https://fsprojects.github.io/FSharp.Formatting"
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
-        "project-github", "https://github.com/tpetricek/FSharp.Formatting" ]
+        "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
     CleanDir "temp/api_docs"
     let metadataReferenceArgs =
         commandToolMetadataFormatArgument

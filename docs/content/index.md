@@ -19,8 +19,8 @@ with type information. The package also comes with a sample that implements lite
    and paths. If you are calling F# Formatting from a script file, then it is recommended to use `#load "FSharp.Formatting.fsx"`
    as a future-proof way of referencing the library.
 
-You can download the [source as a ZIP file](https://github.com/tpetricek/FSharp.Formatting/zipball/master)
-or download the [compiled binaries](https://github.com/tpetricek/FSharp.Formatting/archive/release.zip) as a ZIP.
+You can download the [source as a ZIP file](https://github.com/fsprojects/FSharp.Formatting/zipball/master)
+or download the [compiled binaries](https://github.com/fsprojects/FSharp.Formatting/archive/release.zip) as a ZIP.
 
 Documentation
 -------------
@@ -28,7 +28,7 @@ Documentation
 The documentation for this library is generated automatically using the literate programming 
 tools that are built on top of it and are described in the [literate programming page](literate.html).
 If you spot a typo, please submit a pull request! The source Markdown and F# script files are
-available in the [docs folder on GitHub](https://github.com/tpetricek/FSharp.Formatting/tree/master/docs).
+available in the [docs folder on GitHub](https://github.com/fsprojects/FSharp.Formatting/tree/master/docs).
 I hope it is also a good sample showing how to write documentation for F# projects.
 
  - [Literate programming](literate.html) - if you want to use the library to generate documentation
@@ -54,9 +54,9 @@ I hope it is also a good sample showing how to write documentation for F# projec
 More information
 ----------------
 
-The project is hosted on [GitHub](https://github.com/tpetricek/FSharp.Formatting) where you can 
-[report issues](https://github.com/tpetricek/FSharp.Formatting/issues), fork the project and submit pull requests.
+The project is hosted on [GitHub](https://github.com/fsprojects/FSharp.Formatting) where you can 
+[report issues](https://github.com/fsprojects/FSharp.Formatting/issues), fork the project and submit pull requests.
 Thanks to [Gustavo Guerra](https://github.com/ovatsus) for a great build script and 
 [Steffen Forkmann](https://github.com/forki) for the great build tool [FAKE](https://github.com/fsharp/FAKE).
 The library is available under Apache 2.0. For more information see the 
-[License file](https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md) in the GitHub repository.
+[License file](https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md) in the GitHub repository.

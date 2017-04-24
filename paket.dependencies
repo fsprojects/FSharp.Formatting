@@ -15,7 +15,7 @@ nuget FSharp.Compiler.Service == 2.0.0.6
 // This basically means we need the lowest version for its dependencies (FSharp.Compiler.Service)
 // Otherwise we get runtime errors without binding redirects
 // (which we cannot control running as part of a build script).
-// See https://github.com/tpetricek/FSharp.Formatting/issues/277 as well.
+// See https://github.com/fsprojects/FSharp.Formatting/issues/277 as well.
 nuget FSharpVSPowerTools.Core !>= 0
 nuget ILRepack
 
