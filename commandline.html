@@ -52,8 +52,7 @@ process, e.g. for resource management reasons.</p>
   </div>
   <div class="span1"></div>
 </div>
-<p>Alternatively, you can download the <a href="https://github.com/tpetricek/FSharp.Formatting/zipball/master">source as a ZIP file</a>
-or download the <a href="https://github.com/tpetricek/FSharp.Formatting/archive/release.zip">compiled binaries</a> as a ZIP.</p>
+<p>Alternatively, you can download the <a href="https://github.com/fsprojects/FSharp.Formatting/zipball/master">source as a ZIP file</a>.</p>
 <h2><a name="Using-the-tool" class="anchor" href="#Using-the-tool">Using the tool</a></h2>
 <p>The tool option syntax is similar to git or other popular command line tools.
 The format of the command line interface is:</p>
@@ -110,7 +109,7 @@ according to the concept of <a href="literate.html">Literate Programming</a>.</p
   --format latex --replacements "page-author" "Tomas Petricek"
 </code></pre></td></tr></table>
 <h2><a name="Library-documentation-command" class="anchor" href="#Library-documentation-command">Library documentation command</a></h2>
-<p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://tpetricek.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading
+<p>The <code>FSharp.MetadataFormat.Generate</code> method builds the <a href="http://fsprojects.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading
 the meta-data from the <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
@@ -179,9 +178,9 @@ corresponding meta-data files <code>lib1.xml</code> and <code>lib 2.xml</code>, 
 <li>
 <p>The example assumes that the necessary <code>template.html</code> file (and in case, those files it draws in as dependencies) reside in the subdirectory <code>templates</code> of your working directory.
 It is implicitely also assumed that this template does not contain substitution parameters. If you want to use this feature, you need to add the desired parameter list.
-For example, if you want to experiment with the <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/docs/tools/template.html">template file of the FSharp.Formatting project</a>,
+For example, if you want to experiment with the <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/tools/template.html">template file of the FSharp.Formatting project</a>,
 you copy this file into the subdirectory <code>templates</code> of your working directory and specify the
-<a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/docs/tools/generate.fsx#L24">necessary substitution parameters</a> as follows:</p>
+<a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/tools/generate.fsx#L24">necessary substitution parameters</a> as follows:</p>
 </li>
 </ol>
 <div></div>
@@ -214,7 +213,7 @@ This feature allows you (on posix systems) to execute F# scripts <code>*.fsx</co
 <p>As template for the <code>generate.fsx</code> file, you should refer to the recommended <a href="https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template">template file</a>, that should be easily adapted to your project´s needs. The tradeoff in both cases is that instead of installing the FSharp.Formatting commandline tool, you have to install F# and the FSharp.Formatting library on your system. As the commandline tool contains the FSharp.Formatting library and the Fsharp compiler service, the overhead is much less than it might look at first glance.</p>
 <p>If you already use <a href="http://fsharp.github.io">FAKE</a> in your project, it is recommended to apply the predefined <a href="http://fsharp.github.io/FAKE/apidocs/fake-fsharpformatting.html">FAKE commands</a>
 for the document creation process. FAKE will install the FSharp.Formatting commandline tool as a dependency. Hence, a separate installation should be omitted in order to avoid
-a cluttered environment on your system. Alternatively, you can also use a <a href="https://github.com/tpetricek/FSharp.Formatting/blob/master/build.fsx#L176">FAKE target definition</a>,
+a cluttered environment on your system. Alternatively, you can also use a <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/build.fsx#L176">FAKE target definition</a>,
 that invokes the recommended <a href="https://github.com/fsprojects/ProjectScaffold/blob/master/docs/tools/generate.template">template file</a> as in the previous configuration option.</p>
 
 
@@ -229,9 +228,9 @@ that invokes the recommended <a href="https://github.com/fsprojects/ProjectScaff
             <li><a href="/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
@@ -259,6 +258,6 @@ that invokes the recommended <a href="https://github.com/fsprojects/ProjectScaff
         </div>
       </div>
     </div>
-    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

@@ -54,15 +54,15 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
+          <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
             CreateAgent()
           </code>
-          <div class="tip" id="122">
+          <div class="tip" id="120">
             <strong>Signature:</strong> unit -&gt; CodeFormatAgent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L30-30" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L30-30" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -77,15 +77,15 @@ is shared by all the instances of formatting agent!</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
+          <code onmouseout="hideTip(event, '121', 121)" onmouseover="showTip(event, '121', 121)">
             FormatHtml(snippets, prefix)
           </code>
-          <div class="tip" id="123">
+          <div class="tip" id="121">
             <strong>Signature:</strong> (snippets:Snippet [] * prefix:string) -&gt; FormattedContent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L58-58" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L58-58" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -98,15 +98,59 @@ using the specified ID prefix and default settings.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+          <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
             FormatHtml(...)
           </code>
-          <div class="tip" id="124">
+          <div class="tip" id="122">
             <strong>Signature:</strong> (snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * openLinesTag:string * closeLinesTag:string * addLines:bool * addErrors:bool) -&gt; FormattedContent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L51-51" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L51-51" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Formats the snippets parsed using the CodeFormatAgent as HTML
+The parameters specify prefix for HTML tags, whether lines should
+be added to outputs and whether errors should be printed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
+            FormatHtml(...)
+          </code>
+          <div class="tip" id="123">
+            <strong>Signature:</strong> (snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * addLines:bool * addErrors:bool) -&gt; FormattedContent<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L43-43" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Formats the snippets parsed using the CodeFormatAgent as HTML
+The parameters specify prefix for HTML tags, whether lines should
+be added to outputs and whether errors should be printed.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+            FormatHtml(...)
+          </code>
+          <div class="tip" id="124">
+            <strong>Signature:</strong> (snippets:Snippet [] * prefix:string * addLines:bool * addErrors:bool) -&gt; FormattedContent<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L35-35" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -121,58 +165,14 @@ be added to outputs and whether errors should be printed.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
-            FormatHtml(...)
-          </code>
-          <div class="tip" id="125">
-            <strong>Signature:</strong> (snippets:Snippet [] * prefix:string * openTag:string * closeTag:string * addLines:bool * addErrors:bool) -&gt; FormattedContent<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L43-43" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Formats the snippets parsed using the CodeFormatAgent as HTML
-The parameters specify prefix for HTML tags, whether lines should
-be added to outputs and whether errors should be printed.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
-            FormatHtml(...)
-          </code>
-          <div class="tip" id="126">
-            <strong>Signature:</strong> (snippets:Snippet [] * prefix:string * addLines:bool * addErrors:bool) -&gt; FormattedContent<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L35-35" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Formats the snippets parsed using the CodeFormatAgent as HTML
-The parameters specify prefix for HTML tags, whether lines should
-be added to outputs and whether errors should be printed.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
             FormatLatex(snippets)
           </code>
-          <div class="tip" id="127">
+          <div class="tip" id="125">
             <strong>Signature:</strong> (snippets:Snippet []) -&gt; FormattedContent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L77-77" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L77-77" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -185,15 +185,15 @@ using the default settings.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
+          <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
             FormatLatex(...)
           </code>
-          <div class="tip" id="128">
+          <div class="tip" id="126">
             <strong>Signature:</strong> (snippets:Snippet [] * openTag:string * closeTag:string * addLines:bool) -&gt; FormattedContent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L70-70" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L70-70" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -207,15 +207,15 @@ be added to outputs.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
+          <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
             FormatLatex(snippets, addLines)
           </code>
-          <div class="tip" id="129">
+          <div class="tip" id="127">
             <strong>Signature:</strong> (snippets:Snippet [] * addLines:bool) -&gt; FormattedContent<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L64-64" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.CodeFormat/Main.fs#L64-64" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -240,9 +240,9 @@ be added to outputs.</p>
             <li><a href="/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
@@ -270,6 +270,6 @@ be added to outputs.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

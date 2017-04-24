@@ -99,15 +99,51 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
+          <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
             ParagraphLeaf arg1
           </code>
-          <div class="tip" id="17">
+          <div class="tip" id="15">
             <strong>Signature:</strong> ParagraphLeafInfo -&gt; MarkdownParagraph<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L150-150" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L149-149" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
+            ParagraphNested (arg1, pars)
+          </code>
+          <div class="tip" id="16">
+            <strong>Signature:</strong> (ParagraphNestedInfo * pars:MarkdownParagraphs list) -&gt; MarkdownParagraph<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L151-151" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
+            ParagraphSpans (arg1, spans)
+          </code>
+          <div class="tip" id="17">
+            <strong>Signature:</strong> (ParagraphSpansInfo * spans:MarkdownSpans) -&gt; MarkdownParagraph<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L142-142" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -118,14 +154,14 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
-            ParagraphNested (arg1, pars)
+            SpanLeaf arg1
           </code>
           <div class="tip" id="18">
-            <strong>Signature:</strong> (ParagraphNestedInfo * pars:MarkdownParagraphs list) -&gt; MarkdownParagraph<br />
+            <strong>Signature:</strong> SpanLeafInfo -&gt; MarkdownSpan<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L152-152" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L108-108" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -136,50 +172,14 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
-            ParagraphSpans (arg1, spans)
-          </code>
-          <div class="tip" id="19">
-            <strong>Signature:</strong> (ParagraphSpansInfo * spans:MarkdownSpans) -&gt; MarkdownParagraph<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L143-143" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
-            SpanLeaf arg1
-          </code>
-          <div class="tip" id="20">
-            <strong>Signature:</strong> SpanLeafInfo -&gt; MarkdownSpan<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L109-109" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
             SpanNode (arg1, spans)
           </code>
-          <div class="tip" id="21">
+          <div class="tip" id="19">
             <strong>Signature:</strong> (SpanNodeInfo * spans:MarkdownSpans) -&gt; MarkdownSpan<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L110-110" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L109-109" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -197,15 +197,15 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
+          <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
             ( |ParagraphLeaf|ParagraphNested|ParagraphSpans| ) (...)
           </code>
-          <div class="tip" id="22">
+          <div class="tip" id="20">
             <strong>Signature:</strong> par:MarkdownParagraph -&gt; Choice&lt;ParagraphLeafInfo,(ParagraphNestedInfo * MarkdownParagraphs list),(ParagraphSpansInfo * MarkdownSpans)&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L122-122" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L121-121" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -216,15 +216,15 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
+          <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
             ( |SpanLeaf|SpanNode| ) span
           </code>
-          <div class="tip" id="23">
+          <div class="tip" id="21">
             <strong>Signature:</strong> span:MarkdownSpan -&gt; Choice&lt;SpanLeafInfo,(SpanNodeInfo * MarkdownSpans)&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L91-91" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L90-90" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -246,9 +246,9 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
             <li><a href="/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
@@ -276,6 +276,6 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

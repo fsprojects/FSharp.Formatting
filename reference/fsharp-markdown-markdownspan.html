@@ -55,15 +55,123 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '302', 302)" onmouseover="showTip(event, '302', 302)">
-            AnchorLink(link,range)
+          <code onmouseout="hideTip(event, '296', 296)" onmouseover="showTip(event, '296', 296)">
+            AnchorLink(string)
           </code>
-          <div class="tip" id="302">
-            <strong>Signature:</strong> string * MarkdownRange option<br />
+          <div class="tip" id="296">
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L36-36" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L35-35" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '297', 297)" onmouseover="showTip(event, '297', 297)">
+            DirectImage(...)
+          </code>
+          <div class="tip" id="297">
+            <strong>Signature:</strong> string * string * string option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L38-38" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '298', 298)" onmouseover="showTip(event, '298', 298)">
+            DirectLink(...)
+          </code>
+          <div class="tip" id="298">
+            <strong>Signature:</strong> MarkdownSpans * string * string option<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L36-36" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '299', 299)" onmouseover="showTip(event, '299', 299)">
+            EmbedSpans(MarkdownEmbedSpans)
+          </code>
+          <div class="tip" id="299">
+            <strong>Signature:</strong> MarkdownEmbedSpans<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L43-43" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '300', 300)" onmouseover="showTip(event, '300', 300)">
+            Emphasis(MarkdownSpans)
+          </code>
+          <div class="tip" id="300">
+            <strong>Signature:</strong> MarkdownSpans<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L34-34" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '301', 301)" onmouseover="showTip(event, '301', 301)">
+            HardLineBreak
+          </code>
+          <div class="tip" id="301">
+            <strong>Signature:</strong> <br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L40-40" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '302', 302)" onmouseover="showTip(event, '302', 302)">
+            IndirectImage(string,string,string)
+          </code>
+          <div class="tip" id="302">
+            <strong>Signature:</strong> string * string * string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L39-39" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -74,14 +182,14 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '303', 303)" onmouseover="showTip(event, '303', 303)">
-            DirectImage(body,link,title,range)
+            IndirectLink(...)
           </code>
           <div class="tip" id="303">
-            <strong>Signature:</strong> string * string * string option * MarkdownRange option<br />
+            <strong>Signature:</strong> MarkdownSpans * string * string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L39-39" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L37-37" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -92,14 +200,14 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '304', 304)" onmouseover="showTip(event, '304', 304)">
-            DirectLink(body,link,title,range)
+            InlineCode(string)
           </code>
           <div class="tip" id="304">
-            <strong>Signature:</strong> MarkdownSpans * string * string option * MarkdownRange option<br />
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L37-37" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L32-32" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -110,14 +218,14 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '305', 305)" onmouseover="showTip(event, '305', 305)">
-            EmbedSpans(customSpans,range)
+            LatexDisplayMath(string)
           </code>
           <div class="tip" id="305">
-            <strong>Signature:</strong> MarkdownEmbedSpans * MarkdownRange option<br />
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L44-44" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L42-42" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -128,14 +236,14 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '306', 306)" onmouseover="showTip(event, '306', 306)">
-            Emphasis(body,range)
+            LatexInlineMath(string)
           </code>
           <div class="tip" id="306">
-            <strong>Signature:</strong> MarkdownSpans * MarkdownRange option<br />
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L35-35" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L41-41" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -146,14 +254,14 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '307', 307)" onmouseover="showTip(event, '307', 307)">
-            HardLineBreak(range)
+            Literal(string)
           </code>
           <div class="tip" id="307">
-            <strong>Signature:</strong> MarkdownRange option<br />
+            <strong>Signature:</strong> string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L41-41" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L31-31" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -164,122 +272,14 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '308', 308)" onmouseover="showTip(event, '308', 308)">
-            IndirectImage(body,link,key,range)
+            Strong(MarkdownSpans)
           </code>
           <div class="tip" id="308">
-            <strong>Signature:</strong> string * string * string * MarkdownRange option<br />
+            <strong>Signature:</strong> MarkdownSpans<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L40-40" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '309', 309)" onmouseover="showTip(event, '309', 309)">
-            IndirectLink(body,original,key,range)
-          </code>
-          <div class="tip" id="309">
-            <strong>Signature:</strong> MarkdownSpans * string * string * MarkdownRange option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L38-38" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '310', 310)" onmouseover="showTip(event, '310', 310)">
-            InlineCode(code,range)
-          </code>
-          <div class="tip" id="310">
-            <strong>Signature:</strong> string * MarkdownRange option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L33-33" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '311', 311)" onmouseover="showTip(event, '311', 311)">
-            LatexDisplayMath(code,range)
-          </code>
-          <div class="tip" id="311">
-            <strong>Signature:</strong> string * MarkdownRange option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L43-43" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '312', 312)" onmouseover="showTip(event, '312', 312)">
-            LatexInlineMath(code,range)
-          </code>
-          <div class="tip" id="312">
-            <strong>Signature:</strong> string * MarkdownRange option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L42-42" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '313', 313)" onmouseover="showTip(event, '313', 313)">
-            Literal(text,range)
-          </code>
-          <div class="tip" id="313">
-            <strong>Signature:</strong> string * MarkdownRange option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L32-32" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '314', 314)" onmouseover="showTip(event, '314', 314)">
-            Strong(body,range)
-          </code>
-          <div class="tip" id="314">
-            <strong>Signature:</strong> MarkdownSpans * MarkdownRange option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L34-34" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Markdown.fs#L33-33" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -300,9 +300,9 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
             <li><a href="/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
@@ -330,6 +330,6 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>

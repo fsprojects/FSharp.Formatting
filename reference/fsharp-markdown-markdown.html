@@ -55,15 +55,15 @@ and transforming Markdown documents.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '256', 256)" onmouseover="showTip(event, '256', 256)">
+          <code onmouseout="hideTip(event, '250', 250)" onmouseover="showTip(event, '250', 250)">
             Parse(text)
           </code>
-          <div class="tip" id="256">
+          <div class="tip" id="250">
             <strong>Signature:</strong> text:string -&gt; MarkdownDocument<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L70-70" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L67-67" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -75,15 +75,15 @@ and transforming Markdown documents.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
+          <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
             Parse(text, newline)
           </code>
-          <div class="tip" id="257">
+          <div class="tip" id="251">
             <strong>Signature:</strong> (text:string * newline:string) -&gt; MarkdownDocument<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L48-48" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L47-47" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -96,20 +96,146 @@ inline HTML (etc.) will be stored using the specified string.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
+          <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
             TransformHtml(text)
           </code>
-          <div class="tip" id="258">
+          <div class="tip" id="252">
             <strong>Signature:</strong> text:string -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L94-94" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L91-91" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
           <p>Transform Markdown document into HTML format.
 The result will be returned as a string.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
+            TransformHtml(text, newline)
+          </code>
+          <div class="tip" id="253">
+            <strong>Signature:</strong> (text:string * newline:string) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L83-83" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Transform Markdown document into HTML format.
+The result will be returned as a string.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
+            TransformHtml(text, writer)
+          </code>
+          <div class="tip" id="254">
+            <strong>Signature:</strong> (text:string * writer:TextWriter) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L78-78" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Transform Markdown document into HTML format. The result
+will be written to the provided TextWriter.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '255', 255)" onmouseover="showTip(event, '255', 255)">
+            TransformHtml(text, writer, newline)
+          </code>
+          <div class="tip" id="255">
+            <strong>Signature:</strong> (text:string * writer:TextWriter * newline:string) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L72-72" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Transform Markdown document into HTML format. The result
+will be written to the provided TextWriter.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '256', 256)" onmouseover="showTip(event, '256', 256)">
+            TransformLatex(text)
+          </code>
+          <div class="tip" id="256">
+            <strong>Signature:</strong> text:string -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L142-142" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Transform Markdown document into LaTeX format.
+The result will be returned as a string.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
+            TransformLatex(text, newline)
+          </code>
+          <div class="tip" id="257">
+            <strong>Signature:</strong> (text:string * newline:string) -&gt; string<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L134-134" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Transform Markdown document into LaTeX format.
+The result will be returned as a string.</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
+            TransformLatex(text, writer)
+          </code>
+          <div class="tip" id="258">
+            <strong>Signature:</strong> (text:string * writer:TextWriter) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L129-129" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Transform Markdown document into LaTeX format. The result
+will be written to the provided TextWriter.</p>
 
 
         </td>
@@ -118,19 +244,19 @@ The result will be returned as a string.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '259', 259)" onmouseover="showTip(event, '259', 259)">
-            TransformHtml(text, newline)
+            TransformLatex(text, writer, newline)
           </code>
           <div class="tip" id="259">
-            <strong>Signature:</strong> (text:string * newline:string) -&gt; string<br />
+            <strong>Signature:</strong> (text:string * writer:TextWriter * newline:string) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L86-86" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L123-123" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into HTML format.
-The result will be returned as a string.</p>
+          <p>Transform Markdown document into LaTeX format. The result
+will be written to the provided TextWriter.</p>
 
 
         </td>
@@ -139,19 +265,19 @@ The result will be returned as a string.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '260', 260)" onmouseover="showTip(event, '260', 260)">
-            TransformHtml(text, writer)
+            WriteHtml(doc, writer)
           </code>
           <div class="tip" id="260">
-            <strong>Signature:</strong> (text:string * writer:TextWriter) -&gt; unit<br />
+            <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L81-81" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L114-114" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into HTML format. The result
-will be written to the provided TextWriter.</p>
+          <p>Transform the provided MarkdownDocument into HTML
+format and write the result to a given writer.</p>
 
 
         </td>
@@ -160,19 +286,19 @@ will be written to the provided TextWriter.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '261', 261)" onmouseover="showTip(event, '261', 261)">
-            TransformHtml(text, writer, newline)
+            WriteHtml(doc)
           </code>
           <div class="tip" id="261">
-            <strong>Signature:</strong> (text:string * writer:TextWriter * newline:string) -&gt; unit<br />
+            <strong>Signature:</strong> doc:MarkdownDocument -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L75-75" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L109-109" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into HTML format. The result
-will be written to the provided TextWriter.</p>
+          <p>Transform the provided MarkdownDocument into HTML
+format and return the result as a string.</p>
 
 
         </td>
@@ -181,19 +307,19 @@ will be written to the provided TextWriter.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '262', 262)" onmouseover="showTip(event, '262', 262)">
-            TransformLatex(text)
+            WriteHtml(doc, newline)
           </code>
           <div class="tip" id="262">
-            <strong>Signature:</strong> text:string -&gt; string<br />
+            <strong>Signature:</strong> (doc:MarkdownDocument * newline:string) -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L145-145" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L101-101" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into LaTeX format.
-The result will be returned as a string.</p>
+          <p>Transform the provided MarkdownDocument into HTML
+format and return the result as a string.</p>
 
 
         </td>
@@ -202,19 +328,19 @@ The result will be returned as a string.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '263', 263)" onmouseover="showTip(event, '263', 263)">
-            TransformLatex(text, newline)
+            WriteHtml(doc, writer, newline)
           </code>
           <div class="tip" id="263">
-            <strong>Signature:</strong> (text:string * newline:string) -&gt; string<br />
+            <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter * newline:string) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L137-137" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L96-96" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into LaTeX format.
-The result will be returned as a string.</p>
+          <p>Transform the provided MarkdownDocument into HTML
+format and write the result to a given writer.</p>
 
 
         </td>
@@ -223,19 +349,19 @@ The result will be returned as a string.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '264', 264)" onmouseover="showTip(event, '264', 264)">
-            TransformLatex(text, writer)
+            WriteLatex(doc, writer)
           </code>
           <div class="tip" id="264">
-            <strong>Signature:</strong> (text:string * writer:TextWriter) -&gt; unit<br />
+            <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L132-132" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L165-165" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into LaTeX format. The result
-will be written to the provided TextWriter.</p>
+          <p>Transform the provided MarkdownDocument into LaTeX
+format and write the result to a given writer.</p>
 
 
         </td>
@@ -244,19 +370,19 @@ will be written to the provided TextWriter.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '265', 265)" onmouseover="showTip(event, '265', 265)">
-            TransformLatex(text, writer, newline)
+            WriteLatex(doc)
           </code>
           <div class="tip" id="265">
-            <strong>Signature:</strong> (text:string * writer:TextWriter * newline:string) -&gt; unit<br />
+            <strong>Signature:</strong> doc:MarkdownDocument -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L126-126" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L160-160" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform Markdown document into LaTeX format. The result
-will be written to the provided TextWriter.</p>
+          <p>Transform the provided MarkdownDocument into LaTeX
+format and return the result as a string.</p>
 
 
         </td>
@@ -265,19 +391,19 @@ will be written to the provided TextWriter.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '266', 266)" onmouseover="showTip(event, '266', 266)">
-            WriteHtml(doc, writer)
+            WriteLatex(doc, newline)
           </code>
           <div class="tip" id="266">
-            <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter) -&gt; unit<br />
+            <strong>Signature:</strong> (doc:MarkdownDocument * newline:string) -&gt; string<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L117-117" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L152-152" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          <p>Transform the provided MarkdownDocument into HTML
-format and write the result to a given writer.</p>
+          <p>Transform the provided MarkdownDocument into LaTeX
+format and return the result as a string.</p>
 
 
         </td>
@@ -286,140 +412,14 @@ format and write the result to a given writer.</p>
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '267', 267)" onmouseover="showTip(event, '267', 267)">
-            WriteHtml(doc)
-          </code>
-          <div class="tip" id="267">
-            <strong>Signature:</strong> doc:MarkdownDocument -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L112-112" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Transform the provided MarkdownDocument into HTML
-format and return the result as a string.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '268', 268)" onmouseover="showTip(event, '268', 268)">
-            WriteHtml(doc, newline)
-          </code>
-          <div class="tip" id="268">
-            <strong>Signature:</strong> (doc:MarkdownDocument * newline:string) -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L104-104" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Transform the provided MarkdownDocument into HTML
-format and return the result as a string.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '269', 269)" onmouseover="showTip(event, '269', 269)">
-            WriteHtml(doc, writer, newline)
-          </code>
-          <div class="tip" id="269">
-            <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter * newline:string) -&gt; unit<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L99-99" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Transform the provided MarkdownDocument into HTML
-format and write the result to a given writer.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '270', 270)" onmouseover="showTip(event, '270', 270)">
-            WriteLatex(doc, writer)
-          </code>
-          <div class="tip" id="270">
-            <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter) -&gt; unit<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L168-168" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Transform the provided MarkdownDocument into LaTeX
-format and write the result to a given writer.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '271', 271)" onmouseover="showTip(event, '271', 271)">
-            WriteLatex(doc)
-          </code>
-          <div class="tip" id="271">
-            <strong>Signature:</strong> doc:MarkdownDocument -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L163-163" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Transform the provided MarkdownDocument into LaTeX
-format and return the result as a string.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '272', 272)" onmouseover="showTip(event, '272', 272)">
-            WriteLatex(doc, newline)
-          </code>
-          <div class="tip" id="272">
-            <strong>Signature:</strong> (doc:MarkdownDocument * newline:string) -&gt; string<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L155-155" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          <p>Transform the provided MarkdownDocument into LaTeX
-format and return the result as a string.</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '273', 273)" onmouseover="showTip(event, '273', 273)">
             WriteLatex(doc, writer, newline)
           </code>
-          <div class="tip" id="273">
+          <div class="tip" id="267">
             <strong>Signature:</strong> (doc:MarkdownDocument * writer:TextWriter * newline:string) -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/tpetricek/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L150-150" class="github-link">
+            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Markdown/Main.fs#L147-147" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -443,9 +443,9 @@ format and write the result to a given writer.</p>
             <li><a href="/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
             <li><a href="http://nuget.org/packages/FSharp.Formatting">Get Library via NuGet</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting">Source Code on GitHub</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-            <li><a href="http://github.com/tpetricek/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="http://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
             <li class="nav-header">Using F# Formatting</li>
             <li><a href="/FSharp.Formatting/literate.html">Literate programming</a></li>
@@ -473,6 +473,6 @@ format and write the result to a given writer.</p>
         </div>
       </div>
     </div>
-    <a href="http://github.com/tpetricek/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+    <a href="http://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   </body>
   </html>
