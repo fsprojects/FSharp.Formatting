@@ -13,7 +13,7 @@ open FSharp.Markdown
 open FSharp.Formatting.Common
 open FsUnitTyped
 
-let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
+let properNewLines (text: string) = text.Replace("\r\n", "\n").Replace("\n", System.Environment.NewLine)
 
 let shouldEqualNoWhiteSpace (x:string) (y:string) =
     shouldEqual (x.Split()) (y.Split())
@@ -116,7 +116,7 @@ let ``Transform LaTex block correctly``() =
   let doc = """$$$
 foo\$\$bar<>\$\&\%\$\#\_\{\}
 foo\$\$bar<>\$\&\%\$\#\_\{\}"""
-  let expected = """<p><span class="math">\[foo\$\$bar&lt;&gt;\$\&amp;\%\$\#\_\{\}
+  let expected = properNewLines """<p><span class="math">\[foo\$\$bar&lt;&gt;\$\&amp;\%\$\#\_\{\}
 foo\$\$bar&lt;&gt;\$\&amp;\%\$\#\_\{\}\]</span></p>"""
   (Markdown.TransformHtml doc).Trim()
   |> shouldEqual expected
