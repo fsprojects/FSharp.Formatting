@@ -1,11 +1,12 @@
 source https://api.nuget.org/v3/index.json
 source https://nuget.org/api/v2
 source https://dotnet.myget.org/F/dotnet-corefxlab/api/v3/index.json
+source https://ci.appveyor.com/nuget/fake
 
 redirects: on
 
 nuget FSharp.Data
-nuget FAKE
+nuget FAKE prerelease
 nuget CommandLineParser
 nuget FSharp.Core  redirects:force, content:none
 nuget Microsoft.AspNet.Razor
