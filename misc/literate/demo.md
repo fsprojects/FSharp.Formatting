@@ -4,7 +4,7 @@
 This file demonstrates how to write Markdown document with 
 embedded F# snippets that can be transformed into nice HTML 
 using the `literate.fsx` script from the [F# Formatting
-package](http://tpetricek.github.com/FSharp.Formatting).
+package](http://fsprojects.github.io/FSharp.Formatting).
 
 In this case, the document itself is a valid Markdown and 
 you can use standard Markdown features to format the text:

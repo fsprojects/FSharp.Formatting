@@ -31,7 +31,7 @@ documentation and might be a useful inspiration:
 The library is available under Apache 2.0. For more information see the [License file][1] in the GitHub repository.
 
 
- [1]: https://github.com/tpetricek/FSharp.Formatting/blob/master/LICENSE.md
- [2]: https://github.com/tpetricek/FSharp.Formatting/tree/master/docs
- [3]: http://tpetricek.github.com/FSharp.Formatting/
- [4]: http://tpetricek.github.com/FSharp.Formatting/literate.html
+ [1]: https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md
+ [2]: https://github.com/fsprojects/FSharp.Formatting/tree/master/docs
+ [3]: http://fsprojects.github.io/FSharp.Formatting/
+ [4]: http://fsprojects.github.io/FSharp.Formatting/literate.html

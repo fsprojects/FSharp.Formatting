@@ -10,7 +10,7 @@ let website = __SOURCE_DIRECTORY__ + "../output"
 let website = "/FSharp.Formatting"
 #endif
 
-let githubLink = "http://github.com/tpetricek/FSharp.Formatting"
+let githubLink = "http://github.com/fsprojects/FSharp.Formatting"
 
 // Specify more information about your project
 let info =

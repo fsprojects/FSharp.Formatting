@@ -40,28 +40,28 @@
 
 ## 2.13.0 (30 December, 2015)
  - Be compatible with the common-mark spec for 'Fenced code blocks' and 'Indented code blocks'.
-   See https://github.com/tpetricek/FSharp.Formatting/pull/343.
+   See https://github.com/fsprojects/FSharp.Formatting/pull/343.
    Please follow-up by adding support for more sections of the spec!
-   Just add the section to https://github.com/tpetricek/FSharp.Formatting/blob/master/tests/FSharp.Markdown.Tests/CommonMarkSpecTest.fs#L20
+   Just add the section to https://github.com/fsprojects/FSharp.Formatting/blob/master/tests/FSharp.Markdown.Tests/CommonMarkSpecTest.fs#L20
    and fix the newly enabled tests.
- - Add CompiledName to members with F# specific naming (https://github.com/tpetricek/FSharp.Formatting/pull/372)
+ - Add CompiledName to members with F# specific naming (https://github.com/fsprojects/FSharp.Formatting/pull/372)
 
 ## 2.12.1 (24 December, 2015)
  - update dependencies
  - Upgrade the CommandTool to F# 4 and bundle FSharp.Core with sigdata and optdata.
- - Fix crash when a fenced code block starts with an empty line (https://github.com/tpetricek/FSharp.Formatting/pull/361)
- - Support for all known xml elements (https://github.com/tpetricek/FSharp.Formatting/pull/331)
+ - Fix crash when a fenced code block starts with an empty line (https://github.com/fsprojects/FSharp.Formatting/pull/361)
+ - Support for all known xml elements (https://github.com/fsprojects/FSharp.Formatting/pull/331)
 
 ## 2.12.0 (18 October, 2015)
  - Update dependencies to be compatible with FSharp.Compiler.Service >=1.4.0.3
 
 ## 2.11.1-alpha1 (14 October, 2015)
- - Adds methods for cross-type links #330 (https://github.com/tpetricek/FSharp.Formatting/pull/330)
+ - Adds methods for cross-type links #330 (https://github.com/fsprojects/FSharp.Formatting/pull/330)
 
 ## 2.11.0 (28 September, 2015)
- - Fix https://github.com/tpetricek/FSharp.Formatting/issues/271
+ - Fix https://github.com/fsprojects/FSharp.Formatting/issues/271
  - Don't fail as long as we can recover / continue.
- - Fix https://github.com/tpetricek/FSharp.Formatting/issues/201
+ - Fix https://github.com/fsprojects/FSharp.Formatting/issues/201
 
 ## 2.10.3 (12 September, 2015)
  - Require compatible F# Compiler Service in Nuspec (fix #337)

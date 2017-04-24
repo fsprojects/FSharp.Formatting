@@ -494,7 +494,7 @@ let info =
     "project-summary", "A short summary of your project"
     "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
     "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
-    "root", "http://tpetricek.github.io/FSharp.FSharp.ProjectScaffold" ]
+    "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 
 let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/docpage.cshtml"
 
