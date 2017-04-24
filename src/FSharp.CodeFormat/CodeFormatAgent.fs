@@ -273,7 +273,7 @@ type CodeFormatAgent() =
     // ------------------------------------------------------------------------------------
 
     let processSourceCode (filePath, source, options, defines) = asyncMaybe {
-
+        Log.verbf "starting to process source code from '%s'" filePath
         // Read the source code into an array of lines
         use reader = new StringReader(source)
         let sourceLines = [|  
@@ -283,8 +283,16 @@ type CodeFormatAgent() =
         |]
         // Get options for a standalone script file (this adds some 
         // default references and doesn't require full project information)
+        Log.verbf "getting project options '%s'" filePath
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now) |> liftAsync
+
+        let formatError (e:FSharpErrorInfo) =
+             sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
+        let formatErrors errors =
+            System.String.Join("\n", errors |> Seq.map formatError)
     
+        if _errors.Length > 0 then
+            Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
         // Override default options if the user specified something
         let opts = 
             match options with 
@@ -292,8 +300,11 @@ type CodeFormatAgent() =
                 { opts with OtherOptions = Helpers.parseOptions str }
             | _ -> opts
 
+        Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
+
         // Run the second phase - perform type checking
         let! _parseResults, parsedInput, checkResults = fsChecker.ParseAndCheckDocument(filePath, source,opts,false)
+        Log.verbf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
         let! symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile () |> liftAsync
         let errors = checkResults.Errors
         let classifications = 
