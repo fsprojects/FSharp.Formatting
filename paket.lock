@@ -707,7 +707,6 @@ NUGET
     Zlib.Portable (1.11) - framework: >= netstandard11, portable-net45+sl5+win8, portable-net45+win8, portable-net45+win8+wp8+wpa81
   remote: https://ci.appveyor.com/nuget/fake
     FAKE (5.0.0-alpha004)
-
 GROUP Test
 NUGET
   remote: https://api.nuget.org/v3/index.json

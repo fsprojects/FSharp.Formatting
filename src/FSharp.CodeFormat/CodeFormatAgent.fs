@@ -267,7 +267,7 @@ type CodeFormatAgent() =
 
     // Create an instance of an InteractiveChecker (which does background analysis
     // in a typical IntelliSense editor integration for F#)
-    let fsChecker = FSharpChecker.Create()
+    let fsChecker = Yaaf.FSharp.Scripting.CompilerServiceExtensions.FSharpCheckerFuncs.checker // FSharpChecker.Create()
 
 
     // ------------------------------------------------------------------------------------
@@ -283,8 +283,9 @@ type CodeFormatAgent() =
         |]
         // Get options for a standalone script file (this adds some 
         // default references and doesn't require full project information)
-        Log.verbf "getting project options '%s'" filePath
-        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now) |> liftAsync
+        let fscore = Yaaf.FSharp.Scripting.CompilerServiceExtensions.FSharpCheckerFuncs.findFSCore [] []
+        Log.verbf "getting project options '%s' (F# Core: '%s')" filePath fscore
+        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, [| "-r:"+fscore |] ) |> liftAsync
 
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message

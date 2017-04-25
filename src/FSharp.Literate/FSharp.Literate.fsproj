@@ -76,9 +76,6 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
-    <Compile Include="..\Common\Scripting.fs">
-      <Link>Common\Scripting.fs</Link>
-    </Compile>
     <Compile Include="Document.fs" />
     <Compile Include="Evaluator.fs" />
     <Compile Include="Contexts.fs" />
