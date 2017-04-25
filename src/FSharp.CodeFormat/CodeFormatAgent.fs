@@ -307,7 +307,10 @@ type CodeFormatAgent() =
 
         // add our file
         let opts =
-            { opts with ProjectFileNames = [| filePath |] }
+            { opts with
+                UseScriptResolutionRules = true
+                //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
+                ProjectFileNames = [| filePath |] }
 
         Log.verbf "project options '%A'" opts
         let! results = fsChecker.ParseAndCheckProject(opts)
