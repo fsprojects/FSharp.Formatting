@@ -290,9 +290,9 @@ type CodeFormatAgent() =
             FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
         let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
         Log.verbf "getting project options '%s'" filePath // fscore
-        let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
-        //let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, [| ":"; "-r:"+fscore |] )
-
+        //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
+        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
+        //fsChecker.GetP
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
@@ -306,16 +306,16 @@ type CodeFormatAgent() =
                 { opts with OtherOptions = Helpers.parseOptions str }
             | _ -> opts
 
-        // add our file
-        let opts =
-            { opts with
-                UseScriptResolutionRules = true
-                //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
-                ProjectFileNames = [| filePath |] }
+        //// add our file
+        //let opts =
+        //    { opts with
+        //        UseScriptResolutionRules = true
+        //        //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
+        //        ProjectFileNames = [| filePath |] }
 
         Log.verbf "project options '%A'" opts
-        let! results = fsChecker.ParseAndCheckProject(opts)
-        let _errors = results.Errors
+        //let! results = fsChecker.ParseAndCheckProject(opts)
+        //let _errors = results.Errors
         if _errors.Length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
