@@ -76,9 +76,6 @@
     <Compile Include="..\Common\MarkdownUnit.fs">
       <Link>Common\MarkdownUnit.fs</Link>
     </Compile>
-    <Compile Include="..\..\src\Common\Scripting.fs">
-      <Link>Common\Scripting.fs</Link>
-    </Compile>
     <Compile Include="Setup.fs" />
     <Compile Include="Tests.fs" />
     <Compile Include="EvalTests.fs" />
