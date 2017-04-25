@@ -71,7 +71,12 @@ module internal CompilerServiceExtensions =
 #if NET40
       let defaultFrameworkVersion = "4.0"
 #else
+#if NET45
       let defaultFrameworkVersion = "4.5"
+#else
+//#if NET461
+      let defaultFrameworkVersion = "4.6.1"
+#endif
 #endif
 
       let getLib dir nm =
@@ -114,7 +119,7 @@ module internal CompilerServiceExtensions =
         name.Version.ToString()
 #endif
       let fscoreResolveDirs libDirs =
-        [ 
+        [
 #if !NETSTANDARD1_5
           yield System.AppDomain.CurrentDomain.BaseDirectory
           yield referenceAssemblyDirectory defaultFrameworkVersion
@@ -177,15 +182,21 @@ module internal CompilerServiceExtensions =
         |> Seq.filter (fun f ->
             sysLibBlackList |> Seq.forall (fun backListed -> f <>? backListed))
 #endif
-      let getCheckerArguments frameworkVersion defaultReferences (fsCoreLib: _ option) dllFiles libDirs otherFlags =
+      let getCheckerArguments file frameworkVersion defaultReferences (fsCoreLib: _ option) dllFiles libDirs otherFlags =
           ignore frameworkVersion
           ignore defaultReferences
-          let base1 = Path.GetTempFileName()
-          let dllName = Path.ChangeExtension(base1, ".dll")
-          let xmlName = Path.ChangeExtension(base1, ".xml")
-          let fileName1 = Path.ChangeExtension(base1, ".fs")
-          let projFileName = Path.ChangeExtension(base1, ".fsproj")
-          File.WriteAllText(fileName1, """module M""")
+          let fileName1 =
+            match file with
+            | Some f -> f
+            | None ->
+                let f = Path.ChangeExtension(Path.GetTempFileName(), ".fs")
+                File.WriteAllText(f, """module M""")
+                f
+
+          let dllName = Path.ChangeExtension(fileName1, ".dll")
+          let xmlName = Path.ChangeExtension(fileName1, ".xml")
+          //let fileName1 = Path.ChangeExtension(base1, ".fs")
+          let projFileName = Path.ChangeExtension(fileName1, ".fsproj")
 
           let args =
             [| //yield "--debug:full"
@@ -272,9 +283,9 @@ module internal CompilerServiceExtensions =
             getDefaultSystemReferences frameworkVersion
             |> Seq.filter (not << hasAssembly)
 
-          let projFileName, args = getCheckerArguments frameworkVersion defaultReferences (fsCoreLib: _ option) dllFiles libDirs otherFlags
+          let projFileName, args = getCheckerArguments None frameworkVersion defaultReferences (fsCoreLib: _ option) dllFiles libDirs otherFlags
 #else
-          let projFileName, args = getCheckerArguments frameworkVersion ignore (fsCoreLib: _ option) dllFiles libDirs otherFlags
+          let projFileName, args = getCheckerArguments None frameworkVersion ignore (fsCoreLib: _ option) dllFiles libDirs otherFlags
 #endif
           Log.verbf "Checker Arguments: %O" (Log.formatArgs args)
 

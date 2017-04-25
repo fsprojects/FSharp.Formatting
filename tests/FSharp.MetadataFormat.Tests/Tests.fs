@@ -82,6 +82,7 @@ let generate (libraries:string list) useMarkdown =
         )
         reraise ()
 
+do FSharp.Formatting.TestHelpers.enableLogging()
 
 [<Test>]
 let ``MetadataFormat works on sample Deedle assembly``() =
