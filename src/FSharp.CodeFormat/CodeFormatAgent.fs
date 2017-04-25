@@ -297,11 +297,7 @@ type CodeFormatAgent() =
         let formatErrors errors =
             System.String.Join("\n", errors |> Seq.map formatError)
 
-        //if _errors.Length > 0 then
-        //    printfn "errors: %s" (formatErrors _errors)
-        //    Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
-        Log.verbf "project options '%A'" opts
         // Override default options if the user specified something
         let opts =
             match options with
@@ -312,10 +308,15 @@ type CodeFormatAgent() =
         // add our file
         let opts =
             { opts with ProjectFileNames = [| filePath |] }
-        Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
+
+        Log.verbf "project options '%A'" opts
+        let! results = fsChecker.ParseAndCheckProject(opts)
+        let _errors = results.Errors
+        if _errors.Length > 0 then
+            Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
         // Run the second phase - perform type checking
-        //let! results = fsChecker.ParseAndCheckProject(opts)
+        Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
         let! res = fsChecker.ParseAndCheckDocument(filePath, source,opts,false)
         //fsChecker.InvalidateConfiguration(opts)
         //results.
