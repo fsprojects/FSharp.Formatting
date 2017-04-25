@@ -1,4 +1,4 @@
-#nowarn "211"
+﻿#nowarn "211"
 // Standard NuGet or Paket location
 #I __SOURCE_DIRECTORY__
 #I "lib/net40"

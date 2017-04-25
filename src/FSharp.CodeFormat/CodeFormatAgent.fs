@@ -17,6 +17,8 @@ open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
+open FSharp.Formatting.Common
+//type Log = FSharp.Formatting.Common.Log
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------
@@ -269,7 +271,6 @@ type CodeFormatAgent() =
     // Create an instance of an InteractiveChecker (which does background analysis
     // in a typical IntelliSense editor integration for F#)
     let fsChecker = FSharpCheckerFuncs.checker // FSharpChecker.Create()
-
 
     // ------------------------------------------------------------------------------------
 
