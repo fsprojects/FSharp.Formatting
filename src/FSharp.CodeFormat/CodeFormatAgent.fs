@@ -290,9 +290,11 @@ type CodeFormatAgent() =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
             System.String.Join("\n", errors |> Seq.map formatError)
-    
+
         if _errors.Length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
+
+        Log.verbf "project options '%A'" opts
         // Override default options if the user specified something
         let opts = 
             match options with 
