@@ -60,7 +60,7 @@ try
 
   if logToConsole then
     Logging.ConsoleListener()
-    |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Information
+    |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
     |> setupListener
 
   if logToFile then
