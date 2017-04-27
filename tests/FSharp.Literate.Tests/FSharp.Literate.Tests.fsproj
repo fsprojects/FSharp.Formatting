@@ -96,6 +96,11 @@
 	-->
   <Import Project="$(SolutionDir)\.paket\paket.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj">
+      <Name>FSharp.Formatting.TestHelpers</Name>
+      <Project>{0b552f94-33fe-4037-9c17-1eb2a885f263}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj">
       <Name>CSharpFormat</Name>
       <Project>{9ab3650b-cc24-4404-a175-a573da928475}</Project>
