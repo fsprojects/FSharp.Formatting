@@ -50,7 +50,8 @@ type ToolTipFormatter(prefix) =
   /// Returns all generated tool tip elements
   member x.WriteTipElements (writer:TextWriter) = 
     for (KeyValue(_, (index, html))) in tips do
-      writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
+      let id = sprintf "%s%d" prefix index
+      writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s\" onmouseout=\"hideTip(event, '%s', 0)\"\>%s</div>" id id html)
 
 /// Represents context used by the formatter
 type FormattingContext = 
