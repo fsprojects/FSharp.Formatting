@@ -286,9 +286,19 @@ type CodeFormatAgent() =
         // Get options for a standalone script file (this adds some
         // default references and doesn't require full project information)
         let frameworkVersion = FSharpCheckerFuncs.defaultFrameworkVersion
+        let fsCore = FSharpCheckerFuncs.findFSCore [] []
         let defaultReferences =
             FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
         let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
+        // filter invalid args
+        let refCorLib = args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
+        let args =
+            args |> Array.filter (fun item ->
+                not <| item.StartsWith "--target" &&
+                not <| item.StartsWith "--doc" &&
+                not <| item.StartsWith "--out" &&
+                not <| item.StartsWith "--nooptimizationdata" &&
+                not <| item.EndsWith "mscorlib.dll")
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
         //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
@@ -297,15 +307,34 @@ type CodeFormatAgent() =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
             System.String.Join("\n", errors |> Seq.map formatError)
-
-
+        // filter duplicates
+        let opts =
+            let mutable known = Set.empty
+            { opts with
+                OtherOptions =
+                    Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
+                    |> Array.filter (fun item ->
+                        if item.StartsWith "-r:" then
+                            let fullPath = item.Substring 3
+                            let name = System.IO.Path.GetFileName fullPath
+                            if known.Contains name then
+                                false
+                            else
+                                known <- known.Add name
+                                true
+                        else
+                            if known.Contains item then
+                                false
+                            else
+                                known <- known.Add item
+                                true)
+                }
         // Override default options if the user specified something
         let opts =
             match options with
             | Some(str:string) when not(System.String.IsNullOrEmpty(str)) ->
-                { opts with OtherOptions = [| yield! opts.OtherOptions; yield! Helpers.parseOptions str |] }
+                { opts with OtherOptions = [| yield! Helpers.parseOptions str; yield! opts.OtherOptions |] }
             | _ -> opts
-
         //// add our file
         //let opts =
         //    { opts with
