@@ -289,7 +289,7 @@ type CodeFormatAgent() =
         let defaultReferences =
             FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
         let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
-        Log.verbf "getting project options '%s'" filePath // fscore
+        Log.verbf "getting project options '%s': %A" filePath args// fscore
         //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
         //fsChecker.GetP

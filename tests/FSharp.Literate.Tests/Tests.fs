@@ -21,31 +21,9 @@ open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 open FSharp.Formatting.Razor
 open FsUnitTyped
+open FSharp.Formatting
 
-
-module Logging = FSharp.Formatting.Common.Log
-type TraceOptions = System.Diagnostics.TraceOptions
-do
-  try
-    System.Diagnostics.Trace.AutoFlush <- true
-    let allTraceOptions = TraceOptions.Callstack ||| TraceOptions.DateTime ||| TraceOptions.LogicalOperationStack |||
-                          TraceOptions.ProcessId ||| TraceOptions.ThreadId ||| TraceOptions.Timestamp
-    let noTraceOptions = TraceOptions.None
-    let listeners =
-      [|Logging.ConsoleListener()
-        |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Information |]
-    let sources =
-      [ FSharp.Formatting.Common.Log.source
-        //Yaaf.FSharp.Scripting.Log.source 
-      ]
-
-    sources |> Seq.iter (Logging.SetupSource listeners)
-
-    // Test that everything works
-    Logging.infof "FSharp.Formatting Logging setup!"
-    //Yaaf.FSharp.Scripting.Log.infof "Yaaf.FSharp.Scripting Logging setup!"
-  with e ->
-    printfn "FSharp.Formatting Logging setup failed: %A" e
+do TestHelpers.enableLogging()
 
 let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
 

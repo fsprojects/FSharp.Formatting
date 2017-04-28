@@ -4,6 +4,7 @@ open System.Diagnostics
 open FSharp.Formatting
 module Logging = FSharp.Formatting.Common.Log
 
+// This controlls logging within the test suite ...
 let enableLogging() =
     let logToConsole = true
     let logToFile = false
