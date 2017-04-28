@@ -3,8 +3,8 @@
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"
-#r "../../packages/NUnit/lib/nunit.framework.dll"
-#load "../Common/FsUnit.fs"
+#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
+#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #load "../Common/MarkdownUnit.fs"
 #load "Setup.fs"
 #else
@@ -12,12 +12,15 @@ module FSharp.Literate.Tests.Eval
 #endif
 
 open FsUnit
+open FsUnitTyped
 open System.IO
 open FSharp.Markdown
 open FSharp.Literate
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 open FSharp.Markdown.Unit
+
+do FSharp.Formatting.TestHelpers.enableLogging()
 
 // --------------------------------------------------------------------------------------
 // Test FSI evaluator
@@ -46,22 +49,22 @@ printf ">>%d<<" 12343
 (*** include-output: test ***)
 """
 
-  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
 
   doc.Errors |> Seq.length |> shouldEqual 0
   // Contains formatted code and markdown
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+    | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
 
   // Contains transformed output
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("42", _, _) -> true | _ -> false)
+    | CodeBlock ("42", _, _, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("85", _, _) -> true | _ -> false)
+    | CodeBlock ("85", _, _, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock (">>12343<<", _, _) -> true | _ -> false)
+    | CodeBlock (">>12343<<", _, _, _) -> true | _ -> false)
 
 [<Test>]
 let ``Can evaluate hidden code snippets`` () =
@@ -70,7 +73,7 @@ let ``Can evaluate hidden code snippets`` () =
 printfn "42"
 (*** include-output: test ***)
 """
-  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
   let html = Literate.WriteHtml(doc)
   html.Contains("42") |> shouldEqual true
   html.Contains(">printfn<") |> shouldEqual false
@@ -86,15 +89,15 @@ let test = [1;2;3]
   fsiEvaluator.RegisterTransformation(fun (o, ty) ->
     if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
       let items =
-        [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph[Literal (it.ToString())] ] ]
-      Some [ ListBlock(MarkdownListKind.Ordered, items) ]
+        [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([Literal (it.ToString(), None)], None) ] ]
+      Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
     else None)
 
-  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = fsiEvaluator)
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsiEvaluator)
   doc.Paragraphs
   |> shouldMatchPar (function
-      | ListBlock(Ordered, items) ->
-          items = [ [Paragraph [Literal "1"]]; [Paragraph [Literal "2"]]; [Paragraph [Literal "3"]] ]
+      | ListBlock(Ordered, items, None) ->
+          items = [ [Paragraph([Literal("1", None)], None)]; [Paragraph([Literal("2", None)], None)]; [Paragraph([Literal("3", None)], None)] ]
       | _ -> false)
 
 [<Test>]
@@ -115,7 +118,7 @@ test 2
 printfn "hi"
 (*** include-output:t ***)
 """
-  let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
   let html = Literate.WriteHtml(doc)
   html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length
   |> shouldEqual 5
@@ -128,11 +131,11 @@ let ``Can disable evaluation on an entire script file`` () =
 printfn "%d" (40 + 2)
 (*** include-output:t ***)
 """
-  let doc1 = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
   let html1 = Literate.WriteHtml(doc1)
   html1.Contains("42") |> shouldEqual true
 
-  let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
   let html2 = Literate.WriteHtml(doc2)
   html2.Contains("42") |> shouldEqual false
 
@@ -156,7 +159,7 @@ printfn "%d" FsLab.Demo.test
 (*** include-output:t ***)""".Replace("[PATH]", path)
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
-  let doc1 = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
   let html1 = Literate.WriteHtml(doc1)
   html1.Contains("42") |> shouldEqual true
   File.Delete(path)
@@ -183,7 +186,7 @@ module Demo =
 FsLab.Demo.test
 (*** include-it:t2 ***)""".Replace("[PATH]", path)
   let fsie = FSharp.Literate.FsiEvaluator(fsiObj = FsiEvaluatorConfig.CreateNoOpFsiObject())
-  let doc1 = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
   let html1 = Literate.WriteHtml(doc1)
   html1.Contains("Not executed") |> shouldEqual true
   html1.Contains("Executed") |> shouldEqual false

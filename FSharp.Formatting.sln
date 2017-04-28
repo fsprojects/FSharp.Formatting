@@ -1,15 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 12.0.31101.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		.travis.yml = .travis.yml
+		appveyor.yml = appveyor.yml
+		build.cmd = build.cmd
 		build.fsx = build.fsx
+		build.sh = build.sh
 		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
 		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
 		paket.dependencies = paket.dependencies
+		paket.lock = paket.lock
+		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
@@ -74,6 +82,9 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.CommandTool", "src\FSharp.Formatting.CommandTool\FSharp.Formatting.CommandTool.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}"
+	ProjectSection(SolutionItems) = preProject
+		tests\commonmark_spec.json = tests\commonmark_spec.json
+	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat.Tests", "tests\FSharp.CodeFormat.Tests\FSharp.CodeFormat.Tests.fsproj", "{5DEBD769-D86E-4E14-ABF1-373CA91BFAA2}"
 EndProject
@@ -105,10 +116,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.Me
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AFB9168D-4763-472D-B895-F61A049B75BF}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
 	ProjectSection(SolutionItems) = preProject
-		tests\commonmark_spec.json = tests\commonmark_spec.json
+		.paket\paket.exe.config = .paket\paket.exe.config
+		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.TestHelpers", "FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -196,6 +212,14 @@ Global
 		{91BAD90E-BF3B-4646-A1A7-1568F8F25075}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91BAD90E-BF3B-4646-A1A7-1568F8F25075}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91BAD90E-BF3B-4646-A1A7-1568F8F25075}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -219,5 +243,6 @@ Global
 		{55728B9D-1EDE-4A40-B439-1EB0B3F77B72} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
+		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
 	EndGlobalSection
 EndGlobal

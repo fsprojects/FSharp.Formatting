@@ -1,22 +1,26 @@
-source http://nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+source https://nuget.org/api/v2
+source https://dotnet.myget.org/F/dotnet-corefxlab/api/v3/index.json
+source https://ci.appveyor.com/nuget/fake
+
 redirects: on
 
 nuget FSharp.Data
-nuget FAKE
+nuget FAKE prerelease
 nuget CommandLineParser
-nuget FSharp.Core
+nuget FSharp.Core  redirects:force, content:none
 nuget Microsoft.AspNet.Razor
-nuget RazorEngine
-nuget NUnit ~> 2
-nuget NUnit.Runners ~> 2
-nuget NuGet.CommandLine
-nuget FSharp.Compiler.Service == 2.0.0.6
-// See http://fsprojects.github.io/Paket/nuget-dependencies.html
-// This basically means we need the lowest version for its dependencies (FSharp.Compiler.Service)
-// Otherwise we get runtime errors without binding redirects
-// (which we cannot control running as part of a build script).
-// See https://github.com/fsprojects/FSharp.Formatting/issues/277 as well.
-nuget FSharpVSPowerTools.Core !>= 0
+nuget RazorEngine 3.9.3 framework: >= net45
+nuget FSharp.Compiler.Service content:none
 nuget ILRepack
+nuget Argu
 
-github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+
+#github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+
+group Test 
+    source https://api.nuget.org/v3/index.json
+
+    nuget FsUnit 3.0.0 //framework:net45
+    nuget NUnit 3.6.0
+    nuget Nunit.ConsoleRunner

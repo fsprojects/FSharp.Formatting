@@ -55,25 +55,25 @@ let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function 
-  | LatexInlineMath(body) -> ctx.Writer.Write(sprintf "$%s$" body)
-  | LatexDisplayMath(body) -> ctx.Writer.Write(sprintf "$$%s$$" body)
-  | EmbedSpans(cmd) -> formatSpans ctx (cmd.Render())
-  | Literal(str) -> ctx.Writer.Write(latexEncode str)
-  | HardLineBreak -> ctx.LineBreak(); ctx.LineBreak()
+  | LatexInlineMath(body, _) -> ctx.Writer.Write(sprintf "$%s$" body)
+  | LatexDisplayMath(body, _) -> ctx.Writer.Write(sprintf "$$%s$$" body)
+  | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
+  | Literal(str, _) -> ctx.Writer.Write(latexEncode str)
+  | HardLineBreak(_) -> ctx.LineBreak(); ctx.LineBreak()
 
   | AnchorLink _ -> ()
-  | IndirectLink(body, _, LookupKey ctx.Links (link, _)) 
-  | DirectLink(body, (link, _))
-  | IndirectLink(body, link, _) ->
+  | IndirectLink(body, _, LookupKey ctx.Links (link, _), _) 
+  | DirectLink(body, link, _, _)
+  | IndirectLink(body, link, _, _) ->
       ctx.Writer.Write(@"\href{")
       ctx.Writer.Write(latexEncode link)
       ctx.Writer.Write("}{")
       formatSpans ctx body
       ctx.Writer.Write("}")
 
-  | IndirectImage(body, _, LookupKey ctx.Links (link, _)) 
-  | DirectImage(body, (link, _)) 
-  | IndirectImage(body, link, _) ->
+  | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) 
+  | DirectImage(body, link, _, _) 
+  | IndirectImage(body, link, _, _) ->
       // Use the technique introduced at
       // http://stackoverflow.com/q/14014827
       if not (System.String.IsNullOrWhiteSpace(body)) then
@@ -91,15 +91,15 @@ let rec formatSpan (ctx:FormattingContext) = function
         ctx.Writer.Write(@"\end{figure}")
         ctx.LineBreak()
 
-  | Strong(body) -> 
+  | Strong(body, _) -> 
       ctx.Writer.Write(@"\textbf{")
       formatSpans ctx body
       ctx.Writer.Write("}")
-  | InlineCode(body) -> 
+  | InlineCode(body, _) -> 
       ctx.Writer.Write(@"\texttt{")
       ctx.Writer.Write(latexEncode body)
       ctx.Writer.Write("}")
-  | Emphasis(body) -> 
+  | Emphasis(body, _) -> 
       ctx.Writer.Write(@"\emph{")
       formatSpans ctx body
       ctx.Writer.Write("}")
@@ -110,7 +110,7 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
-  | LatexBlock(lines) ->
+  | LatexBlock(lines, _) ->
     ctx.LineBreak(); ctx.LineBreak()
     ctx.Writer.Write("\["); ctx.LineBreak()
     for line in lines do
@@ -119,8 +119,8 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
     ctx.Writer.Write("\]")
     ctx.LineBreak(); ctx.LineBreak()
 
-  | EmbedParagraphs(cmd) -> formatParagraphs ctx (cmd.Render())
-  | Heading(n, spans) -> 
+  | EmbedParagraphs(cmd, _) -> formatParagraphs ctx (cmd.Render())
+  | Heading(n, spans, _) -> 
       let level = 
         match n with
         | 1 -> @"\section*"
@@ -133,7 +133,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       formatSpans ctx spans
       ctx.Writer.Write("}")
       ctx.LineBreak()
-  | Paragraph(spans) ->
+  | Paragraph(spans, _) ->
       ctx.LineBreak(); ctx.LineBreak()
       for span in spans do 
         formatSpan ctx span
@@ -143,7 +143,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
       ctx.LineBreak()
 
-  | CodeBlock(code, _, _) ->
+  | CodeBlock(code, _, _, _) ->
       ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.LineBreak()
       ctx.Writer.Write(code)
@@ -151,7 +151,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\end{lstlisting}")
       ctx.LineBreak()
 
-  | TableBlock(headers, alignments, rows) ->
+  | TableBlock(headers, alignments, rows, _) ->
       let aligns = alignments |> List.map (function
         | AlignRight -> "|r"
         | AlignCenter -> "|c"
@@ -178,7 +178,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\end{tabular}")
       ctx.LineBreak()
 
-  | ListBlock(kind, items) ->
+  | ListBlock(kind, items, _) ->
       let tag = if kind = Ordered then "enumerate" else "itemize"
       ctx.Writer.Write(@"\begin{" + tag + "}")
       ctx.LineBreak()
@@ -189,16 +189,16 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\end{" + tag + "}")
       ctx.LineBreak()
 
-  | QuotedBlock(body) ->
+  | QuotedBlock(body, _) ->
       ctx.Writer.Write(@"\begin{quote}")
       ctx.LineBreak()
       formatParagraphs ctx body
       ctx.Writer.Write(@"\end{quote}")
       ctx.LineBreak()
 
-  | Span spans -> 
+  | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code) ->
+  | InlineBlock(code, _) ->
       ctx.Writer.Write(code)
   ctx.LineBreak()
 

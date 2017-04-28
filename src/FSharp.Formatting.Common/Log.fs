@@ -3,7 +3,7 @@
 open System.Diagnostics
 
 module Log =
-  let source = new System.Diagnostics.TraceSource("FSharp.Formatting")
+  let source = new System.Diagnostics.TraceSource "FSharp.Formatting"
 
   let ConsoleListener () = new ConsoleTraceListener()
   let SvclogListener (file:string) = new XmlWriterTraceListener(file)
@@ -24,6 +24,7 @@ module Log =
     
   let traceEventf t f =
     Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
+
   let infof f = traceEventf TraceEventType.Information f
   let errorf f = traceEventf TraceEventType.Error f
   let warnf f = traceEventf TraceEventType.Warning f

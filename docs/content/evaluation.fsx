@@ -78,10 +78,7 @@ Specifying the evaluator and formatting
 
 (*** hide ***)
 #nowarn "211"
-#I "../../bin"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Literate.dll"
-#r "FSharp.Markdown.dll"
+#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 (**
 The embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).
@@ -159,9 +156,9 @@ fsiOl.RegisterTransformation(fun (o, ty) ->
     let items = 
       // Get items as objects and create paragraph for each item
       [ for it in Seq.cast<obj> (unbox o) -> 
-          [ Paragraph[Literal (it.ToString())] ] ]
+          [ Paragraph([Literal(it.ToString(), None)], None) ] ]
     // Return option value (success) with ordered list
-    Some [ ListBlock(MarkdownListKind.Ordered, items) ]
+    Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
   else None)
 (**
 

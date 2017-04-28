@@ -1,0 +1,12 @@
+# top-most EditorConfig file
+root = true
+
+[*]
+end_of_line = lf
+
+[*.{fs,fsi,fsx}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true

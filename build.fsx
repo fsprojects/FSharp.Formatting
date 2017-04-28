@@ -1,3 +1,5 @@
+﻿System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
+
 // --------------------------------------------------------------------------------------
 // FAKE build script
 // --------------------------------------------------------------------------------------
@@ -11,8 +13,6 @@ open Fake
 open Fake.AssemblyInfoFile
 open Fake.Git
 open Fake.ReleaseNotesHelper
-
-Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
@@ -47,7 +47,7 @@ let release = ReleaseNotesHelper.parseReleaseNotes (File.ReadLines "RELEASE_NOTE
 // Generate assembly info files with the right version & up-to-date information
 
 Target "AssemblyInfo" (fun _ ->
-  let info = 
+  let info =
       [ Attribute.Title project
         Attribute.Product project
         Attribute.Description summary
@@ -59,132 +59,99 @@ Target "AssemblyInfo" (fun _ ->
   CreateCSharpAssemblyInfo "src/Common/AssemblyInfo.cs" info
 )
 
-// --------------------------------------------------------------------------------------
-// Clean build results
 
+// Clean build results
+// --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp" ]
-    CleanDirs ["docs/output"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/FsLib/obj"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/crefLib/obj"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/csharpSupport/obj"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/bin"]
-    CleanDirs ["tests/FSharp.MetadataFormat.Tests/files/TestLib/obj"]
+    !! "bin"
+    ++ "temp"
+    ++ "docs/output"
+    ++ "tests/bin"
+    ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
+    ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
+    |> CleanDirs
+    // in case the above pattern is empty as it only matches existing stuff
+    ["bin"; "temp"; "docs/output"; "tests/bin"]
+    |> Seq.iter ensureDirectory
 )
 
-// --------------------------------------------------------------------------------------
+
 // Update the assembly version numbers in the script file.
+// --------------------------------------------------------------------------------------
 
 open System.IO
 
 Target "UpdateFsxVersions" (fun _ ->
-    let packages = [ "FSharp.Compiler.Service"; "FSharpVSPowerTools.Core" ]
+    let packages = [ "FSharp.Compiler.Service" ]
     let replacements =
-      packages |> Seq.map (fun packageName ->
-        sprintf "/%s.(.*)/lib" packageName,
-        sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName))
+        packages |> Seq.map (fun packageName ->
+            sprintf "/%s.(.*)/lib" packageName,
+            sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName)
+        )
     let path = "./packages/FSharp.Formatting/FSharp.Formatting.fsx"
     let text = File.ReadAllText(path)
-    let text = (text, replacements) ||> Seq.fold (fun text (pattern, replacement) ->
-        Text.RegularExpressions.Regex.Replace(text, pattern, replacement) )
+    let text =
+        (text, replacements)
+        ||> Seq.fold (fun text (pattern, replacement) ->
+            Text.RegularExpressions.Regex.Replace (text, pattern, replacement)
+        )
     File.WriteAllText(path, text)
 )
 
-// --------------------------------------------------------------------------------------
+
 // Build library
+// --------------------------------------------------------------------------------------
+
+let solutionFile = "FSharp.Formatting.sln"
+
+let msbuild14 = ProgramFilesX86</>"MSBuild"</>"14.0"</>"Bin"</>"MSBuild.exe"
+
+if isWindows && fileExists msbuild14 then
+    setEnvironVar "MSBUILD"  msbuild14
 
 Target "Build" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["FSharp.Formatting.sln"]
-      Excludes = [] }
+    !! solutionFile
     |> MSBuildRelease "" "Rebuild"
     |> ignore
 )
 
-Target "MergeVSPowerTools" (fun _ ->
-    () (*
-    let binDir = __SOURCE_DIRECTORY__ @@ "bin"
-    CreateDir (binDir @@ "merged")
 
-    let toPack =
-        (binDir @@ "FSharp.CodeFormat.dll") + " " +
-        (binDir @@ "FSharpVSPowerTools.Core.dll")
 
-    let result =
-        ExecProcess (fun info ->
-            info.FileName <- currentDirectory @@ "packages/ILRepack/tools/ILRepack.exe"
-            info.Arguments <-
-              sprintf
-                "/internalize /verbose /lib:bin /ver:%s /out:%s %s"
-                release.AssemblyVersion (binDir @@ "merged" @@ "FSharp.CodeFormat.dll") toPack
-            ) (TimeSpan.FromMinutes 5.)
-
-    if result <> 0 then failwithf "Error during ILRepack execution."
-
-    !! (binDir @@ "merged" @@ "*.*")
-    |> CopyFiles binDir
-    DeleteDir (binDir @@ "merged")
-    *)
-)
-// --------------------------------------------------------------------------------------
 // Build tests and generate tasks to run the tests in sequence
+// --------------------------------------------------------------------------------------
 
 Target "BuildTests" (fun _ ->
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["FSharp.Formatting.sln"]
-      Excludes = [] }
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
+    let debugBuild sln =
+        {   BaseDirectory = __SOURCE_DIRECTORY__
+            Includes = [sln]
+            Excludes = []
+        //}   |> MSBuildDebug "" "Build" |> ignore
+        }   |> MSBuildDebug "tests/bin" "Build" |> ignore
 
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/FsLib/FsLib.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Rebuild"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/crefLib/crefLib.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Rebuild"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/csharpSupport/csharpSupport.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Rebuild"
-    |> ignore
-
-    { BaseDirectory = __SOURCE_DIRECTORY__
-      Includes = ["tests/*/files/TestLib/TestLib.sln"]
-      Excludes = [] }
-    |> MSBuildDebug "" "Rebuild"
-    |> ignore
+    debugBuild "tests/*/files/FsLib/FsLib.sln"
+    debugBuild "tests/*/files/crefLib/crefLib.sln"
+    debugBuild "tests/*/files/csharpSupport/csharpSupport.sln"
+    debugBuild "tests/*/files/TestLib/TestLib.sln"
 )
 
-let testProjects =
-  [ "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
-    "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
+open Fake.Testing
 
-Target "RunTests" <| ignore
+let testAssemblies =
+    [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
+        "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
+    |> List.map (fun asm -> sprintf "tests/bin/%s.dll" asm)
 
-// For each test project file, generate a new "RunTest_Xyz" which
-// runs the test (to process them sequentially which is needed in Travis)
-for name in testProjects do
-    let taskName = sprintf "RunTest_%s" name
-    Target taskName <| fun () ->
-        !! (sprintf "tests/*/bin/Release/%s.dll" name)
-        |> NUnit (fun p ->
-            { p with
-                DisableShadowCopy = true
-                TimeOut = TimeSpan.FromMinutes 20.
-                Framework = "4.0"
-                OutputFile = "TestResults.xml" })
-    taskName ==> "RunTests" |> ignore
-    "BuildTests" ==> taskName |> ignore
+
+Target "RunTests" (fun _ ->
+    testAssemblies
+    |> NUnit3 (fun p ->
+        { p with
+            ShadowCopy = true
+            TimeOut = TimeSpan.FromMinutes 20.
+            ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
+            OutputDir = "TestResults.xml" })
+)
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -208,10 +175,28 @@ let RequireRange breakingPoint version =
 
 Target "CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
-    for file in System.IO.Directory.EnumerateFiles("packages" @@ "FSharp.Core" @@ "lib" @@ "net40") do
-        let source, dest = file, Path.Combine("bin", Path.GetFileName(file))
-        printfn "Copying %s to %s" source dest
-        File.Copy(source, dest, true))
+    for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
+        let source, binDest = file, "bin" </> Path.GetFileName file
+        printfn "Copying %s to %s" source binDest
+        File.Copy (source, binDest, true)
+)
+
+
+Target "SetupLibForTests" (fun _ ->    
+    
+    let copyPackageFiles dir =
+        let dir = Path.GetFullPath dir
+        for file in System.IO.Directory.EnumerateFiles dir do
+            let source, libDest = file, "tests"</>"bin"</>(Path.GetFileName file)
+            tracefn "Copying %s to %s" source libDest
+            File.Copy (source, libDest, true)
+    [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
+        "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
+        "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"    
+        "packages" </> "FSharp.Data" </> "lib" </> "portable-net45+netcore45"
+    ] |> List.iter copyPackageFiles
+)
+    
 
 Target "NuGet" (fun _ ->
     NuGet (fun p ->
@@ -249,10 +234,12 @@ Target "NuGet" (fun _ ->
         "nuget/FSharp.Formatting.CommandTool.nuspec"
 )
 
-// --------------------------------------------------------------------------------------
-// Generate the documentation
 
-let fakePath = "packages" @@ "FAKE" @@ "tools" @@ "FAKE.exe"
+// Generate the documentation
+// --------------------------------------------------------------------------------------
+
+
+let fakePath = "packages" </> "FAKE" </> "tools" </> "FAKE.exe"
 let fakeStartInfo script workingDirectory args fsiargs environmentVars =
     (fun (info: System.Diagnostics.ProcessStartInfo) ->
         info.FileName <- System.IO.Path.GetFullPath fakePath
@@ -266,7 +253,7 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
         setVar "GIT" Git.CommandHelper.gitPath
         setVar "FSI" fsiPath)
 
-let commandToolPath = "bin" @@ "fsformatting.exe"
+let commandToolPath = "bin" </> "fsformatting.exe"
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info: System.Diagnostics.ProcessStartInfo) ->
         info.FileName <- System.IO.Path.GetFullPath commandToolPath
@@ -364,15 +351,15 @@ let bootStrapDocumentationFiles () =
     // If you came here from the nuspec file add your file.
     // If you add files here to make the CI happy add those files to the .nuspec file as well
     // TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
-    ensureDirectory (__SOURCE_DIRECTORY__ @@ "packages/FSharp.Formatting/lib/net40")
+    ensureDirectory (__SOURCE_DIRECTORY__ </> "packages/FSharp.Formatting/lib/net40")
     let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
                        "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll" ]
+                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll" ]
     let bundledFiles =
         buildFiles
-        |> List.map (fun f -> 
-            __SOURCE_DIRECTORY__ @@ sprintf "bin/%s" f, 
-            __SOURCE_DIRECTORY__ @@ sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
+        |> List.map (fun f ->
+            __SOURCE_DIRECTORY__ </> sprintf "bin/%s" f,
+            __SOURCE_DIRECTORY__ </> sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
     for source, dest in bundledFiles do
         try
@@ -384,7 +371,7 @@ Target "DogFoodCommandTool" (fun _ ->
     // generate metadata reference
     let dllFiles =
       [ "FSharp.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll" ]
+        "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "FSharp.Formatting.Razor.dll" ]
         |> List.map (sprintf "bin/%s")
     let layoutRoots =
       [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
@@ -413,7 +400,7 @@ Target "DogFoodCommandTool" (fun _ ->
 Target "GenerateDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
-      
+
 Target "WatchDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:WATCH" "Default")
@@ -459,15 +446,15 @@ Target "All" DoNothing
 Target "DownloadPython" (fun _ ->
   if not isUnix then
     let w = new System.Net.WebClient()
-    let zipFile = "temp"@@"cpython.zip"
+    let zipFile = "temp"</>"cpython.zip"
     if File.Exists zipFile then File.Delete zipFile
     w.DownloadFile("https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip", zipFile)
-    let cpython = "temp"@@"CPython"
+    let cpython = "temp"</>"CPython"
     CleanDir cpython
     System.IO.Compression.ZipFile.ExtractToDirectory(zipFile, cpython)
-    let cpythonStdLib = cpython@@"stdlib"
+    let cpythonStdLib = cpython</>"stdlib"
     CleanDir cpythonStdLib
-    System.IO.Compression.ZipFile.ExtractToDirectory(cpython@@"python35.zip", cpythonStdLib)
+    System.IO.Compression.ZipFile.ExtractToDirectory(cpython</>"python35.zip", cpythonStdLib)
 )
 
 Target "CreateTestJson" (fun _ ->
@@ -477,11 +464,11 @@ Target "CreateTestJson" (fun _ ->
 
     let pythonExe, stdLib =
       if not isUnix then
-        System.IO.Path.GetFullPath ("temp"@@"CPython"@@"python.exe"),
-        System.IO.Path.GetFullPath ("temp"@@"CPython"@@"stdlib")
+        System.IO.Path.GetFullPath ("temp"</>"CPython"</>"python.exe"),
+        System.IO.Path.GetFullPath ("temp"</>"CPython"</>"stdlib")
       else "python", ""
 
-    let resultFile = "temp"@@"commonmark-tests.json"
+    let resultFile = "temp"</>"commonmark-tests.json"
     if File.Exists resultFile then File.Delete resultFile
     ( use fileStream = new StreamWriter(File.Open(resultFile, System.IO.FileMode.Create))
       executeHelper
@@ -499,17 +486,34 @@ Target "CreateTestJson" (fun _ ->
             setVar "MSBuild" msBuildExe
             setVar "GIT" Git.CommandHelper.gitPath
             setVar "FSI" fsiPath))
-    File.Copy(resultFile, "tests"@@"commonmark_spec.json")
+    File.Copy(resultFile, "tests"</>"commonmark_spec.json")
 )
 
-"Clean" ==> "AssemblyInfo" ==> "Build" ==> "BuildTests"
-"Build" ==> "MergeVSPowerTools" ==> "All"
-"BuildTests" ==> "RunTests" ==> "All"
+"Clean"
+  ==> "AssemblyInfo"
+  ==> "CopyFSharpCore"
+  ==> "SetupLibForTests"
+  ==> "Build"
+  ==> "BuildTests"
+
+
+"Build" ==> "All"
+
+"BuildTests"
+  ==> "RunTests"
+  ==> "All"
+
 "GenerateDocs" ==> "All"
-"Build" ==> "CopyFSharpCore" ==> "DogFoodCommandTool" ==> "All"
+
+"Build"
+
+  ==> "DogFoodCommandTool"
+  ==> "All"
+
 "UpdateFsxVersions" ==> "All"
 
 "CopyFSharpCore" ==> "NuGet"
+
 "All"
   ==> "NuGet"
   ==> "ReleaseDocs"

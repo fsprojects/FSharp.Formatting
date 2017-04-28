@@ -112,4 +112,4 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, erro
 /// Markdown documents.
 module Matching =
   let (|LiterateParagraph|_|) = function
-    | EmbedParagraphs(:? LiterateParagraph as lp) -> Some lp | _ -> None
+    | EmbedParagraphs(:? LiterateParagraph as lp, _) -> Some lp | _ -> None

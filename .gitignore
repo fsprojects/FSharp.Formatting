@@ -2,7 +2,9 @@
 .fake/
 .vs/
 bin/
+lib/
 obj/
+/.paket/paket.exe
 paket-files/
 nuget/*.nupkg
 docs/output/
@@ -19,7 +21,6 @@ misc/literate/output/content/
 *.sln.DotSettings.user
 *.userprefs
 *.bak
-.paket/paket.exe
 release.cmd
 *.orig
 *.aux
@@ -28,3 +29,7 @@ release.cmd
 *.synctex
 *.log
 *.svclog
+
+.paket/paket.exe
+fsbuild.targets
+*.sln.tddstud10.user

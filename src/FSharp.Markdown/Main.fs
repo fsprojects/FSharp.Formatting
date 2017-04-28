@@ -12,19 +12,22 @@ open System.Collections.Generic
 open FSharp.Patterns
 open FSharp.Markdown.Parser
 open FSharp.Markdown.Html
+open FSharp.Formatting.Common
 
 module private Utils  =
-  /// Replace tabs with four spaces - tab will end at the 
-  /// first column that is divisible by four.
-  let replaceTabs size = List.map (fun (line:string) ->
-    if line.IndexOf('\t') = -1 then line else
-    let chars = ResizeArray<_>()
-    for i in 0 .. line.Length - 1 do
-      if line.[i] <> '\t' then chars.Add(line.[i])
-      else 
-        chars.Add(' ')
-        while chars.Count % size <> 0 do chars.Add(' ')
-    String(chars.ToArray()) )
+    /// Replace tabs with four spaces - tab will end at the 
+    /// first column that is divisible by four.
+    let replaceTabs size = 
+        List.map (fun (line:string) ->
+            if line.IndexOf '\t' = -1 then line else
+            let chars = ResizeArray<_>()
+            for i in 0 .. line.Length - 1 do
+                if line.[i] <> '\t' then chars.Add line.[i]
+                else 
+                chars.Add ' '
+                while chars.Count % size <> 0 do chars.Add ' '
+            String (chars.ToArray()) 
+        )
 
 // --------------------------------------------------------------------------------------
 // Expose Markdown transformer functions as an overloaded static method (C# friendly)
@@ -48,17 +51,19 @@ type Markdown =
     use reader = new StringReader(text)
     let lines = 
       [ let line = ref ""
+        let mutable lineNo = 1
         while (line := reader.ReadLine(); line.Value <> null) do
-          yield line.Value
+          yield (line.Value, { StartLine = lineNo; StartColumn = 0; EndLine = lineNo; EndColumn = line.Value.Length })
+          lineNo <- lineNo + 1
         if text.EndsWith(newline) then
-          yield "" ]
+          yield ("", { StartLine = lineNo; StartColumn = 0; EndLine = lineNo; EndColumn = 0 }) ]
       //|> Utils.replaceTabs 4
     let links = Dictionary<_, _>()
     //let (Lines.TrimBlank lines) = lines
-    let ctx : ParsingContext = { Newline = newline; Links = links }
+    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some(MarkdownRange.zero) }
     let paragraphs =
       lines
-      |> FSharp.Collections.List.skipWhile String.IsNullOrWhiteSpace
+      |> FSharp.Collections.List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
       |> parseParagraphs ctx
       |> List.ofSeq
     MarkdownDocument(paragraphs, links)
