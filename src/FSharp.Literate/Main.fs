@@ -104,7 +104,7 @@ type Literate private () =
   static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
     let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock doc.FormattedTips], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
     Html.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
@@ -113,7 +113,7 @@ type Literate private () =
   static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
     let ctx = formattingContext None (Some OutputKind.Html) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock doc.FormattedTips], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
     Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   static member WriteLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =

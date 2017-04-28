@@ -53,15 +53,15 @@ printf ">>%d<<" 12343
   doc.Paragraphs |> shouldMatchPar (function
     | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph [Strong [Literal "hello"]] -> true | _ -> false)
+    | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
 
   // Contains transformed output
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("42", _, _) -> true | _ -> false)
+    | CodeBlock ("42", _, _, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("85", _, _) -> true | _ -> false)
+    | CodeBlock ("85", _, _, _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock (">>12343<<", _, _) -> true | _ -> false)
+    | CodeBlock (">>12343<<", _, _, _) -> true | _ -> false)
 
 [<Test>]
 let ``Can evaluate hidden code snippets`` () =
@@ -86,15 +86,15 @@ let test = [1;2;3]
   fsiEvaluator.RegisterTransformation(fun (o, ty) ->
     if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
       let items =
-        [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph[Literal (it.ToString())] ] ]
-      Some [ ListBlock(MarkdownListKind.Ordered, items) ]
+        [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([Literal (it.ToString(), None)], None) ] ]
+      Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
     else None)
 
   let doc = Literate.ParseScriptString(content, "." @@ "A.fsx", getFormatAgent(), fsiEvaluator = fsiEvaluator)
   doc.Paragraphs
   |> shouldMatchPar (function
-      | ListBlock(Ordered, items) ->
-          items = [ [Paragraph [Literal "1"]]; [Paragraph [Literal "2"]]; [Paragraph [Literal "3"]] ]
+      | ListBlock(Ordered, items, None) ->
+          items = [ [Paragraph([Literal("1", None)], None)]; [Paragraph([Literal("2", None)], None)]; [Paragraph([Literal("3", None)], None)] ]
       | _ -> false)
 
 [<Test>]

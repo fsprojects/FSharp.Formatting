@@ -11,6 +11,7 @@ open System.Web
 
 open FSharp.Patterns
 open FSharp.Collections
+open FSharp.Formatting.Common
 
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
@@ -34,7 +35,7 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 type Token = string * FSharpTokenInfo
 type SnippetLine = Token list
-type IndexedSnippetLine = int * SnippetLine
+type IndexedSnippetLine = MarkdownRange * SnippetLine
 type Snippet = IndexedSnippetLine list
 type NamedSnippet = string * Snippet
 
@@ -49,19 +50,19 @@ let rec getSnippets (state:NamedSnippet option) (snippets:NamedSnippet list)
   match source with 
   | [] -> snippets
   | (line, tokens)::rest ->
-    let text = lines.[line].Trim()
+    let text = lines.[line.StartLine].Trim(), line
     match state, text with
 
     // We're not inside a snippet and we found a beginning of one
-    | None, String.StartsWithTrim "//" (String.StartsWithTrim "[snippet:" title) ->
-        let title = title.Substring(0, title.IndexOf(']'))
+    | None, StringPosition.StartsWithTrim "//" (StringPosition.StartsWithTrim "[snippet:" title) ->
+        let title = (fst title).Substring(0, (fst title).IndexOf(']'))
         getSnippets (Some(title, [])) snippets rest lines
     // Not inside a snippet and there is a usual line
     | None, _ -> 
         getSnippets state snippets rest lines
 
     // We're inside a snippet and it ends
-    | Some(title, acc), String.StartsWithTrim "//" (String.StartsWithTrim "[/snippet]" _) ->
+    | Some(title, acc), StringPosition.StartsWithTrim "//" (StringPosition.StartsWithTrim "[/snippet]" _) ->
         getSnippets None ((title, acc |> List.rev)::snippets) rest lines
     // We're inside snippet - add current line to it
     | Some(title, acc), _ -> 

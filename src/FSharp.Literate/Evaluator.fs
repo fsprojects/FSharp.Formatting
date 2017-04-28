@@ -111,7 +111,7 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
   let mutable valueTransformations = 
-    [ (fun (o:obj, t:Type) ->Some([CodeBlock (sprintf "%A" o, "", "")]) ) ]
+    [ (fun (o:obj, t:Type) ->Some([CodeBlock (sprintf "%A" o, "", "", None)]) ) ]
 
   /// Register a function that formats (some) values that are produced by the evaluator.
   /// The specified function should return 'Some' when it knows how to format a value
@@ -130,12 +130,12 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
       match result :?> FsiEvaluationResult, kind with
       | result, FsiEmbedKind.Output -> 
           let s = defaultArg result.Output "No output has been produced."
-          [ CodeBlock(s.Trim(), "", "") ]
+          [ CodeBlock(s.Trim(), "", "", None) ]
       | { ItValue = Some v }, FsiEmbedKind.ItValue
       | { Result = Some v }, FsiEmbedKind.Value ->
           valueTransformations |> Seq.pick (fun f -> lock lockObj (fun () -> f v))
-      | _, FsiEmbedKind.ItValue -> [ CodeBlock ("No value has been returned", "", "") ]
-      | _, FsiEmbedKind.Value -> [ CodeBlock ("No value has been returned", "", "") ]
+      | _, FsiEmbedKind.ItValue -> [ CodeBlock ("No value has been returned", "", "", None) ]
+      | _, FsiEmbedKind.Value -> [ CodeBlock ("No value has been returned", "", "", None) ]
 
     /// Evaluates the given text in an fsi session and returns
     /// an FsiEvaluationResult.

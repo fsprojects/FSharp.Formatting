@@ -73,7 +73,7 @@ module private Helpers =
               state := nstate
               yield! parseLine()
           | None, nstate -> state := nstate }
-        yield n, parseLine() |> List.ofSeq ]
+        yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine() |> List.ofSeq ]
 
   // Count the minimal number of spaces at the beginning of lines
   // (so that we can remove spaces for indented text)
@@ -238,10 +238,10 @@ type CodeFormatAgent() =
         processSnippetLine 
             checkResults 
             (categorizedSpans 
-             |> Map.tryFind ((fst snippetLine) + 1) 
+             |> Map.tryFind ((fst snippetLine).StartLine + 1) 
              |> function None -> [] | Some spans -> List.ofSeq spans) 
             lines 
-            snippetLine)
+            ((fst snippetLine).StartLine, snd snippetLine))
 
 // --------------------------------------------------------------------------------------
 

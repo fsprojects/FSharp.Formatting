@@ -27,8 +27,8 @@ module Formatting =
   /// Try find first-level heading in the paragraph collection
   let findHeadings paragraphs generateAnchors (outputKind:OutputKind) =              
     paragraphs |> Seq.tryPick (function 
-      | (Heading(1, text)) ->           
-          let doc = MarkdownDocument([Span(text)], dict [])
+      | Heading(1, text, r) ->           
+          let doc = MarkdownDocument([Span(text, r)], dict [])
           Some(format doc generateAnchors outputKind)
       | _ -> None)
 
@@ -37,13 +37,13 @@ module Formatting =
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->
-        doc.With(paragraphs = [CodeBlock (text, "", "")])
+        doc.With(paragraphs = [CodeBlock (text, "", "", None)])
     | LiterateSource.Script snippets ->
         let paragraphs = 
           [ for Snippet(name, lines) in snippets do
               if snippets.Length > 1 then
-                yield Heading(3, [Literal name])
-              yield EmbedParagraphs(FormattedCode(lines)) ]
+                yield Heading(3, [Literal(name, None)], None)
+              yield EmbedParagraphs(FormattedCode(lines), None) ]
         doc.With(paragraphs = paragraphs)
 
 // --------------------------------------------------------------------------------------
