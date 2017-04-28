@@ -289,7 +289,7 @@ type CodeFormatAgent() =
         let defaultReferences =
             FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
         let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
-        Log.verbf "getting project options '%s': %A" filePath args// fscore
+        Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
         //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
         //fsChecker.GetP
@@ -303,7 +303,7 @@ type CodeFormatAgent() =
         let opts =
             match options with
             | Some(str:string) when not(System.String.IsNullOrEmpty(str)) ->
-                { opts with OtherOptions = Helpers.parseOptions str }
+                { opts with OtherOptions = [| yield! opts.OtherOptions; yield! Helpers.parseOptions str |] }
             | _ -> opts
 
         //// add our file
@@ -313,7 +313,7 @@ type CodeFormatAgent() =
         //        //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
         //        ProjectFileNames = [| filePath |] }
 
-        Log.verbf "project options '%A'" opts
+        Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
         if _errors.Length > 0 then
