@@ -1,4 +1,4 @@
-#nowarn "211"
+﻿#nowarn "211"
 // Standard NuGet or Paket location
 #I __SOURCE_DIRECTORY__
 #I "lib/net40"
@@ -10,7 +10,7 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 #r "../System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
 
 // Standard NuGet locations
-//#I "../FSharp.Compiler.Service.12.0.2/lib/net45"
+//#I "../FSharp.Compiler.Service.12.0.5/lib/net45"
 
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/net45"
@@ -60,7 +60,7 @@ try
 
   if logToConsole then
     Logging.ConsoleListener()
-    |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Information
+    |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
     |> setupListener
 
   if logToFile then

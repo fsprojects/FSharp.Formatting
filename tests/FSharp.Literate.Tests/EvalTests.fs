@@ -20,6 +20,8 @@ open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 open FSharp.Markdown.Unit
 
+do FSharp.Formatting.TestHelpers.enableLogging()
+
 // --------------------------------------------------------------------------------------
 // Test FSI evaluator
 // --------------------------------------------------------------------------------------

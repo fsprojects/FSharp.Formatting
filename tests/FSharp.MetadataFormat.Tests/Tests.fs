@@ -61,7 +61,7 @@ let info =
     "project-summary", "A short summary of your project"
     "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
     "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
-    "root", "http://tpetricek.github.io/FSharp.FSharp.ProjectScaffold" ]
+    "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 
 let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
@@ -82,6 +82,7 @@ let generate (libraries:string list) useMarkdown =
         )
         reraise ()
 
+do FSharp.Formatting.TestHelpers.enableLogging()
 
 [<Test>]
 let ``MetadataFormat works on sample Deedle assembly``() =

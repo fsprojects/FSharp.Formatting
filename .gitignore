@@ -32,3 +32,4 @@ release.cmd
 
 .paket/paket.exe
 fsbuild.targets
+*.sln.tddstud10.user

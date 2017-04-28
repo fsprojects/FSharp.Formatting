@@ -6,7 +6,7 @@ open System.Collections.Generic
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open Microsoft.FSharp.Compiler.Range
 open FSharp.Formatting.Common
-open FSharp.Formatting.Scripting
+open Yaaf.FSharp.Scripting
 open FSharp.Patterns
 open FSharp.CodeFormat
 
