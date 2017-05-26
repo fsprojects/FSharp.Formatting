@@ -28,6 +28,9 @@
     <DocumentationFile>
     </DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
+    <StartArguments>"metadataformat" "--generate" "--outdir" "./docs/apidocs/" "--layoutroots" "./help/templates/" "./help/templates/reference/" "--sourceRepo" "https://github.com/fsharp/FAKE/blob/master" "--sourceFolder" "C:\PROJ\FAKE" "--parameters" "page-description" "FAKE - F# Make" "page-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull" "project-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull" "github-link" "https://github.com/fsharp/FAKE" "project-github" "http://github.com/fsharp/fake" "project-nuget" "https://www.nuget.org/packages/FAKE" "root" "http://fsharp.github.io/FAKE" "project-name" "FAKE - F# Make" "--libDirs" "./build" --dllfiles "C:\PROJ\FAKE\build\FakeLib.dll"</StartArguments>
+    <StartWorkingDirectory>C:\PROJ\FAKE\</StartWorkingDirectory>
+    <StartAction>Project</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>portable</DebugType>
@@ -41,61 +44,6 @@
     </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-    <Content Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="paket.references" />
-    <Compile Include="..\Common\AssemblyInfo.fs">
-      <Link>Common\AssemblyInfo.fs</Link>
-    </Compile>
-    <Compile Include="..\Common\StringParsing.fs">
-      <Link>Common\StringParsing.fs</Link>
-    </Compile>
-    <Compile Include="IExecutable.fs" />
-    <Compile Include="Options.fs" />
-    <Compile Include="OptionsMetadataFormat.fs" />
-    <Compile Include="OptionsLiterate.fs" />
-    <Compile Include="Exec.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
-      <Name>FSharp.CodeFormat</Name>
-      <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
-      <Name>FSharp.Formatting.Common</Name>
-      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj">
-      <Name>FSharp.Formatting.Razor</Name>
-      <Project>{c6b3c274-71a8-4239-ba9a-1af7b2f7c736}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj">
-      <Name>FSharp.Literate</Name>
-      <Project>{65e6d541-0486-4383-b619-5cfc5d2ba2f0}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj">
-      <Name>FSharp.Markdown</Name>
-      <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj">
-      <Name>FSharp.MetadataFormat</Name>
-      <Project>{bc4946ba-2724-4524-ac50-dfc49ee154a1}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -1775,4 +1723,57 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <Content Include="app.config" />
+    <None Include="paket.references" />
+    <Compile Include="..\Common\AssemblyInfo.fs">
+      <Link>Common\AssemblyInfo.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\StringParsing.fs">
+      <Link>Common\StringParsing.fs</Link>
+    </Compile>
+    <Compile Include="IExecutable.fs" />
+    <Compile Include="Options.fs" />
+    <Compile Include="OptionsMetadataFormat.fs" />
+    <Compile Include="OptionsLiterate.fs" />
+    <Compile Include="Exec.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml.Linq" />
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
+      <Name>FSharp.CodeFormat</Name>
+      <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj">
+      <Name>FSharp.Formatting.Common</Name>
+      <Project>{91bad90e-bf3b-4646-a1a7-1568f8f25075}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj">
+      <Name>FSharp.Formatting.Razor</Name>
+      <Project>{c6b3c274-71a8-4239-ba9a-1af7b2f7c736}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj">
+      <Name>FSharp.Literate</Name>
+      <Project>{65e6d541-0486-4383-b619-5cfc5d2ba2f0}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj">
+      <Name>FSharp.Markdown</Name>
+      <Project>{c44c1c05-599a-40dd-9590-465eab8960c5}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj">
+      <Name>FSharp.MetadataFormat</Name>
+      <Project>{bc4946ba-2724-4524-ac50-dfc49ee154a1}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

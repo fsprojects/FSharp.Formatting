@@ -1,3 +1,6 @@
+## 3.0.0-beta03 (27 May, 2017)
+ - Don't hide errors in fsformatting tool.
+
 ## 3.0.0-beta02 (26 May, 2017)
  - MarkdownSpan and MarkdownParagraph now use named DUs
  - Add range to MarkdownParagraph and MarkdownSpan (https://github.com/tpetricek/FSharp.Formatting/pull/411)

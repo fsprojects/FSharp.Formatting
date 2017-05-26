@@ -111,7 +111,10 @@ type GenerateOptions() =
                         ?sourceFolder = (evalString x.sourceFolder),
                         ?libDirs = (evalStringArray x.libDirs)
                         )
-            with ex -> Log.errorf "received exception in MetadataFormat.Generate:\n %A" ex; res <- -1
+            with ex ->
+                Log.errorf "received exception in MetadataFormat.Generate:\n %A" ex
+                printfn "Error on MetadataFormat.Generate: \n%O" ex
+                res <- -1
             waitForKey x.waitForKey
             res
 
