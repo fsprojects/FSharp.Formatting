@@ -1,12 +1,20 @@
 language: csharp
+sudo: required
+dist: trusty # Ubuntu 14.04
 
-sudo: false  # use the new container-based Travis infrastructure
+addons:
+  apt:
+    packages:
+      - libunwind8
 
 before_install:
   - chmod +x build.sh
 
 script:
   - ./build.sh
+
+mono:
+  - latest
 
 branches:
   except:

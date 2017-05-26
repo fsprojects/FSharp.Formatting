@@ -13,6 +13,7 @@ open Fake
 open Fake.AssemblyInfoFile
 open Fake.Git
 open Fake.ReleaseNotesHelper
+open Fake.DotNet
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
@@ -104,11 +105,6 @@ Target "UpdateFsxVersions" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 let solutionFile = "FSharp.Formatting.sln"
-
-let msbuild14 = ProgramFilesX86</>"MSBuild"</>"14.0"</>"Bin"</>"MSBuild.exe"
-
-if isWindows && fileExists msbuild14 then
-    setEnvironVar "MSBUILD"  msbuild14
 
 Target "Build" (fun _ ->
     !! solutionFile
