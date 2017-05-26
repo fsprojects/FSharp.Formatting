@@ -108,7 +108,8 @@ let solutionFile = "FSharp.Formatting.sln"
 
 Target "Build" (fun _ ->
     !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
+    |> MSBuild "" "Rebuild" ["VisualStudioVersion", "15.0"]
+    //|> MSBuildRelease "" "Rebuild"
     |> ignore
 )
 
@@ -123,7 +124,8 @@ Target "BuildTests" (fun _ ->
             Includes = [sln]
             Excludes = []
         //}   |> MSBuildDebug "" "Build" |> ignore
-        }   |> MSBuildDebug "tests/bin" "Build" |> ignore
+       // }   |> MSBuildDebug "tests/bin" "Build" |> ignore
+        } |> MSBuild "tests/bin" "Build" ["VisualStudioVersion", "15.0"] |> ignore
 
     debugBuild "tests/*/files/FsLib/FsLib.sln"
     debugBuild "tests/*/files/crefLib/crefLib.sln"
