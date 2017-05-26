@@ -72,6 +72,9 @@
   </Target>
   -->
   <ItemGroup>
+    <Compile Include="..\..\paket-files\matthid\Yaaf.FSharp.Scripting\src\source\Yaaf.FSharp.Scripting\YaafFSharpScripting.fs">
+      <Link>paket-files/YaafFSharpScripting.fs</Link>
+    </Compile>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>

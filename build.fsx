@@ -185,9 +185,11 @@ Target "SetupLibForTests" (fun _ ->
     let copyPackageFiles dir =
         let dir = Path.GetFullPath dir
         for file in System.IO.Directory.EnumerateFiles dir do
-            let source, libDest = file, "tests"</>"bin"</>(Path.GetFileName file)
-            tracefn "Copying %s to %s" source libDest
-            File.Copy (source, libDest, true)
+            let fileName = Path.GetFileName file
+            if not (fileName.StartsWith "FSharp.Compiler.Service.MSBuild.") then
+                let source, libDest = file, "tests"</>"bin"</>fileName
+                tracefn "Copying %s to %s" source libDest
+                File.Copy (source, libDest, true)
     [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
         "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
         "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"    
@@ -210,9 +212,8 @@ Target "NuGet" (fun _ ->
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies =
-                [ // From experience they always break something at the moment :(
-                  "FSharpVSPowerTools.Core", GetPackageVersion "packages" "FSharpVSPowerTools.Core" |> RequireRange BreakingPoint.Minor
-                  "FSharp.Compiler.Service", "[2.0.0.6]" // GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.Minor
+                [
+                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
                    ] })
         "nuget/FSharp.Formatting.nuspec"
 

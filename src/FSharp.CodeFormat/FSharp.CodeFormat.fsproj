@@ -64,7 +64,7 @@
       </PropertyGroup>
     </When>
   </Choose>
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+  <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Content Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">

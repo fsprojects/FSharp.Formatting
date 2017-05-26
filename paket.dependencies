@@ -13,6 +13,9 @@ nuget FSharp.Compiler.Service content:none
 nuget ILRepack
 nuget Argu
 
+group Build
+    source https://api.nuget.org/v3/index.json
+    nuget NuGet.CommandLine
 
 #github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 

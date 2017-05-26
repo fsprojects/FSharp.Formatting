@@ -708,6 +708,11 @@ NUGET
   remote: https://ci.appveyor.com/nuget/fake
     FAKE (5.0.0-alpha004)
 
+GROUP Build
+NUGET
+  remote: https://api.nuget.org/v3/index.json
+    NuGet.CommandLine (4.1)
+
 GROUP Test
 NUGET
   remote: https://api.nuget.org/v3/index.json

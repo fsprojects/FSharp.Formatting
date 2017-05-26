@@ -1,8 +1,11 @@
-## 3.0.0-beta01 (1 August, 2016)
+## 3.0.0-beta02 (26 May, 2017)
  - MarkdownSpan and MarkdownParagraph now use named DUs
  - Add range to MarkdownParagraph and MarkdownSpan (https://github.com/tpetricek/FSharp.Formatting/pull/411)
  - FSharp.Formatting no longer has a strong dependency on Razor (https://github.com/tpetricek/FSharp.Formatting/pull/425)
  - FSharp.Formatting no longer depends on VFPT.Core (https://github.com/tpetricek/FSharp.Formatting/pull/432)
+ - Add beta packages to AppVeyor feed.
+ - Update FSharp.Compiler.Service component.
+
 ## 2.14.4 (3 June, 2016)
  - Use `#I __SOURCE_DIRECTORY__` in the loads script (more reliable)
 
