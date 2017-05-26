@@ -1,3 +1,4 @@
 FSharp.Core
 FSharp.Compiler.Service
-File: YaafFSharpScripting.fs 
+  exclude FSharp.Compiler.Service.MSBuild.*.dll
+  exclude FSharp.Compiler.Service.MSBuild.v12.dll
