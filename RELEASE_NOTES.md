@@ -1,3 +1,7 @@
+## 3.0.0-beta04 (28 May, 2017)
+ - Don't hide errors in fsformatting tool (Literate).
+ - Improve error message by using inner exceptions.
+
 ## 3.0.0-beta03 (27 May, 2017)
  - Don't hide errors in fsformatting tool.
 

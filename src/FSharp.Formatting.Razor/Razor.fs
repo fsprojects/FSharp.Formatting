@@ -164,8 +164,13 @@ module RazorEngineCache =
     // We cannot really know which case this is, so applications using this library
     // should make sure they are not in the default AppDomain.
     // And F# scripts on the other hand will not explode the temp directory.
-    config.DisableTempFileLocking  <- System.AppDomain.CurrentDomain.IsDefaultAppDomain()
+#if DEBUG
+    config.DisableTempFileLocking <- false
+    config.Debug <- true
+#else
+    config.DisableTempFileLocking <- System.AppDomain.CurrentDomain.IsDefaultAppDomain()
     config.Debug <- not config.DisableTempFileLocking
+#endif
     config.CachingProvider <- cachingProvider
 
     match references with
@@ -240,7 +245,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
            |> ignore
 
         Log.critf "%s" (builder.ToString())
-        failwith "Generating HTML failed."
+        raise <| new Exception("Generating HTML failed", ex)
 
   let withProperties properties (oldViewbag:DynamicViewBag) =
     let viewBag = new DynamicViewBag()

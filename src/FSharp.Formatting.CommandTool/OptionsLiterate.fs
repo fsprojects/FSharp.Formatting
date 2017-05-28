@@ -134,7 +134,10 @@ type ProcessDirectoryOptions() =
                     run()
 
             with
-                | _ as ex -> Log.errorf "received exception in Literate.ProcessDirectory:\n %A" ex; res <- -1
+                | _ as ex ->
+                    Log.errorf "received exception in RazorLiterate.ProcessDirectory:\n %A" ex
+                    printfn "Error on RazorLiterate.ProcessDirectory: \n%O" ex
+                    res <- -1
             waitForKey x.waitForKey
             res
 

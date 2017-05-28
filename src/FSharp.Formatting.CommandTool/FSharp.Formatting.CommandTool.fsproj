@@ -28,7 +28,7 @@
     <DocumentationFile>
     </DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
-    <StartArguments>"metadataformat" "--generate" "--outdir" "./docs/apidocs/" "--layoutroots" "./help/templates/" "./help/templates/reference/" "--sourceRepo" "https://github.com/fsharp/FAKE/blob/master" "--sourceFolder" "C:\PROJ\FAKE" "--parameters" "page-description" "FAKE - F# Make" "page-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull" "project-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull" "github-link" "https://github.com/fsharp/FAKE" "project-github" "http://github.com/fsharp/fake" "project-nuget" "https://www.nuget.org/packages/FAKE" "root" "http://fsharp.github.io/FAKE" "project-name" "FAKE - F# Make" "--libDirs" "./build" --dllfiles "C:\PROJ\FAKE\build\FakeLib.dll"</StartArguments>
+    <StartArguments>"literate" "--processdirectory" "--inputdirectory" "./help" "--templatefile" "template.cshtml" "--outputDirectory" "./docs"  --layoutRoots "help/templates" "help/templates/reference" "--replacements" "page-description" "FAKE - F# Make" "page-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull, Matthias Dittrich" "project-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull, Matthias Dittrich" "github-link" "https://github.com/fsharp/FAKE" "project-github" "http://github.com/fsharp/fake" "project-nuget" "https://www.nuget.org/packages/FAKE" "root" "http://fsharp.github.io/FAKE" "project-name" "FAKE - F# Make" "current-page" "Home"</StartArguments>
     <StartWorkingDirectory>C:\PROJ\FAKE\</StartWorkingDirectory>
     <StartAction>Project</StartAction>
   </PropertyGroup>

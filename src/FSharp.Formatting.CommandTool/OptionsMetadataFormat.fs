@@ -112,8 +112,8 @@ type GenerateOptions() =
                         ?libDirs = (evalStringArray x.libDirs)
                         )
             with ex ->
-                Log.errorf "received exception in MetadataFormat.Generate:\n %A" ex
-                printfn "Error on MetadataFormat.Generate: \n%O" ex
+                Log.errorf "received exception in RazorMetadataFormat.Generate:\n %A" ex
+                printfn "Error on RazorMetadataFormat.Generate: \n%O" ex
                 res <- -1
             waitForKey x.waitForKey
             res
