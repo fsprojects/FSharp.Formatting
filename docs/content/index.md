@@ -28,7 +28,7 @@ Documentation
 The documentation for this library is generated automatically using the literate programming 
 tools that are built on top of it and are described in the [literate programming page](literate.html).
 If you spot a typo, please submit a pull request! The source Markdown and F# script files are
-available in the [docs folder on GitHub](https://github.com/fsprojects/FSharp.Formatting/tree/master/docs).
+available in the [docs folder on GitHub](https://github.com/tpetricek/FSharp.Formatting/tree/master/docs).
 I hope it is also a good sample showing how to write documentation for F# projects.
 
  - [Literate programming](literate.html) - if you want to use the library to generate documentation
