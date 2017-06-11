@@ -1,3 +1,6 @@
+## 3.0.0-beta05 (11 June, 2017)
+ - Always generate anchors when using command line tool.
+ 
 ## 3.0.0-beta04 (28 May, 2017)
  - Don't hide errors in fsformatting tool (Literate).
  - Improve error message by using inner exceptions.
