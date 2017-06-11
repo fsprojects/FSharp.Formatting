@@ -110,6 +110,7 @@ type ProcessDirectoryOptions() =
                     let run () =
                         RazorLiterate.ProcessDirectory(
                             x.inputDirectory,
+                            ?generateAnchors = Some true,
                             ?templateFile = (evalString x.templateFile),
                             ?outputDirectory = Some (if x.outputDirectory = "" then x.inputDirectory else x.outputDirectory),
                             ?format= Some (if (x.format).ToLower() = "html" then OutputKind.Html else OutputKind.Latex),
