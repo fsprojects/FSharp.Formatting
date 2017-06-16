@@ -1,3 +1,6 @@
+## 3.0.0-beta06 (16 June, 2017)
+ - Include razor component.
+ 
 ## 3.0.0-beta05 (11 June, 2017)
  - Always generate anchors when using command line tool.
  
