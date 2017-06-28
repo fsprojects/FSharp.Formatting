@@ -406,7 +406,7 @@ Target "WatchDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "git@github.com:tpetricek"
+let gitHome = "git@github.com:fsprojects"
 
 Target "ReleaseDocs" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
