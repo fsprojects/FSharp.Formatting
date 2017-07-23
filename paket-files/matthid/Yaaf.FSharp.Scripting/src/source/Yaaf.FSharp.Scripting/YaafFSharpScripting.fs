@@ -351,11 +351,11 @@ module internal CompilerServiceExtensions =
               FSharpCheckerFuncs.tryCheckFsCore file |> Option.isSome
             else true)
 
-        // See https://github.com/tpetricek/FSharp.Formatting/commit/22ffb8ec3c743ceaf069893a46a7521667c6fc9d
+        // See https://github.com/fsprojects/FSharp.Formatting/commit/22ffb8ec3c743ceaf069893a46a7521667c6fc9d
         //let blacklist =
         //  [ "FSharp.Core.dll"; "mscorlib.dll" ]
 
-        // See https://github.com/tpetricek/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
+        // See https://github.com/fsprojects/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
         let _dllFiles, _libDirs =
           if resolveDirs then
             libDirs

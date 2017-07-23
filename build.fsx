@@ -191,7 +191,6 @@ Target "SetupLibForTests" (fun _ ->
                 tracefn "Copying %s to %s" source libDest
                 File.Copy (source, libDest, true)
     [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
-        "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
         "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"    
         "packages" </> "FSharp.Data" </> "lib" </> "portable-net45+netcore45"
     ] |> List.iter copyPackageFiles
@@ -408,7 +407,7 @@ Target "WatchDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "git@github.com:tpetricek"
+let gitHome = "git@github.com:fsprojects"
 
 Target "ReleaseDocs" (fun _ ->
     Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
