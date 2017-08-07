@@ -1,3 +1,6 @@
+## 3.0.0-beta07 (07 August, 2017)
+ - Fix System.ValueType dep.
+ 
 ## 3.0.0-beta06 (16 June, 2017)
  - Include razor component.
  

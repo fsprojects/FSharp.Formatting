@@ -215,6 +215,7 @@ Target "NuGet" (fun _ ->
                 [ // We need Razor dependency in the package until we split out Razor into a separate package.
                   "Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
                   "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
+                  "System.ValueTuple", GetPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "nuget/FSharp.Formatting.nuspec"
 
