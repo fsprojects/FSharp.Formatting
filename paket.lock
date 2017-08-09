@@ -46,6 +46,7 @@ NUGET
       System.Text.Encoding.Extensions (>= 4.3) - restriction: >= netstandard1.6
       System.Threading (>= 4.3) - restriction: >= netstandard1.6
       System.Threading.Tasks (>= 4.3) - restriction: >= netstandard1.6
+    FSharp.Compiler.Tools (4.1.23)
     FSharp.Core (4.2.2) - content: none, redirects: force
       System.Collections (>= 4.0.11) - restriction: >= netstandard1.6
       System.Console (>= 4.0) - restriction: >= netstandard1.6
