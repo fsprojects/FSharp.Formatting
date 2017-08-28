@@ -1,3 +1,4 @@
 FSharp.Core
+FSharp.Compiler.Tools
 CommandLineParser
 RazorEngine

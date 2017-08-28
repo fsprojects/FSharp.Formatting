@@ -6,6 +6,7 @@ redirects: on
 nuget FSharp.Data
 nuget FAKE prerelease
 nuget CommandLineParser
+nuget FSharp.Compiler.Tools
 nuget FSharp.Core  redirects:force, content:none
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine 3.9.3 framework: >= net45
@@ -20,7 +21,7 @@ group Build
 
 #github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
-group Test 
+group Test
     source https://api.nuget.org/v3/index.json
 
     nuget FsUnit 3.0.0 //framework:net45
