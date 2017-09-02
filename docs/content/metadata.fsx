@@ -58,6 +58,7 @@ Adding cross-type links to modules and types in the same assembly
 -----------------
 You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
 You can do this in two different ways:
+
 * Add a [markdown inline link](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links) were the link
 title is the name of the type you want to link.
 
