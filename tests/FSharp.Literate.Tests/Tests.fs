@@ -289,6 +289,7 @@ let ``Correctly handles Paket coloring`` () =
     lowest_matching: true
     source https://nuget.org/api/v2 // nuget.org
     cache //hive/dependencies
+    storage: none
 
     // NuGet packages
     nuget NUnit ~> 2.6.3
@@ -331,6 +332,7 @@ let ``Correctly handles Paket coloring`` () =
   html |> shouldContainText "<span class=\"k\">redirects</span>"
   html |> shouldContainText "<span class=\"k\">strategy</span>"
   html |> shouldContainText "<span class=\"k\">version_in_path</span>"
+  html |> shouldContainText "<span class=\"k\">storage</span>"
 
   html |> shouldNotContainText "<span class=\"k\">http</span>s"
   html |> shouldNotContainText ".<span class=\"k\">git</span>"
