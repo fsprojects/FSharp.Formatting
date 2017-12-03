@@ -1,3 +1,6 @@
+## 3.0.0-beta08 (03 December, 2017)
+ - Improve Stacktrace on Script file processing
+ 
 ## 3.0.0-beta07 (07 August, 2017)
  - Fix System.ValueType dep.
  
