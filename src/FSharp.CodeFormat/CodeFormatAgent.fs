@@ -444,7 +444,7 @@ type CodeFormatAgent() =
         let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> return res
-        | Choice2Of2 exn -> return raise exn }
+        | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn)) }
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
@@ -460,4 +460,4 @@ type CodeFormatAgent() =
         let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res
-        | Choice2Of2 exn -> raise exn
+        | Choice2Of2 exn -> raise (new Exception(exn.Message, exn))
