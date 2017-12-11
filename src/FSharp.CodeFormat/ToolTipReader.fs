@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (ToolTipReader.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -38,19 +38,20 @@ let private formatComment = function
 /// Format the element of a tool tip (comment, overloads, etc.)
 let private formatElement = function
   | FSharpToolTipElement.None -> []
-  | FSharpToolTipElement.Single(it, comment) -> 
-      [ yield! formatMultilineString it
-        yield HardLineBreak
-        yield! formatComment comment ]
+  //| FSharpToolTipElement.Single(it, comment) -> 
+  //    [ yield! formatMultilineString it
+  //      yield HardLineBreak
+  //      yield! formatComment comment ]
   | FSharpToolTipElement.Group(items) -> 
       // Trim the items to at most 10 displayed in a tool tip
       let items, trimmed = 
         if items.Length <= 10 then items, false
         else items |> Seq.take 10 |> List.ofSeq, true
-      [ for (it, comment) in items do
-          yield! formatMultilineString it
+      //[ for (it, comment) in items do
+      [ for it in items do
+          yield! formatMultilineString it.MainDescription
           yield HardLineBreak
-          yield! formatComment comment 
+          yield! formatComment it.XmlDoc
 
           // Add note with the number of omitted overloads
           if trimmed then 
@@ -58,11 +59,11 @@ let private formatElement = function
             yield Literal "   "
             yield Emphasis [Literal (msg) ]
             yield HardLineBreak ]
-  | FSharpToolTipElement.SingleParameter(_paramType,_doc,_name) -> 
-    [   yield ToolTipSpan.Literal _paramType
-        yield ToolTipSpan.HardLineBreak
-        yield! formatComment _doc     
-    ]
+  //| FSharpToolTipElement.SingleParameter(_paramType,_doc,_name) -> 
+  //  [   yield ToolTipSpan.Literal _paramType
+  //      yield ToolTipSpan.HardLineBreak
+  //      yield! formatComment _doc     
+  //  ]
   | FSharpToolTipElement.CompositionError(err) -> []
 
 /// Format entire tool tip as a value of type ToolTipSpans      

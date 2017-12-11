@@ -1,12 +1,20 @@
-﻿namespace FSharp.Formatting.Common
+namespace FSharp.Formatting.Common
 
 open System.Diagnostics
 
 module Log =
   let source = new System.Diagnostics.TraceSource "FSharp.Formatting"
 
+#if !NETSTANDARD1_5
   let ConsoleListener () = new ConsoleTraceListener()
+#else
+  let ConsoleListener () = new DefaultTraceListener()
+#endif
+
+#if !NETSTANDARD1_5
   let SvclogListener (file:string) = new XmlWriterTraceListener(file)
+#endif
+
   let TextListener (file:string) = new TextWriterTraceListener(file)
 
   let SetupSource (listeners:_ array) (source:TraceSource) =

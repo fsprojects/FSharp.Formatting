@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 12.0.31101.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
@@ -121,6 +121,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
 	ProjectSection(SolutionItems) = preProject
 		.paket\paket.exe.config = .paket\paket.exe.config
+		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
 		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
 EndProject
@@ -244,5 +245,8 @@ Global
 		{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {94976DCE-A684-479B-859E-DFCBCFFF8EE3}
 	EndGlobalSection
 EndGlobal

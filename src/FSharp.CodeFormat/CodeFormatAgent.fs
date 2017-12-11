@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (CodeFormatAgent.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag
-open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
+//open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
@@ -182,7 +182,7 @@ type CodeFormatAgent() =
                     // If we're processing an identfier, see if it has any tool tip
                     if (token.TokenName = "IDENT") then
                         let island = List.rev island
-                        let tip = checkResults.GetToolTipTextAlternate(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
+                        let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
                         match Async.RunSynchronously tip |> fun (tooltip) ->
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with
@@ -287,8 +287,7 @@ type CodeFormatAgent() =
         // default references and doesn't require full project information)
         let frameworkVersion = FSharpCheckerFuncs.defaultFrameworkVersion
         let fsCore = FSharpCheckerFuncs.findFSCore [] []
-        let defaultReferences =
-            FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
+        let defaultReferences = FSharpCheckerFuncs.defaultFrameworkVersion 
         let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
         // filter invalid args
         let refCorLib = args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
