@@ -1,4 +1,5 @@
 FSharp.Core
-FSharp.Compiler.Tools
+#FSharp.Compiler.Tools
 Microsoft.AspNet.Razor
 RazorEngine
+FSharp.Compiler.Service

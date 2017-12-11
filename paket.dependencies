@@ -5,15 +5,17 @@ redirects: on
 
 nuget FSharp.Data
 nuget FAKE prerelease
-nuget CommandLineParser
-nuget FSharp.Compiler.Tools
-nuget FSharp.Core  redirects:force, content:none
-nuget Microsoft.AspNet.Razor
-nuget RazorEngine 3.9.3 framework: >= net45
-nuget FSharp.Compiler.Service content:none
+nuget CommandlineParser 1.9.71
+#nuget FSharp.Compiler.Tools
+nuget FSharp.Core 4.2.3
+nuget Microsoft.AspNet.Razor 3.2.3
+#nuget RazorEngine 3.9.3
+nuget RazorEngine 4.5.1-alpha001 
+nuget FSharp.Compiler.Service 17.0.1
 nuget System.ValueTuple
 nuget ILRepack
 nuget Argu
+nuget NuGet.CommandLine
 
 group Build
     source https://api.nuget.org/v3/index.json

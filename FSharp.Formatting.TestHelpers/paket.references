@@ -1,2 +1,3 @@
-﻿FSharp.Compiler.Tools
+# FSharp.Compiler.Tools
 System.ValueTuple
+FSharp.Core

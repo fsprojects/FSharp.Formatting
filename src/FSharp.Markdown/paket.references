@@ -1,2 +1,3 @@
 FSharp.Core
-FSharp.Compiler.Tools
+#FSharp.Compiler.Tools
+FSharp.Compiler.Service

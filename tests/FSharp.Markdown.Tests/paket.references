@@ -1,7 +1,6 @@
 FSharp.Core
 FSharp.Data
-FSharp.Compiler.Tools
-
+#FSharp.Compiler.Tools
 group Test
 FsUnit
 NUnit
