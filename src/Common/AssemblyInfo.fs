@@ -2,7 +2,6 @@
 namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("FSharp.Formatting")>]
 [<assembly: AssemblyProductAttribute("FSharp.Formatting")>]
 [<assembly: AssemblyDescriptionAttribute("A package of libraries for building great F# documentation, samples and blogs")>]
 [<assembly: AssemblyVersionAttribute("3.0.0")>]
@@ -12,7 +11,6 @@ open System.Reflection
 do ()
 
 module internal AssemblyVersionInformation =
-    let [<Literal>] AssemblyTitle = "FSharp.Formatting"
     let [<Literal>] AssemblyProduct = "FSharp.Formatting"
     let [<Literal>] AssemblyDescription = "A package of libraries for building great F# documentation, samples and blogs"
     let [<Literal>] AssemblyVersion = "3.0.0"
