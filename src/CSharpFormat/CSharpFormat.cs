@@ -64,13 +64,13 @@ namespace Manoli.Utils.CSharpFormat
 			}
 		}
 
-        protected override string Operators
-        {
-            get
-            {
-                return ". : + - * / % & | ^ ! ~ = < > ?";
-            }
-        }
+		protected override string Operators
+		{
+			get
+			{
+				return ". : + - * / % & | ^ ! ~ = < > ?";
+			}
+		}
 	}
 }
 

@@ -114,13 +114,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib3", "tests\FSharp.Me
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib4.csproj", "{98624699-1B2F-4636-A3F7-EC72343CB2FD}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
 	ProjectSection(SolutionItems) = preProject
-		.paket\paket.exe.config = .paket\paket.exe.config
 		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
 		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
