@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options.MetadataFormat
+namespace FSharp.Formatting.Options.MetadataFormat
 
 open CommandLine
 open CommandLine.Text

@@ -1,4 +1,4 @@
-﻿namespace FSharp.MetadataFormat
+namespace FSharp.MetadataFormat
 
 open System
 open System.Reflection
@@ -486,6 +486,8 @@ module ValueReader =
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName =
     "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
 
+(*  - TEMPORARILY DISABLED SINCE NO TYPE PROVIDERS ON NETCORE
+
   let readFSharpStaticParam (ctx:ReadingContext) (staticParam:FSharpStaticParameter) =
     let usage (maxLength:int) = staticParam.Name
     let modifiers = List.empty
@@ -494,6 +496,8 @@ module ValueReader =
     let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
     MemberOrValue.Create(usage, modifiers, typeparams, signature, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
+*)
+
 
 module Reader =
   open FSharp.Markdown
@@ -760,50 +764,52 @@ module Reader =
     else "M"
 
   let getXmlDocSigForMember (memb:FSharpMemberOrFunctionOrValue) =
-    let memberName =
-      try
-        let name = memb.CompiledName.Replace(".ctor", "#ctor")
-        let typeGenericParameters =
-            memb.EnclosingEntity.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
-        let methodGenericParameters =
-            memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
-        let typeArgsMap =
-            Seq.append methodGenericParameters typeGenericParameters
-            |> Seq.groupBy fst
-            |> Seq.map (fun (name, grp) -> grp |> Seq.head)
-            |> dict
-        let typeargs =
-            if memb.GenericParameters.Count > 0
-            then sprintf "``%d" memb.GenericParameters.Count
-            else ""
+     if memb.EnclosingEntity.IsSome then
+        let memberName =
+          try
+            let name = memb.CompiledName.Replace(".ctor", "#ctor")
+            let typeGenericParameters =
+                memb.EnclosingEntity.Value.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
+            let methodGenericParameters =
+                memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
+            let typeArgsMap =
+                Seq.append methodGenericParameters typeGenericParameters
+                |> Seq.groupBy fst
+                |> Seq.map (fun (name, grp) -> grp |> Seq.head)
+                |> dict
+            let typeargs =
+                if memb.GenericParameters.Count > 0
+                then sprintf "``%d" memb.GenericParameters.Count
+                else ""
 
-        let paramList =
-            if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0
-            then
-                let head = memb.CurriedParameterGroups.[0]
-                let paramTypeList =
-                    head
-                    |> Seq.map (fun param ->
-                        if param.Type.IsGenericParameter then
-                            typeArgsMap.[param.Type.GenericParameter.Name]
-                        else
-                            let rec reduceAbb (t:FSharpType) =
-                                if t.IsAbbreviation
-                                then reduceAbb t.AbbreviatedType
-                                else t
-                            let paramType = reduceAbb param.Type
-                            paramType.TypeDefinition.FullName)
-                "(" + System.String.Join(",", paramTypeList) + ")"
-            else ""
-        sprintf "%s%s%s" name typeargs paramList
-      with exn ->
-        Log.errorf "Error while building member-name for %s because: %s" memb.FullName exn.Message
-        Log.verbf "Full Exception details of previous message: %O" exn
-        memb.CompiledName
-    match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
-    | "",  None    -> ""
-    | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
-    | n, _         -> n
+            let paramList =
+                if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0
+                then
+                    let head = memb.CurriedParameterGroups.[0]
+                    let paramTypeList =
+                        head
+                        |> Seq.map (fun param ->
+                            if param.Type.IsGenericParameter then
+                                typeArgsMap.[param.Type.GenericParameter.Name]
+                            else
+                                let rec reduceAbb (t:FSharpType) =
+                                    if t.IsAbbreviation
+                                    then reduceAbb t.AbbreviatedType
+                                    else t
+                                let paramType = reduceAbb param.Type
+                                paramType.TypeDefinition.FullName)
+                    "(" + System.String.Join(",", paramTypeList) + ")"
+                else ""
+            sprintf "%s%s%s" name typeargs paramList
+          with exn ->
+            Log.errorf "Error while building member-name for %s because: %s" memb.FullName exn.Message
+            Log.verbf "Full Exception details of previous message: %O" exn
+            memb.CompiledName
+        match (memb.XmlDocSig, memb.EnclosingEntity.Value.TryFullName) with
+        | "",  None    -> ""
+        | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
+        | n, _         -> n
+     else ""
 
   //
   // ---------------------------------------------------------------------
@@ -1010,12 +1016,12 @@ module Reader =
       readCommentsInto field ctx field.XmlDocSig (fun cat _ comment ->
         Member.Create(field.Name, MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
 
-  let readStaticParams ctx (typ:FSharpEntity) =
-    typ.StaticParameters
-    |> List.ofSeq
-    |> List.choose (fun staticParam ->
-      readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
-        Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
+  //let readStaticParams ctx (typ:FSharpEntity) =
+  //  typ.StaticParameters
+  //  |> List.ofSeq
+  //  |> List.choose (fun staticParam ->
+  //    readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
+  //      Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
 
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
@@ -1049,8 +1055,12 @@ module Reader =
     modules, types
 
   and readType (ctx:ReadingContext) (typ:FSharpEntity) =
+
+  (* DISABLED WHILE NO TYPE PROVIDERS
     if typ.IsProvided && typ.XmlDoc.Count > 0 then
         registerTypeProviderXmlDocs ctx typ
+   *)
+
     let xmlDocSig = getXmlDocSigForType typ
     readCommentsInto typ ctx xmlDocSig (fun cat cmds comment ->
       let urlName = ctx.UrlMap.GetUrl typ
@@ -1072,7 +1082,7 @@ module Reader =
           |> List.ofSeq
           |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitInterfaceImplementation)
           |> List.filter (fun v ->
-            if v.EnclosingEntity.IsFSharp then true else
+            if v.EnclosingEntity.IsSome && v.EnclosingEntity.Value.IsFSharp then true else
                 not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
                 not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
           |> List.partition (fun v -> v.IsInstanceMember)
@@ -1093,7 +1103,8 @@ module Reader =
       let name = readTypeName typ
       let cases = readUnionCases ctx typ
       let fields = readRecordFields ctx typ
-      let statParams = readStaticParams ctx typ
+    //   let statParams = readStaticParams ctx typ
+      let statParams = []
 
       let ctors = readAllMembers ctx MemberKind.Constructor cvals
       let inst = readAllMembers ctx MemberKind.InstanceMember ivals
@@ -1256,11 +1267,11 @@ type MetadataFormat =
           let root = Path.GetDirectoryName(dll)
           let file = root @@ (asmName.Name + ".dll")
           if File.Exists(file) then
-            try 
+            try
                 let bytes = File.ReadAllBytes(file)
                 Some(System.Reflection.Assembly.Load(bytes))
             with e ->
-              Log.errorf "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace 
+              Log.errorf "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
               None
           else None )
       defaultArg asmOpt null
@@ -1297,7 +1308,7 @@ type MetadataFormat =
           let xmlFileOpt =
             //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
             Directory.EnumerateFiles(Path.GetDirectoryName xmlFile)
-            |> Seq.filter (fun file -> 
+            |> Seq.filter (fun file ->
                 let fileNoExt = Path.GetFileNameWithoutExtension file
                 let ext = Path.GetExtension file
                 xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)

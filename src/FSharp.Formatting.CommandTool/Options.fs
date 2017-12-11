@@ -1,7 +1,7 @@
-﻿namespace FSharp.Formatting.Options
+namespace FSharp.Formatting.Options
 
-open System.Collections.Generic
 open CommandLine
+open System.Collections.Generic
 
 module Common =
     let parsingErrorMessage (errors: IList<ParsingError>) = 

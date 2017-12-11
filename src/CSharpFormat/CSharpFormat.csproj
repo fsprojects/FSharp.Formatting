@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-  
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,7 +12,6 @@
     <AssemblyName>CSharpFormat</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -23,7 +22,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
@@ -35,10 +33,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <!--<Compile Include="..\Common\AssemblyInfo.cs">
-      <Link>Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Properties\LocalAssemblyInfo.cs" />-->
     <Compile Include="CLikeFormat.cs" />
     <Compile Include="CodeFormat.cs" />
     <Compile Include="CPlusPlusFormat.cs" />
@@ -50,27 +44,11 @@
     <Compile Include="MshFormat.cs" />
     <Compile Include="PaketFormat.cs" />
     <Compile Include="PhpFormat.cs" />
-
     <Compile Include="SourceFormat.cs" />
     <Compile Include="SyntaxHighlighter.cs" />
     <Compile Include="TsqlFormat.cs" />
     <Compile Include="TypeScriptFormat.cs" />
     <Compile Include="VisualBasicFormat.cs" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>-->
-  <!--<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />-->
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  <Import Project="$(SolutionDir)\.paket\paket.targets" />
-  -->
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
