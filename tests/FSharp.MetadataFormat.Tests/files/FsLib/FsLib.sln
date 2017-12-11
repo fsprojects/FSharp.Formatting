@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{B3AAB1B6-BFB3-43E1-8F9D-A5FA0AF64170}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\paket.dependencies = ..\..\..\..\paket.dependencies
+	EndProjectSection
+EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLib1", "FsLib1.fsproj", "{AD192375-D530-40FB-A4E9-380C74CBB771}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLib2", "FsLib2.fsproj", "{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}"
