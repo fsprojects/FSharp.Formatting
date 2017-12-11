@@ -6,7 +6,7 @@ using System.Reflection;
 [assembly: AssemblyDescriptionAttribute("A package of libraries for building great F# documentation, samples and blogs")]
 [assembly: AssemblyVersionAttribute("3.0.0")]
 [assembly: AssemblyFileVersionAttribute("3.0.0")]
-[assembly: AssemblyInformationalVersionAttribute("3.0.0-beta04")]
+[assembly: AssemblyInformationalVersionAttribute("3.0.0-beta08")]
 [assembly: AssemblyCopyrightAttribute("Apache 2.0 License")]
 namespace System {
     internal static class AssemblyVersionInformation {
@@ -15,7 +15,7 @@ namespace System {
         internal const System.String AssemblyDescription = "A package of libraries for building great F# documentation, samples and blogs";
         internal const System.String AssemblyVersion = "3.0.0";
         internal const System.String AssemblyFileVersion = "3.0.0";
-        internal const System.String AssemblyInformationalVersion = "3.0.0-beta04";
+        internal const System.String AssemblyInformationalVersion = "3.0.0-beta08";
         internal const System.String AssemblyCopyright = "Apache 2.0 License";
     }
 }
