@@ -1,10 +1,13 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System
 open System.IO
 open FSharp.Markdown
+open Microsoft.FSharp.Compiler.SourceCodeServices
+open Microsoft.FSharp.Compiler.Interactive.Shell
 open FSharp.CodeFormat
 open Yaaf.FSharp.Scripting
+open System.Text
 
 
 // ------------------------------------------------------------------------------------------------
@@ -102,9 +105,18 @@ type FsiEvaluatorConfig() =
 type FsiEvaluator(?options:string[], ?fsiObj) =
   // Initialize F# Interactive evaluation session
 
-  let fsiOptions = defaultArg (Option.map FsiOptions.ofArgs options) FsiOptions.Default
-  let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true, ?fsiObj = fsiObj)
+  // Intialize output and input streams
+  let sbOut = new StringBuilder()
+  let sbErr = new StringBuilder()
+  let inStream = new StringReader("")
+  let outStream = new StringWriter(sbOut)
+  let errStream = new StringWriter(sbErr)
+  // Build command line arguments & start FSI session
+  let argv = [| "C:\\fsi.exe" |]
+  let allArgs = Array.append argv [|"--noninteractive"|]
 
+  let fsiOptions = FsiEvaluationSession.GetDefaultConfiguration() // defaultArg (Option.map  FsiOptions.ofArgs options) FsiOptions.Default
+  let fsiSession = FsiEvaluationSession.Create(fsiOptions, allArgs, inStream, outStream, errStream)
   let evalFailed = new Event<_>()
   let lockObj = obj()
 
@@ -149,24 +161,24 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
     /// given script file - this is for correct usage of #I and #r with relative paths.
     /// Note however that __SOURCE_DIRECTORY___ does not currently pick this up.
     member x.Evaluate(text:string, asExpression, ?file) =
-      try
-        lock lockObj <| fun () ->
-          let dir = 
-            match file with
-            | Some f -> Path.GetDirectoryName f
-            | None -> Directory.GetCurrentDirectory()
-          fsiSession.WithCurrentDirectory dir (fun () ->
-            let (output, value), itvalue =
-              if asExpression then
-                fsiSession.TryEvalExpressionWithOutput text, None
-              else
-                let output = fsiSession.EvalInteractionWithOutput text
-                // try get the "it" value, but silently ignore any errors
-                try
-                  (output, None), fsiSession.TryEvalExpression "it"
-                with _ -> (output, None), None
-            { Output = Some output.Output.ScriptOutput; Result = value; ItValue = itvalue  } :> _
-          )
-      with :? FsiEvaluationException as e ->
-        evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
+    //  try
+    //    lock lockObj <| fun () ->
+    //      let dir = 
+    //        match file with
+    //        | Some f -> Path.GetDirectoryName f
+    //        | None -> Directory.GetCurrentDirectory()
+    //      fsiSession.WithCurrentDirectory dir (fun () ->
+    //        let (output, value), itvalue =
+    //          if asExpression then
+    //            fsiSession.TryEvalExpressionWithOutput text, None
+    //          else
+    //            let output = fsiSession.EvalInteractionWithOutput text
+    //            // try get the "it" value, but silently ignore any errors
+    //            try
+    //              (output, None), fsiSession.TryEvalExpression "it"
+    //            with _ -> (output, None), None
+    //        { Output = Some output.Output.ScriptOutput; Result = value; ItValue = itvalue  } :> _
+    //      )
+    //  with :? FsiEvaluationException as e ->
+    //    evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
         { Output = None; Result = None; ItValue = None } :> _

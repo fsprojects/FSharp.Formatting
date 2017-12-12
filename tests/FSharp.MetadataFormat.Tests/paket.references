@@ -5,6 +5,9 @@ FSharp.Compiler.Service
 #FSharp.Compiler.Tools
 Microsoft.AspNet.Razor
 RazorEngine
+
 group Test
 FsUnit
 NUnit
+NUnit3TestAdapter
+Microsoft.NET.Test.Sdk

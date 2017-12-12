@@ -270,7 +270,7 @@ type CodeFormatAgent() =
 
     // Create an instance of an InteractiveChecker (which does background analysis
     // in a typical IntelliSense editor integration for F#)
-    let fsChecker = FSharpCheckerFuncs.checker // FSharpChecker.Create()
+    let fsChecker =  FSharpChecker.Create()
 
     // ------------------------------------------------------------------------------------
 
@@ -285,19 +285,19 @@ type CodeFormatAgent() =
         |]
         // Get options for a standalone script file (this adds some
         // default references and doesn't require full project information)
-        let frameworkVersion = FSharpCheckerFuncs.defaultFrameworkVersion
-        let fsCore = FSharpCheckerFuncs.findFSCore [] []
-        let defaultReferences = FSharpCheckerFuncs.defaultFrameworkVersion 
-        let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
-        // filter invalid args
-        let refCorLib = args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
-        let args =
-            args |> Array.filter (fun item ->
-                not <| item.StartsWith "--target" &&
-                not <| item.StartsWith "--doc" &&
-                not <| item.StartsWith "--out" &&
-                not <| item.StartsWith "--nooptimizationdata" &&
-                not <| item.EndsWith "mscorlib.dll")
+        let frameworkVersion = "" // FSharpCheckerFuncs.defaultFrameworkVersion
+        let fsCore =  FSharpLib.Core //FSharpCheckerFuncs.findFSCore [] []
+        //let defaultReferences = FSharpCheckerFuncs.defaultFrameworkVersion 
+        //let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
+        //// filter invalid args
+        let refCorLib = "" // args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
+        let args = [||] : string []
+            //args |> Array.filter (fun item ->
+            //    not <| item.StartsWith "--target" &&
+            //    not <| item.StartsWith "--doc" &&
+            //    not <| item.StartsWith "--out" &&
+            //    not <| item.StartsWith "--nooptimizationdata" &&
+            //    not <| item.EndsWith "mscorlib.dll")
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
         //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)

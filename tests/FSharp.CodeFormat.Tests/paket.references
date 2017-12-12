@@ -3,3 +3,5 @@ FSharp.Core
 group Test
 NUnit
 FsUnit
+Microsoft.NET.Test.Sdk
+NUnit3TestAdapter

@@ -1,32 +1,24 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <RootNamespace>FSharp.FormattingCLI</RootNamespace>
     <AssemblyName>fsformatting</AssemblyName>
     <Name>FSharp.FormattingCLI</Name>
     <TargetFramework>net461</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>d30f7f2b-a4e3-4a07-a1bd-ed3eb21768f8</ProjectGuid>
-    <TargetFrameworkIdentifier Condition=" '$(TargetFrameworkIdentifier)' == ''">.NETFramework</TargetFrameworkIdentifier>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <DefineConstants>FSFCLI</DefineConstants>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <SolutionDir>..\..\</SolutionDir>
+    <OutputPath>$(SolutionDir)\bin\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE;FSFCLI</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>
-    </DocumentationFile>
-    <Prefer32Bit>true</Prefer32Bit>
     <StartArguments>"literate" "--processdirectory" "--inputdirectory" "./help" "--templatefile" "template.cshtml" "--outputDirectory" "./docs"  --layoutRoots "help/templates" "help/templates/reference" "--replacements" "page-description" "FAKE - F# Make" "page-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull, Matthias Dittrich" "project-author" "Steffen Forkmann, Mauricio Scheffer, Colin Bull, Matthias Dittrich" "github-link" "https://github.com/fsharp/FAKE" "project-github" "http://github.com/fsharp/fake" "project-nuget" "https://www.nuget.org/packages/FAKE" "root" "http://fsharp.github.io/FAKE" "project-name" "FAKE - F# Make" "current-page" "Home"</StartArguments>
-    <StartWorkingDirectory>C:\PROJ\FAKE\</StartWorkingDirectory>
     <StartAction>Project</StartAction>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -35,13 +27,7 @@
     <Tailcalls>true</Tailcalls>
     <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE;FSFCLI</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>
-    </DocumentationFile>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <!--<Import Project="$(SolutionDir)\.paket\paket.targets" />-->
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -64,16 +50,14 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
-
-
   <ItemGroup>
     <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj"/>
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj"/>
-    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj"/>
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj"/>
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj"/>
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj"/>
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
+    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -25,7 +25,8 @@ group Build
 
 group Test
     source https://api.nuget.org/v3/index.json
-
+    nuget Microsoft.NET.Test.Sdk
     nuget FsUnit 3.0.0 //framework:net45
-    nuget NUnit 3.6.0
+    nuget NUnit 3.9.0
+    nuget NUnit3TestAdapter 3.9.0
     nuget Nunit.ConsoleRunner

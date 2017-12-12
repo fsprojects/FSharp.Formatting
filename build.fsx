@@ -115,13 +115,31 @@ Target.Create "UpdateFsxVersions" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 let solutionFile = "FSharp.Formatting.sln"
+let restore proj =
+    DotnetRestore (fun opts ->
+        { opts with
+            Verbosity = Some NugetRestoreVerbosity.Minimal
+        }) proj
+
+
 
 Target.Create "Build" (fun _ ->
-    DotnetRestore (fun _ -> DotnetRestoreOptions.Default) solutionFile
-    !! solutionFile
-    |> MSBuild "" "Rebuild" ["VisualStudioVersion", "15.0"]
+    restore solutionFile
+    solutionFile
+    |> MsBuild.build (fun opts ->
+        { opts with
+            Targets = ["Rebuild"]
+            Verbosity = Some MSBuildVerbosity.Minimal
+            Properties =
+              [ "VisualStudioVersion", "15.0"
+                "Verbosity", "Minimal"
+                //"OutputPath", ""
+                "Configuration", "Release"
+              ]
+        })
+    //)   MSBuild "" "Rebuild" 
     //|> MSBuildRelease "" "Rebuild"
-    |> ignore
+    //|> ignore
 )
 
 
@@ -130,13 +148,23 @@ Target.Create "Build" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target.Create"BuildTests" (fun _ ->
-    let debugBuild sln =
-        MSBuildWithProjectProperties "tests/bin" "Build"
-            ( fun _ -> 
-             [  "VisualStudioVersion", "15.0"
-                "Configuration", "Debug" ])
-            [ sln ]
-        |> Seq.iter trace
+    let debugBuild sln =        
+        !! sln |> Seq.iter restore
+        !! sln 
+        |> Seq.iter (fun proj ->
+            proj
+            |> MsBuild.build (fun opts ->
+                { opts with
+                    Targets = ["Build"]
+                    Verbosity = Some MSBuildVerbosity.Minimal
+                    Properties =
+                      [ "VisualStudioVersion", "15.0"
+                        "Verbosity", "Minimal"
+                        "OutputPath", "tests/bin"
+                        "Configuration", "Release" ]}
+            )
+        )
+
     debugBuild "tests/*/files/FsLib/FsLib.sln"
     debugBuild "tests/*/files/crefLib/crefLib.sln"
     debugBuild "tests/*/files/csharpSupport/csharpSupport.sln"

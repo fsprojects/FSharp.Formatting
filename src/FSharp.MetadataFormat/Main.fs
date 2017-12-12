@@ -1285,17 +1285,17 @@ type MetadataFormat =
 
     // Read and process assemblies and the corresponding XML files
     let assemblies =
-      let resolvedList =
+      let resolvedList = [] : (string * FSharpAssembly option) list
         //FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
-        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags,manualResolve=true)
-        |> Seq.toList
+        //FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags,manualResolve=true)
+        //|> Seq.toList
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
       let urlMap = Reader.createUrlHolder()
 
       resolvedList |> Seq.iter (function
         | _, Some asm ->
-          asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
+          asm. Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
         | _ -> ())
 
       resolvedList |> List.choose (function
@@ -1314,7 +1314,7 @@ type MetadataFormat =
                 xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
                 && ext.Equals(".xml",StringComparison.OrdinalIgnoreCase)
             )
-            |> Seq.tryHead
+            |> Seq.tryHead // DISABLED WHILE FIXING COMPILATION DURING UPGRADE
             //|> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
             //|> Seq.tryPick (fun (f, ext) ->
             //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
