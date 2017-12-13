@@ -47,30 +47,30 @@ NUGET
       System.Threading (>= 4.3) - restriction: >= netstandard1.6
       System.Threading.Tasks (>= 4.3) - restriction: >= netstandard1.6
     FSharp.Compiler.Tools (4.1.23)
-    FSharp.Core (4.2.2) - content: none, redirects: force
-      System.Collections (>= 4.0.11) - restriction: >= netstandard1.6
-      System.Console (>= 4.0) - restriction: >= netstandard1.6
-      System.Diagnostics.Debug (>= 4.0.11) - restriction: >= netstandard1.6
-      System.Diagnostics.Tools (>= 4.0.1) - restriction: >= netstandard1.6
-      System.Globalization (>= 4.0.11) - restriction: >= netstandard1.6
-      System.IO (>= 4.1) - restriction: >= netstandard1.6
-      System.Linq (>= 4.1) - restriction: >= netstandard1.6
-      System.Linq.Expressions (>= 4.1) - restriction: >= netstandard1.6
-      System.Linq.Queryable (>= 4.0.1) - restriction: >= netstandard1.6
-      System.Net.Requests (>= 4.0.11) - restriction: >= netstandard1.6
-      System.Reflection (>= 4.1) - restriction: >= netstandard1.6
-      System.Reflection.Extensions (>= 4.0.1) - restriction: >= netstandard1.6
-      System.Resources.ResourceManager (>= 4.0.1) - restriction: >= netstandard1.6
-      System.Runtime (>= 4.1) - restriction: >= netstandard1.6
-      System.Runtime.Extensions (>= 4.1) - restriction: >= netstandard1.6
-      System.Runtime.Numerics (>= 4.0.1) - restriction: >= netstandard1.6
-      System.Text.RegularExpressions (>= 4.1) - restriction: >= netstandard1.6
-      System.Threading (>= 4.0.11) - restriction: >= netstandard1.6
-      System.Threading.Tasks (>= 4.0.11) - restriction: >= netstandard1.6
-      System.Threading.Tasks.Parallel (>= 4.0.1) - restriction: >= netstandard1.6
-      System.Threading.Thread (>= 4.0) - restriction: >= netstandard1.6
-      System.Threading.ThreadPool (>= 4.0.10) - restriction: >= netstandard1.6
-      System.Threading.Timer (>= 4.0.1) - restriction: >= netstandard1.6
+    FSharp.Core (4.2.3) - content: none, redirects: force
+      System.Collections (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6)
+      System.Console (>= 4.0) - restriction: && (< net45) (>= netstandard1.6)
+      System.Diagnostics.Debug (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6)
+      System.Diagnostics.Tools (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Globalization (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6)
+      System.IO (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Linq (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Linq.Expressions (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Linq.Queryable (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Net.Requests (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6)
+      System.Reflection (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Reflection.Extensions (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Resources.ResourceManager (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Runtime (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Runtime.Extensions (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Runtime.Numerics (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Text.RegularExpressions (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Threading (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6)
+      System.Threading.Tasks (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6)
+      System.Threading.Tasks.Parallel (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
+      System.Threading.Thread (>= 4.0) - restriction: && (< net45) (>= netstandard1.6)
+      System.Threading.ThreadPool (>= 4.0.10) - restriction: && (< net45) (>= netstandard1.6)
+      System.Threading.Timer (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6)
     FSharp.Data (2.3.3)
       Zlib.Portable (>= 1.11) - restriction: || (&& (< net40) (>= portable-net45+win8)) (&& (< net40) (>= portable-net45+win8+sl5) (< portable-net45+win8+wp8+wpa81)) (&& (< net40) (< portable-net45+win8+sl5) (>= portable-net45+win8+wp8+wpa81))
     ILRepack (2.0.13)
@@ -363,7 +363,7 @@ NUGET
       System.Runtime (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81)) (&& (< monoandroid) (< net45) (>= netstandard1.3) (< netstandard1.6) (< win8) (< wpa81)) (&& (< monotouch) (< net45) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Runtime.Extensions (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Threading (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
-    System.Linq.Queryable (4.3) - content: none, redirects: force, restriction: >= netstandard1.6
+    System.Linq.Queryable (4.3) - content: none, redirects: force, restriction: && (< net45) (>= netstandard1.6)
       System.Collections (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Diagnostics.Debug (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Linq (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81)) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
@@ -404,7 +404,7 @@ NUGET
       Microsoft.NETCore.Targets (>= 1.1) - restriction: || (>= dnxcore50) (&& (< monoandroid) (< net45) (>= netstandard1.1) (< netstandard1.3) (< win8) (< wpa81)) (&& (< monoandroid) (>= netstandard1.0) (< netstandard1.1) (< win8) (< wp8)) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Runtime (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monoandroid) (< net45) (>= netstandard1.1) (< netstandard1.3) (< win8) (< wpa81)) (&& (< monoandroid) (>= netstandard1.0) (< netstandard1.1) (< win8) (< wp8)) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Runtime.Handles (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
-    System.Net.Requests (4.3) - content: none, redirects: force, restriction: >= netstandard1.6
+    System.Net.Requests (4.3) - content: none, redirects: force, restriction: && (< net45) (>= netstandard1.6)
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: && (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Collections (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Diagnostics.Debug (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
@@ -657,7 +657,7 @@ NUGET
       System.Collections (>= 4.3) - restriction: && (< monotouch) (< net45) (>= netstandard1.0) (< win8) (< wp8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Runtime (>= 4.3) - restriction: && (< monotouch) (< net45) (>= netstandard1.0) (< win8) (< wp8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Threading.Tasks (>= 4.3) - restriction: && (< monotouch) (< net45) (>= netstandard1.0) (< win8) (< wp8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
-    System.Threading.Tasks.Parallel (4.3) - content: none, redirects: force, restriction: >= netstandard1.6
+    System.Threading.Tasks.Parallel (4.3) - content: none, redirects: force, restriction: && (< net45) (>= netstandard1.6)
       System.Collections.Concurrent (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monoandroid) (< net45) (>= netstandard1.1) (< netstandard1.3) (< win8) (< wpa81)) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Diagnostics.Debug (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Diagnostics.Tracing (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
@@ -666,9 +666,9 @@ NUGET
       System.Runtime.Extensions (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Threading (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
       System.Threading.Tasks (>= 4.3) - restriction: || (>= dnxcore50) (&& (< monoandroid) (< net45) (>= netstandard1.1) (< netstandard1.3) (< win8) (< wpa81)) (&& (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
-    System.Threading.Thread (4.3) - content: none, redirects: force, restriction: >= netstandard1.6
+    System.Threading.Thread (4.3) - content: none, redirects: force, restriction: || (&& (< monotouch) (< net46) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< net45) (>= netstandard1.6))
       System.Runtime (>= 4.3) - restriction: && (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
-    System.Threading.ThreadPool (4.3) - content: none, redirects: force, restriction: >= netstandard1.6
+    System.Threading.ThreadPool (4.3) - content: none, redirects: force, restriction: || (&& (< monotouch) (< net46) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< net45) (>= netstandard1.6))
       System.Runtime (>= 4.3) - restriction: && (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
       System.Runtime.Handles (>= 4.3) - restriction: && (< monotouch) (< net46) (>= netstandard1.3) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)
     System.Threading.Timer (4.3) - content: none, redirects: force, restriction: >= netstandard1.6
@@ -718,7 +718,7 @@ NUGET
 GROUP Test
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FSharp.Core (4.2.2)
+    FSharp.Core (4.2.3)
       System.Collections (>= 4.0.11) - restriction: >= netstandard1.6
       System.Console (>= 4.0) - restriction: >= netstandard1.6
       System.Diagnostics.Debug (>= 4.0.11) - restriction: >= netstandard1.6
