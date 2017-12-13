@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\..\..\</SolutionDir>
@@ -11,5 +10,5 @@
     <None Include="crefLib1.fsproj.paket.references" />
     <Compile Include="Library1.fs" />
   </ItemGroup>
-  <Import Project="$(SolutionDir)\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -1,16 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
-  
   <PropertyGroup>
-    <!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin\</OutputPath>
     <DocumentationFile>$(SolutionDir)\bin\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -36,5 +34,8 @@
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
-  <Import Project="$(SolutionDir)\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

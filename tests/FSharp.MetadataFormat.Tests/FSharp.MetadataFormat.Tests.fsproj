@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <OutputType>Library</OutputType>
@@ -10,14 +11,12 @@
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
-  
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="$(SolutionDir)\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
@@ -26,5 +25,5 @@
     <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
     <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
-  <Import Project="$(SolutionDir)\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

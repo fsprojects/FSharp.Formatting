@@ -175,10 +175,25 @@ open Fake.DotNet.Testing.NUnit3
 open Fake.Core.Process
 
 
+
 let testAssemblies =
     [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
         "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
     |> List.map (fun asm -> sprintf "tests/bin/%s.dll" asm)
+
+let testProjects =
+    [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
+        "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
+    |> List.map (fun asm -> sprintf "tests/%s/%s.fsproj" asm asm)
+
+
+
+Target.Create"DotnetTests" (fun _ ->
+    testProjects
+    |> Seq.iter (fun proj -> Fake.DotNetCli.Test(fun x ->
+        { x with Project = proj }
+    ))    
+)
 
 
 Target.Create"RunTests" (fun _ ->
@@ -548,6 +563,10 @@ open Fake.Core.TargetOperators
 
 
 "Build" ==> "All"
+
+
+"BuildTests"
+  ==> "DotnetTests"
 
 "BuildTests"
   ==> "RunTests"

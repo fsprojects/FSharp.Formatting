@@ -1314,7 +1314,7 @@ type MetadataFormat =
                 xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
                 && ext.Equals(".xml",StringComparison.OrdinalIgnoreCase)
             )
-            |> Seq.tryHead // DISABLED WHILE FIXING COMPILATION DURING UPGRADE
+            |> Seq.tryHead 
             //|> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
             //|> Seq.tryPick (fun (f, ext) ->
             //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)

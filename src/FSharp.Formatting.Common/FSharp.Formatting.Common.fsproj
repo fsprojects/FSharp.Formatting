@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <DefineConstants>NETSTANDARD1_5</DefineConstants>
-    <!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+    <TargetFramework>net461</TargetFramework>
+    <!--<DefineConstants>NETSTANDARD1_5</DefineConstants>-->
+    <DefineConstants>$(DefineConstants);YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <!--<OutputPath>$(SolutionDir)\bin\$(Configuration)\</OutputPath>-->
+    <OutputPath>$(SolutionDir)\bin</OutputPath>
     <DocumentationFile>$(SolutionDir)\bin\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>

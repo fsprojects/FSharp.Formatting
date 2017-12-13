@@ -1,8 +1,11 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
+System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
+#r "../../bin/FSharp.Formatting.Common.dll"
 #r "../../bin/FSharp.CodeFormat.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #else
+
 [<NUnit.Framework.TestFixture>]
 module FSharp.CodeFormat.Tests
 #endif

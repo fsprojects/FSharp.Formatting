@@ -1,47 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>bc4946ba-2724-4524-ac50-dfc49ee154a1</ProjectGuid>
-    <RootNamespace>FSharp.MetadataFormat</RootNamespace>
-    <AssemblyName>FSharp.MetadataFormat</AssemblyName>
-    <Name>FSharp.MetadataFormat</Name>
+    <TargetFramework>net461</TargetFramework>
+
+    <SolutionDir>..\..\</SolutionDir>
+    <OutputPath>..\..\bin\</OutputPath>
+    <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>METADATAFORMAT</DefineConstants>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <DefineConstants>NET461</DefineConstants>
-  </PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <Tailcalls>false</Tailcalls>
-    <OutputPath>..\..\bin\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE;DEBUG;METADATAFORMAT</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\FSharp.MetadataFormat.xml</DocumentationFile>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugType>portable</DebugType>
-    <DefineConstants>$(DefineConstants);METADATAFORMAT</DefineConstants>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <OutputPath>..\..\bin\</OutputPath>
-    <DefineConstants>$(DefineConstants);TRACE;METADATAFORMAT</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\FSharp.MetadataFormat.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\bin\</OutputPath>
-  </PropertyGroup>
-  
+   
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -57,10 +26,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj"/>
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj"/>
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj"/>
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj"/>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="System.Web" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

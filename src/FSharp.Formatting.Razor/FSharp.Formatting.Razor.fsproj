@@ -1,34 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Name>FSharp.Formatting.Razor</Name>
-    <AssemblyName>FSharp.Formatting.Razor</AssemblyName>
-    <RootNamespace>FSharp.Formatting.Razor</RootNamespace>
     <TargetFramework>net461</TargetFramework>
     <OutputType>Library</OutputType>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>c6b3c274-71a8-4239-ba9a-1af7b2f7c736</ProjectGuid>
+    <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
+    <!--<OutputPath>bin\$(Configuration)\</OutputPath>-->
+    <OutputPath>$(SolutionDir)\bin</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\FSharp.Formatting.Razor.xml</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\FSharp.Formatting.Razor.xml</DocumentationFile>
-  </PropertyGroup>
+
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="../Common/AssemblyInfo.fs">
@@ -52,11 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj"/>
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj"/>
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj"/>
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj"/>
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj"/>
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
+    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

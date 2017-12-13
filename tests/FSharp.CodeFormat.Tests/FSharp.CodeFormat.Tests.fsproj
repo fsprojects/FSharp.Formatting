@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
     <DocumentationFile>$(SolutionDir)\tests\bin\FSharp.CodeFormat.Tests.xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
