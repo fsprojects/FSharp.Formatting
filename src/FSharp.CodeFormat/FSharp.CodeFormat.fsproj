@@ -7,15 +7,16 @@
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin\</OutputPath>
     <DocumentationFile>$(SolutionDir)\bin\$(AssemblyName).xml</DocumentationFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
+    <Content Include="app.config" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -41,7 +42,5 @@
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
-
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -6,8 +6,10 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DocumentationFile>bin\$(Configuration)\$(AssemblyName).xml</DocumentationFile>
-    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <!-- <OutputPath>bin\$(Configuration)\</OutputPath> -->
     <SolutionDir>..\..\</SolutionDir>
+    <OutputPath>..\..\bin\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

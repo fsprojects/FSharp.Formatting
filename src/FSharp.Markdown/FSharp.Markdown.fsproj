@@ -1,21 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>..\..\bin\</OutputPath>
     <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Web"/>
+    <Reference Include="System.Web" />
+    <Content Include="app.config" />
   </ItemGroup>
-
-
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -33,15 +34,11 @@
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="System.Web" />
   </ItemGroup>
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
-
 </Project>

@@ -6,19 +6,19 @@
     <!--<DefineConstants>NETSTANDARD1_5</DefineConstants>-->
     <DefineConstants>$(DefineConstants);YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
     <SolutionDir>..\..\</SolutionDir>
     <!--<OutputPath>$(SolutionDir)\bin\$(Configuration)\</OutputPath>-->
     <OutputPath>$(SolutionDir)\bin</OutputPath>
     <DocumentationFile>$(SolutionDir)\bin\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Content Include="app.config" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Include="$(SolutionDir)\paket-files\matthid\Yaaf.FSharp.Scripting\src\source\Yaaf.FSharp.Scripting\YaafFSharpScripting.fs">
       <Link>paket-files/YaafFSharpScripting.fs</Link>

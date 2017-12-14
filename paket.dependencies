@@ -7,7 +7,7 @@ nuget FSharp.Data
 nuget FAKE prerelease
 nuget CommandLineParser
 #nuget FSharp.Compiler.Tools
-nuget FSharp.Core  redirects:force, content:none
+nuget FSharp.Core 4.2.3 redirects:force, content:none
 nuget Microsoft.AspNet.Razor
 nuget RazorEngine 3.9.3 framework: >= net45
 nuget FSharp.Compiler.Service content:none
