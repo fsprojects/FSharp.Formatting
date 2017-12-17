@@ -183,6 +183,7 @@ Target.Create"BuildTests" (fun _ ->
 
 open Fake.DotNet.Testing.NUnit3
 open Fake.Core.Process
+open Microsoft.FSharp.Core
 
 
 let testAssemblies =
@@ -307,31 +308,34 @@ Target.Create"NuGet" (fun _ ->
 
 let fakePath = "packages" </> "FAKE" </> "tools" </> "FAKE.exe"
 let fakeStartInfo script workingDirectory args fsiargs environmentVars =
-    (fun (info: System.Diagnostics.ProcessStartInfo) ->
-        info.FileName <- System.IO.Path.GetFullPath fakePath
-        info.Arguments <- sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
-        info.WorkingDirectory <- workingDirectory
-        let setVar k v =
-            info.EnvironmentVariables.[k] <- v
-        for (k, v) in environmentVars do
-            setVar k v
-        setVar "MSBuild" msBuildExe
-        setVar "GIT" Git.CommandHelper.gitPath
-        setVar "FSI" Fake.FSIHelper.fsiPath)
+    //(fun (info: System.Diagnostics.ProcessStartInfo) ->
+    (fun (info: ProcStartInfo) ->
+            { info with
+                FileName = System.IO.Path.GetFullPath fakePath
+                Arguments = sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
+                WorkingDirectory = workingDirectory
+                Environment =
+                    [   "MSBuild", msBuildExe
+                        "GIT", Git.CommandHelper.gitPath
+                        "FSI", Fake.FSIHelper.fsiPath
+                    ] |> Map.ofList |> Some
+            }
+    )
 
 let commandToolPath = "bin" </> "fsformatting.exe"
 let commandToolStartInfo workingDirectory environmentVars args =
-    (fun (info: System.Diagnostics.ProcessStartInfo) ->
-        info.FileName <- System.IO.Path.GetFullPath commandToolPath
-        info.Arguments <- args
-        info.WorkingDirectory <- workingDirectory
-        let setVar k v =
-            info.EnvironmentVariables.[k] <- v
-        for (k, v) in environmentVars do
-            setVar k v
-        setVar "MSBuild" msBuildExe
-        setVar "GIT" Git.CommandHelper.gitPath
-        setVar "FSI" Fake.FSIHelper.fsiPath)
+    (fun (info:ProcStartInfo) ->
+        { info with
+            FileName = System.IO.Path.GetFullPath commandToolPath
+            Arguments = args
+            WorkingDirectory = workingDirectory
+            Environment =
+                [   "MSBuild", msBuildExe
+                    "GIT", Git.CommandHelper.gitPath
+                    "FSI", Fake.FSIHelper.fsiPath
+                ] |> Map.ofList |> Some
+        }
+    )
 
 
 /// Run the given buildscript with FAKE.exe
@@ -365,9 +369,7 @@ let buildDocumentationCommandTool args =
   execute
     "Building documentation (CommandTool), this could take some time, please wait..."
     "generating documentation failed"
-    (fun pinfo -> 
-        commandToolStartInfo "." [] args pinfo.AsStartInfo
-        pinfo)
+    (commandToolStartInfo __SOURCE_DIRECTORY__ [] args)
 
 
 let createArg argName arguments =
@@ -413,24 +415,29 @@ let buildDocumentationTarget fsiargs target =
     execute
         (sprintf "Building documentation (%s), this could take some time, please wait..." target)
         "generating reference documentation failed"
-        (fun pinfo ->
-            fakeStartInfo "generate.fsx" "docs/tools" "" fsiargs ["target", target] pinfo.AsStartInfo
-            pinfo
-        )
+        (fakeStartInfo "generate.fsx" "docs/tools" "" fsiargs ["target", target])
+
 let bootStrapDocumentationFiles () =
     // This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
     // If you came here from the nuspec file add your file.
     // If you add files here to make the CI happy add those files to the .nuspec file as well
     // TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
     Directory.ensure (__SOURCE_DIRECTORY__ </> "packages/FSharp.Formatting/lib/net40")
-    let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
+    let buildFiles = [
+        "CSharpFormat.dll";
+        "FSharp.CodeFormat.dll"; "FSharp.CodeFormat.dll.config";
+        "FSharp.Literate.dll"; "FSharp.Literate.dll.config";
                        "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll" ]
+                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll"
+    ]
+                     //|> List.append (!! ( "bin/*.dll.config" )).Includes
+
     let bundledFiles =
         buildFiles
         |> List.map (fun f ->
             __SOURCE_DIRECTORY__ </> sprintf "bin/%s" f,
             __SOURCE_DIRECTORY__ </> sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
+        
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
     for source, dest in bundledFiles do
         try
@@ -443,7 +450,8 @@ Target.Create"DogFoodCommandTool" (fun _ ->
     let dllFiles =
       [ "FSharp.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
         "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "FSharp.Formatting.Razor.dll" ]
-        |> List.map (sprintf "bin/%s")
+        //|> List.collect (fun s -> [sprintf "bin/%s" s;sprintf "bin/%s.config" s])
+
     let layoutRoots =
       [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
     let libDirs = [ "bin/" ]

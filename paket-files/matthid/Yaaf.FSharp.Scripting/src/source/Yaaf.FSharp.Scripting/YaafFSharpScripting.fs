@@ -1,4 +1,4 @@
-﻿namespace Yaaf.FSharp.Scripting
+namespace Yaaf.FSharp.Scripting
 
 #nowarn "25" // Binding incomplete: let [ t ] = list
 
@@ -293,7 +293,7 @@ module internal CompilerServiceExtensions =
 
           let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
           let mapError (err:FSharpErrorInfo) =
-            sprintf "**** %s: %s" (if err.Severity = Microsoft.FSharp.Compiler.FSharpErrorSeverity.Error then "error" else "warning") err.Message
+            sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message
           if results.HasCriticalErrors then
               let errors = results.Errors |> Seq.map mapError
               let errorMsg = sprintf "Parsing and checking project failed: \n\t%s" (System.String.Join("\n\t", errors))
