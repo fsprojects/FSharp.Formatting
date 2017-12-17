@@ -132,7 +132,8 @@ Target.Create "InstallDotNetCore" (fun _ ->
 let restore proj =
     let opts =
         { DotnetOptions.Default with
-            WorkingDirectory = __SOURCE_DIRECTORY__    }
+            WorkingDirectory = __SOURCE_DIRECTORY__
+        }
     (Dotnet  opts (sprintf "restore %s" (Path.getFullName proj))).Messages |> Seq.iter trace
 
 Target.Create "Build" (fun _ ->
@@ -140,6 +141,7 @@ Target.Create "Build" (fun _ ->
     solutionFile
     |> MsBuild.build (fun opts ->
         { opts with
+            RestorePackagesFlag = true
             Targets = ["Rebuild"]
             Verbosity = Some MSBuildVerbosity.Minimal
             Properties =
@@ -165,13 +167,14 @@ Target.Create"BuildTests" (fun _ ->
             proj
             |> MsBuild.build (fun opts ->
                 { opts with
-                    Targets = ["Build"]
+                    RestorePackagesFlag = true
+                    Targets = ["Rebuild"]
                     Verbosity = Some MSBuildVerbosity.Minimal
                     Properties =
                       [ "VisualStudioVersion", "15.0"
                         "Verbosity", "Minimal"
                         "OutputPath", "tests/bin"
-                        "Configuration", "Release" ]}
+                        "Configuration", "Debug" ]}
             )
         )
 
@@ -574,14 +577,14 @@ Target.Create"CreateTestJson" (fun _ ->
 open Fake.Core.TargetOperators
 
 "Clean"
+  ==> "InstallDotnetcore"
   ==> "AssemblyInfo"
   ==> "CopyFSharpCore"
   ==> "SetupLibForTests"
   ==> "Build"
   ==> "BuildTests"
 
-"InstallDotnetcore"
-  ==> "Build"
+"Build"
   ==> "All"
 
 
