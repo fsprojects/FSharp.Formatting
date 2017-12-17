@@ -93,6 +93,7 @@ open Fake.Core.String
 open Fake.Core.Environment
 open Fake.DotNet.NuGet.NuGet
 open Fake.DotNet.MsBuild
+open Fake.Core.Process
 
 Target.Create "UpdateFsxVersions" (fun _ ->
     let packages = [ "FSharp.Compiler.Service" ]
@@ -119,14 +120,33 @@ Target.Create "UpdateFsxVersions" (fun _ ->
 let solutionFile = "FSharp.Formatting.sln"
 
 
-Target.Create "InstallDotNetCore" (fun _ ->
-    try
-        (Fake.DotNet.Cli.DotnetInfo (fun _ -> Fake.DotNet.Cli.DotNetInfoOptions.Default)).RID
-        |> trace        
-    with _ ->
-        Fake.DotNet.Cli.DotnetCliInstall (fun _ -> Fake.DotNet.Cli.DotNetCliInstallOptions.Default )
-        Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", Fake.DotNet.Cli.DefaultDotnetCliDir)
-)
+//Target.Create "InstallDotNetCore" (fun _ ->
+//    try
+//        (Fake.DotNet.Cli.DotnetInfo (fun _ -> Fake.DotNet.Cli.DotNetInfoOptions.Default)).RID
+//        |> trace        
+//    with _ ->
+//        Fake.DotNet.Cli.DotnetCliInstall (fun _ -> Fake.DotNet.Cli.DotNetCliInstallOptions.Default )
+//        Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", Fake.DotNet.Cli.DefaultDotnetCliDir)
+//)
+
+let assertExitCodeZero x = 
+    if x = 0 then () else 
+    failwithf "Command failed with exit code %i" x
+
+let runCmdIn workDir exe = 
+    Printf.ksprintf (fun args -> 
+        let res =
+            (ExecProcessAndReturnMessages (fun info ->
+                { info with
+                    FileName = exe
+                    Arguments = args
+                    WorkingDirectory = workDir
+                }) TimeSpan.MaxValue)
+        res.Messages |> Seq.iter trace
+        res.ExitCode |> assertExitCodeZero)
+
+/// Execute a dotnet cli command
+let dotnet workDir = runCmdIn workDir "dotnet"
 
 
 let restore proj =
@@ -137,7 +157,8 @@ let restore proj =
     (Dotnet  opts (sprintf "restore %s" (Path.getFullName proj))).Messages |> Seq.iter trace
 
 Target.Create "Build" (fun _ ->
-    restore solutionFile
+    //restore solutionFile
+    dotnet "" "restore %s" solutionFile
     solutionFile
     |> MsBuild.build (fun opts ->
         { opts with
@@ -160,8 +181,9 @@ Target.Create "Build" (fun _ ->
 // Build tests and generate tasks to run the tests in sequence
 // --------------------------------------------------------------------------------------
 Target.Create"BuildTests" (fun _ ->
-    let debugBuild sln =        
-        !! sln |> Seq.iter restore
+    let debugBuild sln =            
+        //!! sln |> Seq.iter restore 
+        !! sln |> Seq.iter (fun s -> dotnet "" "restore %s" s)
         !! sln 
         |> Seq.iter (fun proj ->
             proj
@@ -577,7 +599,7 @@ Target.Create"CreateTestJson" (fun _ ->
 open Fake.Core.TargetOperators
 
 "Clean"
-  ==> "InstallDotnetcore"
+  //==> "InstallDotnetcore"
   ==> "AssemblyInfo"
   ==> "CopyFSharpCore"
   ==> "SetupLibForTests"
