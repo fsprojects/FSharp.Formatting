@@ -46,6 +46,8 @@ let tags = "F# fsharp formatting markdown code fssnip literate programming"
 // Read release notes document
 let release = ReleaseNotes.LoadReleaseNotes "RELEASE_NOTES.md"
 
+
+
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
 
@@ -115,13 +117,23 @@ Target.Create "UpdateFsxVersions" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 let solutionFile = "FSharp.Formatting.sln"
+
+
+Target.Create "InstallDotNetCore" (fun _ ->
+    try
+        (Fake.DotNet.Cli.DotnetInfo (fun _ -> Fake.DotNet.Cli.DotNetInfoOptions.Default)).RID
+        |> trace        
+    with _ ->
+        Fake.DotNet.Cli.DotnetCliInstall (fun _ -> Fake.DotNet.Cli.DotNetCliInstallOptions.Default )
+        Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", Fake.DotNet.Cli.DefaultDotnetCliDir)
+)
+
+
 let restore proj =
-    DotnetRestore (fun opts ->
-        { opts with
-            Verbosity = Some NugetRestoreVerbosity.Minimal
-        }) proj
-
-
+    let opts =
+        { DotnetOptions.Default with
+            WorkingDirectory = __SOURCE_DIRECTORY__    }
+    (Dotnet  opts (sprintf "restore %s" (Path.getFullName proj))).Messages |> Seq.iter trace
 
 Target.Create "Build" (fun _ ->
     restore solutionFile
@@ -560,8 +572,9 @@ open Fake.Core.TargetOperators
   ==> "Build"
   ==> "BuildTests"
 
-
-"Build" ==> "All"
+"InstallDotnetcore"
+  ==> "Build"
+  ==> "All"
 
 
 "BuildTests"
@@ -574,7 +587,6 @@ open Fake.Core.TargetOperators
 "GenerateDocs" ==> "All"
 
 "Build"
-
   ==> "DogFoodCommandTool"
   ==> "All"
 
