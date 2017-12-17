@@ -168,13 +168,13 @@ Target.Create"BuildTests" (fun _ ->
             |> MsBuild.build (fun opts ->
                 { opts with
                     RestorePackagesFlag = true
-                    Targets = ["Rebuild"]
+                    Targets = ["Build"]
                     Verbosity = Some MSBuildVerbosity.Minimal
                     Properties =
                       [ "VisualStudioVersion", "15.0"
                         "Verbosity", "Minimal"
                         "OutputPath", "tests/bin"
-                        "Configuration", "Debug" ]}
+                        "Configuration", "Release" ]}
             )
         )
 
