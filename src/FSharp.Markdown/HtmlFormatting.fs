@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# Markdown (HtmlFormatting.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ let (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) =
 type UniqueNameGenerator() =
     let generated = new System.Collections.Generic.Dictionary<string, int>()
 
-    member __.GetName(name : string) =
+    member __.GetName (name : string) =
         let ok, i = generated.TryGetValue name
         if ok then
             generated.[name] <- i + 1
@@ -49,20 +49,23 @@ type UniqueNameGenerator() =
             name
 
 /// Context passed around while formatting the HTML
-type FormattingContext =
-  { LineBreak : unit -> unit
+type FormattingContext = {
+    LineBreak : unit -> unit
     Newline : string
     Writer : TextWriter
     Links : IDictionary<string, string * option<string>>
     WrapCodeSnippets : bool
     GenerateHeaderAnchors : bool
     UniqueNameGenerator : UniqueNameGenerator
-    ParagraphIndent : unit -> unit }
+    ParagraphIndent : unit -> unit
+}
 
 let bigBreak (ctx:FormattingContext) () =
-  ctx.Writer.Write(ctx.Newline)
+    ctx.Writer.Write ctx.Newline
+
 let smallBreak (ctx:FormattingContext) () =
-  ctx.Writer.Write(ctx.Newline)
+    ctx.Writer.Write ctx.Newline
+
 let noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
@@ -273,12 +276,12 @@ and formatParagraphs ctx paragraphs =
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
 let formatMarkdown writer generateAnchors newline wrap links = 
-  formatParagraphs 
-    { Writer = writer
-      Links = links
-      Newline = newline
-      LineBreak = ignore
-      WrapCodeSnippets = wrap
-      GenerateHeaderAnchors = generateAnchors
-      UniqueNameGenerator = new UniqueNameGenerator()
-      ParagraphIndent = ignore }
+    formatParagraphs 
+     {  Writer = writer
+        Links = links
+        Newline = newline
+        LineBreak = ignore
+        WrapCodeSnippets = wrap
+        GenerateHeaderAnchors = generateAnchors
+        UniqueNameGenerator = new UniqueNameGenerator()
+        ParagraphIndent = ignore }

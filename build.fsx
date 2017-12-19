@@ -233,7 +233,7 @@ Target.Create"DotnetTests" (fun _ ->
 
 Target.Create"RunTests" (fun _ ->
     testAssemblies
-    |> NUnit3 (fun p ->
+    |> Fake.DotNet.Testing.NUnit3.NUnit3 (fun p ->
         { p with
             ShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.

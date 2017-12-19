@@ -111,7 +111,7 @@ type [<Struct>] Range = {
     { LeftCol = leftCol; RightCol = rightCol }
 
 /// Uses agent to handle formatting requests
-type CodeFormatAgent() =
+type CodeFormatAgent () =
     // Create keys for query tooltips for double-backtick identifiers
     let processDoubleBackticks (body : string) =
         if body.StartsWith "``" then
@@ -136,7 +136,7 @@ type CodeFormatAgent() =
     | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword
 
 
-    // Processes a single line of the snippet
+    /// Processes a single line of the snippet
     let processSnippetLine (checkResults: FSharpCheckFileResults) (semanticRanges: (Range.range * SemanticClassificationType)[])
                             (lines: string[]) (line: int, lineTokens: SnippetLine) =
         let lineStr = lines.[line]
@@ -180,26 +180,26 @@ type CodeFormatAgent() =
                 // Find tootltip using F# compiler service & the identifier island
                 let tip =
                     // If we're processing an identfier, see if it has any tool tip
-                    if (token.TokenName = "IDENT") then
+                    if token.TokenName = "IDENT" then
                         let island = List.rev island
                         let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
                         match Async.RunSynchronously tip |> fun (tooltip) ->
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with
-                        | Some(_) as res -> res
+                        | Some _ as res -> res
                         | _ -> None
                     else None
 
-                if token.TokenName.StartsWith("OMIT") then
+                if token.TokenName.StartsWith "OMIT" then
                 // Special OMIT tag - add tool tip stored in token name
                 // (The text immediately follows the keyword "OMIT")
-                    yield Omitted(body, token.TokenName.Substring(4))
+                    yield Omitted (body, token.TokenName.Substring 4)
                 elif token.TokenName = "FSI" then
                 // F# Interactive output - return as Output token
-                    yield Output(body)
+                    yield Output body
                 else
                     match tip with
-                    | Some (Literal msg::_) when msg.StartsWith("custom operation:") ->
+                    | Some (Literal msg::_) when msg.StartsWith "custom operation:" ->
                         // If the tool-tip says this is a custom operation, then
                         // we want to treat it as keyword (not sure if there is a better
                         // way to detect this, but Visual Studio also colors these later)
@@ -311,28 +311,28 @@ type CodeFormatAgent() =
         let opts =
             let mutable known = Set.empty
             { opts with
-                OtherOptions =
-                    Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
-                    |> Array.filter (fun item ->
-                        if item.StartsWith "-r:" then
-                            let fullPath = item.Substring 3
-                            let name = System.IO.Path.GetFileName fullPath
-                            if known.Contains name then
-                                false
-                            else
-                                known <- known.Add name
-                                true
+               OtherOptions =
+                Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
+                |> Array.filter (fun item ->
+                    if item.StartsWith "-r:" then
+                        let fullPath = item.Substring 3
+                        let name = System.IO.Path.GetFileName fullPath
+                        if known.Contains name then
+                            false
                         else
-                            if known.Contains item then
-                                false
-                            else
-                                known <- known.Add item
-                                true)
-                }
+                            known <- known.Add name
+                            true
+                    else
+                        if known.Contains item then
+                            false
+                        else
+                            known <- known.Add item
+                            true)
+            }
         // Override default options if the user specified something
         let opts =
             match options with
-            | Some(str:string) when not(System.String.IsNullOrEmpty(str)) ->
+            | Some(str:string) when not(System.String.IsNullOrEmpty str) ->
                 { opts with OtherOptions = [| yield! Helpers.parseOptions str; yield! opts.OtherOptions |] }
             | _ -> opts
         //// add our file

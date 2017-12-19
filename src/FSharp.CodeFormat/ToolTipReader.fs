@@ -20,70 +20,73 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 /// Turn string into a sequence of lines interleaved with line breaks
 let formatMultilineString (s:string) = 
-  [ for line in s.Split('\n') do
+  [ for line in s.Split '\n' do
       yield HardLineBreak
       yield Literal line ]
   |> List.tail
 
 /// Format comment in the tool tip
 let private formatComment = function
-  | FSharpXmlDoc.Text(s) -> 
-      [ Emphasis (formatMultilineString s)
-        HardLineBreak ]
-  | _ ->
-      // TODO: For 'XmlCommentSignature' we could get documentation 
-      // from 'xml' files, but we don't know where to get them...
-      []
+| FSharpXmlDoc.Text s -> 
+    [   Emphasis (formatMultilineString s)
+        HardLineBreak
+    ]
+| _ ->
+    // TODO: For 'XmlCommentSignature' we could get documentation 
+    // from 'xml' files, but we don't know where to get them...
+    []
+
 
 /// Format the element of a tool tip (comment, overloads, etc.)
 let private formatElement = function
-  | FSharpToolTipElement.None -> []
-  //| FSharpToolTipElement.(it, comment) -> 
-  //    [ yield! formatMultilineString it
-  //      yield HardLineBreak
-  //      yield! formatComment comment ]
-  | FSharpToolTipElement.Group(items) -> 
+| FSharpToolTipElement.None -> []
+//| FSharpToolTipElement.(it, comment) -> 
+//    [ yield! formatMultilineString it
+//      yield HardLineBreak
+//      yield! formatComment comment ]
+| FSharpToolTipElement.Group items -> 
       // Trim the items to at most 10 displayed in a tool tip
-      let items, trimmed = 
+    let items, trimmed = 
         if items.Length <= 10 then items, false
         else items |> Seq.take 10 |> List.ofSeq, true
-      [ for it in items do
-          yield! formatMultilineString it.MainDescription
-          yield HardLineBreak
-          yield! formatComment it.XmlDoc
-
-          // Add note with the number of omitted overloads
-          if trimmed then 
+    [ for it in items do
+        yield! formatMultilineString it.MainDescription
+        yield HardLineBreak
+        yield! formatComment it.XmlDoc
+        // Add note with the number of omitted overloads
+        if trimmed then 
             let msg = sprintf "(+%d other overloads)" (items.Length - 10)
             yield Literal "   "
-            yield Emphasis [Literal (msg) ]
-            yield HardLineBreak ]
+            yield Emphasis [ Literal msg ]
+            yield HardLineBreak
+    ]
   //| FSharpToolTipElement.SingleParameter(_paramType,_doc,_name) -> 
   //  [   yield ToolTipSpan.Literal _paramType
   //      yield ToolTipSpan.HardLineBreak
   //      yield! formatComment _doc     
   //  ]
-  | FSharpToolTipElement.CompositionError(err) -> []
+  | FSharpToolTipElement.CompositionError _err -> []
+
 
 /// Format entire tool tip as a value of type ToolTipSpans      
 let private formatTip tip = 
-  let spans = 
-    match tip with
-    | FSharpToolTipText([single]) -> formatElement single
-    | FSharpToolTipText(items) -> 
-        [ yield Literal "Multiple items"
-          yield HardLineBreak
-          for first, item in Seq.mapi (fun i it -> i = 0, it) items do
-            if not first then 
-              yield HardLineBreak
-              yield Literal "--------------------"
-              yield HardLineBreak
-            yield! formatElement item ]
-
-  // Remove unnecessary line breaks
-  spans 
-  |> List.skipWhile ((=) HardLineBreak) |> List.rev
-  |> List.skipWhile ((=) HardLineBreak) |> List.rev
+    let spans = 
+        match tip with
+        | FSharpToolTipText [single] -> formatElement single
+        | FSharpToolTipText items -> 
+            [   yield Literal "Multiple items"
+                yield HardLineBreak
+                for first, item in Seq.mapi (fun i it -> i = 0, it) items do
+                    if not first then 
+                        yield HardLineBreak
+                        yield Literal "--------------------"
+                        yield HardLineBreak
+                    yield! formatElement item
+            ]
+    // Remove unnecessary line breaks
+    spans 
+    |> List.skipWhile ((=) HardLineBreak) |> List.rev
+    |> List.skipWhile ((=) HardLineBreak) |> List.rev
 
 /// Format a tool tip, but first make sure that there is actually 
 /// some text in the tip. Returns None if no information is available

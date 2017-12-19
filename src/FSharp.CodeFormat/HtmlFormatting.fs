@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (HtmlFormatting.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -17,17 +17,30 @@ open FSharp.CodeFormat.Constants
 // Context used by the formatter
 // --------------------------------------------------------------------------------------
 
+/// Represents context used by the formatter
+type FormattingContext = { 
+    AddLines       : bool
+    GenerateErrors : bool
+    Writer         : TextWriter 
+    OpenTag        : string
+    CloseTag       : string
+    OpenLinesTag   : string
+    CloseLinesTag  : string
+    FormatTip      : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string 
+}
+
+
 /// Mutable type that formats tool tips and keeps the generated HTML
-type ToolTipFormatter(prefix) = 
+type ToolTipFormatter (prefix) = 
     let tips = new Dictionary<ToolTipSpans, int * string>()
     let mutable count = 0
     let mutable uniqueId = 0
 
     /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
-    member x.FormatTip (tip:ToolTipSpans) overlapping formatFunction = 
+    member __.FormatTip (tip:ToolTipSpans) overlapping formatFunction = 
         uniqueId <- uniqueId + 1
         let stringIndex =
-            match tips.TryGetValue(tip) with
+            match tips.TryGetValue tip with
             | true, (idx, _) -> idx
             | _ -> 
             count <- count + 1
@@ -52,22 +65,11 @@ type ToolTipFormatter(prefix) =
   
 
     /// Returns all generated tool tip elements
-    member x.WriteTipElements (writer:TextWriter) = 
+    member __.WriteTipElements (writer:TextWriter) = 
         for (KeyValue(_, (index, html))) in tips do
             writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
 
 
-/// Represents context used by the formatter
-type FormattingContext = { 
-    AddLines       : bool
-    GenerateErrors : bool
-    Writer         : TextWriter 
-    OpenTag        : string
-    CloseTag       : string
-    OpenLinesTag   : string
-    CloseLinesTag  : string
-    FormatTip      : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string 
-}
 
 // --------------------------------------------------------------------------------------
 // Formats various types from 'SourceCode.fs' as HTML
@@ -75,148 +77,153 @@ type FormattingContext = {
 
 /// Formats tool tip information and returns a string
 let formatToolTipSpans spans = 
-  let sb = StringBuilder()
-  use wr = new StringWriter(sb)
-  // Inner recursive function that does the formatting
-  let rec format spans = spans |> List.iter (function
-    | Emphasis(spans) ->
-        wr.Write("<em>")
-        format spans
-        wr.Write("</em>")        
-    | Literal(string) ->
-        let spaces = string.Length - string.TrimStart(' ').Length
-        wr.Write(String.replicate spaces "&#160;")
-        wr.Write(HttpUtility.HtmlEncode(string.Substring(spaces)))
-    | HardLineBreak ->
-        wr.Write("<br />"))
-  format spans
-  sb.ToString()
+    let sb = StringBuilder ()
+    use wr = new StringWriter(sb)
+    // Inner recursive function that does the formatting
+    let rec format spans = spans |> List.iter (function
+        | Emphasis spans ->
+            wr.Write "<em>"
+            format spans
+            wr.Write "</em>"
+        | Literal string ->
+            let spaces = string.Length - string.TrimStart(' ').Length
+            wr.Write (String.replicate spaces "&#160;")
+            wr.Write (HttpUtility.HtmlEncode(string.Substring spaces))
+        | HardLineBreak ->
+            wr.Write "<br />"
+    )
+    format spans
+    sb.ToString ()
 
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
-  | Error(kind, message, body) when ctx.GenerateErrors ->
-      let tip = ToolTipReader.formatMultilineString (message.Trim())
-      let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
-      ctx.Writer.Write("<span ")
-      ctx.Writer.Write(tipAttributes)
-      ctx.Writer.Write("class=\"cerr\">")
-      formatTokenSpans { ctx with FormatTip = fun _ _ _ -> "" } body
-      ctx.Writer.Write("</span>")
-  
-  | Error(_, _, body) ->
-      formatTokenSpans ctx body
+    | Error (_kind, message, body) when ctx.GenerateErrors ->
+        let tip = ToolTipReader.formatMultilineString (message.Trim())
+        let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
+        ctx.Writer.Write "<span "
+        ctx.Writer.Write tipAttributes
+        ctx.Writer.Write "class=\"cerr\">"
+        formatTokenSpans { ctx with FormatTip = fun _ _ _ -> "" } body
+        ctx.Writer.Write "</span>"  
+    | Error (_, _, body) ->
+        formatTokenSpans ctx body
 
-  | Output(body) ->
-      ctx.Writer.Write("<span class=\"fsi\">")
-      ctx.Writer.Write(HttpUtility.HtmlEncode(body))
-      ctx.Writer.Write("</span>")
+    | Output body ->
+        ctx.Writer.Write "<span class=\"fsi\">"
+        ctx.Writer.Write (HttpUtility.HtmlEncode body)
+        ctx.Writer.Write "</span>"
 
-  | Omitted(body, hidden) ->
-      let tip = ToolTipReader.formatMultilineString (hidden.Trim())
-      let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
-      ctx.Writer.Write("<span ")
-      ctx.Writer.Write(tipAttributes)
-      ctx.Writer.Write("class=\"omitted\">")
-      ctx.Writer.Write(body)
-      ctx.Writer.Write("</span>")
+    | Omitted(body, hidden) ->
+        let tip = ToolTipReader.formatMultilineString (hidden.Trim())
+        let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
+        ctx.Writer.Write "<span "
+        ctx.Writer.Write tipAttributes
+        ctx.Writer.Write "class=\"omitted\">"
+        ctx.Writer.Write body
+        ctx.Writer.Write "</span>"
       
-  | Token(kind, body, tip) ->
-    // Generate additional attributes for ToolTip
-    let tipAttributes = 
-        match tip with
-        | Some(tip) -> ctx.FormatTip tip false formatToolTipSpans
-        | _ -> ""
+    | Token (kind, body, tip) ->
+        // Generate additional attributes for ToolTip
+        let tipAttributes = 
+            match tip with
+            | Some tip -> ctx.FormatTip tip false formatToolTipSpans
+            | _ -> ""
 
-    // Get CSS class name of the token
-    let color = 
-        match kind with
-        | TokenKind.Comment       -> CSS.Comment       
-        | TokenKind.Default       -> CSS.Default       
-        | TokenKind.Identifier    -> CSS.Identifier    
-        | TokenKind.Inactive      -> CSS.Inactive      
-        | TokenKind.Keyword       -> CSS.Keyword       
-        | TokenKind.Number        -> CSS.Number        
-        | TokenKind.Operator      -> CSS.Operator      
-        | TokenKind.Preprocessor  -> CSS.Preprocessor  
-        | TokenKind.String        -> CSS.String        
-        | TokenKind.Module        -> CSS.Module        
-        | TokenKind.ReferenceType -> CSS.ReferenceType 
-        | TokenKind.ValueType     -> CSS.ValueType     
-        | TokenKind.Function      -> CSS.Function      
-        | TokenKind.Pattern       -> CSS.Pattern       
-        | TokenKind.MutableVar    -> CSS.MutableVar    
-        | TokenKind.Printf        -> CSS.Printf        
-        | TokenKind.Escaped       -> CSS.Escaped       
-        | TokenKind.Disposable    -> CSS.Disposable    
-        | TokenKind.TypeArgument  -> CSS.TypeArgument  
-        | TokenKind.Punctuation   -> CSS.Punctuation   
-        | TokenKind.Enumeration   -> CSS.Enumeration   
-        | TokenKind.Interface     -> CSS.Interface     
-        | TokenKind.Property      -> CSS.Property      
-        | TokenKind.UnionCase     -> CSS.UnionCase     
+        // Get CSS class name of the token
+        let color = 
+            match kind with
+            | TokenKind.Comment       -> CSS.Comment       
+            | TokenKind.Default       -> CSS.Default       
+            | TokenKind.Identifier    -> CSS.Identifier    
+            | TokenKind.Inactive      -> CSS.Inactive      
+            | TokenKind.Keyword       -> CSS.Keyword       
+            | TokenKind.Number        -> CSS.Number        
+            | TokenKind.Operator      -> CSS.Operator      
+            | TokenKind.Preprocessor  -> CSS.Preprocessor  
+            | TokenKind.String        -> CSS.String        
+            | TokenKind.Module        -> CSS.Module        
+            | TokenKind.ReferenceType -> CSS.ReferenceType 
+            | TokenKind.ValueType     -> CSS.ValueType     
+            | TokenKind.Function      -> CSS.Function      
+            | TokenKind.Pattern       -> CSS.Pattern       
+            | TokenKind.MutableVar    -> CSS.MutableVar    
+            | TokenKind.Printf        -> CSS.Printf        
+            | TokenKind.Escaped       -> CSS.Escaped       
+            | TokenKind.Disposable    -> CSS.Disposable    
+            | TokenKind.TypeArgument  -> CSS.TypeArgument  
+            | TokenKind.Punctuation   -> CSS.Punctuation   
+            | TokenKind.Enumeration   -> CSS.Enumeration   
+            | TokenKind.Interface     -> CSS.Interface     
+            | TokenKind.Property      -> CSS.Property      
+            | TokenKind.UnionCase     -> CSS.UnionCase     
 
-    if kind <> TokenKind.Default then
-        // Colorize token & add tool tip
-        ctx.Writer.Write("<span ")
-        ctx.Writer.Write(tipAttributes)
-        ctx.Writer.Write("class=\"" + color + "\">")
-        ctx.Writer.Write(HttpUtility.HtmlEncode(body))
-        ctx.Writer.Write("</span>")
-    else       
-        ctx.Writer.Write(HttpUtility.HtmlEncode(body)) )
+        if kind <> TokenKind.Default then
+            // Colorize token & add tool tip
+            ctx.Writer.Write "<span "
+            ctx.Writer.Write tipAttributes
+            ctx.Writer.Write ("class=\"" + color + "\">")
+            ctx.Writer.Write (HttpUtility.HtmlEncode body)
+            ctx.Writer.Write "</span>"
+        else       
+            ctx.Writer.Write (HttpUtility.HtmlEncode body)
+)
+
 
 /// Generate HTML with the specified snippets
-let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
- [| for (Snippet(title, lines)) in snippets do
-      // Skip empty lines at the beginning and at the end
-      let skipEmptyLines = Seq.skipWhile (fun (Line(spans)) -> List.isEmpty spans) >> List.ofSeq
-      let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
+let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) = [|
+    for (Snippet(title, lines)) in snippets do
+        // Skip empty lines at the beginning and at the end
+        let skipEmptyLines =
+            Seq.skipWhile (fun (Line spans) -> List.isEmpty spans) >> List.ofSeq
+        let lines =
+            lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
 
-      // Generate snippet to a local StringBuilder
-      let mainStr = StringBuilder()
-      let ctx = { ctx with Writer = new StringWriter(mainStr) }
+        // Generate snippet to a local StringBuilder
+        let mainStr = StringBuilder()
+        let ctx = { ctx with Writer = new StringWriter(mainStr) }
 
-      let numberLength = lines.Length.ToString().Length
-      let linesLength = lines.Length
-      let emitTag tag = 
-        if String.IsNullOrEmpty(tag) |> not then 
-          ctx.Writer.Write(tag)
+        let numberLength = lines.Length.ToString().Length
+        let linesLength = lines.Length
+        let emitTag tag = 
+            if String.IsNullOrEmpty tag |> not then 
+                ctx.Writer.Write tag
 
-      // If we're adding lines, then generate two column table 
-      // (so that the body can be easily copied)
-      if ctx.AddLines then
-        ctx.Writer.Write("<table class=\"pre\">")
-        ctx.Writer.Write("<tr>")
-        ctx.Writer.Write("<td class=\"lines\">")
+        // If we're adding lines, then generate two column table 
+        // (so that the body can be easily copied)
+        if ctx.AddLines then
+            ctx.Writer.Write "<table class=\"pre\">"
+            ctx.Writer.Write "<tr>"
+            ctx.Writer.Write "<td class=\"lines\">"
 
-        // Generate <pre> tag for the snippet
-        emitTag ctx.OpenLinesTag
-        // Print all line numbers of the snippet
-        for index in 0..linesLength-1 do
-          // Add line number to the beginning
-          let lineStr = (index + 1).ToString().PadLeft(numberLength)
-          ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+            // Generate <pre> tag for the snippet
+            emitTag ctx.OpenLinesTag
+            // Print all line numbers of the snippet
+            for index in 0..linesLength-1 do
+                // Add line number to the beginning
+                let lineStr = (index + 1).ToString().PadLeft(numberLength)
+                ctx.Writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
 
-        emitTag ctx.CloseLinesTag
-        ctx.Writer.WriteLine("</td>")
-        ctx.Writer.Write("<td class=\"snippet\">")
+            emitTag ctx.CloseLinesTag
+            ctx.Writer.WriteLine "</td>"
+            ctx.Writer.Write "<td class=\"snippet\">"
 
 
-      // Print all lines of the snippet inside <pre>..</pre>
-      emitTag ctx.OpenTag
-      lines |> List.iter (fun (Line spans) ->
-        formatTokenSpans ctx spans
-        ctx.Writer.WriteLine() )
-      emitTag ctx.CloseTag
+        // Print all lines of the snippet inside <pre>..</pre>
+        emitTag ctx.OpenTag
+        lines |> List.iter (fun (Line spans) ->
+            formatTokenSpans ctx spans
+            ctx.Writer.WriteLine() )
+        emitTag ctx.CloseTag
 
-      if ctx.AddLines then
-        // Close the table if we are adding lines
-        ctx.Writer.WriteLine("</td>")
-        ctx.Writer.WriteLine("</tr>")
-        ctx.Writer.Write("</table>")
+        if ctx.AddLines then
+            // Close the table if we are adding lines
+            ctx.Writer.WriteLine "</td>"
+            ctx.Writer.WriteLine "</tr>"
+            ctx.Writer.Write "</table>"
 
-      ctx.Writer.Close() 
-      yield title, mainStr.ToString() |]
+        ctx.Writer.Close() 
+        yield title, mainStr.ToString()
+|]
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
