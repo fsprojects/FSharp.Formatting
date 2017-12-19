@@ -1,72 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <BuildInParallel Condition="'$(BuildInParallel)' == '' ">false</BuildInParallel>
-    <ProjectGuid>{98624699-1B2F-4636-A3F7-EC72343CB2FD}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>crefLib4</RootNamespace>
-    <AssemblyName>crefLib4</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <DocumentationFile>$(SolutionDir)\tests\bin\crefLib4.xml</DocumentationFile>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <TargetFramework>net461</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <SolutionDir>..\..\..\..\</SolutionDir>
+     <OutputType>Library</OutputType>
+    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <ItemGroup>
+    <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="crefLib1.fsproj.paket.references" />
+    <None Remove="crefLib2.fsproj.paket.references" />
+    <None Remove="Library1.fs" />
+    <None Remove="Library2.fs" />
+    <None Remove="Properties\AssemblyInfo3.cs" />
+    <None Remove="Properties\AssemblyInfo4.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo4.cs" />
     <Compile Include="Class4.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="crefLib1.fsproj">
-      <Project>{a0c8dd00-bd08-48d6-b257-5a838e5da819}</Project>
-      <Name>crefLib1</Name>
-    </ProjectReference>
-    <ProjectReference Include="crefLib2.fsproj">
-      <Project>{55728b9d-1ede-4a40-b439-1eb0b3f77b72}</Project>
-      <Name>crefLib2</Name>
-    </ProjectReference>
-    <ProjectReference Include="crefLib3.csproj">
-      <Project>{08029b28-a5ea-42db-ab4e-9c6ba9ef9441}</Project>
-      <Name>crefLib3</Name>
-    </ProjectReference>
+    <ProjectReference Include="crefLib1.fsproj" />
+    <ProjectReference Include="crefLib2.fsproj" />
+    <ProjectReference Include="crefLib3.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

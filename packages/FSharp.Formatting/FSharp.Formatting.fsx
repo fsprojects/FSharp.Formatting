@@ -10,7 +10,7 @@ if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2
 #r "../System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
 
 // Standard NuGet locations
-//#I "../FSharp.Compiler.Service.13.0.0/lib/net45"
+//#I "../FSharp.Compiler.Service.17.0.1/lib/net45"
 
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/net45"
