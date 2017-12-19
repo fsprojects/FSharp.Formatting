@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# Markdown (LatexFormatting.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -43,18 +43,21 @@ let (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) =
     | _ -> None)
 
 /// Context passed around while formatting the LaTEX
-type FormattingContext =
-  { LineBreak : unit -> unit
+type LatexFormattingContext = {
+    LineBreak : unit -> unit
     Newline : string
     Writer : TextWriter
-    Links : IDictionary<string, string * option<string>> }
+    Links : IDictionary<string, string * option<string>>
+}
 
-let smallBreak (ctx:FormattingContext) () =
-  ctx.Writer.Write(ctx.Newline)
-let noBreak (ctx:FormattingContext) () = ()
+
+let smallBreak (ctx:LatexFormattingContext) () =
+    ctx.Writer.Write(ctx.Newline)
+
+let noBreak (ctx:LatexFormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
-let rec formatSpan (ctx:FormattingContext) = function 
+let rec formatSpan (ctx:LatexFormattingContext) = function 
   | LatexInlineMath(body, _) -> ctx.Writer.Write(sprintf "$%s$" body)
   | LatexDisplayMath(body, _) -> ctx.Writer.Write(sprintf "$$%s$$" body)
   | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
@@ -108,7 +111,7 @@ let rec formatSpan (ctx:FormattingContext) = function
 and formatSpans ctx = List.iter (formatSpan ctx)
 
 /// Write a MarkdownParagraph value to a TextWriter
-let rec formatParagraph (ctx:FormattingContext) paragraph =
+let rec formatParagraph (ctx:LatexFormattingContext) paragraph =
   match paragraph with
   | LatexBlock(lines, _) ->
     ctx.LineBreak(); ctx.LineBreak()

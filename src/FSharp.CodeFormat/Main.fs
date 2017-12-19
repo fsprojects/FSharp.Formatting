@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (Main.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -7,18 +7,18 @@ namespace FSharp.CodeFormat
 
 /// Represents an indivudal formatted snippet with title
 type FormattedSnippet(title:string, content:string) = 
-  /// Returns the title of the snippet (or 'Unnamed') if not given
-  member x.Title = title
-  /// Returns the formatted content code for the snipet
-  member x.Content = content
+    /// Returns the title of the snippet (or 'Unnamed') if not given
+    member x.Title = title
+    /// Returns the formatted content code for the snipet
+    member x.Content = content
 
 
 /// Represents formatted snippets 
 type FormattedContent(snippets:FormattedSnippet[], tips:string) = 
-  /// Returns the processed snippets as an array
-  member x.Snippets = snippets
-  /// Returns string with ToolTip elements for all the snippets
-  member x.ToolTip = tips
+    /// Returns the processed snippets as an array
+    member x.Snippets = snippets
+    /// Returns string with ToolTip elements for all the snippets
+    member x.ToolTip = tips
 
 
 /// Exposes functionality of the F# code formatter with a nice interface

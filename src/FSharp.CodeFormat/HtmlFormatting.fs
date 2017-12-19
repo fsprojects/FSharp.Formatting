@@ -107,12 +107,10 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         ctx.Writer.Write "</span>"  
     | Error (_, _, body) ->
         formatTokenSpans ctx body
-
     | Output body ->
         ctx.Writer.Write "<span class=\"fsi\">"
         ctx.Writer.Write (HttpUtility.HtmlEncode body)
         ctx.Writer.Write "</span>"
-
     | Omitted(body, hidden) ->
         let tip = ToolTipReader.formatMultilineString (hidden.Trim())
         let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
@@ -121,14 +119,12 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
         ctx.Writer.Write "class=\"omitted\">"
         ctx.Writer.Write body
         ctx.Writer.Write "</span>"
-      
     | Token (kind, body, tip) ->
         // Generate additional attributes for ToolTip
         let tipAttributes = 
             match tip with
             | Some tip -> ctx.FormatTip tip false formatToolTipSpans
             | _ -> ""
-
         // Get CSS class name of the token
         let color = 
             match kind with

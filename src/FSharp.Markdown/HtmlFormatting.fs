@@ -28,12 +28,13 @@ let htmlEncodeQuotes (code:string) =
 /// Lookup a specified key in a dictionary, possibly
 /// ignoring newlines or spaces in the key.
 let (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) = 
-  [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); 
-    key.Replace("\n", ""); key.Replace("\n", " ") ]
-  |> Seq.tryPick (fun key ->
-    match dict.TryGetValue(key) with
-    | true, v -> Some v 
-    | _ -> None)
+    [   key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); 
+        key.Replace("\n", ""); key.Replace("\n", " ")
+    ] |> Seq.tryPick (fun key ->
+        match dict.TryGetValue key with
+        | true, v -> Some v 
+        | _ -> None
+    )
 
 /// Generates a unique string out of given input
 type UniqueNameGenerator() =
@@ -49,7 +50,7 @@ type UniqueNameGenerator() =
             name
 
 /// Context passed around while formatting the HTML
-type FormattingContext = {
+type HtmlFormattingContext = {
     LineBreak : unit -> unit
     Newline : string
     Writer : TextWriter
@@ -60,16 +61,16 @@ type FormattingContext = {
     ParagraphIndent : unit -> unit
 }
 
-let bigBreak (ctx:FormattingContext) () =
+let bigBreak (ctx:HtmlFormattingContext) () =
     ctx.Writer.Write ctx.Newline
 
-let smallBreak (ctx:FormattingContext) () =
+let smallBreak (ctx:HtmlFormattingContext) () =
     ctx.Writer.Write ctx.Newline
 
-let noBreak (ctx:FormattingContext) () = ()
+let noBreak (ctx:HtmlFormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
-let rec formatSpan (ctx:FormattingContext) = function
+let rec formatSpan (ctx:HtmlFormattingContext) = function
   | LatexDisplayMath(body, _) ->
       // use mathjax grammar, for detail, check: http://www.mathjax.org/
       ctx.Writer.Write("<span class=\"math\">\\[" + (htmlEncode body) + "\\]</span>")
@@ -135,7 +136,7 @@ let rec formatSpan (ctx:FormattingContext) = function
 and formatSpans ctx = List.iter (formatSpan ctx)
 
 /// generate anchor name from Markdown text
-let formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
+let formatAnchor (ctx:HtmlFormattingContext) (spans:MarkdownSpans) =
     let extractWords (text:string) =
         Regex.Matches(text, @"\w+")
         |> Seq.cast<Match>
@@ -164,7 +165,7 @@ let withInner ctx f =
   f newCtx
   sb.ToString()
 /// Write a MarkdownParagraph value to a TextWriter
-let rec formatParagraph (ctx:FormattingContext) paragraph =
+let rec formatParagraph (ctx:HtmlFormattingContext) paragraph =
   match paragraph with
   | LatexBlock(lines, _) ->
     // use mathjax grammar, for detail, check: http://www.mathjax.org/
