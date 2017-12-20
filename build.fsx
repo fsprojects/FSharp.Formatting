@@ -505,6 +505,11 @@ Target.Create"GenerateDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
 
+Target.Create"GenerateLocalDocs" (fun _ ->
+    bootStrapDocumentationFiles ()
+    buildDocumentationTarget "--define:DEBUG --define:REFERENCE --define:HELP" "Default")
+
+
 Target.Create"WatchDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:WATCH" "Default")
@@ -622,6 +627,9 @@ open Fake.Core.TargetOperators
 "Build"
   ==> "DogFoodCommandTool"
   ==> "All"
+
+"Build"
+  ==> "GenerateLocalDocs"
 
 "UpdateFsxVersions" ==> "All"
 

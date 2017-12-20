@@ -121,6 +121,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
 	ProjectSection(SolutionItems) = preProject
 		.paket\paket.exe.config = .paket\paket.exe.config
+		.paket\Paket.Restore.targets = .paket\Paket.Restore.targets
 		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
 EndProject
