@@ -1,9 +1,10 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (SourceCode.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 namespace FSharp.CodeFormat
 
+open FSharp.CodeFormat.Constants
 // --------------------------------------------------------------------------------------
 // Abstract Syntax representation of formatted source code
 // --------------------------------------------------------------------------------------
@@ -44,6 +45,32 @@ type TokenKind =
     | Printf
     | Escaped
     | Default
+    /// Get the corresponding CSS class for the FCS token
+    member self.Color = self |> function
+        | TokenKind.Comment       -> CSS.Comment       
+        | TokenKind.Default       -> CSS.Default       
+        | TokenKind.Identifier    -> CSS.Identifier    
+        | TokenKind.Inactive      -> CSS.Inactive      
+        | TokenKind.Keyword       -> CSS.Keyword       
+        | TokenKind.Number        -> CSS.Number        
+        | TokenKind.Operator      -> CSS.Operator      
+        | TokenKind.Preprocessor  -> CSS.Preprocessor  
+        | TokenKind.String        -> CSS.String        
+        | TokenKind.Module        -> CSS.Module        
+        | TokenKind.ReferenceType -> CSS.ReferenceType 
+        | TokenKind.ValueType     -> CSS.ValueType     
+        | TokenKind.Function      -> CSS.Function      
+        | TokenKind.Pattern       -> CSS.Pattern       
+        | TokenKind.MutableVar    -> CSS.MutableVar    
+        | TokenKind.Printf        -> CSS.Printf        
+        | TokenKind.Escaped       -> CSS.Escaped       
+        | TokenKind.Disposable    -> CSS.Disposable    
+        | TokenKind.TypeArgument  -> CSS.TypeArgument  
+        | TokenKind.Punctuation   -> CSS.Punctuation   
+        | TokenKind.Enumeration   -> CSS.Enumeration   
+        | TokenKind.Interface     -> CSS.Interface     
+        | TokenKind.Property      -> CSS.Property      
+        | TokenKind.UnionCase     -> CSS.UnionCase    
 
 
 /// Represents a kind of error reported from the F# compiler (warning or error)

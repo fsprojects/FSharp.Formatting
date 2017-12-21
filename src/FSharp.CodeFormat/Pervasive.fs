@@ -1,10 +1,21 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module internal FSharp.CodeFormat.Pervasive
 
 open System
+open System.Text
 open System.Diagnostics
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
+
+type StringBuilder with
+    member self.Yield (_) = self
+    [<CustomOperation("append")>]
+    member __.append (sb:StringBuilder, str:string) = sb.Append str
+    [<CustomOperation("appendLine")>]
+    member __.appendLine (sb:StringBuilder, str:string) = sb.AppendLine str
+    [<CustomOperation("appendFormat")>]
+    member __.appendFormat (sb:StringBuilder, str:string, [<ParamArray>] args) = sb.AppendFormat(str,args)
+
 
 [<Sealed>]
 type AsyncMaybeBuilder () =
