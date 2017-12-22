@@ -32,11 +32,22 @@ type CssStyledConent = {
     member self.Render =
         let styleit (x:FormattedSnippet) =
             sprintf """
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+</head>
+
+<body>
+    
 <div>
 %s
 
 %s
 </div>
+</body>
+</html>
 """             self.StyleSheet x.Content
 
         self.Snippets |> Array.map styleit

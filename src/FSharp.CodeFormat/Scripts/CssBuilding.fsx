@@ -7,10 +7,14 @@ open Microsoft.FSharp.Compiler.SourceCodeServices
 
 let agent = CodeFormat.CreateAgent()
 
-let formatSrc (source: string) =
+let formatSrcCss (source: string) =
     let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
     CodeFormat.FormatCss(snips, "fstips")
     
+let formatSrcHtml (source: string) =
+    let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+    CodeFormat.FormatHtml(snips, "fstips")
+
 
 let checker = FSharpChecker.Create()
 
@@ -22,45 +26,64 @@ let evalSrc (source:string) =
        | Some (a,b) -> (a,b)
 
 let sample = """
-type Digraph<'n> when 'n : comparison =
-  Map<'n, Set<'n>>
+open System
+open System.Text
 
-module Digraph =
+type System.Text.StringBuilder with
+    member private self.Yield (_) = self
+    [<CustomOperation("append")>]
+    member __.append (sb:StringBuilder, str:string) = sb.Append str
+    [<CustomOperation("appendLine")>]
+    member __.appendLine (sb:StringBuilder, str:string) = sb.AppendLine str
+    [<CustomOperation("appendf")>]
+    member __.appendf (sb:StringBuilder, txt, x) =(sprintf txt x:string) |> sb.Append
+    [<CustomOperation("appendf2")>]
+    member __.appendf2 (sb:StringBuilder, txt, x, y) =(sprintf txt x y :string) |> sb.Append
+    [<CustomOperation("appendf3")>]
+    member __.appendf3 (sb:StringBuilder, txt, x, y, z) =(sprintf txt x y z :string) |> sb.Append
+    [<CustomOperation("appendFormat")>]
+    member __.appendFormat (sb:StringBuilder, str:string, [<ParamArray>] args) = sb.AppendFormat(str,args)
+    member private __.Run sb = string sb
 
-    let addNode (n: 'n) (g: Digraph<'n>) : Digraph<'n> =
-        match Map.tryFind n g with
-        | None -> Map.add n Set.empty g
-        | Some _ -> g
+module ContainerStore = 
+    let inline fn (x:'a list) (y:'b []) (z:'c seq) = 
+        (Seq.append x  (y :> obj [])) |> Seq.append (z :> obj seq)
 
-    let addEdge ((n1, n2): 'n * 'n) (g: Digraph<'n>) : Digraph<'n> =
-        let g' =
-          match Map.tryFind n2 g with
-          | None -> addNode n2 g
-          | Some _ -> g
-        match Map.tryFind n1 g with
-        | None -> Map.add n1 (Set.singleton n2) g'
-        | Some ns -> Map.add n1 (Set.add n2 ns) g'
+    let sb = StringBuilder()
 
-    let nodes (g: Digraph<'n>) =
-        Map.fold (fun xs k _ -> k::xs) [] g
+    let example = 
+        sb{ appendf2 "%s %s" "a" "b"
+            appendf3 "%s %i %M" "z" 20 5.M
+            appendf "%i" 100
+        } |> string 
+// customary
+type Enumeration =
+    | One = 1 | Two = 2 | Three = 3 
 
-    let roots (g: Digraph<'n>) : 'n list=
-        List.filter (fun n -> not (Map.exists (fun _ v -> Set.contains n v) g)) (nodes g)
+type Union = A | B | C
+// commentary
+[<Struct>]   
+type REKT = {
+    Uno : bool
+    Dos : float 
+}
+#if SOME_DEFINE
+#else 
+#endif 
 
-    let topSort (h: Digraph<'n>) =
-        let rec dfs (g: Digraph<'n>, order, rts) =
-          if List.isEmpty rts then
-            order
-          else
-            let n = List.head rts
-            let order' = n::order
-            let g' = Map.remove n g
-            let rts' = roots g'
-            dfs (g', order', rts')
-        dfs (h, [], roots h)
+[<Interface>]
+type Iffy = 
+    abstract member Zoom : float -> string -> int
+    abstract member File : string with get, set 
+
+let (|Lie|Cheat|) (a:bool) = if a then Lie else Cheat
+let (<|>) a b = a + b  
 """
 ;;
 
-evalSrc sample
+//evalSrc sample
+//;; formatSrcHtml sample
 ;;
-formatSrc sample
+formatSrcCss sample
+
+

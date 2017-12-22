@@ -77,45 +77,110 @@ let sourceStyle srcCssClass additionalCss =
 let tooltipPopup srcCssClass tipCssClass additionalCss =
     sprintf  """
 /* Tooltip text */
-.%s .%s {
+div .%s {
     visibility: hidden;
-    width: 200px;
-    background-color: black;
-    color: #fff;
+    width: 500px;
     text-align: left;
     padding: 10px 10px 10px 10px;
     white-space: pre-wrap;  
-    border-radius: 6px;
- 
+    background:#475b5f;
+    border-radius:4px;
+    font:11pt 'Droid Sans', arial, sans-serif;
+    color:#d1d1d1;
     /* Position the tooltip text */
     position: absolute;
     z-index: 1;
     %s
 }
-"""     srcCssClass tipCssClass additionalCss 
+"""     tipCssClass additionalCss 
 
 /// CSS that triggers when mouse over the token in source
 let tooltipHover srcCssClass tipCssClass additionalStyling =
     sprintf """
  /* Show the tooltip text when you mouse over the tooltip container */
-.%s:hover .%s {
+
+div.pre:hover .%s {
     visibility: visible;
     %s
 }
-"""     srcCssClass tipCssClass additionalStyling
-
+"""
+// #.%s:hover .%s {
+//      "div" tipCssClass additionalStyling
+        //srcCssClass tipCssClass additionalStyling
+        tipCssClass additionalStyling
 
 let styleSheet (inlined:bool) (style & {Source=srcCss;Tooltip=tipCss}:TooltipStyle) (additionalCss:string) =
     let srcStyle = sourceStyle srcCss ""
     let popup = tooltipPopup srcCss tipCss ""
     let hover = tooltipHover srcCss tipCss ""
-    let body = srcStyle + "\n" + popup + "\n" + hover + "\n" + additionalCss
+    let body = srcStyle + additionalCss + "\n" + popup + "\n" + hover + "\n" 
 
     if not inlined then body else
     sprintf "<style scoped>\n%s\n</style>" body
 
 
 let extraCss = """
+
+/* strings --- and stlyes for other string related formats */
+.s { color:#60815f; }
+/* printf formatters */
+.pf { color:#2367a9; }
+/* escaped chars */
+.e { color:#EA8675; }
+
+/* identifiers --- and styles for more specific identifier types */
+.id { color:#d1d1d1; }
+/* module */
+.m { color:#1156a0; }
+/* reference type */
+.rt { color:#6146cc; }
+/* value type */
+.vt { color:#d45f12; }
+/* interface */
+.if{ color:#ace695; }
+/* type argument */
+.ta { color:#a4e00e; }
+/* disposable */
+.d { color:#9b4f72; }
+/* property */
+.prop { color:#24532c; }
+/* punctuation */
+.pn { color:#b08e21; }
+/* function */
+.fn { color:#38d7b6; }
+/* active pattern */
+.pat { color:#4ec9b0; }
+/* union case */
+.uc { color:#28de48; }
+/* enumeration */
+.en { color:#236f2e; }
+/* keywords */
+.k { color:#20879f; }
+/* comment */
+.c { color:#49744d; }
+/* operators */
+.o { color:#be2424; }
+/* numbers */
+.n { color:#96C71D; }
+/* line number */
+.l { color:#80b0b0; }
+/* mutable var or ref cell */
+.mv { color:#bf44bd; font-weight: bold; }
+/* inactive code */
+.inactive { color:#808080; }
+/* preprocessor */
+.pp { color:#ed6805; }
+/* fsi output */
+.fsi { color:#808080; }
+
+/* omitted */
+.omitted {
+    background:#3c4e52;
+  border-radius:5px;
+    color:#808080;
+
+}
+
 table.pre, pre.fssnip, pre {
   line-height:13pt;
   border:1px solid #d8d8d8;
@@ -123,16 +188,14 @@ table.pre, pre.fssnip, pre {
   white-space:pre;
   font: 9pt 'Droid Sans Mono',consolas,monospace;
   width:90%;
-  margin:10px 20px 20px 20px;
-  background-color:#212d30;
+  margin:20px 20px 20px 20px;
+  background-color:#18353c;
   padding:10px;
   border-radius:5px;
   color:#d1d1d1;
   max-width: none;
 }
-pre.fssnip code {
-  font: 9pt 'Droid Sans Mono',consolas,monospace;
-}
+
 table.pre pre {
   padding:0px;
   margin:0px;
@@ -149,6 +212,12 @@ table.pre td.lines {
 }
 
 """
+
+(*
+pre.fssnip code {
+  font: 9pt 'Droid Sans Mono',consolas,monospace;
+}
+*)
 
 
 let defaultSheet = styleSheet true TooltipStyle.Default extraCss
@@ -181,16 +250,22 @@ let tokenAndTip token tokenCss (tipContent:TooltipContent) (tipStyle:TooltipStyl
     let summary = tipSummary tipStyle.Text tipContent.Summary
     let fullname = tipFullname tipStyle.Label tipContent.Fullname
     let tiptext = tipContent.Signature + summary + fullname
-    let tip = sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
+    let tip =
+        //if String.IsNullOrWhiteSpace tiptext then String.Empty else
+        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
     sprintf
         """<div class="%s %s">%s%s</div>""" tipStyle.Source tokenCss token tip 
+       // """<div class="%s">%s%s</div>"""  tokenCss token tip 
 
 
 let tokenAndTipJanky token tokenCss tiptext =
     let tipStyle = TooltipStyle.Default
-    let tip = sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
+    let tip =
+        //if String.IsNullOrWhiteSpace tiptext then String.Empty else
+        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
     sprintf
         """<div class="%s %s">%s%s</div>""" tipStyle.Source tokenCss token tip 
+       // """<div class="%s">%s%s</div>""" tokenCss token tip 
 
 
 /// Represents context used by the formatter
@@ -214,7 +289,9 @@ type CssToolTipFormatter (prefix) =
     /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
     member __.FormatTip (tip:ToolTipSpan list) overlapping formatFunction = 
         let tipStyle = TooltipStyle.Default
-        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip (formatFunction tip)
+        let text = formatFunction tip
+        //if String.IsNullOrWhiteSpace text then String.Empty else
+        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip text
 
 
 /// Format token spans such as tokens, omitted code etc.
@@ -250,7 +327,7 @@ let rec formatTokenSpans (ctx:CssFormattingContext) = List.iter (function
         } |> ignore
     | Token (kind, body, tip) ->
         // Generate additional attributes for ToolTip
-        let tipAttributes = 
+        let tooltipContent = 
             match tip with
             | Some tip -> ctx.FormatTip tip false formatToolTipSpans
             | _ -> ""
@@ -258,9 +335,7 @@ let rec formatTokenSpans (ctx:CssFormattingContext) = List.iter (function
         if kind <> TokenKind.Default then
             // Colorize token & add tool tip
             ctx.TextBuffer {
-                printfn "\n tip attributes - %s\n ^^^ for %s" tipAttributes body
-
-                append (tokenAndTipJanky (HttpUtility.HtmlEncode body) kind.Color tipAttributes)
+                append (tokenAndTipJanky (HttpUtility.HtmlEncode body) kind.Color tooltipContent)
                 //append "<span "
                 //append tipAttributes
                 //append ("class=\"" + kind.Color + "\">")
@@ -295,7 +370,8 @@ let formatSnippets (ctx:CssFormattingContext) (snippets:Snippet[]) = [|
         // (so that the body can be easily copied)
         if ctx.AddLines then
             ctx.TextBuffer {
-                append (sprintf "<table class=\"%s\">" "x")
+                append (sprintf "<table class=\"%s\">" "pre")
+                append "<tbody>"
                 append "<tr>"
                 append "<td class=\"lines\">"
             } |> ignore
@@ -306,12 +382,13 @@ let formatSnippets (ctx:CssFormattingContext) (snippets:Snippet[]) = [|
             for index in 0..linesLength-1 do
                 // Add line number to the beginning
                 let lineStr = (index + 1).ToString().PadLeft(numberLength)
-                ctx.TextBuffer.AppendFormat("<span class=\"l\">{0}: </span>", lineStr) |> ignore
+                ctx.TextBuffer.AppendFormat("<span class=\"l\">{0}: </span>\n", lineStr) |> ignore
 
             emitTag ctx.CloseLinesTag
             ctx.TextBuffer {
                 appendLine "</td>"
                 append "<td class=\"snippet\">"
+                //append "<td>"
             } |> ignore
 
         // Print all lines of the snippet inside <pre>..</pre>
@@ -327,6 +404,7 @@ let formatSnippets (ctx:CssFormattingContext) (snippets:Snippet[]) = [|
             ctx.TextBuffer {
                 appendLine "</td>"
                 appendLine "</tr>"
+                append "</tbody>"
                 append "</table>"
             } |> ignore
         yield title, mainStr.ToString()
@@ -356,83 +434,3 @@ let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag
     snippets, tipStr.ToString()
 
 
-
-
-
-
-// create root element to store custom css props
-// these props will be used for the 'content' prop in the classes
-let root (props:seq<string*string>) =
-    let props =
-        (StringBuilder(), props)
-        ||> Seq.fold(fun (sb:StringBuilder) (prop:string,value:string) ->
-            sb.Append("--").Append(prop).Append(": ").Append(value).AppendLine(";") 
-        )|> string
-    props |> sprintf"""
-:root {
-    %s
-}
-"""         
-
-
-let css = """
-@import url(https://fonts.googleapis.com/css?family=Roboto:100,400);
-
-*  {  margin:0; padding:0;}
-
-body     {  background:url(http://img.tapatalk.com/d/12/10/31/6yby7usy.jpg) center center;
-            }
-
-#container { background:url(https://lh3.ggpht.com/PQXITv6h0hTZLqlvlni7RSN2rE70QytYeNAtngBc3wKQuq8g5gH28EUDqYKgCPkWfQ=h900-rw) no-repeat;
-      background-size:500px 293px;
-      width:500px;
-      height:293px;
-      margin:25px auto;}
-
-.tooltip   {  width:16px;
-              height:16px;
-              border-radius:10px;
-              border:2px solid #fff;
-              position:absolute;
-              background:rgba(255,255,255,.5);}
-  
-
-.tooltip:hover
-           {  -webkit-animation-play-state: paused;}
-
-.tooltip:hover .info {visibility:visible;}
-  
-#first   {   margin: 200px 0 0 200px !important;}
-
-#second   {   margin:75px 0 0 52px !important;}
-
-#third   {   margin:158px 0 0 425px !important;}
-              
-.info     {   width:200px;
-              padding:10px;
-              background:rgba(255,255,255,1);
-              border-radius:3px;
-              position:absolute;
-              visibility:hidden;
-              margin:-105px 0 0 -100px;
-              box-shadow:0 0 50px 0 rgba(0,0,0,.5);}
-
-h3         {  font-family: 'Roboto', sans-serif;
-              font-weight:100;
-              font-size:20px;
-              margin:0 0 5px 0;}
-
-p           {  font-family: 'Roboto', sans-serif;
-                font-weight:400;
-  font-size:12px;}
-
-.arrow {
-  position:absolute;
-  margin:10px 0 0 88px;
-    width: 0; 
-    height: 0; 
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 10px solid #fff;
-}
-"""
