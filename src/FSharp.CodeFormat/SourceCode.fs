@@ -9,14 +9,62 @@ open FSharp.CodeFormat.Constants
 // Abstract Syntax representation of formatted source code
 // --------------------------------------------------------------------------------------
 
-/// A tool tip consists of a list of items reported from the compiler
-type ToolTipSpans = list<ToolTipSpan>
 
-/// A tool tip span can be emphasized text, plain text `Literal` or a line brak
-and ToolTipSpan =
-    | Emphasis of ToolTipSpans
-    | Literal of string
-    | HardLineBreak
+/// Stores a custom set of styling if the user wants to create
+/// tooltips and source code with a different appearance
+type SourceStyle = {
+    Comment       : string
+    Default       : string
+    Identifier    : string
+    Inactive      : string
+    Keyword       : string
+    Number        : string
+    Operator      : string
+    Preprocessor  : string
+    String        : string
+    Module        : string
+    ReferenceType : string
+    ValueType     : string
+    Function      : string
+    Pattern       : string
+    MutableVar    : string
+    Printf        : string
+    Escaped       : string
+    Disposable    : string
+    TypeArgument  : string
+    Punctuation   : string
+    Enumeration   : string
+    Interface     : string
+    Property      : string
+    UnionCase     : string
+} with
+    static member DefaultStyle = {
+        Comment       = CSS.Comment      
+        Default       = CSS.Default      
+        Identifier    = CSS.Identifier   
+        Inactive      = CSS.Inactive     
+        Keyword       = CSS.Keyword      
+        Number        = CSS.Number       
+        Operator      = CSS.Operator     
+        Preprocessor  = CSS.Preprocessor 
+        String        = CSS.String       
+        Module        = CSS.Module       
+        ReferenceType = CSS.ReferenceType
+        ValueType     = CSS.ValueType    
+        Function      = CSS.Function     
+        Pattern       = CSS.Pattern      
+        MutableVar    = CSS.MutableVar   
+        Printf        = CSS.Printf       
+        Escaped       = CSS.Escaped      
+        Disposable    = CSS.Disposable   
+        TypeArgument  = CSS.TypeArgument 
+        Punctuation   = CSS.Punctuation  
+        Enumeration   = CSS.Enumeration  
+        Interface     = CSS.Interface    
+        Property      = CSS.Property     
+        UnionCase     = CSS.UnionCase    
+    }
+
 
 /// Classifies tokens reported by the FCS
 [<RequireQualifiedAccess>]
@@ -73,34 +121,48 @@ type TokenKind =
         | TokenKind.UnionCase     -> CSS.UnionCase    
 
 
+/// A tool tip consists of a list of items reported from the compiler
+//type ToolTipSpans = list<ToolTipSpan>
+
+/// A tool tip span can be emphasized text, plain text `Literal` or a line break
+/// This is the text for the summary or signature
+and ToolTipSpan =
+    | Emphasis of spans:ToolTipSpan list
+    | Literal of text:string
+    | HardLineBreak
+
+
 /// Represents a kind of error reported from the F# compiler (warning or error)
 [<RequireQualifiedAccess>]
 type ErrorKind =
   | Error
   | Warning
 
+
 /// A token in a parsed F# code snippet. Aside from standard tokens reported from
 /// the compiler (`Token`), this also includes `Error` (wrapping the underlined
 /// tokens), `Omitted` for the special `[omit:...]` tags and `Output` for the special
 /// `[output:...]` tag
 type TokenSpan =
-  | Token of TokenKind * string * ToolTipSpans option
-  | Error of ErrorKind * string * TokenSpans
+  | Token of kind:TokenKind * body:string * tip:(ToolTipSpan list) option
+  //| Error of ErrorKind * string * TokenSpans
+  | Error of kind:ErrorKind * message:string * body:TokenSpan list  
   | Omitted of string * string
   | Output of string
 
 /// A type alias representing a list of `TokenSpan` values
-and TokenSpans = TokenSpan list
+// and TokenSpans = TokenSpan list
 
 /// Represents a line of source code as a list of `TokenSpan` values. This is
 /// a single case discriminated union with `Line` constructor.
-type Line = Line of TokenSpans
+//type Line = Line of TokenSpans
+type Line = Line of TokenSpan list
 
 /// An F# snippet consists of a snippet title and a list of lines
 /// (wrapped in a single case discriminated union with `Snippet` constructor)
-type Snippet = Snippet of string * Line list
+type Snippet = Snippet of title:string * Line list
 
 /// Error reported from the F# compiler consists of location (start and end),
 /// error kind and the message (wrapped in a single case discriminated union
 /// with constructor `SourceError`)
-type SourceError = SourceError of (int * int) * (int * int) * ErrorKind * string
+type SourceError = SourceError of errStart:(int * int) * errEnd:(int * int) * ErrorKind * errMessage:string

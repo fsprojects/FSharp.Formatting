@@ -12,15 +12,12 @@ open System.IO
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag
-//open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
-open FSharp.Formatting.Common
 //type Log = FSharp.Formatting.Common.Log
 // --------------------------------------------------------------------------------------
 // ?
@@ -36,7 +33,7 @@ type Range = {
 
 module CodeFormatAgent =
 
-    /// Mapping table that translates F# compiler representation to our union
+    /// Maps tokens found by the F# Syntax Parser to an FSharp.Formatting token
     let getTokenKind = function
     | FSharpTokenColorKind.Comment             -> TokenKind.Comment
     | FSharpTokenColorKind.Identifier          -> TokenKind.Identifier
@@ -50,6 +47,24 @@ module CodeFormatAgent =
     | FSharpTokenColorKind.UpperIdentifier     -> TokenKind.Identifier
     | FSharpTokenColorKind.Text
     | FSharpTokenColorKind.Default | _         -> TokenKind.Default
+
+    /// Maps tokens found by FCS after type checking to an FSharp.Formatting token
+    let categoryToTokenKind = function
+    | SemanticClassificationType.Enumeration           -> Some TokenKind.Enumeration
+    | SemanticClassificationType.Function              -> Some TokenKind.Function
+    | SemanticClassificationType.Interface             -> Some TokenKind.Interface
+    | SemanticClassificationType.Module                -> Some TokenKind.Module
+    | SemanticClassificationType.MutableVar            -> Some TokenKind.MutableVar
+    | SemanticClassificationType.Printf                -> Some TokenKind.Printf
+    | SemanticClassificationType.Property              -> Some TokenKind.Property
+    | SemanticClassificationType.ReferenceType         -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.UnionCase             -> Some TokenKind.UnionCase
+    | SemanticClassificationType.ValueType             -> Some TokenKind.ValueType
+    | SemanticClassificationType.Disposable            -> Some TokenKind.Disposable
+    | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
+    | SemanticClassificationType.TypeArgument          -> Some TokenKind.TypeArgument
+    | SemanticClassificationType.Operator              -> Some TokenKind.Operator
+    | SemanticClassificationType.IntrinsicFunction     -> Some TokenKind.Keyword
 
     // Parse command line options - split string by space, but if there is something
     // enclosed in double quotes "..." then ignore spaces in the quoted text
@@ -115,22 +130,7 @@ module CodeFormatAgent =
             sprintf "( %s )" <| body.Trim '`'
         else body
 
-    let categoryToTokenKind = function
-    | SemanticClassificationType.Enumeration -> Some TokenKind.Enumeration
-    | SemanticClassificationType.Function -> Some TokenKind.Function
-    | SemanticClassificationType.Interface -> Some TokenKind.Interface
-    | SemanticClassificationType.Module -> Some TokenKind.Module
-    | SemanticClassificationType.MutableVar -> Some TokenKind.MutableVar
-    | SemanticClassificationType.Printf -> Some TokenKind.Printf
-    | SemanticClassificationType.Property -> Some TokenKind.Property
-    | SemanticClassificationType.ReferenceType -> Some TokenKind.ReferenceType
-    | SemanticClassificationType.UnionCase -> Some TokenKind.UnionCase
-    | SemanticClassificationType.ValueType  -> Some TokenKind.ValueType
-    | SemanticClassificationType.Disposable -> Some TokenKind.Disposable
-    | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
-    | SemanticClassificationType.TypeArgument -> Some TokenKind.TypeArgument
-    | SemanticClassificationType.Operator -> Some TokenKind.Operator
-    | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword
+
 
     /// Processes a single line of the snippet
     let processSnippetLine  (checkResults: FSharpCheckFileResults)
@@ -460,14 +460,14 @@ type CodeFormatAgent () =
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member x.ParseSourceAsync(file, source, options, defines) =
-        x.AsyncParseSource(file, source, options, defines)
+    member x.ParseSourceAsync (file, source, options, defines) =
+        x.AsyncParseSource (file, source, options, defines)
         |> Async.StartAsTask
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.ParseSource(file, source, ?options, ?defines) =
+    member __.ParseSource (file, source, ?options, ?defines) =
         let res = agent.PostAndReply(fun chnl -> (fsChecker, file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res

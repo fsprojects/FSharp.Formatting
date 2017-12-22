@@ -18,7 +18,7 @@ open FSharp.CodeFormat.Constants
 // --------------------------------------------------------------------------------------
 
 /// Represents context used by the formatter
-type FormattingContext = { 
+type HtmlFormattingContext = { 
     AddLines       : bool
     GenerateErrors : bool
     TextBuffer     : StringBuilder
@@ -26,32 +26,32 @@ type FormattingContext = {
     CloseTag       : string
     OpenLinesTag   : string
     CloseLinesTag  : string
-    FormatTip      : ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string 
+    FormatTip      : ToolTipSpan list -> bool -> (ToolTipSpan list -> string) -> string 
 }
 
 
 /// Mutable type that formats tool tips and keeps the generated HTML
-type ToolTipFormatter (prefix) = 
-    let tips = new Dictionary<ToolTipSpans, int * string>()
+type HtmlToolTipFormatter (prefix) = 
+    let tips = new Dictionary<ToolTipSpan list, int * string>()
     let mutable count = 0
     let mutable uniqueId = 0
 
     /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
-    member __.FormatTip (tip:ToolTipSpans) overlapping formatFunction = 
+    member __.FormatTip (tip:ToolTipSpan list) overlapping formatFunction = 
         uniqueId <- uniqueId + 1
         let stringIndex =
             match tips.TryGetValue tip with
             | true, (idx, _) -> idx
             | _ -> 
             count <- count + 1
-            tips.Add(tip, (count, formatFunction tip))
+            tips.Add (tip, (count, formatFunction tip))
             count
         // stringIndex is the index of the tool tip
         // uniqueId is globally unique id of the occurrence
         if overlapping then
             // The <span> may contain other <span>, so we need to 
             // get the element and check where the mouse goes...
-            String.Format(   
+            String.Format (   
                 "id=\"{0}t{1}\" onmouseout=\"hideTip(event, '{0}{1}', {2})\" " + 
                 "onmouseover=\"showTip(event, '{0}{1}', {2}, document.getElementById('{0}t{1}'))\" ",
                 prefix, stringIndex, uniqueId 
@@ -66,7 +66,7 @@ type ToolTipFormatter (prefix) =
 
     /// Returns all generated tool tip elements
     member __.WriteTipElements (writer:StringBuilder) = 
-        for (KeyValue(_, (index, html))) in tips do
+        for (KeyValue (_, (index, html))) in tips do
             writer.AppendLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html) |> ignore
 
 
@@ -76,7 +76,7 @@ type ToolTipFormatter (prefix) =
 // --------------------------------------------------------------------------------------
 
 /// Formats tool tip information and returns a string
-let formatToolTipSpans spans = 
+let formatToolTipSpans (spans:ToolTipSpan list) = 
     let sb = StringBuilder ()
     use wr = new StringWriter(sb)
     // Inner recursive function that does the formatting
@@ -96,7 +96,7 @@ let formatToolTipSpans spans =
     sb.ToString ()
 
 /// Format token spans such as tokens, omitted code etc.
-let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
+let rec formatTokenSpans (ctx:HtmlFormattingContext) = List.iter (function
     | Error (_kind, message, body) when ctx.GenerateErrors ->
         let tip = ToolTipReader.formatMultilineString (message.Trim())
         let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
@@ -125,7 +125,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
             append "class=\"omitted\">"
             append body
             append "</span>"
-        }    |> ignore
+        } |> ignore
     | Token (kind, body, tip) ->
         // Generate additional attributes for ToolTip
         let tipAttributes = 
@@ -148,7 +148,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
 
 
 /// Generate HTML with the specified snippets
-let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) = [|
+let formatSnippets (ctx:HtmlFormattingContext) (snippets:Snippet[]) = [|
     for (Snippet(title, lines)) in snippets do
         // Skip empty lines at the beginning and at the end
         let skipEmptyLines =
@@ -210,7 +210,7 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) = [|
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
 let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag (snippets:Snippet[]) = 
-    let tipf = ToolTipFormatter prefix
+    let tipf = HtmlToolTipFormatter prefix
     let ctx =  { 
         AddLines       = addLines 
         GenerateErrors = addErrors
