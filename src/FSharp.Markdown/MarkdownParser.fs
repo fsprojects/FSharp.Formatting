@@ -34,7 +34,7 @@ let getLinkAndTitle (StringPosition.TrimBoth(input, n)) =
 let inline (|EscapedChar|_|) input =
   match input with
   | '\\'::( ( '*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']'
-            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) ::rest -> Some(c, rest)
+            | '(' | ')'  | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) ::rest -> Some(c, rest)
   | _ -> None
 
 /// Escape dollar inside a LaTex inline math span.

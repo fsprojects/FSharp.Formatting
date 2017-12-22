@@ -15,56 +15,64 @@ open System.IO
 open System.Xml
 open System.Xml.Linq
 
-type Comment =
-  { Blurb : string
+type Comment = {
+    Blurb : string
     FullText : string
-    Sections : list<KeyValuePair<string, string>> }
-  static member Empty =
-    { Blurb = ""; FullText = ""; Sections = [] }
-  static member Create(blurb, full, sects) =
-    { Blurb = blurb; FullText = full; Sections = sects }
+    Sections : list<KeyValuePair<string, string>>
+} with
+    static member Empty = {
+        Blurb = ""; FullText = ""; Sections = []
+    }
+    static member Create (blurb, full, sects) = {
+        Blurb = blurb; FullText = full; Sections = sects
+    }
 
-type MemberOrValue =
-  { Usage : int -> string
+type MemberOrValue = {
+    Usage : int -> string
     Modifiers : string list
     TypeArguments : string list
     Signature : string
     SourceLocation : string option
-    CompiledName : string option }
-  member x.FormatUsage(maxLength) = x.Usage(maxLength)
-  member x.FormatTypeArguments = String.concat ", " x.TypeArguments
-  member x.FormatModifiers = String.concat " " x.Modifiers
-  member x.FormatSourceLocation = defaultArg x.SourceLocation ""
-  member x.FormatCompiledName = defaultArg x.CompiledName ""
-  static member Create(usage, mods, typars, sign, location, compiledName) =
-    { Usage = usage; Modifiers = mods; TypeArguments = typars;
-      Signature = sign; SourceLocation = location; CompiledName = compiledName }
+    CompiledName : string option
+} with
+    member x.FormatUsage maxLength = x.Usage maxLength
+    member x.FormatTypeArguments = String.concat ", " x.TypeArguments
+    member x.FormatModifiers = String.concat " " x.Modifiers
+    member x.FormatSourceLocation = defaultArg x.SourceLocation ""
+    member x.FormatCompiledName = defaultArg x.CompiledName ""
+
+    static member Create(usage, mods, typars, sign, location, compiledName) = {
+        Usage = usage; Modifiers = mods; TypeArguments = typars;
+        Signature = sign; SourceLocation = location; CompiledName = compiledName
+    }
 
 type MemberKind =
-  // In a module
-  | ValueOrFunction = 0
-  | TypeExtension = 1
-  | ActivePattern = 2
+    // In a module
+    | ValueOrFunction = 0
+    | TypeExtension = 1
+    | ActivePattern = 2
 
-  // In a class
-  | Constructor = 3
-  | InstanceMember = 4
-  | StaticMember = 5
+    // In a class
+    | Constructor = 3
+    | InstanceMember = 4
+    | StaticMember = 5
 
-  // In a class, F# special members
-  | UnionCase = 100
-  | RecordField = 101
-  | StaticParameter = 102
+    // In a class, F# special members
+    | UnionCase = 100
+    | RecordField = 101
+    | StaticParameter = 102
 
-type Member =
-  { Name : string
+type Member = {
+    Name : string
     Category : string
     Kind : MemberKind
     Details : MemberOrValue
-    Comment : Comment }
-  static member Create(name, kind, cat, details, comment) =
-    { Member.Name = name; Kind = kind;
-      Category = cat; Details = details; Comment = comment }
+    Comment : Comment
+} with
+    static member Create(name, kind, cat, details, comment) = {
+        Member.Name = name; Kind = kind;
+        Category = cat; Details = details; Comment = comment
+    }
 
 type Type =
   { Name : string
@@ -95,6 +103,7 @@ type Type =
       InstanceMembers = inst
       StaticMembers = stat }
 
+
 type Module =
   { Name : string
     Category : string
@@ -116,6 +125,7 @@ type Module =
       NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
 
+
 type Namespace =
   { Name : string
     Modules : Module list
@@ -123,12 +133,14 @@ type Namespace =
   static member Create(name, mods, typs) =
     { Namespace.Name = name; Modules = mods; Types = typs }
 
+
 type AssemblyGroup =
   { Name : string
     Assemblies : AssemblyName list
     Namespaces : Namespace list }
   static member Create(name, asms, nss) =
     { AssemblyGroup.Name = name; Assemblies = asms; Namespaces = nss }
+
 
 type ModuleInfo =
   { Module : Module
@@ -1210,19 +1222,58 @@ type Html private() =
 ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
 ///
 type MetadataFormat =
-  /// This overload generates documentation for a single file specified by the `dllFile` parameter
+  /// <summary>
+  /// This overload generates documentation for a single file specified by the `dllFile` parameter 
+  /// </summary>
+  /// <param name="dllFile"></param>
+  /// <param name="parameters"></param>
+  /// <param name="xmlFile"></param>
+  /// <param name="sourceRepo"></param>
+  /// <param name="sourceFolder"></param>
+  /// <param name="publicOnly"></param>
+  /// <param name="libDirs"></param>
+  /// <param name="otherFlags"></param>
+  /// <param name="markDownComments"></param>
+  /// <param name="urlRangeHighlight"></param>
   static member Generate(dllFile : string, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     MetadataFormat.Generate
       ( Seq.singleton dllFile, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
 
-  /// generates documentation for multiple files specified by the `dllFiles` parameter
+  // generates documentation for multiple files specified by the `dllFiles` parameter
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <param name="dllFiles"></param>
+  /// <param name="parameters"></param>
+  /// <param name="xmlFile"></param>
+  /// <param name="sourceRepo"></param>
+  /// <param name="sourceFolder"></param>
+  /// <param name="publicOnly"></param>
+  /// <param name="libDirs"></param>
+  /// <param name="otherFlags"></param>
+  /// <param name="markDownComments"></param>
+  /// <param name="urlRangeHighlight"></param>
   static member Generate(dllFiles : string list, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     MetadataFormat.Generate
       ( (dllFiles :> _ seq), ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
 
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
+  //
+  /// <summary>
+  /// 
+  /// </summary>
+  /// <param name="dllFiles"></param>
+  /// <param name="parameters"></param>
+  /// <param name="xmlFile"></param>
+  /// <param name="sourceRepo"></param>
+  /// <param name="sourceFolder"></param>
+  /// <param name="publicOnly"></param>
+  /// <param name="libDirs"></param>
+  /// <param name="otherFlags"></param>
+  /// <param name="markDownComments"></param>
+  /// <param name="urlRangeHighlight"></param>
   static member Generate(dllFiles : string seq, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []

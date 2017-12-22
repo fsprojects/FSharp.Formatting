@@ -36,7 +36,7 @@
     <Compile Include="CodeFormatAgent.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="CodeFormat.fs" />
     <!--<Content Include="app.config" />-->
   </ItemGroup>
   <ItemGroup>

@@ -68,12 +68,12 @@ layoutRootsAll.Add("en",[ templates; formatting @@ "templates"
                           formatting @@ "templates/reference" ])
 subDirectories (directoryInfo templates)
 |> Seq.iter (fun d ->
-                let name = d.Name
-                if name.Length = 2 || name.Length = 3 then
-                    layoutRootsAll.Add(
-                            name, [templates @@ name
-                                   formatting @@ "templates"
-                                   formatting @@ "templates/reference" ]))
+    let name = d.Name
+    if name.Length = 2 || name.Length = 3 then
+        layoutRootsAll.Add(
+            name, [ templates @@ name
+                    formatting @@ "templates"
+                    formatting @@ "templates/reference" ]))
 
 //let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
 
@@ -146,17 +146,17 @@ let watch () =
           if queue.IsEmpty then
             do! Async.Sleep 1000
           else
-            let data = ref []
-            let hasData = ref true
-            while !hasData do
+            let mutable data = []
+            let mutable hasData = true
+            while hasData do
               match queue.TryDequeue() with
               | true, d ->
-                data := d :: !data
+                data <- d::data
               | _ ->
-                hasData := false
+                hasData <- false
 
-            printfn "Detected changes (%A). Invalidate cache and rebuild." !data
-            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
+            printfn "Detected changes (%A). Invalidate cache and rebuild." data
+            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (data |> Seq.map (fun change -> change.FullPath))
             rebuildDocs()
             printfn "Documentation generation finished."
         with e ->

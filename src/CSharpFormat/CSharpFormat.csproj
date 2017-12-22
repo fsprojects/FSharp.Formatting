@@ -10,6 +10,7 @@
     <!-- <OutputPath>bin\$(Configuration)\</OutputPath> -->
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>..\..\bin\</OutputPath>
+    <NoWarn>CS1591;CS0067;CS1574</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,7 +2,11 @@
 // F# CodeFormat (CommentProcessing.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
+#if INTERACTIVE
+module FSharp.CodeFormat.CommentFilter
+#else
 module private FSharp.CodeFormat.CommentFilter
+#endif
 
 open System
 open System.IO
