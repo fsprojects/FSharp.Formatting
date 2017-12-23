@@ -20,29 +20,12 @@
 module internal FSharp.CodeFormat.Css
 #endif
 open System
-open System.IO
 open System.Web
 open System.Text
-open System.Collections.Generic
 open FSharp.CodeFormat
-open FSharp.CodeFormat.Constants
 open FSharp.CodeFormat.Html
 
 
-
-(*
-    - keeps track of css class names that are already being used
-    - stores doccoms reformated for css strings
-    - can replace the default tooltip style
-    - 
-*)
-
-(*
-<div class="hasTip">Hover over me
-  <span class="tooltiptext">Tooltip text</span>
-</div> 
-
-*)
 
 /// Stores the Css classes used to construct the
 /// style sheet and tooltips
@@ -58,7 +41,6 @@ type TooltipStyle = {
         Source = "pre"
         Text = "txt"
     }
-
 
 
 let sourceStyle srcCssClass additionalCss =
@@ -78,42 +60,40 @@ let tooltipPopup srcCssClass tipCssClass additionalCss =
     sprintf  """
 /* Tooltip text */
 div .%s {
-    visibility: hidden;
-    width: 500px;
+    display: none;
+    width: fit-content;
     text-align: left;
     padding: 10px 10px 10px 10px;
-    white-space: pre-wrap;  
     background:#475b5f;
     border-radius:4px;
     font:11pt 'Droid Sans', arial, sans-serif;
     color:#d1d1d1;
     /* Position the tooltip text */
     position: absolute;
-    z-index: 1;
+    z-index: 10;
     %s
 }
 """     tipCssClass additionalCss 
+
 
 /// CSS that triggers when mouse over the token in source
 let tooltipHover srcCssClass tipCssClass additionalStyling =
     sprintf """
  /* Show the tooltip text when you mouse over the tooltip container */
 
-div.pre:hover .%s {
+span.pre:hover .%s {
+    display: inline-block;
     visibility: visible;
     %s
 }
 """
-// #.%s:hover .%s {
-//      "div" tipCssClass additionalStyling
-        //srcCssClass tipCssClass additionalStyling
         tipCssClass additionalStyling
 
 let styleSheet (inlined:bool) (style & {Source=srcCss;Tooltip=tipCss}:TooltipStyle) (additionalCss:string) =
     let srcStyle = sourceStyle srcCss ""
     let popup = tooltipPopup srcCss tipCss ""
     let hover = tooltipHover srcCss tipCss ""
-    let body = srcStyle + additionalCss + "\n" + popup + "\n" + hover + "\n" 
+    let body = additionalCss +  srcStyle + "\n" + popup + "\n" + hover + "\n" 
 
     if not inlined then body else
     sprintf "<style scoped>\n%s\n</style>" body
@@ -187,8 +167,8 @@ table.pre, pre.fssnip, pre {
   border-collapse:separate;
   white-space:pre;
   font: 9pt 'Droid Sans Mono',consolas,monospace;
-  width:90%;
-  margin:20px 20px 20px 20px;
+  width:fit-content;
+  margin:10px 20px 20px 20px;
   background-color:#18353c;
   padding:10px;
   border-radius:5px;
@@ -211,14 +191,12 @@ table.pre td.lines {
   width:30px;
 }
 
-"""
-
-(*
-pre.fssnip code {
+pre.fssnip {
   font: 9pt 'Droid Sans Mono',consolas,monospace;
+  padding-left: 20px;
 }
-*)
 
+"""
 
 let defaultSheet = styleSheet true TooltipStyle.Default extraCss
 
@@ -251,21 +229,18 @@ let tokenAndTip token tokenCss (tipContent:TooltipContent) (tipStyle:TooltipStyl
     let fullname = tipFullname tipStyle.Label tipContent.Fullname
     let tiptext = tipContent.Signature + summary + fullname
     let tip =
-        //if String.IsNullOrWhiteSpace tiptext then String.Empty else
         sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
     sprintf
         """<div class="%s %s">%s%s</div>""" tipStyle.Source tokenCss token tip 
-       // """<div class="%s">%s%s</div>"""  tokenCss token tip 
 
 
 let tokenAndTipJanky token tokenCss tiptext =
     let tipStyle = TooltipStyle.Default
     let tip =
-        //if String.IsNullOrWhiteSpace tiptext then String.Empty else
+        if String.IsNullOrWhiteSpace tiptext then String.Empty else
         sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
     sprintf
-        """<div class="%s %s">%s%s</div>""" tipStyle.Source tokenCss token tip 
-       // """<div class="%s">%s%s</div>""" tokenCss token tip 
+        """<span class="%s %s">%s%s</span>""" tipStyle.Source tokenCss token tip 
 
 
 /// Represents context used by the formatter
@@ -288,11 +263,9 @@ type CssToolTipFormatter (prefix) =
 
     /// Formats tip and returns assignments for 'onmouseover' and 'onmouseout'
     member __.FormatTip (tip:ToolTipSpan list) overlapping formatFunction = 
-        let tipStyle = TooltipStyle.Default
         let text = formatFunction tip
-        //if String.IsNullOrWhiteSpace text then String.Empty else
-        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip text
-
+        if String.IsNullOrWhiteSpace text then String.Empty else
+        text
 
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx:CssFormattingContext) = List.iter (function
@@ -430,7 +403,6 @@ let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag
     let snippets = formatSnippets ctx snippets
     // Generate HTML with ToolTip tags
     let tipStr = StringBuilder()
-    //tipf.WriteTipElements( tipStr )
     snippets, tipStr.ToString()
 
 

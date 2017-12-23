@@ -1,15 +1,21 @@
 #r @"..\..\..\bin\FSharp.Compiler.Service.dll"
 #r @"..\..\..\bin\FSharp.CodeFormat.dll"
+#r "System.Windows.Forms"
 
+System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
 
+open System
 open FSharp.CodeFormat
 open Microsoft.FSharp.Compiler.SourceCodeServices
+
+
+
 
 let agent = CodeFormat.CreateAgent()
 
 let formatSrcCss (source: string) =
     let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
-    CodeFormat.FormatCss(snips, "fstips")
+    CodeFormat.FormatCss(snips, "fstips") |> String.Concat
     
 let formatSrcHtml (source: string) =
     let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
@@ -83,7 +89,49 @@ let (<|>) a b = a + b
 
 //evalSrc sample
 //;; formatSrcHtml sample
+
+let fscode = formatSrcCss sample
 ;;
-formatSrcCss sample
+//open System.Windows.Forms
+//open System.Drawing
+
+//// -- Setup Windows form with browser to test rendering HTML 
+
+//let form        = new Form (Visible=true, Text="FsFormatting Viewer")
+//let browser     = new WebBrowser ()
+//let textpane    = new RichTextBox ()
+//let splitSide   = new SplitContainer ()
+
+//form.Size           <- Size (1200, 800)
+//textpane.Font       <- new Font ("Consolas", 9.f)
+//textpane.WordWrap   <- false
+
+//browser.Dock    <- DockStyle.Fill
+//textpane.Dock   <- DockStyle.Fill
+//splitSide.Dock  <- DockStyle.Fill
+//form.Dock       <- DockStyle.Fill
+//browser.Refresh()
+
+//browser.DocumentText <- fscode
+//textpane.Text        <- fscode
 
 
+//textpane.TextChanged.Add (fun _ ->
+//    browser.Refresh()
+//    browser.DocumentText <- textpane.Text
+//)
+
+//splitSide.Panel1.Controls.Add browser
+//splitSide.Panel2.Controls.Add textpane
+
+//form.Controls.Add splitSide
+//form.Show ()
+//;;
+fscode;;
+open System.IO
+
+let destination = Path.GetFullPath @"..\..\..\testoutput\sample.html"
+printfn "Writing generated page to - %s\n" destination
+
+File.WriteAllText( destination,fscode)
+;;
