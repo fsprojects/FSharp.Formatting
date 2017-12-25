@@ -7,6 +7,7 @@ open System.Diagnostics
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.SourceCodeServices
 
+
 type StringBuilder with
     member self.Yield (_) = self
 
@@ -18,6 +19,14 @@ type StringBuilder with
 
     [<CustomOperation("appendFormat")>]
     member __.appendFormat (sb:StringBuilder, str:string, [<ParamArray>] args) = sb.AppendFormat(str,args)
+
+
+open FSharp.Reflection
+
+type FSharp.Reflection.FSharpType with
+    static member GetRecordFields<'T>() = FSharpType.GetRecordFields(typeof<'T>)
+
+    
 
 
 

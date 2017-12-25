@@ -29,6 +29,10 @@ module CSS =
     let [<Literal>] UnionCase     = "uc"
     let [<Literal>] LineNumber    = "l"
     let [<Literal>] FsiOutput     = "fsi"
+    let [<Literal>] Omitted       = "omitted"
+    let [<Literal>] Snippet       = "fssnip"
+    let [<Literal>] Tooltip       = "ttip"
+    let [<Literal>] Source        = "pre"
 
 
 [<RequireQualifiedAccessAttribute>]
@@ -36,10 +40,10 @@ module Colors =
 
     let [<Literal>] Comment       = "#49744d"
     let [<Literal>] Default       = "#E0C57F"
-    let [<Literal>] Identifier    = "#EA8675"
+    let [<Literal>] Identifier    = "#D8D6D5"
     let [<Literal>] Inactive      = "#d1d1d1"
     let [<Literal>] Keyword       = "#20879f"
-    let [<Literal>] Number        = "#43AEC6"
+    let [<Literal>] Number        = "#96C71D"
     let [<Literal>] Operator      = "#be2424"
     let [<Literal>] Preprocessor  = "#ed6805"
     let [<Literal>] String        = "#60815f"
@@ -60,3 +64,6 @@ module Colors =
     let [<Literal>] UnionCase     = "#28de48"
     let [<Literal>] LineNumber    = "#80b0b0"
     let [<Literal>] FsiOutput     = "#808080"
+    let [<Literal>] Omitted       = "#808080"
+
+

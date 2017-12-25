@@ -37,6 +37,9 @@ type SourceStyle = {
     Interface     : string
     Property      : string
     UnionCase     : string
+    LineNumber    : string
+    FsiOutput     : string
+    Omitted       : string
 } with
     static member DefaultStyle = {
         Comment       = CSS.Comment      
@@ -62,7 +65,10 @@ type SourceStyle = {
         Enumeration   = CSS.Enumeration  
         Interface     = CSS.Interface    
         Property      = CSS.Property     
-        UnionCase     = CSS.UnionCase    
+        UnionCase     = CSS.UnionCase
+        LineNumber    = CSS.LineNumber  
+        FsiOutput     = CSS.FsiOutput   
+        Omitted       = CSS.Omitted     
     }
 
 
@@ -156,11 +162,11 @@ type TokenSpan =
 /// Represents a line of source code as a list of `TokenSpan` values. This is
 /// a single case discriminated union with `Line` constructor.
 //type Line = Line of TokenSpans
-type Line = Line of TokenSpan list
+type Line = Line of tokens:TokenSpan list
 
 /// An F# snippet consists of a snippet title and a list of lines
 /// (wrapped in a single case discriminated union with `Snippet` constructor)
-type Snippet = Snippet of title:string * Line list
+type Snippet = Snippet of title:string * sourceLines:Line list
 
 /// Error reported from the F# compiler consists of location (start and end),
 /// error kind and the message (wrapped in a single case discriminated union

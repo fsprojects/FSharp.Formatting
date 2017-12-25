@@ -39,6 +39,7 @@
     <Compile Include="ToolTipReader.fs" />
     <Compile Include="CodeFormatAgent.fs" />
     <Compile Include="HtmlFormatting.fs" />
+    <Compile Include="CssGenerators.fs" />
     <Compile Include="CssFormatting.fs" />   
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="CodeFormat.fs" />

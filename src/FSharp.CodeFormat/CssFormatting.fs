@@ -17,30 +17,20 @@
 #load "HtmlFormatting.fs"
 
 #else
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal FSharp.CodeFormat.Css
 #endif
+
 open System
 open System.Web
 open System.Text
 open FSharp.CodeFormat
+open FSharp.CodeFormat.Css
 open FSharp.CodeFormat.Html
 
 
 
-/// Stores the Css classes used to construct the
-/// style sheet and tooltips
-type TooltipStyle = {
-    Tooltip : string
-    Label : string
-    Source : string
-    Text : string
-} with
-    static member Default = {
-        Tooltip = "ttip"
-        Label = "label"
-        Source = "pre"
-        Text = "txt"
-    }
+
 
 
 let sourceStyle srcCssClass additionalCss =
@@ -89,7 +79,7 @@ span.pre:hover .%s {
 """
         tipCssClass additionalStyling
 
-let styleSheet (inlined:bool) (style & {Source=srcCss;Tooltip=tipCss}:TooltipStyle) (additionalCss:string) =
+let styleSheet (inlined:bool) (style & {Source=srcCss;Tooltip=tipCss}:SourceCodeProperties) (additionalCss:string) =
     let srcStyle = sourceStyle srcCss ""
     let popup = tooltipPopup srcCss tipCss ""
     let hover = tooltipHover srcCss tipCss ""
@@ -99,66 +89,13 @@ let styleSheet (inlined:bool) (style & {Source=srcCss;Tooltip=tipCss}:TooltipSty
     sprintf "<style scoped>\n%s\n</style>" body
 
 
-let extraCss = """
-
-/* strings --- and stlyes for other string related formats */
-.s { color:#60815f; }
-/* printf formatters */
-.pf { color:#2367a9; }
-/* escaped chars */
-.e { color:#EA8675; }
-
-/* identifiers --- and styles for more specific identifier types */
-.id { color:#d1d1d1; }
-/* module */
-.m { color:#1156a0; }
-/* reference type */
-.rt { color:#6146cc; }
-/* value type */
-.vt { color:#d45f12; }
-/* interface */
-.if{ color:#ace695; }
-/* type argument */
-.ta { color:#a4e00e; }
-/* disposable */
-.d { color:#9b4f72; }
-/* property */
-.prop { color:#24532c; }
-/* punctuation */
-.pn { color:#b08e21; }
-/* function */
-.fn { color:#38d7b6; }
-/* active pattern */
-.pat { color:#4ec9b0; }
-/* union case */
-.uc { color:#28de48; }
-/* enumeration */
-.en { color:#236f2e; }
-/* keywords */
-.k { color:#20879f; }
-/* comment */
-.c { color:#49744d; }
-/* operators */
-.o { color:#be2424; }
-/* numbers */
-.n { color:#96C71D; }
-/* line number */
-.l { color:#80b0b0; }
-/* mutable var or ref cell */
-.mv { color:#bf44bd; font-weight: bold; }
-/* inactive code */
-.inactive { color:#808080; }
-/* preprocessor */
-.pp { color:#ed6805; }
-/* fsi output */
-.fsi { color:#808080; }
-
+let extraCss =
+    (Generators.cssColors SourceCodeColors.DefaultStyle) + """
 /* omitted */
 .omitted {
-    background:#3c4e52;
-  border-radius:5px;
-    color:#808080;
-
+  background: #3c4e52;
+  border-radius: 5px;
+  color: #808080;
 }
 
 table.pre, pre.fssnip, pre {
@@ -198,13 +135,13 @@ pre.fssnip {
 
 """
 
-let defaultSheet = styleSheet true TooltipStyle.Default extraCss
+let defaultSheet = styleSheet true SourceCodeProperties.Default extraCss
 
 type TooltipContent = {
     Signature : string
-    Summary : string
-    Fullname : string
-    Assembly : string
+    Summary   : string
+    Fullname  : string
+    Assembly  : string
 }
 
 
@@ -224,18 +161,18 @@ let tipParam cssClass labelCss name description =
                 cssClass labelCss name description
 
 
-let tokenAndTip token tokenCss (tipContent:TooltipContent) (tipStyle:TooltipStyle) =
-    let summary = tipSummary tipStyle.Text tipContent.Summary
-    let fullname = tipFullname tipStyle.Label tipContent.Fullname
-    let tiptext = tipContent.Signature + summary + fullname
-    let tip =
-        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
-    sprintf
-        """<div class="%s %s">%s%s</div>""" tipStyle.Source tokenCss token tip 
+//let tokenAndTip token tokenCss (tipContent:TooltipContent) (tipStyle:SourceCodeStyle) =
+//    let summary = tipSummary tipStyle.Text tipContent.Summary
+//    let fullname = tipFullname tipStyle.Label tipContent.Fullname
+//    let tiptext = tipContent.Signature + summary + fullname
+//    let tip =
+//        sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip.CssClass tiptext
+//    sprintf
+//        """<div class="%s %s">%s%s</div>""" tipStyle.Source.CssClass tokenCss token tip 
 
 
 let tokenAndTipJanky token tokenCss tiptext =
-    let tipStyle = TooltipStyle.Default
+    let tipStyle = SourceCodeProperties.Default
     let tip =
         if String.IsNullOrWhiteSpace tiptext then String.Empty else
         sprintf  """<div class="%s">%s</div>""" tipStyle.Tooltip tiptext
@@ -245,7 +182,7 @@ let tokenAndTipJanky token tokenCss tiptext =
 
 /// Represents context used by the formatter
 type CssFormattingContext = {
-    Style          : TooltipStyle
+    Style          : SourceCodeColors
     TextBuffer     : StringBuilder
     InlineCss      : bool
     AddLines       : bool
@@ -389,7 +326,7 @@ let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag
     let tipf = CssToolTipFormatter prefix
     let ctx =  {
         InlineCss      = false
-        Style          = TooltipStyle.Default
+        Style          = SourceCodeColors.DefaultStyle
         AddLines       = addLines 
         GenerateErrors = addErrors
         TextBuffer     = StringBuilder()
