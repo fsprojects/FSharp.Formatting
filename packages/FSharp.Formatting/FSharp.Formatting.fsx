@@ -7,8 +7,6 @@
 if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2) then
   failwith "Wrong System.Web.Razor Version loaded!"
 
-#r "../System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
-
 // Standard NuGet locations
 //#I "../FSharp.Compiler.Service.17.0.1/lib/net45"
 
