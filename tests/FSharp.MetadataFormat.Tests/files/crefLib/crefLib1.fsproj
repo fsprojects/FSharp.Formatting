@@ -8,7 +8,6 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -21,7 +20,6 @@
     <None Include="crefLib1.fsproj.paket.references" />
     <Compile Include="Library1.fs" />
   </ItemGroup>
-  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -1295,4 +1293,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

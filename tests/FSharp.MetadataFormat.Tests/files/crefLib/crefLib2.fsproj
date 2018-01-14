@@ -1,21 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\..\..\</SolutionDir>
-     <OutputType>Library</OutputType>
+    <OutputType>Library</OutputType>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="crefLib2.fsproj.paket.references" />
     <Compile Include="Library2.fs" />
@@ -23,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="crefLib1.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -1297,4 +1295,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

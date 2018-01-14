@@ -7,22 +7,19 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
     <Content Include="app.config" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  
   <ItemGroup>
     <ProjectReference Include="$(SolutionDir)\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="$(SolutionDir)\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
@@ -31,7 +28,6 @@
     <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
     <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7')">
       <ItemGroup>
@@ -1836,4 +1832,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

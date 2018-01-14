@@ -6,7 +6,7 @@
     <!--<DefineConstants>NETSTANDARD1_5</DefineConstants>-->
     <DefineConstants>$(DefineConstants);YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SolutionDir>..\..\</SolutionDir>
     <!--<OutputPath>$(SolutionDir)\bin\$(Configuration)\</OutputPath>-->
     <OutputPath>$(SolutionDir)\bin</OutputPath>
@@ -30,7 +30,6 @@
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7')">
       <ItemGroup>
@@ -1714,4 +1713,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -30,80 +30,78 @@
     <DefineConstants>TRACE;FSFCLI</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-  <PropertyGroup>
-    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.1\Framework\v4.0\Microsoft.FSharp.Targets')">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.1\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <When Condition="'$(VisualStudioVersion)' != '11.0' and Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.0\Framework\v4.0\Microsoft.FSharp.Targets')">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets')">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-  </Choose>
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+    <PropertyGroup>
+      <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">14.0</VisualStudioVersion>
+      <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
+    </PropertyGroup>
+    <Choose>
+      <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.1\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <PropertyGroup>
+          <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.1\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+        </PropertyGroup>
+      </When>
+      <When Condition="'$(VisualStudioVersion)' != '11.0' and Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+        <PropertyGroup>
+          <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+        </PropertyGroup>
+      </When>
+      <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <PropertyGroup>
+          <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\4.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+        </PropertyGroup>
+      </When>
+      <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <PropertyGroup>
+          <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+        </PropertyGroup>
+      </When>
+      <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')">
+        <PropertyGroup>
+          <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+        </PropertyGroup>
+      </When>
+    </Choose>
+    <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(SolutionDir)\.paket\paket.targets" />
-  <ItemGroup>
-    <Content Include="app.config" />
-    <None Include="paket.references" />
-    <Compile Include="..\Common\AssemblyInfo.fs">
-      <Link>Common\AssemblyInfo.fs</Link>
-    </Compile>
-    <Compile Include="..\Common\StringParsing.fs">
-      <Link>Common\StringParsing.fs</Link>
-    </Compile>
-    <Compile Include="IExecutable.fs" />
-    <Compile Include="Options.fs" />
-    <Compile Include="OptionsMetadataFormat.fs" />
-    <Compile Include="OptionsLiterate.fs" />
-    <Compile Include="Exec.fs" />
-    <Compile Include="Program.fs" />
-    <Content Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
-  </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+    <ItemGroup>
+      <Content Include="app.config" />
+      <None Include="paket.references" />
+      <Compile Include="..\Common\AssemblyInfo.fs">
+        <Link>Common\AssemblyInfo.fs</Link>
+      </Compile>
+      <Compile Include="..\Common\StringParsing.fs">
+        <Link>Common\StringParsing.fs</Link>
+      </Compile>
+      <Compile Include="IExecutable.fs" />
+      <Compile Include="Options.fs" />
+      <Compile Include="OptionsMetadataFormat.fs" />
+      <Compile Include="OptionsLiterate.fs" />
+      <Compile Include="Exec.fs" />
+      <Compile Include="Program.fs" />
+      <Content Include="app.config" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="mscorlib" />
+      <Reference Include="System" />
+      <Reference Include="System.Core" />
+      <Reference Include="System.Numerics" />
+      <Reference Include="System.Xml.Linq" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
+      <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+      <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+      <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+      <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
+      <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
+      <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    </ItemGroup>
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj">
       <Name>FSharp.CodeFormat</Name>
       <Project>{341ebf32-d470-4c55-99e9-55f14f7ffbb1}</Project>
@@ -1452,4 +1450,5 @@
       </ItemGroup>
     </When>
   </Choose>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
