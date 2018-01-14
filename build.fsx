@@ -123,18 +123,18 @@ let solutionFile = "FSharp.Formatting.sln"
 //Target.Create "InstallDotNetCore" (fun _ ->
 //    try
 //        (Fake.DotNet.Cli.DotnetInfo (fun _ -> Fake.DotNet.Cli.DotNetInfoOptions.Default)).RID
-//        |> trace        
+//        |> trace
 //    with _ ->
 //        Fake.DotNet.Cli.DotnetCliInstall (fun _ -> Fake.DotNet.Cli.DotNetCliInstallOptions.Default )
 //        Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", Fake.DotNet.Cli.DefaultDotnetCliDir)
 //)
 
-let assertExitCodeZero x = 
-    if x = 0 then () else 
+let assertExitCodeZero x =
+    if x = 0 then () else
     failwithf "Command failed with exit code %i" x
 
-let runCmdIn workDir exe = 
-    Printf.ksprintf (fun args -> 
+let runCmdIn workDir exe =
+    Printf.ksprintf (fun args ->
         let res =
             (ExecProcessAndReturnMessages (fun info ->
                 { info with
@@ -172,7 +172,7 @@ Target.Create "Build" (fun _ ->
                 "Configuration", "Release"
               ]
         })
-    //)   MSBuild "" "Rebuild" 
+    //)   MSBuild "" "Rebuild"
     //|> MSBuildRelease "" "Rebuild"
     //|> ignore
 )
@@ -181,10 +181,10 @@ Target.Create "Build" (fun _ ->
 // Build tests and generate tasks to run the tests in sequence
 // --------------------------------------------------------------------------------------
 Target.Create"BuildTests" (fun _ ->
-    let debugBuild sln =            
-        //!! sln |> Seq.iter restore 
+    let debugBuild sln =
+        //!! sln |> Seq.iter restore
         !! sln |> Seq.iter (fun s -> dotnet "" "restore %s" s)
-        !! sln 
+        !! sln
         |> Seq.iter (fun proj ->
             proj
             |> MsBuild.build (fun opts ->
@@ -227,7 +227,7 @@ Target.Create"DotnetTests" (fun _ ->
     testProjects
     |> Seq.iter (fun proj -> Fake.DotNetCli.Test(fun x ->
         { x with Project = proj }
-    ))    
+    ))
 )
 
 
@@ -462,7 +462,7 @@ let bootStrapDocumentationFiles () =
         |> List.map (fun f ->
             __SOURCE_DIRECTORY__ </> sprintf "bin/%s" f,
             __SOURCE_DIRECTORY__ </> sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
-        
+
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
     for source, dest in bundledFiles do
         try
@@ -579,7 +579,7 @@ Target.Create"CreateTestJson" (fun _ ->
         "Creating test json file, this could take some time, please wait..."
         "generating documentation failed"
         (fun info ->
-            { info with 
+            { info with
                 FileName = pythonExe
                 Arguments = "test/spec_tests.py --dump-tests"
                 WorkingDirectory = targetPath
@@ -587,7 +587,7 @@ Target.Create"CreateTestJson" (fun _ ->
                "MSBuild", msBuildExe
                "GIT", Git.CommandHelper.gitPath
                "FSI", Fake.FSIHelper.fsiPath
-            ] |> fun info -> 
+            ] |> fun info ->
                 if not isUnix then
                     info.WithEnvironmentVariable ("PYTHONPATH", stdLib)
                 else info

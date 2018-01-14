@@ -1,5 +1,4 @@
 source https://api.nuget.org/v3/index.json
-source https://ci.appveyor.com/nuget/fake
 
 redirects: on
 
