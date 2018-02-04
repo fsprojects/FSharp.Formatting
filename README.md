@@ -1,7 +1,7 @@
-F# Formatting [![Build Status](https://travis-ci.org/tpetricek/FSharp.Formatting.png?branch=master)](https://travis-ci.org/tpetricek/FSharp.Formatting)
+F# Formatting [![Build Status](https://travis-ci.org/fsprojects/FSharp.Formatting.svg?branch=master)](https://travis-ci.org/fsprojects/FSharp.Formatting)
 =================================
 
-[![Join the chat at https://gitter.im/tpetricek/FSharp.Formatting](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tpetricek/FSharp.Formatting?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/fsprojects/FSharp.Formatting](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fsprojects/FSharp.Formatting?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
  
 The F# Formatting libraries (`FSharp.CodeFormat.dll` and `FSharp.Markdown.dll`) include an F# implementation 
 of a Markdown parser and an F# code formatter that can be used to tokenize F# code and obtain information about tokens 
@@ -24,7 +24,7 @@ The library is used by a number of F# projects. Most prominently, the [F# snippe
 uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
 documentation and might be a useful inspiration:
 
- * [The `generate.fsx` script](https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docs/tools/generate.template) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
+ * [The `generate.fsx` script](https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docsrc/tools/generate.template) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
 
 ## Library license
 
