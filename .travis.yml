@@ -10,10 +10,10 @@ addons:
       - libunwind8
 
 before_install:
-  - chmod +x build.sh
+  - dotnet restore dotnet-fake.csproj
 
 script:
-  - ./build.sh
+  - dotnet fake build
 
 
 branches:
