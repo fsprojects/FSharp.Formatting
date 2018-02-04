@@ -11,6 +11,9 @@ open Fake.DotNet.AssemblyInfo
 open Fake.IO
 open Fake.Tools
 
+// Workaround https://github.com/fsharp/FAKE/issues/1776
+System.Environment.SetEnvironmentVariable("MSBUILD_EXE_PATH", null)
+
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
 let projectTool = "FSharp.Formatting.CommandTool"
