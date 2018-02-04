@@ -41,10 +41,10 @@ namespace Manoli.Utils.CSharpFormat
                 return "source nuget github gist git http group framework version_in_path content"
                     + " copy_local redirects import_targets references cache strategy lowest_matching NUGET"
                     + " specs remote File username password copy_content_to_output_dir GITHUB GROUP GIT HTTP"
-                    + " CopyToOutputDirectory";
+                    + " CopyToOutputDirectory storage";
             }
         }
-        
+
         /// <summary>
         /// Matches version numbers
         /// </summary>
