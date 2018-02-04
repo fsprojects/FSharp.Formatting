@@ -1,11 +1,5 @@
-System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-
-// --------------------------------------------------------------------------------------
-// FAKE build script
-// --------------------------------------------------------------------------------------
-
-#I @"packages/FAKE/tools"
-#r @"packages/FAKE/tools/FakeLib.dll"
+#r "paket: groupref netcorebuild //"
+#load ".fake/build.fsx/intellisense.fsx"
 
 open System
 open System.IO
@@ -64,7 +58,6 @@ Target.Create "AssemblyInfo" (fun _ ->
     AssemblyInfoFile.CreateFSharp "src/Common/AssemblyInfo.fs" info
     AssemblyInfoFile.CreateCSharp "src/Common/AssemblyInfo.cs" info
 )
-
 
 // Clean build results
 // --------------------------------------------------------------------------------------
@@ -221,13 +214,121 @@ let testProjects =
         "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
     |> List.map (fun asm -> sprintf "tests/%s/%s.fsproj" asm asm)
 
+// DOTNET TEST
+/// dotnet build command options
+type DotNetTestOptions =
+    {   
+        /// Common tool options
+        Common: DotnetOptions
+        /// Settings to use when running tests (--settings)
+        Settings: string option
+        /// Lists discovered tests (--list-tests)
+        ListTests: bool
+        /// Run tests that match the given expression. (--filter)
+        ///  Examples:
+        ///   Run tests with priority set to 1: --filter "Priority = 1"
+        ///   Run a test with the specified full name: --filter "FullyQualifiedName=Namespace.ClassName.MethodName"
+        ///   Run tests that contain the specified name: --filter "FullyQualifiedName~Namespace.Class"
+        ///   More info on filtering support: https://aka.ms/vstest-filtering
+        Filter: string option
+        /// Use custom adapters from the given path in the test run. (--test-adapter-path)
+        TestAdapterPath: string option
+        /// Specify a logger for test results. (--logger)
+        Logger: string option
+        ///Configuration to use for building the project.  Default for most projects is  "Debug". (--configuration)
+        Configuration: BuildConfiguration
+        /// Target framework to publish for. The target framework has to be specified in the project file. (--framework)
+        Framework: string option
+        ///  Directory in which to find the binaries to be run (--output)
+        Output: string option
+        /// Enable verbose logs for test platform. Logs are written to the provided file. (--diag)
+        Diag: string option
+        ///  Do not build project before testing. (--no-build)
+        NoBuild: bool
+        /// The directory where the test results are going to be placed. The specified directory will be created if it does not exist. (--results-directory)
+        ResultsDirectory: string option
+        /// Enables data collector for the test run. More info here : https://aka.ms/vstest-collect (--collect)
+        Collect: string option
+        ///  Does not do an implicit restore when executing the command. (--no-restore)
+        NoRestore: bool
+        /// Arguments to pass runsettings configurations through commandline. Arguments may be specified as name-value pair of the form [name]=[value] after "-- ". Note the space after --.
+        RunSettingsArguments : string option
+    }
+
+    /// Parameter default values.
+    static member Default = {
+        Common = DotnetOptions.Default
+        Settings = None
+        ListTests = false
+        Filter = None
+        TestAdapterPath = None
+        Logger = None
+        Configuration = BuildConfiguration.Debug
+        Framework = None
+        Output = None
+        Diag = None
+        NoBuild = false
+        ResultsDirectory = None
+        Collect = None
+        NoRestore = false
+        RunSettingsArguments = None
+    }
+
+/// [omit]
+let private argList2 name values =
+    values
+    |> Seq.collect (fun v -> ["--" + name; sprintf @"""%s""" v])
+    |> String.concat " "
+
+/// [omit]
+let private argOption name value =
+    match value with
+        | true -> sprintf "--%s" name
+        | false -> ""
+/// [omit]
+let private buildConfigurationArg (param: BuildConfiguration) =
+    sprintf "--configuration %s" 
+        (match param with
+        | Debug -> "Debug"
+        | Release -> "Release"
+        | Custom config -> config)
+/// [omit]
+let private buildTestArgs (param: DotNetTestOptions) =
+    [  
+        param.Settings |> Option.toList |> argList2 "settings"
+        param.ListTests |> argOption "list-tests"
+        param.Filter |> Option.toList |> argList2 "filter"
+        param.TestAdapterPath |> Option.toList |> argList2 "test-adapter-path"
+        param.Logger |> Option.toList |> argList2 "logger"
+        buildConfigurationArg param.Configuration
+        param.Framework |> Option.toList |> argList2 "framework"
+        param.Output |> Option.toList |> argList2 "output"
+        param.Diag |> Option.toList |> argList2 "diag"
+        param.NoBuild |> argOption "no-build"
+        param.ResultsDirectory |> Option.toList |> argList2 "results-directory"
+        param.Collect |> Option.toList |> argList2 "collect"
+        param.NoRestore |> argOption "no-restore"
+    ] |> Seq.filter (not << String.IsNullOrEmpty) |> String.concat " "
+
+
+/// Execute dotnet build command
+/// ## Parameters
+///
+/// - 'setParams' - set compile command parameters
+/// - 'project' - project to compile
+let DotnetTest setParams project =    
+    use t = Trace.traceTask "Dotnet:test" project
+    let param = DotNetTestOptions.Default |> setParams    
+    let args = sprintf "test %s %s" project (buildTestArgs param)
+    let result = Cli.Dotnet param.Common args
+    if not result.OK then failwithf "dotnet test failed with code %i" result.ExitCode
+//
 
 
 Target.Create"DotnetTests" (fun _ ->
     testProjects
-    |> Seq.iter (fun proj -> Fake.DotNetCli.Test(fun x ->
-        { x with Project = proj }
-    ))    
+
+    |> Seq.iter (fun proj -> DotnetTest id proj)    
 )
 
 
@@ -253,7 +354,7 @@ type BreakingPoint =
 
 // See https://docs.nuget.org/create/versioning
 let RequireRange breakingPoint version =
-  let v = Fake.SemVerHelper.parse version
+  let v = SemVer.parse version
   match breakingPoint with
   | SemVer ->
     sprintf "[%s,%d.0)" version (v.Major + 1)
@@ -342,7 +443,7 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
                 Environment =
                     [   "MSBuild", msBuildExe
                         "GIT", Git.CommandHelper.gitPath
-                        "FSI", Fake.FSIHelper.fsiPath
+                    //    "FSI", Fake.FSIHelper.fsiPath
                     ] |> Map.ofList |> Some
             }
     )
@@ -357,7 +458,7 @@ let commandToolStartInfo workingDirectory environmentVars args =
             Environment =
                 [   "MSBuild", msBuildExe
                     "GIT", Git.CommandHelper.gitPath
-                    "FSI", Fake.FSIHelper.fsiPath
+                //    "FSI", Fake.FSIHelper.fsiPath
                 ] |> Map.ofList |> Some
         }
     )
@@ -586,7 +687,7 @@ Target.Create"CreateTestJson" (fun _ ->
             }.WithEnvironmentVariables [
                "MSBuild", msBuildExe
                "GIT", Git.CommandHelper.gitPath
-               "FSI", Fake.FSIHelper.fsiPath
+            //   "FSI", Fake.FSIHelper.fsiPath
             ] |> fun info -> 
                 if not isUnix then
                     info.WithEnvironmentVariable ("PYTHONPATH", stdLib)

@@ -5,7 +5,7 @@ redirects: on
 
 nuget FSharp.Data
 nuget FAKE prerelease
-nuget CommandLineParser
+nuget CommandLineParser ~> 1.0 // Maybe we should switch to Argu?
 #nuget FSharp.Compiler.Tools
 nuget FSharp.Core 4.2.3 redirects:force, content:none
 nuget Microsoft.AspNet.Razor
@@ -19,6 +19,17 @@ group Build
     source https://api.nuget.org/v3/index.json
     nuget NuGet.CommandLine
 
+group netcorebuild
+    storage: none
+    source https://api.nuget.org/v3/index.json
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.DotNet.Cli
+    nuget Fake.DotNet.Testing.NUnit
+    nuget Fake.DotNet.NuGet
+    nuget Fake.DotNet.MsBuild
+    nuget Fake.Tools.Git 
 #github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
 group Test
@@ -27,3 +38,4 @@ group Test
     nuget FsUnit 3.0.0 //framework:net45
     nuget NUnit 3.6.0
     nuget Nunit.ConsoleRunner
+    nuget FSharp.Core 4.2.3 redirects:force, content:none
