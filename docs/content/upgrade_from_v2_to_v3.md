@@ -12,6 +12,6 @@ In the `paket.dependencies` you need to do the following:
 
 - Add `source https://ci.appveyor.com/nuget/fsharp-formatting`
 - And pick out the latest version (at this moment it's 
-`3.0.0-beta08`), i.e. add `nuget FSharp.Formatting ~> 3.0.0-beta08`
+`3.0.0-beta09`), i.e. add `nuget FSharp.Formatting ~> 3.0.0-beta09`
 
 If you have customized the generation, you might note that many of the DU types have additional parameters and are more type safe.
