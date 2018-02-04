@@ -349,7 +349,7 @@ Target.Create"RunTests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
-// TODO: Contribute this to FAKE
+// TODO: Use FAKE Version
 type BreakingPoint =
   | SemVer
   | Minor
@@ -446,7 +446,6 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
                 Environment =
                     [   "MSBuild", msBuildExe
                         "GIT", Git.CommandHelper.gitPath
-                    //    "FSI", Fake.FSIHelper.fsiPath
                     ] |> Map.ofList |> Some
             }
     )
@@ -461,7 +460,6 @@ let commandToolStartInfo workingDirectory environmentVars args =
             Environment =
                 [   "MSBuild", msBuildExe
                     "GIT", Git.CommandHelper.gitPath
-                //    "FSI", Fake.FSIHelper.fsiPath
                 ] |> Map.ofList |> Some
         }
     )
@@ -690,7 +688,6 @@ Target.Create"CreateTestJson" (fun _ ->
             }.WithEnvironmentVariables [
                "MSBuild", msBuildExe
                "GIT", Git.CommandHelper.gitPath
-            //   "FSI", Fake.FSIHelper.fsiPath
             ] |> fun info -> 
                 if not isUnix then
                     info.WithEnvironmentVariable ("PYTHONPATH", stdLib)
