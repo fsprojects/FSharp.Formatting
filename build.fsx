@@ -319,6 +319,7 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
                 Arguments = sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
                 WorkingDirectory = workingDirectory
             }
+            |> Process.withFramework
             |> Process.setEnvironmentVariable "MSBuild" MSBuild.msBuildExe
             |> Process.setEnvironmentVariable "GIT" Git.CommandHelper.gitPath
     )
@@ -331,6 +332,7 @@ let commandToolStartInfo workingDirectory environmentVars args =
             Arguments = args
             WorkingDirectory = workingDirectory
         }
+        |> Process.withFramework
         |> Process.setEnvironmentVariable "MSBuild" MSBuild.msBuildExe
         |> Process.setEnvironmentVariable "GIT" Git.CommandHelper.gitPath
     )
