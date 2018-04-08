@@ -8,6 +8,7 @@
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyFile).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DefineConstants>NET461</DefineConstants>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
