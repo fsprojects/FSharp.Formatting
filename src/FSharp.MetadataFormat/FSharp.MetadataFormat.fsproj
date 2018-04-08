@@ -8,6 +8,7 @@
     <DefineConstants>METADATAFORMAT</DefineConstants>
     <DefineConstants>NET461</DefineConstants>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
