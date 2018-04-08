@@ -78,13 +78,37 @@ Target.create "Clean" (fun _ ->
 
 // Update the assembly version numbers in the script file.
 // --------------------------------------------------------------------------------------
+
+/// Gets the version no. for a given package in the deployments folder
+let getPackageVersion deploymentsDir package =
+    try
+        if Directory.Exists deploymentsDir |> not then
+            failwithf "Package %s was not found, because the deployment directory %s doesn't exist." package deploymentsDir
+        let version =
+            let dirs = Directory.GetDirectories(deploymentsDir, sprintf "%s*" package)
+            if Seq.isEmpty dirs then failwithf "Package %s was not found." package
+            let folder = Seq.head dirs
+            let index = folder.LastIndexOf package + package.Length + 1
+            if index < folder.Length then
+                folder.Substring index
+            else
+                let nuspec = Directory.GetFiles(folder, sprintf "%s.nuspec" package) |> Seq.head
+                let doc = System.Xml.Linq.XDocument.Load(nuspec)
+                let vers = doc.Descendants(System.Xml.Linq.XName.Get("version", doc.Root.Name.NamespaceName))
+                (Seq.head vers).Value
+
+        Trace.logfn "Version %s found for package %s" version package
+        version
+    with
+    | exn -> new Exception("Could not detect package version for " + package, exn) |> raise
+
 Target.create "UpdateFsxVersions" (fun _ ->
     let packages = [ "FSharp.Compiler.Service" ]
     let replacements =
         packages |> Seq.map (fun packageName ->
             sprintf "/%s.(.*)/lib" packageName,
 
-            sprintf "/%s.%s/lib" packageName (NuGet.NuGet.GetPackageVersion "packages" packageName)
+            sprintf "/%s.%s/lib" packageName (getPackageVersion "packages" packageName)
         )
     let path = "./packages/FSharp.Formatting/FSharp.Formatting.fsx"
     let text = File.ReadAllText(path)
@@ -283,9 +307,9 @@ Target.create"NuGet" (fun _ ->
             Publish = Environment.hasEnvironVar "nugetkey"
             Dependencies =
                 [ // We need Razor dependency in the package until we split out Razor into a separate package.
-                  "Microsoft.AspNet.Razor", NuGet.GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
-                  "FSharp.Compiler.Service", NuGet.GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
-                  "System.ValueTuple", NuGet.GetPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
+                  "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
+                  "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
+                  "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "nuget/FSharp.Formatting.nuspec"
 
