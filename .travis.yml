@@ -10,7 +10,7 @@ addons:
       - libunwind8
 
 before_install:
- - dotnet restore dotnet-fake.csproj
+ - dotnet restore build.proj
 
 script:
  - dotnet fake build
