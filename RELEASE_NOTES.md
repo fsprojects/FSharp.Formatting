@@ -1,3 +1,6 @@
+## 3.0.0-beta10 (08, April, 2018)
+ - Upgrade FSharp.Compiler.Service to be compatible with FAKE 5
+
 ## 3.0.0-beta09 (04, February, 2018
  - Fix some links on the website - https://github.com/fsprojects/FSharp.Formatting/pull/458
  - Another link on the website - https://github.com/fsprojects/FSharp.Formatting/pull/454
