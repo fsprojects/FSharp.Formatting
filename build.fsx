@@ -8,12 +8,8 @@ open Fake.Core
 open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
 open Fake.DotNet
-open Fake.DotNet.AssemblyInfo
 open Fake.IO
 open Fake.Tools
-
-// Workaround https://github.com/fsharp/FAKE/issues/1776
-System.Environment.SetEnvironmentVariable("MSBUILD_EXE_PATH", null)
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
@@ -82,12 +78,6 @@ Target.create "Clean" (fun _ ->
 
 // Update the assembly version numbers in the script file.
 // --------------------------------------------------------------------------------------
-
-open System.IO
-open Fake.DotNet
-open Fake.Core
-open Fake.DotNet
-
 Target.create "UpdateFsxVersions" (fun _ ->
     let packages = [ "FSharp.Compiler.Service" ]
     let replacements =
