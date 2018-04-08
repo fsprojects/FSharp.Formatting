@@ -349,7 +349,7 @@ module ValueReader =
   let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) =
     // we calculate this early just in case this fails with an FCS error.
     let requireQualifiedAccess =
-        hasAttrib<RequireQualifiedAccessAttribute> v.LogicalEnclosingEntity.Attributes
+        hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
 
     let buildUsage (args:string option) =
       let parArgs = args |> Option.map (fun s ->
@@ -385,7 +385,7 @@ module ValueReader =
     // Extension members can have apparent parents which are not F# types.
     // Hence getting the generic argument count if this is a little trickier
     let numGenericParamsOfApparentParent =
-        let pty = v.LogicalEnclosingEntity
+        let pty = v.ApparentEnclosingEntity
         //if pty.IsExternal then
         //    let ty = v.LogicalEnclosingEntity.ReflectionType
         //    if ty.IsGenericType then ty.GetGenericArguments().Length
@@ -764,7 +764,7 @@ module Reader =
       try
         let name = memb.CompiledName.Replace(".ctor", "#ctor")
         let typeGenericParameters =
-            memb.EnclosingEntity.Value.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
+            memb.DeclaringEntity.Value.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
         let methodGenericParameters =
             memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
         let typeArgsMap =
@@ -800,7 +800,7 @@ module Reader =
         Log.errorf "Error while building member-name for %s because: %s" memb.FullName exn.Message
         Log.verbf "Full Exception details of previous message: %O" exn
         memb.CompiledName
-    match (memb.XmlDocSig, memb.EnclosingEntity.Value.TryFullName) with
+    match (memb.XmlDocSig, memb.DeclaringEntity.Value.TryFullName) with
     | "",  None    -> ""
     | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
     | n, _         -> n
@@ -1072,7 +1072,7 @@ module Reader =
           |> List.ofSeq
           |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitInterfaceImplementation)
           |> List.filter (fun v ->
-            if v.EnclosingEntity.Value.IsFSharp then true else
+            if v.DeclaringEntity.Value.IsFSharp then true else
                 not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
                 not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
           |> List.partition (fun v -> v.IsInstanceMember)

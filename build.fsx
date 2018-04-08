@@ -608,5 +608,5 @@ open Fake.Core.TargetOperators
 
 "DownloadPython" ==> "CreateTestJson"
 
-//Target.RunOrDefault "All"
-Target.runOrDefault "Build"
+Target.runOrDefault "All"
+//Target.runOrDefault "Build"
