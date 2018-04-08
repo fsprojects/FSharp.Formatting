@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# Markdown (MarkdownParser.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -146,6 +146,27 @@ let (|Emphasised|_|) = function
     | _ -> None
   | _ -> None
 
+let (|HtmlEntity|_|) input =
+  match input with
+  | '&' :: _ ->
+      // regex from reference implementation: https://github.com/commonmark/commonmark.js/blob/da1db1e/lib/common.js#L10
+      let re =
+        "^&"                     // beginning expect '&'
+        + "(?:"                  // start non-capturing group
+        + "#x[a-f0-9]{1,8}"      // hex
+        + "|#[0-9]{1,8}"         // or decimal
+        + "|[a-z][a-z0-9]{1,31}" // or name
+        + ")"                    // end non-capturing group
+        + ";"                    // expect ';'
+      let match' = Regex.Match(Array.ofList input |> String, re)
+      if match'.Success then
+        let entity = match'.Value
+        let _, rest = List.splitAt entity.Length input
+        Some (entity, rest)
+      else None
+  | _ -> None
+
+
 /// Defines a context for the main `parseParagraphs` function
 type ParsingContext =
   { Links : Dictionary<string, string * option<string>>
@@ -177,8 +198,12 @@ let rec parseChars acc input (ctx:ParsingContext) = seq {
       yield HardLineBreak(ctx.CurrentRange)
       yield! parseChars [] rest ctx
 
-  // Encode & as an HTML entity
-  | '&'::'a'::'m'::'p'::';'::rest
+  | HtmlEntity(entity, rest) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      yield Literal (entity, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+
   | '&'::rest ->
       yield! parseChars (';'::'p'::'m'::'a'::'&'::acc) rest ctx
 
