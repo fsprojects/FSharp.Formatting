@@ -33,10 +33,28 @@
 
 <h1>@Model.Module.Name</h1>
 <p>
+    @if (Model.Module.IsObsolete)
+    {
+        <div class="alert alert-warning">
+        <strong>WARNING: </strong> This API is obsolete
+        <p>@Html.Encode(@Model.Module.ObsoleteMessage)</p>
+        </div> 
+    }
   <span>Namespace: @Model.Namespace.Name</span><br />
   @if(Model.ParentModule.Exists())
   {
   <span>Parent Module: <a href="@(Model.ParentModule.Value.UrlName).html">@Model.ParentModule.Value.Name</a></span>
+  }
+  @if (Model.Module.Attributes.Any())
+  {
+      <span>
+          Attributes:<br />
+          @foreach (var attr in Model.Module.Attributes)
+          {
+                @Html.Encode(@attr.Format())<br />
+          }
+          
+      </span>
   }
 </p>
 <div class="xmldoc">

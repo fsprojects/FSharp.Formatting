@@ -1,3 +1,7 @@
+## 3.0.0-beta11 (06, May, 2018)
+ - Added support for attributes on modules, types and members
+ - Updated razor templates to show attributes and added a warning for obsolete API
+
 ## 3.0.0-beta10 (08, April, 2018)
  - Upgrade FSharp.Compiler.Service to be compatible with FAKE 5
 
