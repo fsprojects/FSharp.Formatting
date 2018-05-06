@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="AttributeTests.fs" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
     <Content Include="app.config" />
@@ -30,6 +31,10 @@
     <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
     <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
     <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

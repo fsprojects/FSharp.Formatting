@@ -14,7 +14,7 @@ open System.Text
 open System.IO
 open System.Xml
 open System.Xml.Linq
-
+/// Represents a comment attached to F# source code
 type Comment =
   { Blurb : string
     FullText : string
@@ -24,22 +24,122 @@ type Comment =
   static member Create(blurb, full, sects) =
     { Blurb = blurb; FullText = full; Sections = sects }
 
+/// Represents a custom attribute attached to F# source code
+type Attribute =
+  {
+    /// The name of the attribute
+    Name : string
+    /// The qualified name of the attribute
+    FullName : string
+    /// The arguments to the constructor for the attribute
+    ConstructorArguments : obj list
+    /// The named arguments for the attribute
+    NamedConstructorArguments : (string*obj) list
+  }
+  static member Create(name, fullName, constructorArguments, namedConstructorArguments) =
+        { Name = name
+          FullName = fullName
+          ConstructorArguments = constructorArguments
+          NamedConstructorArguments = namedConstructorArguments }
+
+  /// Gets a value indicating whether this attribute the System.ObsoleteAttribute
+  member x.IsObsoleteAttribute =
+    x.FullName = "System.ObsoleteAttribute"
+
+  /// Returns the obsolete message, when this attribute is the System.ObsoleteAttribute. When its not or no message was specified, an empty string is returned
+  member x.ObsoleteMessage =
+    let tryFindObsoleteMessage =
+            x.ConstructorArguments
+            |> Seq.tryFind (fun x -> x :? string)
+            |> Option.map string
+            |> Option.defaultValue ""
+    if x.IsObsoleteAttribute then tryFindObsoleteMessage else ""
+  /// Formats the attribute with the given name
+  member private x.Format(attributeName:string, removeAttributeSuffix:bool) =
+        let dropSuffix (s:string) (t:string) = s.[0..s.Length - t.Length - 1]
+        let attributeName = if removeAttributeSuffix && attributeName.EndsWith "Attribute" then dropSuffix attributeName "Attribute" else attributeName
+        let join sep (items : string seq) = String.Join(sep, items)
+        let inline append (s:string) (sb:StringBuilder) = sb.Append(s)
+        let inline appendIfTrue p s sb =
+            if p then append s sb
+                else sb
+
+        let rec formatValue (v:obj) =
+            match v with
+            | :? string as s -> sprintf "\"%s\"" s
+            | :? array<_> as a -> a |> Seq.map formatValue |> join "; " |> sprintf "[|%s|]"
+            | :? bool as b -> if b then "true" else "false"
+            | _ -> string v
+        let formatedConstructorArguments =
+            x.ConstructorArguments
+            |> Seq.map formatValue
+            |> join ", "
+
+        let formatedNamedConstructorArguments =
+            x.NamedConstructorArguments
+            |> Seq.map (fun (n,v) -> sprintf "%s = %s" n (formatValue v))
+            |> join ", "
+        let needsBraces = not (List.isEmpty x.ConstructorArguments && List.isEmpty x.NamedConstructorArguments)
+        let needsListSeperator = not (List.isEmpty x.ConstructorArguments || List.isEmpty x.NamedConstructorArguments)
+        StringBuilder()
+        |> append "[<"
+        |> append attributeName
+        |> appendIfTrue needsBraces "("
+        |> append formatedConstructorArguments
+        |> appendIfTrue needsListSeperator ", "
+        |> append formatedNamedConstructorArguments
+        |> appendIfTrue needsBraces ")"
+        |> append ">]"
+        |> string
+
+
+
+  /// Formats the attribute using the Name. Removes the "Attribute"-suffix. E.g Obsolete
+  member x.Format() = x.Format(x.Name, true)
+  /// Formats the attribute using the FullName. Removes the "Attribute"-suffix. E.g System.Obsolete
+  member x.FormatFullName() = x.Format(x.FullName, true)
+  /// Formats the attribute using the Name. Keeps the "Attribute"-suffix. E.g ObsoleteAttribute
+  member x.FormatLongForm() = x.Format(x.Name, false)
+  /// Formats the attribute using the FullName. Keeps the "Attribute"-suffix. E.g System.ObsoleteAttribute
+  member x.FormatFullNameLongForm() = x.Format(x.FullName, false)
+
+  /// Tries to find the System.ObsoleteAttribute and return its obsolete message
+  static member internal TryGetObsoleteMessage(attributes:seq<Attribute>)=
+    attributes
+    |> Seq.tryFind (fun a -> a.IsObsoleteAttribute)
+    |> Option.map (fun a -> a.ObsoleteMessage)
+    |> Option.defaultValue ""
+/// Represents the details of an F# method, property, event, function or value, including extension members
 type MemberOrValue =
-  { Usage : int -> string
+  {
+    /// Formats usage
+    Usage : int -> string
+    /// The members modifiers
     Modifiers : string list
+    /// The members type arguments
     TypeArguments : string list
+    /// The members signature
     Signature : string
+    /// The members source location, if any
     SourceLocation : string option
-    CompiledName : string option }
+    /// The members compiled name, if any
+    CompiledName : string option
+  }
+  /// Formats usage
   member x.FormatUsage(maxLength) = x.Usage(maxLength)
+  /// Formats type arguments
   member x.FormatTypeArguments = String.concat ", " x.TypeArguments
+  /// Formats modifiers
   member x.FormatModifiers = String.concat " " x.Modifiers
+  /// Formats source location
   member x.FormatSourceLocation = defaultArg x.SourceLocation ""
+  /// Formats the compiled name
   member x.FormatCompiledName = defaultArg x.CompiledName ""
+
   static member Create(usage, mods, typars, sign, location, compiledName) =
     { Usage = usage; Modifiers = mods; TypeArguments = typars;
       Signature = sign; SourceLocation = location; CompiledName = compiledName }
-
+/// Represents the kind of member
 type MemberKind =
   // In a module
   | ValueOrFunction = 0
@@ -55,38 +155,74 @@ type MemberKind =
   | UnionCase = 100
   | RecordField = 101
   | StaticParameter = 102
-
+/// Represents an F# method, property, constructor, function or value, record field, union case or static parameter. Includes extension members
 type Member =
-  { Name : string
+  {
+    /// Name of the member
+    Name : string
+    /// The declared attributes of the member
+    Attributes : Attribute list
+    /// The category
     Category : string
+    /// The kind of the member
     Kind : MemberKind
+    /// Additional details
     Details : MemberOrValue
-    Comment : Comment }
-  static member Create(name, kind, cat, details, comment) =
-    { Member.Name = name; Kind = kind;
+    /// The attached comment
+    Comment : Comment
+    }
+  static member Create(name, attributes, kind, cat, details, comment) =
+    { Member.Name = name; Kind = kind; Attributes = attributes
       Category = cat; Details = details; Comment = comment }
 
-type Type =
-  { Name : string
-    Category :string
-    UrlName : string
-    Comment : Comment
-    Assembly : AssemblyName
+  /// Gets a value indicating whether this member is obsolete
+  member x.IsObsolete =
+    x.Attributes
+    |> Seq.exists (fun a -> a.IsObsoleteAttribute)
 
+  /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
+  member x.ObsoleteMessage =
+    Attribute.TryGetObsoleteMessage(x.Attributes)
+
+/// Represents an F# type.
+type Type =
+  {
+    /// The name of the type
+    Name : string
+    /// The category of the type
+    Category :string
+    /// The url
+    UrlName : string
+    /// The attached comment
+    Comment : Comment
+    /// The name of the type's assembly
+    Assembly : AssemblyName
+    /// The declared attributes of the type
+    Attributes : Attribute list
+
+    /// The cases of a union type
     UnionCases : Member list
+    /// The fields of a record type
     RecordFields : Member list
+    /// Static parameters
     StaticParameters : Member list
 
+    /// All members of the type
     AllMembers : Member list
+    /// The constuctorsof the type
     Constructors : Member list
+    /// The instance members of the type
     InstanceMembers : Member list
-    StaticMembers : Member list }
-  static member Create(name, cat, url, comment, assembly, cases, fields, statParams, ctors, inst, stat) =
+    /// The static members of the type
+    StaticMembers : Member list
+    }
+  static member Create(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat) =
     { Type.Name = name
       Category = cat
       UrlName = url
       Comment = comment
       Assembly = assembly
+      Attributes = attributes
       UnionCases = cases
       RecordFields = fields
       StaticParameters = statParams
@@ -95,55 +231,114 @@ type Type =
       InstanceMembers = inst
       StaticMembers = stat }
 
+  /// Gets a value indicating whether this member is obsolete
+  member x.IsObsolete =
+    x.Attributes
+    |> Seq.exists (fun a -> a.IsObsoleteAttribute)
+
+  /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
+  member x.ObsoleteMessage =
+    Attribute.TryGetObsoleteMessage(x.Attributes)
+
+/// Represents an F# module
 type Module =
-  { Name : string
+  {
+    /// The name of the module
+    Name : string
+    /// The category of the module
     Category : string
+    /// The url
     UrlName : string
+    /// The attached comment
     Comment : Comment
+    /// The name of the modules assembly
     Assembly : AssemblyName
 
+    /// The declared attributes of the module
+    Attributes : Attribute list
+
+    /// All members of the module
     AllMembers : Member list
 
+    /// All nested modules
     NestedModules : Module list
+    /// All nested types
     NestedTypes : Type list
 
+    /// Values and functions of the module
     ValuesAndFuncs : Member list
+    /// Type extensions of the module
     TypeExtensions : Member list
-    ActivePatterns : Member list }
-  static member Create(name, cat, url, comment, assembly, modules, types, vals, exts, pats) =
-    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly; Category = cat
+    /// Active patterns of the module
+    ActivePatterns : Member list
+    }
+  static member Create(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats) =
+    { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly; Category = cat; Attributes = attributes
       AllMembers = List.concat [ vals; exts; pats ]
       NestedModules = modules; NestedTypes = types
       ValuesAndFuncs = vals; TypeExtensions = exts; ActivePatterns = pats }
 
+  /// Gets a value indicating whether this member is obsolete
+  member x.IsObsolete =
+    x.Attributes
+    |> Seq.exists (fun a -> a.IsObsoleteAttribute)
+
+  /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
+  member x.ObsoleteMessage =
+    Attribute.TryGetObsoleteMessage(x.Attributes)
+
+/// Represents a namespace
 type Namespace =
-  { Name : string
+  {
+    /// The name of the namespace
+    Name : string
+    /// All modules in the namespace
     Modules : Module list
-    Types : Type list }
+    /// All types in the namespace
+    Types : Type list
+  }
   static member Create(name, mods, typs) =
     { Namespace.Name = name; Modules = mods; Types = typs }
-
+/// Represents a group of assemblies
 type AssemblyGroup =
-  { Name : string
+  {
+    /// Name of the group
+    Name : string
+    /// All assemblies in the group
     Assemblies : AssemblyName list
-    Namespaces : Namespace list }
+    /// All namespaces in the group
+    Namespaces : Namespace list
+  }
   static member Create(name, asms, nss) =
     { AssemblyGroup.Name = name; Assemblies = asms; Namespaces = nss }
-
+/// Highlevel information about a module
 type ModuleInfo =
-  { Module : Module
+  {
+    /// The actual module
+    Module : Module
+    /// The assembly group the module belongs to
     Assembly : AssemblyGroup
+    /// The namespace the module belongs to
     Namespace : Namespace
-    ParentModule : Module option }
+    /// The parent module, if any.
+    ParentModule : Module option
+  }
   member this.HasParentModule = this.ParentModule.IsSome
   static member Create(modul, asm, ns, parent) =
     { ModuleInfo.Module = modul; Assembly = asm; Namespace = ns; ParentModule = parent }
 
+/// Highlevel information about a type
 type TypeInfo =
-  { Type : Type
+  {
+    /// The actual type
+    Type : Type
+    /// The assembly group the type belongs to
     Assembly : AssemblyGroup
+    /// The namespace the type belongs to
     Namespace : Namespace
-    ParentModule : Module option }
+    /// The parent module, if any.
+    ParentModule : Module option
+  }
   member this.HasParentModule = this.ParentModule.IsSome
   static member Create(typ, asm, ns, modul) =
     { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; ParentModule = modul }
@@ -345,6 +540,18 @@ module ValueReader =
     match symbol.ImplementationLocation with
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
+
+  let readAttribute (attribute: FSharpAttribute) =
+    let name = attribute.AttributeType.DisplayName
+    let fullName = attribute.AttributeType.FullName
+    let constructorArguments = attribute.ConstructorArguments |> Seq.map snd |> Seq.toList
+    let namedArguments = attribute.NamedArguments |> Seq.map (fun (_,name,_,value) -> (name, value))  |> Seq.toList
+    Attribute.Create(name, fullName, constructorArguments, namedArguments)
+
+  let readAttributes (attributes:seq<FSharpAttribute>) =
+    attributes
+    |> Seq.map readAttribute
+    |> Seq.toList
 
   let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) =
     // we calculate this early just in case this fails with an FCS error.
@@ -972,7 +1179,7 @@ module Reader =
 
   let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
     readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
-      Member.Create(memb.DisplayName, kind, cat, readMemberOrVal ctx memb, comment))
+      Member.Create(memb.DisplayName, readAttributes memb.Attributes, kind, cat, readMemberOrVal ctx memb, comment))
 
   let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) =
     members
@@ -1000,7 +1207,7 @@ module Reader =
     |> List.filter (fun v -> checkAccess ctx v.Accessibility)
     |> List.choose (fun case ->
       readCommentsInto case ctx case.XmlDocSig (fun cat _ comment ->
-        Member.Create(case.Name, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
+        Member.Create(case.Name, readAttributes case.Attributes, MemberKind.UnionCase, cat, readUnionCase ctx case, comment)))
 
   let readRecordFields ctx (typ:FSharpEntity) =
     typ.FSharpFields
@@ -1008,14 +1215,14 @@ module Reader =
     |> List.filter (fun field -> not field.IsCompilerGenerated)
     |> List.choose (fun field ->
       readCommentsInto field ctx field.XmlDocSig (fun cat _ comment ->
-        Member.Create(field.Name, MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
+        Member.Create(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), MemberKind.RecordField, cat, readFSharpField ctx field, comment)))
 
   let readStaticParams ctx (typ:FSharpEntity) =
     typ.StaticParameters
     |> List.ofSeq
     |> List.choose (fun staticParam ->
       readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
-        Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
+        Member.Create(staticParam.Name, [], MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
 
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
@@ -1095,12 +1302,14 @@ module Reader =
       let fields = readRecordFields ctx typ
       let statParams = readStaticParams ctx typ
 
+      let attrs = readAttributes typ.Attributes
+
       let ctors = readAllMembers ctx MemberKind.Constructor cvals
       let inst = readAllMembers ctx MemberKind.InstanceMember ivals
       let stat = readAllMembers ctx MemberKind.StaticMember svals
 
       Type.Create
-        ( name, cat, urlName, comment, ctx.Assembly, cases, fields, statParams, ctors, inst, stat ))
+        ( name, cat, urlName, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -1110,12 +1319,12 @@ module Reader =
       let vals = readMembers ctx MemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
       let exts = readMembers ctx MemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
       let pats = readMembers ctx MemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
-
+      let attrs = readAttributes modul.Attributes
       // Nested modules and types
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
 
       Module.Create
-        ( modul.DisplayName, cat, urlName, comment, ctx.Assembly,
+        ( modul.DisplayName, cat, urlName, comment, ctx.Assembly, attrs,
           modules, types,
           vals, exts, pats ))
 
@@ -1256,11 +1465,11 @@ type MetadataFormat =
           let root = Path.GetDirectoryName(dll)
           let file = root @@ (asmName.Name + ".dll")
           if File.Exists(file) then
-            try 
+            try
                 let bytes = File.ReadAllBytes(file)
                 Some(System.Reflection.Assembly.Load(bytes))
             with e ->
-              Log.errorf "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace 
+              Log.errorf "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
               None
           else None )
       defaultArg asmOpt null
@@ -1297,7 +1506,7 @@ type MetadataFormat =
           let xmlFileOpt =
             //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
             Directory.EnumerateFiles(Path.GetDirectoryName xmlFile)
-            |> Seq.filter (fun file -> 
+            |> Seq.filter (fun file ->
                 let fileNoExt = Path.GetFileNameWithoutExtension file
                 let ext = Path.GetExtension file
                 xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
