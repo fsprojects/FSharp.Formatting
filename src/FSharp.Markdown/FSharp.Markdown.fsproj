@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web"/>
+  </ItemGroup>
+
+
+  <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
@@ -33,7 +41,6 @@
   <ItemGroup>
     <Reference Include="System.Web" />
   </ItemGroup>
-  
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 

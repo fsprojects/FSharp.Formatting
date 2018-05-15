@@ -2,11 +2,18 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
+    <OutputType>Library</OutputType>
     <DocumentationFile>$(SolutionDir)\tests\bin\FSharp.CodeFormat.Tests.xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />

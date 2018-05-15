@@ -7,7 +7,15 @@
     <OutputPath>..\..\bin\</OutputPath>
     <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />  
+  </ItemGroup>
+
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">

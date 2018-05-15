@@ -3,6 +3,7 @@
     <TargetFramework>net461</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <SolutionDir>..\..\..\..\</SolutionDir>
+     <OutputType>Library</OutputType>
     <DocumentationFile>$(SolutionDir)\tests\bin\($AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
