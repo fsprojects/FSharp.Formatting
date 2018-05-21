@@ -9,6 +9,7 @@ nuget FAKE prerelease
 nuget CommandLineParser ~> 1.0 // Maybe we should switch to Argu?
 #nuget FSharp.Compiler.Tools
 #nuget FSharp.Core 4.3.4 redirects:force, content:none
+nuget System.ValueTuple
 nuget RazorEngine 3.9.3 framework: >= net45
 nuget FSharp.Compiler.Service  22.0.3 redirects:force, content:none
 nuget ILRepack

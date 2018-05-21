@@ -1,4 +1,4 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 #I "../../bin/"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
@@ -25,6 +25,8 @@ do FSharp.Formatting.TestHelpers.enableLogging()
 // --------------------------------------------------------------------------------------
 // Test FSI evaluator
 // --------------------------------------------------------------------------------------
+open System
+
 
 [<Test>]
 let ``Can parse and format literate F# script with evaluation`` () =
@@ -50,21 +52,24 @@ printf ">>%d<<" 12343
 """
 
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  try
+      doc.Errors |> Seq.length |> shouldEqual 0
+      // Contains formatted code and markdown
+      doc.Paragraphs |> shouldMatchPar (function
+        | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+      doc.Paragraphs |> shouldMatchPar (function
+        | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
 
-  doc.Errors |> Seq.length |> shouldEqual 0
-  // Contains formatted code and markdown
-  doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchPar (function
-    | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
+      // Contains transformed output
+      doc.Paragraphs |> shouldMatchPar (function
+        | CodeBlock ("42", _, _, _) -> true | _ -> false)
+      doc.Paragraphs |> shouldMatchPar (function
+        | CodeBlock ("85", _, _, _) -> true | _ -> false)
+      doc.Paragraphs |> shouldMatchPar (function
+        | CodeBlock (">>12343<<", _, _, _) -> true | _ -> false)
+    with e ->
+        Console.WriteLine doc
 
-  // Contains transformed output
-  doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("42", _, _, _) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("85", _, _, _) -> true | _ -> false)
-  doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock (">>12343<<", _, _, _) -> true | _ -> false)
 
 [<Test>]
 let ``Can evaluate hidden code snippets`` () =
@@ -146,7 +151,7 @@ let ``Can #load script with fsi.AddPrinter (without failing)`` () =
   let file =  """namespace FsLab
 module Demo =
   let test = 42
-module FsiAutoShow = 
+module FsiAutoShow =
   fsi.AddPrinter(fun (n:int) -> n.ToString())"""
   let path = Path.GetTempFileName() + ".fsx"
   File.WriteAllText(path, file)
@@ -154,11 +159,12 @@ module FsiAutoShow =
   // Eval script that #loads the script file and uses something from it
   let content = """
 (*** define-output:t ***)
-#load @"[PATH]" 
+#load @"[PATH]"
 printfn "%d" FsLab.Demo.test
 (*** include-output:t ***)""".Replace("[PATH]", path)
   let fsie = getFsiEvaluator()
-  fsie.EvaluationFailed.Add(printfn "%A")
+  fsie.EvaluationFailed.Add(fun x -> printfn "%A" x |> System.Console.Write )
+
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
   let html1 = Literate.WriteHtml(doc1)
   html1.Contains("42") |> shouldEqual true
@@ -170,7 +176,7 @@ let ``Can specify `fsi` object that ignores all printers`` () =
   let file =  """namespace FsLab
 module Demo =
   let mutable test = "Not executed"
-  fsi.AddPrinter(fun (n:int) -> 
+  fsi.AddPrinter(fun (n:int) ->
     test <- "Executed"
     "")"""
   let path = Path.GetTempFileName() + ".fsx"
@@ -179,7 +185,7 @@ module Demo =
   // Eval script that #loads the script file and uses something from it
   let content = """
 (*** define-output:t1 ***)
-#load @"[PATH]" 
+#load @"[PATH]"
 1
 (*** include-it:t1 ***)
 (*** define-output:t2 ***)
@@ -202,16 +208,16 @@ let test2 = 43"""
   File.Delete(path)
   Directory.CreateDirectory(path) |> ignore
   File.WriteAllText(Path.Combine(path, "test.fsx"), file)
-  
+
   // Eval script that #loads the script file and uses relative path
   let content = """
 (*** define-output:t ***)
-#load @"[PATH]/test.fsx" 
+#load @"[PATH]/test.fsx"
 printfn "%d" Test.test1
 (*** include-output:t ***)
 (** some _markdown_  *)
 (*** define-output:t2 ***)
-#load @"[PATH]/test.fsx" 
+#load @"[PATH]/test.fsx"
 printfn "%d" Test.test2
 (*** include-output:t2 ***)""".Replace("[PATH]", Path.GetFileName(path))
   // Path where this script is located (though we don't actually need to save it there)
@@ -226,5 +232,5 @@ printfn "%d" Test.test2
   html1.Contains("43") |> shouldEqual true
   Directory.Delete(path, true)
 
-  
-  
+
+
