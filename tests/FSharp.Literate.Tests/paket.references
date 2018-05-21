@@ -5,8 +5,7 @@ FSharp.Compiler.Service
   exclude FSharp.Compiler.Service.MSBuild.*.dll
   exclude FSharp.Compiler.Service.MSBuild.v12.dll
 #FSharp.Compiler.Tools
+
 group Test
 FsUnit
 NUnit
-NUnit3TestAdapter
-Microsoft.NET.Test.Sdk

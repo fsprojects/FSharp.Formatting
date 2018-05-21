@@ -10,6 +10,8 @@
     <DefineConstants>NET461</DefineConstants>
   </PropertyGroup>
 
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
     <None Include="Files/simple.md" />
@@ -25,6 +27,7 @@
     <Compile Include="EvalTests.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -42,5 +45,18 @@
     <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj"/>
   </ItemGroup>
     
+  <ItemGroup>
+    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj" />
+    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

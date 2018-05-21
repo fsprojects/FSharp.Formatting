@@ -1,4 +1,4 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 #r "../../bin/FSharp.Markdown.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
@@ -17,6 +17,18 @@ let properNewLines (text: string) = text.Replace("\r\n", "\n").Replace("\n", Sys
 
 let shouldEqualNoWhiteSpace (x:string) (y:string) =
     shouldEqual (x.Split()) (y.Split())
+
+[<Test>]
+let ``Don't double encode HTML entities outside of code`` () =
+  "a &gt; & &copy; b"
+  |> Markdown.TransformHtml
+  |> should contain "<p>a &gt; &amp; &copy; b</p>"
+
+[<Test>]
+let ``Escape HTML entities inside of code`` () =
+  "`a &gt; & b`"
+  |> Markdown.TransformHtml
+  |> should contain "<p><code>a &amp;gt; &amp; b</code></p>"
 
 [<Test>]
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =

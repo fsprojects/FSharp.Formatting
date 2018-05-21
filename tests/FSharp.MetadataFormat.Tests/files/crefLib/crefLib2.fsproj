@@ -14,5 +14,22 @@
   <ItemGroup>
     <ProjectReference Include="crefLib1.fsproj" />
   </ItemGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="crefLib2.fsproj.paket.references" />
+    <Compile Include="Library2.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="crefLib1.fsproj" />
+  </ItemGroup>
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

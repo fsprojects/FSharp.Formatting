@@ -1,4 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -8,6 +10,9 @@
     <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+  </PropertyGroup>
+  
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -16,6 +21,9 @@
     <Reference Include="System.Web" />  
   </ItemGroup>
 
+    <Reference Include="System.Web" />
+    <Content Include="app.config" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -39,6 +47,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />      
+    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />

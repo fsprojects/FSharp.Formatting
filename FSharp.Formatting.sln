@@ -2,6 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2003
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 12.0.31101.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
@@ -69,54 +70,54 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{
 		misc\templates\reference\type.cshtml = misc\templates\reference\type.cshtml
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown", "src\FSharp.Markdown\FSharp.Markdown.fsproj", "{C44C1C05-599A-40DD-9590-465EAB8960C5}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Markdown", "src\FSharp.Markdown\FSharp.Markdown.fsproj", "{C44C1C05-599A-40DD-9590-465EAB8960C5}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat", "src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj", "{341EBF32-D470-4C55-99E9-55F14F7FFBB1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.CodeFormat", "src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj", "{341EBF32-D470-4C55-99E9-55F14F7FFBB1}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.MetadataFormat", "src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj", "{BC4946BA-2724-4524-AC50-DFC49EE154A1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.MetadataFormat", "src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj", "{BC4946BA-2724-4524-AC50-DFC49EE154A1}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Literate", "src\FSharp.Literate\FSharp.Literate.fsproj", "{65E6D541-0486-4383-B619-5CFC5D2BA2F0}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Literate", "src\FSharp.Literate\FSharp.Literate.fsproj", "{65E6D541-0486-4383-B619-5CFC5D2BA2F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpFormat", "src\CSharpFormat\CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpFormat", "src\CSharpFormat\CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.CommandTool", "src\FSharp.Formatting.CommandTool\FSharp.Formatting.CommandTool.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.CommandTool", "src\FSharp.Formatting.CommandTool\FSharp.Formatting.CommandTool.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}"
 	ProjectSection(SolutionItems) = preProject
 		tests\commonmark_spec.json = tests\commonmark_spec.json
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.CodeFormat.Tests", "tests\FSharp.CodeFormat.Tests\FSharp.CodeFormat.Tests.fsproj", "{5DEBD769-D86E-4E14-ABF1-373CA91BFAA2}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.CodeFormat.Tests", "tests\FSharp.CodeFormat.Tests\FSharp.CodeFormat.Tests.fsproj", "{5DEBD769-D86E-4E14-ABF1-373CA91BFAA2}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Literate.Tests", "tests\FSharp.Literate.Tests\FSharp.Literate.Tests.fsproj", "{C22A18AB-6C54-48B4-AAC5-892499E93D4D}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Literate.Tests", "tests\FSharp.Literate.Tests\FSharp.Literate.Tests.fsproj", "{C22A18AB-6C54-48B4-AAC5-892499E93D4D}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Markdown.Tests", "tests\FSharp.Markdown.Tests\FSharp.Markdown.Tests.fsproj", "{07DE4905-050C-4378-A039-F1EF7E1F309D}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Markdown.Tests", "tests\FSharp.Markdown.Tests\FSharp.Markdown.Tests.fsproj", "{07DE4905-050C-4378-A039-F1EF7E1F309D}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.MetadataFormat.Tests", "tests\FSharp.MetadataFormat.Tests\FSharp.MetadataFormat.Tests.fsproj", "{D2EC3D6A-35C0-4445-A9CB-AA18B12B6350}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.MetadataFormat.Tests", "tests\FSharp.MetadataFormat.Tests\FSharp.MetadataFormat.Tests.fsproj", "{D2EC3D6A-35C0-4445-A9CB-AA18B12B6350}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLib1", "tests\FSharp.MetadataFormat.Tests\files\FsLib\FsLib1.fsproj", "{AD192375-D530-40FB-A4E9-380C74CBB771}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsLib1", "tests\FSharp.MetadataFormat.Tests\files\FsLib\FsLib1.fsproj", "{AD192375-D530-40FB-A4E9-380C74CBB771}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FsLib2", "tests\FSharp.MetadataFormat.Tests\files\FsLib\FsLib2.fsproj", "{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsLib2", "tests\FSharp.MetadataFormat.Tests\files\FsLib\FsLib2.fsproj", "{768FD0E0-5CF7-4AF0-98C9-4B848F9AFB62}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestLib1", "tests\FSharp.MetadataFormat.Tests\files\TestLib\TestLib1.fsproj", "{86326769-3D0B-423F-AD28-A194B34318D6}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TestLib1", "tests\FSharp.MetadataFormat.Tests\files\TestLib\TestLib1.fsproj", "{86326769-3D0B-423F-AD28-A194B34318D6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TestLib2", "tests\FSharp.MetadataFormat.Tests\files\TestLib\TestLib2.fsproj", "{48EFFECF-ECB0-4DF3-A704-B56AB07557BF}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TestLib2", "tests\FSharp.MetadataFormat.Tests\files\TestLib\TestLib2.fsproj", "{48EFFECF-ECB0-4DF3-A704-B56AB07557BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csharpSupport", "tests\FSharp.MetadataFormat.Tests\files\csharpSupport\csharpSupport.csproj", "{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "csharpSupport", "tests\FSharp.MetadataFormat.Tests\files\csharpSupport\csharpSupport.csproj", "{DA7BA2FA-447E-41F3-88D9-00CF3E052E2C}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "crefLib1", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib1.fsproj", "{A0C8DD00-BD08-48D6-B257-5A838E5DA819}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "crefLib1", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib1.fsproj", "{A0C8DD00-BD08-48D6-B257-5A838E5DA819}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "crefLib2", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib2.fsproj", "{55728B9D-1EDE-4A40-B439-1EB0B3F77B72}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "crefLib2", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib2.fsproj", "{55728B9D-1EDE-4A40-B439-1EB0B3F77B72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib3", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib3.csproj", "{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "crefLib3", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib3.csproj", "{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crefLib4", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib4.csproj", "{98624699-1B2F-4636-A3F7-EC72343CB2FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "crefLib4", "tests\FSharp.MetadataFormat.Tests\files\crefLib\crefLib4.csproj", "{98624699-1B2F-4636-A3F7-EC72343CB2FD}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
 	ProjectSection(SolutionItems) = preProject
@@ -125,7 +126,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED
 		.paket\paket.targets = .paket\paket.targets
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Formatting.TestHelpers", "FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.TestHelpers", "FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AttributesTestLib", "tests\FSharp.MetadataFormat.Tests\files\TestLib\AttributesTestLib.fsproj", "{B266D118-15AE-4BE6-809E-E9E30CE5C62F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -221,6 +224,10 @@ Global
 		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B552F94-33FE-4037-9C17-1EB2A885F263}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B266D118-15AE-4BE6-809E-E9E30CE5C62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B266D118-15AE-4BE6-809E-E9E30CE5C62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B266D118-15AE-4BE6-809E-E9E30CE5C62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B266D118-15AE-4BE6-809E-E9E30CE5C62F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -245,6 +252,10 @@ Global
 		{08029B28-A5EA-42DB-AB4E-9C6BA9EF9441} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
+		{B266D118-15AE-4BE6-809E-E9E30CE5C62F} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94976DCE-A684-479B-859E-DFCBCFFF8EE3}

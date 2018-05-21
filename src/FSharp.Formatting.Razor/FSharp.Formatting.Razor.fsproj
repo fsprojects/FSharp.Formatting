@@ -1,4 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <OutputType>Library</OutputType>
@@ -8,6 +10,9 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+  </PropertyGroup>
+  
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="../Common/AssemblyInfo.fs">

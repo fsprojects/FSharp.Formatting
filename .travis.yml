@@ -1,20 +1,19 @@
 language: csharp
-sudo: required
+#sudo: required
+sudo: false
 dist: trusty # Ubuntu 14.04
-
+mono: latest
+dotnet : 2.1.4
 addons:
   apt:
     packages:
       - libunwind8
 
 before_install:
-  - chmod +x build.sh
+ - dotnet restore build.proj
 
 script:
-  - ./build.sh
-
-mono:
-  - latest
+ - dotnet fake build
 
 branches:
   except:

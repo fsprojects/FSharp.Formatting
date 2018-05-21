@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // Builds the documentation from `.fsx` and `.md` files in the 'docs/content' directory
 // (the generated documentation is stored in the 'docs/output' directory)
 // --------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ subDirectories (directoryInfo templates)
                                    formatting @@ "templates"
                                    formatting @@ "templates/reference" ]))
 
-let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
+//let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
@@ -121,8 +121,10 @@ let buildDocumentation () =
         layoutRoots = layoutRoots,
         generateAnchors = true,
         processRecursive = false,
-        includeSource = true, // Only needed for 'side-by-side' pages, but does not hurt others
-        ?fsiEvaluator = fsiEvaluator.Value ) // Currently we don't need it but it's a good stress test to have it here.
+        includeSource = true
+         // Only needed for 'side-by-side' pages, but does not hurt others
+      )
+       //, ?fsiEvaluator = fsiEvaluator.Value ) // Currently we don't need it but it's a good stress test to have it here.
 
 let watch () =
   printfn "Starting watching by initial building..."

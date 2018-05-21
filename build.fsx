@@ -1,19 +1,13 @@
-System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-
-// --------------------------------------------------------------------------------------
-// FAKE build script
-// --------------------------------------------------------------------------------------
-
-#I @"packages/FAKE/tools"
-#r @"packages/FAKE/tools/FakeLib.dll"
+#r "paket: groupref netcorebuild //"
+open Fake.DotNet.NuGet
+#load ".fake/build.fsx/intellisense.fsx"
 
 open System
 open System.IO
 open Fake.Core
-open Fake.Core.Globbing.Operators
+open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
 open Fake.DotNet
-open Fake.DotNet.AssemblyInfo
 open Fake.IO
 open Fake.Tools
 
@@ -44,12 +38,14 @@ let license = "Apache 2.0 License"
 let tags = "F# fsharp formatting markdown code fssnip literate programming"
 
 // Read release notes document
-let release = ReleaseNotes.LoadReleaseNotes "RELEASE_NOTES.md"
+let release = ReleaseNotes.load "RELEASE_NOTES.md"
+
+
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
 
-Target.Create "AssemblyInfo" (fun _ ->
+Target.create "AssemblyInfo" (fun _ ->
     let info = [
         AssemblyInfo.Product project
         AssemblyInfo.Description summary
@@ -59,15 +55,14 @@ Target.Create "AssemblyInfo" (fun _ ->
         AssemblyInfo.Copyright license
     ]
 
-    AssemblyInfoFile.CreateFSharp "src/Common/AssemblyInfo.fs" info
-    AssemblyInfoFile.CreateCSharp "src/Common/AssemblyInfo.cs" info
+    AssemblyInfoFile.createFSharp "src/Common/AssemblyInfo.fs" info
+    AssemblyInfoFile.createCSharp "src/Common/AssemblyInfo.cs" info
 )
-
 
 // Clean build results
 // --------------------------------------------------------------------------------------
 
-Target.Create "Clean" (fun _ ->
+Target.create "Clean" (fun _ ->
     !! "bin"
     ++ "temp"
     ++ "docs/output"
@@ -84,21 +79,31 @@ Target.Create "Clean" (fun _ ->
 // Update the assembly version numbers in the script file.
 // --------------------------------------------------------------------------------------
 
-open System.IO
-open Fake.DotNet.Cli
-open Fake.Core.Trace
-open Fake.Core.String
-open Fake.Core.Environment
-open Fake.DotNet.NuGet.NuGet
-open Fake.DotNet.MsBuild
+/// Gets the version no. for a given package in the deployments folder
+let getPackageVersion deploymentsDir package =
+    try
+        if Directory.Exists deploymentsDir |> not then
+            failwithf "Package %s was not found, because the deployment directory %s doesn't exist." package deploymentsDir
+        let version =
+            let dirs = Directory.GetDirectories(deploymentsDir, sprintf "%s*" package)
+            if Seq.isEmpty dirs then failwithf "Package %s was not found." package
+            let folder = Seq.head dirs
+            let index = folder.LastIndexOf package + package.Length + 1
+            if index < folder.Length then
+                folder.Substring index
+            else
+                let nuspec = Directory.GetFiles(folder, sprintf "%s.nuspec" package) |> Seq.head
+                let doc = System.Xml.Linq.XDocument.Load(nuspec)
+                let vers = doc.Descendants(System.Xml.Linq.XName.Get("version", doc.Root.Name.NamespaceName))
+                (Seq.head vers).Value
 
-Target.Create "UpdateFsxVersions" (fun _ ->
+Target "UpdateFsxVersions" (fun _ ->
     let packages = [ "FSharp.Compiler.Service" ]
     let replacements =
         packages |> Seq.map (fun packageName ->
             sprintf "/%s.(.*)/lib" packageName,
 
-            sprintf "/%s.%s/lib" packageName (GetPackageVersion "packages" packageName)
+            sprintf "/%s.%s/lib" packageName (getPackageVersion "packages" packageName)
         )
     let path = "./packages/FSharp.Formatting/FSharp.Formatting.fsx"
     let text = File.ReadAllText(path)
@@ -115,55 +120,26 @@ Target.Create "UpdateFsxVersions" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 let solutionFile = "FSharp.Formatting.sln"
-let restore proj =
-    DotnetRestore (fun opts ->
-        { opts with
-            Verbosity = Some NugetRestoreVerbosity.Minimal
-        }) proj
 
-
-
-Target.Create "Build" (fun _ ->
-    restore solutionFile
-    solutionFile
-    |> MsBuild.build (fun opts ->
-        { opts with
-            Targets = ["Rebuild"]
-            Verbosity = Some MSBuildVerbosity.Minimal
-            Properties =
-              [ "VisualStudioVersion", "15.0"
-                "Verbosity", "Minimal"
-                //"OutputPath", ""
-                "Configuration", "Release"
-              ]
-        })
-    //)   MSBuild "" "Rebuild" 
+Target "Build" (fun _ ->
+    !! solutionFile
+    |> MSBuild "" "Rebuild" ["VisualStudioVersion", "15.0"]
     //|> MSBuildRelease "" "Rebuild"
     //|> ignore
 )
 
 
-
 // Build tests and generate tasks to run the tests in sequence
 // --------------------------------------------------------------------------------------
 
-Target.Create"BuildTests" (fun _ ->
-    let debugBuild sln =        
-        !! sln |> Seq.iter restore
-        !! sln 
-        |> Seq.iter (fun proj ->
-            proj
-            |> MsBuild.build (fun opts ->
-                { opts with
-                    Targets = ["Build"]
-                    Verbosity = Some MSBuildVerbosity.Minimal
-                    Properties =
-                      [ "VisualStudioVersion", "15.0"
-                        "Verbosity", "Minimal"
-                        "OutputPath", "tests/bin"
-                        "Configuration", "Release" ]}
-            )
-        )
+Target "BuildTests" (fun _ ->
+    let debugBuild sln =
+        {   BaseDirectory = __SOURCE_DIRECTORY__
+            Includes = [sln]
+            Excludes = []
+        //}   |> MSBuildDebug "" "Build" |> ignore
+       // }   |> MSBuildDebug "tests/bin" "Build" |> ignore
+        } |> MSBuild "tests/bin" "Build" ["VisualStudioVersion", "15.0"] |> ignore
 
     debugBuild "tests/*/files/FsLib/FsLib.sln"
     debugBuild "tests/*/files/crefLib/crefLib.sln"
@@ -171,10 +147,7 @@ Target.Create"BuildTests" (fun _ ->
     debugBuild "tests/*/files/TestLib/TestLib.sln"
 )
 
-open Fake.DotNet.Testing.NUnit3
-open Fake.Core.Process
-
-
+open Fake.Testing
 
 let testAssemblies =
     [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
@@ -186,19 +159,9 @@ let testProjects =
         "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
     |> List.map (fun asm -> sprintf "tests/%s/%s.fsproj" asm asm)
 
-
-
-Target.Create"DotnetTests" (fun _ ->
-    testProjects
-    |> Seq.iter (fun proj -> Fake.DotNetCli.Test(fun x ->
-        { x with Project = proj }
-    ))    
-)
-
-
-Target.Create"RunTests" (fun _ ->
+Target "RunTests" (fun _ ->
     testAssemblies
-    |> NUnit3 (fun p ->
+    |> NUnit3.run (fun p ->
         { p with
             ShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
@@ -206,10 +169,11 @@ Target.Create"RunTests" (fun _ ->
             OutputDir = "TestResults.xml" })
 )
 
+
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
-// TODO: Contribute this to FAKE
+// TODO: Use FAKE Version
 type BreakingPoint =
   | SemVer
   | Minor
@@ -217,16 +181,16 @@ type BreakingPoint =
 
 // See https://docs.nuget.org/create/versioning
 let RequireRange breakingPoint version =
-  let v = Fake.SemVerHelper.parse version
+  let v = SemVerHelper.parse version
   match breakingPoint with
   | SemVer ->
-    sprintf "[%s,%d.0)" version (v.Major + 1)
+    sprintf "[%s,%d.0)" version (int v.Major + 1)
   | Minor -> // Like Semver but we assume that the increase of a minor version is already breaking
-    sprintf "[%s,%d.%d)" version v.Major (v.Minor + 1)
+    sprintf "[%s,%d.%d)" version v.Major (int v.Minor + 1)
   | Patch -> // Every update breaks
     version |> Fake.DotNet.NuGet.NuGet.RequireExactly
 
-Target.Create"CopyFSharpCore" (fun _ ->
+Target "CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
     for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
         let source, binDest = file, "bin" </> Path.GetFileName file
@@ -235,15 +199,15 @@ Target.Create"CopyFSharpCore" (fun _ ->
 )
 
 
-Target.Create"SetupLibForTests" (fun _ ->
-
+Target "SetupLibForTests" (fun _ ->    
+    
     let copyPackageFiles dir =
         let dir = Path.GetFullPath dir
         for file in System.IO.Directory.EnumerateFiles dir do
             let fileName = Path.GetFileName file
             if not (fileName.StartsWith "FSharp.Compiler.Service.MSBuild.") then
                 let source, libDest = file, "tests"</>"bin"</>fileName
-                tracefn "Copying %s to %s" source libDest
+                Trace.tracefn "Copying %s to %s" source libDest
                 File.Copy (source, libDest, true)
     [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
         "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
@@ -252,8 +216,7 @@ Target.Create"SetupLibForTests" (fun _ ->
     ] |> List.iter copyPackageFiles
 )
 
-
-Target.Create"NuGet" (fun _ ->
+Target "NuGet" (fun _ ->
     NuGet (fun p ->
         { p with
             Authors = authors
@@ -261,31 +224,31 @@ Target.Create"NuGet" (fun _ ->
             Summary = summary
             Description = description
             Version = release.NugetVersion
-            ReleaseNotes = toLines release.Notes
+            ReleaseNotes = String.toLines release.Notes
             Tags = tags
             OutputPath = "bin"
-            AccessKey = environVarOrDefault "nugetkey" ""
-            Publish = hasEnvironVar "nugetkey"
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Publish = hasBuildParam "nugetkey"
             Dependencies =
                 [ // We need Razor dependency in the package until we split out Razor into a separate package.
-                  "Microsoft.AspNet.Razor", GetPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
-                  "FSharp.Compiler.Service", GetPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
-                  "System.ValueTuple", GetPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
+                  "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
+                  "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
+                  "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "nuget/FSharp.Formatting.nuspec"
 
-    NuGet (fun p ->
+    NuGet.NuGet (fun p ->
         { p with
             Authors = authorsTool
             Project = projectTool
             Summary = summaryTool
             Description = descriptionTool
             Version = release.NugetVersion
-            ReleaseNotes = toLines release.Notes
+            ReleaseNotes = String.toLines release.Notes
             Tags = tags
             OutputPath = "bin"
-            AccessKey =  environVarOrDefault "nugetkey" ""
-            Publish = hasEnvironVar "nugetkey"
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
         "nuget/FSharp.Formatting.CommandTool.nuspec"
 )
@@ -307,7 +270,7 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
             setVar k v
         setVar "MSBuild" msBuildExe
         setVar "GIT" Git.CommandHelper.gitPath
-        setVar "FSI" Fake.FSIHelper.fsiPath)
+        setVar "FSI" fsiPath)
 
 let commandToolPath = "bin" </> "fsformatting.exe"
 let commandToolStartInfo workingDirectory environmentVars args =
@@ -321,12 +284,12 @@ let commandToolStartInfo workingDirectory environmentVars args =
             setVar k v
         setVar "MSBuild" msBuildExe
         setVar "GIT" Git.CommandHelper.gitPath
-        setVar "FSI" Fake.FSIHelper.fsiPath)
+        setVar "FSI" fsiPath)
 
 /// Run the given buildscript with FAKE.exe
 let executeWithOutput configStartInfo =
     let exitCode =
-        ExecProcessWithLambdas
+        Process.execRaw
             configStartInfo
             TimeSpan.MaxValue false ignore ignore
     System.Threading.Thread.Sleep 1000
@@ -334,14 +297,14 @@ let executeWithOutput configStartInfo =
 
 let executeWithRedirect errorF messageF configStartInfo =
     let exitCode =
-        ExecProcessWithLambdas
+        Process.execRaw
             configStartInfo
             TimeSpan.MaxValue true errorF messageF
     System.Threading.Thread.Sleep 1000
     exitCode
 
 let executeHelper executer traceMsg failMessage configStartInfo =
-    trace traceMsg
+    Trace.trace traceMsg
     let exit = executer configStartInfo
     if exit <> 0 then
         failwith failMessage
@@ -354,9 +317,7 @@ let buildDocumentationCommandTool args =
   execute
     "Building documentation (CommandTool), this could take some time, please wait..."
     "generating documentation failed"
-    (fun pinfo -> 
-        commandToolStartInfo "." [] args pinfo.AsStartInfo
-        pinfo)
+    (commandToolStartInfo "." [] args)
 
 let createArg argName arguments =
     (arguments : string seq)
@@ -399,27 +360,29 @@ let commandToolLiterateArgument inDir outDir layoutRoots parameters =
 // Documentation
 let buildDocumentationTarget fsiargs target =
     execute
-        (sprintf "Building documentation (%s), this could take some time, please wait..." target)
-        "generating reference documentation failed"
-        (fun pinfo ->
-            fakeStartInfo "generate.fsx" "docs/tools" "" fsiargs ["target", target] pinfo.AsStartInfo
-            pinfo
-        )
+      (sprintf "Building documentation (%s), this could take some time, please wait..." target)
+      "generating reference documentation failed"
+      (fakeStartInfo "generate.fsx" "docs/tools" "" fsiargs ["target", target])
+
 
 let bootStrapDocumentationFiles () =
     // This is needed to bootstrap ourself (make sure we have the same environment while building as our users) ...
     // If you came here from the nuspec file add your file.
     // If you add files here to make the CI happy add those files to the .nuspec file as well
     // TODO: INSTEAD build the nuspec file before generating the documentation and extract it...
-    Directory.ensure (__SOURCE_DIRECTORY__ </> "packages/FSharp.Formatting/lib/net40")
+    ensureDirectory (__SOURCE_DIRECTORY__ </> "packages/FSharp.Formatting/lib/net40")
     let buildFiles = [ "CSharpFormat.dll"; "FSharp.CodeFormat.dll"; "FSharp.Literate.dll"
                        "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
-                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll" ]
+                       "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll"
+    ]
+                     //|> List.append (!! ( "bin/*.dll.config" )).Includes
+
     let bundledFiles =
         buildFiles
         |> List.map (fun f ->
             __SOURCE_DIRECTORY__ </> sprintf "bin/%s" f,
             __SOURCE_DIRECTORY__ </> sprintf "packages/FSharp.Formatting/lib/net40/%s" f)
+        
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
     for source, dest in bundledFiles do
         try
@@ -427,12 +390,13 @@ let bootStrapDocumentationFiles () =
             File.Copy(source, dest, true)
         with e -> printfn "Could not copy %s to %s, because %s" source dest e.Message
 
-Target.Create"DogFoodCommandTool" (fun _ ->
+Target "DogFoodCommandTool" (fun _ ->
     // generate metadata reference
     let dllFiles =
       [ "FSharp.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
         "FSharp.Literate.dll"; "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "FSharp.Formatting.Razor.dll" ]
-        |> List.map (sprintf "bin/%s")
+        //|> List.collect (fun s -> [sprintf "bin/%s" s;sprintf "bin/%s.config" s])
+
     let layoutRoots =
       [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
     let libDirs = [ "bin/" ]
@@ -457,52 +421,52 @@ Target.Create"DogFoodCommandTool" (fun _ ->
             "docs/content" "temp/literate_docs" layoutRoots parameters
     buildDocumentationCommandTool literateArgs)
 
-Target.Create"GenerateDocs" (fun _ ->
+Target "GenerateDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
 
-Target.Create"WatchDocs" (fun _ ->
+Target "WatchDocs" (fun _ ->
     bootStrapDocumentationFiles ()
     buildDocumentationTarget "--define:WATCH" "Default")
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "git@github.com:tpetricek"
+let gitHome = "git@github.com:fsprojects"
 
-Target.Create"ReleaseDocs" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
-    Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
-    Shell.CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
-    Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
+Target "ReleaseDocs" (fun _ ->
+    Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
+    Branches.checkoutBranch "temp/gh-pages" "gh-pages"
+    CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
+    CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
     Git.Branches.push "temp/gh-pages"
 )
 
-Target.Create"ReleaseBinaries" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
-    Git.Branches.checkoutBranch "temp/release" "release"
-    Shell.CopyRecursive "bin" "temp/release" true |> printfn "%A"
+Target "ReleaseBinaries" (fun _ ->
+    Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
+    Branches.checkoutBranch "temp/release" "release"
+    CopyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
     Git.CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
     Git.Branches.push "temp/release"
 )
 
-Target.Create"CreateTag" (fun _ ->
-    Git.Branches.tag "" release.NugetVersion
-    Git.Branches.pushTag "" "origin" release.NugetVersion
+Target "CreateTag" (fun _ ->
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" "origin" release.NugetVersion
 )
 
-Target.Create"Release" Target.DoNothing
+Target "Release" DoNothing
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
-Target.Create"All" Target.DoNothing
+Target "All" DoNothing
 
 #r "System.IO.Compression.FileSystem"
-Target.Create"DownloadPython" (fun _ ->
+Target "DownloadPython" (fun _ ->
   if not isUnix then
     let w = new System.Net.WebClient()
     let zipFile = "temp"</>"cpython.zip"
@@ -516,13 +480,13 @@ Target.Create"DownloadPython" (fun _ ->
     System.IO.Compression.ZipFile.ExtractToDirectory(cpython</>"python35.zip", cpythonStdLib)
 )
 
-Target.Create"CreateTestJson" (fun _ ->
+Target "CreateTestJson" (fun _ ->
     let targetPath = "temp/CommonMark"
     Shell.CleanDir targetPath
     Git.Repository.clone targetPath "https://github.com/jgm/CommonMark.git" "."
 
     let pythonExe, stdLib =
-      if not isUnix then
+      if not Environment.isUnix then
         System.IO.Path.GetFullPath ("temp"</>"CPython"</>"python.exe"),
         System.IO.Path.GetFullPath ("temp"</>"CPython"</>"stdlib")
       else "python", ""
@@ -531,38 +495,35 @@ Target.Create"CreateTestJson" (fun _ ->
     if File.Exists resultFile then File.Delete resultFile
     ( use fileStream = new StreamWriter(File.Open(resultFile, System.IO.FileMode.Create))
       executeHelper
-        (executeWithRedirect traceError fileStream.WriteLine)
+        (executeWithRedirect Trace.traceError fileStream.WriteLine)
         "Creating test json file, this could take some time, please wait..."
         "generating documentation failed"
         (fun info ->
-            { info with 
-                FileName = pythonExe
-                Arguments = "test/spec_tests.py --dump-tests"
-                WorkingDirectory = targetPath
-            }.WithEnvironmentVariables [
-               "MSBuild", msBuildExe
-               "GIT", Git.CommandHelper.gitPath
-               "FSI", Fake.FSIHelper.fsiPath
-            ] |> fun info -> 
-                if not isUnix then
-                    info.WithEnvironmentVariable ("PYTHONPATH", stdLib)
-                else info
-        )
-    )
+            info.FileName <- pythonExe
+            info.Arguments <- "test/spec_tests.py --dump-tests"
+            info.WorkingDirectory <- targetPath
+            let setVar k v =
+                info.EnvironmentVariables.[k] <- v
+            if not isUnix then
+              setVar "PYTHONPATH" stdLib
+            setVar "MSBuild" msBuildExe
+            setVar "GIT" Git.CommandHelper.gitPath
+            setVar "FSI" fsiPath))
     File.Copy(resultFile, "tests"</>"commonmark_spec.json")
 )
 
 open Fake.Core.TargetOperators
 
 "Clean"
+  //==> "InstallDotnetcore"
   ==> "AssemblyInfo"
   ==> "CopyFSharpCore"
   ==> "SetupLibForTests"
   ==> "Build"
   ==> "BuildTests"
 
-
-"Build" ==> "All"
+"Build"
+  ==> "All"
 
 
 "BuildTests"
@@ -575,7 +536,6 @@ open Fake.Core.TargetOperators
 "GenerateDocs" ==> "All"
 
 "Build"
-
   ==> "DogFoodCommandTool"
   ==> "All"
 
@@ -592,5 +552,4 @@ open Fake.Core.TargetOperators
 
 "DownloadPython" ==> "CreateTestJson"
 
-//Target.RunOrDefault "All"
-Target.RunOrDefault "Build"
+RunTargetOrDefault "All"

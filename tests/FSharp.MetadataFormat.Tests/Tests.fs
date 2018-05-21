@@ -173,16 +173,16 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (root </> "../..") )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
-  files.["fslib-class.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
   files.["fslib-record.html"] |> shouldContainText "github-link"
-  files.["fslib-record.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   files.["fslib-union.html"] |> shouldContainText "github-link"
-  files.["fslib-union.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
 
   //#if INTERACTIVE
   //System.Diagnostics.Process.Start(output)
@@ -199,7 +199,7 @@ let ``MetadataFormat test that cref generation works``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       markDownComments = false )
   let fileNames = Directory.GetFiles(output)
@@ -269,7 +269,7 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = true,
       markDownComments = false )
@@ -314,7 +314,7 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   //#endif
 
 
-[<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/tpetricek/FSharp.Formatting/pull/259" >]
+[<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/fsprojects/FSharp.Formatting/pull/259" >]
 [<Test>]
 let ``MetadataFormat test that csharp support works``() =
   let libraries =
@@ -323,7 +323,7 @@ let ``MetadataFormat test that csharp support works``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = false,
       markDownComments = false )

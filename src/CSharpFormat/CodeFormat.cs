@@ -86,7 +86,7 @@ namespace Manoli.Utils.CSharpFormat
 		{
 			get;
 		}
-    
+	
 		/// <summary>
 		/// Can be overridden to provide a list of tokes to be recognized as numbers.
 		/// </summary>
@@ -137,7 +137,7 @@ namespace Manoli.Utils.CSharpFormat
 			if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
 			CodeRegex = new Regex(regAll.ToString(), regexOptions);
 		}
-    
+	
 		protected string ConcatenateRegex(string commentRegex, string stringRegex, string preprocessorRegex,
 		  string keywordRegex, string operatorsRegex, string numberRegex)
 		{
@@ -157,7 +157,7 @@ namespace Manoli.Utils.CSharpFormat
 			regAll.Append(")|(");
 			regAll.Append(numberRegex);
 			regAll.Append(")");
-      
+	  
 			return regAll.ToString();
 		}
 
@@ -165,7 +165,7 @@ namespace Manoli.Utils.CSharpFormat
 		{
 			if (separated.Length == 0) return "";
 			var sb = new StringBuilder(separated);
-      
+	  
 			Sanitize(sb);
 			
 			sb.Replace(" ", @"(?=\W|$)|(?<=^|\W)");
@@ -177,7 +177,7 @@ namespace Manoli.Utils.CSharpFormat
 			sb.Replace("&", "&amp;");
 			sb.Replace("<", "&lt;");
 			sb.Replace(">", "&gt;");
-      
+	  
 			foreach (var c in new char[] { '&', '?', '*', '.', '<', '>', '[', ']', '^', '|', '(', ')', '#', '+' }) {
 				sb.Replace(c.ToString(), "\\" + c);
 			}

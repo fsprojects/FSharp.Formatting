@@ -1,4 +1,4 @@
-// --------------------------------------------------------------------------------------
+﻿// --------------------------------------------------------------------------------------
 // F# CodeFormat (CodeFormatAgent.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -9,12 +9,15 @@ open System.IO
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
+open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag
+//open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
+open FSharp.Formatting.Common
 //type Log = FSharp.Formatting.Common.Log
 // --------------------------------------------------------------------------------------
 // ?
@@ -179,7 +182,7 @@ type CodeFormatAgent() =
                     // If we're processing an identfier, see if it has any tool tip
                     if (token.TokenName = "IDENT") then
                         let island = List.rev island
-                        let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
+                        let tip = checkResults.GetToolTipTextAlternate(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
                         match Async.RunSynchronously tip |> fun (tooltip) ->
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with

@@ -38,7 +38,7 @@ let private formatComment = function
 /// Format the element of a tool tip (comment, overloads, etc.)
 let private formatElement = function
   | FSharpToolTipElement.None -> []
-  //| FSharpToolTipElement.Single(it, comment) -> 
+  //| FSharpToolTipElement.(it, comment) -> 
   //    [ yield! formatMultilineString it
   //      yield HardLineBreak
   //      yield! formatComment comment ]
@@ -47,7 +47,6 @@ let private formatElement = function
       let items, trimmed = 
         if items.Length <= 10 then items, false
         else items |> Seq.take 10 |> List.ofSeq, true
-      //[ for (it, comment) in items do
       [ for it in items do
           yield! formatMultilineString it.MainDescription
           yield HardLineBreak

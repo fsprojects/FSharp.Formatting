@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <DocumentationFile>..\bin\$(AssemblyName).XML</DocumentationFile>
@@ -7,11 +10,21 @@
 
   </PropertyGroup>
   
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Content Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="paket.references" />
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="TestHelpers.fs" />
+    <None Include="Script.fsx" />
   </ItemGroup>
 
 

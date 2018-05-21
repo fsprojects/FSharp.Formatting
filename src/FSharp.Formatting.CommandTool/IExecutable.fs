@@ -1,4 +1,4 @@
-﻿module FSharp.Formatting.IExecutable
+module FSharp.Formatting.IExecutable
 
 /// Represents a top-level command 
 /// (There are two instances, one for MetadataFormat and one for Literate)

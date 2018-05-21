@@ -7,15 +7,20 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+  </PropertyGroup>
+  
   <ItemGroup>
     <Compile Include="Library2.fs" />
     <None Include="paket.references" />
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
+  
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>
