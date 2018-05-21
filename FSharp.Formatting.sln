@@ -1,7 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2003
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 12.0.31101.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
@@ -10,9 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		.gitignore = .gitignore
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
-		build.cmd = build.cmd
 		build.fsx = build.fsx
-		build.sh = build.sh
 		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
 		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
@@ -253,9 +250,6 @@ Global
 		{98624699-1B2F-4636-A3F7-EC72343CB2FD} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
 		{B266D118-15AE-4BE6-809E-E9E30CE5C62F} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94976DCE-A684-479B-859E-DFCBCFFF8EE3}

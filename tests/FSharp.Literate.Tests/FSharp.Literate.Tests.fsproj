@@ -8,8 +8,6 @@
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyFile).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DefineConstants>NET461</DefineConstants>
-  </PropertyGroup>
-
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
@@ -25,6 +23,7 @@
     <Compile Include="Setup.fs" />
     <Compile Include="Tests.fs" />
     <Compile Include="EvalTests.fs" />
+    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -33,18 +32,6 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj"/>
-    <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj"/>
-    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj"/>
-    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj"/>
-    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj"/>
-    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj"/>
-    <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj"/>
-    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj"/>
-  </ItemGroup>
-    
   <ItemGroup>
     <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj" />

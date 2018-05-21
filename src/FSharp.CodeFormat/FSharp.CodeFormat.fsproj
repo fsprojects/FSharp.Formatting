@@ -1,8 +1,3 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup>
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
@@ -12,18 +7,14 @@
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin\</OutputPath>
     <DocumentationFile>$(SolutionDir)\bin\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
-
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-  </ItemGroup>
-
     <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
@@ -51,7 +42,5 @@
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
-
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

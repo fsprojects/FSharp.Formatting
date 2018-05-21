@@ -6,7 +6,6 @@
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
   </PropertyGroup>
@@ -15,6 +14,7 @@
     <Compile Include="AttributeTests.fs" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
+    <Content Include="app.config" />
   </ItemGroup>
 
   <ItemGroup>

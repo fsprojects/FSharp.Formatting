@@ -1,15 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
     <OutputType>Library</OutputType>
-    <DocumentationFile>$(SolutionDir)\tests\bin\FSharp.CodeFormat.Tests.xml</DocumentationFile>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
-
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyFile).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -30,15 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <None Include="paket.references" />
-    <Compile Include="Tests.fs" />
-    <Content Include="test.fsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -1,11 +1,6 @@
-FSharp.Core
-Microsoft.AspNet.Razor
 RazorEngine
 FSharp.Compiler.Service
   exclude FSharp.Compiler.Service.MSBuild.*.dll
   exclude FSharp.Compiler.Service.MSBuild.v12.dll
-#FSharp.Compiler.Tools
-
 group Test
 FsUnit
-NUnit

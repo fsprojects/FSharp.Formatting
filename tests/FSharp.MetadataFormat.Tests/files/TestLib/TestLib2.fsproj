@@ -2,14 +2,13 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\..\..\</SolutionDir>
-     <OutputType>Library</OutputType>
+    <OutputType>Library</OutputType>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
-  </PropertyGroup>
-  
+
   <ItemGroup>
     <Compile Include="Library2.fs" />
     <None Include="paket.references" />
@@ -21,6 +20,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  
+
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

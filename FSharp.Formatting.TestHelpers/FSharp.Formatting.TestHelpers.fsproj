@@ -1,16 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <DocumentationFile>..\bin\$(AssemblyName).XML</DocumentationFile>
     <OutputPath>..\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-
-  </PropertyGroup>
-  
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,15 +21,6 @@
     <Compile Include="TestHelpers.fs" />
     <None Include="Script.fsx" />
   </ItemGroup>
-
-
-  <ItemGroup>
-    <Content Include="paket.references" />
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="TestHelpers.fs" />
-    <None Include="Script.fsx" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>

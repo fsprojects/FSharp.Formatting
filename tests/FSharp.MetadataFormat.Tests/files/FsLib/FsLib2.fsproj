@@ -2,11 +2,9 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\..\..\</SolutionDir>
-     <OutputType>Library</OutputType>
+    <OutputType>Library</OutputType>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
@@ -22,6 +20,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  
+
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -1,4 +1,3 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -8,8 +7,6 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyFile).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
-  
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
@@ -20,17 +17,12 @@
     <Compile Include="Externals.fs" />
     <Compile Include="CommonMarkSpecTest.fs" />
   </ItemGroup>
-  
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj" />
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj" />

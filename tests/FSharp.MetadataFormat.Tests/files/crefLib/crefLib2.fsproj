@@ -2,18 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <SolutionDir>..\..\..\..\</SolutionDir>
-     <OutputType>Library</OutputType>
+    <OutputType>Library</OutputType>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="crefLib2.fsproj.paket.references" />
-    <Compile Include="Library2.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="crefLib1.fsproj" />
-  </ItemGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
