@@ -4,6 +4,7 @@
 bin/
 lib/
 obj/
+testoutput/
 /.paket/paket.exe
 paket-files/
 nuget/*.nupkg
