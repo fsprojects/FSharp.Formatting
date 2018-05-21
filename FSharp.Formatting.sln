@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
 		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
+		global.json = global.json
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 		README.md = README.md

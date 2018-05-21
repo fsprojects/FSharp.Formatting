@@ -1,4 +1,4 @@
-﻿(**
+(**
 F# Formatting: Markdown parser
 ==============================
 
@@ -95,10 +95,10 @@ to recognize any paragraph or span that can contain child elements:
 /// Returns all links in a specified span node
 let rec collectSpanLinks span = seq {
   match span with
-  | DirectLink(link=url) -> yield url
-  | IndirectLink(key=key) -> yield fst (parsed.DefinedLinks.[key])
+  | DirectLink (link=url) -> yield url
+  | IndirectLink (key=key) -> yield fst (parsed.DefinedLinks.[key])
   | Matching.SpanLeaf _ -> ()
-  | Matching.SpanNode(_, spans) ->
+  | Matching.SpanNode (_, spans) ->
       for s in spans do yield! collectSpanLinks s }
       
 /// Returns all links in the specified paragraph node

@@ -4,3 +4,4 @@ FSharp.Compiler.Service
 RazorEngine
 group Test
 FsUnit
+NUnit

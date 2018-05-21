@@ -69,7 +69,7 @@ Target.create "Clean" (fun _ ->
     ++ "tests/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
-    |> Shell.CleanDirs
+    |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
     ["bin"; "temp"; "docs/output"; "tests/bin"]
     |> Seq.iter Directory.ensure
@@ -234,6 +234,7 @@ Target.create"DotnetTests" (fun _ ->
 )
 
 
+
 Target.create"RunTests" (fun _ ->
     testAssemblies
     |> NUnit3.run (fun p ->
@@ -243,7 +244,6 @@ Target.create"RunTests" (fun _ ->
             ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
             OutputDir = "TestResults.xml" })
 )
-
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -287,7 +287,7 @@ Target.create"SetupLibForTests" (fun _ ->
     [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
         "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
         "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"
-        "packages" </> "FSharp.Data" </> "lib" </> "portable-net45+netcore45"
+        "packages" </> "FSharp.Data" </> "lib" </> "net45"
     ] |> List.iter copyPackageFiles
 )
 
@@ -488,13 +488,13 @@ Target.create"DogFoodCommandTool" (fun _ ->
         "root", "https://fsprojects.github.io/FSharp.Formatting"
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
         "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
-    Shell.CleanDir "temp/api_docs"
+    Shell.cleanDir "temp/api_docs"
     let metadataReferenceArgs =
         commandToolMetadataFormatArgument
             dllFiles "temp/api_docs" layoutRoots libDirs parameters None
     buildDocumentationCommandTool metadataReferenceArgs
 
-    Shell.CleanDir "temp/literate_docs"
+    Shell.cleanDir "temp/literate_docs"
     let literateArgs =
         commandToolLiterateArgument
             "docs/content" "temp/literate_docs" layoutRoots parameters
@@ -502,6 +502,7 @@ Target.create"DogFoodCommandTool" (fun _ ->
 
 Target.create"GenerateDocs" (fun _ ->
     bootStrapDocumentationFiles ()
+    //buildDocumentationTarget "--noframework --define:RELEASE --define:REFERENCE --define:HELP" "Default")
     buildDocumentationTarget "--define:RELEASE --define:REFERENCE --define:HELP" "Default")
 
 Target.create"WatchDocs" (fun _ ->
@@ -516,7 +517,7 @@ let gitHome = "git@github.com:fsprojects"
 Target.create"ReleaseDocs" (fun _ ->
     Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
     Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
-    Shell.CopyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
+    Shell.copyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
@@ -526,7 +527,7 @@ Target.create"ReleaseDocs" (fun _ ->
 Target.create"ReleaseBinaries" (fun _ ->
     Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
     Git.Branches.checkoutBranch "temp/release" "release"
-    Shell.CopyRecursive "bin" "temp/release" true |> printfn "%A"
+    Shell.copyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
     Git.CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
     Git.Branches.push "temp/release"
@@ -552,16 +553,16 @@ Target.create"DownloadPython" (fun _ ->
     if File.Exists zipFile then File.Delete zipFile
     w.DownloadFile("https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip", zipFile)
     let cpython = "temp"</>"CPython"
-    Shell.CleanDir cpython
+    Shell.cleanDir cpython
     System.IO.Compression.ZipFile.ExtractToDirectory(zipFile, cpython)
     let cpythonStdLib = cpython</>"stdlib"
-    Shell.CleanDir cpythonStdLib
+    Shell.cleanDir cpythonStdLib
     System.IO.Compression.ZipFile.ExtractToDirectory(cpython</>"python35.zip", cpythonStdLib)
 )
 
 Target.create"CreateTestJson" (fun _ ->
     let targetPath = "temp/CommonMark"
-    Shell.CleanDir targetPath
+    Shell.cleanDir targetPath
     Git.Repository.clone targetPath "https://github.com/jgm/CommonMark.git" "."
 
     let pythonExe, stdLib =
@@ -615,7 +616,9 @@ open Fake.Core.TargetOperators
   ==> "RunTests"
   ==> "All"
 
-"GenerateDocs" ==> "All"
+"Build"
+  ==> "GenerateDocs"
+  ==> "All"
 
 "Build"
   ==> "DogFoodCommandTool"

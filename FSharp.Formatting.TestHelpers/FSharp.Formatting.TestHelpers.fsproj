@@ -13,9 +13,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <Content Include="paket.references" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="TestHelpers.fs" />

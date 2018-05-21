@@ -9,13 +9,15 @@
     <DocumentationFile>$(SolutionDir)\bin\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <Content Include="app.config" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="paket.references" />
@@ -35,12 +37,12 @@
     <Compile Include="ToolTipReader.fs" />
     <Compile Include="CodeFormatAgent.fs" />
     <Compile Include="HtmlFormatting.fs" />
+    <Compile Include="CssGenerators.fs" />
+    <Compile Include="CssFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="CodeFormat.fs" />
+    <None Include="Scripts\CssBuilding.fsx" />
     <!--<Content Include="app.config" />-->
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

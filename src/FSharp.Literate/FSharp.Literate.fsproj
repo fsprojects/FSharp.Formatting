@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -16,7 +15,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -37,6 +35,7 @@
     <Compile Include="Transformations.fs" />
     <Compile Include="Formatting.fs" />
     <Compile Include="Main.fs" />
+    <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />

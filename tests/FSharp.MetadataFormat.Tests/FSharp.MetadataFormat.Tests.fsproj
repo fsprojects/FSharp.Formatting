@@ -7,32 +7,28 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="AttributeTests.fs" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
     <Content Include="app.config" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
-  
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>

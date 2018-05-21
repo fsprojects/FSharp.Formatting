@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <OutputType>Library</OutputType>
@@ -11,6 +10,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="paket.references" />
     <None Include="Files/simple.md" />
     <None Include="Files/simple.fsx" />
@@ -23,7 +23,6 @@
     <Compile Include="Setup.fs" />
     <Compile Include="Tests.fs" />
     <Compile Include="EvalTests.fs" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

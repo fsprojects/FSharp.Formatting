@@ -1,7 +1,10 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (CodeFormatAgent.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
+
+
+//#load "../../paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs"
 namespace FSharp.CodeFormat
 
 open System
@@ -9,135 +12,129 @@ open System.IO
 open Microsoft.FSharp.Compiler
 open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag
-//open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
-open FSharp.Formatting.Common
 //type Log = FSharp.Formatting.Common.Log
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------
 
-module private Helpers =
-
-  /// Mapping table that translates F# compiler representation to our union
-  let getTokenKind = function
-  | FSharpTokenColorKind.Comment             -> TokenKind.Comment
-  | FSharpTokenColorKind.Identifier          -> TokenKind.Identifier
-  | FSharpTokenColorKind.InactiveCode        -> TokenKind.Inactive
-  | FSharpTokenColorKind.Keyword             -> TokenKind.Keyword
-  | FSharpTokenColorKind.Number              -> TokenKind.Number
-  | FSharpTokenColorKind.Operator            -> TokenKind.Operator
-  | FSharpTokenColorKind.Punctuation         -> TokenKind.Punctuation
-  | FSharpTokenColorKind.PreprocessorKeyword -> TokenKind.Preprocessor
-  | FSharpTokenColorKind.String              -> TokenKind.String
-  | FSharpTokenColorKind.UpperIdentifier     -> TokenKind.Identifier
-  | FSharpTokenColorKind.Text
-  | FSharpTokenColorKind.Default | _         -> TokenKind.Default
-
-  // Parse command line options - split string by space, but if there is something
-  // enclosed in double quotes "..." then ignore spaces in the quoted text
-  let parseOptions (str:string) =
-    let rec loop i opts current =
-      let opts =
-        if i < str.Length && str.[i] <> ' ' then opts
-        else (System.String(current |> List.rev |> Array.ofSeq))::opts
-      if i = str.Length then opts
-      elif str.[i] = ' ' then loop (i+1) opts []
-      elif str.[i] = '"' then
-        let endp = str.IndexOf('"', i+1)
-        let chars = str.Substring(i+1, endp - i - 1) |> List.ofSeq |> List.rev
-        loop (endp + 1) opts (chars @ current)
-      else loop (i + 1) opts (str.[i] :: current)
-
-    loop 0 [] [] |> Array.ofSeq
-
-
-  /// Use the F# compiler's SourceTokenizer to split a snippet (array of strings)
-  /// into a snippet with token information and line numbers.
-  let getTokens file defines (lines:string[]) : Snippet =
-
-    // Get defined directives
-    let defines = defines |> Option.map (fun (s:string) ->
-      s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries) |> List.ofSeq)
-    // Create source tokenizer
-    let sourceTok =   FSharpSourceTokenizer(defaultArg defines [], file)
-
-    // Parse lines using the tokenizer
-    let indexedSnippetLines =
-        [   let state = ref 0L
-            for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
-                let tokenizer = sourceTok.CreateLineTokenizer(line)
-                let rec parseLine() = seq {
-                    match tokenizer.ScanToken(!state) with
-                    | Some(tok), nstate ->
-                        let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
-                        yield str, tok
-                        state := nstate
-                        yield! parseLine()
-                    | None, nstate -> state := nstate
-                }
-                yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine() |> List.ofSeq
-        ]
-    indexedSnippetLines
-
-  // Count the minimal number of spaces at the beginning of lines
-  // (so that we can remove spaces for indented text)
-  let countStartingSpaces (lines:Snippet) =
-    [ for _, (toks:_ list) in lines do
-        match toks with
-        | ((text:string), info)::_ when info.TokenName = "WHITESPACE" ->
-            yield text.Length - text.TrimStart([| ' ' |]).Length
-        | [] -> ()
-        | _ -> yield 0
-    ] |> Seq.fold min 0
-
-// --------------------------------------------------------------------------------------
-// Main type that implements parsing and uses F# services
-// --------------------------------------------------------------------------------------
-
-
-
-type [<Struct>] Range = {
+[<Struct>]
+type Range = {
     LeftCol : int
     RightCol : int
 } with
   static member Create leftCol rightCol =
     { LeftCol = leftCol; RightCol = rightCol }
 
-/// Uses agent to handle formatting requests
-type CodeFormatAgent() =
+module CodeFormatAgent =
+
+    /// Maps tokens found by the F# Syntax Parser to an FSharp.Formatting token
+    let getTokenKind = function
+    | FSharpTokenColorKind.Comment             -> TokenKind.Comment
+    | FSharpTokenColorKind.Identifier          -> TokenKind.Identifier
+    | FSharpTokenColorKind.InactiveCode        -> TokenKind.Inactive
+    | FSharpTokenColorKind.Keyword             -> TokenKind.Keyword
+    | FSharpTokenColorKind.Number              -> TokenKind.Number
+    | FSharpTokenColorKind.Operator            -> TokenKind.Operator
+    | FSharpTokenColorKind.Punctuation         -> TokenKind.Punctuation
+    | FSharpTokenColorKind.PreprocessorKeyword -> TokenKind.Preprocessor
+    | FSharpTokenColorKind.String              -> TokenKind.String
+    | FSharpTokenColorKind.UpperIdentifier     -> TokenKind.Identifier
+    | FSharpTokenColorKind.Text
+    | FSharpTokenColorKind.Default | _         -> TokenKind.Default
+
+    /// Maps tokens found by FCS after type checking to an FSharp.Formatting token
+    let categoryToTokenKind = function
+    | SemanticClassificationType.Enumeration           -> Some TokenKind.Enumeration
+    | SemanticClassificationType.Function              -> Some TokenKind.Function
+    | SemanticClassificationType.Interface             -> Some TokenKind.Interface
+    | SemanticClassificationType.Module                -> Some TokenKind.Module
+    | SemanticClassificationType.MutableVar            -> Some TokenKind.MutableVar
+    | SemanticClassificationType.Printf                -> Some TokenKind.Printf
+    | SemanticClassificationType.Property              -> Some TokenKind.Property
+    | SemanticClassificationType.ReferenceType         -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.UnionCase             -> Some TokenKind.UnionCase
+    | SemanticClassificationType.ValueType             -> Some TokenKind.ValueType
+    | SemanticClassificationType.Disposable            -> Some TokenKind.Disposable
+    | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
+    | SemanticClassificationType.TypeArgument          -> Some TokenKind.TypeArgument
+    | SemanticClassificationType.Operator              -> Some TokenKind.Operator
+    | SemanticClassificationType.IntrinsicFunction     -> Some TokenKind.Keyword
+
+    // Parse command line options - split string by space, but if there is something
+    // enclosed in double quotes "..." then ignore spaces in the quoted text
+    let parseOptions (str:string) =
+        let rec loop i opts current =
+            let opts =
+                if i < str.Length && str.[i] <> ' ' then opts
+                else (System.String(current |> List.rev |> Array.ofSeq))::opts
+            if i = str.Length then opts
+            elif str.[i] = ' ' then loop (i+1) opts []
+            elif str.[i] = '"' then
+                let endp = str.IndexOf('"', i+1)
+                let chars = str.Substring(i+1, endp - i - 1) |> List.ofSeq |> List.rev
+                loop (endp + 1) opts (chars @ current)
+            else loop (i + 1) opts (str.[i] :: current)
+
+        loop 0 [] [] |> Array.ofSeq
+
+
+    /// Use the F# compiler's SourceTokenizer to split a snippet (array of strings)
+    /// into a snippet with token information and line numbers.
+    let getTokens file defines (lines:string[]) : Snippet =
+
+        // Get defined directives
+        let defines = defines |> Option.map (fun (s:string) ->
+          s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries) |> List.ofSeq)
+        // Create source tokenizer
+        let sourceTok =   FSharpSourceTokenizer(defaultArg defines [], file)
+
+        // Parse lines using the tokenizer
+        let indexedSnippetLines =
+            [   let state = ref 0L
+                for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
+                    let tokenizer = sourceTok.CreateLineTokenizer line
+                    let rec parseLine() = seq {
+                        match tokenizer.ScanToken(!state) with
+                        | Some(tok), nstate ->
+                            let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
+                            yield str, tok
+                            state := nstate
+                            yield! parseLine()
+                        | None, nstate -> state := nstate
+                    }
+                    yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine() |> List.ofSeq
+            ]
+        indexedSnippetLines
+
+    // Count the minimal number of spaces at the beginning of lines
+    // (so that we can remove spaces for indented text)
+    let countStartingSpaces (lines:Snippet) =
+        [ for _, (toks:_ list) in lines do
+            match toks with
+            | ((text:string), info)::_ when info.TokenName = "WHITESPACE" ->
+                yield text.Length - text.TrimStart([| ' ' |]).Length
+            | [] -> ()
+            | _ -> yield 0
+        ] |> Seq.fold min 0
+
+
     // Create keys for query tooltips for double-backtick identifiers
     let processDoubleBackticks (body : string) =
         if body.StartsWith "``" then
             sprintf "( %s )" <| body.Trim '`'
         else body
 
-    let categoryToTokenKind = function
-    | SemanticClassificationType.Enumeration -> Some TokenKind.Enumeration
-    | SemanticClassificationType.Function -> Some TokenKind.Function
-    | SemanticClassificationType.Interface -> Some TokenKind.Interface
-    | SemanticClassificationType.Module -> Some TokenKind.Module
-    | SemanticClassificationType.MutableVar -> Some TokenKind.MutableVar
-    | SemanticClassificationType.Printf -> Some TokenKind.Printf
-    | SemanticClassificationType.Property -> Some TokenKind.Property
-    | SemanticClassificationType.ReferenceType -> Some TokenKind.ReferenceType
-    | SemanticClassificationType.UnionCase -> Some TokenKind.UnionCase
-    | SemanticClassificationType.ValueType  -> Some TokenKind.ValueType
-    | SemanticClassificationType.Disposable -> Some TokenKind.Disposable
-    | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
-    | SemanticClassificationType.TypeArgument -> Some TokenKind.TypeArgument
-    | SemanticClassificationType.Operator -> Some TokenKind.Operator
-    | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword
 
 
-    // Processes a single line of the snippet
-    let processSnippetLine (checkResults: FSharpCheckFileResults) (semanticRanges: (Range.range * SemanticClassificationType)[])
+    /// Processes a single line of the snippet
+    let processSnippetLine  (checkResults: FSharpCheckFileResults)
+                            (semanticRanges: (Range.range * SemanticClassificationType)[])
                             (lines: string[]) (line: int, lineTokens: SnippetLine) =
         let lineStr = lines.[line]
 
@@ -180,26 +177,26 @@ type CodeFormatAgent() =
                 // Find tootltip using F# compiler service & the identifier island
                 let tip =
                     // If we're processing an identfier, see if it has any tool tip
-                    if (token.TokenName = "IDENT") then
+                    if token.TokenName = "IDENT" then
                         let island = List.rev island
-                        let tip = checkResults.GetToolTipTextAlternate(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
+                        let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
                         match Async.RunSynchronously tip |> fun (tooltip) ->
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with
-                        | Some(_) as res -> res
+                        | Some _ as res -> res
                         | _ -> None
                     else None
 
-                if token.TokenName.StartsWith("OMIT") then
+                if token.TokenName.StartsWith "OMIT" then
                 // Special OMIT tag - add tool tip stored in token name
                 // (The text immediately follows the keyword "OMIT")
-                    yield Omitted(body, token.TokenName.Substring(4))
+                    yield Omitted (body, token.TokenName.Substring 4)
                 elif token.TokenName = "FSI" then
                 // F# Interactive output - return as Output token
-                    yield Output(body)
+                    yield Output body
                 else
                     match tip with
-                    | Some (Literal msg::_) when msg.StartsWith("custom operation:") ->
+                    | Some (Literal msg::_) when msg.StartsWith "custom operation:" ->
                         // If the tool-tip says this is a custom operation, then
                         // we want to treat it as keyword (not sure if there is a better
                         // way to detect this, but Visual Studio also colors these later)
@@ -209,7 +206,7 @@ type CodeFormatAgent() =
                         semanticRanges
                         |> Array.tryFind (fun (range,_) -> range.StartColumn  = token.LeftColumn)
                         |> Option.bind (fun (_,category) -> categoryToTokenKind category)
-                        |> Option.defaultValue (Helpers.getTokenKind token.ColorClass)
+                        |> Option.defaultValue (getTokenKind token.ColorClass)
                     yield FSharp.CodeFormat.Token (kind, body, tip)
                 // Process the rest of the line
                 yield! loop island rest stringRange
@@ -245,7 +242,7 @@ type CodeFormatAgent() =
                         |> Option.defaultValue (leftPoint+1, rightPoint, TokenKind.String))
 
                   for leftPoint, rightPoint, kind in data do
-                    yield FSharp.CodeFormat.Token (kind, lineStr.[leftPoint..rightPoint-1], None)
+                        yield FSharp.CodeFormat.Token (kind, lineStr.[leftPoint..rightPoint-1], None)
               // Process the rest of the line
               yield! loop island rest stringRange
         }
@@ -253,7 +250,9 @@ type CodeFormatAgent() =
         // Process the current line & return info about it
         Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
 
-    /// Process snippet
+
+
+     /// Process snippet
     let processSnippet checkResults categorizedRanges lines (snippet: Snippet) =
         snippet
         |> List.map (fun snippetLine ->
@@ -264,17 +263,11 @@ type CodeFormatAgent() =
                  |> Map.tryFind ((fst snippetLine).StartLine + 1)
                  |> function None -> [||] | Some spans -> Array.ofSeq spans)
                 lines
-                ((fst snippetLine).StartLine, snd snippetLine))
+                ((fst snippetLine).StartLine, snd snippetLine)
+        )
 
-    // --------------------------------------------------------------------------------------
 
-    // Create an instance of an InteractiveChecker (which does background analysis
-    // in a typical IntelliSense editor integration for F#)
-    let fsChecker = FSharpCheckerFuncs.checker // FSharpChecker.Create()
-
-    // ------------------------------------------------------------------------------------
-
-    let processSourceCode (filePath, source, options, defines) = async {
+    let processSourceCode (fsChecker:FSharpChecker, filePath, source, options, defines) = async {
         Log.verbf "starting to process source code from '%s'" filePath
         // Read the source code into an array of lines
         use reader = new StringReader(source)
@@ -311,29 +304,29 @@ type CodeFormatAgent() =
         let opts =
             let mutable known = Set.empty
             { opts with
-                OtherOptions =
-                    Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
-                    |> Array.filter (fun item ->
-                        if item.StartsWith "-r:" then
-                            let fullPath = item.Substring 3
-                            let name = System.IO.Path.GetFileName fullPath
-                            if known.Contains name then
-                                false
-                            else
-                                known <- known.Add name
-                                true
+               OtherOptions =
+                Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
+                |> Array.filter (fun item ->
+                    if item.StartsWith "-r:" then
+                        let fullPath = item.Substring 3
+                        let name = System.IO.Path.GetFileName fullPath
+                        if known.Contains name then
+                            false
                         else
-                            if known.Contains item then
-                                false
-                            else
-                                known <- known.Add item
-                                true)
-                }
+                            known <- known.Add name
+                            true
+                    else
+                        if known.Contains item then
+                            false
+                        else
+                            known <- known.Add item
+                            true)
+            }
         // Override default options if the user specified something
         let opts =
             match options with
-            | Some(str:string) when not(System.String.IsNullOrEmpty(str)) ->
-                { opts with OtherOptions = [| yield! Helpers.parseOptions str; yield! opts.OtherOptions |] }
+            | Some(str:string) when not(System.String.IsNullOrEmpty str) ->
+                { opts with OtherOptions = [| yield! parseOptions str; yield! opts.OtherOptions |] }
             | _ -> opts
         //// add our file
         //let opts =
@@ -365,7 +358,7 @@ type CodeFormatAgent() =
 
 
             /// Parse source file into a list of lines consisting of tokens
-            let tokens = Helpers.getTokens (Some filePath) defines sourceLines
+            let tokens = getTokens (Some filePath) defines sourceLines
 
             // --------------------------------------------------------------------------------
             // When type-checking completes and we have a parsed file (as tokens), we can
@@ -392,7 +385,7 @@ type CodeFormatAgent() =
                     let parsed = processSnippet checkResults classifications sourceLines lines
 
                     // Remove additional whitespace from start of lines
-                    let spaces = Helpers.countStartingSpaces lines
+                    let spaces = countStartingSpaces lines
                     let parsed =  parsed |> List.map (function
                         | Line ((Token(kind, body, tip))::rest) ->
                             let body = body.Substring(spaces)
@@ -419,8 +412,26 @@ type CodeFormatAgent() =
             return None
     }
 
-      // ------------------------------------------------------------------------------------
-      // Agent that implements the parsing & formatting
+  
+
+// --------------------------------------------------------------------------------------
+// Main type that implements parsing and uses F# services
+// --------------------------------------------------------------------------------------
+open CodeFormatAgent
+
+
+
+/// Uses agent to handle formatting requests
+type CodeFormatAgent () =
+
+    // --------------------------------------------------------------------------------------
+
+    // Create an instance of an InteractiveChecker (which does background analysis
+    // in a typical IntelliSense editor integration for F#)
+    let fsChecker =  FSharpChecker.Create()
+    
+    // ------------------------------------------------------------------------------------
+    // Agent that implements the parsing & formatting
 
     let agent = MailboxProcessor.Start (fun agent -> async {
         while true do
@@ -441,7 +452,7 @@ type CodeFormatAgent() =
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
     member __.AsyncParseSource(file, source, ?options, ?defines) = async {
-        let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
+        let! res = agent.PostAndAsyncReply(fun chnl -> (fsChecker,file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> return res
         | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn)) }
@@ -449,15 +460,15 @@ type CodeFormatAgent() =
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member x.ParseSourceAsync(file, source, options, defines) =
-        x.AsyncParseSource(file, source, options, defines)
+    member x.ParseSourceAsync (file, source, options, defines) =
+        x.AsyncParseSource (file, source, options, defines)
         |> Async.StartAsTask
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.ParseSource(file, source, ?options, ?defines) =
-        let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
+    member __.ParseSource (file, source, ?options, ?defines) =
+        let res = agent.PostAndReply(fun chnl -> (fsChecker, file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res
         | Choice2Of2 exn -> raise (new Exception(exn.Message, exn))

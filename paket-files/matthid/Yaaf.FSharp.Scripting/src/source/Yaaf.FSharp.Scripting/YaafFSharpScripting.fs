@@ -61,11 +61,11 @@ module internal CompilerServiceExtensions =
   open Microsoft.FSharp.Compiler.SourceCodeServices
   open System.IO
 
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
+//#if YAAF_FSHARP_SCRIPTING_PUBLIC
   module FSharpCheckerFuncs =
-#else
-  module internal FSharpCheckerFuncs =
-#endif
+//#else
+//  module internal FSharpCheckerFuncs =
+//#endif
       open System.IO
       let checker = FSharpChecker.Create()
 #if NET40

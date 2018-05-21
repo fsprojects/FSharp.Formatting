@@ -1,17 +1,16 @@
+version 5.155.0
 source https://api.nuget.org/v3/index.json
 source https://ci.appveyor.com/nuget/fake
 
-redirects: force
+redirects: on
 
-nuget FSharp.Data
+nuget FSharp.Data 3.0.0-beta3  prerelease
 nuget FAKE prerelease
 nuget CommandLineParser ~> 1.0 // Maybe we should switch to Argu?
 #nuget FSharp.Compiler.Tools
-#nuget FSharp.Core 4.2.3 redirects:force, content:none
-nuget FSharp.Core redirects:force, content:none
+#nuget FSharp.Core 4.3.4 redirects:force, content:none
 nuget RazorEngine 3.9.3 framework: >= net45
-#nuget FSharp.Compiler.Service  22.0.3 redirects:force, content:none
-nuget FSharp.Compiler.Service  redirects:force, content:none
+nuget FSharp.Compiler.Service  22.0.3 redirects:force, content:none
 nuget ILRepack
 nuget Argu
 
@@ -22,6 +21,7 @@ group Build
 group netcorebuild
     storage: none
     source https://api.nuget.org/v3/index.json
+    #nuget FSharp.Core 4.3.4 redirects:force, content:none
     nuget Fake.Core.Target
     nuget Fake.Core.ReleaseNotes
     nuget Fake.DotNet.AssemblyInfoFile
@@ -36,5 +36,11 @@ group netcorebuild
 group Test
     source https://api.nuget.org/v3/index.json
 
-    nuget FsUnit //3.0.0 //framework:net45
-   
+    redirects: on 
+
+   # nuget FSharp.Core 4.3.4 redirects:force, content:none   
+    nuget FsUnit 3.0.0 //framework:net45
+    nuget NUnit 3.9.0 //3.0.0 //framework:net45
+    nuget Nunit.ConsoleRunner
+    nuget Nunit.ConsoleRunner
+    nuget Microsoft.NET.Test.Sdk

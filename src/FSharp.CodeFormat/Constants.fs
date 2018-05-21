@@ -1,4 +1,4 @@
-﻿module FSharp.CodeFormat.Constants
+module FSharp.CodeFormat.Constants
 
 [<RequireQualifiedAccessAttribute>]
 module CSS =
@@ -27,4 +27,43 @@ module CSS =
     let [<Literal>] Interface     = "if"
     let [<Literal>] Property      = "prop"
     let [<Literal>] UnionCase     = "uc"
+    let [<Literal>] LineNumber    = "l"
+    let [<Literal>] FsiOutput     = "fsi"
+    let [<Literal>] Omitted       = "omitted"
+    let [<Literal>] Snippet       = "fssnip"
+    let [<Literal>] Tooltip       = "ttip"
+    let [<Literal>] Source        = "pre"
+
+
+[<RequireQualifiedAccessAttribute>]
+module Colors =
+
+    let [<Literal>] Comment       = "#49744d"
+    let [<Literal>] Default       = "#E0C57F"
+    let [<Literal>] Identifier    = "#D8D6D5"
+    let [<Literal>] Inactive      = "#d1d1d1"
+    let [<Literal>] Keyword       = "#20879f"
+    let [<Literal>] Number        = "#96C71D"
+    let [<Literal>] Operator      = "#be2424"
+    let [<Literal>] Preprocessor  = "#ed6805"
+    let [<Literal>] String        = "#60815f"
+    let [<Literal>] Module        = "#1156a0"
+    let [<Literal>] ReferenceType = "#6146cc"
+    let [<Literal>] ValueType     = "#d45f12"
+    let [<Literal>] Function      = "#38d7b6"
+    let [<Literal>] Pattern       = "#4ec9b0"
+    let [<Literal>] MutableVar    = "#bf44bd"
+    let [<Literal>] Printf        = "#2367a9"
+    let [<Literal>] Escaped       = "#EA8675"
+    let [<Literal>] Disposable    = "#9b4f72"
+    let [<Literal>] TypeArgument  = "#a4e00e"
+    let [<Literal>] Punctuation   = "#b08e21"
+    let [<Literal>] Enumeration   = "#236f2e"
+    let [<Literal>] Interface     = "#ace695"
+    let [<Literal>] Property      = "#24532c"
+    let [<Literal>] UnionCase     = "#28de48"
+    let [<Literal>] LineNumber    = "#80b0b0"
+    let [<Literal>] FsiOutput     = "#808080"
+    let [<Literal>] Omitted       = "#808080"
+
 

@@ -11,7 +11,6 @@
   <ItemGroup>
     <Compile Include="Library1.fs" />
     <None Include="paket.references" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

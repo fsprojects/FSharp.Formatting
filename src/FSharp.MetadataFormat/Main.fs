@@ -971,7 +971,7 @@ module Reader =
       try
         let name = memb.CompiledName.Replace(".ctor", "#ctor")
         let typeGenericParameters =
-            memb.EnclosingEntity.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
+            memb.DeclaringEntity.Value.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
         let methodGenericParameters =
             memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
         let typeArgsMap =
@@ -1007,7 +1007,7 @@ module Reader =
         Log.errorf "Error while building member-name for %s because: %s" memb.FullName exn.Message
         Log.verbf "Full Exception details of previous message: %O" exn
         memb.CompiledName
-    match (memb.XmlDocSig, memb.EnclosingEntity.TryFullName) with
+    match (memb.XmlDocSig, memb.DeclaringEntity.Value.TryFullName) with
     | "",  None    -> ""
     | "", Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
     | n, _         -> n
@@ -1222,7 +1222,7 @@ module Reader =
     |> List.ofSeq
     |> List.choose (fun staticParam ->
       readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
-        Member.Create(staticParam.Name, MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
+        Member.Create(staticParam.Name, [], MemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment)))
 
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
@@ -1279,7 +1279,7 @@ module Reader =
           |> List.ofSeq
           |> List.filter (fun v -> checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && not v.IsOverrideOrExplicitInterfaceImplementation)
           |> List.filter (fun v ->
-            if v.EnclosingEntity.IsFSharp then true else
+            if v.DeclaringEntity.Value.IsFSharp then true else
                 not v.IsEventAddMethod && not v.IsEventRemoveMethod &&
                 not v.IsPropertyGetterMethod && not v.IsPropertySetterMethod)
           |> List.partition (fun v -> v.IsInstanceMember)

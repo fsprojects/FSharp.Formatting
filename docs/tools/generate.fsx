@@ -1,3 +1,5 @@
+System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
+
 // --------------------------------------------------------------------------------------
 // Builds the documentation from `.fsx` and `.md` files in the 'docs/content' directory
 // (the generated documentation is stored in the 'docs/output' directory)
@@ -29,14 +31,31 @@ let referenceBinaries =
 
 
 #I "../../packages/FAKE/tools/"
+#I "../../packages/FSharp.Compiler.Service/lib/net45/"
+#I "../../bin"
 #r "NuGet.Core.dll"
 #r "FakeLib.dll"
-open Fake
-open System.IO
-open Fake
-open Fake.FileHelper
+#r "FSharp.Compiler.Service.dll"
+#r "RazorEngine.dll"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Markdown.dll"
+#r "FSharp.Literate.dll"
 
-#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
+// Ensure that FSharpVSPowerTools.Core.dll is loaded before trying to load FSharp.CodeFormat.dll
+;;
+
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.MetadataFormat.dll"
+#r "FSharp.Formatting.Razor.dll"
+
+
+
+open Fake
+open Fake.IO
+open Fake.IO.Globbing.Operators
+open Fake.IO.FileSystemOperators
+
+//#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
 open FSharp.Literate
 open FSharp.MetadataFormat
@@ -66,21 +85,21 @@ let docTemplateSbS = templates @@ "docpage-sidebyside.cshtml"
 let layoutRootsAll = new System.Collections.Generic.Dictionary<string, string list>()
 layoutRootsAll.Add("en",[ templates; formatting @@ "templates"
                           formatting @@ "templates/reference" ])
-subDirectories (directoryInfo templates)
+DirectoryInfo.getSubDirectories (System.IO.DirectoryInfo templates)
 |> Seq.iter (fun d ->
-                let name = d.Name
-                if name.Length = 2 || name.Length = 3 then
-                    layoutRootsAll.Add(
-                            name, [templates @@ name
-                                   formatting @@ "templates"
-                                   formatting @@ "templates/reference" ]))
+    let name = d.Name
+    if name.Length = 2 || name.Length = 3 then
+        layoutRootsAll.Add(
+            name, [ templates @@ name
+                    formatting @@ "templates"
+                    formatting @@ "templates/reference" ]))
 
 //let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
-  CopyRecursive files output true |> Log "Copying file: "
-  ensureDirectory (output @@ "content")
+  Shell.copyRecursive files output true |> Fake.Core.Trace.logItems  "Copying file: "
+  Directory.ensure (output @@ "content")
   //CopyRecursive (formatting @@ "styles") (output @@ "content") true
   //  |> Log "Copying styles and scripts: "
 
@@ -93,7 +112,7 @@ let libDirs = [bin]
 
 // Build API reference from XML comments
 let buildReference () =
-  CleanDir (output @@ "reference")
+  Shell.cleanDir (output @@ "reference")
   RazorMetadataFormat.Generate
     ( binaries, output @@ "reference", layoutRootsAll.["en"],
       parameters = ("root", root)::info,
@@ -129,14 +148,14 @@ let buildDocumentation () =
 let watch () =
   printfn "Starting watching by initial building..."
   let rebuildDocs () =
-    CleanDir output // Just in case the template changed (buildDocumentation is caching internally, maybe we should remove that)
+    Shell.cleanDir output // Just in case the template changed (buildDocumentation is caching internally, maybe we should remove that)
     copyFiles()
     buildReference()
     buildDocumentation()
   rebuildDocs()
   printfn "Watching for changes..."
 
-  let full s = Path.GetFullPath s
+  let full s = Path.getFullName s
   let queue = new System.Collections.Concurrent.ConcurrentQueue<_>()
   let processTask () =
     async {
@@ -146,17 +165,17 @@ let watch () =
           if queue.IsEmpty then
             do! Async.Sleep 1000
           else
-            let data = ref []
-            let hasData = ref true
-            while !hasData do
+            let mutable data = []
+            let mutable hasData = true
+            while hasData do
               match queue.TryDequeue() with
               | true, d ->
-                data := d :: !data
+                data <- d::data
               | _ ->
-                hasData := false
+                hasData <- false
 
-            printfn "Detected changes (%A). Invalidate cache and rebuild." !data
-            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (!data |> Seq.map (fun change -> change.FullPath))
+            printfn "Detected changes (%A). Invalidate cache and rebuild." data
+            FSharp.Formatting.Razor.RazorEngineCache.InvalidateCache (data |> Seq.map (fun change -> change.FullPath))
             rebuildDocs()
             printfn "Documentation generation finished."
         with e ->
@@ -168,7 +187,7 @@ let watch () =
     ++ (full templates + "/*.*")
     ++ (full files + "/*.*")
     ++ (full formatting + "templates/*.*")
-    |> WatchChanges (fun changes ->
+    |> ChangeWatcher.run (fun changes ->
       changes |> Seq.iter queue.Enqueue)
   use source = new System.Threading.CancellationTokenSource()
   Async.Start(processTask (), source.Token)

@@ -10,12 +10,12 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="paket.references" />
     <Compile Include="TestFiles.fs" />
     <Compile Include="Markdown.fs" />
     <Compile Include="Externals.fs" />
     <Compile Include="CommonMarkSpecTest.fs" />
+    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
