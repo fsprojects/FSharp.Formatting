@@ -5,14 +5,14 @@ namespace FsLib
 type DuplicatedTypeName = int
 
 /// Sample class
-type Class() = 
+type Class() =
   /// Readonly int property
   member x.Member = 0
 
 /// Nested module
-module Nested = 
+module Nested =
   /// Somewhat nested module
-  module Submodule = 
+  module Submodule =
     /// Very nested field
     let supernested = 42
 
@@ -22,7 +22,7 @@ module Nested =
       member x.Member = ""
 
   /// Somewhat nested type
-  type NestedType() = 
+  type NestedType() =
     /// Very nested member
     member x.Member = ""
 
@@ -60,13 +60,38 @@ type Test_Issue229 (name) =
 
     interface ITest_Issue229 with
         /// interface comment
-        member x.Name = name  
+        member x.Name = name
 
 type Test_Issue287 () =
   /// Function Foo!
   abstract member Foo: int-> unit
   /// Empty function for signature
   default x.Foo a = ()
+
+[<RequireQualifiedAccess>]
+module Test_Issue472_R =
+
+  /// test function with tupled arguments
+  let ftupled (x :int, y :int) = x * y
+
+  /// test function with multiple arguments
+  let fmultipleargs (x :int) (y :int) = x * y
+
+module Test_Issue472 =
+
+  /// test function with tupled arguments
+  let ftupled (x :int, y :int) = x * y
+
+  /// test function with multiple arguments
+  let fmultipleargs (x :int) (y :int) = x * y
+
+type Test_Issue472_T () =
+  /// Function MultPartial!
+  member x.MultPartial (arg1:int) (arg2:int) = ()
+  /// Function MultArg!
+  member x.MultArg (arg1:int, arg2:int) = ()
+  /// Function MultArgTupled!
+  member x.MultArgTupled(arg: (int * int)) = ()
 
 type ITestInterface =
   abstract Test : unit -> RazorEngine.Templating.IRazorEngineService
@@ -77,14 +102,14 @@ type ITestInterface =
 module Test_Issue201 =
   /// Extension docs
   [<System.Runtime.CompilerServices.Extension>]
-  let MyExtension (o : ITestInterface) = 
+  let MyExtension (o : ITestInterface) =
     ignore <| o.Test().GetKey(null)
- 
+
 [<AutoOpen>]
 module Test_Issue201Extensions =
   type ITestInterface with
     member x.MyExtension() =
-     Test_Issue201.MyExtension x 
+     Test_Issue201.MyExtension x
 
 /// [omit]
 type Test_Omit() =

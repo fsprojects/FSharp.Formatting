@@ -558,29 +558,33 @@ module ValueReader =
     let requireQualifiedAccess =
         hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
 
+    let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList
+
     let buildUsage (args:string option) =
       let parArgs = args |> Option.map (fun s ->
         if String.IsNullOrWhiteSpace(s) then ""
         elif s.StartsWith("(") then s
+        // curried arguments should not have brackets, see https://github.com/fsprojects/FSharp.Formatting/issues/472
+        elif argInfos.Length > 1 then " " + s
         else sprintf "(%s)" s)
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors and indexers
       | _, _, ".ctor", _ -> "new" + (defaultArg parArgs "(...)")
       | _, true, _, "Item" -> "[" + (defaultArg args "...") + "]"
       // Ordinary instance members
-      | _, true, _, name -> name + (defaultArg parArgs "(...)")
+      | _, true, _, name -> "x." + name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
-      | false, _, _, name when not <| requireQualifiedAccess ->
-            name + " " + (defaultArg args "(...)")
+      | false, _, _, name when not <| requireQualifiedAccess -> name + (defaultArg parArgs "(...)")
       // Ordinary static members or things (?) that require fully qualified access
-      | _, _, _, name -> name + (defaultArg parArgs "(...)")
+      | _, false, _, name -> v.ApparentEnclosingEntity.DisplayName + "." + name + (defaultArg parArgs "(...)")
+      // Ordinary static members or things (?) that require fully qualified access
+      //| _, _, _, name -> name + (defaultArg parArgs "(...)")
 
     let modifiers =
       [ // TODO: v.Accessibility does not contain anything
         if v.InlineAnnotation = FSharpInlineAnnotation.AlwaysInline then yield "inline"
         if v.IsDispatchSlot then yield "abstract" ]
 
-    let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList
     let retType = v.ReturnParameter.Type
     let argInfos, retType =
         match argInfos, v.IsPropertyGetterMethod || v.HasGetterMethod, v.IsPropertySetterMethod || v.HasSetterMethod with
