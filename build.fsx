@@ -299,6 +299,24 @@ Target.create"NuGet" (fun _ ->
                   "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "nuget/FSharp.Formatting.nuspec"
+    NuGet.NuGet (fun p ->
+        { p with
+            Authors = authors
+            Project = "FSharp.Literate"
+            Summary = summary
+            Description = description
+            Version = release.NugetVersion
+            ReleaseNotes = String.toLines release.Notes
+            Tags = tags
+            OutputPath = "bin"
+            AccessKey = Environment.environVarOrDefault "nugetkey" ""
+            Publish = Environment.hasEnvironVar "nugetkey"
+            Dependencies =
+                [ // We need Razor dependency in the package until we split out Razor into a separate package.
+                  "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
+                  "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
+                   ] })
+        "nuget/FSharp.Formatting.nuspec"
 
     NuGet.NuGet (fun p ->
         { p with
