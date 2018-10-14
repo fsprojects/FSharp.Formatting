@@ -66,6 +66,7 @@ Target.create "Clean" (fun _ ->
     ++ "temp"
     ++ "docs/output"
     ++ "tests/bin"
+    ++ "src/**/obj"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
     ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
     |> Shell.cleanDirs
