@@ -780,7 +780,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
           [ for (Node((simple, _, body), nested)) in nodes ->
               [ let rng = body |> List.map snd |> MarkdownRange.mergeRanges
                 if not simple then yield! parseParagraphs ctx body
-                else yield Span(parseSpans(body |> List.map fst |> String.concat ctx.Newline, rng) ctx, ctx.CurrentRange)
+                else yield MarkdownParagraph.Span(parseSpans(body |> List.map fst |> String.concat ctx.Newline, rng) ctx, ctx.CurrentRange)
                 if nested <> [] then
                   yield formatTree nested ] ]
         ListBlock(kind, items, ctx.CurrentRange)

@@ -1,4 +1,4 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 #r "../../bin/FSharp.CodeFormat.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
@@ -26,7 +26,7 @@ let containsSpan f snips =
 
 // Check that tool tips contains a specified token
 let (|ToolTipWithLiteral|_|) text tips = 
-  if Seq.exists (function Literal(tip) -> tip.Contains(text) | _ -> false) tips
+  if Seq.exists (function Literal(tip) -> tip.Contains(text: string) | _ -> false) tips
   then Some () else None
   
 // --------------------------------------------------------------------------------------

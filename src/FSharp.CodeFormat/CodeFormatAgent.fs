@@ -11,14 +11,12 @@ open Microsoft.FSharp.Compiler.Ast
 open Microsoft.FSharp.Compiler.Range
 open Microsoft.FSharp.Compiler.Layout
 open Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag
-//open Microsoft.FSharp.Compiler.SimpleSourceCodeServices
 open Microsoft.FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
 open FSharp.Formatting.Common
-//type Log = FSharp.Formatting.Common.Log
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------
@@ -270,7 +268,7 @@ type CodeFormatAgent() =
 
     // Create an instance of an InteractiveChecker (which does background analysis
     // in a typical IntelliSense editor integration for F#)
-    let fsChecker = FSharpCheckerFuncs.checker // FSharpChecker.Create()
+    let fsChecker = FSharpAssemblyHelper.checker // FSharpChecker.Create()
 
     // ------------------------------------------------------------------------------------
 
@@ -285,13 +283,19 @@ type CodeFormatAgent() =
         |]
         // Get options for a standalone script file (this adds some
         // default references and doesn't require full project information)
-        let frameworkVersion = FSharpCheckerFuncs.defaultFrameworkVersion
-        let fsCore = FSharpCheckerFuncs.findFSCore [] []
+        let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
+        let fsiOptions = (Option.map (Helpers.parseOptions >>  FsiOptions.ofArgs) options) |> Option.defaultValue FsiOptions.Empty
+
+        let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
         let defaultReferences =
-            FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
-        let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
+#if !NETSTANDARD1_5
+            FSharpAssemblyHelper.getDefaultSystemReferences frameworkVersion
+#else
+            Seq.empty
+#endif
+        let projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences None [] [] []
         // filter invalid args
-        let refCorLib = args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
+        let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
         let args =
             args |> Array.filter (fun item ->
                 not <| item.StartsWith "--target" &&
@@ -300,9 +304,7 @@ type CodeFormatAgent() =
                 not <| item.StartsWith "--nooptimizationdata" &&
                 not <| item.EndsWith "mscorlib.dll")
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
-        //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
-        //fsChecker.GetP
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
@@ -345,7 +347,8 @@ type CodeFormatAgent() =
         Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
-        if _errors.Length > 0 then
+        
+        if _errors |> List.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> List.length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
         // Run the second phase - perform type checking

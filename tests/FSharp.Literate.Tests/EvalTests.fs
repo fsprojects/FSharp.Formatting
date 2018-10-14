@@ -1,5 +1,5 @@
-﻿#if INTERACTIVE
-#I "../../bin/"
+#if INTERACTIVE
+#I "../../bin/net461"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"

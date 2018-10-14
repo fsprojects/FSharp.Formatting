@@ -1,7 +1,5 @@
-FSharp.Core
+FSharp.Core redirects: force
 FSharp.Data
-#FSharp.Compiler.Tools
-
-group Test
 FsUnit
 NUnit
+NUnit3TestAdapter

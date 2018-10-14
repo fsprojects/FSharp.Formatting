@@ -34,7 +34,7 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "../bin" |> fullpath
+let testBin = __SOURCE_DIRECTORY__ </> "../bin/net461" |> fullpath
 
 #if INTERACTIVE 
 ;;
@@ -55,9 +55,17 @@ let findType name (typeInfos: TypeInfo list)=
     |> List.map (fun t -> t.Type)
     |> List.find (fun t-> t.Name = name)
 
+let info =
+  [ "project-name", "FSharp.ProjectScaffold"
+    "project-author", "Your Name"
+    "project-summary", "A short summary of your project"
+    "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
+    "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
+    "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
+
 [<Test>]
 let ``MetadataFormat extracts Attribute on Module``() =
-  let modules = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let modules = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let modul = modules |> findModule "SingleAttributeModule"
   let attribute = modul.Attributes.Head
   attribute.Name |> shouldEqual "ObsoleteAttribute"
@@ -67,14 +75,14 @@ let ``MetadataFormat extracts Attribute on Module``() =
 
 [<Test>]
 let ``MetadataFormat extracts multiple Attributes on Module``() =
-  let modules = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let modules = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let modul = modules |> findModule "MultipleAttributesModule"
   let attributes = modul.Attributes
   attributes.Length |> shouldEqual 3
 
 [<Test>]
 let ``MetadataFormat extracts Attribute with argument``() =
-  let modules = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let modules = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let modul = modules |> findModule "SingleAttributeWithArgumentModule"
   let attribute = modul.Attributes.Head
   attribute.Name |> shouldEqual "ObsoleteAttribute"
@@ -85,7 +93,7 @@ let ``MetadataFormat extracts Attribute with argument``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute with named arguments``() =
-  let modules = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let modules = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let modul = modules |> findModule "SingleAttributeWithNamedArgumentsModule"
   let attribute = modul.Attributes.Head
   attribute.Name |> shouldEqual "TestAttribute"
@@ -100,7 +108,7 @@ let ``MetadataFormat extracts Attribute with named arguments``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on interface``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let interface' = typeInfos |> findType "AttributeInterface"
   let attribute = interface'.Attributes.Head
   attribute.Name |> shouldEqual "TestAttribute"
@@ -108,7 +116,7 @@ let ``MetadataFormat extracts Attribute on interface``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on class``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let class' = typeInfos |> findType "AttributeClass"
   let attribute = class'.Attributes.Head
   attribute.Name |> shouldEqual "TestAttribute"
@@ -116,7 +124,7 @@ let ``MetadataFormat extracts Attribute on class``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on value in module``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = typeInfos |> findModule "ContentTestModule"
   let testValue = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="testValue")
   let attribute = testValue.Attributes.Head
@@ -125,7 +133,7 @@ let ``MetadataFormat extracts Attribute on value in module``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on function in module``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = typeInfos |> findModule "ContentTestModule"
   let testFunction = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="testFunction")
   let attribute = testFunction.Attributes.Head
@@ -134,7 +142,7 @@ let ``MetadataFormat extracts Attribute on function in module``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on instance member in class``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let class' = typeInfos |> findType "AttributeClass"
   let testMember = class'.InstanceMembers |> Seq.find (fun v -> v.Name ="TestMember")
   let attribute = testMember.Attributes.Head
@@ -143,7 +151,7 @@ let ``MetadataFormat extracts Attribute on instance member in class``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on class constructor``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let class' = typeInfos |> findType "AttributeClass"
   let ctor = class'.Constructors |> Seq.find (fun v -> v.Details.Signature ="i:int -> AttributeClass")
   let attribute = ctor.Attributes.Head
@@ -153,7 +161,7 @@ let ``MetadataFormat extracts Attribute on class constructor``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on static member in class``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let class' = typeInfos |> findType "AttributeClass"
   let staticMember = class'.StaticMembers |> Seq.find (fun v -> v.Name ="TestStaticMember")
   let attribute = staticMember.Attributes.Head
@@ -162,7 +170,7 @@ let ``MetadataFormat extracts Attribute on static member in class``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on union case``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let union = typeInfos |> findType "AttributeUnion"
   let case = union.UnionCases |> Seq.find (fun v -> v.Name ="TestCase")
   let attribute = case.Attributes.Head
@@ -172,7 +180,7 @@ let ``MetadataFormat extracts Attribute on union case``() =
 
 [<Test>]
 let ``MetadataFormat extracts Attribute on record field``() =
-  let typeInfos = MetadataFormat.Generate(library, libDirs = [testBin]).TypesInfos
+  let typeInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).TypesInfos
   let union = typeInfos |> findType "AttributeRecord"
   let case = union.RecordFields |> Seq.find (fun v -> v.Name ="TestField")
   let attribute = case.Attributes.Head
@@ -182,7 +190,7 @@ let ``MetadataFormat extracts Attribute on record field``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute without arguments``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="noArguments")
   let attribute = value.Attributes.Head
@@ -192,7 +200,7 @@ let ``MetadataFormat formats attribute without arguments``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with single int argument``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleIntArgument")
   let attribute = value.Attributes.Head
@@ -202,7 +210,7 @@ let ``MetadataFormat formats attribute with single int argument``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with single string argument``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleStringArgument")
   let attribute = value.Attributes.Head
@@ -212,7 +220,7 @@ let ``MetadataFormat formats attribute with single string argument``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with single bool argument``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleBoolArgument")
   let attribute = value.Attributes.Head
@@ -223,7 +231,7 @@ let ``MetadataFormat formats attribute with single bool argument``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with single array argument``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleArrayArgument")
   let attribute = value.Attributes.Head
@@ -233,7 +241,7 @@ let ``MetadataFormat formats attribute with single array argument``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with multiple arguments``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="multipleArguments")
   let attribute = value.Attributes.Head
@@ -243,7 +251,7 @@ let ``MetadataFormat formats attribute with multiple arguments``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with multiple named arguments``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="multipleNamedArguments")
   let attribute = value.Attributes.Head
@@ -253,7 +261,7 @@ let ``MetadataFormat formats attribute with multiple named arguments``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with name and suffix``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleBoolArgument")
   let attribute = value.Attributes.Head
@@ -262,7 +270,7 @@ let ``MetadataFormat formats attribute with name and suffix``() =
   attribute.FormatLongForm() |> shouldEqual "[<BoolTestAttribute(true)>]"
 [<Test>]
 let ``MetadataFormat formats attribute with fullName``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleBoolArgument")
   let attribute = value.Attributes.Head
@@ -272,7 +280,7 @@ let ``MetadataFormat formats attribute with fullName``() =
 
 [<Test>]
 let ``MetadataFormat formats attribute with fullName and suffix``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "FormatTestModule"
   let value = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="singleBoolArgument")
   let attribute = value.Attributes.Head
@@ -282,7 +290,7 @@ let ``MetadataFormat formats attribute with fullName and suffix``() =
 
 [<Test>]
 let ``MetadataFormat IsObsolete returns true on obsolete attribute``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "ObsoleteTestModule"
   let noMessage = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="noMessage")
   noMessage.IsObsolete |> shouldEqual true
@@ -290,7 +298,7 @@ let ``MetadataFormat IsObsolete returns true on obsolete attribute``() =
 
 [<Test>]
 let ``MetadataFormat IsObsolete returns true on obsolete attribute and finds obsolete message``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "ObsoleteTestModule"
   let withMessage = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="withMessage")
   withMessage.IsObsolete |> shouldEqual true
@@ -298,7 +306,7 @@ let ``MetadataFormat IsObsolete returns true on obsolete attribute and finds obs
 
 [<Test>]
 let ``MetadataFormat IsObsolete returns false on not obsolete attribute and finds no obsolete message``() =
-  let moduleInfos = MetadataFormat.Generate(library, libDirs = [testBin]).ModuleInfos
+  let moduleInfos = MetadataFormat.Generate(library, info, libDirs = [testBin]).ModuleInfos
   let module' = moduleInfos |> findModule "ObsoleteTestModule"
   let notObsolete = module'.ValuesAndFuncs |> Seq.find (fun v -> v.Name ="notObsolete")
   notObsolete.IsObsolete |> shouldEqual false
