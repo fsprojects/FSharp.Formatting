@@ -164,6 +164,8 @@ let restore proj =
     (DotNet.exec opts "restore" (sprintf "%s" (Path.getFullName proj))).Messages |> Seq.iter Trace.trace
 
 Target.create "Build" (fun _ ->
+    Paket.restore (fun p -> { p with ForceDownloadOfPackages = true  })
+
     //restore solutionFile
     DotNet.restore id solutionFile
     

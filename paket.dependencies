@@ -35,7 +35,8 @@ group netcorebuild
     nuget Fake.DotNet.Testing.NUnit
     nuget Fake.DotNet.NuGet
     nuget Fake.DotNet.MsBuild
-    nuget Fake.Tools.Git 
+    nuget Fake.Tools.Git
+	nuget Fake.DotNet.Paket
 
 group Test
     source https://api.nuget.org/v3/index.json
