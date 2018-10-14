@@ -20,10 +20,11 @@ nuget FsUnit
 nuget NUnit
 # github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
-
 group Build
     source https://api.nuget.org/v3/index.json
+	source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
     nuget NuGet.CommandLine
+	nuget RoslynTools.ReferenceAssemblies
 
 group netcorebuild
     storage: none
