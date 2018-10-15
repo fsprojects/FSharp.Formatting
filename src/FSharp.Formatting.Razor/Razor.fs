@@ -25,13 +25,10 @@ open System.Dynamic
 open System.Collections.Generic
 open System.Collections.Concurrent
 open FSharp.Formatting.Common
-
-#if !NETSTANDARD2_0
 open RazorEngine.Text
 open RazorEngine.Templating
 open RazorEngine.Configuration
 open RazorEngine.Compilation.ReferenceResolver
-#endif
 
 //module tst =
 //#if INTERACTIVE

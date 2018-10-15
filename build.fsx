@@ -1,6 +1,10 @@
 #r "paket: groupref netcorebuild //"
 #load ".fake/build.fsx/intellisense.fsx"
+#if !FAKE
+#r "netstandard"
+#endif
 
+open System
 open System.IO
 open Fake.Core
 open Fake.IO.Globbing.Operators
@@ -93,14 +97,14 @@ let getPackageVersion deploymentsDir package =
                 folder.Substring index
             else
                 let nuspec = Directory.GetFiles(folder, sprintf "%s.nuspec" package) |> Seq.head
-                let doc = System.Xml.Linq.XDocument.Load(nuspec)
-                let vers = doc.Descendants(System.Xml.Linq.XName.Get("version", doc.Root.Name.NamespaceName))
+                let doc = Xml.Linq.XDocument.Load(nuspec)
+                let vers = doc.Descendants(Xml.Linq.XName.Get("version", doc.Root.Name.NamespaceName))
                 (Seq.head vers).Value
 
         Trace.logfn "Version %s found for package %s" version package
         version
     with
-    | exn -> new System.Exception("Could not detect package version for " + package, exn) |> raise
+    | exn -> new Exception("Could not detect package version for " + package, exn) |> raise
 
 Target.create "UpdateFsxVersions" (fun _ ->
     let packages = [ "FSharp.Compiler.Service" ]
@@ -115,7 +119,7 @@ Target.create "UpdateFsxVersions" (fun _ ->
     let text =
         (text, replacements)
         ||> Seq.fold (fun text (pattern, replacement) ->
-            System.Text.RegularExpressions.Regex.Replace (text, pattern, replacement)
+            Text.RegularExpressions.Regex.Replace (text, pattern, replacement)
         )
     File.WriteAllText(path, text)
 )
@@ -148,7 +152,7 @@ let runCmdIn workDir exe =
                     FileName = exe
                     Arguments = args
                     WorkingDirectory = workDir
-                }) System.TimeSpan.MaxValue)
+                }) TimeSpan.MaxValue)
         res.Messages |> Seq.iter Trace.trace
         res.ExitCode |> assertExitCodeZero)
 
@@ -221,17 +225,6 @@ Target.create"DotnetTests" (fun _ ->
 )
 
 
-Target.create"RunTests" (fun _ ->
-    testAssemblies
-    |> NUnit3.run (fun p ->
-        { p with
-            ShadowCopy = true
-            TimeOut = System.TimeSpan.FromMinutes 20.
-            ToolPath = "./packages/test/NUnit.ConsoleRunner/tools/nunit3-console.exe"
-            OutputDir = "TestResults.xml" })
-)
-
-
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
@@ -254,7 +247,7 @@ let RequireRange breakingPoint version =
 
 Target.create"CopyFSharpCore" (fun _ ->
     // We need to include optdata and sigdata as well, we copy everything to be consistent
-    for file in System.IO.Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
+    for file in Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
         let source, binDest = file, "bin" </> "net461" </> Path.GetFileName file
         let binDest2 = "tests" </> "bin" </> "net461" </> Path.GetFileName file
         Directory.ensure "bin/net461"
@@ -269,7 +262,7 @@ Target.create"SetupLibForTests" (fun _ ->
 
     let copyPackageFiles dir =
         let dir = Path.GetFullPath dir
-        for file in System.IO.Directory.EnumerateFiles dir do
+        for file in Directory.EnumerateFiles dir do
             let fileName = Path.GetFileName file
             if not (fileName.StartsWith "FSharp.Compiler.Service.MSBuild.") then
                 let source, libDest = file, "tests"</>"bin"</>fileName
@@ -347,7 +340,7 @@ let fakePath = "packages" </> "FAKE" </> "tools" </> "FAKE.exe"
 let fakeStartInfo script workingDirectory args fsiargs environmentVars =
     (fun (info: ProcStartInfo) ->
             { info with
-                FileName = System.IO.Path.GetFullPath fakePath
+                FileName = Path.GetFullPath fakePath
                 Arguments = sprintf "%s --fsiargs -d:FAKE %s \"%s\"" args fsiargs script
                 WorkingDirectory = workingDirectory
             }
@@ -360,7 +353,7 @@ let commandToolPath = "bin" </> "net461" </> "fsformatting.exe"
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
         { info with
-            FileName = System.IO.Path.GetFullPath commandToolPath
+            FileName = Path.GetFullPath commandToolPath
             Arguments = args
             WorkingDirectory = workingDirectory
         }
@@ -375,16 +368,16 @@ let executeWithOutput configStartInfo =
     let exitCode =
         Process.execRaw
             configStartInfo
-            System.TimeSpan.MaxValue false ignore ignore
-    System.Threading.Thread.Sleep 1000
+            TimeSpan.MaxValue false ignore ignore
+    Threading.Thread.Sleep 1000
     exitCode
 
 let executeWithRedirect errorF messageF configStartInfo =
     let exitCode =
         Process.execRaw
             configStartInfo
-            System.TimeSpan.MaxValue true errorF messageF
-    System.Threading.Thread.Sleep 1000
+            TimeSpan.MaxValue true errorF messageF
+    Threading.Thread.Sleep 1000
     exitCode
 
 let executeHelper executer traceMsg failMessage configStartInfo =
@@ -407,7 +400,7 @@ let buildDocumentationCommandTool args =
 let createArg argName arguments =
     (arguments : string seq)
     |> String.concat "\" \""
-    |> fun e -> if System.String.IsNullOrWhiteSpace e then ""
+    |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
 let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parameters sourceRepo =
@@ -462,12 +455,11 @@ let bootStrapDocumentationFiles () =
                        "FSharp.Markdown.dll"; "FSharp.MetadataFormat.dll"; "RazorEngine.dll";
                        "System.Web.Razor.dll"; "FSharp.Formatting.Common.dll"; "FSharp.Formatting.Razor.dll"
     ]
-                     //|> List.append (!! ( "bin/*.dll.config" )).Includes
 
     let bundledFiles =
         buildFiles
         |> List.map (fun f ->
-            __SOURCE_DIRECTORY__ </> sprintf "bin/%s" f,
+            __SOURCE_DIRECTORY__ </> sprintf "bin/net461/%s" f,
             __SOURCE_DIRECTORY__ </> sprintf "packages/FSharp.Formatting/lib/net461/%s" f)
         
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
@@ -554,16 +546,16 @@ Target.create"All" ignore
 #r "System.IO.Compression.FileSystem"
 Target.create"DownloadPython" (fun _ ->
   if not Environment.isUnix then
-    let w = new System.Net.WebClient()
+    let w = new Net.WebClient()
     let zipFile = "temp"</>"cpython.zip"
     if File.Exists zipFile then File.Delete zipFile
     w.DownloadFile("https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip", zipFile)
     let cpython = "temp"</>"CPython"
     Shell.cleanDir cpython
-    System.IO.Compression.ZipFile.ExtractToDirectory(zipFile, cpython)
+    Compression.ZipFile.ExtractToDirectory(zipFile, cpython)
     let cpythonStdLib = cpython</>"stdlib"
     Shell.cleanDir cpythonStdLib
-    System.IO.Compression.ZipFile.ExtractToDirectory(cpython</>"python35.zip", cpythonStdLib)
+    Compression.ZipFile.ExtractToDirectory(cpython</>"python35.zip", cpythonStdLib)
 )
 
 Target.create"CreateTestJson" (fun _ ->
@@ -573,13 +565,13 @@ Target.create"CreateTestJson" (fun _ ->
 
     let pythonExe, stdLib =
       if not Environment.isUnix then
-        System.IO.Path.GetFullPath ("temp"</>"CPython"</>"python.exe"),
-        System.IO.Path.GetFullPath ("temp"</>"CPython"</>"stdlib")
+        Path.GetFullPath ("temp"</>"CPython"</>"python.exe"),
+        Path.GetFullPath ("temp"</>"CPython"</>"stdlib")
       else "python", ""
 
     let resultFile = "temp"</>"commonmark-tests.json"
     if File.Exists resultFile then File.Delete resultFile
-    ( use fileStream = new StreamWriter(File.Open(resultFile, System.IO.FileMode.Create))
+    ( use fileStream = new StreamWriter(File.Open(resultFile, FileMode.Create))
       executeHelper
         (executeWithRedirect Trace.traceError fileStream.WriteLine)
         "Creating test json file, this could take some time, please wait..."
@@ -616,12 +608,11 @@ open Fake.Core.TargetOperators
 
 "BuildTests"
   ==> "DotnetTests"
-
-//"BuildTests"
-  //==> "RunTests"
   ==> "All"
 
-//"GenerateDocs" ==> "All"
+"Build"
+    ==>"GenerateDocs"
+    ==> "All"
 
 "Build"
   ==> "DogFoodCommandTool"
