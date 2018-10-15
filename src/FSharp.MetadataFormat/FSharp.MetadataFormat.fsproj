@@ -17,7 +17,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

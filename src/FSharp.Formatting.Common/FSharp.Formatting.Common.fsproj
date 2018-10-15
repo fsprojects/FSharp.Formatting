@@ -18,7 +18,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(SolutionDir)\paket-files\matthid\Yaaf.FSharp.Scripting\src\source\Yaaf.FSharp.Scripting\YaafFSharpScripting.fs">

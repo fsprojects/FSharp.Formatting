@@ -15,7 +15,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-    <None Include="paket.template" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
