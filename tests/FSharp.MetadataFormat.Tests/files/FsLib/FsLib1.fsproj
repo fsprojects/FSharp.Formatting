@@ -7,7 +7,6 @@
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Library1.fs" />

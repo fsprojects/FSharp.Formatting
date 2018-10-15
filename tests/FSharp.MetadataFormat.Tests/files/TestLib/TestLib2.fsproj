@@ -6,7 +6,6 @@
     <OutputType>Library</OutputType>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
