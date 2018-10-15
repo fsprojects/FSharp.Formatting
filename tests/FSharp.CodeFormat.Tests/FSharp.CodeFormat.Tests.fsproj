@@ -15,7 +15,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="app.config" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
     <Content Include="test.fsx" />
