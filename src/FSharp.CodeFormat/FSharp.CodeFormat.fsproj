@@ -47,7 +47,6 @@
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="Main.fs" />
-    <!--<Content Include="app.config" />-->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />

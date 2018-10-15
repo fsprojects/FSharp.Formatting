@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
     <OutputType>Library</OutputType>
+    <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
