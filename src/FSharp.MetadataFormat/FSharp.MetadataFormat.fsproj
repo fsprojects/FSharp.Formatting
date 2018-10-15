@@ -4,7 +4,7 @@
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin</OutputPath>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>METADATAFORMAT</DefineConstants>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Description>FSharp.MetadataFormat</Description>
