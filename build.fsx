@@ -345,7 +345,6 @@ let fakeStartInfo script workingDirectory args fsiargs environmentVars =
                 WorkingDirectory = workingDirectory
             }
             |> Process.withFramework
-            // |> Process.setEnvironmentVariable "MSBuild" MSBuild.msBuildExe
             |> Process.setEnvironmentVariable "GIT" Git.CommandHelper.gitPath
     )
 
@@ -536,7 +535,7 @@ Target.create"CreateTag" (fun _ ->
     Git.Branches.pushTag "" "origin" release.NugetVersion
 )
 
-Target.create"Release" ignore
+Target.create "Release" ignore
 
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
