@@ -162,6 +162,7 @@ let withInner ctx f =
   sb.ToString()
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
+  let prismClasses = Environment.GetEnvironmentVariable "FSHARP_FORMATTING_PRISM_CLASSES"
   match paragraph with
   | LatexBlock(lines, _) ->
     // use mathjax grammar, for detail, check: http://www.mathjax.org/
@@ -189,14 +190,20 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("<hr />")
   | CodeBlock(code, String.WhiteSpace, _, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
-      ctx.Writer.Write("<pre><code>")
+      ctx.Writer.Write(
+        if String.IsNullOrEmpty prismClasses
+        then "<pre><code>"
+        else sprintf "<pre class=\"%s\"><code>" prismClasses)
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
   | CodeBlock(code, codeLanguage, _, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       let langCode = sprintf "language-%s" codeLanguage
-      ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
+      ctx.Writer.Write(
+        if String.IsNullOrEmpty prismClasses
+        then sprintf "<pre><code class=\"%s\">" langCode
+        else sprintf "<pre class=\"%s\"><code class=\"%s\">" prismClasses langCode)
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
@@ -272,13 +279,15 @@ and formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer generateAnchors newline wrap links = 
+let formatMarkdown writer generateAnchors newline wrap links =
+  let prismClasses = Environment.GetEnvironmentVariable "FSHARP_FORMATTING_PRISM_CLASSES"
+  let hasPrism = not (String.IsNullOrEmpty prismClasses)
   formatParagraphs 
     { Writer = writer
       Links = links
       Newline = newline
       LineBreak = ignore
-      WrapCodeSnippets = wrap
+      WrapCodeSnippets = if hasPrism then false else wrap
       GenerateHeaderAnchors = generateAnchors
       UniqueNameGenerator = new UniqueNameGenerator()
       ParagraphIndent = ignore }

@@ -324,30 +324,37 @@ module Transformations =
             let inlined = 
               match ctx.OutputKind with
               | OutputKind.Html ->
+                  let prismClasses = Environment.GetEnvironmentVariable "FSHARP_FORMATTING_PRISM_CLASSES"
                   let sb = new System.Text.StringBuilder()
                   let writer = new System.IO.StringWriter(sb)
-                  writer.Write("<table class=\"pre\">")
-                  writer.Write("<tr>")
-                  if ctx.GenerateLineNumbers then 
-                    // Split the formatted code into lines & emit line numbers in <td>
-                    // (Similar to formatSnippets in FSharp.CodeFormat\HtmlFormatting.fs)
-                    let lines = code.Trim('\r', '\n').Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n").Split('\n')
-                    let numberLength = lines.Length.ToString().Length
-                    let linesLength = lines.Length
-                    writer.Write("<td class=\"lines\"><pre class=\"fssnip\">")
-                    for index in 0..linesLength-1 do
-                      let lineStr = (index + 1).ToString().PadLeft(numberLength)
-                      writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
-                    writer.Write("</pre>")
-                    writer.WriteLine("</td>")
+                  if String.IsNullOrEmpty prismClasses then
+                      writer.Write("<table class=\"pre\">")
+                      writer.Write("<tr>")
+                      if ctx.GenerateLineNumbers then 
+                        // Split the formatted code into lines & emit line numbers in <td>
+                        // (Similar to formatSnippets in FSharp.CodeFormat\HtmlFormatting.fs)
+                        let lines = code.Trim('\r', '\n').Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n").Split('\n')
+                        let numberLength = lines.Length.ToString().Length
+                        let linesLength = lines.Length
+                        writer.Write("<td class=\"lines\"><pre class=\"fssnip\">")
+                        for index in 0..linesLength-1 do
+                          let lineStr = (index + 1).ToString().PadLeft(numberLength)
+                          writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+                        writer.Write("</pre>")
+                        writer.WriteLine("</td>")
 
-                  writer.Write("<td class=\"snippet\">")
-                  
-                  match SyntaxHighlighter.FormatCode(lang, code) with
-                  | true, code -> Printf.fprintf writer "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>" lang code
-                  | false, code -> Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
+                      writer.Write("<td class=\"snippet\">")
+                      
+                      match SyntaxHighlighter.FormatCode(lang, code) with
+                      | true, code -> Printf.fprintf writer "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>" lang code
+                      | false, code -> Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
 
-                  writer.Write("</td></tr></table>")
+                      writer.Write("</td></tr></table>")
+                  else
+                      // prism support
+                      let code = Manoli.Utils.CSharpFormat.SourceFormat.EscapeHtml(code, 4)
+                      Printf.fprintf writer "<pre class=\"%s\"><code lang=\"%s\">%s</code></pre>" prismClasses lang code
+                    
                   sb.ToString()
 
               | OutputKind.Latex ->
