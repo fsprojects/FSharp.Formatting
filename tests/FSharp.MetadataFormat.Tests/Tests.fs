@@ -1,6 +1,6 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-#I "../../bin"
+#I "../../bin/net461"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Formatting.Razor.dll"
@@ -34,7 +34,7 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "../bin" |> fullpath
+let testBin = __SOURCE_DIRECTORY__ </> "../bin/net461" |> fullpath
 
 #if INTERACTIVE
 ;;

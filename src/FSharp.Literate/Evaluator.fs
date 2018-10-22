@@ -1,9 +1,8 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System
 open System.IO
 open FSharp.Markdown
-open FSharp.CodeFormat
 open Yaaf.FSharp.Scripting
 
 
@@ -101,8 +100,7 @@ type FsiEvaluatorConfig() =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[], ?fsiObj) =
   // Initialize F# Interactive evaluation session
-
-  let fsiOptions = defaultArg (Option.map FsiOptions.ofArgs options) FsiOptions.Default
+  let fsiOptions = (Option.map FsiOptions.ofArgs options) |> Option.defaultWith (fun _ -> FsiOptions.Default)
   let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true, ?fsiObj = fsiObj)
 
   let evalFailed = new Event<_>()
@@ -148,7 +146,7 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
     /// If file is set, the text will be evaluated as if it was present in the
     /// given script file - this is for correct usage of #I and #r with relative paths.
     /// Note however that __SOURCE_DIRECTORY___ does not currently pick this up.
-    member x.Evaluate(text:string, asExpression, ?file) =
+    member x.Evaluate(text:string, asExpression, ?file) : IFsiEvaluationResult =
       try
         lock lockObj <| fun () ->
           let dir = 
@@ -170,3 +168,4 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
         { Output = None; Result = None; ItValue = None } :> _
+
