@@ -5,6 +5,7 @@ bin/
 lib/
 obj/
 /.paket/paket.exe
+/.idea
 paket-files/
 nuget/*.nupkg
 docs/output/

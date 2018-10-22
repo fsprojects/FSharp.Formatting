@@ -18,7 +18,7 @@ module Transformations =
   // ----------------------------------------------------------------------------------------------
 
   /// Iterate over Markdown document and extract all F# code snippets that we want
-  /// to colorize. We skip snippets that specify non-fsharp langauge e.g. [lang=csharp].
+  /// to colorize. We skip snippets that specify non-fsharp language e.g. [lang=csharp].
   let rec collectCodeSnippets par = seq {
     match par with
     | CodeBlock((String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)), language, _, _)

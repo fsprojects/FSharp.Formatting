@@ -56,6 +56,14 @@ type Literate private () =
     | Some c -> c ctx doc
     | None -> doc
 
+  static let formatFSharpSnippetsIfEnv path ctx doc =
+    if System.String.Equals(Environment.GetEnvironmentVariable "FSHARP_FORMATTING_IGNORE_FSHARP", "true", System.StringComarison.OrdinalIgnoreCase) then
+      doc
+    else
+      doc
+      |> Transformations.formatCodeSnippets path ctx
+      |> Transformations.evaluateCodeSnippets ctx
+
   // ------------------------------------------------------------------------------------
   // Parsing functions
   // ------------------------------------------------------------------------------------
@@ -66,8 +74,7 @@ type Literate private () =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
     |> transform references
-    |> Transformations.formatCodeSnippets path ctx
-    |> Transformations.evaluateCodeSnippets ctx
+    |> formatFSharpSnippetsIfEnv path ctx
 
   /// Parse F# Script file
   static member ParseScriptString
@@ -75,8 +82,7 @@ type Literate private () =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
     |> transform references
-    |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
-    |> Transformations.evaluateCodeSnippets ctx
+    |> formatFSharpSnippetsIfEnv (defaultArg path "C:\\Document.fsx") ctx
 
   /// Parse Markdown document
   static member ParseMarkdownFile
@@ -84,8 +90,7 @@ type Literate private () =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path)
     |> transform references
-    |> Transformations.formatCodeSnippets path ctx
-    |> Transformations.evaluateCodeSnippets ctx
+    |> formatFSharpSnippetsIfEnv path ctx
 
   /// Parse Markdown document
   static member ParseMarkdownString
@@ -93,8 +98,7 @@ type Literate private () =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content
     |> transform references
-    |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
-    |> Transformations.evaluateCodeSnippets ctx
+    |> formatFSharpSnippetsIfEnv (defaultArg path "C:\\Document.md") ctx
 
   // ------------------------------------------------------------------------------------
   // Simple writing functions
