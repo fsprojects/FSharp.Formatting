@@ -1,22 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <DefineConstants>NET461</DefineConstants>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>..\..\bin\</OutputPath>
-    <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <OutputPath>$(SolutionDir)\bin</OutputPath>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Version>1.3.0</Version>
+    <Description>FSharp.Literate</Description>
   </PropertyGroup>
-  
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />

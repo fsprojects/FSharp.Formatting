@@ -4,13 +4,12 @@
     <RootNamespace>FSharp.FormattingCLI</RootNamespace>
     <AssemblyName>fsformatting</AssemblyName>
     <Name>FSharp.FormattingCLI</Name>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFrameworks>net461</TargetFrameworks>
     <OutputType>Exe</OutputType>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <DefineConstants>FSFCLI</DefineConstants>
     <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>$(SolutionDir)\bin\</OutputPath>
+    <OutputPath>$(SolutionDir)\bin</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +42,6 @@
     <Compile Include="OptionsLiterate.fs" />
     <Compile Include="Exec.fs" />
     <Compile Include="Program.fs" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

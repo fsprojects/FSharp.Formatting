@@ -1,25 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFrameworks>net461</TargetFrameworks>
     <SolutionDir>..\..\..\..\</SolutionDir>
-     <OutputType>Library</OutputType>
+    <OutputType>Library</OutputType>
     <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Library2.fs" />
     <None Include="FsLib2.fsproj.paket.references" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

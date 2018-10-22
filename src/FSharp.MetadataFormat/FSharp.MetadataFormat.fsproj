@@ -1,16 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>..\..\bin\</OutputPath>
-    <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>$(SolutionDir)\bin</OutputPath>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <DefineConstants>METADATAFORMAT</DefineConstants>
-    <DefineConstants>NET461</DefineConstants>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Description>FSharp.MetadataFormat</Description>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -18,7 +17,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -38,9 +36,6 @@
     <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
     <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Web" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
