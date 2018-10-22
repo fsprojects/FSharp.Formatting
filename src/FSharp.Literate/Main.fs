@@ -57,7 +57,7 @@ type Literate private () =
     | None -> doc
 
   static let formatFSharpSnippetsIfEnv path ctx doc =
-    if System.String.Equals(Environment.GetEnvironmentVariable "FSHARP_FORMATTING_IGNORE_FSHARP", "true", System.StringComarison.OrdinalIgnoreCase) then
+    if System.String.Equals(Environment.GetEnvironmentVariable "FSHARP_FORMATTING_IGNORE_FSHARP", "true", System.StringComparison.OrdinalIgnoreCase) then
       doc
     else
       doc
