@@ -313,7 +313,7 @@ Target.create"NuGet" (fun _ ->
                   "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
                   "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
-        "nuget/FSharp.Formatting.nuspec"
+        "nuget/FSharp.Literate.nuspec"
 
     NuGet.NuGet (fun p ->
         { p with
