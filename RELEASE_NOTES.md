@@ -1,3 +1,6 @@
+## 3.0.0-beta13 
+ - FSharp.Literate for netstandard2.0
+
 ## 3.0.0-beta12 (29, July, 2018)
  - Fix usage formatting - https://github.com/fsprojects/FSharp.Formatting/issues/472
 
