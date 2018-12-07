@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options.Literate
+namespace FSharp.Formatting.Options.Literate
 
 open CommandLine
 open CommandLine.Text
@@ -71,9 +71,9 @@ type ProcessDirectoryOptions() =
         HelpText = "Compiler Options (optional).")>]
     member val compilerOptions = [|""|] with get, set
 
-    [<Option("lineNumbers", Required = false,
-        HelpText = "Line number option, defaults to 'true' (optional).")>]
-    member val lineNumbers = true with get, set
+    [<Option("noLineNumbers", Required = false,
+        HelpText = "Don't add line numbers, default is to add line numbers (optional).")>]
+    member val noLineNumbers = false with get, set
 
     [<Option("references", Required = false,
         HelpText = "Turn all indirect links into references, defaults to 'false' (optional).")>]
@@ -117,7 +117,7 @@ type ProcessDirectoryOptions() =
                             ?formatAgent = None,
                             ?prefix = (evalString x.prefix),
                             ?compilerOptions = (evalString (concat x.compilerOptions)),
-                            ?lineNumbers = Some x.lineNumbers,
+                            ?lineNumbers = Some (not x.noLineNumbers),
                             ?references = Some x.references,
                             ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() :> _) else None),
                             ?replacements = (evalPairwiseStringArray x.replacements),

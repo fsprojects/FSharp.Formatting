@@ -30,7 +30,7 @@ let specialChars =
         "^", @"{\textasciicircum}" |]
     
 let latexEncode s =
-    specialChars |> Array.fold (fun (acc:string) (k, v) -> acc.Replace(k, v)) (HttpUtility.HtmlDecode s)
+    specialChars |> Array.fold (fun (acc:string) (k, v) -> acc.Replace(k, v)) (System.Net.WebUtility.HtmlDecode s)
 
 /// Lookup a specified key in a dictionary, possibly
 /// ignoring newlines or spaces in the key.

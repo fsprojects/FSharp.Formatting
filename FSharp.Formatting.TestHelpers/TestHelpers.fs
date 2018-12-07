@@ -1,4 +1,4 @@
-﻿module FSharp.Formatting.TestHelpers
+module FSharp.Formatting.TestHelpers
 
 open System.Diagnostics
 open FSharp.Formatting
@@ -28,11 +28,12 @@ let enableLogging() =
         |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
         |> setupListener
 
-    //   if logToFile then
-    //     if System.IO.File.Exists svclogFile then System.IO.File.Delete svclogFile
-    //     Logging.SvclogListener svclogFile
-    //     |> Logging.SetupListener allTraceOptions System.Diagnostics.SourceLevels.All
-    //     |> setupListener
+      if logToFile then
+        if System.IO.File.Exists svclogFile then System.IO.File.Delete svclogFile
+        Logging.TextListener svclogFile
+        |> Logging.SetupListener allTraceOptions System.Diagnostics.SourceLevels.All
+        |> setupListener
+
 
       // Test that everything works
       Logging.infof "FSharp.Formatting Logging setup!"

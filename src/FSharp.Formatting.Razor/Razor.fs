@@ -30,6 +30,31 @@ open RazorEngine.Templating
 open RazorEngine.Configuration
 open RazorEngine.Compilation.ReferenceResolver
 
+//module tst =
+//#if INTERACTIVE
+//#r @"..\..\packages\Microsoft.AspNetCore.Razor.Language\lib\netstandard2.0\Microsoft.AspNetCore.Razor.Language.dll"
+//#endif
+//    open System.Web.Razor
+//    open Microsoft.AspNetCore.Mvc.Razor.Extensions
+//    open Microsoft.AspNetCore.Razor.Language
+//    let engine = RazorProjectEngine.Create(RazorConfiguration.Default, RazorProjectFileSystem.Create(@"C:\Development\FSharp.Formatting\tests\FSharp.Literate.Tests\Files\"))
+//    let items = engine.FileSystem.EnumerateItems(".")
+//    let item = items |> Seq.head
+//    let doc = engine.Process(item)
+//    let csdoc = doc.GetCSharpDocument()
+
+//    let cs = csdoc.GeneratedCode
+    
+//    printfn "%s" cs
+    
+    
+//    let engine = RazorEngine.Create( fun b -> b.SetNamespace("MyNamespace") |> ignore )
+
+//    //Microsoft.AspNetCore.Mvc.Razor.Extensions.MvcRazorTemplateEngine(
+
+//    let h = System.Web.Razor.RazorEngineHost(RazorCodeLanguage.GetLanguageByExtension(".cs"))
+//    let e = System.Web.Razor.RazorTemplateEngine(h)
+
 /// [omit]
 module PathHelper =
     let private isUnix =

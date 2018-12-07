@@ -266,8 +266,15 @@ module CodeFormatAgent =
                 ((fst snippetLine).StartLine, snd snippetLine)
         )
 
+    // --------------------------------------------------------------------------------------
 
-    let processSourceCode (fsChecker:FSharpChecker, filePath, source, options, defines) = async {
+    // Create an instance of an InteractiveChecker (which does background analysis
+    // in a typical IntelliSense editor integration for F#)
+    let fsChecker = FSharpAssemblyHelper.checker // FSharpChecker.Create()
+
+    // ------------------------------------------------------------------------------------
+
+    let processSourceCode (filePath, source, options, defines) = async {
         Log.verbf "starting to process source code from '%s'" filePath
         // Read the source code into an array of lines
         use reader = new StringReader(source)
@@ -278,13 +285,19 @@ module CodeFormatAgent =
         |]
         // Get options for a standalone script file (this adds some
         // default references and doesn't require full project information)
-        let frameworkVersion = FSharpCheckerFuncs.defaultFrameworkVersion
-        let fsCore = FSharpCheckerFuncs.findFSCore [] []
+        let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
+        let fsiOptions = (Option.map (parseOptions >>  FsiOptions.ofArgs) options) |> Option.defaultValue FsiOptions.Empty
+
+        let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
         let defaultReferences =
-            FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
-        let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
+#if !NETSTANDARD1_5
+            FSharpAssemblyHelper.getDefaultSystemReferences frameworkVersion 
+#else
+            Seq.empty
+#endif
+        let projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences None [] [] []
         // filter invalid args
-        let refCorLib = args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
+        let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
         let args =
             args |> Array.filter (fun item ->
                 not <| item.StartsWith "--target" &&
@@ -293,9 +306,7 @@ module CodeFormatAgent =
                 not <| item.StartsWith "--nooptimizationdata" &&
                 not <| item.EndsWith "mscorlib.dll")
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
-        //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
-        //fsChecker.GetP
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
@@ -304,28 +315,28 @@ module CodeFormatAgent =
         let opts =
             let mutable known = Set.empty
             { opts with
-               OtherOptions =
-                Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
-                |> Array.filter (fun item ->
-                    if item.StartsWith "-r:" then
-                        let fullPath = item.Substring 3
-                        let name = System.IO.Path.GetFileName fullPath
-                        if known.Contains name then
-                            false
+                OtherOptions =
+                    Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
+                    |> Array.filter (fun item ->
+                        if item.StartsWith "-r:" then
+                            let fullPath = item.Substring 3
+                            let name = System.IO.Path.GetFileName fullPath
+                            if known.Contains name then
+                                false
+                            else
+                                known <- known.Add name
+                                true
                         else
-                            known <- known.Add name
-                            true
-                    else
-                        if known.Contains item then
-                            false
-                        else
-                            known <- known.Add item
-                            true)
-            }
+                            if known.Contains item then
+                                false
+                            else
+                                known <- known.Add item
+                                true)
+                }
         // Override default options if the user specified something
         let opts =
             match options with
-            | Some(str:string) when not(System.String.IsNullOrEmpty str) ->
+            | Some(str:string) when not(System.String.IsNullOrEmpty(str)) ->
                 { opts with OtherOptions = [| yield! parseOptions str; yield! opts.OtherOptions |] }
             | _ -> opts
         //// add our file
@@ -338,7 +349,8 @@ module CodeFormatAgent =
         Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
-        if _errors.Length > 0 then
+        
+        if _errors |> List.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> List.length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
         // Run the second phase - perform type checking
@@ -452,10 +464,11 @@ type CodeFormatAgent () =
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
     member __.AsyncParseSource(file, source, ?options, ?defines) = async {
-        let! res = agent.PostAndAsyncReply(fun chnl -> (fsChecker,file, source, options, defines), chnl)
-        match res with
-        | Choice1Of2 res -> return res
-        | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn)) }
+            let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
+            match res with
+            | Choice1Of2 res -> return res
+            | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn))
+    }
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
@@ -468,7 +481,7 @@ type CodeFormatAgent () =
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
     member __.ParseSource (file, source, ?options, ?defines) =
-        let res = agent.PostAndReply(fun chnl -> (fsChecker, file, source, options, defines), chnl)
+        let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res
         | Choice2Of2 exn -> raise (new Exception(exn.Message, exn))
