@@ -1,4 +1,5 @@
-RazorEngine
+FSharp.Core
+RazorEngine.NetCore
 System.ValueTuple
 FSharp.Compiler.Service
   exclude FSharp.Compiler.Service.MSBuild.*.dll

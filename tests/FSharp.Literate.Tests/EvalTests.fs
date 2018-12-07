@@ -1,5 +1,9 @@
 #if INTERACTIVE
+<<<<<<< HEAD
 #I "../../bin/"
+=======
+#I "../../bin/net461"
+>>>>>>> master
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Markdown.dll"

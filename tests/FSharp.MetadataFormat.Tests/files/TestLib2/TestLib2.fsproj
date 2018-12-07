@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Library2.fs" />
+    <None Include="paket.references" />
+  </ItemGroup>
+  <Import Project="..\..\..\testconfig.props" />
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
+</Project>

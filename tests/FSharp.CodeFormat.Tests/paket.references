@@ -1,5 +1,5 @@
-System.ValueTuple
-group Test
 FSharp.Core
+group Test
 FsUnit
 NUnit
+
