@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
+  
   <PropertyGroup>
     <!-- Enable the restore command to run before builds -->
     <RestorePackages Condition=" '$(RestorePackages)' == '' ">true</RestorePackages>
@@ -20,26 +20,22 @@
     <PaketCommand Condition=" '$(OS)' != 'Windows_NT' ">$(MonoPath) --runtime=v4.0.30319 "$(PaketExePath)"</PaketCommand>
   </PropertyGroup>
 
-  <Choose>
-    <!-- MyProject.fsproj.paket.references has the highest precedence -->
+  <Choose> <!-- MyProject.fsproj.paket.references has the highest precedence -->
     <When Condition="Exists('$(MSBuildProjectFullPath).paket.references')">
       <PropertyGroup>
         <PaketReferences>$(MSBuildProjectFullPath).paket.references</PaketReferences>
       </PropertyGroup>
-    </When>
-    <!-- MyProject.paket.references -->
+    </When> <!-- MyProject.paket.references -->
     <When Condition="Exists('$(MSBuildProjectDirectory)\$(MSBuildProjectName).paket.references')">
       <PropertyGroup>
         <PaketReferences>$(MSBuildProjectDirectory)\$(MSBuildProjectName).paket.references</PaketReferences>
       </PropertyGroup>
-    </When>
-    <!-- paket.references -->
+    </When> <!-- paket.references -->
     <When Condition="Exists('$(MSBuildProjectDirectory)\paket.references')">
       <PropertyGroup>
         <PaketReferences>$(MSBuildProjectDirectory)\paket.references</PaketReferences>
       </PropertyGroup>
-    </When>
-    <!-- Set to empty if a reference file isn't found matching one of the 3 format options -->
+    </When> <!-- Set to empty if a reference file isn't found matching one of the 3 format options -->
     <Otherwise>
       <PropertyGroup>
         <PaketReferences></PaketReferences>
@@ -48,7 +44,7 @@
   </Choose>
 
   <PropertyGroup>
-    <!-- Commands -->
+  <!-- Commands -->
     <RestoreCommand>$(PaketCommand) restore --references-file "$(PaketReferences)"</RestoreCommand>
     <!-- We need to ensure packages are restored prior to assembly resolve -->
     <BuildDependsOn Condition="$(RestorePackages) == 'true'">RestorePackages; $(BuildDependsOn);</BuildDependsOn>
@@ -66,11 +62,11 @@
       <PaketRestoreRequired Condition=" '$(PaketRestoreLockFileHash)' == '' ">true</PaketRestoreRequired>
     </PropertyGroup>
 
-    <Exec Command="$(RestoreCommand)"
-          IgnoreStandardErrorWarningFormat="true"
-          WorkingDirectory="$(PaketRootPath)"
-          ContinueOnError="false"
-          Condition=" '$(PaketRestoreRequired)' == 'true' AND Exists('$(PaketReferences)') AND '$(PaketReferences)' != '' "
+    <Exec Command="$(RestoreCommand)" 
+          IgnoreStandardErrorWarningFormat="true" 
+          WorkingDirectory="$(PaketRootPath)" 
+          ContinueOnError="false" 
+          Condition=" '$(PaketRestoreRequired)' == 'true' AND Exists('$(PaketReferences)') AND '$(PaketReferences)' != '' " 
     />
   </Target>
 </Project>
