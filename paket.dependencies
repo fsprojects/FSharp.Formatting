@@ -4,20 +4,26 @@ source https://ci.appveyor.com/nuget/fake
 
 redirects: on
 
-nuget FSharp.Data 3.0.0-beta3  prerelease
+nuget FSharp.Data prerelease
 nuget FAKE prerelease
 nuget CommandLineParser ~> 1.0 // Maybe we should switch to Argu?
-#nuget FSharp.Compiler.Tools
-#nuget FSharp.Core 4.3.4 redirects:force, content:none
 nuget System.ValueTuple
-nuget RazorEngine 3.9.3 framework: >= net45
-nuget FSharp.Compiler.Service  22.0.3 redirects:force, content:none
+nuget RazorEngine.NetCore 
+nuget FSharp.Compiler.Service   redirects:force, content:none
 nuget ILRepack
 nuget Argu
+nuget Microsoft.AspNetCore.Razor.Runtime
+nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
+nuget FsUnit 
+nuget NUnit
+github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+
 
 group Build
     source https://api.nuget.org/v3/index.json
+    source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
     nuget NuGet.CommandLine
+    nuget RoslynTools.ReferenceAssemblies
 
 group netcorebuild
     storage: none
@@ -32,7 +38,6 @@ group netcorebuild
     nuget Fake.DotNet.MsBuild
     nuget Fake.Tools.Git 
 
-#github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
 group Test
     source https://api.nuget.org/v3/index.json
@@ -42,6 +47,5 @@ group Test
    # nuget FSharp.Core 4.3.4 redirects:force, content:none   
     nuget FsUnit 3.0.0 //framework:net45
     nuget NUnit 3.9.0 //3.0.0 //framework:net45
-    nuget Nunit.ConsoleRunner
     nuget Nunit.ConsoleRunner
     nuget Microsoft.NET.Test.Sdk

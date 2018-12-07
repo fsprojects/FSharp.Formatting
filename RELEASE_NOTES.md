@@ -1,3 +1,9 @@
+## 3.0.0-beta13 
+ - FSharp.Literate for netstandard2.0
+
+## 3.0.0-beta12 (29, July, 2018)
+ - Fix usage formatting - https://github.com/fsprojects/FSharp.Formatting/issues/472
+
 ## 3.0.0-beta11 (06, May, 2018)
  - Added support for attributes on modules, types and members
  - Updated razor templates to show attributes and added a warning for obsolete API
