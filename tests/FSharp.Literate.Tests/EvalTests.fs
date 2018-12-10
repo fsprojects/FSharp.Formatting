@@ -142,7 +142,7 @@ printfn "%d" (40 + 2)
 """
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
   let html1 = Literate.WriteHtml(doc1)
-  html1.Contains("42") |> shouldEqual true
+  html1.Contains("42") |> shouldEqual true 
 
   let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
   let html2 = Literate.WriteHtml(doc2)

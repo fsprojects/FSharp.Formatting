@@ -12,7 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
     <Content Include="test.fsx" />
