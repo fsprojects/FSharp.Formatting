@@ -1,11 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <!--<TargetFrameworks>netstandard2.0</TargetFrameworks>-->
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
     <OutputType>Library</OutputType>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyFile).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
   </PropertyGroup>
 
   <ItemGroup>

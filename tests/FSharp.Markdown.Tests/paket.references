@@ -1,5 +1,8 @@
 FSharp.Core
 FSharp.Data
-group Test
+#group test
 FsUnit
 NUnit
+NUnit3TestAdapter
+Microsoft.NET.Test.Sdk
+
