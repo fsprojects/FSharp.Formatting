@@ -149,7 +149,7 @@ printfn "%d" (40 + 2)
   html2.Contains("42") |> shouldEqual false
 
 
-[<Test>]
+[<Test>][<Ignore "Underlying Issues with FSI configuration need to be addressed">]
 let ``Can #load script with fsi.AddPrinter (without failing)`` () =
   // Generate a script file that uses 'fsi.AddPrinter' in the TEMP folder
   let file =  """namespace FsLab
@@ -174,7 +174,7 @@ printfn "%d" FsLab.Demo.test
   html1.Contains("42") |> shouldEqual true
   File.Delete(path)
 
-[<Test>]
+[<Test>][<Ignore "Underlying Issues with FSI configuration need to be addressed">]
 let ``Can specify `fsi` object that ignores all printers`` () =
   // Generate a script file that uses 'fsi.AddPrinter' in the TEMP folder
   let file =  """namespace FsLab
@@ -202,7 +202,7 @@ FsLab.Demo.test
   html1.Contains("Executed") |> shouldEqual false
   File.Delete(path)
 
-[<Test>]
+[<Test>][<Ignore "Underlying Issues with FSI configuration need to be addressed">]
 let ``Can #load script relative to the script being evaluated`` () =
   // Generate a script file in a sub-folder of the TEMP folder
   let file =  """module Test

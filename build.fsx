@@ -268,10 +268,10 @@ Target.create"SetupLibForTests" (fun _ ->
                 let source, libDest = file, "tests"</>"bin"</>fileName
                 Trace.tracefn "Copying %s to %s" source libDest
                 File.Copy (source, libDest, true)
-    [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
-        "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
-        "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"
-        "packages" </> "FSharp.Data" </> "lib" </> "portable-net45+netcore45"
+    [   "packages" </> "FSharp.Core" </> "lib" </> "netstandard1.6"
+        "packages" </> "System.ValueTuple" </> "lib" </> "netstandard2.0"
+        "packages" </> "FSharp.Compiler.Service" </> "lib" </> "netstandard2.0"
+        "packages" </> "FSharp.Data" </> "lib" </> "netstandard2.0"
     ] |> List.iter copyPackageFiles
 )
 
@@ -610,13 +610,18 @@ Target.create "QuickGen" (fun _->())
 "Clean"
   ==> "AssemblyInfo"
 
+
+
 "CopyFSharpCore"
-//  ==> "SetupLibForTests"
+  ==> "SetupLibForTests"
   ==> "Build"
-  ==> "BuildTests"
+  ==> "DotnetTests"
+
+"BuildTests" ?=> "DotnetTests"
+
 
 "BuildTests"
-  ==> "DotnetTests"
+  
   ==> "All"
 
 "Build" ==> "GenerateDocs" ==> "All"
@@ -638,4 +643,5 @@ Target.create "QuickGen" (fun _->())
 
 //"DownloadPython" ==> "CreateTestJson"
 
-Target.runOrDefaultWithArguments "Build"
+//Target.runOrDefaultWithArguments "Build"
+Target.runOrDefaultWithArguments "DotnetTests"

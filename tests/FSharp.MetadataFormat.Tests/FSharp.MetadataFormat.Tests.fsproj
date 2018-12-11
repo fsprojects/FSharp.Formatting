@@ -16,7 +16,6 @@
     <Compile Include="AttributeTests.fs" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
-    <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />

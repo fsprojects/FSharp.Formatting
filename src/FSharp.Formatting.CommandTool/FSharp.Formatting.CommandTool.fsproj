@@ -3,11 +3,10 @@
     <RootNamespace>FSharp.FormattingCLI</RootNamespace>
     <AssemblyName>fsformatting</AssemblyName>
     <Name>FSharp.FormattingCLI</Name>
-    <!--<TargetFramework>net462</TargetFramework>-->
     <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <DefineConstants>FSFCLI</DefineConstants>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin</OutputPath>
@@ -43,15 +42,7 @@
     <Compile Include="OptionsLiterate.fs" />
     <Compile Include="Exec.fs" />
     <Compile Include="Program.fs" />
-    <!--<Content Include="app.config" />-->
   </ItemGroup>
-  <!--<ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>-->
   <ItemGroup>
     <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />

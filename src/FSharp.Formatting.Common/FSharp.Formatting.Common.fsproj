@@ -3,27 +3,13 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <!--<DefineConstants>NETSTANDARD1_5</DefineConstants>-->
-    <DefineConstants>$(DefineConstants);YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
+    <DefineConstants>$(DefineConstants);YAAF_FSHARP_SCRIPTING_PUBLIC;TRACE;NETSTANDARD1_5</DefineConstants>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
-    <!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC;NETSTANDARD1_5</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Content Include="app.config" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="$(SolutionDir)\paket-files\matthid\Yaaf.FSharp.Scripting\src\source\Yaaf.FSharp.Scripting\YaafFSharpScripting.fs">
       <Link>paket-files/YaafFSharpScripting.fs</Link>
