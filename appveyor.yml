@@ -5,7 +5,7 @@ install:
   - cinst fake -pre
 
 build_script:
-  - cmd: fake.exe build target NuGet
+  - cmd: fake.exe build --target DotnetTests
 
 test: off
 

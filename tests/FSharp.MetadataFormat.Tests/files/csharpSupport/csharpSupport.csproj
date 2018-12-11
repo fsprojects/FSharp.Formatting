@@ -2,46 +2,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <TargetFrameworks>net461</TargetFrameworks>
     <OutputType>Library</OutputType>
     <SolutionDir>..\..\..\..\</SolutionDir>
-    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-
-    <OutputType>Library</OutputType>
-    <SolutionDir>..\..\..\..\</SolutionDir>
-    <DocumentationFile>$(SolutionDir)\tests\bin\($AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <NoWarn>CS1591;CS0067;CS1574</NoWarn>
   </PropertyGroup>
-  <ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;0067</NoWarn>
-  </PropertyGroup>
-  <!--<ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  </ItemGroup>-->
+ 
   <ItemGroup>
     <None Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SampleClass.cs" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>-->
+ 
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>

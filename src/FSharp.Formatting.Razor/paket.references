@@ -1,7 +1,3 @@
 FSharp.Core
 FSharp.Compiler.Service
-System.Diagnostics.TraceSource
-System.Xml.XDocument
-Microsoft.AspNetCore
-Microsoft.AspNetCore.Mvc.Razor.Host 
 RazorEngine.NetCore

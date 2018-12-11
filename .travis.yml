@@ -13,7 +13,7 @@ before_install:
  - dotnet restore build.proj
 
 script:
- - dotnet fake build
+ - dotnet fake build --target dotnettests
 
 branches:
   except:

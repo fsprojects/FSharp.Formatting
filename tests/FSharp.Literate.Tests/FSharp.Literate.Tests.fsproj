@@ -1,19 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <!--<TargetFramework>net462</TargetFramework>-->
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyFile).xml</DocumentationFile>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="paket.references" />
     <None Include="Files/simple.md" />
     <None Include="Files/simple.fsx" />
     <None Include="Files/template.html" />
@@ -26,14 +21,7 @@
     <Compile Include="Tests.fs" />
     <Compile Include="EvalTests.fs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-  <!--<ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Web" />
-  </ItemGroup>-->
+
   <ItemGroup>
     <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj" />

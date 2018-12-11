@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
     <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\bin</OutputPath>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="../Common/AssemblyInfo.fs">
@@ -23,12 +23,6 @@
     <Compile Include="Razor.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
-  <!--<ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>-->
 
   <ItemGroup>
     <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />

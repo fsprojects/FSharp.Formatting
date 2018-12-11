@@ -1,34 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
-    <OutputType>Library</OutputType>
+    <TargetFrameworks>netcoreapp2.2</TargetFrameworks>
+    <OutputType>Exe</OutputType>
     <SolutionDir>..\..\</SolutionDir>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <!--<TargetFramework>net462</TargetFramework>-->
-    <OutputType>Library</OutputType>
-    <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <Compile Include="AttributeTests.fs" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />

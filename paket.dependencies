@@ -19,9 +19,6 @@ nuget RazorEngine.NetCore
 nuget Microsoft.AspNetCore.Razor.Runtime
 nuget Microsoft.AspNetCore.Razor.Language
 nuget Microsoft.AspNetCore.Hosting 
-nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
-nuget Microsoft.AspNetCore.Mvc.Razor.Host 
-nuget Microsoft.AspNetCore
 nuget FsUnit 
 nuget NUnit
 nuget Nunit.ConsoleRunner
@@ -42,7 +39,7 @@ group NetcoreBuild
     source https://api.nuget.org/v3/index.json
     // FAKE_MYGET_FEED (don't edit this line)
     //source https://www.myget.org/F/fake-vsts/api/v3/index.json
-    //storage: none
+    storage: none
     //source https://ci.appveyor.com/nuget/fake
 
     // 2018-07-08: Until we use a runner > 5.1, see https://github.com/fsharp/FAKE/pull/2011

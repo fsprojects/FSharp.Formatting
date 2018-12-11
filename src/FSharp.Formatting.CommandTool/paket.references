@@ -1,6 +1,5 @@
 FSharp.Core
 CommandLineParser
 RazorEngine.NetCore
-NUnit
-NUnit3TestAdapter
+
 

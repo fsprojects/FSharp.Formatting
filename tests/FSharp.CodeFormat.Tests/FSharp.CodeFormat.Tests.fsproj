@@ -1,27 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
-    <!--<TargetFrameworks>netstandard2.0</TargetFrameworks>-->
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyFile).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="paket.references" />
     <Compile Include="Tests.fs" />
     <Content Include="test.fsx" />

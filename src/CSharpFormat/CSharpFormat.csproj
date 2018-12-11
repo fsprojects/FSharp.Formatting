@@ -1,37 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SolutionDir>..\..\</SolutionDir>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <!-- <OutputPath>bin\$(Configuration)\</OutputPath> -->
     <SolutionDir>..\..\</SolutionDir>
     <NoWarn>CS1591;CS0067;CS1574</NoWarn>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <OutputPath>$(SolutionDir)\bin</OutputPath>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <Product>CSharpFormat</Product>
     <Description>CSharpFormat</Description>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-  <!--<ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>-->
   <ItemGroup>
     <Compile Include="CLikeFormat.cs" />
     <Compile Include="CodeFormat.cs" />
@@ -50,5 +35,5 @@
     <Compile Include="TypeScriptFormat.cs" />
     <Compile Include="VisualBasicFormat.cs" />
   </ItemGroup>
-  <Import Project="..\..\.paket\paket.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -2,8 +2,9 @@
     <PropertyGroup>
         <SolutionDir>..</SolutionDir>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <DocumentationFile>$(SolutionDir)\tests\bin\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
         <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
+        <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+        <DebugType>portable</DebugType>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     </PropertyGroup>
 </Project>
