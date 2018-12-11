@@ -1,4 +1,4 @@
-﻿module FSharp.Formatting.Exec
+module FSharp.Formatting.Exec
 
 open FSharp.Formatting
 open FSharp.Formatting.Common
@@ -63,7 +63,8 @@ type Env (argv: string []) =
             let commandOptions = OptionsMapping.[command]
             let parser = CommandLine.Parser.Default
             try    
-                validArgs <- parser.ParseArguments(options, commandOptions)
+                //validArgs <- parser.ParseArguments(options, commandOptions)
+                validArgs <- false // justs needs to compile for now since it's getting cut later
             with
                 | ex -> Log.errorf "received 'CommandLine' parser exception. %s" (ex.ToString())
             match validArgs with

@@ -130,6 +130,12 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsLib1", "tests\FSharp.Meta
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FsLib2", "tests\FSharp.MetadataFormat.Tests\files\FsLib2\FsLib2.fsproj", "{C922BDB6-1D25-4F79-A4A6-EDCA0F1BD6EB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".fake", ".fake", "{D3A44146-F9C9-47E6-9D24-BB675322F087}"
+	ProjectSection(SolutionItems) = preProject
+		.fake\build.fsx\intellisense.fsx = .fake\build.fsx\intellisense.fsx
+		.fake\build.fsx\intellisense_lazy.fsx = .fake\build.fsx\intellisense_lazy.fsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

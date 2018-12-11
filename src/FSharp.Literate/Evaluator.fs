@@ -101,6 +101,20 @@ type FsiEvaluatorConfig() =
 type FsiEvaluator(?options:string[], ?fsiObj) =
   // Initialize F# Interactive evaluation session
   let fsiOptions = (Option.map FsiOptions.ofArgs options) |> Option.defaultWith (fun _ -> FsiOptions.Default)
+  let mkref asm =
+    Path.Combine (__SOURCE_DIRECTORY__,sprintf "../../packages/NETStandard.Library/build/netstandard2.0/ref/%s" asm )
+  let fsiOptions = {
+    fsiOptions with
+(*  TODO -
+    Find a better way to deal with the references, this is a temporary 
+    stopgap to get the tests running again.  
+*)
+       References = List.append fsiOptions.References [
+            mkref "netstandard.dll";
+            mkref "System.Runtime.dll";
+            mkref "System.IO.dll"
+        ]
+  }
   let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true, ?fsiObj = fsiObj)
 
   let evalFailed = new Event<_>()
@@ -110,6 +124,10 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
   /// (the default formats value as a string and emits single CodeBlock)
   let mutable valueTransformations = 
     [ (fun (o:obj, t:Type) ->Some([CodeBlock (sprintf "%A" o, "", "", None)]) ) ]
+
+
+  member __.Options = fsiOptions
+  member __.Session = fsiSession
 
   /// Register a function that formats (some) values that are produced by the evaluator.
   /// The specified function should return 'Some' when it knows how to format a value

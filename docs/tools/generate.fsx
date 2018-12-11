@@ -30,25 +30,40 @@ let referenceBinaries =
 // --------------------------------------------------------------------------------------
 
 
-#I "../../packages/FAKE/tools/"
-#I "../../packages/FSharp.Compiler.Service/lib/net45/"
-#I "../../bin"
-#r "NuGet.Core.dll"
-#r "FakeLib.dll"
+#I "../../packages/Fake/tools/"
+#I "../../packages/FSharp.Compiler.Service/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Razor/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Razor.Language/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Razor.Runtime/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Html.Abstractions/lib/netstandard2.0/"
+#I "../../packages/RazorEngine.NetCore/lib/netstandard2.0/"
+#r "../../packages/Microsoft.AspNetCore.Mvc.Razor.Host/lib/netstandard1.6/Microsoft.AspNetCore.Mvc.Razor.Host.dll"
+#I "../../bin/"
+#I "../../bin/netstandard2.0"
+#r "../../packages/System.Xml.XDocument/lib/netstandard1.3/System.Xml.XDocument.dll"
+#if !FAKE
+#r "netstandard.dll"
+#endif
 #r "FSharp.Compiler.Service.dll"
-#r "RazorEngine.dll"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
-
+#r "System"
+#r "System.Xml.Linq"
+#r "Fakelib.dll"
+#r "RazorEngine.NetCore.dll"
+#r "Microsoft.AspNetCore.Razor.dll"
+#r "Microsoft.AspNetCore.Razor.Language.dll"
+#r "Microsoft.AspNetCore.Razor.Runtime.dll"
+#r "Microsoft.AspNetCore.Html.Abstractions"
+#r "../../packages/Microsoft.CodeAnalysis.Common/lib/netstandard1.3/Microsoft.CodeAnalysis.dll"
+#r @"../../packages/Microsoft.CodeAnalysis.CSharp/lib/netstandard1.3/Microsoft.CodeAnalysis.CSharp.dll"
+#r @"..\..\packages\System.Security.Permissions\lib\netstandard2.0\System.Security.Permissions.dll"
 // Ensure that FSharpVSPowerTools.Core.dll is loaded before trying to load FSharp.CodeFormat.dll
 ;;
-
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Formatting.Razor.dll"
-
-
 
 open Fake
 open Fake.IO
@@ -60,6 +75,7 @@ open Fake.IO.FileSystemOperators
 open FSharp.Literate
 open FSharp.MetadataFormat
 open FSharp.Formatting.Razor
+open Fake.Core
 
 // When called from 'build.fsx', use the public project URL as <root>
 // otherwise, use the current 'output' directory.
@@ -125,7 +141,9 @@ let buildDocumentation () =
   let subdirs =
     [ content @@ "sidebyside", docTemplateSbS
       content, docTemplate; ]
+  subdirs |> Seq.iter (fun (a,b) ->Trace.tracefn "%s %s" a b)
   for dir, template in subdirs do
+    Trace.tracefn "Dir - %s\nTemplate - %s" dir template
     let sub = "." // Everything goes into the same output directory here
     let langSpecificPath(lang, path:string) =
         path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
@@ -136,7 +154,7 @@ let buildDocumentation () =
         | Some lang -> layoutRootsAll.[lang]
         | None -> layoutRootsAll.["en"] // "en" is the default language
     RazorLiterate.ProcessDirectory
-      ( dir, template, output @@ sub, replacements = ("root", root)::info,
+      ( dir, templateFile=template, outputDirectory=output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
         generateAnchors = true,
         processRecursive = false,

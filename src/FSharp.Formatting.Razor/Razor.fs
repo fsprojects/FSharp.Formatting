@@ -276,6 +276,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
 
   let withProperties properties (oldViewbag:DynamicViewBag) =
     let viewBag = new DynamicViewBag()
+    //let viewBag = new DynamicViewBag(oldViewbag)
     // TODO: use new DynamicViewBag(oldViewbag) and remove GetMemberBinderImpl
     for old in oldViewbag.GetDynamicMemberNames() do
         match oldViewbag.TryGetMember(new GetMemberBinderImpl(old)) with
@@ -295,12 +296,42 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
   member x.ProcessFileDynamic(model:obj,?properties) = x.ProcessFileModel(null, model, ?properties = properties)
 
   member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
-    handleCompile templateName (fun _ ->
-      let templateKey =
-        match templatePath with
-        | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
-        | None -> razorEngine.GetKey(templateName)
-      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
+     handleCompile templateName (fun _ ->
+        let templateKey =
+          match templatePath with
+          | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+          | None -> razorEngine.GetKey(templateName)
+        razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
+        //razorEngine.RunCompile(templateKey, null, model, x.WithProperties(properties)))
+
+  //member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
+  //  handleCompile templateName (fun _ ->
+  //    let templateKey =
+  //      match templatePath with
+  //      | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+  //      | None ->
+  //          razorEngine.GetKey(templateName)
+  //    Log.infof """
+  //      templatekey - %s\
+  //      modeltype   - %s\
+  //      model       - %s\
+  //    """ templateKey.Name modelType.Name (string model)
+  //    try
+  //      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties))
+  //    with
+  //    | :? RazorEngine.Templating.TemplateCompilationException as ex ->
+  //        ex.CompilerErrors |> Seq.iter (fun x -> Log.errorf "%s" x.ErrorText)
+  //        Log.errorf "%s" ex.HelpLink
+  //        Log.errorf "%s" ex.Message
+  //        Log.errorf "%s" ex.InnerException.Message
+  //        Log.errorf "\n%s\n" ex.StackTrace
+  //        raise ex
+        
+  //    | ex ->
+  //          let exp = ex.InnerException
+  //          Log.errorf "%s\n%s\n%s\n%s" exp.Source exp.Message exp.StackTrace exp.HelpLink
+  //          raise ex
+  // )        
 
 /// [omit]
 and RazorRender<'model> (layoutRoots, namespaces, template, ?references) =
