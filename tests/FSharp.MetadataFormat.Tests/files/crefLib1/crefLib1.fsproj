@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="crefLib1.fsproj.paket.references" />
+    <Compile Include="Library1.fs" />
+  </ItemGroup>
+  <Import Project="..\..\..\testconfig.props" />
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
+</Project>

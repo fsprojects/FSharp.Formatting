@@ -50,21 +50,21 @@ module CodeFormatAgent =
 
     /// Maps tokens found by FCS after type checking to an FSharp.Formatting token
     let categoryToTokenKind = function
-    | SemanticClassificationType.Enumeration           -> Some TokenKind.Enumeration
-    | SemanticClassificationType.Function              -> Some TokenKind.Function
-    | SemanticClassificationType.Interface             -> Some TokenKind.Interface
-    | SemanticClassificationType.Module                -> Some TokenKind.Module
-    | SemanticClassificationType.MutableVar            -> Some TokenKind.MutableVar
-    | SemanticClassificationType.Printf                -> Some TokenKind.Printf
-    | SemanticClassificationType.Property              -> Some TokenKind.Property
-    | SemanticClassificationType.ReferenceType         -> Some TokenKind.ReferenceType
-    | SemanticClassificationType.UnionCase             -> Some TokenKind.UnionCase
-    | SemanticClassificationType.ValueType             -> Some TokenKind.ValueType
-    | SemanticClassificationType.Disposable            -> Some TokenKind.Disposable
-    | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
-    | SemanticClassificationType.TypeArgument          -> Some TokenKind.TypeArgument
-    | SemanticClassificationType.Operator              -> Some TokenKind.Operator
-    | SemanticClassificationType.IntrinsicFunction     -> Some TokenKind.Keyword
+    | SemanticClassificationType.Enumeration           -> TokenKind.Enumeration
+    | SemanticClassificationType.Function              -> TokenKind.Function
+    | SemanticClassificationType.Interface             -> TokenKind.Interface
+    | SemanticClassificationType.Module                -> TokenKind.Module
+    | SemanticClassificationType.MutableVar            -> TokenKind.MutableVar
+    | SemanticClassificationType.Printf                -> TokenKind.Printf
+    | SemanticClassificationType.Property              -> TokenKind.Property
+    | SemanticClassificationType.ReferenceType         -> TokenKind.ReferenceType
+    | SemanticClassificationType.UnionCase             -> TokenKind.UnionCase
+    | SemanticClassificationType.ValueType             -> TokenKind.ValueType
+    | SemanticClassificationType.Disposable            -> TokenKind.Disposable
+    | SemanticClassificationType.ComputationExpression -> TokenKind.Keyword
+    | SemanticClassificationType.TypeArgument          -> TokenKind.TypeArgument
+    | SemanticClassificationType.Operator              -> TokenKind.Operator
+    | SemanticClassificationType.IntrinsicFunction     -> TokenKind.Keyword
 
     // Parse command line options - split string by space, but if there is something
     // enclosed in double quotes "..." then ignore spaces in the quoted text
@@ -92,21 +92,21 @@ module CodeFormatAgent =
         let defines = defines |> Option.map (fun (s:string) ->
           s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries) |> List.ofSeq)
         // Create source tokenizer
-        let sourceTok =   FSharpSourceTokenizer(defaultArg defines [], file)
+        let sourceTok =   FSharpSourceTokenizer(defaultArg defines [], Some file)
 
         // Parse lines using the tokenizer
         let indexedSnippetLines =
-            [   let state = ref 0L
+            [   let mutable state = 0L
                 for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
                     let tokenizer = sourceTok.CreateLineTokenizer line
                     let rec parseLine() = seq {
-                        match tokenizer.ScanToken(!state) with
+                        match tokenizer.ScanToken(state) with
                         | Some(tok), nstate ->
                             let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
                             yield str, tok
-                            state := nstate
+                            state <- nstate
                             yield! parseLine()
-                        | None, nstate -> state := nstate
+                        | None, nstate -> state <- nstate
                     }
                     yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine() |> List.ofSeq
             ]
@@ -135,16 +135,17 @@ module CodeFormatAgent =
     /// Processes a single line of the snippet
     let processSnippetLine  (checkResults: FSharpCheckFileResults)
                             (semanticRanges: (Range.range * SemanticClassificationType)[])
-                            (lines: string[]) (line: int, lineTokens: SnippetLine) =
-        let lineStr = lines.[line]
+                            (lines: string[]) (lineNum: int, lineTokens: SnippetLine) =
+        let lineStr = lines.[lineNum]
 
         // Recursive processing of tokens on the line (keeps a long identifier 'island')
-        let rec loop island (tokens: SnippetLine) (stringRange: Range option) = seq {
+        let rec loop island (tokens:Token list) (stringRange: Range option) = seq {
             match tokens with
             | [] -> ()
-            | (body, token)::rest when token.ColorClass = FSharpTokenColorKind.Keyword ->
-                yield FSharp.CodeFormat.Token (TokenKind.Keyword, body, None)
-                yield! loop [] rest None
+            | (body, token)::rest
+                when token.ColorClass = FSharpTokenColorKind.Keyword ->
+                    yield FSharp.CodeFormat.Token (TokenKind.Keyword, body, None)
+                    yield! loop [] rest None
             | (body, token) :: rest ->
             let stringRange, completedStringRange, rest =
                 match rest with
@@ -179,7 +180,7 @@ module CodeFormatAgent =
                     // If we're processing an identfier, see if it has any tool tip
                     if token.TokenName = "IDENT" then
                         let island = List.rev island
-                        let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
+                        let tip = checkResults.GetToolTipText(lineNum + 1, token.LeftColumn + 1, lines.[lineNum], island,FSharpTokenTag.IDENT)
                         match Async.RunSynchronously tip |> fun (tooltip) ->
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with
@@ -203,10 +204,11 @@ module CodeFormatAgent =
                         yield FSharp.CodeFormat.Token(TokenKind.Keyword, body, tip)
                     | _ ->
                     let kind =
-                        semanticRanges
-                        |> Array.tryFind (fun (range,_) -> range.StartColumn  = token.LeftColumn)
-                        |> Option.bind (fun (_,category) -> categoryToTokenKind category)
-                        |> Option.defaultValue (getTokenKind token.ColorClass)
+                        let classification =
+                            semanticRanges |> Array.tryFind (fun (range,_) -> range.StartColumn  = token.LeftColumn)
+                        match classification with
+                        | Some (_,category) -> categoryToTokenKind category
+                        | None -> getTokenKind token.ColorClass
                     yield FSharp.CodeFormat.Token (kind, body, tip)
                 // Process the rest of the line
                 yield! loop island rest stringRange
@@ -225,7 +227,7 @@ module CodeFormatAgent =
               | spans ->
                   let data =
                     spans
-                    |> Array.fold (fun points (range,category) ->
+                    |> Array.fold (fun points (range,_category) ->
                         points
                         |> Set.add range.StartColumn
                         |> Set.add (range.EndColumn - 1)) Set.empty
@@ -234,12 +236,15 @@ module CodeFormatAgent =
                     |> Set.toSeq
                     |> Seq.pairwise
                     |> Seq.map (fun (leftPoint, rightPoint) ->
-                        printfOrEscapedSpans
-                        |> Array.tryFind (fun (range,category) -> range.StartColumn = leftPoint)
-                        |> Option.bind (fun (range,category)->
-                             categoryToTokenKind category
-                             |> Option.map (fun kind -> range.StartColumn, range.EndColumn, kind))
-                        |> Option.defaultValue (leftPoint+1, rightPoint, TokenKind.String))
+                        let classification = 
+                            printfOrEscapedSpans
+                            |> Array.tryFind (fun (range,_category) -> range.StartColumn = leftPoint)
+                        match classification with
+                        | Some (range,category)->
+                             let kind = categoryToTokenKind category
+                             (range.StartColumn, range.EndColumn, kind)
+                        | None -> (leftPoint+1, rightPoint, TokenKind.String)
+                    )
 
                   for leftPoint, rightPoint, kind in data do
                         yield FSharp.CodeFormat.Token (kind, lineStr.[leftPoint..rightPoint-1], None)
@@ -253,21 +258,70 @@ module CodeFormatAgent =
 
 
      /// Process snippet
-    let processSnippet checkResults categorizedRanges lines (snippet: Snippet) =
+    let processSnippet checkResults
+            (categorizedRanges:Map<int,(range*SemanticClassificationType)[]>)
+            (lines:string [])
+            (snippet:(MarkdownRange * SnippetLine)list) =
         snippet
-        |> List.map (fun snippetLine ->
-
-            processSnippetLine
-                checkResults
-                (categorizedRanges
-                 |> Map.tryFind ((fst snippetLine).StartLine + 1)
-                 |> function None -> [||] | Some spans -> Array.ofSeq spans)
-                lines
-                ((fst snippetLine).StartLine, snd snippetLine)
+        |> List.map (fun (mdRange, tokens ) ->        
+            let semanticRanges =
+                categorizedRanges
+                |> Map.tryFind (mdRange.StartLine + 1)
+                |> function None -> [||] | Some spans -> Array.ofSeq spans
+            processSnippetLine checkResults semanticRanges lines (mdRange.StartLine, tokens)
         )
 
+    // --------------------------------------------------------------------------------------    
+    // Create an instance of an InteractiveChecker (which does background analysis
+    // in a typical IntelliSense editor integration for F#)
+    let fsChecker = FSharpAssemblyHelper.checker // FSharpChecker.Create()
 
-    let processSourceCode (fsChecker:FSharpChecker, filePath, source, options, defines) = async {
+    // ------------------------------------------------------------------------------------
+    open System
+
+
+    type CheckerConfig = {
+        Framework   : string
+        FsCore      : string
+        FsiOpts     : FsiOptions
+        RefCorLib   : string
+        Args        : string []
+        Options     : string option
+    } with
+        static member Empty = {
+            Framework = String.Empty
+            FsCore    = String.Empty
+            FsiOpts   = FsiOptions.Empty
+            RefCorLib = String.Empty
+            Args      = Array.empty
+            Options   = None
+        }
+        static member Create options =
+            //let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
+            let frameworkVersion = "netstandard2.0"
+            let defaultReferences = Seq.empty
+            let fsiOptions = (Option.map (parseOptions >>  FsiOptions.ofArgs) options) |> Option.defaultValue FsiOptions.Empty
+            let fscore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
+            let _, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences None [] [] []
+            // filter invalid args
+            let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
+            let args =
+                args |> Array.filter (fun item ->
+                    not <| item.StartsWith "--target" &&
+                    not <| item.StartsWith "--doc" &&
+                    not <| item.StartsWith "--out" &&
+                    not <| item.StartsWith "--nooptimizationdata" &&
+                    not <| item.EndsWith "mscorlib.dll")
+            {   Framework = frameworkVersion
+                FsCore = fscore
+                FsiOpts  = fsiOptions
+                RefCorLib = refCorLib
+                Args = args
+                Options = options
+            }
+
+
+    let processSourceCode (filePath, source, config:CheckerConfig, defines) = async {
         Log.verbf "starting to process source code from '%s'" filePath
         // Read the source code into an array of lines
         use reader = new StringReader(source)
@@ -276,58 +330,76 @@ module CodeFormatAgent =
             while (line := reader.ReadLine(); line.Value <> null) do
                 yield line.Value
         |]
-        // Get options for a standalone script file (this adds some
-        // default references and doesn't require full project information)
-        let frameworkVersion = FSharpCheckerFuncs.defaultFrameworkVersion
-        let fsCore = FSharpCheckerFuncs.findFSCore [] []
-        let defaultReferences =
-            FSharpCheckerFuncs.getDefaultSystemReferences frameworkVersion
-        let projFileName, args = FSharpCheckerFuncs.getCheckerArguments (Some filePath) frameworkVersion defaultReferences None [] [] []
-        // filter invalid args
-        let refCorLib = args |> Seq.find (fun i -> i.EndsWith "mscorlib.dll")
-        let args =
-            args |> Array.filter (fun item ->
-                not <| item.StartsWith "--target" &&
-                not <| item.StartsWith "--doc" &&
-                not <| item.StartsWith "--out" &&
-                not <| item.StartsWith "--nooptimizationdata" &&
-                not <| item.EndsWith "mscorlib.dll")
-        Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
-        //let opts = fsChecker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
-        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
-        //fsChecker.GetP
+//        // Get options for a standalone script file (this adds some
+//        // default references and doesn't require full project information)
+//        let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
+//        let fsiOptions = (Option.map (parseOptions >>  FsiOptions.ofArgs) config.Options) |> Option.defaultValue FsiOptions.Empty
+
+//        let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
+//        let defaultReferences =
+//#if !NETSTANDARD1_5
+//            FSharpAssemblyHelper.getDefaultSystemReferences frameworkVersion 
+//#else
+//            Seq.empty
+//#endif
+//        let projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences None [] [] []
+//        // filter invalid args
+//        let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
+//        let args =
+//            args |> Array.filter (fun item ->
+//                not <| item.StartsWith "--target" &&
+//                not <| item.StartsWith "--doc" &&
+//                not <| item.StartsWith "--out" &&
+//                not <| item.StartsWith "--nooptimizationdata" &&
+//                not <| item.EndsWith "mscorlib.dll")
+        Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", config.Args))// fscore
+        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, config.Args, assumeDotNetFramework = false)
+        
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
             System.String.Join("\n", errors |> Seq.map formatError)
         // filter duplicates
+        (* TODO -
+            Find a better way to establish the necessary assemblies for the typechecker to work properly
+            without system.runtime if the codeeformatagent was run inside an FSI instance it would work
+            but when run as part of a test suite it would reutrn incorrect results
+        *)
+        let refArgs = [|
+            sprintf "-r:%s" config.FsCore;
+            config.RefCorLib;
+            "-r:System.Runtime.dll"
+            "-r:System.IO.dll"
+        |]
         let opts =
             let mutable known = Set.empty
             { opts with
-               OtherOptions =
-                Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
-                |> Array.filter (fun item ->
-                    if item.StartsWith "-r:" then
-                        let fullPath = item.Substring 3
-                        let name = System.IO.Path.GetFileName fullPath
-                        if known.Contains name then
-                            false
+                OtherOptions =
+                    Array.append refArgs opts.OtherOptions
+                    |> Array.filter (fun item ->
+                        if item.StartsWith "-r:" then
+                            let fullPath = item.Substring 3
+                            let name = System.IO.Path.GetFileName fullPath
+                            if known.Contains name then
+                                false
+                            else
+                                known <- known.Add name
+                                true
                         else
-                            known <- known.Add name
-                            true
-                    else
-                        if known.Contains item then
-                            false
-                        else
-                            known <- known.Add item
-                            true)
-            }
+                            if known.Contains item then
+                                false
+                            else
+                                known <- known.Add item
+                                true)
+                }
         // Override default options if the user specified something
         let opts =
-            match options with
-            | Some(str:string) when not(System.String.IsNullOrEmpty str) ->
+            match config.Options with
+            | Some(str:string) when not(System.String.IsNullOrEmpty(str)) ->
                 { opts with OtherOptions = [| yield! parseOptions str; yield! opts.OtherOptions |] }
             | _ -> opts
+
+        
         //// add our file
         //let opts =
         //    { opts with
@@ -338,7 +410,8 @@ module CodeFormatAgent =
         Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
-        if _errors.Length > 0 then
+        
+        if _errors |> List.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> List.length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
         // Run the second phase - perform type checking
@@ -350,15 +423,18 @@ module CodeFormatAgent =
         | Some (_parseResults, parsedInput, checkResults) ->
             Log.verbf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
             let! symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile ()
+            
             let errors = checkResults.Errors
-            let classifications =
-                checkResults.GetSemanticClassification (Some parsedInput.Range)
-                |> Seq.groupBy (fun (r,c) -> r.StartLine)
-                |> Map.ofSeq
+           
+            let classificationMap =
+                let classifications = checkResults.GetSemanticClassification (Some parsedInput.Range)
+                classifications
+                |> Array.groupBy (fun (r,_c) -> r.StartLine)
+                |> Map.ofArray
 
-
+            
             /// Parse source file into a list of lines consisting of tokens
-            let tokens = getTokens (Some filePath) defines sourceLines
+            let tokens = getTokens filePath defines sourceLines
 
             // --------------------------------------------------------------------------------
             // When type-checking completes and we have a parsed file (as tokens), we can
@@ -382,7 +458,7 @@ module CodeFormatAgent =
                         Snippet(title, [])
                     else
                     // Process the current snippet
-                    let parsed = processSnippet checkResults classifications sourceLines lines
+                    let parsed = processSnippet checkResults classificationMap sourceLines lines
 
                     // Remove additional whitespace from start of lines
                     let spaces = countStartingSpaces lines
@@ -423,12 +499,12 @@ open CodeFormatAgent
 
 /// Uses agent to handle formatting requests
 type CodeFormatAgent () =
-
+    
     // --------------------------------------------------------------------------------------
 
     // Create an instance of an InteractiveChecker (which does background analysis
     // in a typical IntelliSense editor integration for F#)
-    let fsChecker =  FSharpChecker.Create()
+    //let fsChecker =  FSharpChecker.Create()
     
     // ------------------------------------------------------------------------------------
     // Agent that implements the parsing & formatting
@@ -448,14 +524,21 @@ type CodeFormatAgent () =
             chnl.Reply(Choice2Of2(e)) // new Exception(Utilities.formatException e, e)))
         })
 
+    member val Config =  CheckerConfig.Empty with get, set
+
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.AsyncParseSource(file, source, ?options, ?defines) = async {
-        let! res = agent.PostAndAsyncReply(fun chnl -> (fsChecker,file, source, options, defines), chnl)
+    member self.AsyncParseSource(file, source, ?options, ?defines) = async {
+        let config = CheckerConfig.Create options
+        self.Config <- config
+
+
+        let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, config, defines), chnl)
         match res with
         | Choice1Of2 res -> return res
-        | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn)) }
+        | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn))
+    }
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
@@ -467,8 +550,10 @@ type CodeFormatAgent () =
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.ParseSource (file, source, ?options, ?defines) =
-        let res = agent.PostAndReply(fun chnl -> (fsChecker, file, source, options, defines), chnl)
+    member self.ParseSource (file, source, ?options, ?defines) =
+        let config = CheckerConfig.Create options
+        self.Config <- config
+        let res = agent.PostAndReply(fun chnl -> (file, source, config, defines), chnl)
         match res with
         | Choice1Of2 res -> res
         | Choice2Of2 exn -> raise (new Exception(exn.Message, exn))

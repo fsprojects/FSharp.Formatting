@@ -1,4 +1,6 @@
 FSharp.Core
-#FSharp.Compiler.Tools
 CommandLineParser
-RazorEngine
+RazorEngine.NetCore
+NUnit
+NUnit3TestAdapter
+Microsoft.NET.Test.Sdk

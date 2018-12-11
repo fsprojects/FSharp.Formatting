@@ -1,3 +1,22 @@
+## 3.0.0-beta13 
+ - FSharp.Literate for netstandard2.0
+
+## 3.0.0-beta12 (29, July, 2018)
+ - Fix usage formatting - https://github.com/fsprojects/FSharp.Formatting/issues/472
+
+## 3.0.0-beta11 (06, May, 2018)
+ - Added support for attributes on modules, types and members
+ - Updated razor templates to show attributes and added a warning for obsolete API
+
+## 3.0.0-beta10 (08, April, 2018)
+ - Upgrade FSharp.Compiler.Service to be compatible with FAKE 5
+
+## 3.0.0-beta09 (04, February, 2018
+ - Fix some links on the website - https://github.com/fsprojects/FSharp.Formatting/pull/458
+ - Another link on the website - https://github.com/fsprojects/FSharp.Formatting/pull/454
+ - Support highlighting for paket.dependencies `storage` keyword - https://github.com/fsprojects/FSharp.Formatting/pull/451
+ - In order to upgrade follow instructions at http://fsprojects.github.io/FSharp.Formatting/upgrade_from_v2_to_v3.html
+
 ## 3.0.0-beta08 (03 December, 2017)
  - Improve Stacktrace on Script file processing
  
@@ -19,9 +38,9 @@
 
 ## 3.0.0-beta02 (26 May, 2017)
  - MarkdownSpan and MarkdownParagraph now use named DUs
- - Add range to MarkdownParagraph and MarkdownSpan (https://github.com/tpetricek/FSharp.Formatting/pull/411)
- - FSharp.Formatting no longer has a strong dependency on Razor (https://github.com/tpetricek/FSharp.Formatting/pull/425)
- - FSharp.Formatting no longer depends on VFPT.Core (https://github.com/tpetricek/FSharp.Formatting/pull/432)
+ - Add range to MarkdownParagraph and MarkdownSpan (https://github.com/fsprojects/FSharp.Formatting/pull/411)
+ - FSharp.Formatting no longer has a strong dependency on Razor (https://github.com/fsprojects/FSharp.Formatting/pull/425)
+ - FSharp.Formatting no longer depends on VFPT.Core (https://github.com/fsprojects/FSharp.Formatting/pull/432)
  - Add beta packages to AppVeyor feed.
  - Update FSharp.Compiler.Service component.
 

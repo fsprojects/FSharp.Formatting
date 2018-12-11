@@ -1,3 +1,3 @@
-﻿#FSharp.Compiler.Tools
-FSharp.Core
-System.ValueTuple
+﻿FSharp.Core
+#group test  
+FsUnit

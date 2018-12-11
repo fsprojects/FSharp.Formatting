@@ -51,6 +51,8 @@ I hope it is also a good sample showing how to write documentation for F# projec
    The tool is a replacement of `FsHtmlDoc` - it uses Razor for easy templating and handles
    comments written in Markdown too. 
 
+ - [Contribute](https://github.com/fsprojects/FSharp.Formatting/blob/master/CONTRIBUTING.md) - how do I contribute?
+
 More information
 ----------------
 

@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options.Literate
+namespace FSharp.Formatting.Options.Literate
 
 open CommandLine
 open CommandLine.Text
@@ -17,8 +17,8 @@ open FSharp.Formatting.Razor
 //     ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots )
 type ProcessDirectoryOptions() =
 
-    [<ParserState>]
-    member val LastParserState = null with get, set
+    //[<ParserState>]
+    //member val LastParserState = null with get, set
 
     // does not work as desired in F#:
     // the HelpOption attribute is not built,
@@ -28,7 +28,7 @@ type ProcessDirectoryOptions() =
     member x.GetUsageOfOption() =
         let help = new HelpText()
         help.AddDashesToOption <- true
-        help.AddOptions(x)
+        //help.AddOptions(x)
         "\nfsformatting literate --processDirectory [options]" +
         "\n--------------------------------------------------" +
         help.ToString()
@@ -67,13 +67,13 @@ type ProcessDirectoryOptions() =
         HelpText = "Prefix for formatting, defaults to 'fs' (optional).")>]
     member val prefix = "" with get, set
 
-    [<OptionArray("compilerOptions", Required = false,
+    [<Option("compilerOptions", Required = false,
         HelpText = "Compiler Options (optional).")>]
     member val compilerOptions = [|""|] with get, set
 
-    [<Option("lineNumbers", Required = false,
-        HelpText = "Line number option, defaults to 'true' (optional).")>]
-    member val lineNumbers = true with get, set
+    [<Option("noLineNumbers", Required = false,
+        HelpText = "Don't add line numbers, default is to add line numbers (optional).")>]
+    member val noLineNumbers = false with get, set
 
     [<Option("references", Required = false,
         HelpText = "Turn all indirect links into references, defaults to 'false' (optional).")>]
@@ -83,7 +83,7 @@ type ProcessDirectoryOptions() =
         HelpText = "Use the default FsiEvaluator, defaults to 'false'")>]
     member val fsieval = false with set, get
 
-    [<OptionArray("replacements", Required = false,
+    [<Option("replacements", Required = false,
         HelpText = "A whitespace separated list of string pairs as text replacement patterns for the format template file (optional).")>]
     member val replacements = [|""|] with get, set
 
@@ -91,7 +91,7 @@ type ProcessDirectoryOptions() =
         HelpText = "Include sourcecode in documentation, defaults to 'false' (optional).")>]
     member val includeSource = false with get, set
 
-    [<OptionArray("layoutRoots", Required = false,
+    [<Option("layoutRoots", Required = false,
         HelpText = "Search directory list for the Razor Engine (optional).")>]
     member val layoutRoots = [|""|] with get, set
 
@@ -117,7 +117,7 @@ type ProcessDirectoryOptions() =
                             ?formatAgent = None,
                             ?prefix = (evalString x.prefix),
                             ?compilerOptions = (evalString (concat x.compilerOptions)),
-                            ?lineNumbers = Some x.lineNumbers,
+                            ?lineNumbers = Some (not x.noLineNumbers),
                             ?references = Some x.references,
                             ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() :> _) else None),
                             ?replacements = (evalPairwiseStringArray x.replacements),
@@ -143,9 +143,10 @@ type ProcessDirectoryOptions() =
             res
 
         member x.GetErrorText() =
-            if x.LastParserState = null then ""
-            else
-                let errors = (x.LastParserState :> IParserState).Errors
-                parsingErrorMessage(errors)
+            //if x.LastParserState = null then ""
+            //else
+            //    let errors = (x.LastParserState :> IParserState).Errors
+            //    parsingErrorMessage(errors)
+            "deprecated"
 
         member x.GetUsage() = x.GetUsageOfOption()

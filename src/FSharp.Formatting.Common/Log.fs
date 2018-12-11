@@ -1,32 +1,35 @@
-﻿namespace FSharp.Formatting.Common
+namespace FSharp.Formatting.Common
 
-open System.Diagnostics
+
 
 module Log =
-  let source = new System.Diagnostics.TraceSource "FSharp.Formatting"
+    open System
+    open System.Diagnostics
 
-  let ConsoleListener () = new ConsoleTraceListener()
-  let SvclogListener (file:string) = new XmlWriterTraceListener(file)
-  let TextListener (file:string) = new TextWriterTraceListener(file)
+    let source = new System.Diagnostics.TraceSource "FSharp.Formatting"
 
-  let SetupSource (listeners:_ array) (source:TraceSource) =
-    source.Listeners.Clear()
-    source.Switch.Level <- System.Diagnostics.SourceLevels.All
-    source.Listeners.AddRange listeners
+    //#if !NETSTANDARD2_0
+    let ConsoleListener () = new DefaultTraceListener()
+    let TextListener (file:string) = new TextWriterTraceListener(file)
 
-  let SetupListener traceOptions levels (listener:TraceListener) =
-    listener.Filter <- new EventTypeFilter(levels)
-    listener.TraceOutputOptions <- traceOptions
-    listener
+    let SetupSource (listeners:_ array) (source:TraceSource) =
+        source.Listeners.Clear()
+        source.Switch.Level <- System.Diagnostics.SourceLevels.All
+        source.Listeners.AddRange listeners
 
-  let AddListener listener (source:TraceSource) =
-    source.Listeners.Add listener |> ignore
-    
-  let traceEventf t f =
-    Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
+    let SetupListener traceOptions levels (listener:TraceListener) =
+        listener.Filter <- new EventTypeFilter(levels)
+        listener.TraceOutputOptions <- traceOptions
+        listener
 
-  let infof f = traceEventf TraceEventType.Information f
-  let errorf f = traceEventf TraceEventType.Error f
-  let warnf f = traceEventf TraceEventType.Warning f
-  let critf f = traceEventf TraceEventType.Critical f
-  let verbf f = traceEventf TraceEventType.Verbose f
+    let AddListener listener (source:TraceSource) =
+        source.Listeners.Add listener |> ignore
+
+    let traceEventf t f =
+        Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
+
+    let infof f = traceEventf TraceEventType.Information f
+    let errorf f = traceEventf TraceEventType.Error f
+    let warnf f = traceEventf TraceEventType.Warning f
+    let critf f = traceEventf TraceEventType.Critical f
+    let verbf f = traceEventf TraceEventType.Verbose f

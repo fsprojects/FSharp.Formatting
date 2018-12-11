@@ -1,11 +1,13 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-#I "../../bin"
+#I "../../bin/net461"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Formatting.Razor.dll"
 #r "FSharp.Compiler.Service.dll"
 #r "RazorEngine.dll"
+#r "FSharp.Formatting.TestHelpers.dll"
+
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 
@@ -34,13 +36,13 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "../bin" |> fullpath
+let testBin = __SOURCE_DIRECTORY__ </> "../bin/net461" |> fullpath
 
-#if INTERACTIVE 
+#if INTERACTIVE
 ;;
 printfn "\n-- Root - %s" root;;
 printfn "\n-- TestBin - %s" testBin;;
-#endif 
+#endif
 
 let getOutputDir()  =
   let tempFile = Path.GetTempFileName()
@@ -75,9 +77,9 @@ let generate (libraries:string list) useMarkdown =
     with e ->
         printfn "Failed to Generate Metadata -\n%s\n\n%s\n" e.Message e.StackTrace
         System.AppDomain.CurrentDomain.GetAssemblies ()
-        |> Seq.iter (fun x -> 
+        |> Seq.iter (fun x ->
             try sprintf "%s\n - %s" x.FullName x.Location |> System.Console.WriteLine
-            with e -> 
+            with e ->
                 sprintf "\nError On - %A\n -- %s\n"  x e.Message |> System.Console.WriteLine
         )
         reraise ()
@@ -152,11 +154,20 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; Class"
 
   // Check that properties are correctly generated (#114)
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member(arg1)<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">Member()<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">Member<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">x.Member(arg1)<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">x.Member()<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">x.Member<"
   files.["fslib-class.html"] |> shouldNotContainText "<strong>Signature:</strong> unit -&gt; int"
   files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> int"
+
+  // Check that formatting is correct
+  files.["fslib-test_issue472_r.html"] |> shouldContainText "Test_Issue472_R.fmultipleargs x y"
+  files.["fslib-test_issue472_r.html"] |> shouldContainText "Test_Issue472_R.ftupled(x, y)"
+  files.["fslib-test_issue472.html"] |> shouldContainText "fmultipleargs x y"
+  files.["fslib-test_issue472.html"] |> shouldContainText "ftupled(x, y)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArg(arg1, arg2)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArgTupled(arg)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultPartial arg1 arg2"
 
   //#if INTERACTIVE
   //System.Diagnostics.Process.Start(output)
@@ -171,16 +182,16 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (root </> "../..") )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
-  files.["fslib-class.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
   files.["fslib-record.html"] |> shouldContainText "github-link"
-  files.["fslib-record.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
   files.["fslib-union.html"] |> shouldContainText "github-link"
-  files.["fslib-union.html"] |> shouldContainText "https://github.com/tpetricek/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
 
   //#if INTERACTIVE
   //System.Diagnostics.Process.Start(output)
@@ -197,7 +208,7 @@ let ``MetadataFormat test that cref generation works``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       markDownComments = false )
   let fileNames = Directory.GetFiles(output)
@@ -267,7 +278,7 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = true,
       markDownComments = false )
@@ -312,7 +323,7 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
   //#endif
 
 
-[<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/tpetricek/FSharp.Formatting/pull/259" >]
+[<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/fsprojects/FSharp.Formatting/pull/259" >]
 [<Test>]
 let ``MetadataFormat test that csharp support works``() =
   let libraries =
@@ -321,7 +332,7 @@ let ``MetadataFormat test that csharp support works``() =
   printfn "Output: %s" output
   RazorMetadataFormat.Generate
     ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
-      sourceRepo = "https://github.com/tpetricek/FSharp.Formatting/tree/master",
+      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = false,
       markDownComments = false )
@@ -388,7 +399,7 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
 let ``MetadataFormat highlights code snippets in Markdown comments``() =
   let library = testBin </> "TestLib1.dll" |> fullpath
   //RazorMetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root </> "../../lib"], markDownComments = true)
-  
+
   let files = generate [library] true
 
   files.["fslib-myclass.html"] |> shouldContainText """<span class="k">let</span>"""
@@ -400,7 +411,7 @@ let ``MetadataFormat handles c# dlls`` () =
   let library = testBin </> "CSharpFormat.dll" |> fullpath
   //RazorMetadataFormat.Generate
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
-  
+
   let files = (generate [library] false).Keys
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -425,7 +436,7 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
     let library = testBin </> "CSharpFormat.dll" |> fullpath
-    
+
     let files = generate [library] false
 
     files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "CommentRegEx"
@@ -435,7 +446,7 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
 let ``MetadataFormat generates module link in nested types``() =
 
   let library =  testBin  </> "FsLib2.dll"
-  
+
   let files = generate [library] false
 
   // Check that the modules and type files have namespace information
@@ -468,7 +479,7 @@ let ``MetadataFormat omit works without markdown``() =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
   let files = generate [library] false
-    
+
   files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 [<Test>]
@@ -561,7 +572,7 @@ printfn "MetadataFormat process XML comments in two sample F# assemblies"
 runtest ``MetadataFormat process XML comments in two sample F# assemblies``;;
 
 printfn "MetadataFormat works on sample Deedle assembly"
-runtest ``MetadataFormat works on sample Deedle assembly``;; 
+runtest ``MetadataFormat works on sample Deedle assembly``;;
 
 printfn "MetadataFormat works on two sample F# assemblies"
 runtest ``MetadataFormat works on two sample F# assemblies``;;

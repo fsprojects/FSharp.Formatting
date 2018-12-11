@@ -1,17 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <TargetFramework>net461</TargetFramework>
-     <OutputType>Library</OutputType>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+
+    <OutputType>Library</OutputType>
     <SolutionDir>..\..\..\..\</SolutionDir>
-    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
+    <DocumentationFile>$(SolutionDir)\tests\bin\($AssemblyName).xml</DocumentationFile>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>    
+    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
+    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <NoWarn>CS1591;CS0067;CS1574</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;1591;0067</NoWarn>
+  </PropertyGroup>
+  <!--<ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -20,8 +25,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-
+  </ItemGroup>-->
   <ItemGroup>
     <None Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>

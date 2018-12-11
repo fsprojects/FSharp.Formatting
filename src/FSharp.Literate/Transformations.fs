@@ -2,8 +2,6 @@ namespace FSharp.Literate
 
 open System
 open System.IO
-open System.Web
-open System.Reflection
 open System.Collections.Generic
 
 open CSharpFormat

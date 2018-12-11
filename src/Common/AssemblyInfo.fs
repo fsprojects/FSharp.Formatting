@@ -6,7 +6,7 @@ open System.Reflection
 [<assembly: AssemblyDescriptionAttribute("A package of libraries for building great F# documentation, samples and blogs")>]
 [<assembly: AssemblyVersionAttribute("3.0.0")>]
 [<assembly: AssemblyFileVersionAttribute("3.0.0")>]
-[<assembly: AssemblyInformationalVersionAttribute("3.0.0-beta08")>]
+[<assembly: AssemblyInformationalVersionAttribute("3.0.0-beta13")>]
 [<assembly: AssemblyCopyrightAttribute("Apache 2.0 License")>]
 do ()
 
@@ -15,5 +15,5 @@ module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyDescription = "A package of libraries for building great F# documentation, samples and blogs"
     let [<Literal>] AssemblyVersion = "3.0.0"
     let [<Literal>] AssemblyFileVersion = "3.0.0"
-    let [<Literal>] AssemblyInformationalVersion = "3.0.0-beta08"
+    let [<Literal>] AssemblyInformationalVersion = "3.0.0-beta13"
     let [<Literal>] AssemblyCopyright = "Apache 2.0 License"

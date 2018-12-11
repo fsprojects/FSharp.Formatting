@@ -1,4 +1,4 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 #I "../../bin/"
 #r "FSharp.Literate.dll"
 #r "FSharp.CodeFormat.dll"
@@ -19,7 +19,9 @@ open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
+#if !NETSTANDARD2_0
 open FSharp.Formatting.Razor
+#endif
 open FsUnitTyped
 open FSharp.Formatting
 
@@ -289,6 +291,7 @@ let ``Correctly handles Paket coloring`` () =
     lowest_matching: true
     source https://nuget.org/api/v2 // nuget.org
     cache //hive/dependencies
+    storage: none
 
     // NuGet packages
     nuget NUnit ~> 2.6.3
@@ -331,6 +334,7 @@ let ``Correctly handles Paket coloring`` () =
   html |> shouldContainText "<span class=\"k\">redirects</span>"
   html |> shouldContainText "<span class=\"k\">strategy</span>"
   html |> shouldContainText "<span class=\"k\">version_in_path</span>"
+  html |> shouldContainText "<span class=\"k\">storage</span>"
 
   html |> shouldNotContainText "<span class=\"k\">http</span>s"
   html |> shouldNotContainText ".<span class=\"k\">git</span>"
@@ -431,7 +435,7 @@ let ``Parsing simple script and markdown produces the same result`` () =
 // --------------------------------------------------------------------------------------
 // Test processing simple files using simple templates
 // --------------------------------------------------------------------------------------
-
+#if !NETSTANDARD2_0
 let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.cshtml"
 
@@ -461,7 +465,6 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using Razor te
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
-
 // --------------------------------------------------------------------------------------
 // Test processing simple files using the NuGet included templates
 // --------------------------------------------------------------------------------------
@@ -496,6 +499,7 @@ let ``Can process md file using the template included in NuGet package``() =
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
 
+#endif
 
 [<Test>]
 let ``Gives nice error when parsing unclosed comment`` () =

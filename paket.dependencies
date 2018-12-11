@@ -1,31 +1,77 @@
 source https://api.nuget.org/v3/index.json
 source https://ci.appveyor.com/nuget/fake
-
 redirects: on
 
-nuget FSharp.Data
-nuget FAKE prerelease
-nuget CommandLineParser
-#nuget FSharp.Compiler.Tools
-nuget FSharp.Core 4.2.3 redirects:force, content:none
-nuget Microsoft.AspNet.Razor
-nuget RazorEngine 3.9.3 framework: >= net45
-nuget FSharp.Compiler.Service 17.0.1 redirects:force, content:none
+# Turned off so changes aren't overwritten on force install
+github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+
+nuget FSharp.Data prerelease
+
+nuget CommandLineParser // Maybe we should switch to Argu?
+nuget FSharp.Compiler.Service   redirects:force, content:none
 nuget ILRepack
 nuget Argu
+nuget FAKE 5.8.4
+nuget FSharp.Core
+nuget Fake.Core.Target 5.9.3
+nuget Fake.IO.FileSystem 5.9.3
+nuget RazorEngine.NetCore
+nuget Microsoft.AspNetCore.Razor.Runtime
+nuget Microsoft.AspNetCore.Razor.Language
+nuget Microsoft.AspNetCore.Hosting 
+nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
+nuget Microsoft.AspNetCore.Mvc.Razor.Host 
+nuget Microsoft.AspNetCore
+nuget FsUnit 
+nuget NUnit
+nuget Nunit.ConsoleRunner
+nuget NetStandard.library
+nuget Microsoft.NET.Test.Sdk
+nuget NUnit3TestAdapter
 
 group Build
     source https://api.nuget.org/v3/index.json
+    source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
+    nuget Paket.Core 
     nuget NuGet.CommandLine
+    nuget RoslynTools.ReferenceAssemblies
 
-#github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
-group Test
+// [ FAKE GROUP ]
+group NetcoreBuild
     source https://api.nuget.org/v3/index.json
-    redirects: on 
+    // FAKE_MYGET_FEED (don't edit this line)
+    //source https://www.myget.org/F/fake-vsts/api/v3/index.json
+    //storage: none
+    //source https://ci.appveyor.com/nuget/fake
 
-    nuget FsUnit //framework:net45
-    nuget NUnit 
-    nuget NUnit3TestAdapter
-    nuget Nunit.ConsoleRunner
-    nuget Microsoft.NET.Test.Sdk
+    // 2018-07-08: Until we use a runner > 5.1, see https://github.com/fsharp/FAKE/pull/2011
+    nuget FSharp.Core < 4.5
+    nuget Suave
+    nuget System.AppContext prerelease
+    nuget Paket.Core // prerelease
+    nuget Fake.Api.GitHub prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.Core.Target prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.Core.SemVer prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.BuildServer.AppVeyor prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.BuildServer.TeamCity prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.BuildServer.Travis prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.BuildServer.TeamFoundation prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.BuildServer.GitLab prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.IO.FileSystem prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.IO.Zip prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.Core.ReleaseNotes prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.AssemblyInfoFile prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.MsBuild prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.Cli prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.NuGet prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.Paket prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.FSFormatting prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.Testing.MSpec prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.Testing.XUnit2 prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.DotNet.Testing.NUnit prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.Windows.Chocolatey prerelease // FAKE_VERSION (don't edit this line)
+    nuget Fake.Tools.Git prerelease // FAKE_VERSION (don't edit this line)
+    nuget Mono.Cecil prerelease
+    nuget Octokit
+    nuget Newtonsoft.Json

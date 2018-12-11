@@ -1,8 +1,7 @@
-﻿module FSharp.Literate.Tests.Setup
+module FSharp.Literate.Tests.Setup
 
 open System
 open System.IO
-open System.Reflection
 
 // --------------------------------------------------------------------------------------
 // Setup - find the compiler assembly etc.
@@ -12,10 +11,10 @@ let (</>) a b = Path.Combine(a, b)
 
 type TempFile() =
   let file = Path.GetTempFileName()
-  member x.File = file
-  member x.Content = File.ReadAllText(file)
+  member __.File = file
+  member __.Content = File.ReadAllText(file)
   interface IDisposable with
-    member x.Dispose() = File.Delete(file)
+    member __.Dispose() = File.Delete(file)
 
 let getFormatAgent() = FSharp.CodeFormat.CodeFormat.CreateAgent()
 

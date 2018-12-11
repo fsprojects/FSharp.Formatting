@@ -20,15 +20,15 @@
     <!-- Automatically referenced by VS -->
     <!-- When including additional .dll files here make sure you update "generate.fsx" as well 
          (it will trigger a CI build failure when forgotten so not a problem) -->
-    <file src="..\bin\CSharpFormat.*" target="lib/net40" />
-    <file src="..\bin\FSharp.CodeFormat.*" target="lib/net40" />
-    <file src="..\bin\FSharp.Literate.*" target="lib/net40" />
-    <file src="..\bin\FSharp.Markdown.*" target="lib/net40" />
-    <file src="..\bin\FSharp.Formatting.Common.*" target="lib/net40" />
-    <file src="..\bin\FSharp.Formatting.Razor.*" target="lib/net40" />
-    <file src="..\bin\FSharp.MetadataFormat.*" target="lib/net40" />
-    <file src="..\bin\RazorEngine.*" target="lib/net40" />
-    <file src="..\bin\System.Web.Razor.*" target="lib/net40" />
+    <file src="..\bin\net461\CSharpFormat.*" target="lib/net461" />
+    <file src="..\bin\net461\FSharp.CodeFormat.*" target="lib/net461" />
+    <file src="..\bin\net461\FSharp.Literate.*" target="lib/net461" />
+    <file src="..\bin\net461\FSharp.Markdown.*" target="lib/net461" />
+    <file src="..\bin\net461\FSharp.Formatting.Common.*" target="lib/net461" />
+    <file src="..\bin\net461\FSharp.Formatting.Razor.*" target="lib/net461" />
+    <file src="..\bin\net461\FSharp.MetadataFormat.*" target="lib/net461" />
+    <file src="..\bin\net461\RazorEngine.*" target="lib/net461" />
+    <file src="..\bin\net461\System.Web.Razor.*" target="lib/net461" />
     <!-- Loader script -->
     <file src="..\packages\FSharp.Formatting\FSharp.Formatting.fsx" target="FSharp.Formatting.fsx" />
     <!-- Templates & styles & literate demos -->

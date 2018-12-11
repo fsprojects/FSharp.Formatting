@@ -1,9 +1,8 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System
 open System.IO
 open FSharp.Markdown
-open FSharp.CodeFormat
 open Yaaf.FSharp.Scripting
 
 
@@ -101,8 +100,21 @@ type FsiEvaluatorConfig() =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator(?options:string[], ?fsiObj) =
   // Initialize F# Interactive evaluation session
-
-  let fsiOptions = defaultArg (Option.map FsiOptions.ofArgs options) FsiOptions.Default
+  let fsiOptions = (Option.map FsiOptions.ofArgs options) |> Option.defaultWith (fun _ -> FsiOptions.Default)
+  let mkref asm =
+    Path.Combine (__SOURCE_DIRECTORY__,sprintf "../../packages/NETStandard.Library/build/netstandard2.0/ref/%s" asm )
+  let fsiOptions = {
+    fsiOptions with
+(*  TODO -
+    Find a better way to deal with the references, this is a temporary 
+    stopgap to get the tests running again.  
+*)
+       References = List.append fsiOptions.References [
+            mkref "netstandard.dll";
+            mkref "System.Runtime.dll";
+            mkref "System.IO.dll"
+        ]
+  }
   let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true, ?fsiObj = fsiObj)
 
   let evalFailed = new Event<_>()
@@ -112,6 +124,10 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
   /// (the default formats value as a string and emits single CodeBlock)
   let mutable valueTransformations = 
     [ (fun (o:obj, t:Type) ->Some([CodeBlock (sprintf "%A" o, "", "", None)]) ) ]
+
+
+  member __.Options = fsiOptions
+  member __.Session = fsiSession
 
   /// Register a function that formats (some) values that are produced by the evaluator.
   /// The specified function should return 'Some' when it knows how to format a value
@@ -148,7 +164,7 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
     /// If file is set, the text will be evaluated as if it was present in the
     /// given script file - this is for correct usage of #I and #r with relative paths.
     /// Note however that __SOURCE_DIRECTORY___ does not currently pick this up.
-    member x.Evaluate(text:string, asExpression, ?file) =
+    member x.Evaluate(text:string, asExpression, ?file) : IFsiEvaluationResult =
       try
         lock lockObj <| fun () ->
           let dir = 
@@ -170,3 +186,4 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
         { Output = None; Result = None; ItValue = None } :> _
+

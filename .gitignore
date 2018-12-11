@@ -34,3 +34,7 @@ release.cmd
 .paket/paket.exe
 fsbuild.targets
 *.sln.tddstud10.user
+*.ncrunchsolution
+*.user
+_NCrunch_*
+*.ncrunchproject

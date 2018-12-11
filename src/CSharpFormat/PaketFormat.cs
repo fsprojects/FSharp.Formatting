@@ -9,7 +9,7 @@ namespace Manoli.Utils.CSharpFormat
     /// </summary>
     public class PaketFormat : FSharpFormat
 	{
-        /// <summary>
+        ///<summary>
         /// Regular expression string to match single line and multi-line 
         /// comments (// and (* *)). Single line comments should have to have 
         /// a space after them to avoid color as comments URLs and paths. For example
@@ -17,7 +17,7 @@ namespace Manoli.Utils.CSharpFormat
         ///     source https://nuget.org/api/v2
         //      cache //hive/dependencies
         /// ```
-        /// </summary>
+        ///</summary>
         protected override string CommentRegEx
         {
             get { return @"\(\*.*?\*\)|//\s.*?(?:\r|\n|$)"; }
@@ -41,10 +41,10 @@ namespace Manoli.Utils.CSharpFormat
                 return "source nuget github gist git http group framework version_in_path content"
                     + " copy_local redirects import_targets references cache strategy lowest_matching NUGET"
                     + " specs remote File username password copy_content_to_output_dir GITHUB GROUP GIT HTTP"
-                    + " CopyToOutputDirectory";
+                    + " CopyToOutputDirectory storage";
             }
         }
-        
+
         /// <summary>
         /// Matches version numbers
         /// </summary>

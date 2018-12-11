@@ -34,7 +34,7 @@ let getLinkAndTitle (StringPosition.TrimBoth(input, n)) =
 let inline (|EscapedChar|_|) input =
   match input with
   | '\\'::( ( '*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']'
-            | '(' | ')'  | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) ::rest -> Some(c, rest)
+            | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) ::rest -> Some(c, rest)
   | _ -> None
 
 /// Escape dollar inside a LaTex inline math span.
@@ -146,140 +146,161 @@ let (|Emphasised|_|) = function
     | _ -> None
   | _ -> None
 
+let (|HtmlEntity|_|) input =
+  match input with
+  | '&' :: _ ->
+      // regex from reference implementation: https://github.com/commonmark/commonmark.js/blob/da1db1e/lib/common.js#L10
+      let re =
+        "^&"                     // beginning expect '&'
+        + "(?:"                  // start non-capturing group
+        + "#x[a-f0-9]{1,8}"      // hex
+        + "|#[0-9]{1,8}"         // or decimal
+        + "|[a-z][a-z0-9]{1,31}" // or name
+        + ")"                    // end non-capturing group
+        + ";"                    // expect ';'
+      let match' = Regex.Match(Array.ofList input |> String, re)
+      if match'.Success then
+        let entity = match'.Value
+        let _, rest = List.splitAt entity.Length input
+        Some (entity, rest)
+      else None
+  | _ -> None
+
+
 /// Defines a context for the main `parseParagraphs` function
-type ParsingContext = {
-    Links : Dictionary<string, string * option<string>>
+type ParsingContext =
+  { Links : Dictionary<string, string * option<string>>
     Newline : string
-    CurrentRange : MarkdownRange option
-}
+    CurrentRange : MarkdownRange option }
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx:ParsingContext) = seq {
-    // Zero or one literals, depending whether there is some accumulated input and update the ctx
-    let accLiterals = Lazy<_>.Create (fun () ->
-        if List.isEmpty acc then ([], ctx) else
-        let range =
-            match ctx.CurrentRange with 
-            | Some n -> Some { n with EndColumn = n.StartColumn + acc.Length }
-            | None -> None
-        let ctx = {
-          ctx with
-            CurrentRange =
-                match ctx.CurrentRange with 
-                | Some n -> Some({ n with StartColumn = n.StartColumn + acc.Length }) 
-                | None -> None
-        }
-        let text = String(List.rev acc |> Array.ofList)
-        ([Literal(text, range)], ctx)
-    )
 
-    match input with
-    // Recognizes explicit line-break at the end of line
-    | ' '::' '::'\r'::'\n'::rest
-    | ' '::' '::('\n' | '\r')::rest ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        yield HardLineBreak(ctx.CurrentRange)
-        yield! parseChars [] rest ctx
+  // Zero or one literals, depending whether there is some accumulated input and update the ctx
+  let accLiterals = Lazy<_>.Create (fun () ->
+    if List.isEmpty acc then ([], ctx)
+    else
+      let range = match ctx.CurrentRange with 
+                  | Some(n) -> Some({ n with EndColumn = n.StartColumn + acc.Length }) 
+                  | None -> None
+      let ctx = { ctx with CurrentRange = match ctx.CurrentRange with 
+                                          | Some(n) -> Some({ n with StartColumn = n.StartColumn + acc.Length }) 
+                                          | None -> None }
+      let text = String(List.rev acc |> Array.ofList)
+      ([Literal(text, range)], ctx) )
 
-    // Encode & as an HTML entity
-    | '&'::'a'::'m'::'p'::';'::rest
-    | '&'::rest ->
-        yield! parseChars (';'::'p'::'m'::'a'::'&'::acc) rest ctx
+  match input with
+  // Recognizes explicit line-break at the end of line
+  | ' '::' '::'\r'::'\n'::rest
+  | ' '::' '::('\n' | '\r')::rest ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      yield HardLineBreak(ctx.CurrentRange)
+      yield! parseChars [] rest ctx
 
-    // Ignore escaped characters that might mean something else
-    | EscapedChar(c, rest) ->
+  | HtmlEntity(entity, rest) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      yield Literal (entity, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+
+  | '&'::rest ->
+      yield! parseChars (';'::'p'::'m'::'a'::'&'::acc) rest ctx
+
+  // Ignore escaped characters that might mean something else
+  | EscapedChar(c, rest) ->
       yield! parseChars (c::acc) rest ctx
 
-    // Inline code delimited either using double `` or single `
-    // (if there are spaces around, then body can contain more backticks)
-    | List.DelimitedWith ['`'; ' '] [' '; '`'] (body, rest, s, e)
-    | List.DelimitedNTimes '`' (body, rest, s, e) ->
+  // Inline code delimited either using double `` or single `
+  // (if there are spaces around, then body can contain more backticks)
+  | List.DelimitedWith ['`'; ' '] [' '; '`'] (body, rest, s, e)
+  | List.DelimitedNTimes '`' (body, rest, s, e) ->
       let (value, ctx) = accLiterals.Value
       yield! value
       let rng = 
         match ctx.CurrentRange with 
-        | Some n -> Some { n with StartColumn = n.StartColumn + s; EndColumn = n.EndColumn - e } 
+        | Some(n) -> Some { n with StartColumn = n.StartColumn + s; EndColumn = n.EndColumn - e } 
         | None -> None
       yield InlineCode(String(Array.ofList body).Trim(), rng)
       yield! parseChars [] rest ctx
 
-    // Display Latex inline math mode
-    | DelimitedLatexDisplayMath ['$';'$'] (body, rest) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        yield LatexDisplayMath(String(Array.ofList body).Trim(), ctx.CurrentRange)
-        yield! parseChars [] rest ctx
+  // Display Latex inline math mode
+  | DelimitedLatexDisplayMath ['$';'$'] (body, rest) ->
+    let (value, ctx) = accLiterals.Value
+    yield! value
+    yield LatexDisplayMath(String(Array.ofList body).Trim(), ctx.CurrentRange)
+    yield! parseChars [] rest ctx
 
-    // Inline Latex inline math mode
-    | DelimitedLatexInlineMath ['$'] (body, rest) ->
-        let (value, ctx) = accLiterals.Value
-        let ctx = { ctx with CurrentRange = match ctx.CurrentRange with | Some(n) -> Some({ n with StartColumn = n.StartColumn + 1 }) | None -> None }
-        yield! value
-        let code = String(Array.ofList body).Trim()
-        yield LatexInlineMath(code, match ctx.CurrentRange with | Some(n) -> Some({ n with EndColumn = n.StartColumn + code.Length }) | None -> None)
-        yield! parseChars [] rest ctx
+  // Inline Latex inline math mode
+  | DelimitedLatexInlineMath ['$'] (body, rest) ->
+    let (value, ctx) = accLiterals.Value
+    let ctx = { ctx with CurrentRange = match ctx.CurrentRange with | Some(n) -> Some({ n with StartColumn = n.StartColumn + 1 }) | None -> None }
+    yield! value
+    let code = String(Array.ofList body).Trim()
+    yield LatexInlineMath(code, match ctx.CurrentRange with | Some(n) -> Some({ n with EndColumn = n.StartColumn + code.Length }) | None -> None)
+    yield! parseChars [] rest ctx
 
-    // Inline link wrapped as <http://foo.bar>
-    | List.DelimitedWith ['<'] ['>'] (List.AsString link, rest, s, e)
+  // Inline link wrapped as <http://foo.bar>
+  | List.DelimitedWith ['<'] ['>'] (List.AsString link, rest, s, e)
         when Seq.forall (Char.IsWhiteSpace >> not) link && (link.Contains("@") || link.Contains("://")) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        yield DirectLink([Literal(link, ctx.CurrentRange)], link, None, ctx.CurrentRange)
-        yield! parseChars [] rest ctx
-    // Not an inline link - leave as an inline HTML tag
-    | List.DelimitedWith ['<'] ['>'] (tag, rest, s, e) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      yield DirectLink([Literal(link, ctx.CurrentRange)], link, None, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+  // Not an inline link - leave as an inline HTML tag
+  | List.DelimitedWith ['<'] ['>'] (tag, rest, s, e) ->
       yield! parseChars ('>'::(List.rev tag) @ '<' :: acc) rest ctx
 
-    // Recognize direct link [foo](http://bar) or indirect link [foo][bar] or auto link http://bar
-    | DirectLink (body, link, rest) ->
+  // Recognize direct link [foo](http://bar) or indirect link [foo][bar] or auto link http://bar
+  | DirectLink (body, link, rest) ->
       let (value, ctx) = accLiterals.Value
       yield! value
       let link, title = getLinkAndTitle (String(Array.ofList link), MarkdownRange.zero)
       yield DirectLink(parseChars [] body ctx |> List.ofSeq, link, title, ctx.CurrentRange)
       yield! parseChars [] rest ctx
-    | IndirectLink(body, link, original, rest) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
-        yield IndirectLink(parseChars [] body ctx |> List.ofSeq, original, key, ctx.CurrentRange)
-        yield! parseChars [] rest ctx
-    | AutoLink (link, rest) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        yield DirectLink([Literal(link, ctx.CurrentRange)], link, None, ctx.CurrentRange)
-        yield! parseChars [] rest ctx
-    // Recognize image - this is a link prefixed with the '!' symbol
-    | '!'::DirectLink (body, link, rest) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        let link, title = getLinkAndTitle (String(Array.ofList link), MarkdownRange.zero)
-        yield DirectImage(String(Array.ofList body), link, title, ctx.CurrentRange)
-        yield! parseChars [] rest ctx
-    | '!'::IndirectLink(body, link, original, rest) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
-        yield IndirectImage(String(Array.ofList body), original, key, ctx.CurrentRange)
-        yield! parseChars [] rest ctx
-    // Handle emphasised text
-    | Emphasised (body, f, rest) ->
-        let (value, ctx) = accLiterals.Value
-        yield! value
-        let body = parseChars [] body ctx |> List.ofSeq
-        yield f(body, ctx.CurrentRange)
-        yield! parseChars [] rest ctx
-    // Encode '<' char if it is not link or inline HTML
-    | '<'::rest ->
-      yield! parseChars (';'::'t'::'l'::'&'::acc) rest ctx
-    | '>'::rest ->
-      yield! parseChars (';'::'t'::'g'::'&'::acc) rest ctx
-    | x::xs ->
-      yield! parseChars (x::acc) xs ctx
-    | [] ->
+  | IndirectLink(body, link, original, rest) ->
       let (value, ctx) = accLiterals.Value
       yield! value
-}
+      let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
+      yield IndirectLink(parseChars [] body ctx |> List.ofSeq, original, key, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+  | AutoLink (link, rest) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      yield DirectLink([Literal(link, ctx.CurrentRange)], link, None, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+
+  // Recognize image - this is a link prefixed with the '!' symbol
+  | '!'::DirectLink (body, link, rest) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      let link, title = getLinkAndTitle (String(Array.ofList link), MarkdownRange.zero)
+      yield DirectImage(String(Array.ofList body), link, title, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+  | '!'::IndirectLink(body, link, original, rest) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      let key = if String.IsNullOrEmpty(link) then String(body |> Array.ofSeq) else link
+      yield IndirectImage(String(Array.ofList body), original, key, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+
+  // Handle emphasised text
+  | Emphasised (body, f, rest) ->
+      let (value, ctx) = accLiterals.Value
+      yield! value
+      let body = parseChars [] body ctx |> List.ofSeq
+      yield f(body, ctx.CurrentRange)
+      yield! parseChars [] rest ctx
+  // Encode '<' char if it is not link or inline HTML
+  | '<'::rest ->
+      yield! parseChars (';'::'t'::'l'::'&'::acc) rest ctx
+  | '>'::rest ->
+      yield! parseChars (';'::'t'::'g'::'&'::acc) rest ctx
+  | x::xs ->
+      yield! parseChars (x::acc) xs ctx
+  | [] ->
+      let (value, ctx) = accLiterals.Value
+      yield! value }
 
 /// Parse body of a paragraph into a list of Markdown inline spans
 let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
@@ -759,7 +780,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
           [ for (Node((simple, _, body), nested)) in nodes ->
               [ let rng = body |> List.map snd |> MarkdownRange.mergeRanges
                 if not simple then yield! parseParagraphs ctx body
-                else yield Span(parseSpans(body |> List.map fst |> String.concat ctx.Newline, rng) ctx, ctx.CurrentRange)
+                else yield MarkdownParagraph.Span(parseSpans(body |> List.map fst |> String.concat ctx.Newline, rng) ctx, ctx.CurrentRange)
                 if nested <> [] then
                   yield formatTree nested ] ]
         ListBlock(kind, items, ctx.CurrentRange)

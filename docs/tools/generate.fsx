@@ -1,3 +1,5 @@
+System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
+
 // --------------------------------------------------------------------------------------
 // Builds the documentation from `.fsx` and `.md` files in the 'docs/content' directory
 // (the generated documentation is stored in the 'docs/output' directory)
@@ -28,19 +30,52 @@ let referenceBinaries =
 // --------------------------------------------------------------------------------------
 
 
-#I "../../packages/FAKE/tools/"
-#r "NuGet.Core.dll"
-#r "FakeLib.dll"
-open Fake
-open System.IO
-open Fake
-open Fake.FileHelper
+#I "../../packages/Fake/tools/"
+#I "../../packages/FSharp.Compiler.Service/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Razor/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Razor.Language/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Razor.Runtime/lib/netstandard2.0/"
+#I "../../packages/Microsoft.AspNetCore.Html.Abstractions/lib/netstandard2.0/"
+#I "../../packages/RazorEngine.NetCore/lib/netstandard2.0/"
+#r "../../packages/Microsoft.AspNetCore.Mvc.Razor.Host/lib/netstandard1.6/Microsoft.AspNetCore.Mvc.Razor.Host.dll"
+#I "../../bin/"
+#I "../../bin/netstandard2.0"
+#r "../../packages/System.Xml.XDocument/lib/netstandard1.3/System.Xml.XDocument.dll"
+#if !FAKE
+#r "netstandard.dll"
+#endif
+#r "FSharp.Compiler.Service.dll"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Markdown.dll"
+#r "FSharp.Literate.dll"
+#r "System"
+#r "System.Xml.Linq"
+#r "Fakelib.dll"
+#r "RazorEngine.NetCore.dll"
+#r "Microsoft.AspNetCore.Razor.dll"
+#r "Microsoft.AspNetCore.Razor.Language.dll"
+#r "Microsoft.AspNetCore.Razor.Runtime.dll"
+#r "Microsoft.AspNetCore.Html.Abstractions"
+#r "../../packages/Microsoft.CodeAnalysis.Common/lib/netstandard1.3/Microsoft.CodeAnalysis.dll"
+#r @"../../packages/Microsoft.CodeAnalysis.CSharp/lib/netstandard1.3/Microsoft.CodeAnalysis.CSharp.dll"
+#r @"..\..\packages\System.Security.Permissions\lib\netstandard2.0\System.Security.Permissions.dll"
+// Ensure that FSharpVSPowerTools.Core.dll is loaded before trying to load FSharp.CodeFormat.dll
+;;
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.MetadataFormat.dll"
+#r "FSharp.Formatting.Razor.dll"
 
-#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
+open Fake
+open Fake.IO
+open Fake.IO.Globbing.Operators
+open Fake.IO.FileSystemOperators
+
+//#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
 open FSharp.Literate
 open FSharp.MetadataFormat
 open FSharp.Formatting.Razor
+open Fake.Core
 
 // When called from 'build.fsx', use the public project URL as <root>
 // otherwise, use the current 'output' directory.
@@ -66,7 +101,7 @@ let docTemplateSbS = templates @@ "docpage-sidebyside.cshtml"
 let layoutRootsAll = new System.Collections.Generic.Dictionary<string, string list>()
 layoutRootsAll.Add("en",[ templates; formatting @@ "templates"
                           formatting @@ "templates/reference" ])
-subDirectories (directoryInfo templates)
+DirectoryInfo.getSubDirectories (System.IO.DirectoryInfo templates)
 |> Seq.iter (fun d ->
     let name = d.Name
     if name.Length = 2 || name.Length = 3 then
@@ -79,8 +114,8 @@ subDirectories (directoryInfo templates)
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
-  CopyRecursive files output true |> Log "Copying file: "
-  ensureDirectory (output @@ "content")
+  Shell.copyRecursive files output true |> Fake.Core.Trace.logItems  "Copying file: "
+  Directory.ensure (output @@ "content")
   //CopyRecursive (formatting @@ "styles") (output @@ "content") true
   //  |> Log "Copying styles and scripts: "
 
@@ -93,7 +128,7 @@ let libDirs = [bin]
 
 // Build API reference from XML comments
 let buildReference () =
-  CleanDir (output @@ "reference")
+  Shell.cleanDir (output @@ "reference")
   RazorMetadataFormat.Generate
     ( binaries, output @@ "reference", layoutRootsAll.["en"],
       parameters = ("root", root)::info,
@@ -106,7 +141,9 @@ let buildDocumentation () =
   let subdirs =
     [ content @@ "sidebyside", docTemplateSbS
       content, docTemplate; ]
+  subdirs |> Seq.iter (fun (a,b) ->Trace.tracefn "%s %s" a b)
   for dir, template in subdirs do
+    Trace.tracefn "Dir - %s\nTemplate - %s" dir template
     let sub = "." // Everything goes into the same output directory here
     let langSpecificPath(lang, path:string) =
         path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
@@ -117,7 +154,7 @@ let buildDocumentation () =
         | Some lang -> layoutRootsAll.[lang]
         | None -> layoutRootsAll.["en"] // "en" is the default language
     RazorLiterate.ProcessDirectory
-      ( dir, template, output @@ sub, replacements = ("root", root)::info,
+      ( dir, templateFile=template, outputDirectory=output @@ sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
         generateAnchors = true,
         processRecursive = false,
@@ -129,14 +166,14 @@ let buildDocumentation () =
 let watch () =
   printfn "Starting watching by initial building..."
   let rebuildDocs () =
-    CleanDir output // Just in case the template changed (buildDocumentation is caching internally, maybe we should remove that)
+    Shell.cleanDir output // Just in case the template changed (buildDocumentation is caching internally, maybe we should remove that)
     copyFiles()
     buildReference()
     buildDocumentation()
   rebuildDocs()
   printfn "Watching for changes..."
 
-  let full s = Path.GetFullPath s
+  let full s = Path.getFullName s
   let queue = new System.Collections.Concurrent.ConcurrentQueue<_>()
   let processTask () =
     async {
@@ -168,7 +205,7 @@ let watch () =
     ++ (full templates + "/*.*")
     ++ (full files + "/*.*")
     ++ (full formatting + "templates/*.*")
-    |> WatchChanges (fun changes ->
+    |> ChangeWatcher.run (fun changes ->
       changes |> Seq.iter queue.Enqueue)
   use source = new System.Threading.CancellationTokenSource()
   Async.Start(processTask (), source.Token)

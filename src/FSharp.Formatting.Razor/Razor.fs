@@ -30,6 +30,31 @@ open RazorEngine.Templating
 open RazorEngine.Configuration
 open RazorEngine.Compilation.ReferenceResolver
 
+//module tst =
+//#if INTERACTIVE
+//#r @"..\..\packages\Microsoft.AspNetCore.Razor.Language\lib\netstandard2.0\Microsoft.AspNetCore.Razor.Language.dll"
+//#endif
+//    open System.Web.Razor
+//    open Microsoft.AspNetCore.Mvc.Razor.Extensions
+//    open Microsoft.AspNetCore.Razor.Language
+//    let engine = RazorProjectEngine.Create(RazorConfiguration.Default, RazorProjectFileSystem.Create(@"C:\Development\FSharp.Formatting\tests\FSharp.Literate.Tests\Files\"))
+//    let items = engine.FileSystem.EnumerateItems(".")
+//    let item = items |> Seq.head
+//    let doc = engine.Process(item)
+//    let csdoc = doc.GetCSharpDocument()
+
+//    let cs = csdoc.GeneratedCode
+    
+//    printfn "%s" cs
+    
+    
+//    let engine = RazorEngine.Create( fun b -> b.SetNamespace("MyNamespace") |> ignore )
+
+//    //Microsoft.AspNetCore.Mvc.Razor.Extensions.MvcRazorTemplateEngine(
+
+//    let h = System.Web.Razor.RazorEngineHost(RazorCodeLanguage.GetLanguageByExtension(".cs"))
+//    let e = System.Web.Razor.RazorTemplateEngine(h)
+
 /// [omit]
 module PathHelper =
     let private isUnix =
@@ -251,6 +276,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
 
   let withProperties properties (oldViewbag:DynamicViewBag) =
     let viewBag = new DynamicViewBag()
+    //let viewBag = new DynamicViewBag(oldViewbag)
     // TODO: use new DynamicViewBag(oldViewbag) and remove GetMemberBinderImpl
     for old in oldViewbag.GetDynamicMemberNames() do
         match oldViewbag.TryGetMember(new GetMemberBinderImpl(old)) with
@@ -270,12 +296,42 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
   member x.ProcessFileDynamic(model:obj,?properties) = x.ProcessFileModel(null, model, ?properties = properties)
 
   member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
-    handleCompile templateName (fun _ ->
-      let templateKey =
-        match templatePath with
-        | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
-        | None -> razorEngine.GetKey(templateName)
-      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
+     handleCompile templateName (fun _ ->
+        let templateKey =
+          match templatePath with
+          | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+          | None -> razorEngine.GetKey(templateName)
+        razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
+        //razorEngine.RunCompile(templateKey, null, model, x.WithProperties(properties)))
+
+  //member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
+  //  handleCompile templateName (fun _ ->
+  //    let templateKey =
+  //      match templatePath with
+  //      | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+  //      | None ->
+  //          razorEngine.GetKey(templateName)
+  //    Log.infof """
+  //      templatekey - %s\
+  //      modeltype   - %s\
+  //      model       - %s\
+  //    """ templateKey.Name modelType.Name (string model)
+  //    try
+  //      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties))
+  //    with
+  //    | :? RazorEngine.Templating.TemplateCompilationException as ex ->
+  //        ex.CompilerErrors |> Seq.iter (fun x -> Log.errorf "%s" x.ErrorText)
+  //        Log.errorf "%s" ex.HelpLink
+  //        Log.errorf "%s" ex.Message
+  //        Log.errorf "%s" ex.InnerException.Message
+  //        Log.errorf "\n%s\n" ex.StackTrace
+  //        raise ex
+        
+  //    | ex ->
+  //          let exp = ex.InnerException
+  //          Log.errorf "%s\n%s\n%s\n%s" exp.Source exp.Message exp.StackTrace exp.HelpLink
+  //          raise ex
+  // )        
 
 /// [omit]
 and RazorRender<'model> (layoutRoots, namespaces, template, ?references) =

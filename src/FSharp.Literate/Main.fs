@@ -1,10 +1,11 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System
 open System.IO
 open System.Reflection
 open FSharp.Markdown
 open FSharp.CodeFormat
+open FSharp.Formatting.Common
 
 // --------------------------------------------------------------------------------------
 // Public API
@@ -215,7 +216,11 @@ type Literate private () =
         [ if processRecursive then
             for d in Directory.EnumerateDirectories(indir) do
               let name = Path.GetFileName(d)
-              yield! processDirectory (Path.Combine(indir, name)) (Path.Combine(outdir, name))
+              let x =
+                try processDirectory (Path.Combine(indir, name)) (Path.Combine(outdir, name))
+                with ex -> Log.errorf "\n%s\n%s" ex.Message ex.StackTrace
+                           []
+              yield! x
         ]
       res @ resRec
 
