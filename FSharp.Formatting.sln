@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		paket.lock = paket.lock
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
+		start_appveyor = start_appveyor
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"

@@ -1,5 +1,6 @@
-#r @"..\..\..\bin\FSharp.Compiler.Service.dll"
-#r @"..\..\..\bin\FSharp.CodeFormat.dll"
+#r @"..\..\..\packages\FSharp.Compiler.Service\lib\netstandard2.0\FSharp.Compiler.Service.dll"
+#r @"..\..\..\bin\netstandard2.0\FSharp.CodeFormat.dll"
+#r "netstandard.dll"
 #r "System.Windows.Forms"
 
 System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
@@ -7,7 +8,7 @@ System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
 open System
 open FSharp.CodeFormat
 open Microsoft.FSharp.Compiler.SourceCodeServices
-
+open FSharp.CodeFormat.CodeFormatAgent
 
 
 
@@ -22,10 +23,10 @@ let formatSrcHtml (source: string) =
     CodeFormat.FormatHtml(snips, "fstips")
 
 
-let checker = FSharpChecker.Create()
-
+//let checker = FSharpChecker.Create()
+let config = CheckerConfig.Empty
 let evalSrc (source:string) =
-    CodeFormatAgent.processSourceCode(checker,"/somewhere/test.fsx", source.Trim(),None,None)
+    CodeFormatAgent.processSourceCode("/somewhere/test.fsx", source.Trim(),config,None)
     |> Async.RunSynchronously
     |> function
        | None -> ([],[||])
@@ -129,7 +130,7 @@ let fscode = formatSrcCss sample
 //;;
 fscode;;
 open System.IO
-
+Directory.CreateDirectory <| Path.GetFullPath @"..\..\..\testoutput\"
 let destination = Path.GetFullPath @"..\..\..\testoutput\sample.html"
 printfn "Writing generated page to - %s\n" destination
 
