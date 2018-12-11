@@ -182,7 +182,8 @@ let tokenAndTipJanky token tokenCss tiptext =
 
 /// Represents context used by the formatter
 type CssFormattingContext = {
-    Style          : SourceCodeColors
+    Colors         : SourceCodeColors
+    Properties     : SourceCodeProperties
     TextBuffer     : StringBuilder
     InlineCss      : bool
     AddLines       : bool
@@ -220,7 +221,7 @@ let rec formatTokenSpans (ctx:CssFormattingContext) = List.iter (function
         formatTokenSpans ctx body
     | Output body ->
         ctx.TextBuffer {
-            append "<span class=\"fsi\">"
+            append (sprintf "<span class=\"%s\">" ctx.Colors.FsiOutput.CssClass)
             append (HttpUtility.HtmlEncode body)
             append "</span>"
         } |> ignore
@@ -231,7 +232,7 @@ let rec formatTokenSpans (ctx:CssFormattingContext) = List.iter (function
             append "<span "
             append "<span "
             append tipAttributes
-            append "class=\"omitted\">"
+            append (sprintf "class=\"%s\">" ctx.Colors.Omitted.CssClass)
             append body
             append "</span>"
         } |> ignore
@@ -280,7 +281,7 @@ let formatSnippets (ctx:CssFormattingContext) (snippets:Snippet[]) = [|
         // (so that the body can be easily copied)
         if ctx.AddLines then
             ctx.TextBuffer {
-                append (sprintf "<table class=\"%s\">" "pre")
+                append (sprintf "<table class=\"%s\">" ctx.Properties.Source)
                 append "<tbody>"
                 append "<tr>"
                 append "<td class=\"lines\">"
@@ -292,12 +293,12 @@ let formatSnippets (ctx:CssFormattingContext) (snippets:Snippet[]) = [|
             for index in 0..linesLength-1 do
                 // Add line number to the beginning
                 let lineStr = (index + 1).ToString().PadLeft(numberLength)
-                ctx.TextBuffer.AppendFormat("<span class=\"l\">{0}: </span>\n", lineStr) |> ignore
+                ctx.TextBuffer.AppendFormat("<span class=\"{0}\">{1}: </span>\n",ctx.Colors.LineNumber.CssClass, lineStr) |> ignore
 
             emitTag ctx.CloseLinesTag
             ctx.TextBuffer {
                 appendLine "</td>"
-                append "<td class=\"snippet\">"
+                append (sprintf "<td class=\"%s\">" ctx.Properties.Snippet)
                 //append "<td>"
             } |> ignore
 
@@ -326,7 +327,8 @@ let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag
     let tipf = CssToolTipFormatter prefix
     let ctx =  {
         InlineCss      = false
-        Style          = SourceCodeColors.DefaultStyle
+        Properties     = SourceCodeProperties.Default
+        Colors         = SourceCodeColors.DefaultStyle
         AddLines       = addLines 
         GenerateErrors = addErrors
         TextBuffer     = StringBuilder()
