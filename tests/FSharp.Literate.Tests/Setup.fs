@@ -1,4 +1,4 @@
-﻿module FSharp.Literate.Tests.Setup
+module FSharp.Literate.Tests.Setup
 
 open System
 open System.IO
