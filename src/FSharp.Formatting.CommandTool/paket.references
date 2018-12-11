@@ -1,3 +1,6 @@
 FSharp.Core
 CommandLineParser
-RazorEngine
+RazorEngine.NetCore
+NUnit
+NUnit3TestAdapter
+

@@ -6,6 +6,8 @@ System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
 #r "FSharp.Formatting.Razor.dll"
 #r "FSharp.Compiler.Service.dll"
 #r "RazorEngine.dll"
+#r "FSharp.Formatting.TestHelpers.dll"
+
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 

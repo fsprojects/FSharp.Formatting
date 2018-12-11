@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options.MetadataFormat
+namespace FSharp.Formatting.Options.MetadataFormat
 
 open CommandLine
 open CommandLine.Text
@@ -19,8 +19,8 @@ open FSharp.Formatting.Razor
 ///        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile)
 type GenerateOptions() =
 
-    [<ParserState>]
-    member val LastParserState = null with get, set
+    //[<ParserState>]
+    //member val LastParserState = null with get, set
 
     // does not work as desired in F#:
     // the HelpOption attribute is not built,
@@ -30,7 +30,7 @@ type GenerateOptions() =
     member x.GetUsageOfOption() =
         let help = new HelpText()
         help.AddDashesToOption <- true
-        help.AddOptions(x)
+        //help.AddOptions(x)
         "\nfsformatting metadataFormat --generate [options]" +
         "\n------------------------------------------------" +
         help.ToString()
@@ -47,7 +47,7 @@ type GenerateOptions() =
     // all default string settings are done by FShap.Formatting,
     // non-string default options are supplied for type information
 
-    [<OptionArray("dllFiles", Required = true,
+    [<Option("dllFiles", Required = true,
         HelpText = "DLL input file list.")>]
     member val dllFiles = [|""|] with get, set
 
@@ -55,11 +55,11 @@ type GenerateOptions() =
         HelpText = "Ouput Directory.")>]
     member val outputDirectory = "" with get, set
 
-    [<OptionArray("layoutRoots", Required = true,
+    [<Option("layoutRoots", Required = true,
         HelpText = "Search directory list for the Razor Engine.")>]
     member val layoutRoots = [|""|] with get, set
 
-    [<OptionArray("parameters", Required = false,
+    [<Option("parameters", Required = false,
         HelpText = "Property settings for the Razor Engine (optinal).")>]
     member val parameters = [|""|] with get, set
 
@@ -87,7 +87,7 @@ type GenerateOptions() =
         HelpText = "Source repository folder; silently ignored, if source repository URL is not provided (optional).")>]
     member val sourceFolder = "" with get, set
 
-    [<OptionArray("libDirs", Required = false,
+    [<Option("libDirs", Required = false,
         HelpText = "Search directory list for library references.")>]
     member val libDirs = [|""|] with get, set
 
@@ -119,9 +119,10 @@ type GenerateOptions() =
             res
 
         member x.GetErrorText() =
-            if x.LastParserState = null then ""
-            else
-                let errors = (x.LastParserState :> IParserState).Errors
-                parsingErrorMessage(errors)
+            //if x.LastParserState = null then ""
+            //else
+            //    let errors = (x.LastParserState :?> IParserState).Errors
+            //    parsingErrorMessage(errors)
+            "deprecated"
 
         member x.GetUsage() = x.GetUsageOfOption()

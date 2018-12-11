@@ -5,71 +5,71 @@
 /*--------------------------------------------------------------------------*/
 
 /* strings --- and stlyes for other string related formats */
-span.s { color:#E0E268; }
+span.s { color:#60815f; }
 /* printf formatters */
-span.pf { color:#E0C57F; }
+span.pf { color:#2367a9; }
 /* escaped chars */
 span.e { color:#EA8675; }
 
 /* identifiers --- and styles for more specific identifier types */
 span.id { color:#d1d1d1; }
 /* module */
-span.m { color:#43AEC6; }
+span.m { color:#1156a0; }
 /* reference type */
-span.rt { color:#43AEC6; }
+span.rt { color:#6146cc; }
 /* value type */
-span.vt { color:#43AEC6; }
+span.vt { color:#d45f12; }
 /* interface */
-span.if{ color:#43AEC6; }
+span.if{ color:#ace695; }
 /* type argument */
-span.ta { color:#43AEC6; }
+span.ta { color:#a4e00e; }
 /* disposable */
-span.d { color:#43AEC6; }
+span.d { color:#9b4f72; }
 /* property */
-span.prop { color:#43AEC6; }
+span.prop { color:#24532c; }
 /* punctuation */
-span.p { color:#43AEC6; }
+span.pn { color:#b08e21; }
 /* function */
-span.f { color:#e1e1e1; }
+span.fn { color:#38d7b6; }
 /* active pattern */
 span.pat { color:#4ec9b0; }
 /* union case */
-span.u { color:#4ec9b0; }
+span.uc { color:#28de48; }
 /* enumeration */
-span.e { color:#4ec9b0; }
+span.en { color:#236f2e; }
 /* keywords */
-span.k { color:#FAB11D; }
+span.k { color:#20879f; }
 /* comment */
-span.c { color:#808080; }
+span.c { color:#49744d; }
 /* operators */
-span.o { color:#af75c1; }
+span.o { color:#be2424; }
 /* numbers */
 span.n { color:#96C71D; }
 /* line number */
 span.l { color:#80b0b0; }
 /* mutable var or ref cell */
-span.v { color:#d1d1d1; font-weight: bold; }
+span.mv { color:#bf44bd; font-weight: bold; }
 /* inactive code */
 span.inactive { color:#808080; }
 /* preprocessor */
-span.prep { color:#af75c1; }
+span.pp { color:#ed6805; }
 /* fsi output */
 span.fsi { color:#808080; }
 
 /* omitted */
 span.omitted {
-	background:#3c4e52;
+    background:#3c4e52;
   border-radius:5px;
-	color:#808080;
-	padding:0px 0px 1px 0px;
+    color:#808080;
+    padding:0px 0px 1px 0px;
 }
 /* tool tip */
 div.tip {
-	background:#475b5f;
+    background:#475b5f;
   border-radius:4px;
   font:11pt 'Droid Sans', arial, sans-serif;
-	padding:6px 8px 6px 8px;
-	display:none;
+    padding:6px 8px 6px 8px;
+    display:none;
   color:#d1d1d1;
   pointer-events:none;
 }
@@ -86,7 +86,7 @@ table.pre, pre.fssnip, pre {
   font: 9pt 'Droid Sans Mono',consolas,monospace;
   width:90%;
   margin:10px 20px 20px 20px;
-  background-color:#212d30;
+  background-color:#18353c;
   padding:10px;
   border-radius:5px;
   color:#d1d1d1;

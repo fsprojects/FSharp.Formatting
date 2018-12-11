@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+        <SolutionDir>..</SolutionDir>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DocumentationFile>$(SolutionDir)\tests\bin\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+        <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    </PropertyGroup>
+</Project>

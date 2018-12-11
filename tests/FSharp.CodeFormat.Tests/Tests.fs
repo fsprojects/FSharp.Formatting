@@ -1,7 +1,9 @@
 #if INTERACTIVE
-#r "../../bin/FSharp.CodeFormat.dll"
-#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
-#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
+#r "../../packages/NUnit/lib/netstandard2.0/nunit.framework.dll"
+#r "../../packages/FsUnit/lib/netstandard2.0/FsUnit.NUnit.dll"
+#r "../../packages/FSharp.Compiler.Service/lib/netstandard2.0/FSharp.Compiler.Service.dll"
+#r "../bin/FSharp.CodeFormat.dll"
+#r "../bin/FSharp.CodeFormat.dll"
 #else
 [<NUnit.Framework.TestFixture>]
 module FSharp.CodeFormat.Tests
@@ -100,18 +102,20 @@ module Module =
   content |> shouldContainText (sprintf "class=\"%s\">Module</span>" CSS.Module)
   content |> shouldContainText (sprintf "class=\"%s\">Type</span>" CSS.ReferenceType)
 
+
+
 [<Test>]
-let ``Functions and methods are in spans of 'f' class``() = 
-  let content = getContent """
+let ``Functions and methods are in spans of 'f' class``() =
+    let content = getContent """
 module M =
     type T() =
         let func1 x = ()
         member __.Method x = ()
     let func2 x y = x + y
 """
-  content |> shouldContainText (sprintf "class=\"%s\">func1</span>" CSS.Function )
-  content |> shouldContainText (sprintf "class=\"%s\">Method</span>" CSS.Function)
-  content |> shouldContainText (sprintf "class=\"%s\">func2</span>" CSS.Function )
+    content |> shouldContainText (sprintf "class=\"%s\">func1</span>" CSS.Function )
+    content |> shouldContainText (sprintf "class=\"%s\">Method</span>" CSS.Function)
+    content |> shouldContainText (sprintf "class=\"%s\">func2</span>" CSS.Function )
 
 [<Test>]
 let ``Printf formatters are in spans of 'pf' class``() = 
@@ -132,3 +136,6 @@ let ``Escaped characters are in spans of 'esc' class``() =
   content |> shouldContainText (sprintf "class=\"%s\">\\uA0A0</span>" CSS.Escaped)
   content |> shouldContainText (sprintf "class=\"%s\"> </span>" CSS.String)
   content |> shouldContainText (sprintf "class=\"%s\">\\t</span>" CSS.Escaped)
+
+
+

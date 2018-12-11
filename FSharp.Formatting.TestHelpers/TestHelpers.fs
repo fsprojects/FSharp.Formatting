@@ -29,9 +29,10 @@ let enableLogging() =
         |> setupListener
       if logToFile then
         if System.IO.File.Exists svclogFile then System.IO.File.Delete svclogFile
-        Logging.SvclogListener svclogFile
+        Logging.TextListener svclogFile
         |> Logging.SetupListener allTraceOptions System.Diagnostics.SourceLevels.All
         |> setupListener
+
 
       // Test that everything works
       Logging.infof "FSharp.Formatting Logging setup!"

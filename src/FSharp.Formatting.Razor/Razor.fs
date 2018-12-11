@@ -57,33 +57,35 @@ open RazorEngine.Compilation.ReferenceResolver
 
 /// [omit]
 module PathHelper =
-  let private isUnix =
-    match Environment.OSVersion.Platform with
-    | PlatformID.Unix -> true
-    | PlatformID.MacOSX -> true
-    | _ -> false
-  let normalizePath p =
-    let fullPath = Path.GetFullPath(p).TrimEnd(Path.AltDirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar)
-    if isUnix then fullPath else fullPath.ToLowerInvariant()
+    let private isUnix =
+        match Environment.OSVersion.Platform with
+        | PlatformID.Unix -> true
+        | PlatformID.MacOSX -> true
+        | _ -> false
+    let normalizePath p =
+        let fullPath = Path.GetFullPath(p).TrimEnd(Path.AltDirectorySeparatorChar).TrimEnd(Path.DirectorySeparatorChar)
+        if isUnix then fullPath else fullPath.ToLowerInvariant()
+
 
 /// [omit]
 type PathTemplateKey(name, path, t, context) =
-  let path = PathHelper.normalizePath path
-  member private x.Path = path
-  interface ITemplateKey with
-    member x.GetUniqueKeyString () = path
-    member x.Name = name
-    member x.TemplateType = t
-    member x.Context = context
-  static member Create (name, path, ?t, ?context) =
-    let t = defaultArg t ResolveType.Global
-    let context = defaultArg context null
-    PathTemplateKey(name, path, t, context)
-  override x.Equals (other) =
-    match other with
-    | :? PathTemplateKey as p -> x.Path.Equals(p.Path)
-    | _ -> false
-  override x.GetHashCode () = x.Path.GetHashCode()
+    let path = PathHelper.normalizePath path
+    member private __.Path = path
+    interface ITemplateKey with
+        member __.GetUniqueKeyString () = path
+        member __.Name = name
+        member __.TemplateType = t
+        member __.Context = context
+    static member Create (name, path, ?t, ?context) =
+        let t = defaultArg t ResolveType.Global
+        let context = defaultArg context null
+        PathTemplateKey(name, path, t, context)
+    override x.Equals (other) =
+        match other with
+        | :? PathTemplateKey as p -> x.Path.Equals(p.Path)
+        | _ -> false
+    override x.GetHashCode () = x.Path.GetHashCode()
+
 
 /// [omit]
 type GetMemberBinderImpl (name) =
@@ -92,57 +94,57 @@ type GetMemberBinderImpl (name) =
     override x.FallbackGetMember(v, sug) = notImpl()
 
 /// [omit]
-type StringDictionary(dict:IDictionary<string, string>) =
-  member x.Dictionary = dict
-  /// Report more useful errors when key not found (.NET dictionary does not do this...)
-  member x.Item
-    with get(k) =
-      if dict.ContainsKey(k) then dict.[k]
-      else raise (new KeyNotFoundException(sprintf "Key '%s' was not found." k))
+type StringDictionary (dict:IDictionary<string, string>) =
+    member __.Dictionary = dict
+    /// Report more useful errors when key not found (.NET dictionary does not do this...)
+    member __.Item
+        with get k =
+            if dict.ContainsKey k then dict.[k]
+            else raise (new KeyNotFoundException(sprintf "Key '%s' was not found." k))
 
 /// [omit]
 type [<AbstractClass>] DocPageTemplateBase<'T>() =
-  inherit RazorEngine.Templating.TemplateBase<'T>()
+    inherit RazorEngine.Templating.TemplateBase<'T>()
 
-  member private x.tryGetViewBagValue<'C> key =
-    let vb = x.ViewBag :?> DynamicViewBag
-    let memBinder =
-        { new GetMemberBinder(key, false) with
-            member x.FallbackGetMember(y,z) = failwith "not implemented" }
-    let mutable output = ref (new Object ())
-    let result = vb.TryGetMember(memBinder, output)
-    if result && !output <> null then Some(!output :?> 'C) else None
+    member private x.tryGetViewBagValue<'C> key =
+        let vb = x.ViewBag :?> DynamicViewBag
+        let memBinder =
+            { new GetMemberBinder(key, false) with
+                member x.FallbackGetMember(y,z) = failwith "not implemented" }
+        let mutable output = ref (new Object ())
+        let result = vb.TryGetMember(memBinder, output)
+        if result && !output <> null then Some(!output :?> 'C) else None
 
-  member private x.trySetViewBagValue<'C> key (value:'C) =
-    let vb = x.ViewBag :?> DynamicViewBag
-    let memBinder =
-        { new DeleteMemberBinder(key, false) with
-            member x.FallbackDeleteMember(y,z) = failwith "not implemented" }
-    let names =
-        vb.GetDynamicMemberNames()
-        |> Seq.tryFind(fun x -> x = key)
-    match names with
-    | Some(v) ->
-        vb.TryDeleteMember(memBinder) |> ignore
-        vb.AddValue(key, value)
-    | _ -> vb.AddValue(key, value)
+    member private x.trySetViewBagValue<'C> key (value:'C) =
+        let vb = x.ViewBag :?> DynamicViewBag
+        let memBinder =
+            { new DeleteMemberBinder(key, false) with
+                member x.FallbackDeleteMember(y,z) = failwith "not implemented" }
+        let names =
+            vb.GetDynamicMemberNames()
+            |> Seq.tryFind(fun x -> x = key)
+        match names with
+        | Some(v) ->
+            vb.TryDeleteMember(memBinder) |> ignore
+            vb.AddValue(key, value)
+        | _ -> vb.AddValue(key, value)
 
-  member x.Title
-    with get() = defaultArg (x.tryGetViewBagValue<string> "Title") ""
-    and set value = x.trySetViewBagValue<string> "Title" value
+    member x.Title
+        with get() = defaultArg (x.tryGetViewBagValue<string> "Title") ""
+        and set value = x.trySetViewBagValue<string> "Title" value
 
-  member x.Description
-    with get() = defaultArg (x.tryGetViewBagValue<string> "Description") ""
-    and set value = x.trySetViewBagValue<string> "Description" value
+    member x.Description
+        with get() = defaultArg (x.tryGetViewBagValue<string> "Description") ""
+        and set value = x.trySetViewBagValue<string> "Description" value
 
-  member x.Properties
-    with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
-    and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
+    member x.Properties
+        with get() = StringDictionary(defaultArg (x.tryGetViewBagValue<IDictionary<string, string>> "Properties") (dict []))
+        and set (value:StringDictionary) = x.trySetViewBagValue<IDictionary<string, string>> "Properties" value.Dictionary
 
-  member x.Root = x.Properties.["root"]
+    member x.Root = x.Properties.["root"]
 
-  member x.RenderPart(name : string, model:obj) =
-    x.Include(name, model)
+    member x.RenderPart(name : string, model:obj) =
+        x.Include(name, model)
 
 /// A simple RazorEngine caching strategy, this implementation assumes that the current directory never changes.
 ///
@@ -173,11 +175,11 @@ module RazorEngineCache =
     // create manager
     let templateManager =
       { new ITemplateManager with
-          member x.GetKey (name, resolveType, context) =
+          member __.GetKey (name, resolveType, context) =
             let file = resolveCache.GetOrAdd(name, (fun _ -> resolve(layoutRoots, name + ".cshtml")))
             new PathTemplateKey(name, file, resolveType, context) :> ITemplateKey
-          member x.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
-          member x.Resolve templateKey =
+          member __.AddDynamic (key, source) = failwith "dynamic templates are not supported!"
+          member __.Resolve templateKey =
             let file = templateKey.GetUniqueKeyString()
             new LoadedTemplateSource(File.ReadAllText(file), file) :> ITemplateSource }
     // Configure templating engine
@@ -248,7 +250,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
       Some template, Path.GetFileNameWithoutExtension template
     else
       None,
-      if template.EndsWith(".cshtml") then
+      if template.EndsWith ".cshtml" then
           template.Substring(0, template.Length - 7)
       else template
 
@@ -274,6 +276,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
 
   let withProperties properties (oldViewbag:DynamicViewBag) =
     let viewBag = new DynamicViewBag()
+    //let viewBag = new DynamicViewBag(oldViewbag)
     // TODO: use new DynamicViewBag(oldViewbag) and remove GetMemberBinderImpl
     for old in oldViewbag.GetDynamicMemberNames() do
         match oldViewbag.TryGetMember(new GetMemberBinderImpl(old)) with
@@ -293,16 +296,46 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
   member x.ProcessFileDynamic(model:obj,?properties) = x.ProcessFileModel(null, model, ?properties = properties)
 
   member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
-    handleCompile templateName (fun _ ->
-      let templateKey =
-        match templatePath with
-        | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
-        | None -> razorEngine.GetKey(templateName)
-      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
+     handleCompile templateName (fun _ ->
+        let templateKey =
+          match templatePath with
+          | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+          | None -> razorEngine.GetKey(templateName)
+        razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties)))
+        //razorEngine.RunCompile(templateKey, null, model, x.WithProperties(properties)))
+
+  //member x.ProcessFileModel(modelType : System.Type,model:obj,?properties) =
+  //  handleCompile templateName (fun _ ->
+  //    let templateKey =
+  //      match templatePath with
+  //      | Some p -> new PathTemplateKey(templateName, p, ResolveType.Global, null) :> ITemplateKey
+  //      | None ->
+  //          razorEngine.GetKey(templateName)
+  //    Log.infof """
+  //      templatekey - %s\
+  //      modeltype   - %s\
+  //      model       - %s\
+  //    """ templateKey.Name modelType.Name (string model)
+  //    try
+  //      razorEngine.RunCompile(templateKey, modelType, model, x.WithProperties(properties))
+  //    with
+  //    | :? RazorEngine.Templating.TemplateCompilationException as ex ->
+  //        ex.CompilerErrors |> Seq.iter (fun x -> Log.errorf "%s" x.ErrorText)
+  //        Log.errorf "%s" ex.HelpLink
+  //        Log.errorf "%s" ex.Message
+  //        Log.errorf "%s" ex.InnerException.Message
+  //        Log.errorf "\n%s\n" ex.StackTrace
+  //        raise ex
+        
+  //    | ex ->
+  //          let exp = ex.InnerException
+  //          Log.errorf "%s\n%s\n%s\n%s" exp.Source exp.Message exp.StackTrace exp.HelpLink
+  //          raise ex
+  // )        
 
 /// [omit]
-and RazorRender<'model>(layoutRoots, namespaces, template, ?references) =
-    inherit RazorRender(layoutRoots, namespaces, template, ?references = references)
+and RazorRender<'model> (layoutRoots, namespaces, template, ?references) =
+    inherit RazorRender (layoutRoots, namespaces, template, ?references = references)
 
     member x.ProcessFile(model:'model, ?properties) =
       x.ProcessFileModel(typeof<'model>, model, ?properties = properties)

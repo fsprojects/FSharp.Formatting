@@ -1,19 +1,21 @@
-﻿namespace FSharp.Formatting.Options
+namespace FSharp.Formatting.Options
 
-open System.Collections.Generic
 open CommandLine
+open System.Collections.Generic
 
 module Common =
-    let parsingErrorMessage (errors: IList<ParsingError>) = 
-        let mutable res = ""
-        try
-            for i in errors do
-                if i.ViolatesFormat then res <- res + (sprintf "invalid format of option '%s'\n" i.BadOption.LongName)
-                if i.ViolatesMutualExclusiveness then res <- res + (sprintf "mutually exclusive option '%s'\n" i.BadOption.LongName)
-                if i.ViolatesRequired then res <- res + (sprintf "missing required option '%s' or invalid option value\n" i.BadOption.LongName)
-        with 
-        | ex -> ignore ex
-        res
+    //let parsingErrorMessage (errors: IList<ParsingError>) = 
+    let parsingErrorMessage (errors: IList<_>) = 
+        //let mutable res = ""
+        //try
+        //    for i in errors do
+        //        if i.ViolatesFormat then res <- res + (sprintf "invalid format of option '%s'\n" i.BadOption.LongName)
+        //        if i.ViolatesMutualExclusiveness then res <- res + (sprintf "mutually exclusive option '%s'\n" i.BadOption.LongName)
+        //        if i.ViolatesRequired then res <- res + (sprintf "missing required option '%s' or invalid option value\n" i.BadOption.LongName)
+        //with 
+        //| ex -> ignore ex
+        //res
+        "deprecated"
 
     let evalString s =
         if s = "" then None

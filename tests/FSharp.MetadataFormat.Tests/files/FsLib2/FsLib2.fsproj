@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!--<TargetFramework>net462</TargetFramework>-->
+    <OutputType>Library</OutputType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Library2.fs" />
+    <None Include="FsLib2.fsproj.paket.references" />
+    <Content Include="app.config" />
+  </ItemGroup>
+  <Import Project="..\..\..\testconfig.props" />
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
+</Project>

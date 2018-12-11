@@ -2,10 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <SolutionDir>../..</SolutionDir>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
     <Reference Include="mscorlib" />

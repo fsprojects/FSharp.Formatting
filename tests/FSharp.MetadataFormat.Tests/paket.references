@@ -1,9 +1,6 @@
-FSharp.Core redirects: force
+FSharp.Core
 FSharp.Compiler.Service
-  exclude FSharp.Compiler.Service.MSBuild.*.dll
-  exclude FSharp.Compiler.Service.MSBuild.v12.dll
-Microsoft.AspNet.Razor
-RazorEngine
+RazorEngine.NetCore
+Microsoft.NET.Test.Sdk
 FsUnit
 NUnit
-NUnit3TestAdapter

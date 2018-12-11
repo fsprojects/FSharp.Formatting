@@ -1,5 +1,7 @@
 FSharp.Core
-Microsoft.AspNet.Razor
-RazorEngine
-Microsoft.AspNetCore.Razor.Runtime
-Microsoft.AspNetCore.Mvc.Razor.Extensions
+FSharp.Compiler.Service
+System.Diagnostics.TraceSource
+System.Xml.XDocument
+Microsoft.AspNetCore
+Microsoft.AspNetCore.Mvc.Razor.Host 
+RazorEngine.NetCore

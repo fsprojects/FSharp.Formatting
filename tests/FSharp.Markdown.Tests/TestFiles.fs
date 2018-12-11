@@ -1,4 +1,5 @@
-﻿module FSharp.Markdown.Tests.TestFiles
+[<NUnit.Framework.TestFixture >]
+module FSharp.Markdown.Tests.TestFiles
 // --------------------------------------------------------------------------------------
 // TODO: This is all obsolete
 // --------------------------------------------------------------------------------------

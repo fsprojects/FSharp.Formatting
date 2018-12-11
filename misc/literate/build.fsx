@@ -1,6 +1,6 @@
-﻿// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
+// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
 // the following will include binaries and load the literate script
-#load "../../src/FSharp.Formatting.fsx"
+#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 open System.IO
 open FSharp.Literate
 open FSharp.Formatting.Razor

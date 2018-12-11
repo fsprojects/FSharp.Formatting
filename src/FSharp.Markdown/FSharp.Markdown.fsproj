@@ -7,6 +7,20 @@
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <SolutionDir>..\..\</SolutionDir>
+    <OutputPath>..\..\bin\</OutputPath>
+    <DocumentationFile>..\..\bin\$(AssemblyName).xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <!--<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <!--<ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
+  </ItemGroup>-->
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">

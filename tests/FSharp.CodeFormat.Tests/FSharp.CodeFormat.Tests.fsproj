@@ -1,7 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
+    <!--<TargetFrameworks>netstandard2.0</TargetFrameworks>-->
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <SolutionDir>..\..\</SolutionDir>
     <OutputType>Library</OutputType>
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
@@ -14,6 +15,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="app.config" />
     <None Include="paket.references" />

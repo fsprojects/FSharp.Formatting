@@ -67,7 +67,7 @@ type Attribute =
         let rec formatValue (v:obj) =
             match v with
             | :? string as s -> sprintf "\"%s\"" s
-            | :? array<_> as a -> a |> Seq.map formatValue |> join "; " |> sprintf "[|%s|]"
+            | :? array<obj> as a -> a |> Seq.map formatValue |> join "; " |> sprintf "[|%s|]"
             | :? bool as b -> if b then "true" else "false"
             | _ -> string v
         let formatedConstructorArguments =

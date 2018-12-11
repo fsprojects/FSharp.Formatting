@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <None Remove="crefLib1.fsproj.paket.references" />
+    <None Remove="crefLib2.fsproj.paket.references" />
+    <None Remove="crefLib4.fsproj.paket.references" />
+    <None Remove="Library1.fs" />
+    <None Remove="Library2.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class3.cs" />
+  </ItemGroup>
+  <Import Project="..\..\..\testconfig.props" />
+  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
+</Project>

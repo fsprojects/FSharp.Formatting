@@ -7,6 +7,16 @@
     <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
     <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
     <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <!--<TargetFramework>net462</TargetFramework>-->
+    <OutputType>Library</OutputType>
+    <SolutionDir>..\..\</SolutionDir>
+    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
+    <DocumentationFile>$(SolutionDir)\tests\bin\$(AssemblyName).xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -21,12 +31,12 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
