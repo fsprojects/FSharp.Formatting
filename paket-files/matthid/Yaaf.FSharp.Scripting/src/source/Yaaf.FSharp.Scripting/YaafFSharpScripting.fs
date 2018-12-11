@@ -67,11 +67,7 @@ module internal CompilerServiceExtensions =
 #if NET40
       let defaultFrameworkVersion = "4.0"
 #else
-#if NET45
-       let defaultFrameworkVersion = "4.5"
-#else
-      let defaultFrameworkVersion = "4.6.1"
-#endif
+      let defaultFrameworkVersion = "4.5"
 #endif
 
       let getLib dir nm =
@@ -106,7 +102,6 @@ module internal CompilerServiceExtensions =
       let fsCore4300Dir = fsCore "4.0" "4.3.0.0"
       let fsCore4310Dir = fsCore "4.0" "4.3.1.0"
       let fsCore4400Dir = fsCore "4.0" "4.4.0.0"
-      let fsCore4410Dir = fsCore "4.0" "4.4.1.0"
 
       let loadedFsCoreVersion =
         let ass = typedefof<option<_>>.Assembly
@@ -762,7 +757,7 @@ module internal Extensions =
       member x.ChangeCurrentDirectory dir =
           let oldDir = System.IO.Directory.GetCurrentDirectory()
           let cd dir =
-            x.EvalInteraction (sprintf "System.Environment.CurrentDirectory <- @\"%s\"" dir)
+            x.EvalInteraction (sprintf "System.IO.Directory.SetCurrentDirectory(@\"%s\")" dir)
             x.EvalInteraction (sprintf "#cd @\"%s\"" dir)
           cd dir
           let isDisposed = ref false
