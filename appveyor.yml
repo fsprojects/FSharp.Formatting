@@ -2,7 +2,9 @@ image: Visual Studio 2017
 init:
   - git config --global core.autocrlf input
 install:
+  - cinst dotnetcore-sdk  --version 2.2.0
   - cinst fake -pre
+  
 
 build_script:
   - cmd: fake.exe build --target DotnetTests
