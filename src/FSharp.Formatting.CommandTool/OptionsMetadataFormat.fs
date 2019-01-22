@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options.MetadataFormat
+namespace FSharp.Formatting.Options.MetadataFormat
 
 open CommandLine
 open CommandLine.Text
@@ -91,6 +91,14 @@ type GenerateOptions() =
         HelpText = "Search directory list for library references.")>]
     member val libDirs = [|""|] with get, set
 
+    [<Option("markDownComments", Required = false,
+        HelpText = @"specifies if you want to use the Markdown parser for in-code comments. With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is recommended for C# assemblies (if not specified, `true` is used).")>]
+    member val markDownComments = true with get, set
+
+    [<Option("publicOnly", Required = false,
+        HelpText = @"When set to `false`, the tool will also generate documentation for non-public members")>]
+    member val publicOnly = false with get, set
+
     interface IExecutable with
         member x.Execute() =
             let mutable res = 0
@@ -109,7 +117,9 @@ type GenerateOptions() =
                         ?xmlFile = (evalString x.xmlFile),
                         ?sourceRepo = (evalString x.sourceRepo),
                         ?sourceFolder = (evalString x.sourceFolder),
-                        ?libDirs = (evalStringArray x.libDirs)
+                        ?libDirs = (evalStringArray x.libDirs),
+                        ?markDownComments = Some x.markDownComments,
+                        ?publicOnly = Some x.publicOnly
                         )
             with ex ->
                 Log.errorf "received exception in RazorMetadataFormat.Generate:\n %A" ex
