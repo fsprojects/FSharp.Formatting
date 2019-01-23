@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options
+namespace FSharp.Formatting.Options
 
 open System.Collections.Generic
 open CommandLine
@@ -18,6 +18,14 @@ module Common =
     let evalString s =
         if s = "" then None
         else Some s
+
+    let evalBool s =
+        evalString s
+        |> Option.filter (fun x ->
+            match bool.TryParse x with
+            | true, _ -> true
+            | false, _ -> false)
+        |> Option.map bool.Parse
 
     let evalStringArray a =
         if a = [|""|] then None

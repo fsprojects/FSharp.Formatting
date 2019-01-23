@@ -93,11 +93,11 @@ type GenerateOptions() =
 
     [<Option("markDownComments", Required = false,
         HelpText = @"specifies if you want to use the Markdown parser for in-code comments. With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is recommended for C# assemblies (if not specified, `true` is used).")>]
-    member val markDownComments = true with get, set
+    member val markDownComments = string true with get, set
 
     [<Option("publicOnly", Required = false,
         HelpText = @"When set to `false`, the tool will also generate documentation for non-public members")>]
-    member val publicOnly = false with get, set
+    member val publicOnly = string false with get, set
 
     interface IExecutable with
         member x.Execute() =
@@ -118,8 +118,8 @@ type GenerateOptions() =
                         ?sourceRepo = (evalString x.sourceRepo),
                         ?sourceFolder = (evalString x.sourceFolder),
                         ?libDirs = (evalStringArray x.libDirs),
-                        ?markDownComments = Some x.markDownComments,
-                        ?publicOnly = Some x.publicOnly
+                        ?markDownComments = (evalBool x.markDownComments),
+                        ?publicOnly = (evalBool x.publicOnly)
                         )
             with ex ->
                 Log.errorf "received exception in RazorMetadataFormat.Generate:\n %A" ex
