@@ -134,18 +134,18 @@ let solutionFile = "FSharp.Formatting.sln"
 //Target.Create "InstallDotNetCore" (fun _ ->
 //    try
 //        (Fake.DotNet.Cli.DotnetInfo (fun _ -> Fake.DotNet.Cli.DotNetInfoOptions.Default)).RID
-//        |> trace        
+//        |> trace
 //    with _ ->
 //        Fake.DotNet.Cli.DotnetCliInstall (fun _ -> Fake.DotNet.Cli.DotNetCliInstallOptions.Default )
 //        Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", Fake.DotNet.Cli.DefaultDotnetCliDir)
 //)
 
-let assertExitCodeZero x = 
-    if x = 0 then () else 
+let assertExitCodeZero x =
+    if x = 0 then () else
     failwithf "Command failed with exit code %i" x
 
-let runCmdIn workDir exe = 
-    Printf.ksprintf (fun args -> 
+let runCmdIn workDir exe =
+    Printf.ksprintf (fun args ->
         let res =
             (Process.execWithResult (fun info ->
                 { info with
@@ -172,7 +172,7 @@ Target.create "Build" (fun _ ->
 
     //restore solutionFile
     DotNet.restore id solutionFile
-    
+
     solutionFile
     |> DotNet.build (fun opts ->
         { opts with
@@ -184,16 +184,16 @@ Target.create "Build" (fun _ ->
 // Build tests and generate tasks to run the tests in sequence
 // --------------------------------------------------------------------------------------
 Target.create"BuildTests" (fun _ ->
-    let debugBuild sln =            
-        //!! sln |> Seq.iter restore 
+    let debugBuild sln =
+        //!! sln |> Seq.iter restore
         !! sln |> Seq.iter (fun s -> dotnet "" "restore %s" s)
-        !! sln 
+        !! sln
         |> Seq.iter (fun proj ->
             proj
             |> DotNet.build (fun opts ->
                 { opts with
                     Configuration = DotNet.BuildConfiguration.Release
-                    OutputPath = Some "tests/bin" 
+                    OutputPath = Some "tests/bin"
                       }
             )
         )
@@ -221,7 +221,7 @@ let testProjects =
 Target.create"DotnetTests" (fun _ ->
     testProjects
     |> Seq.iter (fun proj -> DotNet.test (fun p ->
-        { p with ResultsDirectory = Some __SOURCE_DIRECTORY__ }) proj)    
+        { p with ResultsDirectory = Some __SOURCE_DIRECTORY__ }) proj)
 )
 
 
@@ -295,7 +295,7 @@ Target.create"NuGet" (fun _ ->
                   "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
                   "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
-        "nuget/FSharp.Formatting.nuspec"
+        "NuGet/FSharp.Formatting.nuspec"
     NuGet.NuGet (fun p ->
         { p with
             Authors = authors
@@ -313,7 +313,7 @@ Target.create"NuGet" (fun _ ->
                   "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
                   "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
-        "nuget/FSharp.Literate.nuspec"
+        "NuGet/FSharp.Literate.nuspec"
 
     NuGet.NuGet (fun p ->
         { p with
@@ -328,7 +328,7 @@ Target.create"NuGet" (fun _ ->
             AccessKey = Environment.environVarOrDefault "nugetkey" ""
             Publish = Environment.hasEnvironVar "nugetkey"
             Dependencies = [] })
-        "nuget/FSharp.Formatting.CommandTool.nuspec"
+        "NuGet/FSharp.Formatting.CommandTool.nuspec"
 )
 
 
@@ -460,7 +460,7 @@ let bootStrapDocumentationFiles () =
         |> List.map (fun f ->
             __SOURCE_DIRECTORY__ </> sprintf "bin/net461/%s" f,
             __SOURCE_DIRECTORY__ </> sprintf "packages/FSharp.Formatting/lib/net461/%s" f)
-        
+
         |> List.map (fun (source, dest) -> Path.GetFullPath source, Path.GetFullPath dest)
     for source, dest in bundledFiles do
         try
@@ -576,13 +576,13 @@ Target.create"CreateTestJson" (fun _ ->
         "Creating test json file, this could take some time, please wait..."
         "generating documentation failed"
         (fun info ->
-            { info with 
+            { info with
                 FileName = pythonExe
                 Arguments = "test/spec_tests.py --dump-tests"
                 WorkingDirectory = targetPath
             }.WithEnvironmentVariables [
                "GIT", Git.CommandHelper.gitPath
-            ] |> fun info -> 
+            ] |> fun info ->
                 if not Environment.isUnix then
                     info.WithEnvironmentVariable ("PYTHONPATH", stdLib)
                 else info
