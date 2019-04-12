@@ -50,9 +50,9 @@ a couple of extensions:</p>
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="s">&quot;../../bin/FSharp.MetadataFormat.dll&quot;</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">MetadataFormat</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">IO</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;../../bin/FSharp.MetadataFormat.dll&quot;</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">FSharp</span><span class="pn">.</span><span class="id">MetadataFormat</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="id">System</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="id">IO</span>
 </code></pre></td>
 </tr>
 </table>
@@ -66,10 +66,10 @@ Assuming <code>root</code> is the root directory for your project, you can write
 <span class="l">3: </span>
 <span class="l">4: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="f">Generate</span>
-  ( <span onmouseout="hideTip(event, 'fs4', 8)" onmouseover="showTip(event, 'fs4', 8)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 10)" onmouseover="showTip(event, 'fs4', 10)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
-    <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 13)" onmouseover="showTip(event, 'fs4', 13)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs4', 14)" onmouseover="showTip(event, 'fs4', 14)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 15)" onmouseover="showTip(event, 'fs7', 15)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 16)" onmouseover="showTip(event, 'fs4', 16)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ] )
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">MetadataFormat</span><span class="pn">.</span><span class="id">Generate</span>
+  <span class="pn">(</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 7)" onmouseover="showTip(event, 'fs1', 7)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span><span class="pn">,</span> 
+    <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 9)" onmouseover="showTip(event, 'fs6', 9)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 10)" onmouseover="showTip(event, 'fs1', 10)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
+    <span class="pn">[</span> <span onmouseout="hideTip(event, 'fs5', 11)" onmouseover="showTip(event, 'fs5', 11)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 13)" onmouseover="showTip(event, 'fs1', 13)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">)</span> <span class="pn">]</span> <span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
@@ -86,21 +86,25 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 17)" onmouseover="showTip(event, 'fs4', 17)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 18)" onmouseover="showTip(event, 'fs6', 18)" class="f">Generate</span>
-  ( <span onmouseout="hideTip(event, 'fs4', 19)" onmouseover="showTip(event, 'fs4', 19)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 20)" onmouseover="showTip(event, 'fs7', 20)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 21)" onmouseover="showTip(event, 'fs4', 21)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
-    <span onmouseout="hideTip(event, 'fs4', 22)" onmouseover="showTip(event, 'fs4', 22)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 24)" onmouseover="showTip(event, 'fs4', 24)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs4', 25)" onmouseover="showTip(event, 'fs4', 25)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 26)" onmouseover="showTip(event, 'fs7', 26)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 27)" onmouseover="showTip(event, 'fs4', 27)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ],
-    <span onmouseout="hideTip(event, 'fs4', 28)" onmouseover="showTip(event, 'fs4', 28)" class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting/tree/master&quot;</span>,
-    <span onmouseout="hideTip(event, 'fs4', 29)" onmouseover="showTip(event, 'fs4', 29)" class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span> )
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">MetadataFormat</span><span class="pn">.</span><span class="id">Generate</span>
+  <span class="pn">(</span> <span onmouseout="hideTip(event, 'fs5', 14)" onmouseover="showTip(event, 'fs5', 14)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 15)" onmouseover="showTip(event, 'fs6', 15)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 16)" onmouseover="showTip(event, 'fs1', 16)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span><span class="pn">,</span> 
+    <span onmouseout="hideTip(event, 'fs5', 17)" onmouseover="showTip(event, 'fs5', 17)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 18)" onmouseover="showTip(event, 'fs6', 18)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 19)" onmouseover="showTip(event, 'fs1', 19)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
+    <span class="pn">[</span> <span onmouseout="hideTip(event, 'fs5', 20)" onmouseover="showTip(event, 'fs5', 20)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 21)" onmouseover="showTip(event, 'fs6', 21)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 22)" onmouseover="showTip(event, 'fs1', 22)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">)</span> <span class="pn">]</span><span class="pn">,</span>
+    <span class="id">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting/tree/master&quot;</span><span class="pn">,</span>
+    <span class="id">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span> <span class="pn">)</span>
     
 </code></pre></td>
 </tr>
 </table>
 <h2><a name="Adding-cross-type-links-to-modules-and-types-in-the-same-assembly" class="anchor" href="#Adding-cross-type-links-to-modules-and-types-in-the-same-assembly">Adding cross-type links to modules and types in the same assembly</a></h2>
 <p>You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
-You can do this in two different ways:
-* Add a <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links">markdown inline link</a> were the link
-title is the name of the type you want to link.</p>
+You can do this in two different ways:</p>
+<ul>
+<li>
+Add a <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links">markdown inline link</a> were the link
+title is the name of the type you want to link.
+</li>
+</ul>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"> <span class="c">/// this will generate a link to [Foo.Bar] documentation</span>
@@ -147,28 +151,28 @@ If a type with the given name is not found in the same assembly the link will no
 <span class="l">23: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Contains two types [Bar] and [Foo.Baz]</span>
-<span class="k">module</span> <span onmouseout="hideTip(event, 'fs4', 30)" onmouseover="showTip(event, 'fs4', 30)" class="t">Foo</span> <span class="o">=</span> 
+<span class="k">module</span> <span class="m">Foo</span> <span class="o">=</span> 
     
     <span class="c">/// Bar is just an `int` and belongs to module [Foo]</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs4', 31)" onmouseover="showTip(event, 'fs4', 31)" class="t">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 32)" onmouseover="showTip(event, 'fs4', 32)" class="t">int</span>
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 24)" onmouseover="showTip(event, 'fs8', 24)" class="vt">int</span>
     
     <span class="c">/// Baz contains a `Foo.Bar` as its `id`</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs4', 33)" onmouseover="showTip(event, 'fs4', 33)" class="t">Baz</span> <span class="o">=</span> { <span onmouseout="hideTip(event, 'fs4', 34)" onmouseover="showTip(event, 'fs4', 34)" class="i">id</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs4', 35)" onmouseover="showTip(event, 'fs4', 35)" class="t">Bar</span> }
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs9', 25)" onmouseover="showTip(event, 'fs9', 25)" class="rt">Baz</span> <span class="o">=</span> <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs10', 26)" onmouseover="showTip(event, 'fs10', 26)" class="id">id</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs7', 27)" onmouseover="showTip(event, 'fs7', 27)" class="vt">Bar</span> <span class="pn">}</span>
 
     <span class="c">/// This function operates on `Baz` types.</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs8', 36)" onmouseover="showTip(event, 'fs8', 36)" class="f">f</span> (<span onmouseout="hideTip(event, 'fs9', 37)" onmouseover="showTip(event, 'fs9', 37)" class="i">b</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs4', 38)" onmouseover="showTip(event, 'fs4', 38)" class="t">Baz</span>) <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs9', 39)" onmouseover="showTip(event, 'fs9', 39)" class="i">b</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 40)" onmouseover="showTip(event, 'fs10', 40)" class="i">id</span> <span class="o">*</span> <span class="n">42</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 28)" onmouseover="showTip(event, 'fs11', 28)" class="fn">f</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs12', 29)" onmouseover="showTip(event, 'fs12', 29)" class="id">b</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs9', 30)" onmouseover="showTip(event, 'fs9', 30)" class="rt">Baz</span><span class="pn">)</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs12', 31)" onmouseover="showTip(event, 'fs12', 31)" class="id">b</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 32)" onmouseover="showTip(event, 'fs10', 32)" class="id">id</span> <span class="o">*</span> <span class="n">42</span>
 
 <span class="c">/// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`</span>
-<span class="k">module</span> <span onmouseout="hideTip(event, 'fs4', 41)" onmouseover="showTip(event, 'fs4', 41)" class="t">Foo2</span> <span class="o">=</span>
+<span class="k">module</span> <span class="m">Foo2</span> <span class="o">=</span>
     
     <span class="c">/// This is not the same type as `Foo.Bar`</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs4', 42)" onmouseover="showTip(event, 'fs4', 42)" class="t">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 43)" onmouseover="showTip(event, 'fs4', 43)" class="t">double</span>
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs13', 33)" onmouseover="showTip(event, 'fs13', 33)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 34)" onmouseover="showTip(event, 'fs14', 34)" class="vt">double</span>
 
     <span class="c">/// Using the simple name for [Bar] will fail to create a link because the name is duplicated in </span>
     <span class="c">/// [Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 44)" onmouseover="showTip(event, 'fs4', 44)" class="f">f2</span> <span onmouseout="hideTip(event, 'fs11', 45)" onmouseover="showTip(event, 'fs11', 45)" class="i">b</span> <span class="o">=</span>
-         <span onmouseout="hideTip(event, 'fs11', 46)" onmouseover="showTip(event, 'fs11', 46)" class="i">b</span> <span class="o">*</span> <span class="n">50</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 35)" onmouseover="showTip(event, 'fs15', 35)" class="fn">f2</span> <span onmouseout="hideTip(event, 'fs16', 36)" onmouseover="showTip(event, 'fs16', 36)" class="id">b</span> <span class="o">=</span>
+         <span onmouseout="hideTip(event, 'fs16', 37)" onmouseover="showTip(event, 'fs16', 37)" class="id">b</span> <span class="o">*</span> <span class="n">50</span>
 </code></pre></td>
 </tr>
 </table>
@@ -182,8 +186,8 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// [omit]</span>
 <span class="c">/// Some actual comment</span>
-<span class="k">module</span> <span onmouseout="hideTip(event, 'fs4', 47)" onmouseover="showTip(event, 'fs4', 47)" class="i">Foo</span> <span class="o">=</span> 
-   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 48)" onmouseover="showTip(event, 'fs4', 48)" class="i">a</span> <span class="o">=</span> <span class="n">42</span>
+<span class="k">module</span> <span onmouseout="hideTip(event, 'fs17', 38)" onmouseover="showTip(event, 'fs17', 38)" class="id">Foo</span> <span class="o">=</span> 
+   <span class="k">let</span> <span class="id">a</span> <span class="o">=</span> <span class="n">42</span>
 </code></pre></td>
 </tr>
 </table>
@@ -197,12 +201,12 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs4', 49)" onmouseover="showTip(event, 'fs4', 49)" class="t">MetadataFormat</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 50)" onmouseover="showTip(event, 'fs6', 50)" class="f">Generate</span>
-  ( <span onmouseout="hideTip(event, 'fs4', 51)" onmouseover="showTip(event, 'fs4', 51)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 52)" onmouseover="showTip(event, 'fs7', 52)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 53)" onmouseover="showTip(event, 'fs4', 53)" class="i">root</span>, <span class="s">&quot;bin/YourLibrary.dll&quot;</span>), 
-    <span onmouseout="hideTip(event, 'fs4', 54)" onmouseover="showTip(event, 'fs4', 54)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 55)" onmouseover="showTip(event, 'fs7', 55)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 56)" onmouseover="showTip(event, 'fs4', 56)" class="i">root</span>, <span class="s">&quot;output&quot;</span>),
-    [ <span onmouseout="hideTip(event, 'fs4', 57)" onmouseover="showTip(event, 'fs4', 57)" class="t">Path</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs7', 58)" onmouseover="showTip(event, 'fs7', 58)" class="f">Combine</span>(<span onmouseout="hideTip(event, 'fs4', 59)" onmouseover="showTip(event, 'fs4', 59)" class="i">root</span>, <span class="s">&quot;templates&quot;</span>) ],
-    <span onmouseout="hideTip(event, 'fs4', 60)" onmouseover="showTip(event, 'fs4', 60)" class="i">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting/tree/master&quot;</span>,
-    <span onmouseout="hideTip(event, 'fs4', 61)" onmouseover="showTip(event, 'fs4', 61)" class="i">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span>, <span onmouseout="hideTip(event, 'fs4', 62)" onmouseover="showTip(event, 'fs4', 62)" class="i">markDownComments</span> <span class="o">=</span> <span class="k">false</span> )
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">MetadataFormat</span><span class="pn">.</span><span class="id">Generate</span>
+  <span class="pn">(</span> <span onmouseout="hideTip(event, 'fs5', 39)" onmouseover="showTip(event, 'fs5', 39)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 40)" onmouseover="showTip(event, 'fs6', 40)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 41)" onmouseover="showTip(event, 'fs1', 41)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span><span class="pn">,</span> 
+    <span onmouseout="hideTip(event, 'fs5', 42)" onmouseover="showTip(event, 'fs5', 42)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 43)" onmouseover="showTip(event, 'fs6', 43)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 44)" onmouseover="showTip(event, 'fs1', 44)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
+    <span class="pn">[</span> <span onmouseout="hideTip(event, 'fs5', 45)" onmouseover="showTip(event, 'fs5', 45)" class="id">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs6', 46)" onmouseover="showTip(event, 'fs6', 46)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 47)" onmouseover="showTip(event, 'fs1', 47)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">)</span> <span class="pn">]</span><span class="pn">,</span>
+    <span class="id">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting/tree/master&quot;</span><span class="pn">,</span>
+    <span class="id">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span><span class="pn">,</span> <span class="id">markDownComments</span> <span class="o">=</span> <span class="k">false</span> <span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
@@ -218,8 +222,8 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="c">/// Some actual comment</span>
 <span class="c">/// &lt;para&gt;Another paragraph&lt;/para&gt;</span>
 <span class="c">/// &lt;/summary&gt;</span>
-<span class="k">module</span> <span onmouseout="hideTip(event, 'fs4', 63)" onmouseover="showTip(event, 'fs4', 63)" class="i">Foo</span> <span class="o">=</span> 
-   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 64)" onmouseover="showTip(event, 'fs4', 64)" class="i">a</span> <span class="o">=</span> <span class="n">42</span>
+<span class="k">module</span> <span onmouseout="hideTip(event, 'fs17', 48)" onmouseover="showTip(event, 'fs17', 48)" class="id">Foo</span> <span class="o">=</span> 
+   <span class="k">let</span> <span class="id">a</span> <span class="o">=</span> <span class="n">42</span>
 </code></pre></td>
 </tr>
 </table>
@@ -279,17 +283,23 @@ for F# DataFrame. The project also includes nice
 <a href="https://github.com/BlueMountainCapital/FSharp.DataFrame/tree/master/tools/reference">Razor templates</a>
 that you can use.</p>
 
-<div class="tip" id="fs1">val root : string<br /><br />Full name: Metadata.root</div>
-<div class="tip" id="fs2">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
-<div class="tip" id="fs3">namespace FSharp.MetadataFormat</div>
-<div class="tip" id="fs4"></div>
-<div class="tip" id="fs5">namespace System.IO</div>
-<div class="tip" id="fs6">static member MetadataFormat.Generate : dllFiles:seq&lt;string&gt; * outDir:string * layoutRoots:string list * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit<br />static member MetadataFormat.Generate : dllFiles:string list * outDir:string * layoutRoots:string list * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit<br />static member MetadataFormat.Generate : dllFile:string * outDir:string * layoutRoots:string list * ?parameters:(string * string) list * ?namespaceTemplate:string * ?moduleTemplate:string * ?typeTemplate:string * ?xmlFile:string * ?sourceRepo:string * ?sourceFolder:string * ?publicOnly:bool * ?libDirs:string list * ?otherFlags:string list * ?markDownComments:bool * ?urlRangeHighlight:(System.Uri -&gt; int -&gt; int -&gt; string) * ?assemblyReferences:string list -&gt; unit</div>
-<div class="tip" id="fs7">Path.Combine([&lt;System.ParamArray&gt;] paths: string []) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
-<div class="tip" id="fs8">val f : b:Baz -&gt; Bar<br /><br />Full name: Metadata.Foo.f<br /><em><br /><br />&#160;This function operates on `Baz` types.</em></div>
-<div class="tip" id="fs9">val b : Baz</div>
+<div class="tip" id="fs1">val root : string</div>
+<div class="tip" id="fs2">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs3">namespace System</div>
+<div class="tip" id="fs4">namespace System.IO</div>
+<div class="tip" id="fs5">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string<br />&#160;&#160;static member GetExtension : path:string -&gt; string<br />&#160;&#160;static member GetFileName : path:string -&gt; string<br />&#160;&#160;...</div>
+<div class="tip" id="fs6">Path.Combine([&lt;System.ParamArray&gt;] paths: string []) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
+<div class="tip" id="fs7">type Bar = int<br /><em><br /><br />&#160;Bar is just an `int` and belongs to module [Foo]</em></div>
+<div class="tip" id="fs8">Multiple items<br />val int : value:&#39;T -&gt; int (requires member op_Explicit)<br /><br />--------------------<br />type int = int32<br /><br />--------------------<br />type int&lt;&#39;Measure&gt; = int</div>
+<div class="tip" id="fs9">type Baz =<br />&#160;&#160;{id: Bar;}<br /><em><br /><br />&#160;Baz contains a `Foo.Bar` as its `id`</em></div>
 <div class="tip" id="fs10">Baz.id: Bar</div>
-<div class="tip" id="fs11">val b : int</div>
+<div class="tip" id="fs11">val f : b:Baz -&gt; Bar<br /><em><br /><br />&#160;This function operates on `Baz` types.</em></div>
+<div class="tip" id="fs12">val b : Baz</div>
+<div class="tip" id="fs13">type Bar = double<br /><em><br /><br />&#160;This is not the same type as `Foo.Bar`</em></div>
+<div class="tip" id="fs14">Multiple items<br />val double : value:&#39;T -&gt; double (requires member op_Explicit)<br /><br />--------------------<br />type double = System.Double</div>
+<div class="tip" id="fs15">val f2 : b:int -&gt; int<br /><em><br /><br />&#160;Using the simple name for [Bar] will fail to create a link because the name is duplicated in <br />&#160;[Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.</em></div>
+<div class="tip" id="fs16">val b : int</div>
+<div class="tip" id="fs17">module Foo<br /><br />from Metadata<br /><em><br /><br />&#160;Contains two types [Bar] and [Foo.Baz]</em></div>
 
         </div>
         <div class="span3">

@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Namespaces - FSharp.Formatting</title>
+    <title>upgrade_from_v2_to_v3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
+    <meta name="description" content="A package for building great F# documentation, samples and blogs">
     <meta name="author" content="Tomas Petricek">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
@@ -34,9 +34,23 @@
       <div class="row">
         <div class="span9" id="main">
           
-
-<h1>FSharp.Formatting</h1>
-
+<p>If you want to upgrade the <a href="https://github.com/fsprojects/ProjectScaffold/blob/master/docsrc/tools/generate.template">template</a> that turns into <code>generate.fsx</code></p>
+<p>The minimum thing you need to do is change the following:</p>
+<p>In <code>generate.fsx</code></p>
+<ul>
+<li>Add <code>open FSharp.Formatting.Razor</code> in order to continue using Razor templates (since v2 uses them)</li>
+<li><code>Literate</code> to <code>RazorLiterate</code></li>
+<li><code>MetadataFormat</code> to <code>RazorMetadataFormat</code></li>
+</ul>
+<p>In the <code>paket.dependencies</code> you need to do the following:</p>
+<ul>
+<li>Add <code>source https://ci.appveyor.com/nuget/fsharp-formatting</code></li>
+<li>
+And pick out the latest version (at this moment it's 
+<code>3.0.0-beta09</code>), i.e. add <code>nuget FSharp.Formatting ~&gt; 3.0.0-beta09</code>
+</li>
+</ul>
+<p>If you have customized the generation, you might note that many of the DU types have additional parameters and are more type safe.</p>
 
 
         </div>
