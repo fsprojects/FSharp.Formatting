@@ -1,10 +1,9 @@
 version 5.181.1
 source https://api.nuget.org/v3/index.json
 
-nuget FSharp.Data prerelease
 nuget FAKE
-nuget CommandLineParser ~> 1.0 // Maybe we should switch to Argu?
-#nuget FSharp.Compiler.Tools
+nuget FSharp.Data prerelease
+nuget CommandLineParser ~> 1.0
 nuget FSharp.Core 
 nuget Microsoft.AspNet.Razor
 nuget Microsoft.NET.Test.Sdk
@@ -25,19 +24,6 @@ group Build
     source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
     nuget NuGet.CommandLine
     nuget RoslynTools.ReferenceAssemblies
-
-group netcorebuild
-    storage: none
-    source https://api.nuget.org/v3/index.json
-    nuget Fake.Core.Target
-    nuget Fake.Core.ReleaseNotes
-    nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.DotNet.Cli
-    nuget Fake.DotNet.Testing.NUnit
-    nuget Fake.DotNet.NuGet
-    nuget Fake.DotNet.MsBuild
-    nuget Fake.Tools.Git
-	nuget Fake.DotNet.Paket
 
 group Test
     source https://api.nuget.org/v3/index.json

@@ -1,6 +1,21 @@
-#r "paket: groupref netcorebuild //"
-#load ".fake/build.fsx/intellisense.fsx"
+// This is a FAKE 5.0 script, run using
+//    dotnet fake build
+
+#r "paket:
+    storage: none
+    source https://api.nuget.org/v3/index.json
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.DotNet.Cli
+    nuget Fake.DotNet.Testing.NUnit
+    nuget Fake.DotNet.NuGet
+    nuget Fake.DotNet.MsBuild
+    nuget Fake.Tools.Git
+	nuget Fake.DotNet.Paket //"
+
 #if !FAKE
+#load ".fake/build.fsx/intellisense.fsx"
 #r "netstandard"
 #endif
 
