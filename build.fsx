@@ -419,13 +419,15 @@ Target.create "DogFoodCommandTool" (fun _ ->
             "docs/content" "temp/literate_docs" layoutRoots parameters
     buildDocumentationCommandTool literateArgs)
 
+let fsiExe = (__SOURCE_DIRECTORY__ @@ "packages" @@ "build" @@ "FSharp.Compiler.Tools" @@ "tools" @@ "fsi.exe")
+
 Target.create "GenerateDocs" (fun _ ->
     execute
         (sprintf "Building documentation, this could take some time, please wait...")
         "generating reference documentation failed"
         (fun p -> { p with 
-                       FileName = (__SOURCE_DIRECTORY__ @@ "packages" @@ "build" @@ "FSharp.Compiler.Tools" @@ "tools" @@ "fsi.exe")
-                       Arguments = "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
+                       FileName = if Environment.isWindows then fsiExe else "mono"
+                       Arguments = (if Environment.isWindows then "" else fsiExe + " ") + "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
                        WorkingDirectory = __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" } ))
 
 // --------------------------------------------------------------------------------------
@@ -530,7 +532,7 @@ open Fake.Core.TargetOperators
   ==> "All"
 
 "Build"
-    =?> ("GenerateDocs", Environment.isWindows)
+    ==> "GenerateDocs"
     ==> "All"
 
 "Build"
