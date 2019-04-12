@@ -32,7 +32,7 @@ module String =
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
-  let (|StartsAndEndsWith|_|) (starts, ends) (s:string) =
+  let (|StartsAndEndsWith|_|) (starts:string, ends:string) (s:string) =
     if s.StartsWith(starts) && s.EndsWith(ends) && 
        s.Length >= starts.Length + ends.Length then 
       Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
@@ -157,7 +157,7 @@ module StringPosition =
 
   /// Matches when a string starts with the given value and ends 
   /// with a given value (and returns the rest of it)
-  let (|StartsAndEndsWith|_|) (starts, ends) (s:string, n:MarkdownRange) =
+  let (|StartsAndEndsWith|_|) (starts:string, ends:string) (s:string, n:MarkdownRange) =
     if s.StartsWith(starts) && s.EndsWith(ends) && 
        s.Length >= starts.Length + ends.Length then 
       Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length), { n with StartColumn = n.StartColumn + s.Length - starts.Length; EndColumn = n.EndColumn - s.Length + ends.Length })
@@ -258,9 +258,8 @@ module Lines =
   /// Matches when there are some lines at the beginning that are 
   /// either empty (or whitespace) or start with the specified string.
   /// Returns all such lines from the beginning until a different line.
-  let (|TakeStartingWithOrBlank|_|) start input = 
-    match List.partitionWhile (fun s -> 
-            String.IsNullOrWhiteSpace s || s.StartsWith(start)) input with
+  let (|TakeStartingWithOrBlank|_|) (start: string) (input: string list) = 
+    match input |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start)) with
     | matching, rest when matching <> [] -> Some(matching, rest)
     | _ -> None
 

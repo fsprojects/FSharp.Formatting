@@ -11,8 +11,8 @@ open System.Web
 
 open FSharp.Collections
 
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.SourceCodeServices
 
 // --------------------------------------------------------------------------------------
 // Implements formatting of tool tips 

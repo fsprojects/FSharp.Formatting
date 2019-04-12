@@ -1,45 +1,31 @@
 version 5.181.1
 source https://api.nuget.org/v3/index.json
+source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
 
-nuget FSharp.Data prerelease
-nuget FAKE
-nuget CommandLineParser ~> 1.0 // Maybe we should switch to Argu?
-#nuget FSharp.Compiler.Tools
-nuget FSharp.Core 
+# Annoyingly this must match FSharp.Core used in FSharp.Compiler.Tools fsi.exe, for documentation generation vie generate.fsx
+# As a result we should remove the use of generate.fsx in favour of the command-line tool
+nuget FSharp.Core 4.5.4
+
+nuget FSharp.Data
+nuget CommandLineParser ~> 1.0
 nuget Microsoft.AspNet.Razor
 nuget Microsoft.NET.Test.Sdk
 nuget NUnit3TestAdapter
 nuget RazorEngine 3.9.3 framework: >= net45
-nuget FSharp.Compiler.Service redirects:force, content:none
+nuget FSharp.Compiler.Service
 nuget System.ValueTuple
-nuget ILRepack
-nuget Argu
 nuget Microsoft.AspNetCore.Razor.Runtime
 nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
 nuget FsUnit 
 nuget NUnit
+nuget RoslynTools.ReferenceAssemblies
 # github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
 group Build
     source https://api.nuget.org/v3/index.json
-    source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
     nuget NuGet.CommandLine
-    nuget RoslynTools.ReferenceAssemblies
-
-group netcorebuild
-    storage: none
-    source https://api.nuget.org/v3/index.json
-    nuget Fake.Core.Target
-    nuget Fake.Core.ReleaseNotes
-    nuget Fake.DotNet.AssemblyInfoFile
-    nuget Fake.DotNet.Cli
-    nuget Fake.DotNet.Testing.NUnit
-    nuget Fake.DotNet.NuGet
-    nuget Fake.DotNet.MsBuild
-    nuget Fake.Tools.Git
-	nuget Fake.DotNet.Paket
+    nuget FSharp.Compiler.Tools 10.2.3
 
 group Test
     source https://api.nuget.org/v3/index.json
-
     nuget Nunit.ConsoleRunner

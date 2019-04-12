@@ -1,3 +1,7 @@
+## 3.0.0-beta14 
+ - Update to latest FSharp.Compiler.Service
+ - No longer filter FSHarp.Core based on optdata/sigdata (it is now always bundled)
+ 
 ## 3.0.0-beta13 
  - FSharp.Literate for netstandard2.0
 
