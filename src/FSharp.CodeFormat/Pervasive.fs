@@ -3,8 +3,8 @@ module internal FSharp.CodeFormat.Pervasive
 
 open System
 open System.Diagnostics
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.SourceCodeServices
 
 [<Sealed>]
 type AsyncMaybeBuilder () =

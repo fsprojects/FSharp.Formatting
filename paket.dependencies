@@ -1,8 +1,8 @@
 version 5.181.1
 source https://api.nuget.org/v3/index.json
+source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
 
-nuget FAKE
-nuget FSharp.Data prerelease
+nuget FSharp.Data
 nuget CommandLineParser ~> 1.0
 nuget FSharp.Core 
 nuget Microsoft.AspNet.Razor
@@ -11,21 +11,21 @@ nuget NUnit3TestAdapter
 nuget RazorEngine 3.9.3 framework: >= net45
 nuget FSharp.Compiler.Service redirects:force, content:none
 nuget System.ValueTuple
-nuget ILRepack
 nuget Argu
 nuget Microsoft.AspNetCore.Razor.Runtime
 nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
 nuget FsUnit 
 nuget NUnit
+nuget RoslynTools.ReferenceAssemblies
 # github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+
+# note - FAKE uses the 'dotnet tool' install, but FAKE libraries are still used by doc generation
+nuget FAKE
 
 group Build
     source https://api.nuget.org/v3/index.json
-    source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
     nuget NuGet.CommandLine
-    nuget RoslynTools.ReferenceAssemblies
 
 group Test
     source https://api.nuget.org/v3/index.json
-
     nuget Nunit.ConsoleRunner

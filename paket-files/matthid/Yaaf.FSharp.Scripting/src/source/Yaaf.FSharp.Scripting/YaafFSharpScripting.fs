@@ -57,8 +57,8 @@ module internal CompilerServiceExtensions =
 #endif
   open System
   open System.Reflection
-  open Microsoft.FSharp.Compiler
-  open Microsoft.FSharp.Compiler.SourceCodeServices
+  open FSharp.Compiler
+  open FSharp.Compiler.SourceCodeServices
   open System.IO
 
   module FSharpAssemblyHelper =
@@ -134,7 +134,7 @@ module internal CompilerServiceExtensions =
                      |> Seq.singleton
                  with :? NotSupportedException -> Seq.empty
           yield! try Path.GetDirectoryName
-                        (typeof<Microsoft.FSharp.Compiler.Interactive
+                        (typeof<FSharp.Compiler.Interactive
                          .Shell.Settings.InteractiveSettings>.Assembly.Location)
                      |> Seq.singleton
                  with :? NotSupportedException -> Seq.empty
@@ -1179,7 +1179,7 @@ type internal FsiOptions =
 
 module internal Helper =
   open System
-  open Microsoft.FSharp.Compiler.Interactive.Shell
+  open FSharp.Compiler.Interactive.Shell
   open System.IO
   open System.Text
   type ForwardTextWriter (f) =
@@ -1344,7 +1344,7 @@ module internal Helper =
       // This works around a FCS bug, I would expect "fsi" to be defined already...
       // This is probably not the case because we do not have any type with the correct signature loaded
       // We just compile ourself a forwarder to fix that.
-      //session.Reference (typeof<Microsoft.FSharp.Compiler.Interactive.Shell.Settings.InteractiveSettings>.Assembly.Location)
+      //session.Reference (typeof<FSharp.Compiler.Interactive.Shell.Settings.InteractiveSettings>.Assembly.Location)
       //session.Let "fsi" fsi
 #if !NETSTANDARD1_5 // Currently this is broken on netcore
       session.Let "__rawfsi" (box fsi)
@@ -1496,7 +1496,7 @@ type internal ScriptHost private() =
      ?errWriter : TextWriter, ?fsiErrWriter : TextWriter,
      ?preventStdOut) =
     Helper.getSession(
-      defaultArg fsiObj (Microsoft.FSharp.Compiler.Interactive.Shell.Settings.fsi :> obj),
+      defaultArg fsiObj (FSharp.Compiler.Interactive.Shell.Settings.fsi :> obj),
       opts,
       defaultArg reportGlobal false, outWriter, fsiOutWriter, errWriter, fsiErrWriter,
       defaultArg preventStdOut false)

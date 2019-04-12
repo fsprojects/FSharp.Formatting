@@ -8,8 +8,8 @@ open System.IO
 open System.Xml
 open System.Xml.Linq
 
-open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.Range
+open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Range
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
 open FSharp.Patterns

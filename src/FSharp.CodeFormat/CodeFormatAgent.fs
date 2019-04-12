@@ -6,12 +6,12 @@ namespace FSharp.CodeFormat
 
 open System
 open System.IO
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.Ast
-open Microsoft.FSharp.Compiler.Range
-open Microsoft.FSharp.Compiler.Layout
-open Microsoft.FSharp.Compiler.SourceCodeServices.FSharpTokenTag
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.Ast
+open FSharp.Compiler.Range
+open FSharp.Compiler.Layout
+open FSharp.Compiler.SourceCodeServices.FSharpTokenTag
+open FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
@@ -68,7 +68,7 @@ module private Helpers =
 
     // Parse lines using the tokenizer
     let indexedSnippetLines =
-        [   let state = ref 0L
+        [   let state = ref FSharpTokenizerLexState.Initial
             for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
                 let tokenizer = sourceTok.CreateLineTokenizer(line)
                 let rec parseLine() = seq {

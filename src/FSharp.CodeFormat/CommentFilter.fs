@@ -13,8 +13,8 @@ open FSharp.Patterns
 open FSharp.Collections
 open FSharp.Formatting.Common
 
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.SourceCodeServices
 
 // --------------------------------------------------------------------------------------
 // Handle special comments that can appear in F# snipptes. This includes:
