@@ -242,20 +242,6 @@ let RequireRange breakingPoint version =
   | Patch -> // Every update breaks
     version |> Fake.DotNet.NuGet.NuGet.RequireExactly
 
-Target.create "CopyFSharpCore" (fun _ ->
-    // We need to include optdata and sigdata as well, we copy everything to be consistent
-    for file in Directory.EnumerateFiles("packages" </> "FSharp.Core" </> "lib" </> "net45") do
-        let source, binDest = file, "bin" </> "net461" </> Path.GetFileName file
-        let binDest2 = "tests" </> "bin" </> "net461" </> Path.GetFileName file
-        Directory.ensure "bin/net461"
-        Directory.ensure "tests/bin/net461"
-        printfn "Copying %s to %s" source binDest
-        File.Copy (source, binDest, true)
-        File.Copy (source, binDest2, true)
-)
-
-
-
 Target.create "NuGet" (fun _ ->
     NuGet.NuGet (fun p ->
         { p with
@@ -533,7 +519,6 @@ open Fake.Core.TargetOperators
 "Clean"
   //==> "InstallDotnetcore"
   ==> "AssemblyInfo"
-  ==> "CopyFSharpCore"
   ==> "Build"
   ==> "BuildTests"
 
@@ -551,8 +536,6 @@ open Fake.Core.TargetOperators
 "Build"
   ==> "DogFoodCommandTool"
   ==> "All"
-
-"CopyFSharpCore" ==> "NuGet"
 
 "All"
   ==> "NuGet"
