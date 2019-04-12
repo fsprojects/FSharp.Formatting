@@ -437,10 +437,10 @@ Target.create "GenerateDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "git@github.com:fsprojects"
+let gitHome = "https://github.com/fsprojects"
 
 Target.create "ReleaseDocs" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/gh-pages"
+    Git.Repository.clone "" (gitHome + "/FSharp.Formatting") "temp/gh-pages"
     Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
     Shell.copyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
@@ -458,7 +458,7 @@ Target.create "PushPackagesToNugetOrg" (fun _ ->
 )
 
 Target.create "PushReleaseToGithub" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
+    Git.Repository.clone "" (gitHome + "/FSharp.Formatting") "temp/release"
     Git.Branches.checkoutBranch "temp/release" "release"
     Shell.copyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
@@ -557,8 +557,8 @@ open Fake.Core.TargetOperators
 
 "All"
   ==> "CreateTag"
-  ==> "ReleaseDocs"
   ==> "PushPackagesToNugetOrg"
+  ==> "ReleaseDocs"
   ==> "PushReleaseToGithub"
   ==> "Release"
 
