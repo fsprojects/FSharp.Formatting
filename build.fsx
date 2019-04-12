@@ -473,7 +473,7 @@ Target.create "GenerateDocs" (fun _ ->
         (sprintf "Building documentation, this could take some time, please wait...")
         "generating reference documentation failed"
         (fun p -> { p with 
-                       FileName = "fsi.exe"
+                       FileName = (__SOURCE_DIRECTORY__ @@ "packages" @@ "build" @@ "FSharp.Compiler.Tools" @@ "tools" @@ "fsi.exe")
                        Arguments = "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
                        WorkingDirectory = __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" } ))
 
