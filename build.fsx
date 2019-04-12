@@ -121,24 +121,6 @@ let getPackageVersion deploymentsDir package =
     with
     | exn -> new Exception("Could not detect package version for " + package, exn) |> raise
 
-Target.create "UpdateFsxVersions" (fun _ ->
-    let packages = [ "FSharp.Compiler.Service" ]
-    let replacements =
-        packages |> Seq.map (fun packageName ->
-            sprintf "/%s.(.*)/lib" packageName,
-
-            sprintf "/%s.%s/lib" packageName (getPackageVersion "packages" packageName)
-        )
-    let path = "./packages/FSharp.Formatting/FSharp.Formatting.fsx"
-    let text = File.ReadAllText(path)
-    let text =
-        (text, replacements)
-        ||> Seq.fold (fun text (pattern, replacement) ->
-            Text.RegularExpressions.Regex.Replace (text, pattern, replacement)
-        )
-    File.WriteAllText(path, text)
-)
-
 
 // Build library
 // --------------------------------------------------------------------------------------
@@ -272,23 +254,6 @@ Target.create "CopyFSharpCore" (fun _ ->
         File.Copy (source, binDest2, true)
 )
 
-
-Target.create "SetupLibForTests" (fun _ ->
-
-    let copyPackageFiles dir =
-        let dir = Path.GetFullPath dir
-        for file in Directory.EnumerateFiles dir do
-            let fileName = Path.GetFileName file
-            if not (fileName.StartsWith "FSharp.Compiler.Service.MSBuild.") then
-                let source, libDest = file, "tests"</>"bin"</>fileName
-                Trace.tracefn "Copying %s to %s" source libDest
-                File.Copy (source, libDest, true)
-    [   "packages" </> "FSharp.Core" </> "lib" </> "net45"
-        "packages" </> "System.ValueTuple" </> "lib" </> "portable-net40+sl4+win8+wp8"
-        "packages" </> "FSharp.Compiler.Service" </> "lib" </> "net45"
-        "packages" </> "FSharp.Data" </> "lib" </> "portable-net45+netcore45"
-    ] |> List.iter copyPackageFiles
-)
 
 
 Target.create "NuGet" (fun _ ->
@@ -569,13 +534,11 @@ open Fake.Core.TargetOperators
   //==> "InstallDotnetcore"
   ==> "AssemblyInfo"
   ==> "CopyFSharpCore"
-//  ==> "SetupLibForTests"
   ==> "Build"
   ==> "BuildTests"
 
 "Build"
   ==> "All"
-
 
 "BuildTests"
   ==> "DotnetTests"
@@ -585,11 +548,9 @@ open Fake.Core.TargetOperators
     =?> ("GenerateDocs", Environment.isWindows)
     ==> "All"
 
-//"Build"
-//  ==> "DogFoodCommandTool"
-//  ==> "All"
-
-//"UpdateFsxVersions" ==> "All"
+"Build"
+  ==> "DogFoodCommandTool"
+  ==> "All"
 
 "CopyFSharpCore" ==> "NuGet"
 
