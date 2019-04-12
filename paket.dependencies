@@ -9,18 +9,14 @@ nuget Microsoft.AspNet.Razor
 nuget Microsoft.NET.Test.Sdk
 nuget NUnit3TestAdapter
 nuget RazorEngine 3.9.3 framework: >= net45
-nuget FSharp.Compiler.Service redirects:force, content:none
+nuget FSharp.Compiler.Service
 nuget System.ValueTuple
-nuget Argu
 nuget Microsoft.AspNetCore.Razor.Runtime
 nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
 nuget FsUnit 
 nuget NUnit
 nuget RoslynTools.ReferenceAssemblies
 # github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
-
-# note - FAKE uses the 'dotnet tool' install, but FAKE libraries are still used by doc generation
-nuget FAKE
 
 group Build
     source https://api.nuget.org/v3/index.json
