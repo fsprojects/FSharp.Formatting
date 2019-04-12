@@ -242,7 +242,8 @@ let RequireRange breakingPoint version =
   | Patch -> // Every update breaks
     version |> Fake.DotNet.NuGet.NuGet.RequireExactly
 
-Target.create "NuGet" (fun _ ->
+let RunNuget publish apikey =
+
     NuGet.NuGet (fun p ->
         { p with
             Authors = authors
@@ -253,8 +254,8 @@ Target.create "NuGet" (fun _ ->
             ReleaseNotes = String.toLines release.Notes
             Tags = tags
             OutputPath = "bin"
-            AccessKey = Environment.environVarOrDefault "nugetkey" ""
-            Publish = Environment.hasEnvironVar "nugetkey"
+            AccessKey = apikey
+            Publish = publish
             Dependencies =
                 [ // We need Razor dependency in the package until we split out Razor into a separate package.
                   "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
@@ -262,6 +263,7 @@ Target.create "NuGet" (fun _ ->
                   "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "NuGet/FSharp.Formatting.nuspec"
+
     NuGet.NuGet (fun p ->
         { p with
             Authors = authors
@@ -272,11 +274,10 @@ Target.create "NuGet" (fun _ ->
             ReleaseNotes = String.toLines release.Notes
             Tags = tags
             OutputPath = "bin"
-            AccessKey = Environment.environVarOrDefault "nugetkey" ""
-            Publish = Environment.hasEnvironVar "nugetkey"
+            AccessKey = apikey
+            Publish = publish
             Dependencies =
-                [ // We need Razor dependency in the package until we split out Razor into a separate package.
-                  "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
+                [ "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
                   "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "NuGet/FSharp.Literate.nuspec"
@@ -291,11 +292,14 @@ Target.create "NuGet" (fun _ ->
             ReleaseNotes = String.toLines release.Notes
             Tags = tags
             OutputPath = "bin"
-            AccessKey = Environment.environVarOrDefault "nugetkey" ""
-            Publish = Environment.hasEnvironVar "nugetkey"
+            AccessKey = apikey
+            Publish = publish
             Dependencies = [] })
         "NuGet/FSharp.Formatting.CommandTool.nuspec"
-)
+
+Target.create "NuGet" (fun _ -> RunNuget false "")
+        
+        
 
 
 // Generate the documentation
@@ -445,7 +449,15 @@ Target.create "ReleaseDocs" (fun _ ->
     Git.Branches.push "temp/gh-pages"
 )
 
-Target.create "ReleaseBinaries" (fun _ ->
+let apikey =  Environment.environVarOrDefault "nugetkey" ""
+
+Target.create "PushPackagesToNugetOrg" (fun _ ->
+    if System.String.IsNullOrEmpty apikey then
+        failwith "could not push any nuget packages, because environment variable NUGETKEY was not set"
+    RunNuget true apikey
+)
+
+Target.create "PushReleaseToGithub" (fun _ ->
     Git.Repository.clone "" (gitHome + "/FSharp.Formatting.git") "temp/release"
     Git.Branches.checkoutBranch "temp/release" "release"
     Shell.copyRecursive "bin" "temp/release" true |> printfn "%A"
@@ -532,6 +544,10 @@ open Fake.Core.TargetOperators
   ==> "All"
 
 "Build"
+    ==> "NuGet"
+    ==> "All"
+
+"BuildTests"
     ==> "GenerateDocs"
     ==> "All"
 
@@ -540,10 +556,10 @@ open Fake.Core.TargetOperators
   ==> "All"
 
 "All"
-  ==> "NuGet"
-  ==> "ReleaseDocs"
-//  ==> "ReleaseBinaries"
   ==> "CreateTag"
+  ==> "ReleaseDocs"
+  ==> "PushPackagesToNugetOrg"
+  ==> "PushReleaseToGithub"
   ==> "Release"
 
 "DownloadPython" ==> "CreateTestJson"
