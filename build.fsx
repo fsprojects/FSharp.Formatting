@@ -5,7 +5,6 @@
     storage: none
     source https://api.nuget.org/v3/index.json
     nuget Fake.Core.Target
-    nuget Fake.Core.Vault
     nuget Fake.Core.ReleaseNotes
     nuget Fake.DotNet.AssemblyInfoFile
     nuget Fake.DotNet.Cli
