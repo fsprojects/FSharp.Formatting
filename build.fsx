@@ -557,10 +557,10 @@ open Fake.Core.TargetOperators
   ==> "All"
 
 "All"
-  ==> "ReleaseDocs"
-//  ==> "PushPackagesToNugetOrg"
-//  ==> "PushReleaseToGithub"
   ==> "CreateTag"
+  ==> "ReleaseDocs"
+  ==> "PushPackagesToNugetOrg"
+  ==> "PushReleaseToGithub"
   ==> "Release"
 
 "DownloadPython" ==> "CreateTestJson"
