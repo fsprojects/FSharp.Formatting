@@ -585,9 +585,9 @@ open Fake.Core.TargetOperators
     =?> ("GenerateDocs", Environment.isWindows)
     ==> "All"
 
-"Build"
-  ==> "DogFoodCommandTool"
-  ==> "All"
+//"Build"
+//  ==> "DogFoodCommandTool"
+//  ==> "All"
 
 //"UpdateFsxVersions" ==> "All"
 
