@@ -35,3 +35,7 @@ The library is available under Apache 2.0. For more information see the [License
  [2]: https://github.com/fsprojects/FSharp.Formatting/tree/master/docs
  [3]: http://fsprojects.github.io/FSharp.Formatting/
  [4]: http://fsprojects.github.io/FSharp.Formatting/literate.html
+
+## Maintainer(s)
+
+- [@cloudroutine](https://github.com/cloudroutine)
