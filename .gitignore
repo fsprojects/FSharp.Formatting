@@ -37,3 +37,4 @@ fsbuild.targets
 *.user
 _NCrunch_*
 *.ncrunchproject
+.ionide/symbolCache.db

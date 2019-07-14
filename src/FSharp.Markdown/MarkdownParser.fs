@@ -733,6 +733,8 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
   match lines with
   // Recognize various kinds of standard paragraphs
   | LinkDefinition ((key, link), Lines.TrimBlankStart lines) ->
+      if ctx.Links.ContainsKey(key) then
+        failwithf "Cannot define a link to the reference %s twice." key
       ctx.Links.Add(key, getLinkAndTitle link)
       yield! parseParagraphs ctx lines
   | NestedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine)
