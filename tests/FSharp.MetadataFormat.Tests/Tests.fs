@@ -20,7 +20,7 @@ open NUnit.Framework
 open FSharp.MetadataFormat
 open FSharp.Formatting.Razor
 open FsUnitTyped
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.SourceCodeServices
 // --------------------------------------------------------------------------------------
 // Run the metadata formatter on sample project
 // --------------------------------------------------------------------------------------

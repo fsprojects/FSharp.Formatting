@@ -17,7 +17,7 @@ open System.IO
 open NUnit.Framework
 open FSharp.MetadataFormat
 open FsUnitTyped
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.SourceCodeServices
 open NUnit.Framework.Internal
 open System
 

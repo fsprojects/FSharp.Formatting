@@ -24,7 +24,7 @@ The library is used by a number of F# projects. Most prominently, the [F# snippe
 uses it to format snippets shared by the F# community. The following sample scripts use the library to generate 
 documentation and might be a useful inspiration:
 
- * [The `generate.fsx` script](https://github.com/fsprojects/FSharp.ProjectScaffold/blob/master/docsrc/tools/generate.template) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
+ * [The `build.fsx` script](https://github.com/fsprojects/ProjectScaffold/blob/master/build.template) in `FSharp.ProjectScaffold` shows a recommended way for adding F# Formatting docs to your project.
 
 ## Library license
 
@@ -35,3 +35,7 @@ The library is available under Apache 2.0. For more information see the [License
  [2]: https://github.com/fsprojects/FSharp.Formatting/tree/master/docs
  [3]: http://fsprojects.github.io/FSharp.Formatting/
  [4]: http://fsprojects.github.io/FSharp.Formatting/literate.html
+
+## Maintainer(s)
+
+- [@cloudroutine](https://github.com/cloudroutine)

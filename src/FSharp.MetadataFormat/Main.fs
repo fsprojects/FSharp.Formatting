@@ -3,24 +3,27 @@ namespace FSharp.MetadataFormat
 open System
 open System.Reflection
 open System.Collections.Generic
-open Microsoft.FSharp.Compiler.SourceCodeServices
-open Microsoft.FSharp.Compiler.Range
+open System.Text
+open System.IO
+open System.Xml
+open System.Xml.Linq
+
+open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Range
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
 open FSharp.Patterns
 open FSharp.CodeFormat
 
-open System.Text
-open System.IO
-open System.Xml
-open System.Xml.Linq
 /// Represents a comment attached to F# source code
 type Comment =
   { Blurb : string
     FullText : string
     Sections : list<KeyValuePair<string, string>> }
+
   static member Empty =
     { Blurb = ""; FullText = ""; Sections = [] }
+
   static member Create(blurb, full, sects) =
     { Blurb = blurb; FullText = full; Sections = sects }
 
@@ -36,11 +39,13 @@ type Attribute =
     /// The named arguments for the attribute
     NamedConstructorArguments : (string*obj) list
   }
+
   static member Create(name, fullName, constructorArguments, namedConstructorArguments) =
         { Name = name
           FullName = fullName
           ConstructorArguments = constructorArguments
           NamedConstructorArguments = namedConstructorArguments }
+
 
   /// Gets a value indicating whether this attribute the System.ObsoleteAttribute
   member x.IsObsoleteAttribute =
@@ -54,6 +59,7 @@ type Attribute =
             |> Option.map string
             |> Option.defaultValue ""
     if x.IsObsoleteAttribute then tryFindObsoleteMessage else ""
+
   /// Formats the attribute with the given name
   member private x.Format(attributeName:string, removeAttributeSuffix:bool) =
         let dropSuffix (s:string) (t:string) = s.[0..s.Length - t.Length - 1]
@@ -67,7 +73,7 @@ type Attribute =
         let rec formatValue (v:obj) =
             match v with
             | :? string as s -> sprintf "\"%s\"" s
-            | :? array<_> as a -> a |> Seq.map formatValue |> join "; " |> sprintf "[|%s|]"
+            | :? array<obj> as a -> a |> Seq.map formatValue |> join "; " |> sprintf "[|%s|]"
             | :? bool as b -> if b then "true" else "false"
             | _ -> string v
         let formatedConstructorArguments =
@@ -92,14 +98,15 @@ type Attribute =
         |> append ">]"
         |> string
 
-
-
   /// Formats the attribute using the Name. Removes the "Attribute"-suffix. E.g Obsolete
   member x.Format() = x.Format(x.Name, true)
+
   /// Formats the attribute using the FullName. Removes the "Attribute"-suffix. E.g System.Obsolete
   member x.FormatFullName() = x.Format(x.FullName, true)
+
   /// Formats the attribute using the Name. Keeps the "Attribute"-suffix. E.g ObsoleteAttribute
   member x.FormatLongForm() = x.Format(x.Name, false)
+
   /// Formats the attribute using the FullName. Keeps the "Attribute"-suffix. E.g System.ObsoleteAttribute
   member x.FormatFullNameLongForm() = x.Format(x.FullName, false)
 
@@ -109,6 +116,7 @@ type Attribute =
     |> Seq.tryFind (fun a -> a.IsObsoleteAttribute)
     |> Option.map (fun a -> a.ObsoleteMessage)
     |> Option.defaultValue ""
+
 /// Represents the details of an F# method, property, event, function or value, including extension members
 type MemberOrValue =
   {

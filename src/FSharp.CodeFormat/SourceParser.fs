@@ -12,8 +12,8 @@ open System.Collections.Generic
 
 open FSharp.IntelliSense
 open FSharp.IntelliSense.TextProcessing
-open Microsoft.FSharp.Compiler
-open Microsoft.FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler
+open FSharp.Compiler.SourceCodeServices
 
 // --------------------------------------------------------------------------------------
 // Color map and various types returned from source code processing
