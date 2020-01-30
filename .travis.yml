@@ -1,6 +1,6 @@
 language: csharp
 sudo: false
-dist: trusty
+dist: xenial
 mono: latest
 dotnet : 3.0.100
 addons:
