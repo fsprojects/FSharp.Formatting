@@ -39,6 +39,7 @@
     <Compile Include="TsqlFormat.cs" />
     <Compile Include="TypeScriptFormat.cs" />
     <Compile Include="VisualBasicFormat.cs" />
+    <None Include="paket.references" />
   </ItemGroup>
-  <Import Project="..\..\.paket\paket.Restore.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
