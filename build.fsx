@@ -507,28 +507,13 @@ open Fake.Core.TargetOperators
 
 
 "Clean"
-  //==> "InstallDotnetcore"
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "BuildTests"
-
-"Build"
-  ==> "All"
-
-"BuildTests"
   ==> "DotnetTests"
-  ==> "All"
-
-"Build"
-    ==> "NuGet"
-    ==> "All"
-
-"BuildTests"
-    ==> "GenerateDocs"
-    ==> "All"
-
-"Build"
   //==> "DogFoodCommandTool"
+  ==> "NuGet"
+  ==> "GenerateDocs"
   ==> "All"
 
 "All"
@@ -541,4 +526,3 @@ open Fake.Core.TargetOperators
 "DownloadPython" ==> "CreateTestJson"
 
 Target.runOrDefault "All"
-//Target.runOrDefault "Build"
