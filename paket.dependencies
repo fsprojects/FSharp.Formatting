@@ -1,4 +1,3 @@
-version 5.181.1
 source https://api.nuget.org/v3/index.json
 source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
 
@@ -11,11 +10,9 @@ nuget CommandLineParser ~> 1.0
 nuget Microsoft.AspNet.Razor
 nuget Microsoft.NET.Test.Sdk
 nuget NUnit3TestAdapter
-nuget RazorEngine 3.9.3 framework: >= net45
+nuget RazorEngine.NetCore >= 2.2.6
 nuget FSharp.Compiler.Service
 nuget System.ValueTuple
-nuget Microsoft.AspNetCore.Razor.Runtime
-nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
 nuget FsUnit 
 nuget NUnit
 nuget RoslynTools.ReferenceAssemblies

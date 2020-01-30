@@ -1,6 +1,4 @@
 FSharp.Core
-Microsoft.AspNet.Razor
-RazorEngine
 FSharp.Compiler.Service
 FsUnit
 NUnit

@@ -4,7 +4,6 @@
 bin/
 lib/
 obj/
-/.paket/paket.exe
 paket-files/
 nuget/*.nupkg
 docs/output/
@@ -37,4 +36,4 @@ fsbuild.targets
 *.user
 _NCrunch_*
 *.ncrunchproject
-.ionide/symbolCache.db
+.ionide/
