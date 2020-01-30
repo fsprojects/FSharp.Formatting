@@ -13,7 +13,6 @@
 #r "Microsoft.AspNetCore.Razor.dll"
 #r "RazorEngine.NetCore.dll"
 #r "FSharp.Formatting.Razor.dll"
-#r "../../packages/System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
 //#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
 open System.IO
