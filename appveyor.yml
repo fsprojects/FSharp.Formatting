@@ -3,7 +3,7 @@ init:
   - git config --global core.autocrlf input
 
 build_script:
-  - cmd: .\build.cmd --target NuGet
+  - cmd: .\build.cmd
 
 test: off
 
