@@ -10,9 +10,7 @@
 #r "FSharp.Markdown.dll"
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Formatting.Common.dll"
-#r "RazorEngine.dll"
 #r "FSharp.Formatting.Razor.dll"
-#r "System.Web.Razor.dll"
 #r "../../packages/System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
 //#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
