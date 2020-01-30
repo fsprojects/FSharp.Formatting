@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29724.152
 MinimumVisualStudioVersion = 12.0.31101.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194BD478-0DB5-44F3-A6C2-1FC75D3F3294}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
 		nuget\FSharp.Literate.nuspec = nuget\FSharp.Literate.nuspec
+		global.json = global.json
 		paket.dependencies = paket.dependencies
 		paket.lock = paket.lock
 		README.md = README.md
@@ -118,12 +119,6 @@ EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{DE45ED41-E1BD-4028-A985-8668C209D1D7}"
-	ProjectSection(SolutionItems) = preProject
-		.paket\paket.exe.config = .paket\paket.exe.config
-		.paket\paket.targets = .paket\paket.targets
-	EndProjectSection
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.TestHelpers", "FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
 EndProject
