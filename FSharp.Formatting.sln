@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		build.cmd = build.cmd
 		build.fsx = build.fsx
 		build.sh = build.sh
+		Directory.Build.props = Directory.Build.props
 		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
 		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec

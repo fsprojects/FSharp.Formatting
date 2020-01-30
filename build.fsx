@@ -11,6 +11,7 @@
 open System
 open System.IO
 open Fake.Core
+open Fake.Core.TargetOperators
 open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
 open Fake.DotNet
@@ -46,8 +47,6 @@ let tags = "F# fsharp formatting markdown code fssnip literate programming"
 
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
-
-
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
@@ -116,35 +115,6 @@ let getPackageVersion deploymentsDir package =
 
 let solutionFile = "FSharp.Formatting.sln"
 
-
-//Target.Create "InstallDotNetCore" (fun _ ->
-//    try
-//        (Fake.DotNet.Cli.DotnetInfo (fun _ -> Fake.DotNet.Cli.DotNetInfoOptions.Default)).RID
-//        |> trace
-//    with _ ->
-//        Fake.DotNet.Cli.DotnetCliInstall (fun _ -> Fake.DotNet.Cli.DotNetCliInstallOptions.Default )
-//        Environment.SetEnvironmentVariable("DOTNET_EXE_PATH", Fake.DotNet.Cli.DefaultDotnetCliDir)
-//)
-
-let assertExitCodeZero x =
-    if x = 0 then () else
-    failwithf "Command failed with exit code %i" x
-
-let runCmdIn workDir exe =
-    Printf.ksprintf (fun args ->
-        let res =
-            (Process.execWithResult (fun info ->
-                { info with
-                    FileName = exe
-                    Arguments = args
-                    WorkingDirectory = workDir
-                }) TimeSpan.MaxValue)
-        res.Messages |> Seq.iter Trace.trace
-        res.ExitCode |> assertExitCodeZero)
-
-/// Execute a dotnet cli command
-let dotnet workDir = runCmdIn workDir "dotnet"
-
 Target.create "Build" (fun _ ->
     solutionFile
     |> DotNet.build (fun opts ->
@@ -153,50 +123,15 @@ Target.create "Build" (fun _ ->
         })
 )
 
-
-// Build tests and generate tasks to run the tests in sequence
-// --------------------------------------------------------------------------------------
-Target.create "BuildTests" (fun _ ->
-    let debugBuild sln =
-        //!! sln |> Seq.iter restore
-        !! sln |> Seq.iter (fun s -> dotnet "" "restore %s" s)
-        !! sln
-        |> Seq.iter (fun proj ->
-            proj
-            |> DotNet.build (fun opts ->
-                { opts with
-                    Configuration = DotNet.BuildConfiguration.Release
-                    OutputPath = Some "tests/bin"
-                      }
-            )
-        )
-
-    debugBuild "tests/*/files/FsLib/FsLib.sln"
-    debugBuild "tests/*/files/crefLib/crefLib.sln"
-    debugBuild "tests/*/files/csharpSupport/csharpSupport.sln"
-    debugBuild "tests/*/files/TestLib/TestLib.sln"
+Target.create "Tests" (fun _ ->
+    solutionFile
+    |> DotNet.test (fun opts ->
+        { opts with
+            Blame = true
+            NoBuild = true
+            Configuration = DotNet.BuildConfiguration.Release
+        })
 )
-
-open Fake.DotNet.Testing
-open Microsoft.FSharp.Core
-
-
-let testAssemblies =
-    [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
-        "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
-    |> List.map (fun asm -> sprintf "tests/bin/net461/%s.dll" asm)
-
-let testProjects =
-    [   "FSharp.CodeFormat.Tests"; "FSharp.Literate.Tests";
-        "FSharp.Markdown.Tests"; "FSharp.MetadataFormat.Tests" ]
-    |> List.map (fun asm -> sprintf "tests/%s/%s.fsproj" asm asm)
-
-Target.create "DotnetTests" (fun _ ->
-    testProjects
-    |> Seq.iter (fun proj -> DotNet.test (fun p ->
-        { p with ResultsDirectory = Some __SOURCE_DIRECTORY__ }) proj)
-)
-
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
@@ -274,8 +209,6 @@ let RunNuget publish apikey =
         "NuGet/FSharp.Formatting.CommandTool.nuspec"
 
 Target.create "NuGet" (fun _ -> RunNuget false "")
-        
-        
 
 
 // Generate the documentation
@@ -503,14 +436,10 @@ Target.create "CreateTestJson" (fun _ ->
     File.Copy(resultFile, "tests"</>"commonmark_spec.json")
 )
 
-open Fake.Core.TargetOperators
-
-
 "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
-  ==> "BuildTests"
-  ==> "DotnetTests"
+  ==> "Tests"
   //==> "DogFoodCommandTool"
   ==> "NuGet"
   ==> "GenerateDocs"
