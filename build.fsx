@@ -332,16 +332,15 @@ Target.create "DogFoodCommandTool" (fun _ ->
             "docs/content" "temp/literate_docs" layoutRoots parameters
     buildDocumentationCommandTool literateArgs)
 
-let fsiExe = (__SOURCE_DIRECTORY__ @@ "packages" @@ "build" @@ "FSharp.Compiler.Tools" @@ "tools" @@ "fsi.exe")
-
 Target.create "GenerateDocs" (fun _ ->
-    execute
-        (sprintf "Building documentation, this could take some time, please wait...")
-        "generating reference documentation failed"
-        (fun p -> { p with 
-                       FileName = if Environment.isWindows then fsiExe else "mono"
-                       Arguments = (if Environment.isWindows then "" else fsiExe + " ") + "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
-                       WorkingDirectory = __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" } ))
+    let result =
+        DotNet.exec
+            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" })
+            "fsi"
+            "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
+
+    if not result.OK then failwith "error generating docs"
+)
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
@@ -380,6 +379,7 @@ Target.create "CreateTag" (fun _ ->
     Git.Branches.pushTag "" "origin" release.NugetVersion
 )
 
+Target.create "Root" ignore
 Target.create "Release" ignore
 
 // --------------------------------------------------------------------------------------
@@ -436,7 +436,8 @@ Target.create "CreateTestJson" (fun _ ->
     File.Copy(resultFile, "tests"</>"commonmark_spec.json")
 )
 
-"Clean"
+"Root"
+  ==> "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "Tests"

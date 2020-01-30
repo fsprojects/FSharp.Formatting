@@ -4,13 +4,14 @@
 // --------------------------------------------------------------------------------------
 
 #I __SOURCE_DIRECTORY__
-#I "../../tests/bin/net461"
+#I "../../bin/netstandard2.0"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Literate.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Razor.dll"
+#r "RazorEngine.NetCore.dll"
 #r "../../packages/System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
 //#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
 
