@@ -145,14 +145,6 @@ let runCmdIn workDir exe =
 /// Execute a dotnet cli command
 let dotnet workDir = runCmdIn workDir "dotnet"
 
-
-let restore proj =
-    let opts (def:DotNet.Options) =
-        { def with
-            WorkingDirectory = __SOURCE_DIRECTORY__
-        }
-    (DotNet.exec opts "restore" (sprintf "%s" (Path.getFullName proj))).Messages |> Seq.iter Trace.trace
-
 Target.create "Build" (fun _ ->
     solutionFile
     |> DotNet.build (fun opts ->
@@ -536,7 +528,7 @@ open Fake.Core.TargetOperators
     ==> "All"
 
 "Build"
-  ==> "DogFoodCommandTool"
+  //==> "DogFoodCommandTool"
   ==> "All"
 
 "All"
