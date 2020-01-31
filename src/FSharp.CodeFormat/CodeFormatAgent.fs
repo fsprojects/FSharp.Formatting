@@ -6,6 +6,7 @@ namespace FSharp.CodeFormat
 
 open System
 open System.IO
+open System.Runtime.ExceptionServices
 open FSharp.Compiler
 open FSharp.Compiler.Ast
 open FSharp.Compiler.Range
@@ -23,6 +24,8 @@ open FSharp.Formatting.Common
 // --------------------------------------------------------------------------------------
 
 module private Helpers =
+
+  let inline ediRaise (e : exn) : 'T = ExceptionDispatchInfo.Capture(e).Throw(); Unchecked.defaultof<_>
 
   /// Mapping table that translates F# compiler representation to our union
   let getTokenKind = function
@@ -289,7 +292,7 @@ type CodeFormatAgent() =
 
         let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
         let defaultReferences =
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
             FSharpAssemblyHelper.getDefaultSystemReferences frameworkVersion
 #else
             Seq.empty
@@ -448,7 +451,7 @@ type CodeFormatAgent() =
         let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> return res
-        | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn)) }
+        | Choice2Of2 exn -> return Helpers.ediRaise exn }
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
@@ -464,4 +467,4 @@ type CodeFormatAgent() =
         let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res
-        | Choice2Of2 exn -> raise (new Exception(exn.Message, exn))
+        | Choice2Of2 exn -> Helpers.ediRaise exn

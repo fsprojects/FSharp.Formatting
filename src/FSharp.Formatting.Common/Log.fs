@@ -5,7 +5,7 @@ open System.Diagnostics
 module Log =
   let source = new System.Diagnostics.TraceSource "FSharp.Formatting"
 
-#if !NETSTANDARD2_0
+#if !NETSTANDARD
   let ConsoleListener () = new ConsoleTraceListener()
   let SvclogListener (file:string) = new XmlWriterTraceListener(file)
 #else
