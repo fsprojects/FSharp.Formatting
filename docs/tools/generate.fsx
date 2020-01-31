@@ -11,9 +11,13 @@
 #r "FSharp.MetadataFormat.dll"
 #r "FSharp.Formatting.Common.dll"
 #r "Microsoft.AspNetCore.Razor.dll"
+#r "Microsoft.AspNetCore.Razor.Runtime.dll"
+#r "Microsoft.AspNetCore.Razor.Language.dll"
 #r "RazorEngine.NetCore.dll"
 #r "FSharp.Formatting.Razor.dll"
 //#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
+
+let t = typeof<Microsoft.AspNetCore.Razor.Hosting.RazorCompiledItem>
 
 open System.IO
 open FSharp.Formatting.Razor
