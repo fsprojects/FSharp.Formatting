@@ -20,17 +20,11 @@
     <!-- Automatically referenced by VS -->
     <!-- When including additional .dll files here make sure you update "generate.fsx" as well 
          (it will trigger a CI build failure when forgotten so not a problem) -->
-    <file src="..\bin\net461\CSharpFormat.*" target="lib/net461" />
-    <file src="..\bin\net461\FSharp.CodeFormat.*" target="lib/net461" />
-    <file src="..\bin\net461\FSharp.Literate.*" target="lib/net461" />
-    <file src="..\bin\net461\FSharp.Markdown.*" target="lib/net461" />
-    <file src="..\bin\net461\FSharp.Formatting.Common.*" target="lib/net461" />
-    <file src="..\bin\net461\FSharp.MetadataFormat.*" target="lib/net461" />
-    <file src="..\bin\netstandard2.0\CSharpFormat.*" target="lib/netstandard2.0" />
-    <file src="..\bin\netstandard2.0\FSharp.CodeFormat.*" target="lib/netstandard2.0" />
-    <file src="..\bin\netstandard2.0\FSharp.Literate.*" target="lib/netstandard2.0" />
-    <file src="..\bin\netstandard2.0\FSharp.Markdown.*" target="lib/netstandard2.0" />
-    <file src="..\bin\netstandard2.0\FSharp.Formatting.Common.*" target="lib/netstandard2.0" />
-    <file src="..\bin\netstandard2.0\FSharp.MetadataFormat.*" target="lib/netstandard2.0" />
+    <file src="..\src\FSharp.Literate\bin\Release\netstandard2.0\CSharpFormat.*" target="lib/netstandard2.0" />
+    <file src="..\src\FSharp.Literate\bin\Release\netstandard2.0\FSharp.CodeFormat.*" target="lib/netstandard2.0" />
+    <file src="..\src\FSharp.Literate\bin\Release\netstandard2.0\FSharp.Literate.*" target="lib/netstandard2.0" />
+    <file src="..\src\FSharp.Literate\bin\Release\netstandard2.0\FSharp.Markdown.*" target="lib/netstandard2.0" />
+    <file src="..\src\FSharp.Literate\bin\Release\netstandard2.0\FSharp.Formatting.Common.*" target="lib/netstandard2.0" />
+    <file src="..\src\FSharp.Literate\bin\Release\netstandard2.0\FSharp.MetadataFormat.*" target="lib/netstandard2.0" />
   </files>
 </package>

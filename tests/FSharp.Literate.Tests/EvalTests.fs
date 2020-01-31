@@ -1,15 +1,4 @@
-#if INTERACTIVE
-#I "../../bin/net461"
-#r "FSharp.Literate.dll"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Markdown.dll"
-#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
-#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
-#load "../Common/MarkdownUnit.fs"
-#load "Setup.fs"
-#else
 module FSharp.Literate.Tests.Eval
-#endif
 
 open FsUnit
 open FsUnitTyped

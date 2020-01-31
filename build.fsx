@@ -171,7 +171,6 @@ let RunNuget publish apikey =
                 [ // We need Razor dependency in the package until we split out Razor into a separate package.
                   "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
                   "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
-                  "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
                    ] })
         "NuGet/FSharp.Formatting.nuspec"
 
@@ -188,25 +187,23 @@ let RunNuget publish apikey =
             AccessKey = apikey
             Publish = publish
             Dependencies =
-                [ "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
-                  "System.ValueTuple", getPackageVersion "packages" "System.ValueTuple" |> RequireRange BreakingPoint.SemVer
-                   ] })
+                [ "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer ] })
         "NuGet/FSharp.Literate.nuspec"
 
-    NuGet.NuGet (fun p ->
-        { p with
-            Authors = authorsTool
-            Project = projectTool
-            Summary = summaryTool
-            Description = descriptionTool
-            Version = release.NugetVersion
-            ReleaseNotes = String.toLines release.Notes
-            Tags = tags
-            OutputPath = "bin"
-            AccessKey = apikey
-            Publish = publish
-            Dependencies = [] })
-        "NuGet/FSharp.Formatting.CommandTool.nuspec"
+    //NuGet.NuGet (fun p ->
+    //    { p with
+    //        Authors = authorsTool
+    //        Project = projectTool
+    //        Summary = summaryTool
+    //        Description = descriptionTool
+    //        Version = release.NugetVersion
+    //        ReleaseNotes = String.toLines release.Notes
+    //        Tags = tags
+    //        OutputPath = "bin"
+    //        AccessKey = apikey
+    //        Publish = publish
+    //        Dependencies = [] })
+    //    "NuGet/FSharp.Formatting.CommandTool.nuspec"
 
 Target.create "NuGet" (fun _ -> RunNuget false "")
 
@@ -215,7 +212,7 @@ Target.create "NuGet" (fun _ -> RunNuget false "")
 // --------------------------------------------------------------------------------------
 
 
-let commandToolPath = "bin" </> "net461" </> "fsformatting.exe"
+let commandToolPath = "bin" </> "net472" </> "fsformatting.exe"
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
         { info with

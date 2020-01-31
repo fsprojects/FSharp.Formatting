@@ -20,7 +20,7 @@
   </metadata>
   <files>
     <!-- Copy all binaries to tools folder -->
-    <file src="..\bin\net461\*" target="tools" />
+    <file src="..\bin\net472\*" target="tools" />
 
     <!-- Templates & styles & literate demos -->
     <file src="..\misc\templates\*.cshtml" target="templates" />

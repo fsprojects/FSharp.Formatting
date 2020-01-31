@@ -1,7 +1,7 @@
 #nowarn "211"
 // Standard NuGet or Paket location
 #I __SOURCE_DIRECTORY__
-#I "lib/net461"
+#I "lib/net472"
 #r "../Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll"
 // Force load
 if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2) then

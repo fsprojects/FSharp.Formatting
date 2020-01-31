@@ -1,18 +1,5 @@
-#if INTERACTIVE
-System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-#I "../../bin/net461"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.MetadataFormat.dll"
-#r "FSharp.Formatting.Razor.dll"
-#r "FSharp.Compiler.Service.dll"
-#r "RazorEngine.dll"
-#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
-#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
-
-#else
 [<NUnit.Framework.TestFixture>]
 module FSharp.MetadataFormat.Tests
-#endif
 
 open FsUnit
 open System.IO
@@ -34,13 +21,7 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "../bin/net461" |> fullpath
-
-#if INTERACTIVE
-;;
-printfn "\n-- Root - %s" root;;
-printfn "\n-- TestBin - %s" testBin;;
-#endif
+let testBin = __SOURCE_DIRECTORY__ </> "files/bin/netstandard2.0" |> fullpath
 
 let getOutputDir()  =
   let tempFile = Path.GetTempFileName()

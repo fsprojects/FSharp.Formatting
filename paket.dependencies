@@ -1,29 +1,22 @@
 source https://api.nuget.org/v3/index.json
-source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
 nuget FSharp.Compiler.Service >= 33.0 lowest_matching:true
+nuget RazorEngine.NetCore >= 2.2.6 lowest_matching:true
+nuget Microsoft.AspNetCore.Razor >= 2.1.2 lowest_matching:true
+nuget Microsoft.AspNetCore.Razor.Runtime >= 2.1.2 lowest_matching:true
+nuget Microsoft.AspNetCore.Razor.Language >= 2.1.2 lowest_matching:true
 
 nuget FSharp.Data
 nuget CommandLineParser ~> 1.0
-nuget Microsoft.AspNet.Razor
 nuget Microsoft.NET.Test.Sdk
 nuget NUnit3TestAdapter
-nuget RazorEngine.NetCore >= 2.2.6
-nuget System.ValueTuple
-nuget FsUnit 
+nuget FsUnit
 nuget NUnit
-nuget RoslynTools.ReferenceAssemblies
-# github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
 
 group Build
     source https://api.nuget.org/v3/index.json
     nuget NuGet.CommandLine
-    nuget FSharp.Compiler.Tools 10.2.3
-
-group Test
-    source https://api.nuget.org/v3/index.json
-    nuget Nunit.ConsoleRunner
 
 group Fake
     source https://api.nuget.org/v3/index.json

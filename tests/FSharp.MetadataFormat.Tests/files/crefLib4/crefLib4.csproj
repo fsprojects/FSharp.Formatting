@@ -6,6 +6,13 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin</OutputPath>
   </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\crefLib1\crefLib1.fsproj" />
+    <ProjectReference Include="..\crefLib2\crefLib2.fsproj" />
+    <ProjectReference Include="..\crefLib3\crefLib3.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
 </Project>
