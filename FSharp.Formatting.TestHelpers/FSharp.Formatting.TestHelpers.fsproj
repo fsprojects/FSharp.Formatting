@@ -2,10 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <SolutionDir>../..</SolutionDir>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).XML</DocumentationFile>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="paket.references" />

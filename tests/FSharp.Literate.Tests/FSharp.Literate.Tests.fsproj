@@ -1,12 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
-    <OutputType>Library</OutputType>
-    <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DocumentationFile>$(OutputPath)\$(AssemblyFile).xml</DocumentationFile>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -32,9 +27,6 @@
     <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
