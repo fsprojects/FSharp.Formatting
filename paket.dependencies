@@ -1,9 +1,8 @@
 source https://api.nuget.org/v3/index.json
 source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
 
-# Annoyingly this must match FSharp.Core used in FSharp.Compiler.Tools fsi.exe, for documentation generation vie generate.fsx
-# As a result we should remove the use of generate.fsx in favour of the command-line tool
-nuget FSharp.Core 4.5.4
+nuget FSharp.Core >= 4.7 lowest_matching:true
+nuget FSharp.Compiler.Service >= 33.0 lowest_matching:true
 
 nuget FSharp.Data
 nuget CommandLineParser ~> 1.0
@@ -11,7 +10,6 @@ nuget Microsoft.AspNet.Razor
 nuget Microsoft.NET.Test.Sdk
 nuget NUnit3TestAdapter
 nuget RazorEngine.NetCore >= 2.2.6
-nuget FSharp.Compiler.Service
 nuget System.ValueTuple
 nuget FsUnit 
 nuget NUnit

@@ -5,6 +5,7 @@ open System
 open System.Diagnostics
 open FSharp.Compiler
 open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Text
 
 [<Sealed>]
 type AsyncMaybeBuilder () =
@@ -116,7 +117,7 @@ type FSharpChecker with
 
     member this.ParseAndCheckDocument(filePath: string, sourceText: string, options: FSharpProjectOptions, allowStaleResults: bool) : Async<(FSharpParseFileResults * Ast.ParsedInput * FSharpCheckFileResults) option> =
             let parseAndCheckFile = async {
-                let! parseResults, checkFileAnswer = this.ParseAndCheckFileInProject(filePath, 0, sourceText, options)
+                let! parseResults, checkFileAnswer = this.ParseAndCheckFileInProject(filePath, 0, SourceText.ofString sourceText, options)
                 return
                     match checkFileAnswer with
                     | FSharpCheckFileAnswer.Aborted -> None
