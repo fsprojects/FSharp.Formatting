@@ -544,7 +544,7 @@ open Fake.Core.TargetOperators
   ==> "All"
 
 "Build"
-    ==> "BuildTests"
+    ==> "DotnetTests"
     ==> "NuGet"
     ==> "All"
 
