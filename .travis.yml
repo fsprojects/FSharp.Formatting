@@ -7,6 +7,8 @@ addons:
   apt:
     packages:
       - libunwind8
+install:
+  - export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.7.2-api/
 
 script:
  - ./build.sh

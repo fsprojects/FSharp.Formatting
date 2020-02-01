@@ -13,6 +13,8 @@ module internal Env =
 #endif
   let (<>?) s1 s2 = not (s1 =? s2)
 
+  let isNetCoreApp = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Core")
+
 #if NET40
   open System.Reflection
   type CustomAttributeData with
@@ -59,6 +61,7 @@ module internal CompilerServiceExtensions =
   open System.Reflection
   open FSharp.Compiler
   open FSharp.Compiler.SourceCodeServices
+  open FSharp.Compiler.Text
   open System.IO
 
   module FSharpAssemblyHelper =
@@ -113,6 +116,18 @@ module internal CompilerServiceExtensions =
         let name = ass.GetName()
         name.Version.ToString()
 #endif
+
+      let getNetCoreAppFrameworkDependencies = lazy(
+        if not isNetCoreApp then [] else
+
+        let options, _ = checker.GetProjectOptionsFromScript("foo.fsx", SourceText.ofString "module Foo", assumeDotNetFramework = false) |> Async.RunSynchronously
+
+        options.OtherOptions
+        |> Seq.filter (fun path -> path.StartsWith "-r:")
+        //|> Seq.choose (fun path -> if path.StartsWith "-r:" then path.Substring 3 |> Some else None)
+        //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
+        |> Seq.toList)
+
       let fscoreResolveDirs libDirs =
         [ 
 #if !NETSTANDARD
@@ -190,6 +205,10 @@ module internal CompilerServiceExtensions =
                //yield "--optimize-"
                yield "--nooptimizationdata"
                yield "--noframework"
+
+               if isNetCoreApp then
+                   yield "--targetprofile:netcore"
+                   yield! getNetCoreAppFrameworkDependencies.Value
 #if !NETSTANDARD
                yield sprintf "-I:%s" (referenceAssemblyDirectory frameworkVersion)
                for ref in defaultReferences do

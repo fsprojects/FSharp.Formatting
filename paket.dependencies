@@ -1,11 +1,14 @@
 source https://api.nuget.org/v3/index.json
+framework: auto-detect
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
 nuget FSharp.Compiler.Service >= 33.0 lowest_matching:true
 nuget RazorEngine.NetCore >= 2.2.6 lowest_matching:true
-nuget Microsoft.AspNetCore.Razor >= 2.1.2 lowest_matching:true
-nuget Microsoft.AspNetCore.Razor.Runtime >= 2.1.2 lowest_matching:true
-nuget Microsoft.AspNetCore.Razor.Language >= 2.1.2 lowest_matching:true
+
+# force Razor v2 version
+nuget Microsoft.AspNetCore.Razor ~> 2.0
+nuget Microsoft.AspNetCore.Razor.Runtime ~> 2.0
+nuget Microsoft.AspNetCore.Razor.Language ~> 2.0
 
 nuget FSharp.Data
 nuget CommandLineParser ~> 1.0
