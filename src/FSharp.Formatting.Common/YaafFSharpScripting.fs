@@ -2,7 +2,7 @@ namespace Yaaf.FSharp.Scripting
 
 #nowarn "25" // Binding incomplete: let [ t ] = list
 
-module internal Env =
+module Env =
   let inline isNull o = obj.ReferenceEquals(null, o)
   let isMono = try System.Type.GetType("Mono.Runtime") |> isNull |> not with _ -> false
   let (++) a b = System.IO.Path.Combine(a,b)

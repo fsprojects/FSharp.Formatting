@@ -318,7 +318,13 @@ type CodeFormatAgent() =
             let mutable known = Set.empty
             { opts with
                 OtherOptions =
-                    Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
+                    [|
+                        yield sprintf "-r:%s" fsCore
+                        yield refCorLib
+                        if Env.isNetCoreApp then yield "--targetprofile:netcore"
+
+                        yield! opts.OtherOptions
+                    |]
                     |> Array.filter (fun item ->
                         if item.StartsWith "-r:" then
                             let fullPath = item.Substring 3
