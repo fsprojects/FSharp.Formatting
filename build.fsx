@@ -130,6 +130,7 @@ Target.create "Tests" (fun _ ->
             Blame = true
             NoBuild = true
             Configuration = DotNet.BuildConfiguration.Release
+            Logger = Some "trx"
         })
 )
 
