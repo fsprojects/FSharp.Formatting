@@ -28,13 +28,15 @@ let enabledSections =
 
 let getTests () =
   sample
-  |> Seq.mapi(fun i s ->
+  |> Seq.choose(fun s ->
     let test = TestCaseData(s.Section, s.Markdown, match s.Html with Some html -> html | None -> "")
     if enabledSections |> List.contains s.Section |> not then
-      test.Ignore("section is not enabled")
+      // test.Ignore("section is not enabled") // too verbose NUnit output
+      None
     elif s.Html.IsNone then
-      test.Ignore("html was not given in the test json")
-    else test)
+      // test.Ignore("html was not given in the test json") // too verbose NUnit output
+      None
+    else Some test)
 
 [<Test>]
 [<TestCaseSource("getTests")>]
