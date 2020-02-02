@@ -1,17 +1,12 @@
-language: csharp
-sudo: false
-dist: xenial
-mono: latest
-dotnet : 3.1.101
-addons:
-  apt:
-    packages:
-      - libunwind8
-install:
-  - export FrameworkPathOverride=$(dirname $(which mono))/../lib/mono/4.7.2-api/
+os: linux
+language: bash
+
+services:
+  - docker
 
 script:
- - ./build.sh
+  - docker build -t fsharp-formatting-build .
+  - docker run --rm fsharp-formatting-build ./build.sh -t NuGet
  
 branches:
   except:
