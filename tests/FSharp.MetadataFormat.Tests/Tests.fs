@@ -402,7 +402,7 @@ let ``MetadataFormat handles c# dlls`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
-    let library = testBin  </> "CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     //RazorMetadataFormat.Generate
     //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
@@ -414,7 +414,7 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
-    let library = testBin </> "CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     let files = generate [library] false
 
