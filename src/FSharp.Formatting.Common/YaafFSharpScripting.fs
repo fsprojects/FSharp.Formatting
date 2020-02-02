@@ -118,8 +118,6 @@ module internal CompilerServiceExtensions =
 #endif
 
       let getNetCoreAppFrameworkDependencies = lazy(
-        if not isNetCoreApp then [] else
-
         let options, _ = checker.GetProjectOptionsFromScript("foo.fsx", SourceText.ofString "module Foo", assumeDotNetFramework = false) |> Async.RunSynchronously
 
         options.OtherOptions
@@ -206,9 +204,9 @@ module internal CompilerServiceExtensions =
                yield "--nooptimizationdata"
                yield "--noframework"
 
-               if isNetCoreApp then
-                   yield "--targetprofile:netcore"
-                   yield! getNetCoreAppFrameworkDependencies.Value
+               if isNetCoreApp then yield "--targetprofile:netcore"
+
+               yield! getNetCoreAppFrameworkDependencies.Value
 #if !NETSTANDARD
                yield sprintf "-I:%s" (referenceAssemblyDirectory frameworkVersion)
                for ref in defaultReferences do
