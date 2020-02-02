@@ -5,6 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)</OutputPath>
+    <NoWarn>CS0067;CS1591;CS1574</NoWarn>
   </PropertyGroup>
 
   <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
