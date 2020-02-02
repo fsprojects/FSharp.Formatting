@@ -41,7 +41,7 @@ module private AspNetCoreRazorAssemblyLoader =
 //module tst =
 //#if INTERACTIVE
 //#r @"..\..\packages\Microsoft.AspNetCore.Razor.Language\lib\netstandard2.0\Microsoft.AspNetCore.Razor.Language.dll"
-//#endif
+//#endiff
 //    open System.Web.Razor
 //    open Microsoft.AspNetCore.Mvc.Razor.Extensions
 //    open Microsoft.AspNetCore.Razor.Language

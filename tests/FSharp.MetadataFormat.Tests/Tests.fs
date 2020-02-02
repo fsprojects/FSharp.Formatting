@@ -7,7 +7,7 @@ open NUnit.Framework
 open FSharp.MetadataFormat
 open FSharp.Formatting.Razor
 open FsUnitTyped
-open FSharp.Compiler.SourceCodeServices
+
 // --------------------------------------------------------------------------------------
 // Run the metadata formatter on sample project
 // --------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "files/bin/netstandard2.0" |> fullpath
+let testBin = AttributeTests.testBin
 
 let getOutputDir()  =
   let tempFile = Path.GetTempFileName()

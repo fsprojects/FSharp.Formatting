@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <OutputPath>..\bin</OutputPath>
+    <OutputPath>..\bin\$(Configuration)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Library2.fs" />

@@ -20,10 +20,23 @@ let fullpaths = List.map fullpath
 
 let root = __SOURCE_DIRECTORY__ |> fullpath
 
+let configuration =
+#if DEBUG
+    "Debug"
+#else
+    "Release"
+#endif
+
+let tfm =
+#if NETCOREAPP
+    "netstandard2.0"
+#else
+    "net472"
+#endif
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "files/bin/netstandard2.0" |> fullpath
+let testBin = __SOURCE_DIRECTORY__ </> "files/bin" </> configuration </> tfm |> fullpath
 
 #if INTERACTIVE 
 ;;
