@@ -10,3 +10,11 @@ test: off
 artifacts:
   - path: 'bin\*.nupkg'
     type: NuGetPackage
+
+
+on_finish:
+  - ps: >-
+      $wc = New-Object 'System.Net.WebClient';
+      Foreach ($file in Get-ChildItem './TestResults/*.trx') {
+        $wc.UploadFile("https://ci.appveyor.com/api/testresults/mstest/$($env:APPVEYOR_JOB_ID)", $file.FullName)
+      }
