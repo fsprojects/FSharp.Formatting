@@ -628,7 +628,7 @@ NUGET
       Fake.IO.FileSystem (>= 5.19) - restriction: || (>= net462) (>= netstandard2.0)
       FSharp.Core (>= 4.7) - restriction: || (>= net462) (>= netstandard2.0)
       System.ValueTuple (>= 4.4) - restriction: >= net462
-    FParsec (1.1) - restriction: || (>= net462) (>= netstandard2.0)
+    FParsec (1.1.1) - restriction: || (>= net462) (>= netstandard2.0)
       FSharp.Core (>= 4.3.4) - restriction: || (>= net45) (>= netstandard2.0)
       System.ValueTuple (>= 4.4) - restriction: >= net45
     FSharp.Control.Reactive (4.2) - restriction: || (>= net462) (>= netstandard2.0)

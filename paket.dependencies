@@ -9,13 +9,14 @@ nuget RazorEngine.NetCore >= 2.2.6 lowest_matching:true
 nuget Microsoft.AspNetCore.Razor ~> 2.0
 nuget Microsoft.AspNetCore.Razor.Runtime ~> 2.0
 nuget Microsoft.AspNetCore.Razor.Language ~> 2.0
-
-nuget FSharp.Data
 nuget CommandLineParser ~> 1.0
-nuget Microsoft.NET.Test.Sdk
+
+# testing dependencies
+nuget NUnit ~> 3.12
+nuget FsUnit ~> 3.8
+nuget FSharp.Data ~> 3.3
 nuget NUnit3TestAdapter
-nuget FsUnit
-nuget NUnit
+nuget Microsoft.NET.Test.Sdk
 
 group Build
     source https://api.nuget.org/v3/index.json
