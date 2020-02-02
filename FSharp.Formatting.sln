@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		build.sh = build.sh
 		Directory.Build.props = Directory.Build.props
 		Dockerfile = Dockerfile
+		.config\dotnet-tools.json = .config\dotnet-tools.json
 		nuget\FSharp.Formatting.CommandTool.nuspec = nuget\FSharp.Formatting.CommandTool.nuspec
 		packages\FSharp.Formatting\FSharp.Formatting.fsx = packages\FSharp.Formatting\FSharp.Formatting.fsx
 		nuget\FSharp.Formatting.nuspec = nuget\FSharp.Formatting.nuspec
@@ -123,7 +124,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Common", 
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.TestHelpers", "FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.TestHelpers", "tests\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AttributesTestLib", "tests\FSharp.MetadataFormat.Tests\files\AttributesTestLib\AttributesTestLib.fsproj", "{B266D118-15AE-4BE6-809E-E9E30CE5C62F}"
 EndProject

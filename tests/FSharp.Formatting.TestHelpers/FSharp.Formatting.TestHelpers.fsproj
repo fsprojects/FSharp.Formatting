@@ -10,7 +10,7 @@
     <None Include="Script.fsx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

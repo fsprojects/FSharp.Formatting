@@ -19,7 +19,7 @@
     <Compile Include="EvalTests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj" />
     <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />

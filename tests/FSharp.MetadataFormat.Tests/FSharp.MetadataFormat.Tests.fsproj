@@ -10,7 +10,7 @@
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
