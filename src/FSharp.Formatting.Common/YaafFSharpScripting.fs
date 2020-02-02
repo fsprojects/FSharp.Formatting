@@ -968,13 +968,19 @@ type internal FsiOptions =
 #else
     let includes = []
 #endif
-    let fsCore = FSharpAssemblyHelper.findFSCore [] includes
-    Log.verbf "Using FSharp.Core: %s" fsCore
-    { FsiOptions.Empty with
-        LibDirs = includes
-        NoFramework = true
-        References = [ fsCore ]
-        NonInteractive = true }
+    if isNetCoreApp then
+        { FsiOptions.Empty with
+            LibDirs = includes
+            NonInteractive = true }
+    else
+        let fsCore = FSharpAssemblyHelper.findFSCore [] includes
+        Log.verbf "Using FSharp.Core: %s" fsCore
+        { FsiOptions.Empty with
+            LibDirs = includes
+            NoFramework = true
+            References = [ fsCore ]
+            NonInteractive = true }
+
   static member ofArgs args =
     args
     |> Seq.fold (fun (parsed, state) (arg:string) ->
