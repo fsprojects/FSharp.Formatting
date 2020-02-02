@@ -16,6 +16,16 @@
     <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="files\AttributesTestLib\AttributesTestLib.fsproj" />
+    <ProjectReference Include="files\crefLib1\crefLib1.fsproj" />
+    <ProjectReference Include="files\crefLib2\crefLib2.fsproj" />
+    <ProjectReference Include="files\crefLib3\crefLib3.csproj" />
+    <ProjectReference Include="files\crefLib4\crefLib4.csproj" />
+    <ProjectReference Include="files\csharpSupport\csharpSupport.csproj" />
+    <ProjectReference Include="files\FsLib1\FsLib1.fsproj" />
+    <ProjectReference Include="files\FsLib2\FsLib2.fsproj" />
+    <ProjectReference Include="files\TestLib1\TestLib1.fsproj" />
+    <ProjectReference Include="files\TestLib2\TestLib2.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
