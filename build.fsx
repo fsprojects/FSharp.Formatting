@@ -171,7 +171,7 @@ let RunNuget publish apikey =
             Publish = publish
             Dependencies =
                 [ // We need Razor dependency in the package until we split out Razor into a separate package.
-                  "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNet.Razor" |> RequireRange BreakingPoint.SemVer
+                  "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNetCore.Razor" |> RequireRange BreakingPoint.SemVer
                   "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
                    ] })
         "NuGet/FSharp.Formatting.nuspec"
