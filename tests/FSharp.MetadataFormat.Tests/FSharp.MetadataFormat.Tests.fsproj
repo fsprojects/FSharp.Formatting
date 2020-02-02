@@ -10,12 +10,12 @@
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
