@@ -166,11 +166,11 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
-  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib2/Library2.fs#L"
   files.["fslib-record.html"] |> shouldContainText "github-link"
-  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
   files.["fslib-union.html"] |> shouldContainText "github-link"
-  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
 
   //#if INTERACTIVE
   //System.Diagnostics.Process.Start(output)
