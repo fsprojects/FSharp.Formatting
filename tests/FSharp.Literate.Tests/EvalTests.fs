@@ -130,7 +130,7 @@ printfn "%d" (40 + 2)
 
 
 [<Test>]
-let ``Can #load script with fsi.AddPrinter (without failing)`` () =
+let ``Can #load script with fsi-AddPrinter (without failing)`` () =
   // Generate a script file that uses 'fsi.AddPrinter' in the TEMP folder
   let file =  """namespace FsLab
 module Demo =
