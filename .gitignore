@@ -12,8 +12,7 @@ packages/*
 !packages/FSharp.Formatting
 packages/FSharp.Formatting/lib
 *.VisualState.xml
-TestResults.xml
-TestResult.xml
+TestResults/
 temp/
 tests/Benchmarks/testfiles/*/*.html
 misc/literate/output/content/
