@@ -30,14 +30,6 @@ open RazorEngine.Templating
 open RazorEngine.Configuration
 open RazorEngine.Compilation.ReferenceResolver
 
-module private AspNetCoreRazorAssemblyLoader =
-
-    // ensure required assemblies are loaded in the current assembly context
-    let private _t1 = typeof<Microsoft.AspNetCore.Razor.TagHelpers.ITagHelper>
-    let private _t2 = typeof<Microsoft.AspNetCore.Razor.Hosting.IRazorSourceChecksumMetadata>
-    let private _t3 = typeof<Microsoft.AspNetCore.Razor.Language.AllowedChildTagDescriptor>
-
-
 //module tst =
 //#if INTERACTIVE
 //#r @"..\..\packages\Microsoft.AspNetCore.Razor.Language\lib\netstandard2.0\Microsoft.AspNetCore.Razor.Language.dll"
@@ -259,6 +251,11 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
       if template.EndsWith(".cshtml") then
           template.Substring(0, template.Length - 7)
       else template
+
+  // ensure required razor dependencies are present in the current assembly load context
+  let _t1 = typeof<Microsoft.AspNetCore.Razor.TagHelpers.ITagHelper>
+  let _t2 = typeof<Microsoft.AspNetCore.Razor.Hosting.IRazorSourceChecksumMetadata>
+  let _t3 = typeof<Microsoft.AspNetCore.Razor.Language.AllowedChildTagDescriptor>
 
   let razorEngine = RazorEngineCache.Get layoutRoots namespaces references
   let handleCompile source f =
