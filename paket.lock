@@ -55,7 +55,7 @@ NUGET
     Microsoft.NET.Test.Sdk (16.4)
       Microsoft.CodeCoverage (>= 16.4) - restriction: || (== net472) (== netcoreapp3.1) (&& (== netstandard2.0) (>= net45)) (&& (== netstandard2.0) (>= netcoreapp2.1))
       Microsoft.TestPlatform.TestHost (>= 16.4) - restriction: || (&& (== net472) (>= netcoreapp2.1)) (== netcoreapp3.1) (&& (== netstandard2.0) (>= netcoreapp2.1))
-    Microsoft.NETCore.Platforms (3.1) - restriction: || (&& (== net472) (< net45)) (&& (== net472) (< net46)) (&& (== net472) (>= netcoreapp2.0)) (&& (== net472) (>= netcoreapp2.1)) (&& (== net472) (< netstandard1.0)) (&& (== net472) (< netstandard1.3)) (&& (== net472) (< netstandard1.5) (>= uap10.0)) (&& (== net472) (< portable-net45+win8+wpa81)) (&& (== net472) (>= uap10.1)) (&& (== net472) (>= wp8)) (== netcoreapp3.1) (== netstandard2.0)
+    Microsoft.NETCore.Platforms (3.1) - restriction: || (&& (== net472) (< net45)) (&& (== net472) (< net46)) (&& (== net472) (>= netcoreapp2.0)) (&& (== net472) (< netstandard1.0)) (&& (== net472) (< netstandard1.3)) (&& (== net472) (< netstandard1.5) (>= uap10.0)) (&& (== net472) (< portable-net45+win8+wpa81)) (&& (== net472) (>= uap10.1)) (&& (== net472) (>= wp8)) (== netcoreapp3.1) (== netstandard2.0)
     Microsoft.NETCore.Targets (3.1) - restriction: || (&& (== net472) (< net46)) (&& (== net472) (>= netcoreapp2.1)) (== netcoreapp3.1) (== netstandard2.0)
     Microsoft.TestPlatform.ObjectModel (16.4) - restriction: || (&& (== net472) (>= netcoreapp2.1)) (== netcoreapp3.1) (&& (== netstandard2.0) (>= netcoreapp2.1))
       NuGet.Frameworks (>= 5.0)
