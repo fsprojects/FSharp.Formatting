@@ -55,6 +55,7 @@ Target.create "AssemblyInfo" (fun _ ->
 
 Target.create "Clean" (fun _ ->
     !! "bin"
+    ++ artifactsDir
     ++ "temp"
     ++ "docs/output"
     ++ "tests/bin"
@@ -106,15 +107,25 @@ Target.create "NuGet" (fun _ ->
                     Properties = 
                         [("Version", release.NugetVersion)
                          ("PackageReleaseNotes", releaseNotes)] }
-        }) __SOURCE_DIRECTORY__
+        }) solutionFile
 )
 
 
 // Generate the documentation
 // --------------------------------------------------------------------------------------
 
+let toolPath = "temp"
 
-let commandToolPath = "bin" </> "net472" </> "fsformatting.exe"
+Target.create "InstallAsDotnetTool" (fun _ ->
+    let result =
+        DotNet.exec
+            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
+            "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
+
+    if not result.OK then failwith "failed to install dotnet tool"
+)
+
+let commandToolPath = toolPath </> "fsformatting" + (if Environment.isWindows then ".exe" else "")
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
         { info with
@@ -345,8 +356,9 @@ Target.create "CreateTestJson" (fun _ ->
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "Tests"
-  //==> "DogFoodCommandTool"
   ==> "NuGet"
+  ==> "InstallAsDotnetTool"
+  ==> "DogFoodCommandTool"
   ==> "GenerateDocs"
   ==> "All"
 
