@@ -91,11 +91,7 @@ subDirectories templates
                                    formatting + "/" + "templates/reference" ]))
 
 // Copy static files and CSS + JS from F# Formatting
-let copyFiles () =
-  copyRecursive files output 
-  //Directory.CreateDirectory (output + "/" + "content") |> ignore
-  //CopyRecursive (formatting + "/" + "styles") (output + "/" + "content") true
-  //  |> Log "Copying styles and scripts: "
+let copyFiles () = copyRecursive files output
 
 let binaries =
     referenceBinaries
