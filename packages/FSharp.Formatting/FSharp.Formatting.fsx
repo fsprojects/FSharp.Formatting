@@ -1,24 +1,17 @@
 #nowarn "211"
+
+// FSharp.Formatting repo context: uncomment for intellisense
+// #I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+
 // Standard NuGet or Paket location
 #I __SOURCE_DIRECTORY__
-#I "lib/net472"
-#r "../Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll"
-// Force load
-if (typeof<System.Web.Razor.ParserResults>.Assembly.GetName().Version.Major <= 2) then
-  failwith "Wrong System.Web.Razor Version loaded!"
-
-#r "../System.ValueTuple/lib/portable-net40+sl4+win8+wp8/System.ValueTuple.dll"
-
-// Standard NuGet locations
-//#I "../FSharp.Compiler.Service.22.0.3/lib/net45"
+#I "lib/netstandard2.0"
 
 // Standard Paket locations
-#I "../FSharp.Compiler.Service/lib/net45"
-//#I "../FSharpVSPowerTools.Core/lib/net45"
-
+#I "../FSharp.Compiler.Service/lib/netstandard2.0"
 
 // Reference VS PowerTools, Razor and F# Formatting components
-#r "RazorEngine.dll"
+#r "RazorEngine.NetCore.dll"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Markdown.dll"
 #r "FSharp.Literate.dll"
@@ -61,12 +54,6 @@ try
   if logToConsole then
     Logging.ConsoleListener()
     |> Logging.SetupListener noTraceOptions System.Diagnostics.SourceLevels.Verbose
-    |> setupListener
-
-  if logToFile then
-    if System.IO.File.Exists svclogFile then System.IO.File.Delete svclogFile
-    Logging.SvclogListener svclogFile
-    |> Logging.SetupListener allTraceOptions System.Diagnostics.SourceLevels.All
     |> setupListener
 
   // Test that everything works

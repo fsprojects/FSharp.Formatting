@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 #I __SOURCE_DIRECTORY__
-#I "../../src/FSharp.Formatting.Razor/bin/Release/netstandard2.0"
+#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
 #r "FSharp.CodeFormat.dll"
 #r "FSharp.Literate.dll"
 #r "FSharp.Markdown.dll"
@@ -15,8 +15,6 @@
 #r "Microsoft.AspNetCore.Razor.Language.dll"
 #r "RazorEngine.NetCore.dll"
 #r "FSharp.Formatting.Razor.dll"
-
-let t = typeof<Microsoft.AspNetCore.Razor.Hosting.RazorCompiledItem>
 
 open System.IO
 open FSharp.Formatting.Razor

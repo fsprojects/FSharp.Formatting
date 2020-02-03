@@ -18,10 +18,6 @@ nuget FSharp.Data ~> 3.3
 nuget NUnit3TestAdapter
 nuget Microsoft.NET.Test.Sdk
 
-group Build
-    source https://api.nuget.org/v3/index.json
-    nuget NuGet.CommandLine
-
 group Fake
     source https://api.nuget.org/v3/index.json
     storage: none

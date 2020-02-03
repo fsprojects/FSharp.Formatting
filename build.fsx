@@ -17,33 +17,18 @@ open Fake.IO.FileSystemOperators
 open Fake.DotNet
 open Fake.IO
 open Fake.Tools
-open Fake.DotNet.NuGet
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
-let projectTool = "FSharp.Formatting.CommandTool"
-
-let authors = ["Tomas Petricek"; "Oleg Pestov"; "Anh-Dung Phan"; "Xiang Zhang"; "Matthias Dittrich"]
-let authorsTool = ["Friedrich Boeckh"; "Tomas Petricek"]
 
 let summary = "A package of libraries for building great F# documentation, samples and blogs"
-let summaryTool = "A command line tool for building great F# documentation, samples and blogs"
-
-let description = """
-  The package is a collection of libraries that can be used for literate programming
-  with F# (great for building documentation) and for generating library documentation
-  from inline code comments. The key componments are Markdown parser, tools for formatting
-  F# code snippets, including tool tip type information and a tool for generating
-  documentation from library metadata."""
-let descriptionTool = """
-  The package contains a command line version of F# Formatting libraries, which
-  can be used for literate programming with F# (great for building documentation)
-  and for generating library documentation from inline code comments. The key componments
-  are Markdown parser, tools for formatting F# code snippets, including tool tip
-  type information and a tool for generating documentation from library metadata."""
 
 let license = "Apache 2.0 License"
-let tags = "F# fsharp formatting markdown code fssnip literate programming"
+
+let configuration = DotNet.BuildConfiguration.fromEnvironVarOrDefault "configuration" DotNet.BuildConfiguration.Release
+
+// Folder to deposit deploy artifacts
+let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
 
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
@@ -82,34 +67,6 @@ Target.create "Clean" (fun _ ->
     |> Seq.iter Directory.ensure
 )
 
-
-// Update the assembly version numbers in the script file.
-// --------------------------------------------------------------------------------------
-
-/// Gets the version no. for a given package in the deployments folder
-let getPackageVersion deploymentsDir package =
-    try
-        if Directory.Exists deploymentsDir |> not then
-            failwithf "Package %s was not found, because the deployment directory %s doesn't exist." package deploymentsDir
-        let version =
-            let dirs = Directory.GetDirectories(deploymentsDir, sprintf "%s*" package)
-            if Seq.isEmpty dirs then failwithf "Package %s was not found." package
-            let folder = Seq.head dirs
-            let index = folder.LastIndexOf package + package.Length + 1
-            if index < folder.Length then
-                folder.Substring index
-            else
-                let nuspec = Directory.GetFiles(folder, sprintf "%s.nuspec" package) |> Seq.head
-                let doc = Xml.Linq.XDocument.Load(nuspec)
-                let vers = doc.Descendants(Xml.Linq.XName.Get("version", doc.Root.Name.NamespaceName))
-                (Seq.head vers).Value
-
-        Trace.logfn "Version %s found for package %s" version package
-        version
-    with
-    | exn -> new Exception("Could not detect package version for " + package, exn) |> raise
-
-
 // Build library
 // --------------------------------------------------------------------------------------
 
@@ -119,7 +76,7 @@ Target.create "Build" (fun _ ->
     solutionFile
     |> DotNet.build (fun opts ->
         { opts with
-            Configuration = DotNet.BuildConfiguration.Release
+            Configuration = configuration
         })
 )
 
@@ -129,7 +86,7 @@ Target.create "Tests" (fun _ ->
         { opts with
             Blame = true
             NoBuild = true
-            Configuration = DotNet.BuildConfiguration.Release
+            Configuration = configuration
             ResultsDirectory = Some "TestResults"
             Logger = Some "trx"
         })
@@ -138,76 +95,19 @@ Target.create "Tests" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
-// TODO: Use FAKE Version
-type BreakingPoint =
-  | SemVer
-  | Minor
-  | Patch
-
-// See https://docs.nuget.org/create/versioning
-let RequireRange breakingPoint version =
-  let v = SemVer.parse version
-  match breakingPoint with
-  | SemVer ->
-    sprintf "[%s,%d.0)" version (int v.Major + 1)
-  | Minor -> // Like Semver but we assume that the increase of a minor version is already breaking
-    sprintf "[%s,%d.%d)" version v.Major (int v.Minor + 1)
-  | Patch -> // Every update breaks
-    version |> Fake.DotNet.NuGet.NuGet.RequireExactly
-
-let RunNuget publish apikey =
-
-    NuGet.NuGet (fun p ->
-        { p with
-            Authors = authors
-            Project = project
-            Summary = summary
-            Description = description
-            Version = release.NugetVersion
-            ReleaseNotes = String.toLines release.Notes
-            Tags = tags
-            OutputPath = "bin"
-            AccessKey = apikey
-            Publish = publish
-            Dependencies =
-                [ // We need Razor dependency in the package until we split out Razor into a separate package.
-                  "Microsoft.AspNet.Razor", getPackageVersion "packages" "Microsoft.AspNetCore.Razor" |> RequireRange BreakingPoint.SemVer
-                  "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer
-                   ] })
-        "NuGet/FSharp.Formatting.nuspec"
-
-    NuGet.NuGet (fun p ->
-        { p with
-            Authors = authors
-            Project = "FSharp.Literate"
-            Summary = summary
-            Description = description
-            Version = release.NugetVersion
-            ReleaseNotes = String.toLines release.Notes
-            Tags = tags
-            OutputPath = "bin"
-            AccessKey = apikey
-            Publish = publish
-            Dependencies =
-                [ "FSharp.Compiler.Service", getPackageVersion "packages" "FSharp.Compiler.Service" |> RequireRange BreakingPoint.SemVer ] })
-        "NuGet/FSharp.Literate.nuspec"
-
-    //NuGet.NuGet (fun p ->
-    //    { p with
-    //        Authors = authorsTool
-    //        Project = projectTool
-    //        Summary = summaryTool
-    //        Description = descriptionTool
-    //        Version = release.NugetVersion
-    //        ReleaseNotes = String.toLines release.Notes
-    //        Tags = tags
-    //        OutputPath = "bin"
-    //        AccessKey = apikey
-    //        Publish = publish
-    //        Dependencies = [] })
-    //    "NuGet/FSharp.Formatting.CommandTool.nuspec"
-
-Target.create "NuGet" (fun _ -> RunNuget false "")
+Target.create "NuGet" (fun _ ->
+    let releaseNotes = String.toLines release.Notes |> System.Net.WebUtility.HtmlEncode
+    DotNet.pack (fun pack ->
+        { pack with
+            OutputPath = Some artifactsDir 
+            Configuration = configuration
+            MSBuildParams =
+                { pack.MSBuildParams with
+                    Properties = 
+                        [("Version", release.NugetVersion)
+                         ("PackageReleaseNotes", releaseNotes)] }
+        }) __SOURCE_DIRECTORY__
+)
 
 
 // Generate the documentation
@@ -359,9 +259,14 @@ Target.create "ReleaseDocs" (fun _ ->
 let apikey =  Environment.environVarOrDefault "nugetkey" ""
 
 Target.create "PushPackagesToNugetOrg" (fun _ ->
-    if System.String.IsNullOrEmpty apikey then
-        failwith "could not push any nuget packages, because environment variable NUGETKEY was not set"
-    RunNuget true apikey
+    DotNet.nugetPush (fun opts ->
+        { opts with
+            PushParams =
+                { opts.PushParams with
+                    NoSymbols = true
+                    Source = Some "https://api.nuget.org/v3/index.json"
+                    ApiKey = Some apikey }
+        }) (artifactsDir + "/*")
 )
 
 Target.create "PushReleaseToGithub" (fun _ ->

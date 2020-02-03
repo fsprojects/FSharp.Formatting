@@ -465,11 +465,6 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
 
-GROUP Build
-NUGET
-  remote: https://api.nuget.org/v3/index.json
-    NuGet.CommandLine (5.4)
-
 GROUP Fake
 STORAGE: NONE
 NUGET

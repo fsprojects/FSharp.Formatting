@@ -2,6 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <!-- workaround for inlining p2p references in nuget; include custom target from Directory.Build.props -->
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -24,10 +27,10 @@
     <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
+    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" PrivateAssets="all" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

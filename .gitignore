@@ -36,3 +36,4 @@ fsbuild.targets
 _NCrunch_*
 *.ncrunchproject
 .ionide/
+artifacts/
