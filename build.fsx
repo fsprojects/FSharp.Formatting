@@ -356,9 +356,9 @@ Target.create "CreateTestJson" (fun _ ->
 
 "Root"
   ==> "Clean"
-  //==> "AssemblyInfo"
-  //==> "Build"
-  //==> "Tests"
+  ==> "AssemblyInfo"
+  ==> "Build"
+  ==> "Tests"
   ==> "NuGet"
   ==> "InstallAsDotnetTool"
   ==> "DogFoodCommandTool"
