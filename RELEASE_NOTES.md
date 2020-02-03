@@ -1,4 +1,4 @@
-## 3.2.0-alpha01
+## 4.0.0-alpha01
   - Add .NET Core support for all libraries.
   - Update to latest FSharp.Compiler.Service
 
