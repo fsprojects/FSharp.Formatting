@@ -27,11 +27,4 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
-
-  <!-- P2P nuget inlining workaround: c.f. http://yer.ac/blog/2019/09/05/dotnet-pack-project-reference-and-nuget-dependency/ -->
-  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
-    <ItemGroup>
-      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
-    </ItemGroup>
-  </Target>
 </Project>

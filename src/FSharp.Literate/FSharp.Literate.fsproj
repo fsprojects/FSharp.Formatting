@@ -3,8 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>true</IsPackable>
-    <!-- workaround for inlining p2p references in nuget; include custom target from Directory.Build.props -->
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -32,5 +30,15 @@
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" PrivateAssets="all" />
     <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" PrivateAssets="all" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <!-- ugly hack: inline p2p libraries in NuGet package
+         workaround for https://github.com/NuGet/Home/issues/3891 -->
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\CSharpFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.CodeFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Common.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Markdown.*" PackagePath="lib/$(TargetFramework)" />
+  </ItemGroup>
+  
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

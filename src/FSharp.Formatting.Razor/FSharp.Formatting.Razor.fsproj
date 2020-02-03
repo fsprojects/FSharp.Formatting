@@ -3,8 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>true</IsPackable>
-    <!-- workaround for inlining p2p references in nuget; include custom target from Directory.Build.props -->
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -25,9 +23,15 @@
     <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- ugly hack: inline p2p libraries in NuGet package
+         workaround for https://github.com/NuGet/Home/issues/3891 -->
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.MetadataFormat.*" PackagePath="lib/$(TargetFramework)" />
+  </ItemGroup>
+
   <!-- Since Paket.Restore.targets isn't capable of expressing this,
         override AspNetCore packages to properly constrain the generated nuget package -->
-  <ItemGroup Condition="'$(PackageOutputPath)' != ''">
+  <ItemGroup>
     <PackageReference Include="RazorEngine.NetCore" Version="[2.2.6, 3.0)" />
     <PackageReference Include="Microsoft.AspNetCore.Razor" Version="[2.2, 3.0)" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Runtime" Version="[2.2, 3.0)" />
