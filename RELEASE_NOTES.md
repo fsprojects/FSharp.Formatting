@@ -1,3 +1,7 @@
+## 3.2.0-alpha01
+  - Add .NET Core support for all libraries.
+  - Update to latest FSharp.Compiler.Service
+
 ## 3.1.0
   - remove beta tag since it is already widely used
 

@@ -78,6 +78,9 @@ Target.create "Build" (fun _ ->
     |> DotNet.build (fun opts ->
         { opts with
             Configuration = configuration
+            MSBuildParams =
+                { opts.MSBuildParams with
+                    Properties = [("Version", release.NugetVersion)] }
         })
 )
 
@@ -122,7 +125,7 @@ Target.create "InstallAsDotnetTool" (fun _ ->
             (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
             "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
 
-    if not result.OK then failwith "failed to install dotnet tool"
+    if not result.OK then failwith "failed to install fsformatting as dotnet tool"
 )
 
 let commandToolPath = toolPath </> "fsformatting" + (if Environment.isWindows then ".exe" else "")
@@ -353,9 +356,9 @@ Target.create "CreateTestJson" (fun _ ->
 
 "Root"
   ==> "Clean"
-  ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "Tests"
+  //==> "AssemblyInfo"
+  //==> "Build"
+  //==> "Tests"
   ==> "NuGet"
   ==> "InstallAsDotnetTool"
   ==> "DogFoodCommandTool"
