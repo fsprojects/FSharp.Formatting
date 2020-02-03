@@ -2,7 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <OutputPath>..\bin\$(Configuration)</OutputPath>
   </PropertyGroup>
   <ItemGroup>

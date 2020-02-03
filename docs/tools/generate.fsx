@@ -16,6 +16,7 @@
 #r "RazorEngine.NetCore.dll"
 #r "FSharp.Formatting.Razor.dll"
 
+open System
 open System.IO
 open FSharp.Formatting.Razor
 
@@ -24,10 +25,10 @@ open FSharp.Formatting.Razor
 // --------------------------------------------------------------------------------------
 let subDirectories (dir: string) = Directory.EnumerateDirectories dir 
 
-let rec copyRecursive dir1 dir2 = 
+let rec copyRecursive dir1 dir2 =
   Directory.CreateDirectory dir2 |> ignore
   for subdir1 in Directory.EnumerateDirectories dir1 do
-       let subdir2 = Path.Combine(dir2, Path.GetDirectoryName subdir1)
+       let subdir2 = Path.Combine(dir2, Path.GetFileName subdir1)
        copyRecursive subdir1 subdir2
   for file in Directory.EnumerateFiles dir1 do
        File.Copy(file, file.Replace(dir1, dir2), true)
@@ -38,7 +39,7 @@ let rec copyRecursive dir1 dir2 =
 
 // Web site location for the generated documentation
 #if TESTING
-let website = __SOURCE_DIRECTORY__ + "../output"
+let website = __SOURCE_DIRECTORY__ + "/../output" |> Path.GetFullPath |> Uri |> string
 #else
 let website = "/FSharp.Formatting"
 #endif
@@ -62,16 +63,12 @@ let referenceBinaries =
 
 // When called from 'build.fsx', use the public project URL as <root>
 // otherwise, use the current 'output' directory.
-#if RELEASE
 let root = website
-#else
-let root = "file://" + (__SOURCE_DIRECTORY__ + "/" + "../output")
-#endif
 
 Directory.SetCurrentDirectory (__SOURCE_DIRECTORY__)
 
 // Paths with template/source/output locations
-let bin        = "../../bin"
+let bin        = "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
 let content    = "../content"
 let output     = "../output"
 let files      = "../files"
@@ -96,7 +93,7 @@ subDirectories templates
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
   copyRecursive files output 
-  Directory.CreateDirectory (output + "/" + "content") |> ignore
+  //Directory.CreateDirectory (output + "/" + "content") |> ignore
   //CopyRecursive (formatting + "/" + "styles") (output + "/" + "content") true
   //  |> Log "Copying styles and scripts: "
 
