@@ -1,4 +1,6 @@
-﻿(**
+(*** hide ***)
+#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+(**
 F# Formatting: Markdown parser
 ==============================
 
@@ -9,8 +11,8 @@ how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../../bin/FSharp.Formatting.Common.dll"
-#r "../../bin/FSharp.Markdown.dll"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Markdown.dll"
 open FSharp.Markdown
 open FSharp.Formatting.Common
 

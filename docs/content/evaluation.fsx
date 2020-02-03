@@ -1,4 +1,4 @@
-﻿(**
+(**
 F# Formatting: Output embedding
 ===============================
 
@@ -77,8 +77,11 @@ Specifying the evaluator and formatting
 *)
 
 (*** hide ***)
-#nowarn "211"
-#load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
+#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Markdown.dll"
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.Literate.dll"
 (**
 The embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).

@@ -1,4 +1,6 @@
-﻿(**
+(*** hide ***)
+#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+(**
 F# Formatting: Code formatting
 ==============================
 
@@ -9,7 +11,7 @@ from the type-checker) and how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../../bin/FSharp.CodeFormat.dll"
+#r "FSharp.CodeFormat.dll"
 open FSharp.CodeFormat
 open System.Reflection
 
