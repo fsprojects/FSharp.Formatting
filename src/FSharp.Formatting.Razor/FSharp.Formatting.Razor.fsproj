@@ -2,6 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <!-- workaround for inlining p2p references in nuget; include custom target from Directory.Build.props -->
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -18,11 +21,18 @@
     <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" PrivateAssets="All" />
   </ItemGroup>
+
+  <!-- Since Paket.Restore.targets isn't capable of expressing this,
+        override AspNetCore packages to properly constrain the generated nuget package -->
+  <ItemGroup Condition="'$(PackageOutputPath)' != ''">
+    <PackageReference Include="RazorEngine.NetCore" Version="[2.2.6, 3.0)" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor" Version="[2.2, 3.0)" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Runtime" Version="[2.2, 3.0)" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="[2.2, 3.0)" />
+  </ItemGroup>
+  
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

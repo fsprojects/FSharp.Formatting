@@ -3,13 +3,13 @@ framework: auto-detect
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
 nuget FSharp.Compiler.Service >= 33.0 lowest_matching:true
-nuget RazorEngine.NetCore >= 2.2.6 lowest_matching:true
+nuget RazorEngine.NetCore ~> 2.2.6 lowest_matching:true
+nuget CommandLineParser ~> 1.0
 
-# force Razor v2 version
+# pin AspNetCore Razor dependencies to v2
 nuget Microsoft.AspNetCore.Razor ~> 2.0
 nuget Microsoft.AspNetCore.Razor.Runtime ~> 2.0
 nuget Microsoft.AspNetCore.Razor.Language ~> 2.0
-nuget CommandLineParser ~> 1.0
 
 # testing dependencies
 nuget NUnit ~> 3.12
