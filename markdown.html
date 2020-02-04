@@ -34,8 +34,7 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          
-<h1><a name="F-Formatting-Markdown-parser" class="anchor" href="#F-Formatting-Markdown-parser">F# Formatting: Markdown parser</a></h1>
+          <h1><a name="F-Formatting-Markdown-parser" class="anchor" href="#F-Formatting-Markdown-parser">F# Formatting: Markdown parser</a></h1>
 <p>This page demonstrates how to use <code>FSharp.Markdown.dll</code> to parse a Markdown
 document, process the obtained document representation and
 how to turn the code into a nicely formatted HTML.</p>
@@ -45,10 +44,10 @@ how to turn the code into a nicely formatted HTML.</p>
 <span class="l">3: </span>
 <span class="l">4: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;../../bin/FSharp.Formatting.Common.dll&quot;</span>
-<span class="pp">#r</span> <span class="s">&quot;../../bin/FSharp.Markdown.dll&quot;</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Markdown</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 2)" onmouseover="showTip(event, 'fs1', 2)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">Common</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;FSharp.Formatting.Common.dll&quot;</span>
+<span class="pp">#r</span> <span class="s">&quot;FSharp.Markdown.dll&quot;</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">Markdown</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="id">FSharp</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="id">Formatting</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs4', 5)" onmouseover="showTip(event, 'fs4', 5)" class="id">Common</span>
 </code></pre></td>
 </tr>
 </table>
@@ -69,7 +68,7 @@ with several elements and then parses it using the <code>Markdown.Parse</code> m
 <span class="l">10: </span>
 <span class="l">11: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="id">document</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 6)" onmouseover="showTip(event, 'fs5', 6)" class="id">document</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s"># F# Hello world</span>
 <span class="s">Hello world in [F#](http://fsharp.net) looks like this:</span>
 
@@ -79,7 +78,7 @@ with several elements and then parses it using the <code>Markdown.Parse</code> m
 
 <span class="s">  [fsorg]: http://fsharp.org &quot;The F# organization.&quot; &quot;&quot;&quot;</span>
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 4)" onmouseover="showTip(event, 'fs3', 4)" class="id">parsed</span> <span class="o">=</span> <span class="id">Markdown</span><span class="pn">.</span><span class="id">Parse</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs2', 5)" onmouseover="showTip(event, 'fs2', 5)" class="id">document</span><span class="pn">)</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 7)" onmouseover="showTip(event, 'fs6', 7)" class="id">parsed</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="rt">Markdown</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="id">Parse</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="id">document</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
@@ -98,7 +97,7 @@ returns all indirect link definitions:</p>
 <span class="l">2: </span>
 <span class="l">3: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 6)" onmouseover="showTip(event, 'fs3', 6)" class="id">parsed</span><span class="pn">.</span><span class="id">DefinedLinks</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs6', 11)" onmouseover="showTip(event, 'fs6', 11)" class="id">parsed</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="id">DefinedLinks</span>
 <span class="fsi">val it : IDictionary&lt;string,(string * string option)&gt; =</span>
 <span class="fsi">  dict [(&quot;fsorg&quot;, (&quot;http://fsharp.org&quot;, Some &quot;The F# organization.&quot;))]</span>
 </code></pre></td>
@@ -117,12 +116,12 @@ The following snippet prints the heading of the document:</p>
 <span class="l">8: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Iterate over all the paragraph elements</span>
-<span class="k">for</span> <span onmouseout="hideTip(event, 'fs4', 7)" onmouseover="showTip(event, 'fs4', 7)" class="id">par</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs3', 8)" onmouseover="showTip(event, 'fs3', 8)" class="id">parsed</span><span class="pn">.</span><span class="id">Paragraphs</span> <span class="k">do</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs4', 9)" onmouseover="showTip(event, 'fs4', 9)" class="id">par</span> <span class="k">with</span>
-  <span class="pn">|</span> <span class="id">Heading</span><span class="pn">(</span><span class="id">size</span><span class="o">=</span><span class="n">1</span><span class="pn">;</span> <span class="id">body</span><span class="o">=</span><span class="pn">[</span><span onmouseout="hideTip(event, 'fs5', 10)" onmouseover="showTip(event, 'fs5', 10)" class="id">Literal</span><span class="pn">(</span><span class="id">text</span><span class="o">=</span><span class="id">text</span><span class="pn">)</span><span class="pn">]</span><span class="pn">)</span> <span class="k">-&gt;</span> 
+<span class="k">for</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="id">par</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="id">parsed</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs11', 15)" onmouseover="showTip(event, 'fs11', 15)" class="id">Paragraphs</span> <span class="k">do</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs10', 16)" onmouseover="showTip(event, 'fs10', 16)" class="id">par</span> <span class="k">with</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs12', 17)" onmouseover="showTip(event, 'fs12', 17)" class="uc">Heading</span><span class="pn">(</span><span class="id">size</span><span class="o">=</span><span class="n">1</span><span class="pn">;</span> <span class="id">body</span><span class="o">=</span><span class="pn">[</span><span onmouseout="hideTip(event, 'fs13', 18)" onmouseover="showTip(event, 'fs13', 18)" class="uc">Literal</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs14', 19)" onmouseover="showTip(event, 'fs14', 19)" class="id">text</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="id">text</span><span class="pn">)</span><span class="pn">]</span><span class="pn">)</span> <span class="k">-&gt;</span> 
       <span class="c">// Recognize heading that has a simple content</span>
       <span class="c">// containing just a literal (no other formatting)</span>
-      <span onmouseout="hideTip(event, 'fs6', 11)" onmouseover="showTip(event, 'fs6', 11)" class="id">printfn</span> <span class="s">&quot;%s&quot;</span> <span class="id">text</span>
+      <span onmouseout="hideTip(event, 'fs15', 21)" onmouseover="showTip(event, 'fs15', 21)" class="fn">printfn</span> <span class="s">&quot;</span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="id">text</span>
   <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
@@ -163,26 +162,26 @@ to recognize any paragraph or span that can contain child elements:</p>
 <span class="l">23: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Returns all links in a specified span node</span>
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="fn">collectSpanLinks</span> <span onmouseout="hideTip(event, 'fs8', 13)" onmouseover="showTip(event, 'fs8', 13)" class="id">span</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs9', 14)" onmouseover="showTip(event, 'fs9', 14)" class="k">seq</span> <span class="pn">{</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="id">span</span> <span class="k">with</span>
-  <span class="pn">|</span> <span class="id">DirectLink</span><span class="pn">(</span><span class="id">link</span><span class="o">=</span><span class="id">url</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="k">yield</span> <span class="id">url</span>
-  <span class="pn">|</span> <span class="id">IndirectLink</span><span class="pn">(</span><span class="id">key</span><span class="o">=</span><span class="id">key</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs10', 16)" onmouseover="showTip(event, 'fs10', 16)" class="id">fst</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs3', 17)" onmouseover="showTip(event, 'fs3', 17)" class="id">parsed</span><span class="pn">.</span><span class="id">DefinedLinks</span><span class="pn">.</span><span class="pn">[</span><span class="id">key</span><span class="pn">]</span><span class="pn">)</span>
-  <span class="pn">|</span> <span class="id">Matching</span><span class="pn">.</span><span class="id">SpanLeaf</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
-  <span class="pn">|</span> <span class="id">Matching</span><span class="pn">.</span><span class="id">SpanNode</span><span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="id">spans</span><span class="pn">)</span> <span class="k">-&gt;</span>
-      <span class="k">for</span> <span class="id">s</span> <span class="k">in</span> <span class="id">spans</span> <span class="k">do</span> <span class="k">yield!</span> <span onmouseout="hideTip(event, 'fs7', 18)" onmouseover="showTip(event, 'fs7', 18)" class="id">collectSpanLinks</span> <span class="id">s</span> <span class="pn">}</span>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs16', 23)" onmouseover="showTip(event, 'fs16', 23)" class="fn">collectSpanLinks</span> <span onmouseout="hideTip(event, 'fs17', 24)" onmouseover="showTip(event, 'fs17', 24)" class="id">span</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 25)" onmouseover="showTip(event, 'fs18', 25)" class="k">seq</span> <span class="pn">{</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs17', 26)" onmouseover="showTip(event, 'fs17', 26)" class="id">span</span> <span class="k">with</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs19', 27)" onmouseover="showTip(event, 'fs19', 27)" class="uc">DirectLink</span><span class="pn">(</span><span class="id">link</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs20', 28)" onmouseover="showTip(event, 'fs20', 28)" class="id">url</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs20', 29)" onmouseover="showTip(event, 'fs20', 29)" class="id">url</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs21', 30)" onmouseover="showTip(event, 'fs21', 30)" class="uc">IndirectLink</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs22', 31)" onmouseover="showTip(event, 'fs22', 31)" class="id">key</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs22', 32)" onmouseover="showTip(event, 'fs22', 32)" class="id">key</span><span class="pn">)</span> <span class="k">-&gt;</span> <span class="k">yield</span> <span onmouseout="hideTip(event, 'fs23', 33)" onmouseover="showTip(event, 'fs23', 33)" class="fn">fst</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs6', 34)" onmouseover="showTip(event, 'fs6', 34)" class="id">parsed</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs9', 35)" onmouseover="showTip(event, 'fs9', 35)" class="id">DefinedLinks</span><span class="pn">.</span><span class="pn">[</span><span onmouseout="hideTip(event, 'fs22', 36)" onmouseover="showTip(event, 'fs22', 36)" class="id">key</span><span class="pn">]</span><span class="pn">)</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs24', 37)" onmouseover="showTip(event, 'fs24', 37)" class="m">Matching</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs25', 38)" onmouseover="showTip(event, 'fs25', 38)" class="id">SpanLeaf</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs24', 39)" onmouseover="showTip(event, 'fs24', 39)" class="m">Matching</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs26', 40)" onmouseover="showTip(event, 'fs26', 40)" class="id">SpanNode</span><span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs27', 41)" onmouseover="showTip(event, 'fs27', 41)" class="id">spans</span><span class="pn">)</span> <span class="k">-&gt;</span>
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs28', 42)" onmouseover="showTip(event, 'fs28', 42)" class="id">s</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs27', 43)" onmouseover="showTip(event, 'fs27', 43)" class="id">spans</span> <span class="k">do</span> <span class="k">yield!</span> <span onmouseout="hideTip(event, 'fs16', 44)" onmouseover="showTip(event, 'fs16', 44)" class="fn">collectSpanLinks</span> <span onmouseout="hideTip(event, 'fs28', 45)" onmouseover="showTip(event, 'fs28', 45)" class="id">s</span> <span class="pn">}</span>
       
 <span class="c">/// Returns all links in the specified paragraph node</span>
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs11', 19)" onmouseover="showTip(event, 'fs11', 19)" class="fn">collectParLinks</span> <span onmouseout="hideTip(event, 'fs12', 20)" onmouseover="showTip(event, 'fs12', 20)" class="id">par</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs9', 21)" onmouseover="showTip(event, 'fs9', 21)" class="k">seq</span> <span class="pn">{</span>
-  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs12', 22)" onmouseover="showTip(event, 'fs12', 22)" class="id">par</span> <span class="k">with</span>
-  <span class="pn">|</span> <span class="id">Matching</span><span class="pn">.</span><span class="id">ParagraphLeaf</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
-  <span class="pn">|</span> <span class="id">Matching</span><span class="pn">.</span><span class="id">ParagraphNested</span><span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="id">pars</span><span class="pn">)</span> <span class="k">-&gt;</span> 
-      <span class="k">for</span> <span class="id">ps</span> <span class="k">in</span> <span class="id">pars</span> <span class="k">do</span> 
-        <span class="k">for</span> <span class="id">p</span> <span class="k">in</span> <span class="id">ps</span> <span class="k">do</span> <span class="k">yield!</span> <span onmouseout="hideTip(event, 'fs11', 23)" onmouseover="showTip(event, 'fs11', 23)" class="id">collectParLinks</span> <span class="id">p</span> 
-  <span class="pn">|</span> <span class="id">Matching</span><span class="pn">.</span><span class="id">ParagraphSpans</span><span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span class="id">spans</span><span class="pn">)</span> <span class="k">-&gt;</span>
-      <span class="k">for</span> <span class="id">s</span> <span class="k">in</span> <span class="id">spans</span> <span class="k">do</span> <span class="k">yield!</span> <span onmouseout="hideTip(event, 'fs7', 24)" onmouseover="showTip(event, 'fs7', 24)" class="id">collectSpanLinks</span> <span class="id">s</span> <span class="pn">}</span>
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs29', 46)" onmouseover="showTip(event, 'fs29', 46)" class="fn">collectParLinks</span> <span onmouseout="hideTip(event, 'fs10', 47)" onmouseover="showTip(event, 'fs10', 47)" class="id">par</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 48)" onmouseover="showTip(event, 'fs18', 48)" class="k">seq</span> <span class="pn">{</span>
+  <span class="k">match</span> <span onmouseout="hideTip(event, 'fs10', 49)" onmouseover="showTip(event, 'fs10', 49)" class="id">par</span> <span class="k">with</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs24', 50)" onmouseover="showTip(event, 'fs24', 50)" class="m">Matching</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs30', 51)" onmouseover="showTip(event, 'fs30', 51)" class="id">ParagraphLeaf</span> <span class="id">_</span> <span class="k">-&gt;</span> <span class="pn">(</span><span class="pn">)</span>
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs24', 52)" onmouseover="showTip(event, 'fs24', 52)" class="m">Matching</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs31', 53)" onmouseover="showTip(event, 'fs31', 53)" class="id">ParagraphNested</span><span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs32', 54)" onmouseover="showTip(event, 'fs32', 54)" class="id">pars</span><span class="pn">)</span> <span class="k">-&gt;</span> 
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs33', 55)" onmouseover="showTip(event, 'fs33', 55)" class="id">ps</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs32', 56)" onmouseover="showTip(event, 'fs32', 56)" class="id">pars</span> <span class="k">do</span> 
+        <span class="k">for</span> <span onmouseout="hideTip(event, 'fs34', 57)" onmouseover="showTip(event, 'fs34', 57)" class="id">p</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs33', 58)" onmouseover="showTip(event, 'fs33', 58)" class="id">ps</span> <span class="k">do</span> <span class="k">yield!</span> <span onmouseout="hideTip(event, 'fs29', 59)" onmouseover="showTip(event, 'fs29', 59)" class="fn">collectParLinks</span> <span onmouseout="hideTip(event, 'fs34', 60)" onmouseover="showTip(event, 'fs34', 60)" class="id">p</span> 
+  <span class="pn">|</span> <span onmouseout="hideTip(event, 'fs24', 61)" onmouseover="showTip(event, 'fs24', 61)" class="m">Matching</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs35', 62)" onmouseover="showTip(event, 'fs35', 62)" class="id">ParagraphSpans</span><span class="pn">(</span><span class="id">_</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs27', 63)" onmouseover="showTip(event, 'fs27', 63)" class="id">spans</span><span class="pn">)</span> <span class="k">-&gt;</span>
+      <span class="k">for</span> <span onmouseout="hideTip(event, 'fs28', 64)" onmouseover="showTip(event, 'fs28', 64)" class="id">s</span> <span class="k">in</span> <span onmouseout="hideTip(event, 'fs27', 65)" onmouseover="showTip(event, 'fs27', 65)" class="id">spans</span> <span class="k">do</span> <span class="k">yield!</span> <span onmouseout="hideTip(event, 'fs16', 66)" onmouseover="showTip(event, 'fs16', 66)" class="fn">collectSpanLinks</span> <span onmouseout="hideTip(event, 'fs28', 67)" onmouseover="showTip(event, 'fs28', 67)" class="id">s</span> <span class="pn">}</span>
 
 <span class="c">/// Collect links in the entire document</span>
-<span onmouseout="hideTip(event, 'fs13', 25)" onmouseover="showTip(event, 'fs13', 25)" class="m">Seq</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs14', 26)" onmouseover="showTip(event, 'fs14', 26)" class="id">collect</span> <span onmouseout="hideTip(event, 'fs11', 27)" onmouseover="showTip(event, 'fs11', 27)" class="fn">collectParLinks</span> <span onmouseout="hideTip(event, 'fs3', 28)" onmouseover="showTip(event, 'fs3', 28)" class="id">parsed</span><span class="pn">.</span><span class="id">Paragraphs</span>
+<span onmouseout="hideTip(event, 'fs36', 68)" onmouseover="showTip(event, 'fs36', 68)" class="m">Seq</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs37', 69)" onmouseover="showTip(event, 'fs37', 69)" class="id">collect</span> <span onmouseout="hideTip(event, 'fs29', 70)" onmouseover="showTip(event, 'fs29', 70)" class="fn">collectParLinks</span> <span onmouseout="hideTip(event, 'fs6', 71)" onmouseover="showTip(event, 'fs6', 71)" class="id">parsed</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs11', 72)" onmouseover="showTip(event, 'fs11', 72)" class="id">Paragraphs</span>
 <span class="fsi">val it : seq&lt;string&gt; =</span>
 <span class="fsi">  seq [&quot;http://fsharp.net&quot;; &quot;http://fsharp.org&quot;]</span>
 </code></pre></td>
@@ -210,28 +209,52 @@ paragraphs that contain normal text - here we call <code>collectSpanLinks</code>
 to generate an HTML document from the Markdown input. The following example shows how to call it:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 29)" onmouseover="showTip(event, 'fs15', 29)" class="id">html</span> <span class="o">=</span> <span class="id">Markdown</span><span class="pn">.</span><span class="id">WriteHtml</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs3', 30)" onmouseover="showTip(event, 'fs3', 30)" class="id">parsed</span><span class="pn">)</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 73)" onmouseover="showTip(event, 'fs38', 73)" class="id">html</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs7', 74)" onmouseover="showTip(event, 'fs7', 74)" class="rt">Markdown</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs39', 75)" onmouseover="showTip(event, 'fs39', 75)" class="id">WriteHtml</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs6', 76)" onmouseover="showTip(event, 'fs6', 76)" class="id">parsed</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
 <p>In addition, you can also use <code>Markdown.TransformHtml</code> to directly turn an input document
 in the Markdown format into an HTML document (without the intermediate step).</p>
 
-<div class="tip" id="fs1">namespace Microsoft.FSharp</div>
-<div class="tip" id="fs2">val document : string</div>
-<div class="tip" id="fs3">val parsed : obj</div>
-<div class="tip" id="fs4">val par : obj</div>
-<div class="tip" id="fs5">Multiple items<br />type LiteralAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; LiteralAttribute<br /><br />--------------------<br />new : unit -&gt; LiteralAttribute</div>
-<div class="tip" id="fs6">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
-<div class="tip" id="fs7">val collectSpanLinks : span:&#39;a -&gt; seq&lt;&#39;b&gt;<br /><em><br /><br />&#160;Returns all links in a specified span node</em></div>
-<div class="tip" id="fs8">val span : &#39;a</div>
-<div class="tip" id="fs9">Multiple items<br />val seq : sequence:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />--------------------<br />type seq&lt;&#39;T&gt; = System.Collections.Generic.IEnumerable&lt;&#39;T&gt;</div>
-<div class="tip" id="fs10">val fst : tuple:(&#39;T1 * &#39;T2) -&gt; &#39;T1</div>
-<div class="tip" id="fs11">val collectParLinks : par:&#39;a -&gt; seq&lt;&#39;b&gt;<br /><em><br /><br />&#160;Returns all links in the specified paragraph node</em></div>
-<div class="tip" id="fs12">val par : &#39;a</div>
-<div class="tip" id="fs13">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
-<div class="tip" id="fs14">val collect : mapping:(&#39;T -&gt; #seq&lt;&#39;U&gt;) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;U&gt;</div>
-<div class="tip" id="fs15">val html : obj<br /><em><br /><br />&#160;Collect links in the entire document</em></div>
+<div class="tip" id="fs1">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+<div class="tip" id="fs2">namespace FSharp.Markdown</div>
+<div class="tip" id="fs3">namespace FSharp.Formatting</div>
+<div class="tip" id="fs4">namespace FSharp.Formatting.Common</div>
+<div class="tip" id="fs5">val document : string</div>
+<div class="tip" id="fs6">val parsed : MarkdownDocument</div>
+<div class="tip" id="fs7">type Markdown =<br />&#160;&#160;static member Parse : text:string -&gt; MarkdownDocument<br />&#160;&#160;static member Parse : text:string * newline:string -&gt; MarkdownDocument<br />&#160;&#160;static member TransformHtml : text:string -&gt; string<br />&#160;&#160;static member TransformHtml : text:string * newline:string -&gt; string<br />&#160;&#160;static member TransformHtml : text:string * writer:TextWriter -&gt; unit<br />&#160;&#160;static member TransformHtml : text:string * writer:TextWriter * newline:string -&gt; unit<br />&#160;&#160;static member TransformLatex : text:string -&gt; string<br />&#160;&#160;static member TransformLatex : text:string * newline:string -&gt; string<br />&#160;&#160;static member TransformLatex : text:string * writer:TextWriter -&gt; unit<br />&#160;&#160;static member TransformLatex : text:string * writer:TextWriter * newline:string -&gt; unit<br />&#160;&#160;...</div>
+<div class="tip" id="fs8">static member Markdown.Parse : text:string -&gt; MarkdownDocument<br />static member Markdown.Parse : text:string * newline:string -&gt; MarkdownDocument</div>
+<div class="tip" id="fs9">property MarkdownDocument.DefinedLinks: System.Collections.Generic.IDictionary&lt;string,(string * string option)&gt; with get</div>
+<div class="tip" id="fs10">val par : MarkdownParagraph</div>
+<div class="tip" id="fs11">property MarkdownDocument.Paragraphs: MarkdownParagraphs with get</div>
+<div class="tip" id="fs12">union case MarkdownParagraph.Heading: size: int * body: MarkdownSpans * range: MarkdownRange option -&gt; MarkdownParagraph</div>
+<div class="tip" id="fs13">Multiple items<br />union case MarkdownSpan.Literal: text: string * range: MarkdownRange option -&gt; MarkdownSpan<br /><br />--------------------<br />type LiteralAttribute =<br />&#160;&#160;inherit Attribute<br />&#160;&#160;new : unit -&gt; LiteralAttribute<br /><br />--------------------<br />new : unit -&gt; LiteralAttribute</div>
+<div class="tip" id="fs14">val text : string</div>
+<div class="tip" id="fs15">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T</div>
+<div class="tip" id="fs16">val collectSpanLinks : span:MarkdownSpan -&gt; seq&lt;string&gt;<br /><em><br /><br />&#160;Returns all links in a specified span node</em></div>
+<div class="tip" id="fs17">val span : MarkdownSpan</div>
+<div class="tip" id="fs18">Multiple items<br />val seq : sequence:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />--------------------<br />type seq&lt;&#39;T&gt; = System.Collections.Generic.IEnumerable&lt;&#39;T&gt;</div>
+<div class="tip" id="fs19">union case MarkdownSpan.DirectLink: body: MarkdownSpans * link: string * title: string option * range: MarkdownRange option -&gt; MarkdownSpan</div>
+<div class="tip" id="fs20">val url : string</div>
+<div class="tip" id="fs21">union case MarkdownSpan.IndirectLink: body: MarkdownSpans * original: string * key: string * range: MarkdownRange option -&gt; MarkdownSpan</div>
+<div class="tip" id="fs22">val key : string</div>
+<div class="tip" id="fs23">val fst : tuple:(&#39;T1 * &#39;T2) -&gt; &#39;T1</div>
+<div class="tip" id="fs24">module Matching<br /><br />from FSharp.Markdown</div>
+<div class="tip" id="fs25">Multiple items<br />val SpanLeaf : Matching.SpanLeafInfo -&gt; MarkdownSpan<br /><br />--------------------<br />active recognizer SpanLeaf: MarkdownSpan -&gt; Choice&lt;Matching.SpanLeafInfo,(Matching.SpanNodeInfo * MarkdownSpans)&gt;</div>
+<div class="tip" id="fs26">Multiple items<br />val SpanNode : Matching.SpanNodeInfo * spans:MarkdownSpans -&gt; MarkdownSpan<br /><br />--------------------<br />active recognizer SpanNode: MarkdownSpan -&gt; Choice&lt;Matching.SpanLeafInfo,(Matching.SpanNodeInfo * MarkdownSpans)&gt;</div>
+<div class="tip" id="fs27">val spans : MarkdownSpans</div>
+<div class="tip" id="fs28">val s : MarkdownSpan</div>
+<div class="tip" id="fs29">val collectParLinks : par:MarkdownParagraph -&gt; seq&lt;string&gt;<br /><em><br /><br />&#160;Returns all links in the specified paragraph node</em></div>
+<div class="tip" id="fs30">Multiple items<br />val ParagraphLeaf : Matching.ParagraphLeafInfo -&gt; MarkdownParagraph<br /><br />--------------------<br />active recognizer ParagraphLeaf: MarkdownParagraph -&gt; Choice&lt;Matching.ParagraphLeafInfo,(Matching.ParagraphNestedInfo * MarkdownParagraphs list),(Matching.ParagraphSpansInfo * MarkdownSpans)&gt;</div>
+<div class="tip" id="fs31">Multiple items<br />val ParagraphNested : Matching.ParagraphNestedInfo * pars:MarkdownParagraphs list -&gt; MarkdownParagraph<br /><br />--------------------<br />active recognizer ParagraphNested: MarkdownParagraph -&gt; Choice&lt;Matching.ParagraphLeafInfo,(Matching.ParagraphNestedInfo * MarkdownParagraphs list),(Matching.ParagraphSpansInfo * MarkdownSpans)&gt;</div>
+<div class="tip" id="fs32">val pars : MarkdownParagraphs list</div>
+<div class="tip" id="fs33">val ps : MarkdownParagraphs</div>
+<div class="tip" id="fs34">val p : MarkdownParagraph</div>
+<div class="tip" id="fs35">Multiple items<br />val ParagraphSpans : Matching.ParagraphSpansInfo * spans:MarkdownSpans -&gt; MarkdownParagraph<br /><br />--------------------<br />active recognizer ParagraphSpans: MarkdownParagraph -&gt; Choice&lt;Matching.ParagraphLeafInfo,(Matching.ParagraphNestedInfo * MarkdownParagraphs list),(Matching.ParagraphSpansInfo * MarkdownSpans)&gt;</div>
+<div class="tip" id="fs36">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs37">val collect : mapping:(&#39;T -&gt; #seq&lt;&#39;U&gt;) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;U&gt;</div>
+<div class="tip" id="fs38">val html : string<br /><em><br /><br />&#160;Collect links in the entire document</em></div>
+<div class="tip" id="fs39">static member Markdown.WriteHtml : doc:MarkdownDocument -&gt; string<br />static member Markdown.WriteHtml : doc:MarkdownDocument * writer:System.IO.TextWriter -&gt; unit<br />static member Markdown.WriteHtml : doc:MarkdownDocument * newline:string -&gt; string<br />static member Markdown.WriteHtml : doc:MarkdownDocument * writer:System.IO.TextWriter * newline:string -&gt; unit</div>
 
         </div>
         <div class="span3">

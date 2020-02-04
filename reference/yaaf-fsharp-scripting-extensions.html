@@ -35,11 +35,14 @@
         <div class="span9" id="main">
           
 
-
-
 <h1>Extensions</h1>
 <p>
   <span>Namespace: Yaaf.FSharp.Scripting</span><br />
+        <span>
+          Attributes:<br />
+[&lt;AutoOpen&gt;]<br />
+          
+      </span>
 </p>
 <div class="xmldoc">
 </div>
@@ -54,16 +57,37 @@
     <tbody>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
-            ChangeCurrentDirectory(dir)
+          <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+            x.Cd(dir)
           </code>
-          <div class="tip" id="96">
+          <div class="tip" id="146">
             <strong>Signature:</strong> dir:string -&gt; IDisposable<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L536-536" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L755-755" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Change the current directory (so that relative paths within scripts work properly).
+Returns a handle to change the current directory back to it's initial state
+(Because this will change the current directory of the currently running code as well!).</p>
+
+
+              <p>CompiledName: <code>IFsiSession.Cd</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+            x.ChangeCurrentDirectory(dir)
+          </code>
+          <div class="tip" id="147">
+            <strong>Signature:</strong> dir:string -&gt; IDisposable<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L775-775" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -77,16 +101,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
-            DynamicAssemblyBuilder
+          <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
+            x.DynamicAssemblyBuilder
           </code>
-          <div class="tip" id="97">
+          <div class="tip" id="148">
             <strong>Signature:</strong> AssemblyBuilder<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L562-562" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L801-801" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -96,17 +119,16 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
-            DynamicAssemblyBuilder
+          <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+            x.DynamicAssemblyBuilder
           </code>
-          <div class="tip" id="98">
+          <div class="tip" id="149">
             <strong>Signature:</strong> AssemblyBuilder<br />
               <strong>Modifiers:</strong> abstract<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L562-562" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L801-801" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -116,16 +138,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '99', 99)" onmouseover="showTip(event, '99', 99)">
-            EvalExpression(text)
+          <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
+            x.EvalExpression(text)
           </code>
-          <div class="tip" id="99">
+          <div class="tip" id="150">
             <strong>Signature:</strong> text:string -&gt; &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L516-516" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L733-733" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -137,16 +158,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '100', 100)" onmouseover="showTip(event, '100', 100)">
-            EvalExpressionWithOutput(text)
+          <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
+            x.EvalExpressionWithOutput(text)
           </code>
-          <div class="tip" id="100">
+          <div class="tip" id="151">
             <strong>Signature:</strong> text:string -&gt; InteractionResult * &#39;a<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+                          <strong>Type parameters:</strong> 'a                      </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L503-503" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L720-720" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -156,16 +176,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
-            EvalInteraction(s)
+          <code onmouseout="hideTip(event, '152', 152)" onmouseover="showTip(event, '152', 152)">
+            x.EvalInteraction(s)
           </code>
-          <div class="tip" id="101">
+          <div class="tip" id="152">
             <strong>Signature:</strong> s:string -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L499-499" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L705-705" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -175,16 +194,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
-            EvalScript(s)
+          <code onmouseout="hideTip(event, '153', 153)" onmouseover="showTip(event, '153', 153)">
+            x.EvalScript(s)
           </code>
-          <div class="tip" id="102">
+          <div class="tip" id="153">
             <strong>Signature:</strong> s:string -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L501-501" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L707-707" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -194,16 +212,55 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
-            Handle(f text)
+          <code onmouseout="hideTip(event, '154', 154)" onmouseover="showTip(event, '154', 154)">
+            x.EvalScriptAsInteraction(s)
           </code>
-          <div class="tip" id="103">
-            <strong>Signature:</strong> (f:(string -&gt; &#39;?193658)) -&gt; text:string -&gt; HandledResult&lt;&#39;?193658&gt;<br />
-                          <strong>Type parameters:</strong> '?193658          </div>
+          <div class="tip" id="154">
+            <strong>Signature:</strong> s:string -&gt; unit<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L555-555" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L717-717" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>See <a href="https://github.com/Microsoft/visualfsharp/issues/1392">https://github.com/Microsoft/visualfsharp/issues/1392</a></p>
+
+
+              <p>CompiledName: <code>IFsiSession.EvalScriptAsInteraction</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '155', 155)" onmouseover="showTip(event, '155', 155)">
+            x.EvalScriptAsInteractionWithOutput(s)
+          </code>
+          <div class="tip" id="155">
+            <strong>Signature:</strong> s:string -&gt; unit<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L709-709" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>See <a href="https://github.com/Microsoft/visualfsharp/issues/1392">https://github.com/Microsoft/visualfsharp/issues/1392</a></p>
+
+
+              <p>CompiledName: <code>IFsiSession.EvalScriptAsInteractionWithOutput</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '156', 156)" onmouseover="showTip(event, '156', 156)">
+            x.Handle f text
+          </code>
+          <div class="tip" id="156">
+            <strong>Signature:</strong> (f:(string -&gt; &#39;?49678)) -&gt; text:string -&gt; HandledResult&lt;&#39;?49678&gt;<br />
+                          <strong>Type parameters:</strong> '?49678                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L794-794" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -215,16 +272,33 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
-            Let(varName obj)
+          <code onmouseout="hideTip(event, '157', 157)" onmouseover="showTip(event, '157', 157)">
+            x.Include(dir)
           </code>
-          <div class="tip" id="104">
-            <strong>Signature:</strong> varName:string -&gt; obj:&#39;a -&gt; unit<br />
-                          <strong>Type parameters:</strong> 'a          </div>
+          <div class="tip" id="157">
+            <strong>Signature:</strong> dir:string -&gt; unit<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L519-519" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L747-747" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+              <p>CompiledName: <code>IFsiSession.Include</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '158', 158)" onmouseover="showTip(event, '158', 158)">
+            x.Let varName obj
+          </code>
+          <div class="tip" id="158">
+            <strong>Signature:</strong> varName:string -&gt; obj:&#39;a -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'a                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L736-736" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -236,16 +310,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
-            Load(file)
+          <code onmouseout="hideTip(event, '159', 159)" onmouseover="showTip(event, '159', 159)">
+            x.Load(file)
           </code>
-          <div class="tip" id="105">
+          <div class="tip" id="159">
             <strong>Signature:</strong> file:string -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L530-530" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L749-749" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -255,16 +328,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
-            Open(ns)
+          <code onmouseout="hideTip(event, '160', 160)" onmouseover="showTip(event, '160', 160)">
+            x.Open(ns)
           </code>
-          <div class="tip" id="106">
+          <div class="tip" id="160">
             <strong>Signature:</strong> ns:string -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L526-526" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L743-743" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -274,16 +346,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
-            Reference(file)
+          <code onmouseout="hideTip(event, '161', 161)" onmouseover="showTip(event, '161', 161)">
+            x.Reference(file)
           </code>
-          <div class="tip" id="107">
+          <div class="tip" id="161">
             <strong>Signature:</strong> file:string -&gt; unit<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L528-528" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L745-745" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -293,16 +364,15 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
-            TryEvalExpression(s)
+          <code onmouseout="hideTip(event, '162', 162)" onmouseover="showTip(event, '162', 162)">
+            x.TryEvalExpression(s)
           </code>
-          <div class="tip" id="108">
+          <div class="tip" id="162">
             <strong>Signature:</strong> s:string -&gt; (obj * Type) option<br />
-                      </div>
+                                  </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L500-500" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L706-706" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -312,16 +382,35 @@ Returns a handle to change the current directory back to it's initial state
       </tr>
       <tr>
         <td class="member-name">
-
-          <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
-            WithCurrentDirectory(dir f)
+          <code onmouseout="hideTip(event, '163', 163)" onmouseover="showTip(event, '163', 163)">
+            x.WithCd dir f
           </code>
-          <div class="tip" id="109">
-            <strong>Signature:</strong> dir:string -&gt; (f:(unit -&gt; &#39;?193656)) -&gt; &#39;?193656<br />
-                          <strong>Type parameters:</strong> '?193656          </div>
+          <div class="tip" id="163">
+            <strong>Signature:</strong> dir:string -&gt; (f:(unit -&gt; &#39;?49673)) -&gt; &#39;?49673<br />
+                          <strong>Type parameters:</strong> '?49673                      </div>
         </td>
         <td class="xmldoc">
-            <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/paket-files/matthid/Yaaf.FSharp.Scripting/src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs#L550-550" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L768-768" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Same as Cd but takes a function for the scope.</p>
+
+
+              <p>CompiledName: <code>IFsiSession.WithCd</code></p>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '164', 164)" onmouseover="showTip(event, '164', 164)">
+            x.WithCurrentDirectory dir f
+          </code>
+          <div class="tip" id="164">
+            <strong>Signature:</strong> dir:string -&gt; (f:(unit -&gt; &#39;?49676)) -&gt; &#39;?49676<br />
+                          <strong>Type parameters:</strong> '?49676                      </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L789-789" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

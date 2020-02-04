@@ -34,10 +34,924 @@
       <div class="row">
         <div class="span9" id="main">
           
-
 <h1>FSharp.Formatting</h1>
 
+  <h2>FSharp.CodeFormat Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-codeformat.html">CodeFormat</a>
+          </td>
+          <td class="xmldoc">
+          <p>Exposes functionality of the F# code formatter with a nice interface</p>
 
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-codeformatagent.html">CodeFormatAgent</a>
+          </td>
+          <td class="xmldoc">
+          <p>Uses agent to handle formatting requests</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-errorkind.html">ErrorKind</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a kind of error reported from the F# compiler (warning or error)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-formattedcontent.html">FormattedContent</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents formatted snippets</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-formattedsnippet.html">FormattedSnippet</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents an indivudal formatted snippet with title</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-line.html">Line</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a line of source code as a list of <a href="fsharp-codeformat-tokenspan.html" title="TokenSpan"><code>TokenSpan</code></a> values. This is
+a single case discriminated union with <a href="fsharp-codeformat-line.html" title="Line"><code>Line</code></a> constructor.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-range.html">Range</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-snippet.html">Snippet</a>
+          </td>
+          <td class="xmldoc">
+          <p>An F# snippet consists of a snippet title and a list of lines
+(wrapped in a single case discriminated union with <code>Snippet</code> constructor)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-sourceerror.html">SourceError</a>
+          </td>
+          <td class="xmldoc">
+          <p>Error reported from the F# compiler consists of location (start and end),
+error kind and the message (wrapped in a single case discriminated union
+with constructor <a href="fsharp-codeformat-sourceerror.html" title="SourceError"><code>SourceError</code></a>)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-tokenkind.html">TokenKind</a>
+          </td>
+          <td class="xmldoc">
+          <p>Classifies tokens reported by the FCS</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-tokenspan.html">TokenSpan</a>
+          </td>
+          <td class="xmldoc">
+          <p>A token in a parsed F# code snippet. Aside from standard tokens reported from
+the compiler (<a href="fsharp-codeformat-commentfilter-token.html" title="Token"><code>Token</code></a>), this also includes <code>Error</code> (wrapping the underlined
+tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <code>Output</code> for the special
+<code>[output:...]</code> tag</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-tokenspans.html">TokenSpans</a>
+          </td>
+          <td class="xmldoc">
+          <p>A type alias representing a list of <a href="fsharp-codeformat-tokenspan.html" title="TokenSpan"><code>TokenSpan</code></a> values</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-tooltipspan.html">ToolTipSpan</a>
+          </td>
+          <td class="xmldoc">
+          <p>A tool tip span can be emphasized text, plain text <code>Literal</code> or a line brak</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-codeformat-tooltipspans.html">ToolTipSpans</a>
+          </td>
+          <td class="xmldoc">
+          <p>A tool tip consists of a list of items reported from the compiler</p>
+
+
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-codeformat-constants.html">Constants</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>FSharp.Collections Namespace</h2>
+  <h2>FSharp.Formatting.Common Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-formatting-common-markdownrange.html">MarkdownRange</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-formatting-common-log.html">Log</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-formatting-common-markdownrangemodule.html">MarkdownRange</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>FSharp.Literate Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-compilercontext.html">CompilerContext</a>
+          </td>
+          <td class="xmldoc">
+          <p>Specifies a context that is passed to functions
+that need to use the F# compiler</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-fsiembedkind.html">FsiEmbedKind</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a kind of thing that can be embedded</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-fsievaluationfailedinfo.html">FsiEvaluationFailedInfo</a>
+          </td>
+          <td class="xmldoc">
+          <p>Record that is reported by the <code>EvaluationFailed</code> event when something
+goes wrong during evalutaiton of an expression</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-fsievaluationresult.html">FsiEvaluationResult</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents the result of evaluating an F# snippet. This contains
+the generated console output together with a result and its static type.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-fsievaluator.html">FsiEvaluator</a>
+          </td>
+          <td class="xmldoc">
+          <p>A wrapper for F# interactive service that is used to evaluate inline snippets</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-fsievaluatorconfig.html">FsiEvaluatorConfig</a>
+          </td>
+          <td class="xmldoc">
+          <p>Provides configuration options for the <a href="fsharp-literate-fsievaluator.html" title="FsiEvaluator"><code>FsiEvaluator</code></a></p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-generatoroutput.html">GeneratorOutput</a>
+          </td>
+          <td class="xmldoc">
+          <p>Defines input type for output generator</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-ifsievaluationresult.html">IFsiEvaluationResult</a>
+          </td>
+          <td class="xmldoc">
+          <p>An interface that represents FSI evaluation result
+(we make this abstract so that evaluators can store other info)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-ifsievaluator.html">IFsiEvaluator</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents an evaluator for F# snippets embedded in code</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-literate.html">Literate</a>
+          </td>
+          <td class="xmldoc">
+          <p>This type provides three simple methods for calling the literate programming tool.
+The <code>ProcessMarkdown</code> and <code>ProcessScriptFile</code> methods process a single Markdown document
+and F# script, respectively. The <code>ProcessDirectory</code> method handles an entire directory tree
+(looking for <code>*.fsx</code> and <code>*.md</code> files).</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-literatecodeoptions.html">LiterateCodeOptions</a>
+          </td>
+          <td class="xmldoc">
+          <p>Additional properties of a literate code snippet, embedded in a
+<code>LiterateParagraph.LiterateCode</code>. The properties specify how should
+a snippet be evaluated and formatted.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-literatecodevisibility.html">LiterateCodeVisibility</a>
+          </td>
+          <td class="xmldoc">
+          <p>Specifies visibility of a code snippet. This can be either ordinary
+visible code, hidden snippet or named snippet with captured output.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-literatedocument.html">LiterateDocument</a>
+          </td>
+          <td class="xmldoc">
+          <p>Representation of a literate document - the representation of Paragraphs
+uses an F# discriminated union type and so is best used from F#.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-literateparagraph.html">LiterateParagraph</a>
+          </td>
+          <td class="xmldoc">
+          <p>Extends <code>MarkdownParagrap</code> using the <a href="fsharp-markdown-markdownembedparagraphs.html" title="MarkdownEmbedParagraphs"><code>MarkdownEmbedParagraphs</code></a> case with
+additional kinds of paragraphs that can appear in literate F# scripts
+(such as various special commands to embed output of a snippet etc.)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-literatesource.html">LiterateSource</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents the source of a literate document. This is esither Markdown (as a <code>string</code>)
+or parsed F# script file consisting of snippets.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-outputkind.html">OutputKind</a>
+          </td>
+          <td class="xmldoc">
+          <p>Defines the two possible output types from literate script: HTML and LaTeX.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-literate-processingcontext.html">ProcessingContext</a>
+          </td>
+          <td class="xmldoc">
+          <p>Specifies a context that is passed to functions that generate the output</p>
+
+
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-literate-matching.html">Matching</a>
+          </td>
+          <td class="xmldoc">
+          <p>Provides active patterns for extracting <a href="fsharp-literate-literateparagraph.html" title="LiterateParagraph"><code>LiterateParagraph</code></a> values from
+Markdown documents.</p>
+
+
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>FSharp.Markdown Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdown.html">Markdown</a>
+          </td>
+          <td class="xmldoc">
+          <p>Static class that provides methods for formatting
+and transforming Markdown documents.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdowncolumnalignment.html">MarkdownColumnAlignment</a>
+          </td>
+          <td class="xmldoc">
+          <p>Column in a table can be aligned to left, right, center or using the default alignment</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdowndocument.html">MarkdownDocument</a>
+          </td>
+          <td class="xmldoc">
+          <p>Representation of a Markdown document - the representation of Paragraphs
+uses an F# discriminated union type and so is best used from F#.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownembedparagraphs.html">MarkdownEmbedParagraphs</a>
+          </td>
+          <td class="xmldoc">
+          <p>Provides an extensibility point for adding custom kinds of paragraphs into a document
+(<a href="fsharp-markdown-markdownembedparagraphs.html" title="MarkdownEmbedParagraphs"><code>MarkdownEmbedParagraphs</code></a> values can be embedded using <code>MarkdownParagraph.EmbedParagraphs</code>)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownembedspans.html">MarkdownEmbedSpans</a>
+          </td>
+          <td class="xmldoc">
+          <p>Provides an extensibility point for adding custom kinds of spans into a document
+(<a href="fsharp-markdown-markdownembedspans.html" title="MarkdownEmbedSpans"><code>MarkdownEmbedSpans</code></a> values can be embedded using <code>MarkdownSpan.EmbedSpans</code>)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownlistkind.html">MarkdownListKind</a>
+          </td>
+          <td class="xmldoc">
+          <p>A list kind can be <code>Ordered</code> or <code>Unordered</code> corresponding to <code>&lt;ol&gt;</code> and <code>&lt;ul&gt;</code> elements</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownparagraph.html">MarkdownParagraph</a>
+          </td>
+          <td class="xmldoc">
+          <p>A paragraph represents a (possibly) multi-line element of a Markdown document.
+Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
+also embedded LaTeX blocks.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownparagraphs.html">MarkdownParagraphs</a>
+          </td>
+          <td class="xmldoc">
+          <p>A type alias for a list of paragraphs</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownspan.html">MarkdownSpan</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents inline formatting inside a paragraph. This can be literal (with text), various
+formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdownspans.html">MarkdownSpans</a>
+          </td>
+          <td class="xmldoc">
+          <p>A type alias for a list of <a href="fsharp-markdown-markdownspan.html" title="MarkdownSpan"><code>MarkdownSpan</code></a> values</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-markdown-markdowntablerow.html">MarkdownTableRow</a>
+          </td>
+          <td class="xmldoc">
+          <p>A type alias representing table row as a list of paragraphs</p>
+
+
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-markdown-matching.html">Matching</a>
+          </td>
+          <td class="xmldoc">
+          <p>This module provides an easy way of processing Markdown documents.
+It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
+
+
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>FSharp.MetadataFormat Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-assemblygroup.html">AssemblyGroup</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a group of assemblies</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-attribute.html">Attribute</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a custom attribute attached to F# source code</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-comment.html">Comment</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a comment attached to F# source code</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-generatoroutput.html">GeneratorOutput</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-html.html">Html</a>
+          </td>
+          <td class="xmldoc">
+          <p>For use in the tempaltes (lives in namespace FSharp.MetadataFormat)</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-member.html">Member</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents an F# method, property, constructor, function or value, record field, union case or static parameter. Includes extension members</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-memberkind.html">MemberKind</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents the kind of member</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-memberorvalue.html">MemberOrValue</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents the details of an F# method, property, event, function or value, including extension members</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-metadataformat.html">MetadataFormat</a>
+          </td>
+          <td class="xmldoc">
+          <p>This type exposes the functionality for producing documentation model from <code>dll</code> files with associated <code>xml</code> files
+generated by the F# or C# compiler. To generate documentation model, use one of the overloades of the <code>Generate</code> method.
+The overloads have the following optional parameters:</p>
+<ul>
+<li><code>parameters</code> - provides additional parameters to the Razor templates</li>
+<li>
+<code>xmlFile</code> - can be used to override the default name of the XML file (by default, we assume
+the file has the same name as the DLL)
+</li>
+<li>
+<code>markDownComments</code> - specifies if you want to use the Markdown parser for in-code comments.
+With <code>markDownComments</code> enabled there is no support for <code>&lt;see cref=""&gt;</code> links, so <code>false</code> is
+recommended for C# assemblies (if not specified, <code>true</code> is used).
+</li>
+<li>
+<code>sourceFolder</code> and <code>sourceRepo</code> - When specified, the documentation generator automatically
+generates links to GitHub pages for each of the entity.
+</li>
+<li><code>publicOnly</code> - When set to <code>false</code>, the tool will also generate documentation for non-public members</li>
+<li><code>libDirs</code> - Use this to specify additional paths where referenced DLL files can be found</li>
+<li>
+<code>otherFlags</code> - Additional flags that are passed to the F# compiler (you can use this if you want to
+specify references explicitly etc.)
+</li>
+<li><code>urlRangeHighlight</code> - A function that can be used to override the default way of generating GitHub links</li>
+</ul>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-module.html">Module</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents an F# module</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-moduleinfo.html">ModuleInfo</a>
+          </td>
+          <td class="xmldoc">
+          <p>Highlevel information about a module</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-namespace.html">Namespace</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a namespace</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-type.html">Type</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents an F# type.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="fsharp-metadataformat-typeinfo.html">TypeInfo</a>
+          </td>
+          <td class="xmldoc">
+          <p>Highlevel information about a type</p>
+
+
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-metadataformat-reader.html">Reader</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-metadataformat-valuereader.html">ValueReader</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
+  <h2>Yaaf.FSharp.Scripting Namespace</h2>
+    <div>
+      <table class="table table-bordered type-list">
+    <thead>
+      <tr><td>Type</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-debugmode.html">DebugMode</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-fsievaluationexception.html">FsiEvaluationException</a>
+          </td>
+          <td class="xmldoc">
+          <p>This exception indicates that an exception happened while compiling or executing given F# code.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-fsiexpressiontypeexception.html">FsiExpressionTypeException</a>
+          </td>
+          <td class="xmldoc">
+          <p>Exception for invalid expression types</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-fsioptions.html">FsiOptions</a>
+          </td>
+          <td class="xmldoc">
+          <p>See <a href="https://msdn.microsoft.com/en-us/library/dd233172.aspx">https://msdn.microsoft.com/en-us/library/dd233172.aspx</a></p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-handledresult-1.html">HandledResult<'a></a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-ifsisession.html">IFsiSession</a>
+          </td>
+          <td class="xmldoc">
+          <p>Represents a simple F# interactive session.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-interactionresult.html">InteractionResult</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-optimizationtype.html">OptimizationType</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-outputdata.html">OutputData</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="type-name">
+            <a href="yaaf-fsharp-scripting-scripthost.html">ScriptHost</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+  <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="yaaf-fsharp-scripting-compilerserviceextensions.html">CompilerServiceExtensions</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="yaaf-fsharp-scripting-env.html">Env</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="yaaf-fsharp-scripting-extensions.html">Extensions</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="yaaf-fsharp-scripting-log.html">Log</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+        <tr>
+          <td class="module-name">
+            <a href="yaaf-fsharp-scripting-shell.html">Shell</a>
+          </td>
+          <td class="xmldoc">
+          
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </div>
 
         </div>
         <div class="span3">
