@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="paket.references" />
+    <!-- Loader script -->
+    <Content Include="FSharp.Formatting.fsx" PackagePath="FSharp.Formatting.fsx" />
+    <!-- Templates & styles & literate demos -->
+    <Content Include="..\..\misc\templates\*.cshtml" PackagePath="templates" />
+    <Content Include="..\..\misc\templates\reference\*.cshtml" PackagePath="templates/reference" />
+    <Content Include="..\..\misc\literate\*" PackagePath="literate" />
+    <Content Include="..\..\misc\literate\templates\*" PackagePath="literate/templates" />
+    <Content Include="..\..\docs\files\content\*" PackagePath="styles" />
+    <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
+    
+    <!-- Assembly dependencies -->
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\RazorEngine.NetCore.dll" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\System.Security.Permissions.dll" PackagePath="lib/$(TargetFramework)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ugly hack: inline p2p libraries in NuGet package
+         workaround for https://github.com/NuGet/Home/issues/3891 -->
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\CSharpFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.CodeFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Common.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Markdown.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Literate.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.MetadataFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Razor.*" PackagePath="lib/$(TargetFramework)" />
+  </ItemGroup>
+
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+
+</Project>

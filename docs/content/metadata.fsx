@@ -1,4 +1,5 @@
-﻿(*** hide ***)
+(*** hide ***)
+#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
 let root = "C:\\"
 
 (**
@@ -19,7 +20,7 @@ Building library documentation
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "../../bin/FSharp.MetadataFormat.dll"
+#r "FSharp.MetadataFormat.dll"
 open FSharp.MetadataFormat
 open System.IO
 
@@ -112,7 +113,7 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 *)
 /// [omit]
 /// Some actual comment
-module Foo = 
+module Bar = 
    let a = 42
 (**
 Classic XML documentation comments

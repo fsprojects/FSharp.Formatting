@@ -1,18 +1,5 @@
-#if INTERACTIVE
-System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-#I "../../bin/net461"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.MetadataFormat.dll"
-#r "FSharp.Formatting.Razor.dll"
-#r "FSharp.Compiler.Service.dll"
-#r "RazorEngine.dll"
-#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
-#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
-
-#else
 [<NUnit.Framework.TestFixture>]
 module FSharp.MetadataFormat.Tests
-#endif
 
 open FsUnit
 open System.IO
@@ -20,7 +7,7 @@ open NUnit.Framework
 open FSharp.MetadataFormat
 open FSharp.Formatting.Razor
 open FsUnitTyped
-open FSharp.Compiler.SourceCodeServices
+
 // --------------------------------------------------------------------------------------
 // Run the metadata formatter on sample project
 // --------------------------------------------------------------------------------------
@@ -34,13 +21,7 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "../bin/net461" |> fullpath
-
-#if INTERACTIVE
-;;
-printfn "\n-- Root - %s" root;;
-printfn "\n-- TestBin - %s" testBin;;
-#endif
+let testBin = AttributeTests.testBin
 
 let getOutputDir()  =
   let tempFile = Path.GetTempFileName()
@@ -185,11 +166,11 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
-  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library2.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib2/Library2.fs#L"
   files.["fslib-record.html"] |> shouldContainText "github-link"
-  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
   files.["fslib-union.html"] |> shouldContainText "github-link"
-  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
 
   //#if INTERACTIVE
   //System.Diagnostics.Process.Start(output)
@@ -421,7 +402,7 @@ let ``MetadataFormat handles c# dlls`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
-    let library = testBin  </> "CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     //RazorMetadataFormat.Generate
     //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
@@ -433,7 +414,7 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
-    let library = testBin </> "CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     let files = generate [library] false
 

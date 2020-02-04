@@ -1,35 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
-    <OutputType>Library</OutputType>
-    <SolutionDir>..\..\</SolutionDir>
-    <OutputPath>$(SolutionDir)\tests\bin</OutputPath>
-    <DocumentationFile>$(OutputPath)\$(AssemblyName).xml</DocumentationFile>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <Compile Include="AttributeTests.fs" />
     <None Include="paket.references" />
+    <Compile Include="AttributeTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(SolutionDir)\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="$(SolutionDir)\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+    <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="files\AttributesTestLib\AttributesTestLib.fsproj" />
+    <ProjectReference Include="files\crefLib1\crefLib1.fsproj" />
+    <ProjectReference Include="files\crefLib2\crefLib2.fsproj" />
+    <ProjectReference Include="files\crefLib3\crefLib3.csproj" />
+    <ProjectReference Include="files\crefLib4\crefLib4.csproj" />
+    <ProjectReference Include="files\csharpSupport\csharpSupport.csproj" />
+    <ProjectReference Include="files\FsLib1\FsLib1.fsproj" />
+    <ProjectReference Include="files\FsLib2\FsLib2.fsproj" />
+    <ProjectReference Include="files\TestLib1\TestLib1.fsproj" />
+    <ProjectReference Include="files\TestLib2\TestLib2.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

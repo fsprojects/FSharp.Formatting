@@ -1,7 +1,30 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworkRootPath>$(MSBuildThisFileDirectory)packages\RoslynTools.ReferenceAssemblies\tools\framework</TargetFrameworkRootPath>
     <!-- Include PDBs in Nuget package. -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb; $(AllowedOutputExtensionsInPackageBuildOutputFolder)</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <!-- Copy all project dependencies to bin folder -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- NuGet Metadata -->
+  <PropertyGroup>
+    <!-- Enable IsPackable at individual project files -->
+    <IsPackable>false</IsPackable>
+    <Description>
+      The package is a collection of libraries that can be used for literate programming
+      with F# (great for building documentation) and for generating library documentation
+      from inline code comments. The key componments are Markdown parser, tools for formatting
+      F# code snippets, including tool tip type information and a tool for generating
+      documentation from library metadata.
+    </Description>
+    <Authors>Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich</Authors>
+    <Copyright>Copyright 2014</Copyright>
+    <PackageTags>F# fsharp formatting markdown code fssnip literate programming</PackageTags>
+    <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting/</RepositoryUrl>
+    <PackageProjectUrl>http://fsprojects.github.io/FSharp.Formatting/</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/FSharp.Formatting/master/docs/files/misc/logo.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 </Project>

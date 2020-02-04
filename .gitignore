@@ -4,7 +4,6 @@
 bin/
 lib/
 obj/
-/.paket/paket.exe
 paket-files/
 nuget/*.nupkg
 docs/output/
@@ -13,8 +12,7 @@ packages/*
 !packages/FSharp.Formatting
 packages/FSharp.Formatting/lib
 *.VisualState.xml
-TestResults.xml
-TestResult.xml
+TestResults/
 temp/
 tests/Benchmarks/testfiles/*/*.html
 misc/literate/output/content/
@@ -37,4 +35,5 @@ fsbuild.targets
 *.user
 _NCrunch_*
 *.ncrunchproject
-.ionide/symbolCache.db
+.ionide/
+artifacts/

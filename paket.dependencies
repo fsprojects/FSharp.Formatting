@@ -1,31 +1,35 @@
-version 5.181.1
 source https://api.nuget.org/v3/index.json
-source https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json
+framework: auto-detect
+storage: none
 
-# Annoyingly this must match FSharp.Core used in FSharp.Compiler.Tools fsi.exe, for documentation generation vie generate.fsx
-# As a result we should remove the use of generate.fsx in favour of the command-line tool
-nuget FSharp.Core 4.5.4
-
-nuget FSharp.Data
+nuget FSharp.Core >= 4.7 lowest_matching:true
+nuget FSharp.Compiler.Service >= 33.0 lowest_matching:true
+nuget RazorEngine.NetCore ~> 2.2.6 lowest_matching:true
 nuget CommandLineParser ~> 1.0
-nuget Microsoft.AspNet.Razor
-nuget Microsoft.NET.Test.Sdk
+
+# pin AspNetCore Razor dependencies to v2
+nuget Microsoft.AspNetCore.Razor ~> 2.0
+nuget Microsoft.AspNetCore.Razor.Runtime ~> 2.0
+nuget Microsoft.AspNetCore.Razor.Language ~> 2.0
+nuget Microsoft.CodeAnalysis.CSharp ~> 3.4
+
+# testing dependencies
+nuget NUnit ~> 3.12
+nuget FsUnit ~> 3.8
+nuget FSharp.Data ~> 3.3
 nuget NUnit3TestAdapter
-nuget RazorEngine 3.9.3 framework: >= net45
-nuget FSharp.Compiler.Service
-nuget System.ValueTuple
-nuget Microsoft.AspNetCore.Razor.Runtime
-nuget Microsoft.AspNetCore.Mvc.Razor.Extensions
-nuget FsUnit 
-nuget NUnit
-nuget RoslynTools.ReferenceAssemblies
-# github matthid/Yaaf.FSharp.Scripting src/source/Yaaf.FSharp.Scripting/YaafFSharpScripting.fs
+nuget Microsoft.NET.Test.Sdk
 
-group Build
+group Fake
     source https://api.nuget.org/v3/index.json
-    nuget NuGet.CommandLine
-    nuget FSharp.Compiler.Tools 10.2.3
+    storage: none
 
-group Test
-    source https://api.nuget.org/v3/index.json
-    nuget Nunit.ConsoleRunner
+    nuget Fake.Core.Target
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.DotNet.AssemblyInfoFile
+    nuget Fake.DotNet.Cli
+    nuget Fake.DotNet.Testing.NUnit
+    nuget Fake.DotNet.NuGet
+    nuget Fake.DotNet.MsBuild
+    nuget Fake.Tools.Git
+	nuget Fake.DotNet.Paket

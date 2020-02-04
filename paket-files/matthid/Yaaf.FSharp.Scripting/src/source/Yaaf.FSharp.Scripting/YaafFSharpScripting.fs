@@ -6,7 +6,7 @@ module internal Env =
   let inline isNull o = obj.ReferenceEquals(null, o)
   let isMono = try System.Type.GetType("Mono.Runtime") |> isNull |> not with _ -> false
   let (++) a b = System.IO.Path.Combine(a,b)
-#if NETSTANDARD1_5
+#if NETSTANDARD
   let (=?) s1 s2 = System.String.Equals(s1, s2, System.StringComparison.OrdinalIgnoreCase)
 #else
   let (=?) s1 s2 = System.String.Equals(s1, s2, System.StringComparison.InvariantCultureIgnoreCase)
@@ -24,7 +24,7 @@ open System.Diagnostics
 module Log =
   let source = new TraceSource("Yaaf.FSharp.Scripting")
 
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
   let LogConsole levels =
     let consoleListener = new ConsoleTraceListener();
     consoleListener.TraceOutputOptions <- TraceOptions.DateTime
@@ -76,7 +76,7 @@ module internal CompilerServiceExtensions =
 
       let getLib dir nm =
           dir ++ nm + ".dll"
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
       let referenceAssemblyDirectory frameworkVersion =
         let isWindows = System.Environment.OSVersion.Platform = System.PlatformID.Win32NT
         let baseDir =
@@ -115,7 +115,7 @@ module internal CompilerServiceExtensions =
 #endif
       let fscoreResolveDirs libDirs =
         [ 
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
           yield System.AppDomain.CurrentDomain.BaseDirectory
           yield referenceAssemblyDirectory defaultFrameworkVersion
           yield System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
@@ -124,7 +124,7 @@ module internal CompilerServiceExtensions =
 #endif
           yield! libDirs
           yield System.IO.Directory.GetCurrentDirectory()
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
           // Prefer the currently loaded version
           yield fsCore "4.0" loadedFsCoreVersion
           yield fsCore4400Dir
@@ -166,7 +166,7 @@ module internal CompilerServiceExtensions =
         [ "FSharp.Core"
           "System.EnterpriseServices.Thunk" // See #4
           "System.EnterpriseServices.Wrapper" ] // See #4
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
       let getDefaultSystemReferences frameworkVersion =
         Directory.EnumerateFiles(referenceAssemblyDirectory frameworkVersion)
         |> Seq.filter (fun file -> Path.GetExtension file =? ".dll")
@@ -190,7 +190,7 @@ module internal CompilerServiceExtensions =
                //yield "--optimize-"
                yield "--nooptimizationdata"
                yield "--noframework"
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
                yield sprintf "-I:%s" (referenceAssemblyDirectory frameworkVersion)
                for ref in defaultReferences do
                  yield sprintf "-r:%s" (referenceAssembly frameworkVersion ref)
@@ -214,7 +214,7 @@ module internal CompilerServiceExtensions =
           projFileName, args
 
       let findAssemblyVersion (assembly:Assembly) =
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
           let customAttributes = assembly.GetCustomAttributesData()
           let targetFramework =
             customAttributes
@@ -264,7 +264,7 @@ module internal CompilerServiceExtensions =
               Some (findFSCore dllFiles libDirs)
             else None
             
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
           let defaultReferences =
             getDefaultSystemReferences frameworkVersion
             |> Seq.filter (not << hasAssembly)
@@ -382,7 +382,7 @@ module internal CompilerServiceExtensions =
           t.Name
       and getFSharpTypeName (t:System.Type) =
           let optFsharpName =
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
               match FSharpAssembly.FromAssembly t.Assembly with
 #else
               match FSharpAssembly.FromAssembly (t.GetTypeInfo().Assembly) with
@@ -403,7 +403,7 @@ module internal CompilerServiceExtensions =
       member x.FSharpFullName = x.Namespace + "." + x.FSharpName
 
   module internal TypeParamHelper =
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
       let rec getFSharpTypeParameterList (t:System.Type) =
 #else
       let rec getFSharpTypeParameterList (tk:System.Type) =
@@ -437,7 +437,7 @@ type internal InteractionResult =
 #endif
   { Output : OutputData; Error : OutputData }
   
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
 // Thank you for http://www.blogs.sigristsoftware.com/marcsigrist/post/F-for-C-developers-Creating-escaped-concatsplit-functions-in-F.aspx
 module internal StringHelpers =
   [<RequireQualifiedAccess>]
@@ -563,7 +563,7 @@ open StringHelpers
 #endif
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
 [<System.Serializable>]
 #endif
 #if YAAF_FSHARP_SCRIPTING_PUBLIC
@@ -580,7 +580,7 @@ type internal FsiEvaluationException =
       input = input
       result = result
       arguments = args }
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
     new (info:System.Runtime.Serialization.SerializationInfo, context:System.Runtime.Serialization.StreamingContext) = {
         inherit System.Exception(info, context)
         input = info.GetString("Input")
@@ -628,7 +628,7 @@ type internal FsiEvaluationException =
         
 
 /// Exception for invalid expression types
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
 [<System.Serializable>]
 #endif
 #if YAAF_FSHARP_SCRIPTING_PUBLIC
@@ -643,7 +643,7 @@ type internal FsiExpressionTypeException =
       inherit FsiEvaluationException(msg, input, None, result, null)
       expected = expect
       value = value }
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
     new (info:System.Runtime.Serialization.SerializationInfo, context:System.Runtime.Serialization.StreamingContext) = {
       inherit FsiEvaluationException(info, context)
       expected = null
@@ -937,7 +937,7 @@ type internal FsiOptions =
       WarnAsErrorList = []
       ScriptArgs  = [] }
   static member Default =
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
     // find a FSharp.Core.dll
     let runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory()
     let includes =
@@ -1342,7 +1342,7 @@ module internal Helper =
       // We just compile ourself a forwarder to fix that.
       //session.Reference (typeof<FSharp.Compiler.Interactive.Shell.Settings.InteractiveSettings>.Assembly.Location)
       //session.Let "fsi" fsi
-#if !NETSTANDARD1_5 // Currently this is broken on netcore
+#if !NETSTANDARD // Currently this is broken on netcore
       session.Let "__rawfsi" (box fsi)
       session.EvalInteraction """
 module __ReflectHelper =

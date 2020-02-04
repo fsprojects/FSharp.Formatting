@@ -6,11 +6,13 @@ namespace FSharp.CodeFormat
 
 open System
 open System.IO
+open System.Runtime.ExceptionServices
 open FSharp.Compiler
 open FSharp.Compiler.Ast
 open FSharp.Compiler.Range
 open FSharp.Compiler.Layout
 open FSharp.Compiler.SourceCodeServices.FSharpTokenTag
+open FSharp.Compiler.Text
 open FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
@@ -22,6 +24,8 @@ open FSharp.Formatting.Common
 // --------------------------------------------------------------------------------------
 
 module private Helpers =
+
+  let inline ediRaise (e : exn) : 'T = ExceptionDispatchInfo.Capture(e).Throw(); Unchecked.defaultof<_>
 
   /// Mapping table that translates F# compiler representation to our union
   let getTokenKind = function
@@ -288,7 +292,7 @@ type CodeFormatAgent() =
 
         let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
         let defaultReferences =
-#if !NETSTANDARD1_5
+#if !NETSTANDARD
             FSharpAssemblyHelper.getDefaultSystemReferences frameworkVersion
 #else
             Seq.empty
@@ -304,7 +308,7 @@ type CodeFormatAgent() =
                 not <| item.StartsWith "--nooptimizationdata" &&
                 not <| item.EndsWith "mscorlib.dll")
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
-        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, source, DateTime.Now, args, assumeDotNetFramework = false)
+        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, DateTime.Now, args, assumeDotNetFramework = false)
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
@@ -314,7 +318,13 @@ type CodeFormatAgent() =
             let mutable known = Set.empty
             { opts with
                 OtherOptions =
-                    Array.append [| sprintf "-r:%s" fsCore; refCorLib |] opts.OtherOptions
+                    [|
+                        yield sprintf "-r:%s" fsCore
+                        yield refCorLib
+                        if Env.isNetCoreApp then yield "--targetprofile:netcore"
+
+                        yield! opts.OtherOptions
+                    |]
                     |> Array.filter (fun item ->
                         if item.StartsWith "-r:" then
                             let fullPath = item.Substring 3
@@ -447,7 +457,7 @@ type CodeFormatAgent() =
         let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> return res
-        | Choice2Of2 exn -> return raise (new Exception(exn.Message, exn)) }
+        | Choice2Of2 exn -> return Helpers.ediRaise exn }
 
     /// Parse the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
@@ -463,4 +473,4 @@ type CodeFormatAgent() =
         let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res
-        | Choice2Of2 exn -> raise (new Exception(exn.Message, exn))
+        | Choice2Of2 exn -> Helpers.ediRaise exn

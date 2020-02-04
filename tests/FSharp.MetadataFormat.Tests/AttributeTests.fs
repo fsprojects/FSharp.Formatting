@@ -1,16 +1,5 @@
-#if INTERACTIVE
-System.IO.Directory.SetCurrentDirectory __SOURCE_DIRECTORY__
-#I "../../bin"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.MetadataFormat.dll"
-#r "FSharp.Compiler.Service.dll"
-#r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
-#r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
-
-#else
 [<NUnit.Framework.TestFixture>]
 module FSharp.MetadataFormat.AttributeTests
-#endif
 
 open FsUnit
 open System.IO
@@ -31,10 +20,23 @@ let fullpaths = List.map fullpath
 
 let root = __SOURCE_DIRECTORY__ |> fullpath
 
+let configuration =
+#if DEBUG
+    "Debug"
+#else
+    "Release"
+#endif
+
+let tfm =
+#if NETCOREAPP
+    "netstandard2.0"
+#else
+    "net472"
+#endif
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
-let testBin = __SOURCE_DIRECTORY__ </> "../bin/net461" |> fullpath
+let testBin = __SOURCE_DIRECTORY__ </> "files/bin" </> configuration </> tfm |> fullpath
 
 #if INTERACTIVE 
 ;;

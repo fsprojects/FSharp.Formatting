@@ -19,9 +19,7 @@ open FSharp.Markdown
 open FSharp.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-#if !NETSTANDARD2_0
 open FSharp.Formatting.Razor
-#endif
 open FsUnitTyped
 open FSharp.Formatting
 
@@ -435,7 +433,7 @@ let ``Parsing simple script and markdown produces the same result`` () =
 // --------------------------------------------------------------------------------------
 // Test processing simple files using simple templates
 // --------------------------------------------------------------------------------------
-#if !NETSTANDARD2_0
+#if !NETSTANDARD
 let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.cshtml"
 

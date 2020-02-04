@@ -1,5 +1,6 @@
 FSharp.Core
-Microsoft.AspNet.Razor
-RazorEngine
+RazorEngine.NetCore
+Microsoft.AspNetCore.Razor
 Microsoft.AspNetCore.Razor.Runtime
-Microsoft.AspNetCore.Mvc.Razor.Extensions
+Microsoft.AspNetCore.Razor.Language
+Microsoft.CodeAnalysis.CSharp

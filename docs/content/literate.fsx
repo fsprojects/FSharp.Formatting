@@ -110,6 +110,11 @@ Typical literate setup
 
 (*** hide ***)
 #nowarn "211"
+#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Markdown.dll"
+#r "FSharp.CodeFormat.dll"
+#r "FSharp.Literate.dll"
 
 (**
 For literate programming support in your project, install the `FSharp.Formatting` nuget package.

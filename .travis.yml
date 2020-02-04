@@ -1,15 +1,12 @@
-language: csharp
-sudo: false
-dist: trusty
-mono: latest
-dotnet : 2.1.403
-addons:
-  apt:
-    packages:
-      - libunwind8
+os: linux
+language: bash
+
+services:
+  - docker
 
 script:
- - ./build.sh
+  - docker build -t fsharp-formatting-build .
+  - docker run --rm fsharp-formatting-build
  
 branches:
   except:

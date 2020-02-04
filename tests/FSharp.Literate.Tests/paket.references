@@ -1,7 +1,6 @@
 FSharp.Core
-Microsoft.AspNet.Razor
-RazorEngine
 FSharp.Compiler.Service
 FsUnit
 NUnit
 NUnit3TestAdapter
+Microsoft.NET.Test.Sdk
