@@ -308,7 +308,7 @@ type CodeFormatAgent() =
                 not <| item.StartsWith "--nooptimizationdata" &&
                 not <| item.EndsWith "mscorlib.dll")
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
-        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, DateTime.Now, args, assumeDotNetFramework = false)
+        let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, loadedTimeStamp = DateTime.Now, otherFlags = args, assumeDotNetFramework = false)
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
         let formatErrors errors =
@@ -357,7 +357,7 @@ type CodeFormatAgent() =
         Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
-        
+
         if _errors |> List.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> List.length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
