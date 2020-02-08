@@ -90,6 +90,7 @@ Target.create "Tests" (fun _ ->
         { opts with
             Blame = true
             NoBuild = true
+            Framework = if Environment.isWindows then opts.Framework else Some "netcoreapp3.1"
             Configuration = configuration
             ResultsDirectory = Some "TestResults"
             Logger = Some "trx"
