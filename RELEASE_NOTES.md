@@ -1,3 +1,9 @@
+## 4.0.0-alpha03
+  - Update to FSCS v34.
+
+## 4.0.0-alpha02
+  - Fix packaging issues.
+
 ## 4.0.0-alpha01
   - Add .NET Core support for all libraries.
   - Update to latest FSharp.Compiler.Service
