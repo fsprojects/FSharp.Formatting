@@ -160,18 +160,18 @@ If a type with the given name is not found in the same assembly the link will no
 
     <span class="c">/// This function operates on `Baz` types.</span>
     <span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 33)" onmouseover="showTip(event, 'fs14', 33)" class="fn">f</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs15', 34)" onmouseover="showTip(event, 'fs15', 34)" class="id">b</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs12', 35)" onmouseover="showTip(event, 'fs12', 35)" class="rt">Baz</span><span class="pn">)</span> <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs15', 36)" onmouseover="showTip(event, 'fs15', 36)" class="id">b</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs13', 37)" onmouseover="showTip(event, 'fs13', 37)" class="id">id</span> <span class="o">*</span> <span class="n">42</span>
+        <span onmouseout="hideTip(event, 'fs15', 36)" onmouseover="showTip(event, 'fs15', 36)" class="id">b</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs16', 37)" onmouseover="showTip(event, 'fs16', 37)" class="id">id</span> <span class="o">*</span> <span class="n">42</span>
 
 <span class="c">/// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`</span>
 <span class="k">module</span> <span class="m">Foo2</span> <span class="o">=</span>
     
     <span class="c">/// This is not the same type as `Foo.Bar`</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs16', 38)" onmouseover="showTip(event, 'fs16', 38)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 39)" onmouseover="showTip(event, 'fs17', 39)" class="vt">double</span>
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs17', 38)" onmouseover="showTip(event, 'fs17', 38)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 39)" onmouseover="showTip(event, 'fs18', 39)" class="vt">double</span>
 
     <span class="c">/// Using the simple name for [Bar] will fail to create a link because the name is duplicated in </span>
     <span class="c">/// [Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 40)" onmouseover="showTip(event, 'fs18', 40)" class="fn">f2</span> <span onmouseout="hideTip(event, 'fs19', 41)" onmouseover="showTip(event, 'fs19', 41)" class="id">b</span> <span class="o">=</span>
-         <span onmouseout="hideTip(event, 'fs19', 42)" onmouseover="showTip(event, 'fs19', 42)" class="id">b</span> <span class="o">*</span> <span class="n">50</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 40)" onmouseover="showTip(event, 'fs19', 40)" class="fn">f2</span> <span onmouseout="hideTip(event, 'fs20', 41)" onmouseover="showTip(event, 'fs20', 41)" class="id">b</span> <span class="o">=</span>
+         <span onmouseout="hideTip(event, 'fs20', 42)" onmouseover="showTip(event, 'fs20', 42)" class="id">b</span> <span class="o">*</span> <span class="n">50</span>
 </code></pre></td>
 </tr>
 </table>
@@ -186,7 +186,7 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// [omit]</span>
 <span class="c">/// Some actual comment</span>
 <span class="k">module</span> <span class="m">Bar</span> <span class="o">=</span> 
-   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 43)" onmouseover="showTip(event, 'fs20', 43)" class="id">a</span> <span class="o">=</span> <span class="n">42</span>
+   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs21', 43)" onmouseover="showTip(event, 'fs21', 43)" class="id">a</span> <span class="o">=</span> <span class="n">42</span>
 </code></pre></td>
 </tr>
 </table>
@@ -221,7 +221,7 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="c">/// Some actual comment</span>
 <span class="c">/// &lt;para&gt;Another paragraph&lt;/para&gt;</span>
 <span class="c">/// &lt;/summary&gt;</span>
-<span class="k">module</span> <span onmouseout="hideTip(event, 'fs21', 55)" onmouseover="showTip(event, 'fs21', 55)" class="id">Foo</span> <span class="o">=</span> 
+<span class="k">module</span> <span onmouseout="hideTip(event, 'fs22', 55)" onmouseover="showTip(event, 'fs22', 55)" class="id">Foo</span> <span class="o">=</span> 
    <span class="k">let</span> <span class="id">a</span> <span class="o">=</span> <span class="n">42</span>
 </code></pre></td>
 </tr>
@@ -297,12 +297,13 @@ that you can use.</p>
 <div class="tip" id="fs13">Baz.id: Bar</div>
 <div class="tip" id="fs14">val f : b:Baz -&gt; Bar<br /><em><br /><br />&#160;This function operates on `Baz` types.</em></div>
 <div class="tip" id="fs15">val b : Baz</div>
-<div class="tip" id="fs16">type Bar = double<br /><em><br /><br />&#160;This is not the same type as `Foo.Bar`</em></div>
-<div class="tip" id="fs17">Multiple items<br />val double : value:&#39;T -&gt; double (requires member op_Explicit)<br /><br />--------------------<br />type double = System.Double</div>
-<div class="tip" id="fs18">val f2 : b:int -&gt; int<br /><em><br /><br />&#160;Using the simple name for [Bar] will fail to create a link because the name is duplicated in <br />&#160;[Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.</em></div>
-<div class="tip" id="fs19">val b : int</div>
-<div class="tip" id="fs20">val a : int</div>
-<div class="tip" id="fs21">module Foo<br /><br />from Metadata<br /><em><br /><br />&#160;Contains two types [Bar] and [Foo.Baz]</em></div>
+<div class="tip" id="fs16"></div>
+<div class="tip" id="fs17">type Bar = double<br /><em><br /><br />&#160;This is not the same type as `Foo.Bar`</em></div>
+<div class="tip" id="fs18">Multiple items<br />val double : value:&#39;T -&gt; double (requires member op_Explicit)<br /><br />--------------------<br />type double = System.Double</div>
+<div class="tip" id="fs19">val f2 : b:int -&gt; int<br /><em><br /><br />&#160;Using the simple name for [Bar] will fail to create a link because the name is duplicated in <br />&#160;[Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.</em></div>
+<div class="tip" id="fs20">val b : int</div>
+<div class="tip" id="fs21">val a : int</div>
+<div class="tip" id="fs22">module Foo<br /><br />from Metadata<br /><em><br /><br />&#160;Contains two types [Bar] and [Foo.Baz]</em></div>
 
         </div>
         <div class="span3">
