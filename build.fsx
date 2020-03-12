@@ -18,6 +18,8 @@ open Fake.DotNet
 open Fake.IO
 open Fake.Tools
 
+Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
 
@@ -54,14 +56,9 @@ Target.create "AssemblyInfo" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target.create "Clean" (fun _ ->
-    !! "bin"
-    ++ artifactsDir
+    !! artifactsDir
     ++ "temp"
     ++ "docs/output"
-    ++ "tests/bin"
-    ++ "src/**/obj"
-    ++ "tests/FSharp.MetadataFormat.Tests/files/**/bin"
-    ++ "tests/FSharp.MetadataFormat.Tests/files/**/obj"
     |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
     ["bin"; "temp"; "docs/output"; "tests/bin"]
