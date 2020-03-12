@@ -5,7 +5,7 @@ services:
   - docker
 
 script:
-  - ./docker-build.sh -t Bundle
+  - ./docker-build.sh
  
 branches:
   except:
