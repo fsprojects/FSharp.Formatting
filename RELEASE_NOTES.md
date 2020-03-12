@@ -1,3 +1,6 @@
+## 4.0.0-alpha04
+  - Update to FSCS v34.1.
+
 ## 4.0.0-alpha03
   - Update to FSCS v34.
 
