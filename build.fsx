@@ -271,11 +271,11 @@ Target.create "ReleaseDocs" (fun _ ->
     Git.Branches.push "temp/gh-pages"
 )
 
-let apikey =  Environment.environVarOrDefault "NUGET_KEY" ""
 
 Target.create "PushPackagesToNugetOrg" (fun _ ->
+    let source = "https://api.nuget.org/v3/index.json"
+    let apikey =  Environment.environVarOrDefault "NUGET_KEY" ""
     for artifact in !! (artifactsDir + "/*nupkg") do
-        let source = "https://api.nuget.org/v3/index.json"
         let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
         if not result.OK then failwith "failed to push packages"  
 )
