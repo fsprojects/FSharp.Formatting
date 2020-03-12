@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		build.fsx = build.fsx
 		build.sh = build.sh
 		Directory.Build.props = Directory.Build.props
+		docker-build.sh = docker-build.sh
 		Dockerfile = Dockerfile
 		.config\dotnet-tools.json = .config\dotnet-tools.json
 		global.json = global.json

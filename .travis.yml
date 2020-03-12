@@ -5,8 +5,7 @@ services:
   - docker
 
 script:
-  - docker build -t fsharp-formatting-build .
-  - docker run --rm fsharp-formatting-build
+  - ./docker-build.sh -t Bundle
  
 branches:
   except:

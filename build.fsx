@@ -271,7 +271,7 @@ Target.create "ReleaseDocs" (fun _ ->
     Git.Branches.push "temp/gh-pages"
 )
 
-let apikey =  Environment.environVarOrDefault "nugetkey" ""
+let apikey =  Environment.environVarOrDefault "NUGET_KEY" ""
 
 Target.create "PushPackagesToNugetOrg" (fun _ ->
     DotNet.nugetPush (fun opts ->

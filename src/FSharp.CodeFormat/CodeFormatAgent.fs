@@ -139,7 +139,7 @@ type CodeFormatAgent() =
 
 
     // Processes a single line of the snippet
-    let processSnippetLine (checkResults: FSharpCheckFileResults) (semanticRanges: (Range.range * SemanticClassificationType)[])
+    let processSnippetLine (checkResults: FSharpCheckFileResults) (semanticRanges: struct(Range.range * SemanticClassificationType)[])
                             (lines: string[]) (line: int, lineTokens: SnippetLine) =
         let lineStr = lines.[line]
 
@@ -209,8 +209,8 @@ type CodeFormatAgent() =
                     | _ ->
                     let kind =
                         semanticRanges
-                        |> Array.tryFind (fun (range,_) -> range.StartColumn  = token.LeftColumn)
-                        |> Option.bind (fun (_,category) -> categoryToTokenKind category)
+                        |> Array.tryFind (fun struct(range,_) -> range.StartColumn  = token.LeftColumn)
+                        |> Option.bind (fun struct(_,category) -> categoryToTokenKind category)
                         |> Option.defaultValue (Helpers.getTokenKind token.ColorClass)
                     yield FSharp.CodeFormat.Token (kind, body, tip)
                 // Process the rest of the line
@@ -220,7 +220,7 @@ type CodeFormatAgent() =
             | _x, Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
               let printfOrEscapedSpans =
                   semanticRanges
-                  |> Array.filter (fun (range,category) ->
+                  |> Array.filter (fun struct(range,category) ->
                       (category = SemanticClassificationType.Printf) &&
                       range.StartColumn >= strLeftCol &&
                       range.EndColumn <= strRightCol)
@@ -230,7 +230,7 @@ type CodeFormatAgent() =
               | spans ->
                   let data =
                     spans
-                    |> Array.fold (fun points (range,category) ->
+                    |> Array.fold (fun points struct(range,category) ->
                         points
                         |> Set.add range.StartColumn
                         |> Set.add (range.EndColumn - 1)) Set.empty
@@ -240,8 +240,8 @@ type CodeFormatAgent() =
                     |> Seq.pairwise
                     |> Seq.map (fun (leftPoint, rightPoint) ->
                         printfOrEscapedSpans
-                        |> Array.tryFind (fun (range,category) -> range.StartColumn = leftPoint)
-                        |> Option.bind (fun (range,category)->
+                        |> Array.tryFind (fun struct(range,category) -> range.StartColumn = leftPoint)
+                        |> Option.bind (fun struct(range,category)->
                              categoryToTokenKind category
                              |> Option.map (fun kind -> range.StartColumn, range.EndColumn, kind))
                         |> Option.defaultValue (leftPoint+1, rightPoint, TokenKind.String))
@@ -373,7 +373,7 @@ type CodeFormatAgent() =
             let errors = checkResults.Errors
             let classifications =
                 checkResults.GetSemanticClassification (Some parsedInput.Range)
-                |> Seq.groupBy (fun (r,c) -> r.StartLine)
+                |> Seq.groupBy (fun struct(r,c) -> r.StartLine)
                 |> Map.ofSeq
 
 
