@@ -19,13 +19,14 @@ open FSharp.CodeFormat
 type Comment =
   { Blurb : string
     FullText : string
-    Sections : list<KeyValuePair<string, string>> }
+    Sections : list<KeyValuePair<string, string>>
+    RawData: list<KeyValuePair<string, string>> }
 
   static member Empty =
-    { Blurb = ""; FullText = ""; Sections = [] }
+    { Blurb = ""; FullText = ""; Sections = []; RawData = [] }
 
-  static member Create(blurb, full, sects) =
-    { Blurb = blurb; FullText = full; Sections = sects }
+  static member Create(blurb, full, sects, rawData) =
+    { Blurb = blurb; FullText = full; Sections = sects; RawData = rawData }
 
 /// Represents a custom attribute attached to F# source code
 type Attribute =
@@ -736,6 +737,12 @@ module Reader =
     let groups = System.Collections.Generic.Dictionary<_, _>()
     let mutable current = "<default>"
     groups.Add(current, [])
+    let raw =
+        match doc.Source with
+        | Markdown (string) -> [KeyValuePair(current, string)]
+        | Script _ -> []
+
+
     for par in doc.Paragraphs do
       match par with
       | Heading(2, [Literal(text, _)], _) ->
@@ -751,7 +758,7 @@ module Reader =
           let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
           let html = Literate.WriteHtml(doc.With(body))
           KeyValuePair(k, html) ]
-    Comment.Create(blurb, full, sections)
+    Comment.Create(blurb, full, sections, raw)
 
   let findCommand = (function
     | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) ->
@@ -759,7 +766,7 @@ module Reader =
     | _ -> None)
 
   let readXmlComment (urlMap : IUrlHolder) (doc : XElement) (cmds: IDictionary<_, _>)=
-
+   let rawData = new Dictionary<string, string>()
    let full = new StringBuilder()
    let rec readElement (e : XElement) =
      Seq.iter (fun (x : XNode) ->
@@ -801,6 +808,7 @@ module Reader =
    full.Append("</br>") |> ignore
 
    for e in doc.Descendants(XName.Get "summary") do
+     rawData.["summary"] <- e.Value
      full.Append("<p class='summary'>") |> ignore
      readElement e
      full.Append("</p>") |> ignore
@@ -813,12 +821,15 @@ module Reader =
      for e in parameters do
        let name = e.Attribute(XName.Get "name").Value
        let description = e.Value
+       rawData.["param-" + name] <- description
        full.AppendFormat("<dt><span class='parameter'>{0}</span></dt><dd><p>{1}</p></dd>", name, description) |> ignore
      full.Append("</dl>") |> ignore
 
    for e in doc.Descendants(XName.Get "returns") do
+
      full.Append("<p class='returns'>") |> ignore
      let description = e.Value
+     rawData.["returns"] <- description
      full.AppendFormat("Returns: {0}",description) |> ignore
      full.Append("</p>") |> ignore
 
@@ -833,6 +844,7 @@ module Reader =
           failwithf "Invalid cref specified in: %A" doc
         match urlMap.ResolveCref cref.Value with
         | Some (reference) ->
+          rawData.["exception-" + reference.NiceName] <- reference.ReferenceLink
           full.AppendFormat("<tr><td><a href=\"{0}\">{1}</a></td><td>{2}</td></tr>", reference.ReferenceLink, reference.NiceName,e.Value) |> ignore
         | _ ->
           full.AppendFormat("<tr><td>UNRESOLVED({0})</td><td></td></tr>", cref.Value) |> ignore
@@ -842,6 +854,7 @@ module Reader =
    if Seq.length remarks > 0 then
      full.Append("<h2>Remarks</h2>") |> ignore
      for e in remarks do
+       rawData.["remarks"] <- e.Value
        full.Append("<p class='remarks'>") |> ignore
        readElement e
        full.Append("</p>") |> ignore
@@ -849,7 +862,8 @@ module Reader =
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
    let str = full.ToString()
-   Comment.Create(str, str, [KeyValuePair("<default>", str)])
+   let raw = rawData |> Seq.toList
+   Comment.Create(str, str, [KeyValuePair("<default>", str)], raw)
 
   /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
@@ -930,7 +944,7 @@ module Reader =
         | null when String.IsNullOrEmpty el.Value ->
           dict[], Comment.Empty
         | null ->
-          dict[], (Comment.Create ("", el.Value, []))
+          dict[], (Comment.Create ("", el.Value, [], []))
         | sum ->
           let lines = removeSpaces sum.Value |> Seq.map (fun s -> (s, MarkdownRange.zero))
           let cmds = new System.Collections.Generic.Dictionary<_, _>()
