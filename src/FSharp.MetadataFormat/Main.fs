@@ -813,7 +813,7 @@ module Reader =
      readElement e
      full.Append("</p>") |> ignore
 
-   let parameters = doc.Descendants(XName.Get "params")
+   let parameters = doc.Descendants(XName.Get "param")
 
    if Seq.length parameters > 0 then
      full.Append("<h2>Parameters</h2>") |> ignore
