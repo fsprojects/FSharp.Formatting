@@ -859,6 +859,26 @@ module Reader =
        readElement e
        full.Append("</p>") |> ignore
 
+
+   doc.Descendants ()
+   |> Seq.filter (fun n ->
+        let ln = n.Name.LocalName
+        ln <> "summary" &&
+        ln <> "param" &&
+        ln <> "exceptions" &&
+        ln <> "returns" &&
+        ln <> "remarks" )
+   |> Seq.groupBy (fun n -> n.Name.LocalName)
+   |> Seq.iter (fun (n, lst) ->
+        let lst = Seq.toList lst
+        match lst with
+        | [x] -> rawData.[n] <- x.Value
+        | lst ->
+            lst |> Seq.iteri (fun id el ->
+                rawData.[n + "-" + string id] <- el.Value)
+        ()
+   )
+
    // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
    // via reflection this tags are not so important in F#
    let str = full.ToString()
