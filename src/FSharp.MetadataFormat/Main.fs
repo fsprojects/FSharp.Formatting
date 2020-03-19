@@ -807,14 +807,16 @@ module Reader =
    readElement doc
    full.Append("</br>") |> ignore
 
-   for e in doc.Descendants(XName.Get "summary") do
-     rawData.["summary"] <- e.Value
+   let summaries = doc.Descendants(XName.Get "summary")
+   summaries |> Seq.iteri (fun id e ->
+     let n = if id = 0 then "summary" else "summary-" + string id
+     rawData.[n] <- e.Value
      full.Append("<p class='summary'>") |> ignore
      readElement e
      full.Append("</p>") |> ignore
+   )
 
    let parameters = doc.Descendants(XName.Get "param")
-
    if Seq.length parameters > 0 then
      full.Append("<h2>Parameters</h2>") |> ignore
      full.Append("<dl>") |> ignore
@@ -825,13 +827,16 @@ module Reader =
        full.AppendFormat("<dt><span class='parameter'>{0}</span></dt><dd><p>{1}</p></dd>", name, description) |> ignore
      full.Append("</dl>") |> ignore
 
-   for e in doc.Descendants(XName.Get "returns") do
+   let returns = doc.Descendants(XName.Get "returns")
+   returns |> Seq.iteri (fun id e ->
+     let n = if id = 0 then "returns" else "returns-" + string id
 
      full.Append("<p class='returns'>") |> ignore
      let description = e.Value
-     rawData.["returns"] <- description
+     rawData.[n] <- description
      full.AppendFormat("Returns: {0}",description) |> ignore
      full.Append("</p>") |> ignore
+   )
 
    let exceptions = doc.Descendants(XName.Get "exceptions")
    if Seq.length exceptions > 0 then
@@ -853,11 +858,13 @@ module Reader =
    let remarks = doc.Descendants(XName.Get "remarks")
    if Seq.length remarks > 0 then
      full.Append("<h2>Remarks</h2>") |> ignore
-     for e in remarks do
-       rawData.["remarks"] <- e.Value
+     remarks |> Seq.iteri (fun id e ->
+       let n = if id = 0 then "remarks" else "remarks-" + string id
+       rawData.[n] <- e.Value
        full.Append("<p class='remarks'>") |> ignore
        readElement e
        full.Append("</p>") |> ignore
+     )
 
 
    doc.Descendants ()
