@@ -67,12 +67,12 @@ type Attribute =
 
   /// Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned
   member x.CustomOperationName =
-    let tryFindObsoleteMessage =
+    let tryFindCustomOperation =
       x.ConstructorArguments
       |> Seq.tryFind (fun x -> x :? string)
       |> Option.map string
       |> Option.defaultValue ""
-    if x.IsObsoleteAttribute then tryFindObsoleteMessage else ""
+    if x.IsCustomOperationAttribute then tryFindCustomOperation else ""
 
   /// Formats the attribute with the given name
   member private x.Format(attributeName:string, removeAttributeSuffix:bool) =
