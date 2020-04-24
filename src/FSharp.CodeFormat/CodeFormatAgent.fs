@@ -8,17 +8,13 @@ open System
 open System.IO
 open System.Runtime.ExceptionServices
 open FSharp.Compiler
-open FSharp.Compiler.Ast
 open FSharp.Compiler.Range
-open FSharp.Compiler.Layout
-open FSharp.Compiler.SourceCodeServices.FSharpTokenTag
 open FSharp.Compiler.Text
 open FSharp.Compiler.SourceCodeServices
 open FSharp.CodeFormat
 open FSharp.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
 open Yaaf.FSharp.Scripting
-open FSharp.Formatting.Common
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------

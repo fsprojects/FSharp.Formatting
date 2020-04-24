@@ -1,3 +1,7 @@
+## 4.0.0
+  - Add .NET Core support for all libraries.
+  - Update to latest FSharp.Compiler.Service
+
 ## 4.0.0-rc1
   - Add .NET Core support for all libraries.
   - Update to latest FSharp.Compiler.Service

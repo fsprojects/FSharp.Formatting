@@ -1,9 +1,9 @@
-﻿[<AutoOpen>]
+[<AutoOpen>]
 module internal FSharp.CodeFormat.Pervasive
 
 open System
 open System.Diagnostics
-open FSharp.Compiler
+open FSharp.Compiler.SyntaxTree
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Text
 
@@ -115,7 +115,7 @@ type CheckResults =
 
 type FSharpChecker with
 
-    member this.ParseAndCheckDocument(filePath: string, sourceText: string, options: FSharpProjectOptions, allowStaleResults: bool) : Async<(FSharpParseFileResults * Ast.ParsedInput * FSharpCheckFileResults) option> =
+    member this.ParseAndCheckDocument(filePath: string, sourceText: string, options: FSharpProjectOptions, allowStaleResults: bool) : Async<(FSharpParseFileResults * ParsedInput * FSharpCheckFileResults) option> =
             let parseAndCheckFile = async {
                 let! parseResults, checkFileAnswer = this.ParseAndCheckFileInProject(filePath, 0, SourceText.ofString sourceText, options)
                 return
