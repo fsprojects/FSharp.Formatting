@@ -61,6 +61,19 @@ type Attribute =
             |> Option.defaultValue ""
     if x.IsObsoleteAttribute then tryFindObsoleteMessage else ""
 
+  /// Gets a value indicating whether this attribute the CustomOperationAttribute
+  member x.IsCustomOperationAttribute =
+    x.FullName = "Microsoft.FSharp.Core.CustomOperationAttribute"
+
+  /// Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned
+  member x.CustomOperationName =
+    let tryFindCustomOperation =
+      x.ConstructorArguments
+      |> Seq.tryFind (fun x -> x :? string)
+      |> Option.map string
+      |> Option.defaultValue ""
+    if x.IsCustomOperationAttribute then tryFindCustomOperation else ""
+
   /// Formats the attribute with the given name
   member private x.Format(attributeName:string, removeAttributeSuffix:bool) =
         let dropSuffix (s:string) (t:string) = s.[0..s.Length - t.Length - 1]
@@ -116,6 +129,13 @@ type Attribute =
     attributes
     |> Seq.tryFind (fun a -> a.IsObsoleteAttribute)
     |> Option.map (fun a -> a.ObsoleteMessage)
+    |> Option.defaultValue ""
+
+  /// Tries to find the CustomOperationAttribute and return its obsolete message
+  static member internal TryGetCustomOperationName(attributes:seq<Attribute>)=
+    attributes
+    |> Seq.tryFind (fun a -> a.IsCustomOperationAttribute)
+    |> Option.map (fun a -> a.CustomOperationName)
     |> Option.defaultValue ""
 
 /// Represents the details of an F# method, property, event, function or value, including extension members
@@ -192,6 +212,15 @@ type Member =
   /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
   member x.ObsoleteMessage =
     Attribute.TryGetObsoleteMessage(x.Attributes)
+
+  /// Gets a value indicating whether this member has CustomOperationAttribute
+  member x.IsCustomOperation =
+    x.Attributes
+    |> Seq.exists (fun a -> a.IsCustomOperationAttribute)
+
+  /// Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned
+  member x.CustomOperationName =
+    Attribute.TryGetCustomOperationName(x.Attributes)
 
 /// Represents an F# type.
 type Type =
