@@ -17,13 +17,14 @@ open FSharp.CodeFormat
 type Literate private () =
 
   /// Build default options context for formatting literate document
-  static let formattingContext format prefix lineNumbers includeSource generateAnchors replacements =
+  static let formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss =
     { Replacements = defaultArg replacements []
       GenerateLineNumbers = defaultArg lineNumbers true
       IncludeSource = defaultArg includeSource false
       Prefix = defaultArg prefix "fs"
       OutputKind = defaultArg format OutputKind.Html
       GenerateHeaderAnchors = defaultArg generateAnchors false
+      TokenKindToCss = tokenKindToCss
     }
 
   /// Build default options context for parsing literate scripts/documents
@@ -100,8 +101,8 @@ type Literate private () =
   // Simple writing functions
   // ------------------------------------------------------------------------------------
 
-  static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None
+  static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+    let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
@@ -109,19 +110,19 @@ type Literate private () =
     Html.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
     sb.ToString()
 
-  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None
+  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+    let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
     Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   static member WriteLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None
+    let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
   static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None
+    let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
@@ -129,8 +130,8 @@ type Literate private () =
   // Replace literate paragraphs with plain paragraphs
   // ------------------------------------------------------------------------------------
 
-  static member FormatLiterateNodes(doc:LiterateDocument, ?format, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext format prefix lineNumbers None generateAnchors None
+  static member FormatLiterateNodes(doc:LiterateDocument, ?format, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+    let ctx = formattingContext format prefix lineNumbers None generateAnchors None tokenKindToCss
     Transformations.replaceLiterateParagraphs ctx doc
 
   // ------------------------------------------------------------------------------------
@@ -139,19 +140,19 @@ type Literate private () =
 
   /// Process the given literate document
   static member ProcessDocument
-    ( doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements) =
-    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements
+    ( doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?tokenKindToCss) =
+    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     Templating.processFile doc output ctx
 
   /// Process Markdown document
   static member ProcessMarkdown
     ( input, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument ) =
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss ) =
     let doc =
       Literate.ParseMarkdownFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
           ?references = references )
-    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements
+    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
@@ -160,12 +161,12 @@ type Literate private () =
   static member ProcessScriptFile
     ( input,?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
-      ?generateAnchors, ?customizeDocument ) =
+      ?generateAnchors, ?customizeDocument, ?tokenKindToCss ) =
     let doc =
       Literate.ParseScriptFile
         ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
           ?references = references, ?fsiEvaluator = fsiEvaluator )
-    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements
+    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
@@ -173,7 +174,7 @@ type Literate private () =
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member ProcessDirectory
     ( inputDirectory, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors, ?processRecursive, ?customizeDocument ) =
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors, ?processRecursive, ?customizeDocument, ?tokenKindToCss ) =
     let processRecursive = defaultArg processRecursive true
     // Call one or the other process function with all the arguments
     let processScriptFile file output =
@@ -182,13 +183,13 @@ type Literate private () =
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
           ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-          ?customizeDocument = customizeDocument )
+          ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss )
     let processMarkdown file output =
       Literate.ProcessMarkdown
         ( file, output = output, ?format = format,
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
-          ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument)
+          ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
 
     /// Recursively process all files in the directory tree
     let rec processDirectory indir outdir =
