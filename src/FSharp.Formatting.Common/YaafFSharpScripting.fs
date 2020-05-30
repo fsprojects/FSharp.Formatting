@@ -201,6 +201,7 @@ module internal CompilerServiceExtensions =
             [| //yield "--debug:full"
                //yield "--define:DEBUG"
                //yield "--optimize-"
+               yield "--langversion:preview"
                yield "--nooptimizationdata"
                yield "--noframework"
 
