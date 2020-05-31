@@ -44,6 +44,7 @@ let ``Simple code snippet is formatted with tool tips``() =
     | _ -> false)
   |> shouldEqual true
 
+// Note: 'nameof' will not be in preview forever, so this test may need to be updated in the future
 [<Test>]
 let ``Preview language feature from FSharp Core is supported``() =
     let source = """
@@ -58,6 +59,7 @@ nameof x
         | _ -> false)
     |> shouldEqual true
 
+// Note: applicative CEs won't be in preview forever, so this test may need to change over time
 [<Test>]
 let ``Preview language feature is supported``() =
     let source = """
