@@ -1,3 +1,7 @@
+## 4.1.0
+  - Support preview F# language features.
+  - Add support for customizing assigned CSS class.
+
 ## 4.0.1
   - Add .NET Core support for all libraries.
   - Update to FSCS v35.0.
