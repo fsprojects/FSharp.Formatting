@@ -52,10 +52,10 @@
     <tbody>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '311', 311)" onmouseover="showTip(event, '311', 311)">
+          <code onmouseout="hideTip(event, '310', 310)" onmouseover="showTip(event, '310', 310)">
             GenerateHeaderAnchors
           </code>
-          <div class="tip" id="311">
+          <div class="tip" id="310">
             <strong>Signature:</strong> bool<br />
                                   </div>
         </td>
@@ -64,15 +64,17 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Auto-generate anchors for headers</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '312', 312)" onmouseover="showTip(event, '312', 312)">
+          <code onmouseout="hideTip(event, '311', 311)" onmouseover="showTip(event, '311', 311)">
             GenerateLineNumbers
           </code>
-          <div class="tip" id="312">
+          <div class="tip" id="311">
             <strong>Signature:</strong> bool<br />
                                   </div>
         </td>
@@ -81,15 +83,17 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Generate line numbers for F# snippets?</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '313', 313)" onmouseover="showTip(event, '313', 313)">
+          <code onmouseout="hideTip(event, '312', 312)" onmouseover="showTip(event, '312', 312)">
             IncludeSource
           </code>
-          <div class="tip" id="313">
+          <div class="tip" id="312">
             <strong>Signature:</strong> bool<br />
                                   </div>
         </td>
@@ -98,15 +102,17 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Include the source file in the generated output as '{source}'</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '314', 314)" onmouseover="showTip(event, '314', 314)">
+          <code onmouseout="hideTip(event, '313', 313)" onmouseover="showTip(event, '313', 313)">
             OutputKind
           </code>
-          <div class="tip" id="314">
+          <div class="tip" id="313">
             <strong>Signature:</strong> OutputKind<br />
                                   </div>
         </td>
@@ -115,15 +121,17 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>The output format</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '315', 315)" onmouseover="showTip(event, '315', 315)">
+          <code onmouseout="hideTip(event, '314', 314)" onmouseover="showTip(event, '314', 314)">
             Prefix
           </code>
-          <div class="tip" id="315">
+          <div class="tip" id="314">
             <strong>Signature:</strong> string<br />
                                   </div>
         </td>
@@ -132,15 +140,17 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Short prefix code added to all HTML 'id' elements</p>
+
+
         </td>
       </tr>
       <tr>
         <td class="member-name">
-          <code onmouseout="hideTip(event, '316', 316)" onmouseover="showTip(event, '316', 316)">
+          <code onmouseout="hideTip(event, '315', 315)" onmouseover="showTip(event, '315', 315)">
             Replacements
           </code>
-          <div class="tip" id="316">
+          <div class="tip" id="315">
             <strong>Signature:</strong> (string * string) list<br />
                                   </div>
         </td>
@@ -149,7 +159,28 @@
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
-          
+          <p>Additional replacements to be made in the template file</p>
+
+
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+          <code onmouseout="hideTip(event, '316', 316)" onmouseover="showTip(event, '316', 316)">
+            TokenKindToCss
+          </code>
+          <div class="tip" id="316">
+            <strong>Signature:</strong> (TokenKind -&gt; string) option<br />
+                                  </div>
+        </td>
+        <td class="xmldoc">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Literate/Contexts.fs#L45-45" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          <p>Function assigning CSS class to given token kind. If not specified, default mapping will be used</p>
+
+
         </td>
       </tr>
     </tbody>

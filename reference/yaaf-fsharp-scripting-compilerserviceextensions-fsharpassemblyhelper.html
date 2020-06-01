@@ -61,7 +61,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L69-69" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L51-51" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -78,7 +78,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L76-76" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L52-52" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -95,7 +95,7 @@
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L330-330" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L196-196" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -105,14 +105,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
-            findAssemblyVersion(assembly)
+            findFSCore dllFiles libDirs
           </code>
           <div class="tip" id="126">
-            <strong>Signature:</strong> assembly:Assembly -&gt; &#39;?50956 option<br />
-                          <strong>Type parameters:</strong> '?50956                      </div>
+            <strong>Signature:</strong> dllFiles:string list -&gt; libDirs:seq&lt;string&gt; -&gt; string<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L233-233" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L79-79" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -122,14 +122,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
-            findFSCore dllFiles libDirs
+            fscoreResolveDirs(libDirs)
           </code>
           <div class="tip" id="127">
-            <strong>Signature:</strong> dllFiles:string list -&gt; libDirs:seq&lt;string&gt; -&gt; string<br />
+            <strong>Signature:</strong> libDirs:seq&lt;string&gt; -&gt; string list<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L165-165" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L66-66" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -139,14 +139,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
-            fscoreResolveDirs(libDirs)
+            getCheckerArguments(...)
           </code>
           <div class="tip" id="128">
-            <strong>Signature:</strong> libDirs:seq&lt;string&gt; -&gt; string list<br />
-                                  </div>
+            <strong>Signature:</strong> frameworkVersion:&#39;?50761 -&gt; defaultReferences:&#39;?50762 -&gt; fsCoreLib:string option -&gt; dllFiles:seq&lt;string&gt; -&gt; libDirs:seq&lt;string&gt; -&gt; otherFlags:seq&lt;string&gt; -&gt; string * string []<br />
+                          <strong>Type parameters:</strong> '?50761, '?50762                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L129-129" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L97-97" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -156,14 +156,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
-            getCheckerArguments(...)
+            getLib dir nm
           </code>
           <div class="tip" id="129">
-            <strong>Signature:</strong> frameworkVersion:&#39;?50953 -&gt; defaultReferences:&#39;?50954 -&gt; fsCoreLib:string option -&gt; dllFiles:seq&lt;string&gt; -&gt; libDirs:seq&lt;string&gt; -&gt; otherFlags:seq&lt;string&gt; -&gt; string * string []<br />
-                          <strong>Type parameters:</strong> '?50953, '?50954                      </div>
+            <strong>Signature:</strong> dir:string -&gt; nm:string -&gt; string<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L190-190" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L54-54" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -173,14 +173,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
-            getLib dir nm
+            getNetCoreAppFrameworkDependencies
           </code>
           <div class="tip" id="130">
-            <strong>Signature:</strong> dir:string -&gt; nm:string -&gt; string<br />
+            <strong>Signature:</strong> Lazy&lt;string list&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L80-80" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L57-57" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -190,14 +190,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
-            getNetCoreAppFrameworkDependencies
+            getProjectReferenceFromFile(...)
           </code>
           <div class="tip" id="131">
-            <strong>Signature:</strong> Lazy&lt;string list&gt;<br />
-                                  </div>
+            <strong>Signature:</strong> frameworkVersion:&#39;?50770 -&gt; dllFile:string -&gt; FSharpAssembly option<br />
+                          <strong>Type parameters:</strong> '?50770                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L120-120" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L191-191" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -207,14 +207,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
-            getProjectReferenceFromFile(...)
+            getProjectReferences(...)
           </code>
           <div class="tip" id="132">
-            <strong>Signature:</strong> frameworkVersion:&#39;?50964 -&gt; dllFile:string -&gt; FSharpAssembly option<br />
-                          <strong>Type parameters:</strong> '?50964                      </div>
+            <strong>Signature:</strong> frameworkVersion:&#39;?50764 -&gt; otherFlags:seq&lt;string&gt; option -&gt; libDirs:seq&lt;string&gt; option -&gt; dllFiles:seq&lt;string&gt; -&gt; FSharpAssembly list<br />
+                          <strong>Type parameters:</strong> '?50764                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L325-325" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L137-137" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -224,14 +224,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
-            getProjectReferences(...)
+            getProjectReferencesSimple(...)
           </code>
           <div class="tip" id="133">
-            <strong>Signature:</strong> frameworkVersion:&#39;?50958 -&gt; otherFlags:seq&lt;string&gt; option -&gt; libDirs:seq&lt;string&gt; option -&gt; dllFiles:seq&lt;string&gt; -&gt; FSharpAssembly list<br />
-                          <strong>Type parameters:</strong> '?50958                      </div>
+            <strong>Signature:</strong> frameworkVersion:&#39;?50768 -&gt; dllFiles:seq&lt;string&gt; -&gt; seq&lt;string * FSharpAssembly option&gt;<br />
+                          <strong>Type parameters:</strong> '?50768                      </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L263-263" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L186-186" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -241,14 +241,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
-            getProjectReferencesSimple(...)
+            hasAssembly asm l
           </code>
           <div class="tip" id="134">
-            <strong>Signature:</strong> frameworkVersion:&#39;?50962 -&gt; dllFiles:seq&lt;string&gt; -&gt; seq&lt;string * FSharpAssembly option&gt;<br />
-                          <strong>Type parameters:</strong> '?50962                      </div>
+            <strong>Signature:</strong> asm:string -&gt; l:seq&lt;string&gt; -&gt; bool<br />
+                                  </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L320-320" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L90-90" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -258,14 +258,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
-            hasAssembly asm l
+            referenceMap(references)
           </code>
           <div class="tip" id="135">
-            <strong>Signature:</strong> asm:string -&gt; l:seq&lt;string&gt; -&gt; bool<br />
+            <strong>Signature:</strong> references:seq&lt;FSharpAssembly&gt; -&gt; seq&lt;string * FSharpAssembly&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L176-176" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L177-177" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -275,14 +275,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
-            referenceMap(references)
+            resolve dllFiles references
           </code>
           <div class="tip" id="136">
-            <strong>Signature:</strong> references:seq&lt;FSharpAssembly&gt; -&gt; seq&lt;string * FSharpAssembly&gt;<br />
+            <strong>Signature:</strong> dllFiles:seq&lt;string&gt; -&gt; references:seq&lt;FSharpAssembly&gt; -&gt; seq&lt;string * FSharpAssembly option&gt;<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L311-311" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L180-180" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -292,14 +292,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
-            resolve dllFiles references
+            sysLibBlackList
           </code>
           <div class="tip" id="137">
-            <strong>Signature:</strong> dllFiles:seq&lt;string&gt; -&gt; references:seq&lt;FSharpAssembly&gt; -&gt; seq&lt;string * FSharpAssembly option&gt;<br />
+            <strong>Signature:</strong> string list<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L314-314" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L92-92" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -309,31 +309,14 @@
       <tr>
         <td class="member-name">
           <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
-            sysLibBlackList
-          </code>
-          <div class="tip" id="138">
-            <strong>Signature:</strong> string list<br />
-                                  </div>
-        </td>
-        <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L178-178" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
             tryCheckFsCore(fscorePath)
           </code>
-          <div class="tip" id="139">
+          <div class="tip" id="138">
             <strong>Signature:</strong> fscorePath:string -&gt; string option<br />
                                   </div>
         </td>
         <td class="xmldoc">
-                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L160-160" class="github-link">
+                      <a href="http://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Common/YaafFSharpScripting.fs#L74-74" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
