@@ -287,12 +287,8 @@ type CodeFormatAgent() =
         let fsiOptions = (Option.map (Helpers.parseOptions >>  FsiOptions.ofArgs) options) |> Option.defaultValue FsiOptions.Empty
 
         let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
-        let defaultReferences =
-#if !NETSTANDARD
-            FSharpAssemblyHelper.getDefaultSystemReferences frameworkVersion
-#else
-            Seq.empty
-#endif
+        let defaultReferences = Seq.empty
+
         let projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences None [] [] []
         // filter invalid args
         let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
