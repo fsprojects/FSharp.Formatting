@@ -433,7 +433,6 @@ let ``Parsing simple script and markdown produces the same result`` () =
 // --------------------------------------------------------------------------------------
 // Test processing simple files using simple templates
 // --------------------------------------------------------------------------------------
-#if !NETSTANDARD
 let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.cshtml"
 
@@ -496,8 +495,6 @@ let ``Can process md file using the template included in NuGet package``() =
       layoutRoots = [__SOURCE_DIRECTORY__ </> "../../misc/templates"], replacements = info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
-
-#endif
 
 [<Test>]
 let ``Gives nice error when parsing unclosed comment`` () =

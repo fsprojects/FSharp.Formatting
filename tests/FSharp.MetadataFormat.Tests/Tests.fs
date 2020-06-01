@@ -82,10 +82,6 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   let optSeriesMod = files |> Seq.tryFind (fun s -> s.Contains "seriesmodule")
   optSeriesMod.IsSome |> shouldEqual true
 
-  //#if INTERACTIVE
-  //System.Diagnostics.Process.Start(output)
-  //#endif
-
 
 [<Test; Ignore "Ignore by default to make tests run reasonably fast">]
 let ``MetadataFormat works on sample FAKE assembly``() =
@@ -121,9 +117,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
 
   // Check that union fields are correctly generated
   files.["fslib-union.html"] |> shouldContainText "World(string,int)"
-#if FSHARP_31
   files.["fslib-union.html"] |> shouldContainText "Naming(rate,string)"
-#endif
 
   // Check that methods with no arguments are correctly generated (#113)
   files.["fslib-record.html"] |> shouldNotContainText "Foo2(arg1)"
@@ -148,10 +142,6 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArgTupled(arg)"
   files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultPartial arg1 arg2"
 
-  //#if INTERACTIVE
-  //System.Diagnostics.Process.Start(output)
-  //#endif
-
 [<Test>]
 let ``MetadataFormat generates Go to GitHub source links``() =
   let libraries =
@@ -171,10 +161,6 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
   files.["fslib-union.html"] |> shouldContainText "github-link"
   files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
-
-  //#if INTERACTIVE
-  //System.Diagnostics.Process.Start(output)
-  //#endif
 
 [<Test>]
 let ``MetadataFormat test that cref generation works``() =
@@ -244,10 +230,6 @@ let ``MetadataFormat test that cref generation works``() =
   /// reference to a corelib class works.
   files.["creflib2-class8.html"] |> shouldContainText "Assembly"
   files.["creflib2-class8.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
-
-  //#if INTERACTIVE
-  //System.Diagnostics.Process.Start(output)
-  //#endif
 
 [<Test>]
 let ``MetadataFormat test that csharp (publiconly) support works``() =
@@ -351,10 +333,6 @@ let ``MetadataFormat test that csharp support works``() =
   files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Property"
   files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Event"
 
-  //#if INTERACTIVE
-  //System.Diagnostics.Process.Start(output)
-  //#endif
-
 [<Test>]
 let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   let libraries =
@@ -395,10 +373,6 @@ let ``MetadataFormat handles c# dlls`` () =
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
-
-  //#if INTERACTIVE
-  //System.Diagnostics.Process.Start(output)
-  //#endif
 
 [<Test>]
 let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
