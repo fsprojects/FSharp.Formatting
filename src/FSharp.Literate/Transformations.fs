@@ -319,7 +319,7 @@ module Transformations =
         | OutputReference _
         | ItValueReference _
         | ValueReference _ ->
-            failwith "Output, it-value and value references should be replaced by FSI evaluator"
+            failwithf "Output, it-value and value references should be replaced by FSI evaluator: %A" special
         | LanguageTaggedCode(lang, code) ->
             let inlined =
               match ctx.OutputKind with
