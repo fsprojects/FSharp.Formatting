@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (HtmlFormatting.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -95,7 +95,7 @@ let formatToolTipSpans spans =
 
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
-  | Error(kind, message, body) when ctx.GenerateErrors ->
+  | TokenSpan.Error(kind, message, body) when ctx.GenerateErrors ->
       let tip = ToolTipReader.formatMultilineString (message.Trim())
       let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
       ctx.Writer.Write("<span ")
@@ -104,15 +104,15 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       formatTokenSpans { ctx with FormatTip = fun _ _ _ -> "" } body
       ctx.Writer.Write("</span>")
 
-  | Error(_, _, body) ->
+  | TokenSpan.Error(_, _, body) ->
       formatTokenSpans ctx body
 
-  | Output(body) ->
+  | TokenSpan.Output(body) ->
       ctx.Writer.Write("<span class=\"fsi\">")
       ctx.Writer.Write(HttpUtility.HtmlEncode(body))
       ctx.Writer.Write("</span>")
 
-  | Omitted(body, hidden) ->
+  | TokenSpan.Omitted(body, hidden) ->
       let tip = ToolTipReader.formatMultilineString (hidden.Trim())
       let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
       ctx.Writer.Write("<span ")
@@ -121,7 +121,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
       ctx.Writer.Write(body)
       ctx.Writer.Write("</span>")
 
-  | Token(kind, body, tip) ->
+  | TokenSpan.Token(kind, body, tip) ->
     // Generate additional attributes for ToolTip
     let tipAttributes =
         match tip with
@@ -143,7 +143,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
 
 /// Generate HTML with the specified snippets
 let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
- [| for (Snippet(title, lines)) in snippets do
+ [| for (Snippet(key, lines)) in snippets do
       // Skip empty lines at the beginning and at the end
       let skipEmptyLines = Seq.skipWhile (fun (Line(spans)) -> List.isEmpty spans) >> List.ofSeq
       let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
@@ -192,7 +192,7 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
         ctx.Writer.Write("</table>")
 
       ctx.Writer.Close()
-      yield title, mainStr.ToString() |]
+      yield key, mainStr.ToString() |]
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)

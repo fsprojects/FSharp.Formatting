@@ -144,7 +144,7 @@ type CodeFormatAgent() =
             match tokens with
             | [] -> ()
             | (body, token)::rest when token.ColorClass = FSharpTokenColorKind.Keyword ->
-                yield FSharp.CodeFormat.Token (TokenKind.Keyword, body, None)
+                yield TokenSpan.Token (TokenKind.Keyword, body, None)
                 yield! loop [] rest None
             | (body, token) :: rest ->
             let stringRange, completedStringRange, rest =
@@ -191,24 +191,24 @@ type CodeFormatAgent() =
                 if token.TokenName.StartsWith("OMIT") then
                 // Special OMIT tag - add tool tip stored in token name
                 // (The text immediately follows the keyword "OMIT")
-                    yield Omitted(body, token.TokenName.Substring(4))
+                    yield TokenSpan.Omitted(body, token.TokenName.Substring(4))
                 elif token.TokenName = "FSI" then
                 // F# Interactive output - return as Output token
-                    yield Output(body)
+                    yield TokenSpan.Output(body)
                 else
                     match tip with
                     | Some (Literal msg::_) when msg.StartsWith("custom operation:") ->
                         // If the tool-tip says this is a custom operation, then
                         // we want to treat it as keyword (not sure if there is a better
                         // way to detect this, but Visual Studio also colors these later)
-                        yield FSharp.CodeFormat.Token(TokenKind.Keyword, body, tip)
+                        yield TokenSpan.Token(TokenKind.Keyword, body, tip)
                     | _ ->
                     let kind =
                         semanticRanges
                         |> Array.tryFind (fun struct(range,_) -> range.StartColumn  = token.LeftColumn)
                         |> Option.bind (fun struct(_,category) -> categoryToTokenKind category)
                         |> Option.defaultValue (Helpers.getTokenKind token.ColorClass)
-                    yield FSharp.CodeFormat.Token (kind, body, tip)
+                    yield TokenSpan.Token (kind, body, tip)
                 // Process the rest of the line
                 yield! loop island rest stringRange
             | Some _x, None -> yield! loop island rest stringRange
@@ -222,7 +222,7 @@ type CodeFormatAgent() =
                       range.EndColumn <= strRightCol)
 
               match printfOrEscapedSpans with
-              | [||] -> yield FSharp.CodeFormat.Token (TokenKind.String, lineStr.[strLeftCol..strRightCol], None)
+              | [||] -> yield TokenSpan.Token (TokenKind.String, lineStr.[strLeftCol..strRightCol], None)
               | spans ->
                   let data =
                     spans
@@ -243,7 +243,7 @@ type CodeFormatAgent() =
                         |> Option.defaultValue (leftPoint+1, rightPoint, TokenKind.String))
 
                   for leftPoint, rightPoint, kind in data do
-                    yield FSharp.CodeFormat.Token (kind, lineStr.[leftPoint..rightPoint-1], None)
+                    yield TokenSpan.Token (kind, lineStr.[leftPoint..rightPoint-1], None)
               // Process the rest of the line
               yield! loop island rest stringRange
         }
@@ -399,9 +399,9 @@ type CodeFormatAgent() =
                     // Remove additional whitespace from start of lines
                     let spaces = Helpers.countStartingSpaces lines
                     let parsed =  parsed |> List.map (function
-                        | Line ((Token(kind, body, tip))::rest) ->
+                        | Line ((TokenSpan.Token(kind, body, tip))::rest) ->
                             let body = body.Substring(spaces)
-                            Line ((Token(kind, body, tip))::rest)
+                            Line ((TokenSpan.Token(kind, body, tip))::rest)
                         | line -> line
                         )
                     // Return parsed snippet as 'Snippet' value

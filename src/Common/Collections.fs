@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# Markdown (Collections.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -13,21 +13,6 @@ namespace FSharp.Collections
 
 /// [omit]
 module List = 
-  /// Returns a singleton list containing a specified value
-  let singleton v = [v]
-
-  /// Skips the specified number of elements. Fails if the list is smaller.
-  let rec skip count = function
-    | xs when count = 0 -> xs
-    | _::xs when count > 0 -> skip (count - 1) xs
-    | _ -> invalidArg "" "Insufficient length"
-
-  /// Skips elements while the predicate returns 'true' and then 
-  /// returns the rest of the list as a result.
-  let rec skipWhile p = function
-    | hd::tl when p hd -> skipWhile p tl
-    | rest -> rest
-
   /// Partitions list into an initial sequence (while the 
   /// specified predicate returns true) and a rest of the list.
   let partitionWhile p input = 

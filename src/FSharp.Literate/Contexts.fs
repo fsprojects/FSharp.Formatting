@@ -1,4 +1,4 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open FSharp.CodeFormat
 
@@ -16,7 +16,7 @@ type CompilerContext =
 
 /// Defines the two possible output types from literate script: HTML and LaTeX.
 [<RequireQualifiedAccess>]
-type OutputKind = Html | Latex
+type OutputKind = Html | Latex | Pynb
 
 
 /// Defines input type for output generator

@@ -1,4 +1,4 @@
-﻿#if INTERACTIVE
+#if INTERACTIVE
 #r "../../bin/FSharp.Markdown.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
@@ -66,7 +66,7 @@ let executeTest (dir : string) (source : string) (target : string) (verify : str
     if File.Exists(verify) then
       let text = File.ReadAllText(source)
       (use wr = new StreamWriter(target)
-      Markdown.TransformHtml(text, wr, "\r\n"))
+      Markdown.WriteAsHtml(text, wr, "\r\n"))
       let contents = File.ReadAllLines(verify)
       File.WriteAllLines(verify, contents)
       let targetHtml = removeWhitespace(File.ReadAllText(target))

@@ -22,7 +22,7 @@
     <Compile Include="ParseMarkdown.fs" />
     <Compile Include="Transformations.fs" />
     <Compile Include="Formatting.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Literate.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" PrivateAssets="all" />

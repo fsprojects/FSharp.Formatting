@@ -110,13 +110,13 @@ and formatSpans ctx = List.iter (formatSpan ctx)
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
-  | LatexBlock(lines, _) ->
+  | LatexBlock(env, lines, _) ->
     ctx.LineBreak(); ctx.LineBreak()
-    ctx.Writer.Write("\["); ctx.LineBreak()
+    ctx.Writer.Write(sprintf "\begin{%s}" env); ctx.LineBreak()
     for line in lines do
       ctx.Writer.Write(line)
       ctx.LineBreak()
-    ctx.Writer.Write("\]")
+    ctx.Writer.Write(sprintf "\end{%s}" env)
     ctx.LineBreak(); ctx.LineBreak()
 
   | EmbedParagraphs(cmd, _) -> formatParagraphs ctx (cmd.Render())
@@ -143,7 +143,15 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
       ctx.LineBreak()
 
-  | CodeBlock(code, _, _, _) ->
+  | CodeBlock (code, _, _, _, _) ->
+      ctx.Writer.Write(@"\begin{lstlisting}")
+      ctx.LineBreak()
+      ctx.Writer.Write(code)
+      ctx.LineBreak()
+      ctx.Writer.Write(@"\end{lstlisting}")
+      ctx.LineBreak()
+
+  | OutputBlock (code) -> // TODO: could format output better
       ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.LineBreak()
       ctx.Writer.Write(code)
@@ -198,7 +206,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
 
   | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code, _) ->
+  | InlineBlock(code, _isExecuted, _) ->
       ctx.Writer.Write(code)
   ctx.LineBreak()
 

@@ -1,8 +1,8 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (SourceCode.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
-namespace FSharp.CodeFormat
+namespace rec FSharp.CodeFormat
 
 // --------------------------------------------------------------------------------------
 // Abstract Syntax representation of formatted source code
@@ -12,7 +12,7 @@ namespace FSharp.CodeFormat
 type ToolTipSpans = list<ToolTipSpan>
 
 /// A tool tip span can be emphasized text, plain text `Literal` or a line brak
-and ToolTipSpan =
+type ToolTipSpan =
     | Emphasis of ToolTipSpans
     | Literal of string
     | HardLineBreak
@@ -56,6 +56,7 @@ type ErrorKind =
 /// the compiler (`Token`), this also includes `Error` (wrapping the underlined
 /// tokens), `Omitted` for the special `[omit:...]` tags and `Output` for the special
 /// `[output:...]` tag
+[<RequireQualifiedAccess>]
 type TokenSpan =
   | Token of TokenKind * string * ToolTipSpans option
   | Error of ErrorKind * string * TokenSpans
@@ -63,14 +64,13 @@ type TokenSpan =
   | Output of string
 
 /// A type alias representing a list of `TokenSpan` values
-and TokenSpans = TokenSpan list
+type TokenSpans = TokenSpan list
 
 /// Represents a line of source code as a list of `TokenSpan` values. This is
 /// a single case discriminated union with `Line` constructor.
 type Line = Line of TokenSpans
 
 /// An F# snippet consists of a snippet title and a list of lines
-/// (wrapped in a single case discriminated union with `Snippet` constructor)
 type Snippet = Snippet of string * Line list
 
 /// Error reported from the F# compiler consists of location (start and end),

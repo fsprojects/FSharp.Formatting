@@ -1,4 +1,4 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System
 open System.IO
@@ -44,6 +44,7 @@ type Literate private () =
     | Some out, _ -> out
     | _, OutputKind.Latex -> Path.ChangeExtension(input, "tex")
     | _, OutputKind.Html -> Path.ChangeExtension(input, "html")
+    | _, OutputKind.Pynb -> Path.ChangeExtension(input, "ipynb")
 
   /// Apply the specified transformations to a document
   static let transform references doc =
@@ -56,6 +57,26 @@ type Literate private () =
     match customizeDocument with
     | Some c -> c ctx doc
     | None -> doc
+
+  static let replaceParameters (contentTag:string) (parameters:seq<string * string>) input =
+    match input with
+    | None ->
+        // If there is no template, return just document + tooltips
+        let lookup = parameters |> dict
+        lookup.[contentTag] + "\n\n" + lookup.["tooltips"]
+    | Some input ->
+        // First replace keys with some uglier keys and then replace them with values
+        // (in case one of the keys appears in some other value)
+        let id = System.Guid.NewGuid().ToString("d")
+        let input = parameters |> Seq.fold (fun (html:string) (key, value) ->
+          html.Replace("{" + key + "}", "{" + key + id + "}")) input
+        let result = parameters |> Seq.fold (fun (html:string) (key, value) ->
+          html.Replace("{" + key + id + "}", value)) input
+        result
+
+  static member GenerateFile (references, contentTag, parameters, templateOpt, output, layoutRoots) =
+    let templateOpt = templateOpt |> Option.map File.ReadAllText
+    File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
 
   // ------------------------------------------------------------------------------------
   // Parsing functions
@@ -101,30 +122,45 @@ type Literate private () =
   // Simple writing functions
   // ------------------------------------------------------------------------------------
 
-  static member WriteHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+  /// Format the literate document as HTML without using a template
+  static member ToHtmlString(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, false, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
     Html.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
     sb.ToString()
 
-  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+  /// Write the literate document as HTML without using a template
+  static member WriteAsHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None)], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, false, None)], doc.DefinedLinks)
     Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
-  static member WriteLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
+  /// Format the literate document as Latex without using a template
+  static member ToLatexString(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
     let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+    Markdown.ToLatexString(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
-  static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
+  /// Write the literate document as Latex without using a template
+  static member WriteAsLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
     let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+    Markdown.WriteAsLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+
+  /// Formate the literate document as an iPython notebook without using a template
+  static member ToPynbString(doc:LiterateDocument) =
+    let ctx = formattingContext (Some OutputKind.Pynb) None None None None None None
+    let doc = Transformations.replaceLiterateParagraphs ctx doc
+    Markdown.ToPynbString(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+
+  //static member WriteAsPynb(doc:LiterateDocument, writer:TextWriter) =
+  //  let ctx = formattingContext (Some OutputKind.Pynb) None None None None None None
+  //  let doc = Transformations.replaceLiterateParagraphs ctx doc
+  //  Markdown.WriteAsPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
   // ------------------------------------------------------------------------------------
   // Replace literate paragraphs with plain paragraphs
@@ -139,13 +175,13 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
 
   /// Process the given literate document
-  static member ProcessDocument
+  static member GenerateReplacementsForDocument
     ( doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?tokenKindToCss) =
     let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     Templating.processFile doc output ctx
 
   /// Process Markdown document
-  static member ProcessMarkdown
+  static member GenerateReplacementsForMarkdown
     ( input, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss ) =
     let doc =
@@ -156,9 +192,8 @@ type Literate private () =
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
-
   /// Process F# Script file
-  static member ProcessScriptFile
+  static member GenerateReplacementsForScriptFile
     ( input,?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
       ?generateAnchors, ?customizeDocument, ?tokenKindToCss ) =
@@ -170,22 +205,24 @@ type Literate private () =
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
-
   /// Process directory containing a mix of Markdown documents and F# Script files
-  static member ProcessDirectory
+  static member GenerateReplacementsForDirectory
     ( inputDirectory, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors, ?processRecursive, ?customizeDocument, ?tokenKindToCss ) =
+
     let processRecursive = defaultArg processRecursive true
+
     // Call one or the other process function with all the arguments
     let processScriptFile file output =
-      Literate.ProcessScriptFile
+      Literate.GenerateReplacementsForScriptFile
         ( file, output = output, ?format = format,
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
           ?includeSource = includeSource, ?generateAnchors = generateAnchors,
           ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss )
+
     let processMarkdown file output =
-      Literate.ProcessMarkdown
+      Literate.GenerateReplacementsForMarkdown
         ( file, output = output, ?format = format,
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
@@ -202,7 +239,6 @@ type Literate private () =
       let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
       let res =
         [ for func, file in fsx @ mds do
-            let dir = Path.GetDirectoryName(file)
             let name = Path.GetFileNameWithoutExtension(file)
             let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
             let output = Path.Combine(outdir, sprintf "%s.%s" name ext)
@@ -223,3 +259,51 @@ type Literate private () =
 
     let outputDirectory = defaultArg outputDirectory inputDirectory
     processDirectory inputDirectory outputDirectory
+
+  static member ProcessDocument
+    ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?layoutRoots, ?assemblyReferences) =
+      let res =
+          Literate.GenerateReplacementsForDocument
+              (doc, output, ?format = format, ?prefix = prefix, ?lineNumbers = lineNumbers,
+               ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?replacements = replacements)
+      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output, defaultArg layoutRoots [])
+
+  static member ProcessMarkdown
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?assemblyReferences, ?customizeDocument ) =
+
+      let res =
+          Literate.GenerateReplacementsForMarkdown
+              (input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+               ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+               ?replacements = replacements, ?customizeDocument = customizeDocument )
+      let output = defaultOutput output input format
+      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output, defaultArg layoutRoots [])
+
+  static member ProcessScriptFile
+    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots,
+      ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
+        let res =
+            Literate.GenerateReplacementsForScriptFile
+                (input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                 ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                 ?replacements = replacements, ?customizeDocument = customizeDocument, ?fsiEvaluator = fsiEvaluator )
+        let output = defaultOutput output input format
+        Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output, defaultArg layoutRoots [])
+
+  static member ProcessDirectory
+    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
+        let outputDirectory = defaultArg outputDirectory inputDirectory
+
+        let res =
+            Literate.GenerateReplacementsForDirectory
+                (inputDirectory, outputDirectory, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                 ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                 ?replacements = replacements, ?customizeDocument = customizeDocument, ?processRecursive = processRecursive, ?fsiEvaluator = fsiEvaluator)
+
+        for (path, res) in res do
+            Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, path, defaultArg layoutRoots [])

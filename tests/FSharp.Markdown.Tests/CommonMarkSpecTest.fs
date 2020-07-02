@@ -1,4 +1,4 @@
-﻿module FSharp.Markdown.Tests.CommonMarkSpecTest
+module FSharp.Markdown.Tests.CommonMarkSpecTest
 
 open System.IO
 open System.Diagnostics
@@ -42,7 +42,7 @@ let getTests () =
 [<TestCaseSource("getTests")>]
 let ``Commonmark specification`` (section:string) (markdown : string) (html : string) =
   printfn "Markdown: '%s'" markdown
-  (Markdown.TransformHtml(markdown, "\n"))
+  (Markdown.ToHtmlString(markdown, "\n"))
   |> should equal html
 
 [<Test>]
@@ -73,7 +73,7 @@ and code blocks:</p>
 </code></pre>
 <p>Any decent text editor should make email-style quoting easy.</p>
 """
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 
@@ -93,7 +93,7 @@ will turn into:"""
 </code></pre>
 <p>will turn into:</p>
 """
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
   
 [<Test>]
@@ -115,7 +115,7 @@ indented with spaces</p>
 </li>
 </ul>
 """
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -137,7 +137,7 @@ indented with spaces</p>
 </li>
 </ul>
 """
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -148,7 +148,7 @@ with a continuation line
   let html = properNewLines "<p>this is a paragraph ending with two spaces\t<br />
 with a continuation line</p>
 "
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -159,7 +159,7 @@ with a continuation line
   let html = properNewLines "<p>this is a paragraph ending with tab  \t
 with a continuation line</p>
 "
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -173,7 +173,7 @@ let ``manual markdown test: test code block (with tabs) in list`` () =
 </li>
 </ul>
 "
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -187,7 +187,7 @@ let ``manual markdown test: test code block (with spaces) in list`` () =
 </li>
 </ul>
 "
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -200,7 +200,7 @@ with continuation
 with continuation</p>
 </blockquote>
 "
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html
 
 [<Test>]
@@ -213,5 +213,5 @@ let ``manual markdown test: blockquote without continuation`` () =
 </blockquote>
 <h1>without continuation</h1>
 "
-  (Markdown.TransformHtml(markdown))
+  (Markdown.ToHtmlString(markdown))
   |> should equal html

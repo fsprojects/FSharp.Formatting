@@ -688,7 +688,8 @@ let (|LinesUntilBlockquoteEnds|) input =
 
 /// Recognizes blockquote - continues taking paragraphs
 /// starting with '>' until there is something else
-let rec (|Blockquote|_|) = function
+let rec (|Blockquote|_|) s =
+  match s with 
   | EmptyBlockquote(Lines.TrimBlankStart rest) ->
       Some ([("", MarkdownRange.zero)], rest)
   | BlockquoteStart(line)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart rest) ->
@@ -701,20 +702,40 @@ let rec (|Blockquote|_|) = function
 
 /// Recognizes a special case: an empty blockquote line should terminate
 /// the blockquote if the next line is not a blockquote
-and (|EmptyBlockquote|_|) = function
+and (|EmptyBlockquote|_|) s =
+  match s with 
   | BlockquoteStart(StringPosition.WhiteSpace) :: Blockquote(_) -> None
   | BlockquoteStart(StringPosition.WhiteSpace) :: rest -> Some rest
   | _ -> None
 
 /// Recognizes Latex block - start with "$$$"
-let (|LatexBlock|_|) (lines:(string * MarkdownRange) list) = lines |> function
-  | (first, n)::rest when (first.TrimEnd()) = "$$$" -> rest |> function
-    | TakeParagraphLines(body, rest) -> Some(body, rest)
-    | _ -> None
+/// See also formats accepted at https://stackoverflow.com/questions/13208286/how-to-write-latex-in-ipython-notebook
+let (|LatexBlock|_|) (lines:(string * MarkdownRange) list) =
+  match lines with 
+  | (first, _n)::rest when (first.TrimEnd()) = "$$$" ->
+      match rest with
+      | TakeParagraphLines(body, rest) -> Some("equation", body, rest)
+      | _ -> None
+  | (first, n)::rest when first.TrimEnd().StartsWith("$$")  && first.TrimEnd().EndsWith("$$") && first.TrimEnd().Length >= 4 ->
+      let text = first.TrimEnd()
+      Some("equation", [ (text.[2..text.Length - 3], n) ], rest)
+  | (first, _n)::rest when (first.TrimEnd()) = "\begin{equation}" ->
+      let body = rest |> List.takeWhile (fun s -> fst s <> "\end{equation}")
+      let res = rest |> List.skipWhile (fun s -> fst s <> "\end{equation}") 
+      match res with
+      | _::rest -> Some ("equation", body, rest)
+      | [] -> None
+  | (first, _n)::rest when (first.TrimEnd()) = "\begin{align}" ->
+      let body = rest |> List.takeWhile (fun s -> fst s <> "\end{align}")
+      let res = rest |> List.skipWhile (fun s -> fst s <> "\end{align}") 
+      match res with
+      | _::rest -> Some ("align", body, rest)
+      | [] -> None
   | _ -> None
 
 /// Recognize a definition of a link as in `[key]: http://url ...`
-let (|LinkDefinition|_|) = function
+let (|LinkDefinition|_|) s =
+  match s with 
   | ( StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link)
     | StringPosition.StartsWithWrapped (" [", "]:") (wrapped, StringPosition.TrimBoth link)
     | StringPosition.StartsWithWrapped ("  [", "]:") (wrapped, StringPosition.TrimBoth link)
@@ -739,7 +760,8 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
       yield! parseParagraphs ctx lines
   | NestedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine)
   | FencedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
-      yield CodeBlock(code |> String.concat ctx.Newline, langString, ignoredLine, ctx.CurrentRange)
+      let code = code |> String.concat ctx.Newline
+      yield CodeBlock(code, false, langString, ignoredLine, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
   | Blockquote(body, Lines.TrimBlankStart rest) ->
       yield QuotedBlock(parseParagraphs ctx (body @ [("", MarkdownRange.zero)]) |> List.ofSeq, ctx.CurrentRange)
@@ -755,8 +777,8 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
   | HorizontalRule(c) :: (Lines.TrimBlankStart lines) ->
       yield HorizontalRule(c, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
-  | LatexBlock(body, Lines.TrimBlankStart rest) ->
-    yield LatexBlock(body |> List.map fst, ctx.CurrentRange)
+  | LatexBlock(env, body, Lines.TrimBlankStart rest) ->
+    yield LatexBlock(env, body |> List.map fst, ctx.CurrentRange)
     yield! parseParagraphs ctx rest
 
 
@@ -809,7 +831,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
         ( let all = String.concat ctx.Newline (code |> List.map fst)
           not (all.StartsWith("<http://")) && not (all.StartsWith("<ftp://")) && not (all.Contains("@")) ) ->
       let all = String.concat ctx.Newline (code |> List.map fst)
-      yield InlineBlock(all, ctx.CurrentRange)
+      yield InlineBlock(all, false, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
   | TakeParagraphLines(Lines.TrimParagraphLines lines, Lines.TrimBlankStart rest) ->
       yield Paragraph (parseSpans (lines |> List.map fst |> String.concat ctx.Newline, lines |> List.map snd |> MarkdownRange.mergeRanges) ctx, ctx.CurrentRange)

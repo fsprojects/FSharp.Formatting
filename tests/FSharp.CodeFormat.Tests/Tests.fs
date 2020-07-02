@@ -40,7 +40,7 @@ let ``Simple code snippet is formatted with tool tips``() =
 
   errors |> shouldEqual [| |]
   snips |> containsSpan (function
-    | Token(_, "hello", Some (ToolTipWithLiteral "val hello : int")) -> true
+    | TokenSpan.Token(_, "hello", Some (ToolTipWithLiteral "val hello : int")) -> true
     | _ -> false)
   |> shouldEqual true
 
@@ -55,7 +55,7 @@ nameof x
 
     errors |> shouldEqual [||]
     snips |> containsSpan (function
-        | Token(_, "nameof", Some (ToolTipWithLiteral "val nameof : 'T -> string")) -> true
+        | TokenSpan.Token(_, "nameof", Some (ToolTipWithLiteral "val nameof : 'T -> string")) -> true
         | _ -> false)
     |> shouldEqual true
 
@@ -302,3 +302,26 @@ let ``Escaped characters are in spans of 'esc' class - custom CSS``() =
   content |> shouldContainText (sprintf "class=\"%s\">\\uA0A0</span>" "Escaped")
   content |> shouldContainText (sprintf "class=\"%s\"> </span>" "String")
   content |> shouldContainText (sprintf "class=\"%s\">\\t</span>" "Escaped")
+
+let getLatex (source: string) =
+  let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let res = CodeFormat.FormatLatex(snips)
+  (Seq.head res.Snippets).Content
+
+[<Test>]
+let ``Simple code snippet is formatted as Latex``() =
+    let content = getLatex """let hello = 10"""
+    content |> shouldContainText (sprintf @"\begin{Verbatim}")
+    content |> shouldContainText (sprintf @"\kwd{let} \id{hello} \ops{=} \num{10}")
+    content |> shouldContainText (sprintf @"\end{Verbatim}")
+
+let getPynb (source: string) =
+  let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let res = CodeFormat.FormatPynb(snips)
+  (Seq.head res.Snippets).Content
+
+[<Test>]
+let ``Simple code snippet is formatted as Pynb code cell content``() =
+    let content = getPynb """let hello = 10"""
+    content |> shouldContainText "let hello = 10"
+

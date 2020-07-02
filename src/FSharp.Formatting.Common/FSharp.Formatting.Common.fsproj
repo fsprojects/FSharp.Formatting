@@ -10,6 +10,7 @@
     <Compile Include="YaafFSharpScripting.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
+    <Compile Include="PynbModel.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

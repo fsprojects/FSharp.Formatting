@@ -1,3 +1,8 @@
+## 5.0.0
+  - WriteHtml --> ToHtmlString/WriteAsHtml overloads
+  - Add preliminary pynb support for output
+  - Fix Literate.* to do approximate (non-razor) templating
+
 ## 4.1.0
   - Support preview F# language features.
   - Add support for customizing assigned CSS class.

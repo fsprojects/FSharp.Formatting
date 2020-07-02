@@ -1,4 +1,4 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open FSharp.Markdown
 open FSharp.Patterns
@@ -33,9 +33,9 @@ module internal CodeBlockUtils =
   /// (Comment may also be followed by Whitespace that is skipped)
   let private (|ConcatenatedComments|_|) (Line tokens) =
     let rec readComments inWhite acc = function
-      | Token(TokenKind.Comment, text, _)::tokens when not inWhite-> 
+      | TokenSpan.Token(TokenKind.Comment, text, _)::tokens when not inWhite-> 
           readComments false (text::acc) tokens
-      | Token(TokenKind.Default, String.WhiteSpace _, _)::tokens ->
+      | TokenSpan.Token(TokenKind.Default, String.WhiteSpace _, _)::tokens ->
           readComments true acc tokens
       | [] -> Some(String.concat "" (List.rev acc))
       | _ -> None
@@ -68,7 +68,7 @@ module internal CodeBlockUtils =
         yield BlockComment (comment.Substring(0, cend))
         yield! collectSnippet [] lines
 
-    | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
+    | (Line[TokenSpan.Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
         // Another block of Markdown comment starting... 
         // Yield the previous snippet block and continue parsing more comments
         let cend = findCommentEnd comment
@@ -100,7 +100,7 @@ module internal CodeBlockUtils =
           yield BlockCommand cmds
           yield! collectSnippet [] lines
 
-      | (Line[Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
+      | (Line[TokenSpan.Token(TokenKind.Comment, String.StartsWith "(**" text, _)])::lines ->
           // Found a comment - yield snippet & switch to parsing comment state
           // (Also trim leading spaces to support e.g.: `(** ## Hello **)`)
           if acc <> [] then yield blockSnippet acc
@@ -122,30 +122,57 @@ module internal CodeBlockUtils =
 module internal ParseScript = 
   open CodeBlockUtils
 
+  let getVisibility cmds =
+    match cmds with 
+    | Command "hide" _ -> LiterateCodeVisibility.HiddenCode
+    | Command "define" name -> LiterateCodeVisibility.NamedCode name
+    | _ -> LiterateCodeVisibility.VisibleCode
+
+  let getEvaluate noEval (cmds: IDictionary<_,_>)  =
+    not (noEval || cmds.ContainsKey("do-not-eval"))
+
   /// Transform list of code blocks (snippet/comment/command)
   /// into a formatted Markdown document, with link definitions
-  let rec private transformBlocks noEval acc defs blocks = 
+  let rec private transformBlocks prevCodeId count noEval acc defs blocks = 
     match blocks with
     // Disable evaluation for the rest of the file
     | BlockCommand(Command "do-not-eval-file" _)::blocks ->
-        transformBlocks true acc defs blocks
+        transformBlocks None count true acc defs blocks
     
     // Reference to code snippet defined later
     | BlockCommand(Command "include" ref)::blocks -> 
         let p = EmbedParagraphs(CodeReference(ref), None)
-        transformBlocks noEval (p::acc) defs blocks
+        transformBlocks None count noEval (p::acc) defs blocks
+
+    // Include output of previous block
+    | BlockCommand(Command "include-output" "")::blocks when prevCodeId.IsSome -> 
+        let p1 = EmbedParagraphs(OutputReference(prevCodeId.Value), None)
+        transformBlocks prevCodeId count noEval (p1::acc) defs blocks
+
+    // Include output of a named block
     | BlockCommand(Command "include-output" ref)::blocks -> 
         let p = EmbedParagraphs(OutputReference(ref), None)
-        transformBlocks noEval (p::acc) defs blocks
+        transformBlocks prevCodeId count noEval (p::acc) defs blocks
+
+    // Include formatted 'it' of previous block
+    | BlockCommand((Command "include-it" "") as cmds)::blocks when prevCodeId.IsSome -> 
+        let p1 = EmbedParagraphs(ItValueReference(prevCodeId.Value), None)
+        transformBlocks prevCodeId count noEval (p1::acc) defs blocks
+
+    // Include formatted 'it' of a named block
     | BlockCommand(Command "include-it" ref)::blocks -> 
         let p = EmbedParagraphs(ItValueReference(ref), None)
-        transformBlocks noEval (p::acc) defs blocks
+        transformBlocks None count noEval (p::acc) defs blocks
+
+    // Include formatted named value 
     | BlockCommand(Command "include-value" ref)::blocks -> 
         let p = EmbedParagraphs(ValueReference(ref), None)
-        transformBlocks noEval (p::acc) defs blocks
+        transformBlocks None count noEval (p::acc) defs blocks
+
+    // Include raw code without evaluation
     | BlockCommand(Command "raw" _) ::BlockSnippet(snip):: blocks -> 
         let p = EmbedParagraphs(RawBlock(snip), None)
-        transformBlocks noEval (p::acc) defs blocks
+        transformBlocks None count noEval (p::acc) defs blocks
 
     // Parse commands in [foo=bar,zoo], followed by a source code snippet
     //  * hide - the snippet will not be shown
@@ -153,21 +180,17 @@ module internal ParseScript =
     //  * define:foo - specifies the name of this snippet (for inclusion later)
     //  * define-output - defines the name for the snippet's output
     | BlockCommand(cmds)::BlockSnippet(snip)::blocks ->
-        let visibility =
-          match cmds with 
-          | Command "hide" _ -> LiterateCodeVisibility.HiddenCode
-          | Command "define" name -> LiterateCodeVisibility.NamedCode name
-          | _ -> LiterateCodeVisibility.VisibleCode
         let outputName = 
           match cmds with
-          | Command "define-output" name -> Some name
-          | _ -> None
+          | Command "define-output" name -> name
+          | _ -> incr count; "cell" + string count.Value
         let opts = 
-          { Evaluate = not (noEval || cmds.ContainsKey("do-not-eval"))
+          { Evaluate = getEvaluate noEval cmds
+            Evaluated = false;
             OutputName = outputName
-            Visibility = visibility }
+            Visibility = getVisibility cmds }
         let code = EmbedParagraphs(LiterateCode(snip, opts), None)
-        transformBlocks noEval (code::acc) defs blocks
+        transformBlocks (Some outputName) count noEval (code::acc) defs blocks
 
     // Unknown command
     | BlockCommand(cmds)::_ ->
@@ -175,17 +198,22 @@ module internal ParseScript =
 
     // Skip snippets with no content
     | BlockSnippet([])::blocks ->
-        transformBlocks noEval acc defs blocks
+        transformBlocks prevCodeId count noEval acc defs blocks
+
     // Ordinary F# code snippet
     | BlockSnippet(snip)::blocks ->
-        let p = EmbedParagraphs(FormattedCode(snip), None)
-        transformBlocks noEval (p::acc) defs blocks
+        let id = incr count; "cell" + string count.Value
+        let opts = { Evaluate=not noEval; Evaluated=false; OutputName=id; Visibility=LiterateCodeVisibility.VisibleCode }
+        let p = EmbedParagraphs(LiterateCode(snip, opts), None)
+        transformBlocks (Some id) count noEval (p::acc) defs blocks
+
     // Markdown documentation block  
     | BlockComment(text)::blocks ->
         let doc = Markdown.Parse(text)
         let defs = doc.DefinedLinks::defs
         let acc = (List.rev doc.Paragraphs) @ acc
-        transformBlocks noEval acc defs blocks
+        transformBlocks None count noEval acc defs blocks
+
     | [] -> 
         // Union all link definitions & return Markdown doc
         let allDefs = 
@@ -205,5 +233,5 @@ module internal ParseScript =
             yield BlockComment("## " + name)
           yield! parseScriptFile(lines) ]
 
-    let paragraphs, defs = transformBlocks false [] [] (List.ofSeq parsedBlocks)
+    let paragraphs, defs = transformBlocks None (ref 0) false [] [] (List.ofSeq parsedBlocks)
     LiterateDocument(paragraphs, "", defs, LiterateSource.Script sourceSnippets, file, errors)

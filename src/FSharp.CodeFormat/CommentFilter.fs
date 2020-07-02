@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (CommentProcessing.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -12,8 +12,6 @@ open System.Web
 open FSharp.Patterns
 open FSharp.Collections
 open FSharp.Formatting.Common
-
-open FSharp.Compiler
 open FSharp.Compiler.SourceCodeServices
 
 // --------------------------------------------------------------------------------------

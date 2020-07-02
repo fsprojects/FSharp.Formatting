@@ -15,8 +15,8 @@
     <Compile Include="../Common/StringParsing.fs">
       <Link>Common/StringParsing.fs</Link>
     </Compile>
-    <Compile Include="Razor.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="RazorImpl.fs" />
+    <Compile Include="RazorFormatting.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />

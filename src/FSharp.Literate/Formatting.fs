@@ -1,4 +1,4 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System.IO
 open System.Collections.Concurrent
@@ -15,9 +15,10 @@ open FSharp.Markdown
 module Formatting =
 
   /// Format document with the specified output kind
-  let format doc generateAnchors outputKind =
+  let format (doc: MarkdownDocument) generateAnchors outputKind =
     match outputKind with
-    | OutputKind.Latex -> Markdown.WriteLatex(doc)
+    | OutputKind.Pynb -> Markdown.ToPynbString(doc)
+    | OutputKind.Latex -> Markdown.ToLatexString(doc)
     | OutputKind.Html ->
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
@@ -37,17 +38,20 @@ module Formatting =
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->
-        doc.With(paragraphs = [CodeBlock (text, "", "", None)])
+        doc.With(paragraphs = [CodeBlock (text, false, "", "", None)])
     | LiterateSource.Script snippets ->
+        let mutable count = 0
         let paragraphs =
           [ for Snippet(name, lines) in snippets do
               if snippets.Length > 1 then
                 yield Heading(3, [Literal(name, None)], None)
-              yield EmbedParagraphs(FormattedCode(lines), None) ]
+              let id = count <- count + 1; "cell" + string count
+              let opts = { Evaluate=true; Evaluated=false; OutputName=id; Visibility=LiterateCodeVisibility.VisibleCode }
+              yield EmbedParagraphs(LiterateCode(lines, opts), None) ]
         doc.With(paragraphs = paragraphs)
 
 // --------------------------------------------------------------------------------------
-// Generates file using HTML or CSHTML (Razor) template
+// Generates file using HTML
 // --------------------------------------------------------------------------------------
 
 /// [omit]
@@ -80,6 +84,7 @@ module Templating =
       match ctx.OutputKind with
       | OutputKind.Html -> "document"
       | OutputKind.Latex -> "contents"
+      | OutputKind.Pynb -> "cells"
 
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc

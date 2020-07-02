@@ -22,7 +22,8 @@
     <Compile Include="CodeFormatAgent.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="PynbFormatting.fs" />
+    <Compile Include="CodeFormat.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />

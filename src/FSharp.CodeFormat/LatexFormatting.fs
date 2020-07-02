@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# CodeFormat (LatexFormatting.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -9,7 +9,6 @@ open System
 open System.IO
 open System.Web
 open System.Text
-open System.Collections.Generic
 open FSharp.CodeFormat
 
 /// LaTEX special chars
@@ -41,20 +40,20 @@ type FormattingContext =
 
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
-  | Error(_, _, body) ->
+  | TokenSpan.Error(_, _, body) ->
       formatTokenSpans ctx body
 
-  | Output(body) ->
+  | TokenSpan.Output(body) ->
       ctx.Writer.Write(@"\fsi{")
       ctx.Writer.Write(latexEncode body)
       ctx.Writer.Write("}")
 
-  | Omitted(body, _) ->
+  | TokenSpan.Omitted(body, _) ->
       ctx.Writer.Write(@"\omi{")
       ctx.Writer.Write(latexEncode body)
       ctx.Writer.Write("}")
       
-  | Token(kind, body, _) ->
+  | TokenSpan.Token(kind, body, _) ->
       let tag = 
         match kind with
         | TokenKind.Comment -> @"\com"
@@ -86,7 +85,7 @@ let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
 
 /// Generate LaTEX with the specified snippets
 let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
- [| for (Snippet(title, lines)) in snippets do
+ [| for (Snippet(key, lines)) in snippets do
       // Generate snippet to a local StringBuilder
       let mainStr = StringBuilder()
       let ctx = { ctx with Writer = new StringWriter(mainStr) }
@@ -113,7 +112,7 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
 
       ctx.Writer.Close() 
       // Title is important for dictionary lookup
-      yield title, mainStr.ToString() |]
+      yield key, mainStr.ToString() |]
 
 /// Format snippets and return LaTEX for <pre> tags together
 /// (to be added to the end of document)
@@ -122,4 +121,4 @@ let format addLines openTag closeTag (snippets:Snippet[]) =
                OpenTag = openTag; CloseTag = closeTag }
   
   // Generate main LaTEX for snippets, tooltip isn't important to this format
-  formatSnippets ctx snippets, ""
+  formatSnippets ctx snippets

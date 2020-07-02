@@ -16,7 +16,7 @@ do FSharp.Formatting.TestHelpers.enableLogging()
 // --------------------------------------------------------------------------------------
 
 [<Test>]
-let ``Can parse and format literate F# script with evaluation`` () =
+let ``Can parse literate F# script with evaluation`` () =
   let content = """
 (***hide***)
 let test = 42
@@ -38,22 +38,22 @@ printf ">>%d<<" 12343
 (*** include-output: test ***)
 """
 
-  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
 
   doc.Errors |> Seq.length |> shouldEqual 0
   // Contains formatted code and markdown
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(FormattedCode(_)) -> true | _ -> false)
+    | Matching.LiterateParagraph(LiterateCode(_, _)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
 
   // Contains transformed output
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("42", _, _, _) -> true | _ -> false)
+    | OutputBlock ("42") -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock ("85", _, _, _) -> true | _ -> false)
+    | OutputBlock ("85") -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | CodeBlock (">>12343<<", _, _, _) -> true | _ -> false)
+    | OutputBlock (">>12343<<") -> true | _ -> false)
 
 [<Test>]
 let ``Can evaluate hidden code snippets`` () =
@@ -62,13 +62,13 @@ let ``Can evaluate hidden code snippets`` () =
 printfn "42"
 (*** include-output: test ***)
 """
-  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html = Literate.WriteHtml(doc)
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html = Literate.ToHtmlString(doc)
   html.Contains("42") |> shouldEqual true
   html.Contains(">printfn<") |> shouldEqual false
 
 [<Test>]
-let ``Can parse and format literate F# script with custom evaluator`` () =
+let ``Can parse literate F# script with custom evaluator`` () =
   let content = """
 let test = [1;2;3]
 (*** include-value:test ***)"""
@@ -82,7 +82,7 @@ let test = [1;2;3]
       Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
     else None)
 
-  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsiEvaluator)
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsiEvaluator)
   doc.Paragraphs
   |> shouldMatchPar (function
       | ListBlock(Ordered, items, None) ->
@@ -107,8 +107,8 @@ test 2
 printfn "hi"
 (*** include-output:t ***)
 """
-  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html = Literate.WriteHtml(doc)
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html = Literate.ToHtmlString(doc)
   html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length
   |> shouldEqual 5
 
@@ -120,12 +120,12 @@ let ``Can disable evaluation on an entire script file`` () =
 printfn "%d" (40 + 2)
 (*** include-output:t ***)
 """
-  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html1 = Literate.WriteHtml(doc1)
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html1 = Literate.ToHtmlString(doc1)
   html1.Contains("42") |> shouldEqual true
 
-  let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html2 = Literate.WriteHtml(doc2)
+  let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+  let html2 = Literate.ToHtmlString(doc2)
   html2.Contains("42") |> shouldEqual false
 
 
@@ -148,8 +148,8 @@ printfn "%d" FsLab.Demo.test
 (*** include-output:t ***)""".Replace("[PATH]", path)
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
-  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.WriteHtml(doc1)
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
   html1.Contains("42") |> shouldEqual true
   File.Delete(path)
 
@@ -175,8 +175,8 @@ module Demo =
 FsLab.Demo.test
 (*** include-it:t2 ***)""".Replace("[PATH]", path)
   let fsie = FSharp.Literate.FsiEvaluator(fsiObj = FsiEvaluatorConfig.CreateNoOpFsiObject())
-  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.WriteHtml(doc1)
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
   html1.Contains("Not executed") |> shouldEqual true
   html1.Contains("Executed") |> shouldEqual false
   File.Delete(path)
@@ -208,8 +208,8 @@ printfn "%d" Test.test2
 
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
-  let doc1 = Literate.ParseScriptString(content, scriptPath, getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.WriteHtml(doc1)
+  let doc1 = Literate.ParseScriptString(content, scriptPath, formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
   html1.Contains("42") |> shouldEqual true
   html1.Contains(">markdown<") |> shouldEqual true
   html1.Contains("43") |> shouldEqual true
@@ -217,3 +217,90 @@ printfn "%d" Test.test2
 
   
   
+[<Test>]
+let ``Can include-it`` () =
+  let content = """
+1000+1000
+(*** include-it ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
+  html1 |> shouldContainText "2000"
+
+[<Test>]
+let ``Can include-output`` () =
+  let content = """
+printfn "%sworld" "hello"
+let xxxx = 1+1
+1000+1000
+(*** include-output ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
+  html1 |> shouldContainText "helloworld"
+  html1 |> shouldContainText "val xxxx : int"
+  html1 |> shouldNotContainText "2000"
+
+let ``Can include-output-and-it`` () =
+  let content = """
+printfn "%sworld" "hello"
+let xxxx = 1+1
+1000+1000
+(*** include-output ***)
+(*** include-it ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
+  html1 |> shouldContainText "helloworld"
+  html1 |> shouldContainText "val xxxx : int"
+  html1 |> shouldContainText "2000"
+
+[<Test>]
+let ``Script is formatted as Pynb with evaluation``() =
+  let fsie = getFsiEvaluator()
+  let content = """
+(**
+Heading
+=======
+
+With some [hyperlink](http://tomasp.net)
+*)
+1000+2000
+(*** include-it ***)
+let y = 30+3124
+printfn "should not %s" "show"
+(**
+
+More text
+
+*)
+let z = 30+3124
+printfn "should show"
+(*** include-output ***)
+
+(**
+
+$$$
+  \frac{x}{y} > 5.4
+  
+*)
+"""
+  let md = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let pynb = Literate.ToPynbString(md)
+  printfn "----" 
+  printfn "%s" pynb
+  printfn "----" 
+  pynb |> shouldContainText """With"""
+  pynb |> shouldContainText """1000"""
+  pynb |> shouldContainText """3000"""
+  pynb |> shouldNotContainText """should not show"""
+  pynb |> shouldNotContainText """3154"""
+  pynb |> shouldContainText """should show"""
+  pynb |> shouldContainText """execution_count": 1"""  // some cells are executed once
+  pynb |> shouldNotContainText """execution_count": null""" // all cells are executed
+  pynb |> shouldNotContainText """execution_count": 2""" // no cells are executed twice
+  pynb |> shouldContainText """\begin{equation}"""
+  pynb |> shouldContainText """\end{equation}"""

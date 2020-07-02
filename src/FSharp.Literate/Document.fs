@@ -1,4 +1,4 @@
-﻿namespace FSharp.Literate
+namespace FSharp.Literate
 
 open System
 open FSharp.Markdown
@@ -23,11 +23,18 @@ type LiterateCodeOptions =
   { /// Specifies whether the snippet is evalauted while processing
     /// Use (*** do-not-eval ***) command to set this to `false`
     Evaluate : bool
+
     /// Specifies the name of the output produced by this snippet
     /// Use the (*** define-output:foo ***) command to set this value
-    OutputName : option<string>
+    /// Other outputs are named cell1, cell2 etc.
+    OutputName : string
+
+    /// Indiciates if the cell has been evaluated
+    Evaluated: bool
+
     /// Specifies the visibility of the snippet in the generated HTML
-    Visibility : LiterateCodeVisibility }
+    Visibility : LiterateCodeVisibility
+  }
 
 /// Extends `MarkdownParagrap` using the `MarkdownEmbedParagraphs` case with
 /// additional kinds of paragraphs that can appear in literate F# scripts
@@ -35,20 +42,24 @@ type LiterateCodeOptions =
 type LiterateParagraph =
   /// (*** include:foo ***) - Include formatted snippet from other part of the document here 
   | CodeReference of string
+
+  /// (*** include-output ***) - Include output from previous snippet
   /// (*** include-output:foo ***) - Include output from a snippet here 
   | OutputReference of string 
+
+  /// (*** include-it ***) - Include "it" value from the subsequent snippet here 
   /// (*** include-it:foo ***) - Include "it" value from a snippet here 
   | ItValueReference of string 
+
   /// (*** include-value:foo ***) - Include the formatting of a specified value here
   | ValueReference of string 
 
   /// Emebdded literate code snippet. Consists of source lines and options
   | LiterateCode of Line list * LiterateCodeOptions
 
-  /// Ordinary formatted code snippet
-  | FormattedCode of Line list
   /// Ordinary formatted code snippet in non-F# language (tagged with language code)
   | LanguageTaggedCode of string * string
+
   /// Block simply emitted without any formatting equivalent to <pre> tag in html
   | RawBlock of Line list
 
@@ -76,14 +87,19 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, erro
 
   /// Returns a list of paragraphs in the document
   member x.Paragraphs : MarkdownParagraphs = paragraphs
+
   /// Returns a dictionary containing explicitly defined links
   member x.DefinedLinks : IDictionary<string, string * option<string>> = links
+
   /// Errors
   member x.Errors : seq<SourceError> = errors
+
   /// Original document source code
   member x.Source : LiterateSource = source
+
   /// Location where the file was loaded from
   member x.SourceFile : string = sourceFile
+
   /// Formatted tool tips
   member x.FormattedTips : string = formattedTips
 

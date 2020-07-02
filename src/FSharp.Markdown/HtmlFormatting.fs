@@ -1,4 +1,4 @@
-﻿// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 // F# Markdown (HtmlFormatting.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
@@ -160,10 +160,11 @@ let withInner ctx f =
   let newCtx = { ctx with Writer = sb }
   f newCtx
   sb.ToString()
+
 /// Write a MarkdownParagraph value to a TextWriter
 let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
-  | LatexBlock(lines, _) ->
+  | LatexBlock(_env, lines, _) ->
     // use mathjax grammar, for detail, check: http://www.mathjax.org/
     let body = String.concat ctx.Newline lines
     ctx.Writer.Write("<p><span class=\"math\">\\[" + (htmlEncode body) + "\\]</span></p>")
@@ -187,16 +188,19 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</p>")
   | HorizontalRule(_, _) ->
       ctx.Writer.Write("<hr />")
-  | CodeBlock(code, String.WhiteSpace, _, _) ->
+  | CodeBlock (code, _, language, _, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
-      ctx.Writer.Write("<pre><code>")
+      if String.IsNullOrWhiteSpace(language) then
+          ctx.Writer.Write(sprintf "<pre><code>")
+      else
+          let langCode = sprintf "language-%s" language
+          ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
-  | CodeBlock(code, codeLanguage, _, _) ->
+  | OutputBlock (code) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
-      let langCode = sprintf "language-%s" codeLanguage
-      ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
+      ctx.Writer.Write(sprintf "<pre><code>")
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
@@ -257,7 +261,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</blockquote>")
   | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code, _) ->
+  | InlineBlock(code, _, _) ->
       ctx.Writer.Write(code)
   ctx.LineBreak()
 
