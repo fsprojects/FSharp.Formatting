@@ -19,7 +19,7 @@ module Transformations =
   /// to colorize. We skip snippets that specify non-fsharp langauge e.g. [lang=csharp].
   let rec collectCodeSnippets par = seq {
     match par with
-    | CodeBlock (code, _isExecuted, language, _, _) ->
+    | CodeBlock (code, _executionCount, language, _, _) ->
         match code with
         | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)
                 when (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp")
@@ -30,18 +30,18 @@ module Transformations =
                 match cmds.TryGetValue("module") with
                 | true, v -> Some v | _ -> None
             yield modul, code
-    | Matching.ParagraphLeaf _ -> ()
-    | Matching.ParagraphNested(_, pars) ->
+    | MarkdownPatterns.ParagraphLeaf _ -> ()
+    | MarkdownPatterns.ParagraphNested(_, pars) ->
         for ps in pars do
           for p in ps do yield! collectCodeSnippets p
-    | Matching.ParagraphSpans(_, spans) -> () }
+    | MarkdownPatterns.ParagraphSpans(_, spans) -> () }
 
 
   /// Replace CodeBlock elements with referenced code snippets.
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
   let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) para =
     match para with
-    | CodeBlock (code, _isExecuted, language, _, range) ->
+    | CodeBlock (code, _executionCount, language, _, range) ->
         match code with
         | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)
         | Let (dict []) (cmds, code) ->
@@ -65,14 +65,14 @@ module Transformations =
             if not (String.IsNullOrWhiteSpace(lang)) && lang <> "fsharp" then
               Some (EmbedParagraphs(LanguageTaggedCode(lang, code), range))
             else
-              let opts = { Evaluate=false; Evaluated=false; OutputName=code; Visibility=LiterateCodeVisibility.VisibleCode }
+              let opts = { Evaluate=false; ExecutionCount=None; OutputName=code; Visibility=LiterateCodeVisibility.VisibleCode }
               Some (EmbedParagraphs(LiterateCode(codeLookup.[code], opts), range))
         | _ -> Some para
 
     // Recursively process nested paragraphs, other nodes return without change
-    | Matching.ParagraphNested(pn, nested) ->
+    | MarkdownPatterns.ParagraphNested(pn, nested) ->
         let pars = List.map (List.choose (replaceCodeSnippets path codeLookup)) nested
-        Matching.ParagraphNested(pn, pars) |> Some
+        MarkdownPatterns.ParagraphNested(pn, pars) |> Some
     | other -> Some other
 
 
@@ -124,17 +124,17 @@ module Transformations =
     let rec collectSpanReferences span = seq {
       match span with
       | IndirectLink(_, _, key, _) -> yield key
-      | Matching.SpanLeaf _ -> ()
-      | Matching.SpanNode(_, spans) ->
+      | MarkdownPatterns.SpanLeaf _ -> ()
+      | MarkdownPatterns.SpanNode(_, spans) ->
           for s in spans do yield! collectSpanReferences s }
     // Collect IndirectLinks in a paragraph
     let rec loop par = seq {
       match par with
-      | Matching.ParagraphLeaf _ -> ()
-      | Matching.ParagraphNested(_, pars) ->
+      | MarkdownPatterns.ParagraphLeaf _ -> ()
+      | MarkdownPatterns.ParagraphNested(_, pars) ->
           for ps in pars do
             for p in ps do yield! loop p
-      | Matching.ParagraphSpans(_, spans) ->
+      | MarkdownPatterns.ParagraphSpans(_, spans) ->
           for s in spans do yield! collectSpanReferences s }
     loop
 
@@ -152,16 +152,16 @@ module Transformations =
                 yield DirectLink([Literal (string i, r)], "#rf" + DateTime.Now.ToString("yyMMddhh"), None, r)
                 yield Literal("]", r)
             | _ -> () ]
-      | Matching.SpanLeaf(sl) -> [Matching.SpanLeaf(sl)]
-      | Matching.SpanNode(nd, spans) ->
-          [ Matching.SpanNode(nd, List.collect replaceSpans spans) ]
+      | MarkdownPatterns.SpanLeaf(sl) -> [MarkdownPatterns.SpanLeaf(sl)]
+      | MarkdownPatterns.SpanNode(nd, spans) ->
+          [ MarkdownPatterns.SpanNode(nd, List.collect replaceSpans spans) ]
     // Given a paragraph, process it recursively and transform all spans
     let rec loop = function
-      | Matching.ParagraphNested(pn, nested) ->
-          Matching.ParagraphNested(pn, List.map (List.choose loop) nested) |> Some
-      | Matching.ParagraphSpans(ps, spans) ->
-          Matching.ParagraphSpans(ps, List.collect replaceSpans spans) |> Some
-      | Matching.ParagraphLeaf(pl) -> Matching.ParagraphLeaf(pl) |> Some
+      | MarkdownPatterns.ParagraphNested(pn, nested) ->
+          MarkdownPatterns.ParagraphNested(pn, List.map (List.choose loop) nested) |> Some
+      | MarkdownPatterns.ParagraphSpans(ps, spans) ->
+          MarkdownPatterns.ParagraphSpans(ps, List.collect replaceSpans spans) |> Some
+      | MarkdownPatterns.ParagraphLeaf(pl) -> MarkdownPatterns.ParagraphLeaf(pl) |> Some
     loop
 
 
@@ -229,68 +229,74 @@ module Transformations =
   /// whether the result is a top level variable (i.e. include-value) or a reference to
   /// some output (i.e. define-output and include-output). This just to put each of those
   /// names in a separate scope.
-  let rec evalBlocks (fsi:IFsiEvaluator) file acc (paras:MarkdownParagraphs) =
+  let rec evalBlocks (fsi:IFsiEvaluator) executionCountRef file acc (paras:MarkdownParagraphs) =
     match paras with
-    | Matching.LiterateParagraph(para)::paras ->
+    | MarkdownPatterns.LiterateParagraph(para)::paras ->
       match para with
       | LiterateCode(snip, opts) ->
           let acc =
             if opts.Evaluate then
               let text = unparse snip
               let result = fsi.Evaluate(text, false, Some file)
-              (OutputRef opts.OutputName, result)::acc
+              incr executionCountRef
+              let executionCount = executionCountRef.Value
+              (OutputRef opts.OutputName, (result, executionCount))::acc
             else acc
-          evalBlocks fsi file acc paras
+          evalBlocks fsi executionCountRef file acc paras
 
       | ValueReference(ref) ->
           let result = fsi.Evaluate(ref, true, Some file)
-          evalBlocks fsi file ((ValueRef ref,result)::acc) paras
-      | _ -> evalBlocks fsi file acc paras
-    | para::paras -> evalBlocks fsi file acc paras
+          incr executionCountRef
+          let executionCount = executionCountRef.Value
+          let acc = (ValueRef ref, (result, executionCount))::acc
+          evalBlocks fsi executionCountRef file acc paras
+      | _ -> evalBlocks fsi executionCountRef file acc paras
+    | para::paras -> evalBlocks fsi executionCountRef file acc paras
     | [] -> acc
 
   /// Given an evaluator and document, evaluate all code snippets and return a map with
   /// their results - the key is `ValueRef(name)` for all value references and
   /// `OutputRef(name)` for all references to the snippet console output
   let evalAllSnippets fsi (doc:LiterateDocument) =
-    evalBlocks fsi doc.SourceFile [] doc.Paragraphs |> Map.ofList
+    evalBlocks fsi (ref 0) doc.SourceFile [] doc.Paragraphs |> Map.ofList
 
 
   // ---------------------------------------------------------------------------------------------
   // Evaluate all snippets and replace evaluation references with the results
   // ---------------------------------------------------------------------------------------------
 
-  let rec replaceEvaluations ctx (results:Map<_, IFsiEvaluationResult>) para =
+  let rec replaceEvaluations ctx (results:Map<_, IFsiEvaluationResult * int>) para =
     match para with 
-    | Matching.LiterateParagraph(special) ->
+    | MarkdownPatterns.LiterateParagraph(special) ->
       match special with 
       | OutputReference ref 
       | ItValueReference ref
       | ValueReference ref ->
         let key = (match special with ValueReference -> ValueRef ref | _ -> OutputRef ref)
         match results.TryFind(key) with
-        | Some result ->
+        | Some (result, executionCount)  ->
           let kind =
             match special with 
             | OutputReference _ -> FsiEmbedKind.Output
             | ItValueReference _ -> FsiEmbedKind.ItValue
             | ValueReference _ -> FsiEmbedKind.Value
             | _ -> failwith "unreachable"
-          ctx.Evaluator.Value.Format(result, kind)
+          ctx.Evaluator.Value.Format(result, kind, executionCount)
         | None ->
           let output = "Could not find reference '" + ref + "'"
-          [ OutputBlock(output) ]
+          [ OutputBlock(output, "text/plain", None) ]
 
       | LiterateCode (lines, opts) when results.ContainsKey(OutputRef opts.OutputName) ->
-        let opts = { opts with Evaluated = true }
+        let _, executionCount = results.[OutputRef opts.OutputName]
+        let opts = { opts with ExecutionCount = Some executionCount }
         [ EmbedParagraphs(LiterateCode (lines, opts), None) ]
       | _ -> 
         [ EmbedParagraphs(special, None) ]
 
     // Traverse all other structrues recursively
-    | Matching.ParagraphNested(pn, nested) ->
+    | MarkdownPatterns.ParagraphNested(pn, nested) ->
         let nested = List.map (List.collect (replaceEvaluations ctx results)) nested
-        [ Matching.ParagraphNested(pn, nested) ]
+        [ MarkdownPatterns.ParagraphNested(pn, nested) ]
     | par -> [ par ]
 
   /// Transform the specified literate document & evaluate all F# snippets
@@ -311,11 +317,11 @@ module Transformations =
   /// between moved snippets and ordinary snippets
   let rec collectCodes par =
       [ match par with
-        | Matching.LiterateParagraph(LiterateCode(lines, { Visibility = NamedCode id; Evaluated=isEvaluated })) ->
-            yield Choice2Of2(id), (lines, isEvaluated)
-        | Matching.LiterateParagraph(LiterateCode(lines, opts)) ->
-            yield Choice1Of2(lines), (lines, opts.Evaluated)
-        | Matching.ParagraphNested(pn, nested) ->
+        | MarkdownPatterns.LiterateParagraph(LiterateCode(lines, ({ Visibility = NamedCode id} as opts))) ->
+            yield Choice2Of2(id), (lines, opts.ExecutionCount)
+        | MarkdownPatterns.LiterateParagraph(LiterateCode(lines, opts)) ->
+            yield Choice1Of2(lines), (lines, opts.ExecutionCount)
+        | MarkdownPatterns.ParagraphNested(pn, nested) ->
             for ps in nested do
                 for p in ps do
                     yield! collectCodes p
@@ -324,9 +330,9 @@ module Transformations =
 
   /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
   let rec replaceSpecialCodes ctx (formatted:IDictionary<_, _>) = function
-    | Matching.LiterateParagraph(special) ->
+    | MarkdownPatterns.LiterateParagraph(special) ->
         match special with
-        | RawBlock lines -> Some (InlineBlock(unparse lines, false, None))
+        | RawBlock lines -> Some (InlineBlock(unparse lines, None, None))
         | LiterateCode(_, { Visibility = (HiddenCode | NamedCode _) }) -> None
         | LiterateCode(lines, _) -> Some (formatted.[Choice1Of2 lines])
         | CodeReference ref -> Some (formatted.[Choice2Of2 ref])
@@ -368,11 +374,11 @@ module Transformations =
                   sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
               | OutputKind.Pynb ->
                   code
-            Some(InlineBlock(inlined, false, None))
+            Some(InlineBlock(inlined, None, None))
     // Traverse all other structures recursively
-    | Matching.ParagraphNested(pn, nested) ->
+    | MarkdownPatterns.ParagraphNested(pn, nested) ->
         let nested = List.map (List.choose (replaceSpecialCodes ctx formatted)) nested
-        Some(Matching.ParagraphNested(pn, nested))
+        Some(MarkdownPatterns.ParagraphNested(pn, nested))
     | par -> Some par
 
   /// Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
@@ -401,8 +407,8 @@ module Transformations =
           CodeFormat.FormatPynb(snippets)
 
     let lookup =
-      [ for (key, (_, isEvaluated)), fmtd in Seq.zip replacements formatted.Snippets ->
-          let block = InlineBlock(fmtd.Content, isEvaluated, None)
+      [ for (key, (_, executionCount)), fmtd in Seq.zip replacements formatted.Snippets ->
+          let block = InlineBlock(fmtd.Content, executionCount, None)
           key, block ] |> dict
 
     // Replace original snippets with formatted HTML/Latex and return document

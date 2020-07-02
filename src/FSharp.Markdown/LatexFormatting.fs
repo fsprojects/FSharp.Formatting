@@ -151,7 +151,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(@"\end{lstlisting}")
       ctx.LineBreak()
 
-  | OutputBlock (code) -> // TODO: could format output better
+  | OutputBlock (code, _kind, _executionCount) -> // TODO: could format output better using kind
       ctx.Writer.Write(@"\begin{lstlisting}")
       ctx.LineBreak()
       ctx.Writer.Write(code)
@@ -206,7 +206,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
 
   | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code, _isExecuted, _) ->
+  | InlineBlock(code, _executionCount, _) ->
       ctx.Writer.Write(code)
   ctx.LineBreak()
 

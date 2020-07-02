@@ -38,7 +38,7 @@ module Formatting =
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->
-        doc.With(paragraphs = [CodeBlock (text, false, "", "", None)])
+        doc.With(paragraphs = [CodeBlock (text, None, "", "", None)])
     | LiterateSource.Script snippets ->
         let mutable count = 0
         let paragraphs =
@@ -46,7 +46,7 @@ module Formatting =
               if snippets.Length > 1 then
                 yield Heading(3, [Literal(name, None)], None)
               let id = count <- count + 1; "cell" + string count
-              let opts = { Evaluate=true; Evaluated=false; OutputName=id; Visibility=LiterateCodeVisibility.VisibleCode }
+              let opts = { Evaluate=true; ExecutionCount=None; OutputName=id; Visibility=LiterateCodeVisibility.VisibleCode }
               yield EmbedParagraphs(LiterateCode(lines, opts), None) ]
         doc.With(paragraphs = paragraphs)
 

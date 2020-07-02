@@ -186,7 +186,7 @@ module internal ParseScript =
           | _ -> incr count; "cell" + string count.Value
         let opts = 
           { Evaluate = getEvaluate noEval cmds
-            Evaluated = false;
+            ExecutionCount = None;
             OutputName = outputName
             Visibility = getVisibility cmds }
         let code = EmbedParagraphs(LiterateCode(snip, opts), None)
@@ -203,7 +203,7 @@ module internal ParseScript =
     // Ordinary F# code snippet
     | BlockSnippet(snip)::blocks ->
         let id = incr count; "cell" + string count.Value
-        let opts = { Evaluate=not noEval; Evaluated=false; OutputName=id; Visibility=LiterateCodeVisibility.VisibleCode }
+        let opts = { Evaluate=not noEval; ExecutionCount=None; OutputName=id; Visibility=LiterateCodeVisibility.VisibleCode }
         let p = EmbedParagraphs(LiterateCode(snip, opts), None)
         transformBlocks (Some id) count noEval (p::acc) defs blocks
 

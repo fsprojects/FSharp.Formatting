@@ -16,7 +16,7 @@ do FSharp.Formatting.TestHelpers.enableLogging()
 // --------------------------------------------------------------------------------------
 
 [<Test>]
-let ``Can parse literate F# script with evaluation`` () =
+let ``Can parse literate F# script with out of order value access`` () =
   let content = """
 (***hide***)
 let test = 42
@@ -43,17 +43,57 @@ printf ">>%d<<" 12343
   doc.Errors |> Seq.length |> shouldEqual 0
   // Contains formatted code and markdown
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(LiterateCode(_, _)) -> true | _ -> false)
+    | MarkdownPatterns.LiterateParagraph(LiterateCode(_, _)) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
 
+  // Contains transformed output - not using 'include-value' and 'include-output' gives odd execution sequence numbers
+  doc.Paragraphs |> shouldMatchPar (function
+    | OutputBlock ("42", "text/plain", Some 4) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | OutputBlock ("85", "text/plain", Some 5) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | OutputBlock (">>12343<<", "text/plain", Some 3) -> true | _ -> false)
+
+[<Test>]
+let ``Can parse literate F# script with in order outputs`` () =
+  let content = """
+(**
+
+Hello
+
+*)
+let test = 42
+let test2 = 43 + test
+(*** include-value: test ***)
+
+test2 + 15
+(*** include-it ***)
+
+printf ">>%d<<" 12343
+(*** include-output ***)
+
+printf ">>%d<<" 12345
+test2 + 16
+(*** include-output ***)
+(*** include-it ***)
+
+"""
+
+  let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
+
+  doc.Errors |> Seq.length |> shouldEqual 0
   // Contains transformed output
   doc.Paragraphs |> shouldMatchPar (function
-    | OutputBlock ("42") -> true | _ -> false)
+    | OutputBlock ("42", "text/plain", Some 2) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | OutputBlock ("85") -> true | _ -> false)
+    | OutputBlock ("100", "text/plain", Some 3) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
-    | OutputBlock (">>12343<<") -> true | _ -> false)
+    | OutputBlock (">>12343<<", "text/plain", Some 4) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | OutputBlock (">>12345<<", "text/plain", Some 5) -> true | _ -> false)
+  doc.Paragraphs |> shouldMatchPar (function
+    | OutputBlock ("101", "text/plain", Some 5) -> true | _ -> false)
 
 [<Test>]
 let ``Can evaluate hidden code snippets`` () =
@@ -75,7 +115,7 @@ let test = [1;2;3]
 
   // Create evaluator & register simple formatter for lists
   let fsiEvaluator = FSharp.Literate.FsiEvaluator()
-  fsiEvaluator.RegisterTransformation(fun (o, ty) ->
+  fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
     if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
       let items =
         [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([Literal (it.ToString(), None)], None) ] ]
@@ -226,7 +266,21 @@ let ``Can include-it`` () =
   let fsie = getFsiEvaluator()
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
   let html1 = Literate.ToHtmlString(doc1)
+  html1 |> shouldContainText "1000"
   html1 |> shouldContainText "2000"
+
+[<Test>]
+let ``Can hide and include-it`` () =
+  let content = """
+(*** hide ***)
+1000+1000
+(*** include-it ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
+  html1 |> shouldContainText "2000"
+  html1 |> shouldNotContainText "1000"
 
 [<Test>]
 let ``Can include-output`` () =
@@ -241,6 +295,24 @@ let xxxx = 1+1
   let html1 = Literate.ToHtmlString(doc1)
   html1 |> shouldContainText "helloworld"
   html1 |> shouldContainText "val xxxx : int"
+  html1 |> shouldContainText """<span class="k">let</span>""" // formatted code
+  html1 |> shouldNotContainText "2000"
+
+[<Test>]
+let ``Can hide and include-output`` () =
+  let content = """
+(*** hide ***)
+printfn "%sworld" "hello"
+let xxxx = 1+1
+1000+1000
+(*** include-output ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtmlString(doc1)
+  html1 |> shouldContainText "helloworld"
+  html1 |> shouldContainText "val xxxx : int"
+  html1 |> shouldNotContainText """<span class="k">let</span>""" // formatted code
   html1 |> shouldNotContainText "2000"
 
 let ``Can include-output-and-it`` () =
@@ -299,8 +371,8 @@ $$$
   pynb |> shouldNotContainText """should not show"""
   pynb |> shouldNotContainText """3154"""
   pynb |> shouldContainText """should show"""
-  pynb |> shouldContainText """execution_count": 1"""  // some cells are executed once
+  pynb |> shouldContainText """execution_count": 1"""  // first cell executed 
+  pynb |> shouldContainText """execution_count": 2""" // second cell executed 
   pynb |> shouldNotContainText """execution_count": null""" // all cells are executed
-  pynb |> shouldNotContainText """execution_count": 2""" // no cells are executed twice
   pynb |> shouldContainText """\begin{equation}"""
   pynb |> shouldContainText """\end{equation}"""

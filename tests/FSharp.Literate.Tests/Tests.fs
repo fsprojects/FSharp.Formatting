@@ -62,7 +62,7 @@ let test = 42"""
   let doc = Literate.ParseScriptString(content, "C" </> "A.fsx", getFormatAgent())
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(LiterateCode _) -> true | _ -> false)
+    | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", Some({ StartLine = 1 }))], Some({ StartLine = 1 }))], Some({ StartLine = 1 })) -> true | _ -> false)
 
@@ -85,7 +85,7 @@ let ``Can parse markdown with F# snippet`` () =
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(LiterateCode _) -> true | _ -> false)
+    | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", Some({ StartLine = 2 }))], Some({ StartLine = 2 }))], Some({ StartLine = 2 })) -> true | _ -> false)
 
@@ -100,7 +100,7 @@ let test = 42
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(LiterateCode _) -> true | _ -> false)
+    | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", Some({ StartLine = 2 }))], Some({ StartLine = 2 }))], Some({ StartLine = 2 })) -> true | _ -> false)
 
@@ -115,7 +115,7 @@ let test = 42
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
   doc.Errors |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
-    | Matching.LiterateParagraph(LiterateCode _) -> true | _ -> false)
+    | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
 
 [<Test>]
 let ``Can generate references from indirect links`` () =

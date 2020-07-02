@@ -925,18 +925,18 @@ module Reader =
   let rec collectSpanIndirectLinks span = seq {
     match span with
     | IndirectLink (_, _, key, _) -> yield key
-    | Matching.SpanLeaf _ -> ()
-    | Matching.SpanNode(_, spans) ->
+    | MarkdownPatterns.SpanLeaf _ -> ()
+    | MarkdownPatterns.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanIndirectLinks s }
 
   /// Returns all indirect links in the specified paragraph node
   let rec collectParagraphIndirectLinks par = seq {
     match par with
-    | Matching.ParagraphLeaf _ -> ()
-    | Matching.ParagraphNested(_, pars) ->
+    | MarkdownPatterns.ParagraphLeaf _ -> ()
+    | MarkdownPatterns.ParagraphNested(_, pars) ->
       for ps in pars do
         for p in ps do yield! collectParagraphIndirectLinks p
-    | Matching.ParagraphSpans(_, spans) ->
+    | MarkdownPatterns.ParagraphSpans(_, spans) ->
       for s in spans do yield! collectSpanIndirectLinks s }
 
   /// Returns whether the link is not included in the document defined links
@@ -971,10 +971,10 @@ module Reader =
   /// Wraps inside an `IndirectLink` all inline code spans in the paragraph that can be converted to a link
   let rec wrapInlineCodeLinksInParagraphs (ctx:ReadingContext) (para:MarkdownParagraph) =
     match para with
-    | Matching.ParagraphLeaf _ -> para
-    | Matching.ParagraphNested(info, pars) ->
-        Matching.ParagraphNested(info, pars |> List.map (fun innerPars -> List.map (wrapInlineCodeLinksInParagraphs ctx) innerPars))
-    | Matching.ParagraphSpans(info, spans) -> Matching.ParagraphSpans(info, List.map (wrapInlineCodeLinksInSpans ctx) spans)
+    | MarkdownPatterns.ParagraphLeaf _ -> para
+    | MarkdownPatterns.ParagraphNested(info, pars) ->
+        MarkdownPatterns.ParagraphNested(info, pars |> List.map (fun innerPars -> List.map (wrapInlineCodeLinksInParagraphs ctx) innerPars))
+    | MarkdownPatterns.ParagraphSpans(info, spans) -> MarkdownPatterns.ParagraphSpans(info, List.map (wrapInlineCodeLinksInSpans ctx) spans)
 
   /// Adds the missing links to types to the document defined links
   let addMissingLinkToTypes ctx (doc: LiterateDocument) =

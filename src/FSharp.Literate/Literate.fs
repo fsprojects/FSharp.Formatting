@@ -126,7 +126,7 @@ type Literate private () =
   static member ToHtmlString(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, false, None)], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
     Html.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
@@ -136,7 +136,7 @@ type Literate private () =
   static member WriteAsHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, false, None)], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   /// Format the literate document as Latex without using a template

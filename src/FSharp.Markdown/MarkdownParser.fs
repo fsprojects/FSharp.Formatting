@@ -761,7 +761,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
   | NestedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine)
   | FencedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
       let code = code |> String.concat ctx.Newline
-      yield CodeBlock(code, false, langString, ignoredLine, ctx.CurrentRange)
+      yield CodeBlock(code, None, langString, ignoredLine, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
   | Blockquote(body, Lines.TrimBlankStart rest) ->
       yield QuotedBlock(parseParagraphs ctx (body @ [("", MarkdownRange.zero)]) |> List.ofSeq, ctx.CurrentRange)
@@ -831,7 +831,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
         ( let all = String.concat ctx.Newline (code |> List.map fst)
           not (all.StartsWith("<http://")) && not (all.StartsWith("<ftp://")) && not (all.Contains("@")) ) ->
       let all = String.concat ctx.Newline (code |> List.map fst)
-      yield InlineBlock(all, false, ctx.CurrentRange)
+      yield InlineBlock(all, None, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
   | TakeParagraphLines(Lines.TrimParagraphLines lines, Lines.TrimBlankStart rest) ->
       yield Paragraph (parseSpans (lines |> List.map fst |> String.concat ctx.Newline, lines |> List.map snd |> MarkdownRange.mergeRanges) ctx, ctx.CurrentRange)

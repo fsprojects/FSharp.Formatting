@@ -89,7 +89,7 @@ all paragraph-style elements and one that will process all inline formattings (i
 paragraphs, headings etc.).
 
 To avoid pattern matching on every single kind of span and every single kind of 
-paragraph, we can use active patterns from the `Matching` module. These can be use
+paragraph, we can use active patterns from the `MarkdownPatterns` module. These can be use
 to recognize any paragraph or span that can contain child elements:
 
 *)
@@ -99,18 +99,18 @@ let rec collectSpanLinks span = seq {
   match span with
   | DirectLink(link=url) -> yield url
   | IndirectLink(key=key) -> yield fst (parsed.DefinedLinks.[key])
-  | Matching.SpanLeaf _ -> ()
-  | Matching.SpanNode(_, spans) ->
+  | MarkdownPatterns.SpanLeaf _ -> ()
+  | MarkdownPatterns.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanLinks s }
       
 /// Returns all links in the specified paragraph node
 let rec collectParLinks par = seq {
   match par with
-  | Matching.ParagraphLeaf _ -> ()
-  | Matching.ParagraphNested(_, pars) -> 
+  | MarkdownPatterns.ParagraphLeaf _ -> ()
+  | MarkdownPatterns.ParagraphNested(_, pars) -> 
       for ps in pars do 
         for p in ps do yield! collectParLinks p 
-  | Matching.ParagraphSpans(_, spans) ->
+  | MarkdownPatterns.ParagraphSpans(_, spans) ->
       for s in spans do yield! collectSpanLinks s }
 
 /// Collect links in the entire document
@@ -126,9 +126,9 @@ link that uses one of the link definitions. The function simply returns the URL 
 with the link.
 
 Some span nodes (like emphasis) can contain other formatting, so we need to recursively
-process children. This is done by matching against `Matching.SpanNodes` which is an active
+process children. This is done by matching against `MarkdownPatterns.SpanNodes` which is an active
 pattern that recognizes any node with children. The library also provides a _function_
-named `Matching.SpanNode` that can be used to reconstruct the same node (when you want
+named `MarkdownPatterns.SpanNode` that can be used to reconstruct the same node (when you want
 to transform document). This is similar to how the `ExprShape` module for working with 
 F# quotations works.
 

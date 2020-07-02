@@ -56,7 +56,7 @@ type ProcessDirectoryOptions() =
     member val outputDirectory = "" with get, set
 
     [<Option("format", Required = false,
-        HelpText = "Ouput format either 'latex' or 'html', defaults to 'html' (optional).")>]
+        HelpText = "Ouput format either 'latex', 'ipynb' or 'html', defaults to 'html' (optional).")>]
     member val format = "html" with get, set
 
 //    [<Option("formatAgent", Required = false,
@@ -113,7 +113,12 @@ type ProcessDirectoryOptions() =
                             ?generateAnchors = Some true,
                             ?templateFile = (evalString x.templateFile),
                             ?outputDirectory = Some (if x.outputDirectory = "" then x.inputDirectory else x.outputDirectory),
-                            ?format= Some (if (x.format).ToLower() = "html" then OutputKind.Html else OutputKind.Latex),
+                            ?format=
+                                Some (let fmt = x.format.ToLower()
+                                      if fmt = "html" then OutputKind.Html
+                                      elif fmt = "ipynb" then OutputKind.Pynb
+                                      elif fmt = "tex" || fmt = "latex" then OutputKind.Latex
+                                      else failwithf "unknown format '%s'" x.format),
                             ?formatAgent = None,
                             ?prefix = (evalString x.prefix),
                             ?compilerOptions = (evalString (concat x.compilerOptions)),

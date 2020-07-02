@@ -198,7 +198,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
       if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
-  | OutputBlock (code) ->
+  | OutputBlock (code, _, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
       ctx.Writer.Write(sprintf "<pre><code>")
       ctx.Writer.Write(htmlEncode code)

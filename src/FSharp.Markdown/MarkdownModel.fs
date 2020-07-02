@@ -54,9 +54,9 @@ type MarkdownEmbedSpans =
 type MarkdownParagraph = 
   | Heading of size:int * body:MarkdownSpans * range:MarkdownRange option
   | Paragraph of body:MarkdownSpans * range:MarkdownRange option
-  | CodeBlock of code:string * isExecuted: bool * language:string * ignoredLine:string * range:MarkdownRange option
-  | OutputBlock of output:string
-  | InlineBlock of code:string * isExecuted: bool * range:MarkdownRange option
+  | CodeBlock of code:string * executionCount: int option * language:string * ignoredLine:string * range:MarkdownRange option
+  | OutputBlock of output:string * kind: string * executionCount: int option 
+  | InlineBlock of code:string * executionCount: int option * range:MarkdownRange option
   | ListBlock of kind:MarkdownListKind * items:list<MarkdownParagraphs> * range:MarkdownRange option
   | QuotedBlock of paragraphs:MarkdownParagraphs * range:MarkdownRange option
   | Span of body:MarkdownSpans * range:MarkdownRange option
@@ -82,7 +82,7 @@ type MarkdownEmbedParagraphs =
 
 /// This module provides an easy way of processing Markdown documents.
 /// It lets you decompose documents into leafs and nodes with nested paragraphs.
-module Matching =
+module MarkdownPatterns =
   type SpanLeafInfo = private SL of MarkdownSpan
   type SpanNodeInfo = private SN of MarkdownSpan
    

@@ -210,9 +210,9 @@ projects.
 ## Generating LaTeX output
 
 The methods used above (`ProcessScriptFile`, `ProcessMarkdown` as well as `ProcessDirectory`) 
-produce HTML output by default, but they can be also used to produce Latex output. This is done
+produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the named parameter `format` to one of the two `OutputKind` cases. The following
-example shows how to call the methods to generate Latex documents:
+example shows how to call the methods to generate LaTeX documents:
 *)
 // Template file containing the {content} tag and possibly others
 let texTemplate = Path.Combine(source, "template.tex")
@@ -227,6 +227,25 @@ Literate.ProcessMarkdown(docTex, template, format = OutputKind.Latex)
 Literate.ProcessDirectory
   ( source, texTemplate, source + "\\output", 
     format = OutputKind.Latex, replacements = projInfo)
+
+(**
+## Generating iPython Notebook output
+
+> NOTE: This feature is experimental and not all features of markdown or notebooks is supported
+
+The methods used above (`ProcessScriptFile`, `ProcessMarkdown` as well as `ProcessDirectory`) 
+can also produce iPython Notebook output. This is done
+by setting the named parameter `format` to `OutputKind.Pynb`:
+*)
+
+// Process script file, Markdown document and a directory
+let scriptPynb = Path.Combine(source, "../docs/script.fsx")
+Literate.ProcessScriptFile(scriptPynb, format = OutputKind.Pynb)
+
+let docPynb = Path.Combine(source, "../docs/document.md")
+Literate.ProcessMarkdown(docPynb, template, format = OutputKind.Pynb)
+
+Literate.ProcessDirectory( source, source + "/output", format = OutputKind.Pynb)
 
 (**
 Note that the `template.tex` file needs to contain `{content}` as the key where the body

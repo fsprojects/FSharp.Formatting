@@ -38,4 +38,5 @@ The library is available under Apache 2.0. For more information see the [License
 
 ## Maintainer(s)
 
-- [@cloudroutine](https://github.com/cloudroutine)
+- [@dsyme](https://github.com/dsyme)
+- [@eiriktsarpalis](https://github.com/eiriktsarpalis)

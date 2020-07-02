@@ -29,8 +29,8 @@ type LiterateCodeOptions =
     /// Other outputs are named cell1, cell2 etc.
     OutputName : string
 
-    /// Indiciates if the cell has been evaluated
-    Evaluated: bool
+    /// Indiciates the execution sequence number of the cell if it has been evaluated
+    ExecutionCount: int option
 
     /// Specifies the visibility of the snippet in the generated HTML
     Visibility : LiterateCodeVisibility
@@ -126,6 +126,6 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, erro
 
 /// Provides active patterns for extracting `LiterateParagraph` values from
 /// Markdown documents.
-module Matching =
+module MarkdownPatterns =
   let (|LiterateParagraph|_|) = function
     | EmbedParagraphs(:? LiterateParagraph as lp, _) -> Some lp | _ -> None

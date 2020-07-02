@@ -10,18 +10,19 @@ let escapeAndQuote(txt: string) =
 let addLineEnd (s: string) = if s.EndsWith("\n") then s else s + "\n"
 
 type OutputData =
-    | OutputHtml of string list
+    | OutputData of kind: string * lines: string[]
     override this.ToString() =
-        match this with
-        | OutputHtml lines ->
-            """
-                "text/html": [
-            """ + String.concat "\n" (List.map escapeAndQuote lines)
-            + "]"
+        let (OutputData (kind, lines)) = this
+        sprintf """
+            "%s": [%s]
+        """
+            kind
+            (String.concat ",\n" (Array.map escapeAndQuote lines))
+
 type Output =
     {
         data: OutputData
-        execution_count : int
+        execution_count : int option
         metadata : string
         output_type: string
     }
@@ -29,12 +30,12 @@ type Output =
         sprintf """
           {
            "data": {%s},
-           "execution_count": %d,
+           "execution_count": %s,
            "metadata": {%s},
            "output_type": "%s"
           }"""
               (this.data.ToString())
-              this.execution_count
+              (match this.execution_count with | None -> "null" | Some(x) -> string x) 
               this.metadata
               this.output_type
 
@@ -144,13 +145,9 @@ type Notebook =
 
 let internal splitLines (s: string) = s.Split([|'\n';'\r'|])
 
-let codeCell(lines: string[]) executed codeOutputOption = 
+let codeCell(lines: string[]) executionCount outputs = 
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
-    let cell = {Cell.Default with execution_count = (if executed then Some 1 else None); cell_type = "code"; source = lines}
-    let cell =
-        match codeOutputOption with
-        | None -> cell
-        | Some outputs -> {cell with outputs = outputs}
+    let cell = {Cell.Default with execution_count = executionCount; cell_type = "code"; source = lines; outputs=outputs}
     cell
 
 let rawCell (s: string) = 

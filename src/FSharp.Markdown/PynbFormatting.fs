@@ -232,8 +232,9 @@ and formatSpansAsMarkdown ctx spans = spans |> List.map (formatSpanAsMarkdown ct
 
 let isCode = (function CodeBlock(_, _, _, _, _) | InlineBlock (_, _, _) -> true | _ -> false)
 let isCodeOutput = (function OutputBlock _ -> true | _ -> false)
-let isCodeExecuted = (function CodeBlock(_, isExecuted, _, _, _) | InlineBlock (_, isExecuted, _) -> isExecuted | _ -> false)
+let getExecutionCount = (function CodeBlock(_, executionCount, _, _, _) | InlineBlock (_, executionCount, _) -> executionCount | _ -> None)
 let getCode = (function CodeBlock(code, _, _, _, _) -> code | InlineBlock (code, _, _) -> code | _ -> failwith "unreachable")
+let getCodeOutput = (function OutputBlock (code, kind, _) -> code, kind | _ -> failwith "unreachable")
 let splitParagraphs paragraphs =
     let firstCode = paragraphs |> List.tryFindIndex isCode
     match firstCode with
@@ -242,12 +243,10 @@ let splitParagraphs paragraphs =
         let codeLines = getCode code
         let otherParagraphs = paragraphs.[1..]
 
-        // Get the code output that follows this if any
-        let codeOutputOption, otherParagraphs =
-            match otherParagraphs with
-            | a::b when isCodeOutput a -> Some a, b
-            | b -> None, b
-        Choice1Of2 (codeLines, codeOutputOption, isCodeExecuted code), otherParagraphs
+        // Collect the code output(s) that follows this cell if any
+        let codeOutput = otherParagraphs |> List.takeWhile isCodeOutput |> List.map getCodeOutput
+        let otherParagraphs = otherParagraphs |> List.skipWhile isCodeOutput
+        Choice1Of2 (codeLines, codeOutput, getExecutionCount code), otherParagraphs
 
     | Some _ | None ->
         let markdownParagraphs = paragraphs |> List.takeWhile (isCode >> not)
@@ -272,7 +271,7 @@ let rec formatMarkdownParagraph ctx paragraph =
             yield "-----------------------"
         | CodeBlock(code, _, _, _, _) ->
             yield code
-        | OutputBlock(output) ->
+        | OutputBlock(output, _, _executionCount) ->
             yield output
         | _ ->
             yield (sprintf "// can't yet format %0A to pynb markdown" paragraph)
@@ -331,11 +330,11 @@ let rec formatMarkdownParagraph ctx paragraph =
       ctx.LineBreak()
 *)
 
-let formatCodeOutput ctx (codeOutput: MarkdownParagraph) : Output=
-    let html = formatMarkdownParagraph ctx codeOutput
+let formatCodeOutput executionCount (output: string, kind) : Output =
+    let lines = output.Split([|'\n';'\r'|])
     {
-        data= OutputHtml(Array.toList html)
-        execution_count = 1
+        data= OutputData(kind, lines)
+        execution_count = executionCount
         metadata = ""
         output_type = "execute_result"
     }
@@ -348,8 +347,8 @@ let rec formatParagraphs ctx paragraphs =
   let k, otherParagraphs = splitParagraphs paragraphs
   let cell =
       match k with 
-      | Choice1Of2 (code,  codeOutputOption, isExecuted) ->
-          codeCell [| code |] isExecuted (Option.map (formatCodeOutput ctx >> Array.singleton) codeOutputOption)
+      | Choice1Of2 (code,  codeOutput, executionCount) ->
+          codeCell [| code |] executionCount (List.map (formatCodeOutput executionCount) codeOutput |> Array.ofList)
       | Choice2Of2 markdown ->
           markdownCell (Array.ofList (List.collect (formatMarkdownParagraph ctx >> Array.toList) markdown))
   let others =  formatParagraphs ctx otherParagraphs
