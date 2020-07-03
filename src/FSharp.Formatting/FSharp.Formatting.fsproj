@@ -15,6 +15,11 @@
     <Content Include="..\..\misc\literate\templates\*" PackagePath="literate/templates" />
     <Content Include="..\..\docs\files\content\*" PackagePath="styles" />
     <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
+
+    <!-- Assembly dependencies -->
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\RazorEngine.NetCore.dll" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\System.Security.Permissions.dll" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <ItemGroup>
