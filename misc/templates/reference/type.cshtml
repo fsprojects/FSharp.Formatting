@@ -1,4 +1,4 @@
-@using FSharp.MetadataFormat
+@using FSharp.Formatting.MetadataFormat
 @{
     Layout = "template";
     Title = Model.Type.Name + " - " + Properties["project-name"];
@@ -8,7 +8,7 @@
     // Get all the members & comment for the type
     var members = (IEnumerable<Member>)Model.Type.AllMembers;
     var comment = (Comment)Model.Type.Comment;
-    var type = (FSharp.MetadataFormat.Type)Model.Type;
+    var type = (FSharp.Formatting.MetadataFormat.Type)Model.Type;
     // Group all members by their category which is an inline annotation
     // that can be added to members using special XML comment:
     //

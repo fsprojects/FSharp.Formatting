@@ -15,7 +15,7 @@ let sections =
 
 open FsUnit
 open NUnit.Framework
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 
 let properNewLines (text: string) = text.Replace("\r\n", "\n").Replace("\n", System.Environment.NewLine)
 

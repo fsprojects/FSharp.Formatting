@@ -1,4 +1,4 @@
-@using FSharp.MetadataFormat
+@using FSharp.Formatting.MetadataFormat
 @{
   Layout = "template";
   Title = Model.Module.Name + " - " + Properties["project-name"];
@@ -28,7 +28,7 @@
 
   // Get nested modules and nested types as statically typed collections
   var nestModules = (IEnumerable<Module>)Model.Module.NestedModules;
-  var nestTypes = (IEnumerable<FSharp.MetadataFormat.Type>)Model.Module.NestedTypes;
+  var nestTypes = (IEnumerable<FSharp.Formatting.MetadataFormat.Type>)Model.Module.NestedTypes;
 }
 
 <h1>@Model.Module.Name</h1>

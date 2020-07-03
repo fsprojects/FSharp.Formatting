@@ -2,7 +2,7 @@
 // the following will include binaries and load the literate script
 #load "../../src/FSharp.Formatting.fsx"
 open System.IO
-open FSharp.Literate
+open FSharp.Formatting.Literate
 open FSharp.Formatting.Razor
 
 // ----------------------------------------------------------------------------

@@ -13,7 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

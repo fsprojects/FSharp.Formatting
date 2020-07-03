@@ -1,10 +1,10 @@
 [<NUnit.Framework.TestFixture>]
-module FSharp.MetadataFormat.AttributeTests
+module FSharp.Formatting.MetadataFormat.AttributeTests
 
 open FsUnit
 open System.IO
 open NUnit.Framework
-open FSharp.MetadataFormat
+open FSharp.Formatting.MetadataFormat
 open FsUnitTyped
 open FSharp.Compiler.SourceCodeServices
 open NUnit.Framework.Internal

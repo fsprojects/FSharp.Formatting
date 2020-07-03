@@ -2,7 +2,7 @@
 
 open CommandLine
 open CommandLine.Text
-open FSharp.MetadataFormat
+open FSharp.Formatting.MetadataFormat
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options

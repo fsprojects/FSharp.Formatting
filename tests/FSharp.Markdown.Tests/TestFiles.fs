@@ -3,7 +3,7 @@ module FSharp.Markdown.Tests.TestFiles
 // TODO: This is all obsolete
 // --------------------------------------------------------------------------------------
 
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 open System.IO
 open System.Diagnostics
 

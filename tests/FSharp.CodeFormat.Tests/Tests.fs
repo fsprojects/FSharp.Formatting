@@ -1,5 +1,5 @@
 #if INTERACTIVE
-#r "../../bin/FSharp.CodeFormat.dll"
+#r "../../bin/FSharp.Formatting.CodeFormat.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #else
@@ -9,8 +9,8 @@ module FSharp.CodeFormat.Tests
 
 open FsUnit
 open NUnit.Framework
-open FSharp.CodeFormat
-open FSharp.CodeFormat.Constants
+open FSharp.Formatting.CodeFormat
+open FSharp.Formatting.CodeFormat.Constants
 open FsUnitTyped
 
 // --------------------------------------------------------------------------------------

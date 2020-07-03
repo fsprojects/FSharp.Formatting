@@ -11,11 +11,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj" />
     <ProjectReference Include="files\AttributesTestLib\AttributesTestLib.fsproj" />
     <ProjectReference Include="files\crefLib1\crefLib1.fsproj" />
     <ProjectReference Include="files\crefLib2\crefLib2.fsproj" />

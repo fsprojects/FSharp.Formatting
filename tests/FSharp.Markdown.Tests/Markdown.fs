@@ -1,5 +1,5 @@
 #if INTERACTIVE
-#r "../../bin/FSharp.Markdown.dll"
+#r "../../bin/FSharp.Formatting.Markdown.dll"
 #r "../../packages/NUnit/lib/nunit.framework.dll"
 #load "../Common/FsUnit.fs"
 #else
@@ -9,7 +9,7 @@ module FSharp.Markdown.Tests.Parsing
 
 open FsUnit
 open NUnit.Framework
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 open FSharp.Formatting.Common
 open FsUnitTyped
 

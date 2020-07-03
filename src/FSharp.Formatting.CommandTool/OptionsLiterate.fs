@@ -2,7 +2,7 @@ namespace FSharp.Formatting.Options.Literate
 
 open CommandLine
 open CommandLine.Text
-open FSharp.Literate
+open FSharp.Formatting.Literate
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options

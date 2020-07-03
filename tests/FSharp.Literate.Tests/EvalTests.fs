@@ -3,11 +3,11 @@ module FSharp.Literate.Tests.Eval
 open FsUnit
 open FsUnitTyped
 open System.IO
-open FSharp.Markdown
-open FSharp.Literate
+open FSharp.Formatting.Markdown
+open FSharp.Formatting.Literate
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-open FSharp.Markdown.Unit
+open FSharp.Formatting.Markdown.Unit
 
 do FSharp.Formatting.TestHelpers.enableLogging()
 
@@ -114,7 +114,7 @@ let test = [1;2;3]
 (*** include-value:test ***)"""
 
   // Create evaluator & register simple formatter for lists
-  let fsiEvaluator = FSharp.Literate.FsiEvaluator()
+  let fsiEvaluator = FSharp.Formatting.Literate.FsiEvaluator()
   fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
     if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
       let items =
@@ -214,7 +214,7 @@ module Demo =
 (*** define-output:t2 ***)
 FsLab.Demo.test
 (*** include-it:t2 ***)""".Replace("[PATH]", path)
-  let fsie = FSharp.Literate.FsiEvaluator(fsiObj = FsiEvaluatorConfig.CreateNoOpFsiObject())
+  let fsie = FSharp.Formatting.Literate.FsiEvaluator(fsiObj = FsiEvaluatorConfig.CreateNoOpFsiObject())
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
   let html1 = Literate.ToHtmlString(doc1)
   html1.Contains("Not executed") |> shouldEqual true

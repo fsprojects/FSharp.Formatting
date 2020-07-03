@@ -2,7 +2,7 @@
 F# Formatting: Literate programming
 ===================================
 
-The `FSharp.Formatting` package includes `FSharp.Literate.dll` that implements the 
+The `FSharp.Formatting` package includes `FSharp.Formatting.Literate.dll` that implements the 
 idea of _literate programming_. The script uses the F# Markdown processor and code
 formatter to generate nice HTML pages from F# script files (`*.fsx` files) or Markdown
 documents (`*.md` files) containing F# snippets.
@@ -112,9 +112,9 @@ Typical literate setup
 #nowarn "211"
 #I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
 #r "FSharp.Formatting.Common.dll"
-#r "FSharp.Markdown.dll"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Literate.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
 
 (**
 For literate programming support in your project, install the `FSharp.Formatting` nuget package.
@@ -127,14 +127,14 @@ do not have version number in the directory name, typical `build.fsx` looks like
 *)
 
 #load "../../packages/FSharp.Formatting/FSharp.Formatting.fsx"
-open FSharp.Literate
+open FSharp.Formatting.Literate
 open System.IO
 
 (**
-`FSharp.Formatting.fsx` loads all the necessary assemblies. `open FSharp.Literate` references
+`FSharp.Formatting.fsx` loads all the necessary assemblies. `open FSharp.Formatting.Literate` references
 the library with all the important functionality.
 
-Now we can open `FSharp.Literate` and use the `Literate` type to process individual
+Now we can open `FSharp.Formatting.Literate` and use the `Literate` type to process individual
 documents or entire directories.
 
 ### Processing individual files
@@ -153,8 +153,8 @@ replaced with (hidden) `<div>` elements containing code for tool tips that appea
 when you place mouse pointer over an identifier. Optionally, you can also use 
 `{page-title}` which will be replaced with the text in a first-level heading.
 The template should also reference `style.css` and `tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/style.css)
-and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.CodeFormat/files/tips.js) on GitHub).
+and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
+and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
 
 Assuming you have `template.html` in the current directory, you can write:
 *)

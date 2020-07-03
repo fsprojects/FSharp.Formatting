@@ -1,9 +1,9 @@
 #if INTERACTIVE
 #I "../../bin/"
-#r "FSharp.Literate.dll"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Markdown.dll"
-#r "CSharpFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CSharpFormat.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #load "../Common/MarkdownUnit.fs"
@@ -14,9 +14,9 @@ module FSharp.Literate.Tests.Simple
 #endif
 
 open FsUnit
-open FSharp.Literate
-open FSharp.Markdown
-open FSharp.Markdown.Unit
+open FSharp.Formatting.Literate
+open FSharp.Formatting.Markdown
+open FSharp.Formatting.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 open FSharp.Formatting.Razor
@@ -157,7 +157,7 @@ let ``C# syntax highlighter can process html`` () =
 <pre lang="csharp">
 var
 </pre>"""
-  let formatted = CSharpFormat.SyntaxHighlighter.FormatHtml(html)
+  let formatted = FSharp.Formatting.CSharpFormat.SyntaxHighlighter.FormatHtml(html)
   let expected = html.Replace(" lang=\"csharp\"", "").Replace("var", "<span class=\"k\">var</span>")
   formatted |> shouldEqual expected
 

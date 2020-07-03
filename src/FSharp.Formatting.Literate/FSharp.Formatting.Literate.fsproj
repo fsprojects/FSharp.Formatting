@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="paket.references" />
+    <Compile Include="..\Common\AssemblyInfo.fs">
+      <Link>Common\AssemblyInfo.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\Collections.fs">
+      <Link>Common\Collections.fs</Link>
+    </Compile>
+    <Compile Include="..\Common\StringParsing.fs">
+      <Link>Common\StringParsing.fs</Link>
+    </Compile>
+    <Compile Include="Document.fs" />
+    <Compile Include="Evaluator.fs" />
+    <Compile Include="Contexts.fs" />
+    <Compile Include="ParseScript.fs" />
+    <Compile Include="ParseMarkdown.fs" />
+    <Compile Include="Transformations.fs" />
+    <Compile Include="Formatting.fs" />
+    <Compile Include="Literate.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

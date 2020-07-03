@@ -9,7 +9,7 @@
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

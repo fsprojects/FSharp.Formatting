@@ -35,11 +35,11 @@ In order to provide consistency across different shell environments, the command
 
 The `[command]` directive maps to the corresponding library namespace:
 
-* `literate` - Selects namespace `FSharp.Literate`
-* `metadataFormat` - Selects namespace `FSharp.MetadataFormat`
+* `literate` - Selects namespace `FSharp.Formatting.Literate`
+* `metadataFormat` - Selects namespace `FSharp.Formatting.MetadataFormat`
 
-Currently, the command line tools exposes the functions `ProcessDirectory` of namespace `FSharp.Literate`
-(for literate programming using F#) and `Generate` of namespace `FSharp.MetadataFormat` (for generating
+Currently, the command line tools exposes the functions `ProcessDirectory` of namespace `FSharp.Formatting.Literate`
+(for literate programming using F#) and `Generate` of namespace `FSharp.Formatting.MetadataFormat` (for generating
 library documentation from XML comments). 
 
 The `--help` option as single specifier displays the help message for all valid `[command] [function] [options]` combinations.
@@ -47,7 +47,7 @@ The `--help` option as single specifier displays the help message for all valid 
 Literate programming command
 ----------------------------
 
-The method `FSharp.Literate.ProcessDirectory` processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
+The method `FSharp.Formatting.Literate.ProcessDirectory` processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
 according to the concept of [Literate Programming](literate.html).
 
     [lang=text]
@@ -83,7 +83,7 @@ according to the concept of [Literate Programming](literate.html).
 Library documentation command
 -----------------------------
 
-The `FSharp.MetadataFormat.Generate` method builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
+The `FSharp.Formatting.MetadataFormat.Generate` method builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
 the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
 
     [lang=text]

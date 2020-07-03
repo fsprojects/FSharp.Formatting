@@ -13,14 +13,14 @@
 // Reference VS PowerTools, Razor and F# Formatting components
 #r "RazorEngine.NetCore.dll"
 #r "FSharp.Formatting.Common.dll"
-#r "FSharp.Markdown.dll"
-#r "FSharp.Literate.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.Literate.dll"
 
-// Ensure that FSharpVSPowerTools.Core.dll is loaded before trying to load FSharp.CodeFormat.dll
+// Ensure that FSharpVSPowerTools.Core.dll is loaded before trying to load FSharp.Formatting.CodeFormat.dll
 ;;
 
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.MetadataFormat.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.MetadataFormat.dll"
 #r "FSharp.Formatting.Razor.dll"
 
 // Setup Logging for FSharp.Formatting and Yaaf.FSharp.Scripting

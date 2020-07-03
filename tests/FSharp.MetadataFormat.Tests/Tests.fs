@@ -4,7 +4,7 @@ module FSharp.MetadataFormat.Tests
 open FsUnit
 open System.IO
 open NUnit.Framework
-open FSharp.MetadataFormat
+open FSharp.Formatting.MetadataFormat
 open FSharp.Formatting.Razor
 open FsUnitTyped
 
@@ -365,7 +365,7 @@ let ``MetadataFormat highlights code snippets in Markdown comments``() =
 
 [<Test>]
 let ``MetadataFormat handles c# dlls`` () =
-  let library = testBin </> "CSharpFormat.dll" |> fullpath
+  let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
   //RazorMetadataFormat.Generate
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
@@ -376,7 +376,7 @@ let ``MetadataFormat handles c# dlls`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
-    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
 
     //RazorMetadataFormat.Generate
     //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
@@ -388,7 +388,7 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
-    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
 
     let files = generate [library] false
 

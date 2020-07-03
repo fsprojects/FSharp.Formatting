@@ -4,17 +4,17 @@
         <name>CSharpFormat</name>
     </assembly>
     <members>
-        <member name="T:Manoli.Utils.CSharpFormat.CLikeFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.CLikeFormat">
             <summary>
             Provides a base class for formatting languages similar to C.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.CodeFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.CodeFormat">
             <summary>
             Provides a base class for formatting most programming languages.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.SourceFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.SourceFormat">
             <summary>
             Provides a base implementation for all code formatters.
             </summary>
@@ -33,10 +33,10 @@
             </para>
             </remarks>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.#ctor">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.#ctor">
             <summary/>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.FormatCode(System.IO.Stream)">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.FormatCode(System.IO.Stream)">
             <overloads>Transform source code to HTML 4.01.</overloads>
             
             <summary>
@@ -45,31 +45,31 @@
             <param name="source">Source code stream.</param>
             <returns>A string containing the HTML formatted code.</returns>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.FormatCode(System.String)">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.FormatCode(System.String)">
             <summary>
             Transforms a source code string to HTML 4.01.
             </summary>
             <returns>A string containing the HTML formatted code.</returns>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.FormatSubCode(System.String)">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.FormatSubCode(System.String)">
             <summary>
             Allows formatting a part of the code in a different language,
             for example a JavaScript block inside an HTML file.
             </summary>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.GetCssStream">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.GetCssStream">
             <summary>
             Gets the CSS stylesheet as a stream.
             </summary>
             <returns>A text <see cref="T:System.IO.Stream"/> of the CSS definitions.</returns>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.GetCssString">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.GetCssString">
             <summary>
             Gets the CSS stylesheet as a string.
             </summary>
             <returns>A string containing the CSS definitions.</returns>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.SourceFormat.MatchEval(System.Text.RegularExpressions.Match)">
+        <member name="M:FSharp.Formatting.CSharpFormat.SourceFormat.MatchEval(System.Text.RegularExpressions.Match)">
             <summary>
             Called to evaluate the HTML fragment corresponding to each 
             matching token in the code.
@@ -78,7 +78,7 @@
             single regular expression match.</param>
             <returns>A string containing the HTML code fragment.</returns>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.SourceFormat.TabSpaces">
+        <member name="P:FSharp.Formatting.CSharpFormat.SourceFormat.TabSpaces">
             <summary>
             Gets or sets the tabs width.
             </summary>
@@ -86,36 +86,36 @@
             characters. The default is <b>4</b>, unless overridden is a 
             derived class.</value>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.SourceFormat.LineNumbers">
+        <member name="P:FSharp.Formatting.CSharpFormat.SourceFormat.LineNumbers">
             <summary>
             Enables or disables line numbers in output.
             </summary>
             <value>When <b>true</b>, line numbers are generated. 
             The default is <b>false</b>.</value>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.SourceFormat.Alternate">
+        <member name="P:FSharp.Formatting.CSharpFormat.SourceFormat.Alternate">
             <summary>
             Enables or disables alternating line background.
             </summary>
             <value>When <b>true</b>, lines background is alternated. 
             The default is <b>false</b>.</value>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.SourceFormat.EmbedStyleSheet">
+        <member name="P:FSharp.Formatting.CSharpFormat.SourceFormat.EmbedStyleSheet">
             <summary>
             Enables or disables the embedded CSS style sheet.
             </summary>
             <value>When <b>true</b>, the CSS &lt;style&gt; element is included 
             in the HTML output. The default is <b>false</b>.</value>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.SourceFormat.CodeRegex">
+        <member name="P:FSharp.Formatting.CSharpFormat.SourceFormat.CodeRegex">
             <summary>
             The regular expression used to capture language tokens.
             </summary>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.CodeFormat.#ctor">
+        <member name="M:FSharp.Formatting.CSharpFormat.CodeFormat.#ctor">
             <summary/>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.CodeFormat.MatchEval(System.Text.RegularExpressions.Match)">
+        <member name="M:FSharp.Formatting.CSharpFormat.CodeFormat.MatchEval(System.Text.RegularExpressions.Match)">
             <summary>
             Called to evaluate the HTML fragment corresponding to each 
             matching token in the code.
@@ -124,7 +124,7 @@
             single regular expression match.</param>
             <returns>A string containing the HTML code fragment.</returns>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CodeFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.CodeFormat.Keywords">
             <summary>
             Must be overridden to provide a list of keywords defined in 
             each language.
@@ -133,7 +133,7 @@
             Keywords must be separated with spaces.
             </remarks>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CodeFormat.Operators">
+        <member name="P:FSharp.Formatting.CSharpFormat.CodeFormat.Operators">
             <summary>
             Must be overridden to provide a list of operators defined in 
             each language.
@@ -142,7 +142,7 @@
             Operators must be separated with spaces.
             </remarks>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CodeFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.CodeFormat.Preprocessors">
             <summary>
             Can be overridden to provide a list of preprocessors defined in 
             each language.
@@ -151,19 +151,19 @@
             Preprocessors must be separated with spaces.
             </remarks>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CodeFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.CodeFormat.StringRegEx">
             <summary>
             Must be overridden to provide a regular expression string
             to match strings literals. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CodeFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.CodeFormat.CommentRegEx">
             <summary>
             Must be overridden to provide a regular expression string
             to match comments. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CodeFormat.CaseSensitive">
+        <member name="P:FSharp.Formatting.CSharpFormat.CodeFormat.CaseSensitive">
             <summary>
             Determines if the language is case sensitive.
             </summary>
@@ -174,94 +174,94 @@
             property to return false.
             </remarks>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CLikeFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.CLikeFormat.CommentRegEx">
             <summary>
             Regular expression string to match single line and multi-line 
             comments (// and /* */). 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CLikeFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.CLikeFormat.StringRegEx">
             <summary>
             Regular expression string to match string and character literals. 
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.CPlusPlusFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.CPlusPlusFormat">
             <summary>
             Generates color-coded HTML 4.01 from C++ source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CPlusPlusFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.CPlusPlusFormat.Keywords">
             <summary>
             The list of C++ keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CPlusPlusFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.CPlusPlusFormat.Preprocessors">
             <summary>
             The list of C++ preprocessors.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.CSharpFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.CSharpFormat">
             <summary>
             Generates color-coded HTML 4.01 from C# source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CSharpFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.CSharpFormat.Keywords">
             <summary>
             The list of C# keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.CSharpFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.CSharpFormat.Preprocessors">
             <summary>
             The list of C# preprocessors.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.FSharpFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.FSharpFormat">
             <summary>
             Generates color-coded HTML 4.01 from F# source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.FSharpFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.FSharpFormat.CommentRegEx">
             <summary>
             Regular expression string to match single line and multi-line 
             comments (// and (* *)). 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.FSharpFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.FSharpFormat.Keywords">
             <summary>
             The list of F# keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.FSharpFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.FSharpFormat.StringRegEx">
             <summary>
             Regular expression string to match string and character literals. 
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.HaskellFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.HaskellFormat">
             <summary>
             Generates color-coded HTML 4.01 from MSH (code name Monad) source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.HaskellFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.HaskellFormat.CommentRegEx">
             <summary>
             Regular expression string to match single line comments (#).
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.HaskellFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.HaskellFormat.StringRegEx">
             <summary>
             Regular expression string to match string and character literals. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.HaskellFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.HaskellFormat.Keywords">
             <summary>
             The list of MSH keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.HaskellFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.HaskellFormat.Preprocessors">
             <summary>
             Use preprocessors property to hilight operators.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.HtmlFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.HtmlFormat">
             <summary>
             Generates color-coded HTML 4.01 from HTML/XML/ASPX source code.
             </summary>
@@ -273,10 +273,10 @@
             The default tab width is set to 2 characters in this class.</para>
             </remarks>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.HtmlFormat.#ctor">
+        <member name="M:FSharp.Formatting.CSharpFormat.HtmlFormat.#ctor">
             <summary/>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.HtmlFormat.AttributeMatchEval(System.Text.RegularExpressions.Match)">
+        <member name="M:FSharp.Formatting.CSharpFormat.HtmlFormat.AttributeMatchEval(System.Text.RegularExpressions.Match)">
             <summary>
             Called to evaluate the HTML fragment corresponding to each 
             attribute's name/value in the code.
@@ -285,7 +285,7 @@
             single regular expression match.</param>
             <returns>A string containing the HTML code fragment.</returns>
         </member>
-        <member name="M:Manoli.Utils.CSharpFormat.HtmlFormat.MatchEval(System.Text.RegularExpressions.Match)">
+        <member name="M:FSharp.Formatting.CSharpFormat.HtmlFormat.MatchEval(System.Text.RegularExpressions.Match)">
             <summary>
             Called to evaluate the HTML fragment corresponding to each 
             matching token in the code.
@@ -294,62 +294,62 @@
             single regular expression match.</param>
             <returns>A string containing the HTML code fragment.</returns>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.JavaScriptFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.JavaScriptFormat">
             <summary>
             Generates color-coded HTML 4.01 from JavaSctript source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.JavaScriptFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.JavaScriptFormat.Keywords">
             <summary>
             The list of JavaScript keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.JavaScriptFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.JavaScriptFormat.Preprocessors">
             <summary>
             Use the pre-processor color to mark directives that start with @.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.MshFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.MshFormat">
             <summary>
             Generates color-coded HTML 4.01 from MSH (code name Monad) source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.MshFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.MshFormat.CommentRegEx">
             <summary>
             Regular expression string to match single line comments (#).
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.MshFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.MshFormat.StringRegEx">
             <summary>
             Regular expression string to match string and character literals. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.MshFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.MshFormat.Keywords">
             <summary>
             The list of MSH keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.MshFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.MshFormat.Preprocessors">
             <summary>
             Use preprocessors property to hilight operators.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.PhpFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.PhpFormat">
             <summary>
             Generates color-coded HTML 4.01 from PHP source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.PhpFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.PhpFormat.StringRegEx">
             <summary>
             Regular expression string to match string and character literals. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.PhpFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.PhpFormat.Keywords">
             <summary>
             The list of PHP keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.PhpFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.PhpFormat.Preprocessors">
             <summary>
             The list of PHP preprocessors.
             </summary>
@@ -359,64 +359,64 @@
             Summary description for SyntaxHighlighter
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.TsqlFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.TsqlFormat">
             <summary>
             Generates color-coded T-SQL source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.TsqlFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.TsqlFormat.CommentRegEx">
             <summary>
             Regular expression string to match single line 
             comments (--). 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.TsqlFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.TsqlFormat.StringRegEx">
             <summary>
             Regular expression string to match string literals. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.TsqlFormat.CaseSensitive">
+        <member name="P:FSharp.Formatting.CSharpFormat.TsqlFormat.CaseSensitive">
             <summary>
             Returns <b>false</b>, since T-SQL is not case sensitive.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.TsqlFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.TsqlFormat.Keywords">
             <summary>
             The list of T-SQL keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.TsqlFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.TsqlFormat.Preprocessors">
             <summary>
             Use the pre-processor color to mark keywords that start with @@.
             </summary>
         </member>
-        <member name="T:Manoli.Utils.CSharpFormat.VisualBasicFormat">
+        <member name="T:FSharp.Formatting.CSharpFormat.VisualBasicFormat">
             <summary>
             Generates color-coded HTML 4.01 from Visual Basic source code.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.VisualBasicFormat.CaseSensitive">
+        <member name="P:FSharp.Formatting.CSharpFormat.VisualBasicFormat.CaseSensitive">
             <summary>
             Determines if the language is case sensitive.
             </summary>
             <value>Always <b>true</b>, since VB is not case sensitive.</value>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.VisualBasicFormat.CommentRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.VisualBasicFormat.CommentRegEx">
             <summary>
             Regular expression string to match comments (' and REM). 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.VisualBasicFormat.StringRegEx">
+        <member name="P:FSharp.Formatting.CSharpFormat.VisualBasicFormat.StringRegEx">
             <summary>
             Regular expression string to match string and character literals. 
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.VisualBasicFormat.Keywords">
+        <member name="P:FSharp.Formatting.CSharpFormat.VisualBasicFormat.Keywords">
             <summary>
             The list of VB keywords.
             </summary>
         </member>
-        <member name="P:Manoli.Utils.CSharpFormat.VisualBasicFormat.Preprocessors">
+        <member name="P:FSharp.Formatting.CSharpFormat.VisualBasicFormat.Preprocessors">
             <summary>
             The list of VB preprocessors.
             </summary>

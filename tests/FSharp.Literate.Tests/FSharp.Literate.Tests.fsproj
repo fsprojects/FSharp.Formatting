@@ -20,13 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
-    <ProjectReference Include="..\..\src\CSharpFormat\CSharpFormat.csproj" />
-    <ProjectReference Include="..\..\src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Markdown\FSharp.Markdown.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
+    <ProjectReference Include="..\..\src\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

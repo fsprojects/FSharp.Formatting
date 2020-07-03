@@ -1,8 +1,8 @@
 namespace FSharp.Formatting.Razor
 
-open FSharp.MetadataFormat
+open FSharp.Formatting.MetadataFormat
 open FSharp.Formatting
-open FSharp.Literate
+open FSharp.Formatting.Literate
 open FSharp.Formatting.Common
 open System.IO
 
@@ -53,7 +53,7 @@ type RazorMetadataFormat private() =
 
     // Generate all the HTML stuff
     Log.infof "Starting razor engine"
-    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.MetadataFormat"], namespaceTemplate, ?references = assemblyReferences)
+    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.Formatting.MetadataFormat"], namespaceTemplate, ?references = assemblyReferences)
 
     Log.infof "Generating: index.html"
     let out = razor.ProcessFile(asm, props)
@@ -61,7 +61,7 @@ type RazorMetadataFormat private() =
 
     // Generate documentation for all modules
     Log.infof "Generating modules..."
-    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
+    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.Formatting.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
 
     for modulInfo in moduleInfos do
       Log.infof "Generating module: %s" modulInfo.Module.UrlName
@@ -72,7 +72,7 @@ type RazorMetadataFormat private() =
     Log.infof "Generating types..."
 
     // Generate documentation for all types
-    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
+    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.Formatting.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
 
     for typInfo in typesInfos do
       Log.infof "Generating type: %s" typInfo.Type.UrlName
@@ -99,7 +99,7 @@ type RazorMetadataFormat private() =
     |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
 
 
-  static member Generate(generatedMetadata:FSharp.MetadataFormat.GeneratorOutput, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
+  static member Generate(generatedMetadata:FSharp.Formatting.MetadataFormat.GeneratorOutput, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
         generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences generatedMetadata
 
 

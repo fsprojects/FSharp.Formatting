@@ -36,13 +36,13 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\CSharpFormat\CSharpFormat.csproj" />
-    <ProjectReference Include="..\FSharp.CodeFormat\FSharp.CodeFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
+    <ProjectReference Include="..\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="..\FSharp.Markdown\FSharp.Markdown.fsproj" />
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

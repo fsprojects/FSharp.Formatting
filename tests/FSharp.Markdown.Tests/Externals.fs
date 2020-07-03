@@ -1,5 +1,5 @@
 #if INTERACTIVE
-#r "../../bin/FSharp.Markdown.dll"
+#r "../../bin/FSharp.Formatting.Markdown.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #else
@@ -9,7 +9,7 @@ module FSharp.Markdown.Tests.Externals
 
 open FsUnit
 open NUnit.Framework
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 
 open System.IO
 open System.Text.RegularExpressions

@@ -1,6 +1,6 @@
-module FSharp.Markdown.Unit
+module FSharp.Formatting.Markdown.Unit
 
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 open NUnit.Framework
 
 let shouldMatchPar f pars =

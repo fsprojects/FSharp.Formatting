@@ -2,7 +2,7 @@
 F# Formatting: Output embedding
 ===============================
 
-A nice feature of the literate programming package (`FSharp.Literate.dll` in F# Formatting)
+A nice feature of the literate programming package (`FSharp.Formatting.Literate.dll` in F# Formatting)
 is that it lets you embed the result of running the script as part of the literate output.
 This is a feature of the functions discussed in [literate programming](literate.html) and
 it is implemented using the [F# Compiler service](http://fsharp.github.io/FSharp.Compiler.Service/).
@@ -90,9 +90,9 @@ Specifying the evaluator and formatting
 (*** hide ***)
 #I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
 #r "FSharp.Formatting.Common.dll"
-#r "FSharp.Markdown.dll"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Literate.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
 (**
 The embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).
@@ -101,8 +101,8 @@ Assuming you have all the references in place, you can now create an instance of
 functions that parse script files or process script files:
 
 *)
-open FSharp.Literate
-open FSharp.Markdown
+open FSharp.Formatting.Literate
+open FSharp.Formatting.Markdown
 
 // Sample literate content
 let content = """
@@ -163,7 +163,7 @@ This can be done by calling `RegisterTransformation` on the `FsiEvaluator` insta
 
 *)
 // Create evaluator & register simple formatter for lists
-let fsiOl = FSharp.Literate.FsiEvaluator()
+let fsiOl = FSharp.Formatting.Literate.FsiEvaluator()
 fsiOl.RegisterTransformation(fun (o, ty) ->
   // If the type of value is an F# list, format it nicely
   if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
