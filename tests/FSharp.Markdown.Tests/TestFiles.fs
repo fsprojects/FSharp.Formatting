@@ -20,7 +20,7 @@ let benchmark file count =
   let sw = new Stopwatch()
   sw.Start()
   for n in 1 .. count do 
-    Markdown.ToHtmlString(text) |> ignore 
+    Markdown.ToHtml(text) |> ignore 
   sw.Stop()
 
   printfn "input string length: %d" text.Length
@@ -59,9 +59,9 @@ let transformAndCompare transFunc (source:string) (target:string) (verify:string
 
 let rec runTests dir = 
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare Markdown.WriteAsHtml file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
+    transformAndCompare Markdown.WriteHtml file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare Markdown.WriteAsLatex file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
+    transformAndCompare Markdown.WriteLatex file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
   for dir in Directory.GetDirectories(dir) do
     runTests dir
 

@@ -66,7 +66,7 @@ let executeTest (dir : string) (source : string) (target : string) (verify : str
     if File.Exists(verify) then
       let text = File.ReadAllText(source)
       (use wr = new StreamWriter(target)
-      Markdown.WriteAsHtml(text, wr, "\r\n"))
+      Markdown.WriteHtml(text, wr, "\r\n"))
       let contents = File.ReadAllLines(verify)
       File.WriteAllLines(verify, contents)
       let targetHtml = removeWhitespace(File.ReadAllText(target))

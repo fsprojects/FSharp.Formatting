@@ -112,7 +112,7 @@ let a = 10
 // Create evaluator and parse script
 let fsi = FsiEvaluator()
 let doc = Literate.ParseScriptString(content, fsiEvaluator = fsi)
-Literate.ToHtmlString(doc)
+Literate.ToHtml(doc)
 (**
 When the `fsiEvaluator` parameter is specified, the script is evaluated and so you
 can use additional commands such as `include-value`. When the evaluator is *not* specified,
@@ -193,7 +193,7 @@ let test = ["one";"two";"three"]
 (*** include-value:test ***)"""
 
 let docOl = Literate.ParseScriptString(listy, fsiEvaluator = fsiOl)
-Literate.ToHtmlString(docOl)
+Literate.ToHtml(docOl)
 (**
 The resulting HTML formatting of the document contains the snippet that defines `test`,
 followed by a nicely formatted ordered list:

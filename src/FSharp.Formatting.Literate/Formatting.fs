@@ -17,8 +17,8 @@ module Formatting =
   /// Format document with the specified output kind
   let format (doc: MarkdownDocument) generateAnchors outputKind =
     match outputKind with
-    | OutputKind.Pynb -> Markdown.ToPynbString(doc)
-    | OutputKind.Latex -> Markdown.ToLatexString(doc)
+    | OutputKind.Pynb -> Markdown.ToPynb(doc)
+    | OutputKind.Latex -> Markdown.ToLatex(doc)
     | OutputKind.Html ->
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)

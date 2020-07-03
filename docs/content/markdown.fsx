@@ -142,10 +142,10 @@ paragraphs that contain normal text - here we call `collectSpanLinks` on all nes
 Generating HTML output
 ----------------------
 
-Finally, the `Markdown` type also includes a method `ToHtmlString` that can be used
+Finally, the `Markdown` type also includes a method `ToHtml` that can be used
 to generate an HTML document from the Markdown input. The following example shows how to call it:
 *)
-let html = Markdown.ToHtmlString(parsed)
+let html = Markdown.ToHtml(parsed)
 
 (**
 In addition, you can also use `Markdown.TransformHtml` to directly turn an input document

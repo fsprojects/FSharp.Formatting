@@ -779,13 +779,13 @@ module Reader =
           groups.Add(current, [par])
       | par ->
           groups.[current] <- par::groups.[current]
-    let blurb = Literate.ToHtmlString(doc.With(List.rev groups.["<default>"]))
-    let full = Literate.ToHtmlString(doc)
+    let blurb = Literate.ToHtml(doc.With(List.rev groups.["<default>"]))
+    let full = Literate.ToHtml(doc)
 
     let sections =
       [ for (KeyValue(k, v)) in groups ->
           let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
-          let html = Literate.ToHtmlString(doc.With(body))
+          let html = Literate.ToHtml(doc.With(body))
           KeyValuePair(k, html) ]
     Comment.Create(blurb, full, sections, raw)
 

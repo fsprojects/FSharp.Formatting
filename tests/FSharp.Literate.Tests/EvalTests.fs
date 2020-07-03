@@ -103,7 +103,7 @@ printfn "42"
 (*** include-output: test ***)
 """
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html.Contains("42") |> shouldEqual true
   html.Contains(">printfn<") |> shouldEqual false
 
@@ -148,7 +148,7 @@ printfn "hi"
 (*** include-output:t ***)
 """
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length
   |> shouldEqual 5
 
@@ -161,11 +161,11 @@ printfn "%d" (40 + 2)
 (*** include-output:t ***)
 """
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1.Contains("42") |> shouldEqual true
 
   let doc2 = Literate.ParseScriptString("(*** do-not-eval-file ***)\n" + content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
-  let html2 = Literate.ToHtmlString(doc2)
+  let html2 = Literate.ToHtml(doc2)
   html2.Contains("42") |> shouldEqual false
 
 
@@ -189,7 +189,7 @@ printfn "%d" FsLab.Demo.test
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1.Contains("42") |> shouldEqual true
   File.Delete(path)
 
@@ -216,7 +216,7 @@ FsLab.Demo.test
 (*** include-it:t2 ***)""".Replace("[PATH]", path)
   let fsie = FSharp.Formatting.Literate.FsiEvaluator(fsiObj = FsiEvaluatorConfig.CreateNoOpFsiObject())
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1.Contains("Not executed") |> shouldEqual true
   html1.Contains("Executed") |> shouldEqual false
   File.Delete(path)
@@ -249,7 +249,7 @@ printfn "%d" Test.test2
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
   let doc1 = Literate.ParseScriptString(content, scriptPath, formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1.Contains("42") |> shouldEqual true
   html1.Contains(">markdown<") |> shouldEqual true
   html1.Contains("43") |> shouldEqual true
@@ -265,7 +265,7 @@ let ``Can include-it`` () =
 """
   let fsie = getFsiEvaluator()
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "1000"
   html1 |> shouldContainText "2000"
 
@@ -278,7 +278,7 @@ let ``Can hide and include-it`` () =
 """
   let fsie = getFsiEvaluator()
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "2000"
   html1 |> shouldNotContainText "1000"
 
@@ -292,7 +292,7 @@ let xxxx = 1+1
 """
   let fsie = getFsiEvaluator()
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "helloworld"
   html1 |> shouldContainText "val xxxx : int"
   html1 |> shouldContainText """<span class="k">let</span>""" // formatted code
@@ -309,7 +309,7 @@ let xxxx = 1+1
 """
   let fsie = getFsiEvaluator()
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "helloworld"
   html1 |> shouldContainText "val xxxx : int"
   html1 |> shouldNotContainText """<span class="k">let</span>""" // formatted code
@@ -325,7 +325,7 @@ let xxxx = 1+1
 """
   let fsie = getFsiEvaluator()
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtmlString(doc1)
+  let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "helloworld"
   html1 |> shouldContainText "val xxxx : int"
   html1 |> shouldContainText "2000"
@@ -361,7 +361,7 @@ $$$
 *)
 """
   let md = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let pynb = Literate.ToPynbString(md)
+  let pynb = Literate.ToPynb(md)
   printfn "----" 
   printfn "%s" pynb
   printfn "----" 

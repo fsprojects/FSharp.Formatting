@@ -169,7 +169,7 @@ hello
     [lang=csharp]
     var a = 10 < 10;"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText "<span class=\"k\">var</span>"
 
 [<Test>]
@@ -181,7 +181,7 @@ hello
 var a = 10 < 10;
 ```"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText "<span class=\"k\">var</span>"
 
 [<Test>]
@@ -189,7 +189,7 @@ let ``Codeblock whitespace is preserved`` () =
   let doc = "```markup\r\n    test\r\n    blub\r\n```\r\n";
   let expected = "lang=\"markup\">    test\r\n    blub\r\n</" |> properNewLines;
   let doc = Literate.ParseMarkdownString(doc, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText expected
 
 [<Test>]
@@ -198,7 +198,7 @@ let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
     [lang=sql]
     Æøå"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText (sprintf ">Æøå%s<" System.Environment.NewLine)
 
 [<Test>]
@@ -207,7 +207,7 @@ let ``Correctly handles code starting with whitespace`` () =
     [lang=unknown]
       inner"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText ">  inner"
 
 [<Test>]
@@ -217,7 +217,7 @@ let ``Correctly handles code which garbage after commands`` () =
     [lang=unknown] some ignored garbage
       inner"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText ">  inner"
 
 [<Test>]
@@ -226,7 +226,7 @@ let ``Correctly handles apostrophes in JS code block (#213)`` () =
     [lang=js]
     var but = 'I\'m not so good...';"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText @"'I\'m not so good...'"
 
 [<Test>]
@@ -237,7 +237,7 @@ let ``Correctly encodes special HTML characters (<, >, &) in code`` () =
   ["js"; "unknown-language"] |> Seq.iter (fun lang ->
     let content = forLang lang
     let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-    let html = Literate.ToHtmlString(doc)
+    let html = Literate.ToHtml(doc)
     html |> shouldContainText "&lt;a&gt; &amp; &lt;b&gt;"
   )
 
@@ -250,7 +250,7 @@ let ``Correctly encodes already encoded HTML entities and tags`` () =
     let content = forLang lang
     content |> shouldContainText lang
     let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-    let html = Literate.ToHtmlString(doc)
+    let html = Literate.ToHtml(doc)
     html |> shouldContainText "&amp;amp;"
     html |> shouldContainText "&amp;quot;"
     html |> shouldContainText "&lt;em&gt;"
@@ -262,7 +262,7 @@ let ``Urls should not be recognized as comments in Paket code blocks`` () =
     [lang=packet]
     source https://nuget.org/api/v2"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText @"https://nuget.org/api/v2"
 
 [<Test>]
@@ -271,7 +271,7 @@ let ``Path to network share should not be recognized as comments in Paket code b
     [lang=packet]
     cache //hive/dependencies"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldNotContainText "<span class=\"c\">//hive/dependencies</span>"
 
 [<Test>]
@@ -315,7 +315,7 @@ let ``Correctly handles Paket coloring`` () =
     git file:///C:\Users\Steffen\AskMe >= 1 alpha      // at least 1.0 including alpha versions
     """
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
 
   html |> shouldContainText "<span class=\"k\">nuget</span>"
   html |> shouldContainText "<span class=\"k\">github</span>"
@@ -364,7 +364,7 @@ let ``Generates line numbers for F# code snippets`` () =
 let a1 = 1
 let a2 = 2"""
   let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc, lineNumbers=true)
+  let html = Literate.ToHtml(doc, lineNumbers=true)
   html |> shouldContainText "<p>Hello</p>"
   html |> shouldContainText "1:"
   html |> shouldContainText "2:"
@@ -380,7 +380,7 @@ var a1 = 1;
 var a2 = 2;
 ``` *)"""
   let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc, lineNumbers=true)
+  let html = Literate.ToHtml(doc, lineNumbers=true)
   html |> shouldContainText "<p>Hello</p>"
   html |> shouldContainText "1:"
   html |> shouldContainText "2:"
@@ -392,8 +392,8 @@ let ``HTML for line numbers generated for F# and non-F# is the same``() =
   let content2 = "    let"
   let doc1 = Literate.ParseMarkdownString(content1, formatAgent=getFormatAgent())
   let doc2 = Literate.ParseMarkdownString(content2, formatAgent=getFormatAgent())
-  let html1 = Literate.ToHtmlString(doc1, lineNumbers=true)
-  let html2 = Literate.ToHtmlString(doc2, lineNumbers=true)
+  let html1 = Literate.ToHtml(doc1, lineNumbers=true)
+  let html2 = Literate.ToHtml(doc2, lineNumbers=true)
 
   html1.Substring(0, html1.IndexOf("1:"))
   |> shouldEqual <| html2.Substring(0, html2.IndexOf("1:"))
@@ -404,8 +404,8 @@ let ``HTML for snippets generated for F# and non-F# has 'fssnip' class``() =
   let content2 = "    let"
   let doc1 = Literate.ParseMarkdownString(content1, formatAgent=getFormatAgent())
   let doc2 = Literate.ParseMarkdownString(content2, formatAgent=getFormatAgent())
-  let html1 = Literate.ToHtmlString(doc1, lineNumbers=true)
-  let html2 = Literate.ToHtmlString(doc2, lineNumbers=true)
+  let html1 = Literate.ToHtml(doc1, lineNumbers=true)
+  let html2 = Literate.ToHtml(doc2, lineNumbers=true)
 
   // the 'fssnip' class appears for both <pre> with lines and <pre> with code
   html1.Split([| "fssnip" |], System.StringSplitOptions.None).Length |> shouldEqual 3
@@ -426,8 +426,8 @@ let simpleMd = """
 [<Test>]
 let ``Parsing simple script and markdown produces the same result`` () =
   // Use path "/usr/File.fsx" which makes them equal, including the tool tips on Mono
-  let doc1 = Literate.ParseMarkdownString(simpleMd, path="/usr/File.fsx", formatAgent = getFormatAgent()) |> Literate.ToHtmlString
-  let doc2 = Literate.ParseScriptString(simpleFsx, path="/usr/File.fsx", formatAgent = getFormatAgent()) |> Literate.ToHtmlString
+  let doc1 = Literate.ParseMarkdownString(simpleMd, path="/usr/File.fsx", formatAgent = getFormatAgent()) |> Literate.ToHtml
+  let doc2 = Literate.ParseScriptString(simpleFsx, path="/usr/File.fsx", formatAgent = getFormatAgent()) |> Literate.ToHtml
   doc1 |> shouldEqual doc2
 
 // --------------------------------------------------------------------------------------
@@ -520,7 +520,7 @@ hello
     ["Some"]
     |> Seq.length"""
   let doc = Literate.ParseMarkdownString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html |> shouldContainText "Some"
 
 
@@ -535,7 +535,7 @@ Second
 let First = 0
 """
   let doc = Literate.ParseScriptString(content, formatAgent=getFormatAgent())
-  let html = Literate.ToHtmlString(doc)
+  let html = Literate.ToHtml(doc)
   html.IndexOf("First") < html.IndexOf("Second") |> shouldEqual true
 
 
@@ -548,7 +548,7 @@ let test = 42
 """
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent())
   let doc2 = Literate.FormatLiterateNodes(doc,format=OutputKind.Html)
-  let html = Literate.ToHtmlString(doc2.With(formattedTips=""))
+  let html = Literate.ToHtml(doc2.With(formattedTips=""))
   let tips = doc2.FormattedTips
   tips |> shouldContainText "test : int"
   html |> shouldNotContainText "test : int"
@@ -582,7 +582,7 @@ let mul a b = a * b
 let ``Formatter does not crash on source that contains invalid string`` () =
   let source = "\"\r\"\n0"
   let doc = Literate.ParseScriptString(source, "/somewhere/test.fsx", getFormatAgent())
-  Literate.ToHtmlString(doc).Length |> should (be greaterThan) 0
+  Literate.ToHtml(doc).Length |> should (be greaterThan) 0
 
 [<Test>]
 let ``Markdown is formatted as Latex``() =
@@ -593,7 +593,7 @@ With some [hyperlink](http://tomasp.net)
   
     let hello = "Code sample"
   """)
-  let latex = Literate.ToLatexString(md)
+  let latex = Literate.ToLatex(md)
   printfn "----" 
   printfn "%s" latex
   printfn "----" 
@@ -613,7 +613,7 @@ With some [hyperlink](http://tomasp.net)
   
     let hello = "Code sample"
   """)
-  let pynb = Literate.ToPynbString(md)
+  let pynb = Literate.ToPynb(md)
   printfn "----" 
   printfn "%s" pynb
   printfn "----" 
@@ -644,7 +644,7 @@ With some [hyperlink](http://tomasp.net)
 *)
 let hello = "Code sample"
 """)
-  let pynb = Literate.ToPynbString(md)
+  let pynb = Literate.ToPynb(md)
   printfn "----" 
   printfn "%s" pynb
   printfn "----" 

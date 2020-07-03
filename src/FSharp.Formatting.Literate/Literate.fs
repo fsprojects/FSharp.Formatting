@@ -123,7 +123,7 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
 
   /// Format the literate document as HTML without using a template
-  static member ToHtmlString(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+  static member ToHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
@@ -133,34 +133,34 @@ type Literate private () =
     sb.ToString()
 
   /// Write the literate document as HTML without using a template
-  static member WriteAsHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   /// Format the literate document as Latex without using a template
-  static member ToLatexString(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
+  static member ToLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
     let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.ToLatexString(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+    Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
   /// Write the literate document as Latex without using a template
-  static member WriteAsLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
+  static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
     let ctx = formattingContext (Some OutputKind.Latex) prefix lineNumbers None generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.WriteAsLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
   /// Formate the literate document as an iPython notebook without using a template
-  static member ToPynbString(doc:LiterateDocument) =
+  static member ToPynb(doc:LiterateDocument) =
     let ctx = formattingContext (Some OutputKind.Pynb) None None None None None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.ToPynbString(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+    Markdown.ToPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
-  //static member WriteAsPynb(doc:LiterateDocument, writer:TextWriter) =
+  //static member WritePynb(doc:LiterateDocument, writer:TextWriter) =
   //  let ctx = formattingContext (Some OutputKind.Pynb) None None None None None None
   //  let doc = Transformations.replaceLiterateParagraphs ctx doc
-  //  Markdown.WriteAsPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+  //  Markdown.WritePynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
   // ------------------------------------------------------------------------------------
   // Replace literate paragraphs with plain paragraphs
