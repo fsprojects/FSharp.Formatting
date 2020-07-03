@@ -11,7 +11,7 @@ nuget CommandLineParser ~> 2.8
 nuget Microsoft.AspNetCore.Razor ~> 2.0
 nuget Microsoft.AspNetCore.Razor.Runtime ~> 2.0
 nuget Microsoft.AspNetCore.Razor.Language ~> 2.0
-nuget Microsoft.CodeAnalysis.CSharp ~> 3.4
+nuget Microsoft.CodeAnalysis.CSharp ~> 3.6
 
 # testing dependencies
 nuget NUnit ~> 3.12

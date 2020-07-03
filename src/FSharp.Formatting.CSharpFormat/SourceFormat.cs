@@ -163,6 +163,9 @@ namespace FSharp.Formatting.CSharpFormat
 			return reader.ReadToEnd();
 		}
 
+		/// <summary>
+		/// TBD
+		/// </summary>
 		public static string EscapeHtml(string str, int tabSpaces)
 		{
 			var sb = new StringBuilder(str);

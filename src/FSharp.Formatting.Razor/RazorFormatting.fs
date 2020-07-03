@@ -81,25 +81,13 @@ type RazorMetadataFormat private() =
       Log.infof "Finished type: %s" typInfo.Type.UrlName
 
 
-  static member Generate(dllFile : string, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
-    MetadataFormat.Generate(dllFile, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
-    |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
-
-  /// generates documentation for multiple files specified by the `dllFiles` parameter
-  static member Generate(dllFiles : _ list, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
-     MetadataFormat.Generate(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
-    |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
-
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
   static member Generate(dllFiles : _ seq, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
-     MetadataFormat.Generate(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+     MetadataFormat.GenerateReplacements(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
     |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
 
-
-  static member Generate(generatedMetadata:FSharp.Formatting.MetadataFormat.GeneratorOutput, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
+  static member Generate(generatedMetadata:MetadataFormat.GeneratorOutput, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
         generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences generatedMetadata
 
 

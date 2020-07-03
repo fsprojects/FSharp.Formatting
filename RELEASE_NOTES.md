@@ -7,6 +7,8 @@
   - FSharp.Literate --> FSharp.Formatting.Literate
   - Only publish FSharp.Formatting and FSharp.Formatting.Tool nuget packages
   - Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
+  - For command line tool, "literate process-directory" --> "convert"
+  - For command line tool, "metadata-format generate" --> "generate"
 
 ## 4.1.0
   - Support preview F# language features.

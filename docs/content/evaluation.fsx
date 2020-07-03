@@ -164,7 +164,7 @@ This can be done by calling `RegisterTransformation` on the `FsiEvaluator` insta
 *)
 // Create evaluator & register simple formatter for lists
 let fsiOl = FSharp.Formatting.Literate.FsiEvaluator()
-fsiOl.RegisterTransformation(fun (o, ty) ->
+fsiOl.RegisterTransformation(fun (o, ty, _executionCount) ->
   // If the type of value is an F# list, format it nicely
   if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
     let items = 

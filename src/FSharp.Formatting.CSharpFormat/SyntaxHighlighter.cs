@@ -19,6 +19,9 @@ namespace FSharp.Formatting.CSharpFormat
         static Regex regLang = new Regex(@"\<pre(?<attrs1>[^\>]*)lang=""(?<lang>[^""]*)""(?<attrs2>[^\>]*)\>(?<content>.*?)\</pre\>",
             RegexOptions.Compiled | RegexOptions.Singleline);
 
+        /// <summary>
+        /// TBD
+        /// </summary>
         public static string FormatHtml(string input)
         {
             Match m = regLang.Match(input);
@@ -48,6 +51,9 @@ namespace FSharp.Formatting.CSharpFormat
             }
         }
 
+        /// <summary>
+        /// TBD
+        /// </summary>
         public static Tuple<bool, string> FormatCode(string lang, string code)
         {
             SourceFormat sf = null;

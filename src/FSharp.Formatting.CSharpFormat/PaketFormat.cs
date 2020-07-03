@@ -13,10 +13,6 @@ namespace FSharp.Formatting.CSharpFormat
         /// Regular expression string to match single line and multi-line 
         /// comments (// and (* *)). Single line comments should have to have 
         /// a space after them to avoid color as comments URLs and paths. For example
-        /// ```
-        ///     source https://nuget.org/api/v2
-        //      cache //hive/dependencies
-        /// ```
         ///</summary>
         protected override string CommentRegEx
         {
@@ -52,7 +48,10 @@ namespace FSharp.Formatting.CSharpFormat
         {
           get { return @"\b\d+(\.\d+)*\b"; }
         }
-        
+
+        /// <summary>
+        /// TBD
+        /// </summary>
         public PaketFormat()
         {
             var regKeyword = BuildKeywordsRegex(Keywords);
@@ -68,7 +67,10 @@ namespace FSharp.Formatting.CSharpFormat
             if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
             CodeRegex = new Regex(regAll.ToString(), regexOptions);
         }
-      
+
+        /// <summary>
+        /// TBD
+        /// </summary>
         protected string BuildKeywordsRegex(string separated)
         {
             if (separated.Length == 0) return "";

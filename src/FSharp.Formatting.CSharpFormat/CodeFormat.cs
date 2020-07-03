@@ -137,7 +137,10 @@ namespace FSharp.Formatting.CSharpFormat
 			if (!CaseSensitive) regexOptions |= RegexOptions.IgnoreCase;
 			CodeRegex = new Regex(regAll.ToString(), regexOptions);
 		}
-    
+
+		/// <summary>
+		/// TBD
+		/// </summary>
 		protected string ConcatenateRegex(string commentRegex, string stringRegex, string preprocessorRegex,
 		  string keywordRegex, string operatorsRegex, string numberRegex)
 		{
@@ -161,6 +164,9 @@ namespace FSharp.Formatting.CSharpFormat
 			return regAll.ToString();
 		}
 
+		/// <summary>
+		/// TBD
+		/// </summary>
 		protected string BuildRegex(string separated)
 		{
 			if (separated.Length == 0) return "";
@@ -172,6 +178,9 @@ namespace FSharp.Formatting.CSharpFormat
 			return @"(?<=^|\W)" + sb.ToString() + @"(?=\W|$)";
 		}
 
+		/// <summary>
+		/// TBD
+		/// </summary>
 		protected void Sanitize(StringBuilder sb)
 		{
 			sb.Replace("&", "&amp;");

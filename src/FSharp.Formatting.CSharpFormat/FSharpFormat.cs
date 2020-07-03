@@ -32,6 +32,9 @@ namespace FSharp.Formatting.CSharpFormat
 	/// </summary>
 	public class FSharpFormat : CLikeFormat
 	{
+		/// <summary>
+		/// TBD
+		/// </summary>
 		protected override string Operators
 		{
 			get
@@ -72,6 +75,9 @@ namespace FSharp.Formatting.CSharpFormat
 			get { return @"@?""""|@?"".*?(?!\\).""|''|'[^\s]*?(?!\\)'"; }
 		}
 
+		/// <summary>
+		/// TBD
+		/// </summary>
 		protected override string Preprocessors
 		{
 			get

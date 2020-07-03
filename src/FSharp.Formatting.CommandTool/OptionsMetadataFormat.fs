@@ -1,4 +1,4 @@
-﻿namespace FSharp.Formatting.Options.MetadataFormat
+namespace FSharp.Formatting.Options.MetadataFormat
 
 open CommandLine
 open CommandLine.Text
@@ -17,11 +17,8 @@ open FSharp.Formatting.Razor
 ///    MetadataFormat.Generate
 ///      ( [dllFile], outDir, layoutRoots, ?parameters = parameters, ?namespaceTemplate = namespaceTemplate,
 ///        ?moduleTemplate = moduleTemplate, ?typeTemplate = typeTemplate, ?xmlFile = xmlFile)
+[<Verb("generate", HelpText = "generate API reference for metadata")>]
 type GenerateOptions() =
-
-    [<ParserState>]
-    member val LastParserState = null with get, set
-
     // does not work as desired in F#:
     // the HelpOption attribute is not built,
     // but receive a System.MemberAccessException
@@ -30,7 +27,7 @@ type GenerateOptions() =
     member x.GetUsageOfOption() =
         let help = new HelpText()
         help.AddDashesToOption <- true
-        help.AddOptions(x)
+        //help.AddOptions(x)
         "\nfsformatting metadataFormat --generate [options]" +
         "\n------------------------------------------------" +
         help.ToString()
@@ -47,7 +44,7 @@ type GenerateOptions() =
     // all default string settings are done by FShap.Formatting,
     // non-string default options are supplied for type information
 
-    [<OptionArray("dllFiles", Required = true,
+    [<Option("dllFiles", Required = true,
         HelpText = "DLL input file list.")>]
     member val dllFiles = [|""|] with get, set
 
@@ -55,11 +52,11 @@ type GenerateOptions() =
         HelpText = "Ouput Directory.")>]
     member val outputDirectory = "" with get, set
 
-    [<OptionArray("layoutRoots", Required = true,
+    [<Option("layoutRoots", Required = true,
         HelpText = "Search directory list for the Razor Engine.")>]
     member val layoutRoots = [|""|] with get, set
 
-    [<OptionArray("parameters", Required = false,
+    [<Option("parameters", Required = false,
         HelpText = "Property settings for the Razor Engine (optinal).")>]
     member val parameters = [|""|] with get, set
 
@@ -87,41 +84,33 @@ type GenerateOptions() =
         HelpText = "Source repository folder; silently ignored, if source repository URL is not provided (optional).")>]
     member val sourceFolder = "" with get, set
 
-    [<OptionArray("libDirs", Required = false,
+    [<Option("libDirs", Required = false,
         HelpText = "Search directory list for library references.")>]
     member val libDirs = [|""|] with get, set
 
-    interface IExecutable with
-        member x.Execute() =
-            let mutable res = 0
-            try
-                if x.help then
-                    printfn "%s" (x.GetUsageOfOption())
-                else
-                    RazorMetadataFormat.Generate (
-                        dllFiles = (x.dllFiles |> List.ofArray),
-                        outDir = x.outputDirectory,
-                        layoutRoots = (x.layoutRoots |> List.ofArray),
-                        ?parameters = (evalPairwiseStringArray x.parameters),
-                        ?namespaceTemplate = (evalString x.namespaceTemplate),
-                        ?moduleTemplate = (evalString x.moduleTemplate),
-                        ?typeTemplate = (evalString x.typeTemplate),
-                        ?xmlFile = (evalString x.xmlFile),
-                        ?sourceRepo = (evalString x.sourceRepo),
-                        ?sourceFolder = (evalString x.sourceFolder),
-                        ?libDirs = (evalStringArray x.libDirs)
-                        )
-            with ex ->
-                Log.errorf "received exception in RazorMetadataFormat.Generate:\n %A" ex
-                printfn "Error on RazorMetadataFormat.Generate: \n%O" ex
-                res <- -1
-            waitForKey x.waitForKey
-            res
-
-        member x.GetErrorText() =
-            if x.LastParserState = null then ""
+    member x.Execute() =
+        let mutable res = 0
+        try
+            if x.help then
+                printfn "%s" (x.GetUsageOfOption())
             else
-                let errors = (x.LastParserState :> IParserState).Errors
-                parsingErrorMessage(errors)
+                RazorMetadataFormat.Generate (
+                    dllFiles = (x.dllFiles |> List.ofArray),
+                    outDir = x.outputDirectory,
+                    layoutRoots = (x.layoutRoots |> List.ofArray),
+                    ?parameters = (evalPairwiseStringArray x.parameters),
+                    ?namespaceTemplate = (evalString x.namespaceTemplate),
+                    ?moduleTemplate = (evalString x.moduleTemplate),
+                    ?typeTemplate = (evalString x.typeTemplate),
+                    ?xmlFile = (evalString x.xmlFile),
+                    ?sourceRepo = (evalString x.sourceRepo),
+                    ?sourceFolder = (evalString x.sourceFolder),
+                    ?libDirs = (evalStringArray x.libDirs)
+                    )
+        with ex ->
+            Log.errorf "received exception in RazorMetadataFormat.Generate:\n %A" ex
+            printfn "Error on RazorMetadataFormat.Generate: \n%O" ex
+            res <- -1
+        waitForKey x.waitForKey
+        res
 
-        member x.GetUsage() = x.GetUsageOfOption()

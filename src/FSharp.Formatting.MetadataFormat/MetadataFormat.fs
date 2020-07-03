@@ -1501,20 +1501,9 @@ type Html private() =
 ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
 ///
 type MetadataFormat =
-  /// This overload generates documentation for a single file specified by the `dllFile` parameter
-  static member Generate(dllFile : string, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
-    MetadataFormat.Generate
-      ( Seq.singleton dllFile, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
-
-  /// generates documentation for multiple files specified by the `dllFiles` parameter
-  static member Generate(dllFiles : string list, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
-    MetadataFormat.Generate
-      ( (dllFiles :> _ seq), ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-        ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
 
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  static member Generate(dllFiles : string seq, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
+  static member GenerateReplacements(dllFiles: seq<string>, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -1650,3 +1639,8 @@ type MetadataFormat =
       Properties = props
     }
 
+  ///// This overload generates documentation for multiple files specified by the `dllFiles` parameter
+  //static member Generate(dllFiles : _ seq, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
+  //   MetadataFormat.GenerateReplacements(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+  //      ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
+  //  |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences

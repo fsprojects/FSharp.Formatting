@@ -425,13 +425,13 @@ NUGET
       Fake.Core.Process (>= 5.20.2) - restriction: >= netstandard2.0
       Fake.Core.String (>= 5.20.2) - restriction: >= netstandard2.0
       Fake.Core.Trace (>= 5.20.2) - restriction: >= netstandard2.0
-      Fake.DotNet.MsBuild (>= 5.20.2) - restriction: >= netstandard2.0
+      Fake.DotNet.MSBuild (>= 5.20.2) - restriction: >= netstandard2.0
       Fake.DotNet.NuGet (>= 5.20.2) - restriction: >= netstandard2.0
       Fake.IO.FileSystem (>= 5.20.2) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.7.2) - restriction: >= netstandard2.0
       Mono.Posix.NETStandard (>= 1.0) - restriction: >= netstandard2.0
       Newtonsoft.Json (>= 12.0.3) - restriction: >= netstandard2.0
-    Fake.DotNet.MsBuild (5.20.2)
+    Fake.DotNet.MSBuild (5.20.2)
       BlackFox.VsWhere (>= 1.1) - restriction: >= netstandard2.0
       Fake.Core.Environment (>= 5.20.2) - restriction: >= netstandard2.0
       Fake.Core.Process (>= 5.20.2) - restriction: >= netstandard2.0

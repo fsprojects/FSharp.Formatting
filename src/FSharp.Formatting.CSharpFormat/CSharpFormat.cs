@@ -64,7 +64,10 @@ namespace FSharp.Formatting.CSharpFormat
 			}
 		}
 
-        protected override string Operators
+		/// <summary>
+		/// TBD
+		/// </summary>
+		protected override string Operators
         {
             get
             {

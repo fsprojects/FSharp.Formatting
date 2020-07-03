@@ -46,7 +46,7 @@ let info =
 
 let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
-        let metadata = MetadataFormat.Generate (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
+        let metadata = MetadataFormat.GenerateReplacements (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
         RazorMetadataFormat.Generate (metadata, output, layoutRoots)
 
         let fileNames = Directory.GetFiles(output)
@@ -71,7 +71,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   let output = getOutputDir()
 
   RazorMetadataFormat.Generate
-    ( library, output, layoutRoots, info, libDirs = [testBin],
+    ( [library], output, layoutRoots, info, libDirs = [testBin],
       sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
@@ -87,7 +87,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
 let ``MetadataFormat works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir()
-  RazorMetadataFormat.Generate(library, output, layoutRoots, info)
+  RazorMetadataFormat.Generate([library], output, layoutRoots, info)
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
@@ -376,7 +376,7 @@ let ``MetadataFormat handles c# dlls`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
-    let library = __SOURCE_DIRECTORY__ </> "files" </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     //RazorMetadataFormat.Generate
     //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
@@ -388,7 +388,7 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
 
 [<Test>]
 let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
-    let library = __SOURCE_DIRECTORY__ </> "files" </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
+    let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     let files = generate [library] false
 
