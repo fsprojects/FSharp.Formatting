@@ -181,7 +181,7 @@ let createArg argName arguments =
                 else sprintf "--%s \"%s\"" argName e
 
 let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parameters sourceRepo =
-    let dllFilesArg = createArg "dllfiles" dllFiles
+    let dllFilesArg = createArg "dlls" dllFiles
     let layoutRootsArgs = createArg "layoutRoots" layoutRoots
     let libDirArgs = createArg "libDirs" libDirs
 
@@ -195,13 +195,13 @@ let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parame
         | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\"" repo folder
         | _ -> ""
 
-    sprintf "metadataFormat --generate %s %s %s %s %s %s"
-        dllFilesArg (createArg "outDir" [outDir]) layoutRootsArgs libDirArgs parametersArg
+    sprintf "generate %s %s %s %s %s %s"
+        dllFilesArg (createArg "output" [outDir]) layoutRootsArgs libDirArgs parametersArg
         reproAndFolderArg
 
 let commandToolLiterateArgument inDir outDir layoutRoots parameters =
-    let inDirArg = createArg "inputDirectory" [ inDir ]
-    let outDirArg = createArg "outputDirectory" [ outDir ]
+    let inDirArg = createArg "input" [ inDir ]
+    let outDirArg = createArg "output" [ outDir ]
 
     let layoutRootsArgs = createArg "layoutRoots" layoutRoots
 
@@ -210,7 +210,7 @@ let commandToolLiterateArgument inDir outDir layoutRoots parameters =
         |> Seq.collect (fun (key, value) -> [key; value])
         |> createArg "replacements"
 
-    sprintf "literate --processDirectory %s %s %s %s" inDirArg outDirArg layoutRootsArgs replacementsArgs
+    sprintf "convert %s %s %s %s" inDirArg outDirArg layoutRootsArgs replacementsArgs
 
 
 Target.create "DogFoodCommandTool" (fun _ ->

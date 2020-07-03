@@ -1,19 +1,18 @@
 namespace FSharp.Formatting.Options
 
-open System.Collections.Generic
-open CommandLine
-
 module Common =
 
     let evalString s =
         if s = "" then None
         else Some s
 
-    let evalStringArray a =
+    let evalStrings a =
+        let a = Seq.toArray a
         if a = [|""|] then None
         else Some (List.ofArray a)
 
-    let evalPairwiseStringArray a =
+    let evalPairwiseStrings a =
+        let a = Seq.toArray a
         if a = [|""|] then None
         else Some (a |> Seq.pairwise |> Array.ofSeq |> List.ofArray)
 
