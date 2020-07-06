@@ -217,7 +217,7 @@ Target.create "DogFoodCommandTool" (fun _ ->
     // generate metadata reference
     let dllFiles =
       [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll"; "FSharp.Formatting.ApiDocs.dll"; "FSharp.Formatting.Razor.dll" ]
+        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll"; "FSharp.Formatting.ApiDocs.dll"; "FSharp.Formatting.DotLiquid.dll" ]
 
     let layoutRoots =
       [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]

@@ -119,7 +119,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "crefLib4", "tests\FSharp.Ap
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Common", "src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj", "{91BAD90E-BF3B-4646-A1A7-1568F8F25075}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Razor", "src\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.DotLiquid", "src\FSharp.Formatting.DotLiquid\FSharp.Formatting.DotLiquid.fsproj", "{C6B3C274-71A8-4239-BA9A-1AF7B2F7C736}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.TestHelpers", "tests\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj", "{0B552F94-33FE-4037-9C17-1EB2A885F263}"
 EndProject

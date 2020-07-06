@@ -10,7 +10,7 @@
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/netstandard2.0"
 
-// Reference VS PowerTools, Razor and F# Formatting components
+// Reference VS PowerTools, DotLiquid and F# Formatting components
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.Literate.dll"

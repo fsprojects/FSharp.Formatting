@@ -7,7 +7,7 @@ open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options
 open FSharp.Formatting.Options.Common
-open FSharp.Formatting.Razor
+open FSharp.Formatting.DotLiquid
 
 
 /// Exposes metadata formatting functionality. 
@@ -44,11 +44,11 @@ type GenerateOptions() =
     member val output = "" with get, set
 
     [<Option("layoutRoots", Required = true,
-        HelpText = "Search directory list for the Razor Engine.")>]
+        HelpText = "Search directory list for the DotLiquid Engine.")>]
     member val layoutRoots = Seq.empty<string> with get, set
 
     [<Option("parameters", Required = false,
-        HelpText = "Property settings for the Razor Engine (optinal).")>]
+        HelpText = "Property settings for the DotLiquid Engine (optinal).")>]
     member val parameters = Seq.empty<string> with get, set
 
     [<Option("namespaceTemplate", Required = false,
@@ -85,7 +85,7 @@ type GenerateOptions() =
             if x.help then
                 printfn "%s" (x.GetUsageOfOption())
             else
-                RazorApiDocs.Generate (
+                DotLiquidApiDocs.Generate (
                     dllFiles = (x.dlls |> List.ofSeq),
                     outDir = x.output,
                     layoutRoots = (x.layoutRoots |> List.ofSeq),
@@ -99,8 +99,8 @@ type GenerateOptions() =
                     ?libDirs = (evalStrings x.libDirs)
                     )
         with ex ->
-            Log.errorf "received exception in RazorApiDocs.Generate:\n %A" ex
-            printfn "Error on RazorApiDocs.Generate: \n%O" ex
+            Log.errorf "received exception in DotLiquidApiDocs.Generate:\n %A" ex
+            printfn "Error on DotLiquidApiDocs.Generate: \n%O" ex
             res <- -1
         waitForKey x.waitForKey
         res

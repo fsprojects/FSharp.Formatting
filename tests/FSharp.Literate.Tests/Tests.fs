@@ -19,7 +19,7 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-open FSharp.Formatting.Razor
+open FSharp.Formatting.DotLiquid
 open FsUnitTyped
 open FSharp.Formatting
 
@@ -440,7 +440,7 @@ let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.cshtml"
 let ``Code and HTML is formatted with a tooltip in Markdown file using HTML template``() =
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  RazorLiterate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
+  DotLiquidLiterate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
 
@@ -448,17 +448,16 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using HTML temp
 let ``Code and HTML is formatted with a tooltip in F# Script file using HTML template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  RazorLiterate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
+  DotLiquidLiterate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
 
 [<Test>]
-let ``Code and HTML is formatted with a tooltip in F# Script file using Razor template``() =
+let ``Code and HTML is formatted with a tooltip in F# Script file using DotLiquid template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  RazorLiterate.ProcessScriptFile
-    ( simpleFsx, templateCsHtml, temp.File,
-      layoutRoots = [__SOURCE_DIRECTORY__ </> "files"] )
+  DotLiquidLiterate.ProcessScriptFile
+    ( simpleFsx, templateCsHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
@@ -480,9 +479,8 @@ let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/docpage.csh
 let ``Can process fsx file using the template included in NuGet package``() =
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  RazorLiterate.ProcessScriptFile
-    ( simpleFsx, docPageTemplate, temp.File,
-      layoutRoots = [__SOURCE_DIRECTORY__ </> "../../misc/templates"], replacements = info)
+  DotLiquidLiterate.ProcessScriptFile
+    ( simpleFsx, docPageTemplate, temp.File, replacements = info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
 
@@ -490,9 +488,8 @@ let ``Can process fsx file using the template included in NuGet package``() =
 let ``Can process md file using the template included in NuGet package``() =
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  RazorLiterate.ProcessMarkdown
-    ( simpleMd, docPageTemplate, temp.File,
-      layoutRoots = [__SOURCE_DIRECTORY__ </> "../../misc/templates"], replacements = info)
+  DotLiquidLiterate.ProcessMarkdown
+    ( simpleMd, docPageTemplate, temp.File, replacements = info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
 

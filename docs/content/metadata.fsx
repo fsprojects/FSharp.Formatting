@@ -12,7 +12,7 @@ for F# libraries with XML comments. The F# Formatting re-implementation has
 a couple of extensions:
 
  - You can use Markdown instead of XML in `///` comments
- - The HTML is generated using Razor, so it is easy to change the templates
+ - The HTML is generated using DotLiquid, so it is easy to change the templates
 
 Building library documentation
 ------------------------------
@@ -28,7 +28,7 @@ open System.IO
 Building the library documentation is easy - you just need to call
 `ApiDocs.Generate` from your FAKE script or from F# Interactive.
 The method takes three (required) parameters - the path to your `DLL`,
-output directory and directory with Razor templates.
+output directory and directory with DotLiquid templates.
 Assuming `root` is the root directory for your project, you can write:
 *)
 
@@ -150,8 +150,8 @@ parameters that can be used to tweak how the formatting works:
 
 
   - `outDir` - specifies the output directory where documentation should be placed
-  - `layoutRoots` - a list of paths where Razor templates can be found
-  - `parameters` - provides additional parameters to the Razor templates
+  - `layoutRoots` - a list of paths where DotLiquid templates can be found
+  - `parameters` - provides additional parameters to the DotLiquid templates
   - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
      the file has the same name as the DLL)
   - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
@@ -163,7 +163,7 @@ parameters that can be used to tweak how the formatting works:
     (if not specified, `"module.cshtml"` is used).
   - `namespaceTemplate` - the templates to be used for namespaces
     (if not specified, `"namespaces.cshtml"` is used).
-  - `assemblyReferences` - The assemblies to use when compiling Razor templates.
+  - `assemblyReferences` - The assemblies to use when compiling DotLiquid templates.
     Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
     if you need additional references in your templates
     (if not specified, we use the currently loaded assemblies).
@@ -177,14 +177,5 @@ parameters that can be used to tweak how the formatting works:
 
 
 
-Work in progress!
------------------
-
-This library is under active development and it is not completely functional.
-For more examples of how it can be used, see the 
-[build script](https://github.com/BlueMountainCapital/FSharp.DataFrame/blob/master/tools/build.fsx) 
-for F# DataFrame. The project also includes nice 
-[Razor templates](https://github.com/BlueMountainCapital/FSharp.DataFrame/tree/master/tools/reference) 
-that you can use.
 
 *)

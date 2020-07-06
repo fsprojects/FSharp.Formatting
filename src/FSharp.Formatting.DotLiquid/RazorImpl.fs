@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.Razor
+namespace FSharp.Formatting.DotLiquid
 
 // --------------------------------------------------------------------------------------
 // Helpers for parallel processing
@@ -25,10 +25,10 @@ open System.Dynamic
 open System.Collections.Generic
 open System.Collections.Concurrent
 open FSharp.Formatting.Common
-open RazorEngine.Text
-open RazorEngine.Templating
-open RazorEngine.Configuration
-open RazorEngine.Compilation.ReferenceResolver
+open DotLiquid.Text
+open DotLiquid.Templating
+open DotLiquid.Configuration
+open DotLiquid.Compilation.ReferenceResolver
 
 //module tst =
 //#if INTERACTIVE
@@ -48,11 +48,11 @@ open RazorEngine.Compilation.ReferenceResolver
 //    printfn "%s" cs
     
     
-//    let engine = RazorEngine.Create( fun b -> b.SetNamespace("MyNamespace") |> ignore )
+//    let engine = DotLiquid.Create( fun b -> b.SetNamespace("MyNamespace") |> ignore )
 
 //    //Microsoft.AspNetCore.Mvc.Razor.Extensions.MvcRazorTemplateEngine(
 
-//    let h = System.Web.Razor.RazorEngineHost(RazorCodeLanguage.GetLanguageByExtension(".cs"))
+//    let h = System.Web.Razor.DotLiquidHost(RazorCodeLanguage.GetLanguageByExtension(".cs"))
 //    let e = System.Web.Razor.RazorTemplateEngine(h)
 
 /// [omit]
@@ -102,7 +102,7 @@ type StringDictionary(dict:IDictionary<string, string>) =
 
 /// [omit]
 type [<AbstractClass>] DocPageTemplateBase<'T>() =
-  inherit RazorEngine.Templating.TemplateBase<'T>()
+  inherit DotLiquid.Templating.TemplateBase<'T>()
 
   member private x.tryGetViewBagValue<'C> key =
     let vb = x.ViewBag :?> DynamicViewBag
@@ -144,10 +144,10 @@ type [<AbstractClass>] DocPageTemplateBase<'T>() =
   member x.RenderPart(name : string, model:obj) =
     x.Include(name, model)
 
-/// A simple RazorEngine caching strategy, this implementation assumes that the current directory never changes.
+/// A simple DotLiquid caching strategy, this implementation assumes that the current directory never changes.
 ///
 /// [omit]
-module RazorEngineCache =
+module DotLiquidCache =
   let private cachingProvider =
     let arg =
       if System.AppDomain.CurrentDomain.IsDefaultAppDomain() then
@@ -166,8 +166,8 @@ module RazorEngineCache =
     | None ->
         failwithf "Could not find template file: %s\nSearching in: %A" name layoutRoots
 
-  /// Caching mechanism for IRazorEngineService instances.
-  let private razorCache = new ConcurrentDictionary<string list, IRazorEngineService * string list option * string list>()
+  /// Caching mechanism for IDotLiquidService instances.
+  let private razorCache = new ConcurrentDictionary<string list, IDotLiquidService * string list option * string list>()
   let private createNew layoutRoots (references:string list option) namespaces =
     let resolveCache = new ConcurrentDictionary<string, string>()
     // create manager
@@ -209,7 +209,7 @@ module RazorEngineCache =
     namespaces |> Seq.iter (config.Namespaces.Add >> ignore)
     config.BaseTemplateType <- typedefof<DocPageTemplateBase<_>>
 
-    RazorEngineService.Create(config)
+    DotLiquidService.Create(config)
 
   let Get layoutRoots namespaces references =
     let engine, currentReferences, currentNamespaces =
@@ -257,7 +257,7 @@ type RazorRender(layoutRoots, namespaces, template:string, ?references : string 
   let _t2 = typeof<Microsoft.AspNetCore.Razor.Hosting.IRazorSourceChecksumMetadata>
   let _t3 = typeof<Microsoft.AspNetCore.Razor.Language.AllowedChildTagDescriptor>
 
-  let razorEngine = RazorEngineCache.Get layoutRoots namespaces references
+  let razorEngine = DotLiquidCache.Get layoutRoots namespaces references
   let handleCompile source f =
     try
       f ()

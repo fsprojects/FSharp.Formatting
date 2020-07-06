@@ -14,8 +14,8 @@
     <Compile Include="../Common/StringParsing.fs">
       <Link>Common/StringParsing.fs</Link>
     </Compile>
-    <Compile Include="RazorImpl.fs" />
-    <Compile Include="RazorFormatting.fs" />
+    <Compile Include="DotLiquidImpl.fs" />
+    <Compile Include="DotLiquidFormatting.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
@@ -31,10 +31,7 @@
   <!-- Since Paket.Restore.targets isn't capable of expressing this,
         override AspNetCore packages to properly constrain the generated nuget package -->
   <ItemGroup>
-    <PackageReference Include="RazorEngine.NetCore" Version="[2.2.6, 3.0)" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor" Version="[2.2, 3.0)" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Runtime" Version="[2.2, 3.0)" />
-    <PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="[2.2, 3.0)" />
+    <PackageReference Include="DotLiquid" Version="[2.0, 3.0)" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[3.6, 4.0)" />
   </ItemGroup>
   

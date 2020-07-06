@@ -266,9 +266,6 @@ All of the three methods discussed in the previous two sections take a number of
 parameters that can be used to tweak how the formatting works or even to specify a different
 version of the F# compiler:
 
- - `fsharpCompiler` - a `System.Reflection.Assembly` object that represents the 
-   `FSharp.Compiler.dll` assembly that should be used for processing the snippets
-   (specify this if you want to use custom version of the compiler!)
  - `prefix` - a string that is added to all automatically generated `id` attributes
    in the generated HTML document (to avoid collisions with other HTML elements)
  - `compilerOptions` - this can be used to pass any additional command line 
@@ -285,9 +282,7 @@ version of the F# compiler:
  - `generateAnchors` - when `true`, the generated HTML will automatically include
    anchors for all headings (and so you can click on headings to get a link
    to a section). The default value is `false`.
- - `assemblyReferences` - The assemblies to use when compiling Razor templates.
-   Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
-   if you need additional references in your templates
+ - `assemblyReferences` - Extra assemblies to use when processing scripts
    (if not specified, we use the currently loaded assemblies).
  - `customizeDocument` - Allows you to customize the document before writing it 
    to the output file. This gives you the opportunity to use your own

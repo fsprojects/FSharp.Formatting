@@ -17,7 +17,7 @@
     <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
 
     <!-- Assembly dependencies -->
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\RazorEngine.NetCore.dll" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\DotLiquid.NetCore.dll" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\System.Security.Permissions.dll" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" PrivateAssets="all" />
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" PrivateAssets="all" />
     <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" PrivateAssets="all" />
-    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" PrivateAssets="all" />
+    <ProjectReference Include="..\FSharp.Formatting.DotLiquid\FSharp.Formatting.DotLiquid.fsproj" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,7 +41,7 @@
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Markdown.*" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Literate.*" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.ApiDocs.*" PackagePath="lib/$(TargetFramework)" />
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Razor.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.DotLiquid.*" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

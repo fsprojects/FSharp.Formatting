@@ -74,7 +74,7 @@ type Literate private () =
           html.Replace("{" + key + id + "}", value)) input
         result
 
-  static member GenerateFile (references, contentTag, parameters, templateOpt, output, layoutRoots) =
+  static member GenerateFile (references, contentTag, parameters, templateOpt, output) =
     let templateOpt = templateOpt |> Option.map File.ReadAllText
     File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
 
@@ -261,16 +261,16 @@ type Literate private () =
     processDirectory inputDirectory outputDirectory
 
   static member ProcessDocument
-    ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?layoutRoots, ?assemblyReferences) =
+    ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?assemblyReferences) =
       let res =
           Literate.GenerateReplacementsForDocument
               (doc, output, ?format = format, ?prefix = prefix, ?lineNumbers = lineNumbers,
                ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?replacements = replacements)
-      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output, defaultArg layoutRoots [])
+      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
 
   static member ProcessMarkdown
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors,
       ?assemblyReferences, ?customizeDocument ) =
 
       let res =
@@ -279,11 +279,11 @@ type Literate private () =
                ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
                ?replacements = replacements, ?customizeDocument = customizeDocument )
       let output = defaultOutput output input format
-      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output, defaultArg layoutRoots [])
+      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
 
   static member ProcessScriptFile
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
       ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
         let res =
             Literate.GenerateReplacementsForScriptFile
@@ -291,11 +291,11 @@ type Literate private () =
                  ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
                  ?replacements = replacements, ?customizeDocument = customizeDocument, ?fsiEvaluator = fsiEvaluator )
         let output = defaultOutput output input format
-        Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output, defaultArg layoutRoots [])
+        Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
 
   static member ProcessDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?layoutRoots, ?generateAnchors,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors,
       ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
         let outputDirectory = defaultArg outputDirectory inputDirectory
 
@@ -306,4 +306,4 @@ type Literate private () =
                  ?replacements = replacements, ?customizeDocument = customizeDocument, ?processRecursive = processRecursive, ?fsiEvaluator = fsiEvaluator)
 
         for (path, res) in res do
-            Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, path, defaultArg layoutRoots [])
+            Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, path)

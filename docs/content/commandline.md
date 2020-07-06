@@ -42,7 +42,6 @@ according to the concept of [Literate Programming](literate.html).
   * `--fsieval` - Use the default FsiEvaluator, defaults to `false`.
   * `--replacements` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
   * `--includeSource` -  Include sourcecode in documentation, defaults to `false`.
-  * `--layoutRoots` -  Search directory list for the Razor Engine.
   * `--help` -  Display the specific help message for `convert`.
   * `--waitForKey` -  Wait for key before exit.
 
@@ -64,11 +63,11 @@ the meta-data from the `*.dll` files of the package and using the XML comments f
 
   * `--dlls` -  List of `dll` input files.
   * `--output` -  Output directory.
-  * `--layoutRoots` -  Search directory list for the Razor Engine templates.
+  * `--layoutRoots` -  Search directory list for the DotLiquid Engine templates.
 
 ### Other options
 
-  * `--parameters` -  Property settings for the Razor Engine.
+  * `--parameters` -  Property settings for the DotLiquid Engine.
   * `--namespaceTemplate` -  Namespace template file for formatting, defaults to `namespaces.cshtml`.
   * `--moduleTemplate` -  Module template file for formatting, defaults to `module.cshtml`.
   * `--typeTemplate` -  Type template file for formatting, defaults to `type.cshtml`.

@@ -6,7 +6,7 @@ open FSharp.Formatting.Literate
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options.Common
-open FSharp.Formatting.Razor
+open FSharp.Formatting.DotLiquid
 
 
 /// Process directory containing a mix of Markdown documents and F# Script files
@@ -84,10 +84,6 @@ type ProcessDirectoryOptions() =
         HelpText = "Include sourcecode in documentation, defaults to 'false' (optional).")>]
     member val includeSource = false with get, set
 
-    [<Option("layoutRoots", Required = false,
-        HelpText = "Search directory list for the Razor Engine (optional).")>]
-    member val layoutRoots = Seq.empty<string> with get, set
-
     [<Option("live", Required = false,
         HelpText = "Watches for changes in the input directory and re-runs, if a change occures")>]
     member val live = false with get, set
@@ -100,7 +96,7 @@ type ProcessDirectoryOptions() =
                 printfn "%s" (x.GetUsageOfOption())
             else
                 let run () =
-                    RazorLiterate.ProcessDirectory(
+                    DotLiquidLiterate.ProcessDirectory(
                         x.input,
                         ?generateAnchors = Some true,
                         ?templateFile = (evalString x.templateFile),
@@ -118,8 +114,7 @@ type ProcessDirectoryOptions() =
                         ?references = Some x.references,
                         ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() :> _) else None),
                         ?replacements = (evalPairwiseStrings x.replacements),
-                        ?includeSource = Some x.includeSource,
-                        ?layoutRoots = (evalStrings x.layoutRoots))
+                        ?includeSource = Some x.includeSource)
 
                 if x.live then
                     watcher.IncludeSubdirectories <- true
@@ -133,8 +128,8 @@ type ProcessDirectoryOptions() =
 
         with
             | _ as ex ->
-                Log.errorf "received exception in RazorLiterate.ProcessDirectory:\n %A" ex
-                printfn "Error on RazorLiterate.ProcessDirectory: \n%O" ex
+                Log.errorf "received exception in DotLiquidLiterate.ProcessDirectory:\n %A" ex
+                printfn "Error on DotLiquidLiterate.ProcessDirectory: \n%O" ex
                 res <- -1
         waitForKey x.waitForKey
         res

@@ -20,7 +20,7 @@ type Record =
   member x.Foo2() = 0
 
 type ITestInterface =
-  abstract Test : unit -> RazorEngine.Templating.IRazorEngineService
+  abstract Test : unit -> DotLiquid.Templating.IDotLiquidService
   abstract FixScript : string -> string
 
 /// Issue 201 docs

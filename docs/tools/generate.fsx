@@ -10,15 +10,12 @@
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.ApiDocs.dll"
 #r "FSharp.Formatting.Common.dll"
-#r "Microsoft.AspNetCore.Razor.dll"
-#r "Microsoft.AspNetCore.Razor.Runtime.dll"
-#r "Microsoft.AspNetCore.Razor.Language.dll"
-#r "RazorEngine.NetCore.dll"
-#r "FSharp.Formatting.Razor.dll"
+#r "DotLiquid.dll"
+#r "FSharp.Formatting.DotLiquid.dll"
 
 open System
 open System.IO
-open FSharp.Formatting.Razor
+open FSharp.Formatting.DotLiquid
 
 // --------------------------------------------------------------------------------------
 // Helpers
@@ -105,7 +102,7 @@ let buildReference () =
   printfn "building reference docs..."
   if Directory.Exists referenceOut then Directory.Delete(referenceOut, true)
   Directory.CreateDirectory referenceOut |> ignore
-  RazorApiDocs.Generate
+  DotLiquidApiDocs.Generate
     ( binaries, output + "/" + "reference", layoutRootsAll.["en"],
       parameters = ("root", root)::info,
       sourceRepo = githubLink + "/" + "tree/master",
@@ -128,7 +125,7 @@ let buildDocumentation () =
         match key with
         | Some lang -> layoutRootsAll.[lang]
         | None -> layoutRootsAll.["en"] // "en" is the default language
-    RazorLiterate.ProcessDirectory
+    DotLiquidLiterate.ProcessDirectory
       ( dir, template, output + "/" + sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
         generateAnchors = true,

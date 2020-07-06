@@ -1,7 +1,7 @@
 ## 5.0.0
   - WriteHtml --> ToHtml/WriteHtml overloads
   - Add preliminary pynb support for output
-  - Fix FSharp.Formatting.Literate.* to do approximate (non-razor) templating/  Use FSharp.Formatting.RazorLiterate for razor templating.
+  - Fix FSharp.Formatting.Literate.* to do approximate (non-razor) templating/  Use FSharp.Formatting.DotLiquidLiterate for razor templating.
   - FSharp.CodeFormat --> FSharp.Formatting.CodeFormat
   - FSharp.Markdown --> FSharp.Formatting.Markdown
   - FSharp.Literate --> FSharp.Formatting.Literate
