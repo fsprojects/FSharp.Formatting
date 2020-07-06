@@ -158,11 +158,11 @@ parameters that can be used to tweak how the formatting works:
     With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
     recommended for C# assemblies (if not specified, `true` is used).
   - `typeTemplate` - the templates to be used for normal types (and C# types)
-    (if not specified, `"type.cshtml"` is used).
+    (if not specified, `"type.html"` is used).
   - `moduleTemplate` - the templates to be used for modules
-    (if not specified, `"module.cshtml"` is used).
+    (if not specified, `"module.html"` is used).
   - `namespaceTemplate` - the templates to be used for namespaces
-    (if not specified, `"namespaces.cshtml"` is used).
+    (if not specified, `"namespaces.html"` is used).
   - `assemblyReferences` - The assemblies to use when compiling DotLiquid templates.
     Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
     if you need additional references in your templates

@@ -71,8 +71,8 @@ let output     = "../output"
 let files      = "../files"
 let templates  = "."
 let formatting = "../../misc/"
-let docTemplate = formatting + "/" + "templates/docpage.cshtml"
-let docTemplateSbS = templates + "/" + "docpage-sidebyside.cshtml"
+let docTemplate = formatting + "/" + "templates/docpage.html"
+let docTemplateSbS = templates + "/" + "docpage-sidebyside.html"
 let referenceOut = (output + "/" + "reference")
 
 // Where to look for *.csproj templates (in this order)
@@ -102,7 +102,7 @@ let buildReference () =
   printfn "building reference docs..."
   if Directory.Exists referenceOut then Directory.Delete(referenceOut, true)
   Directory.CreateDirectory referenceOut |> ignore
-  DotLiquidApiDocs.Generate
+  ApiDocs.GenerateFromModelWithDotLiquid
     ( binaries, output + "/" + "reference", layoutRootsAll.["en"],
       parameters = ("root", root)::info,
       sourceRepo = githubLink + "/" + "tree/master",
@@ -125,7 +125,7 @@ let buildDocumentation () =
         match key with
         | Some lang -> layoutRootsAll.[lang]
         | None -> layoutRootsAll.["en"] // "en" is the default language
-    DotLiquidLiterate.ProcessDirectory
+    Literate.ConvertDirectoryWithDotLiquid
       ( dir, template, output + "/" + sub, replacements = ("root", root)::info,
         layoutRoots = layoutRoots,
         generateAnchors = true,

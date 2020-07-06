@@ -19,8 +19,9 @@ type Record =
   member x.Foo = 0
   member x.Foo2() = 0
 
+(*
 type ITestInterface =
-  abstract Test : unit -> DotLiquid.Templating.IDotLiquidService
+  abstract Test : unit -> DotLiquid.I .Templating.IDotLiquidService
   abstract FixScript : string -> string
 
 /// Issue 201 docs
@@ -36,3 +37,5 @@ module Test_Issue201Extensions =
   type ITestInterface with
     member x.MyExtension() =
      Test_Issue201.MyExtension x
+
+*)

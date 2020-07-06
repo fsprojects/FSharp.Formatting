@@ -7,7 +7,7 @@ nuget FSharp.Compiler.Service ~> 36.0
 nuget CommandLineParser ~> 2.8
 
 nuget Microsoft.CodeAnalysis.CSharp ~> 3.6
-nuget DotLiquid
+nuget DotLiquid 2.0.361
 
 # testing dependencies
 nuget NUnit ~> 3.12

@@ -52,15 +52,15 @@ type GenerateOptions() =
     member val parameters = Seq.empty<string> with get, set
 
     [<Option("namespaceTemplate", Required = false,
-        HelpText = "Namespace template file for formatting, defaults to 'namespaces.cshtml' (optional).")>]
+        HelpText = "Namespace template file for formatting, defaults to 'namespaces.html' (optional).")>]
     member val namespaceTemplate = "" with get, set
 
     [<Option("moduleTemplate", Required = false,
-        HelpText = "Module template file for formatting, defaults to 'module.cshtml' (optional).")>]
+        HelpText = "Module template file for formatting, defaults to 'module.html' (optional).")>]
     member val moduleTemplate = "" with get, set
 
     [<Option("typeTemplate", Required = false,
-        HelpText = "Type template file for formatting, defaults to 'type.cshtml' (optional).")>]
+        HelpText = "Type template file for formatting, defaults to 'type.html' (optional).")>]
     member val typeTemplate = "" with get, set
 
     [<Option("xmlFile", Required = false,
@@ -85,7 +85,7 @@ type GenerateOptions() =
             if x.help then
                 printfn "%s" (x.GetUsageOfOption())
             else
-                DotLiquidApiDocs.Generate (
+                ApiDocs.GenerateWithDotLiquid (
                     dllFiles = (x.dlls |> List.ofSeq),
                     outDir = x.output,
                     layoutRoots = (x.layoutRoots |> List.ofSeq),
@@ -99,8 +99,8 @@ type GenerateOptions() =
                     ?libDirs = (evalStrings x.libDirs)
                     )
         with ex ->
-            Log.errorf "received exception in DotLiquidApiDocs.Generate:\n %A" ex
-            printfn "Error on DotLiquidApiDocs.Generate: \n%O" ex
+            Log.errorf "received exception in ApiDocs.GenerateFromModelWithDotLiquid:\n %A" ex
+            printfn "Error on ApiDocs.GenerateFromModelWithDotLiquid: \n%O" ex
             res <- -1
         waitForKey x.waitForKey
         res

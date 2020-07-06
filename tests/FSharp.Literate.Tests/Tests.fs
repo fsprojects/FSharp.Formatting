@@ -434,13 +434,13 @@ let ``Parsing simple script and markdown produces the same result`` () =
 // Test processing simple files using simple templates
 // --------------------------------------------------------------------------------------
 let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
-let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.cshtml"
+let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
 [<Test>]
 let ``Code and HTML is formatted with a tooltip in Markdown file using HTML template``() =
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  DotLiquidLiterate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
+  Literate.ConvertMarkdownWithDotLiquid(simpleMd, templateHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
 
@@ -448,7 +448,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using HTML temp
 let ``Code and HTML is formatted with a tooltip in F# Script file using HTML template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  DotLiquidLiterate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
+  Literate.ConvertScriptFileWithDotLiquid(simpleFsx, templateHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
 
@@ -456,7 +456,7 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using HTML tem
 let ``Code and HTML is formatted with a tooltip in F# Script file using DotLiquid template``() =
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  DotLiquidLiterate.ProcessScriptFile
+  Literate.ConvertScriptFileWithDotLiquid
     ( simpleFsx, templateCsHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
@@ -473,13 +473,13 @@ let info =
     "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
     "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 
-let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/docpage.cshtml"
+let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/docpage.html"
 
 [<Test>]
 let ``Can process fsx file using the template included in NuGet package``() =
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  DotLiquidLiterate.ProcessScriptFile
+  Literate.ConvertScriptFileWithDotLiquid
     ( simpleFsx, docPageTemplate, temp.File, replacements = info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
@@ -488,7 +488,7 @@ let ``Can process fsx file using the template included in NuGet package``() =
 let ``Can process md file using the template included in NuGet package``() =
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  DotLiquidLiterate.ProcessMarkdown
+  Literate.ConvertMarkdownWithDotLiquid
     ( simpleMd, docPageTemplate, temp.File, replacements = info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"

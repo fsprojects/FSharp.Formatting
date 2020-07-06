@@ -93,6 +93,7 @@ type Test_Issue472_T () =
   /// Function MultArgTupled!
   member x.MultArgTupled(arg: (int * int)) = ()
 
+(*
 type ITestInterface =
   abstract Test : unit -> DotLiquid.Templating.IDotLiquidService
   abstract FixScript : string -> string
@@ -110,6 +111,7 @@ module Test_Issue201Extensions =
   type ITestInterface with
     member x.MyExtension() =
      Test_Issue201.MyExtension x
+*)
 
 /// [omit]
 type Test_Omit() =

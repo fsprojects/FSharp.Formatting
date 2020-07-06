@@ -31,7 +31,7 @@
   <!-- Since Paket.Restore.targets isn't capable of expressing this,
         override AspNetCore packages to properly constrain the generated nuget package -->
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="[2.0, 3.0)" />
+    <PackageReference Include="DotLiquid" Version="2.0.361" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[3.6, 4.0)" />
   </ItemGroup>
   

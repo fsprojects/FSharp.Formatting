@@ -11,8 +11,8 @@ open FSharp.Formatting.CodeFormat
 // --------------------------------------------------------------------------------------
 
 /// This type provides three simple methods for calling the literate programming tool.
-/// The `ProcessMarkdown` and `ProcessScriptFile` methods process a single Markdown document
-/// and F# script, respectively. The `ProcessDirectory` method handles an entire directory tree
+/// The `ConvertMarkdown` and `ConvertScriptFile` methods process a single Markdown document
+/// and F# script, respectively. The `ConvertDirectory` method handles an entire directory tree
 /// (looking for `*.fsx` and `*.md` files).
 type Literate private () =
 
@@ -260,7 +260,7 @@ type Literate private () =
     let outputDirectory = defaultArg outputDirectory inputDirectory
     processDirectory inputDirectory outputDirectory
 
-  static member ProcessDocument
+  static member ConvertDocument
     ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?assemblyReferences) =
       let res =
           Literate.GenerateReplacementsForDocument
@@ -268,7 +268,7 @@ type Literate private () =
                ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?replacements = replacements)
       Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
 
-  static member ProcessMarkdown
+  static member ConvertMarkdown
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors,
       ?assemblyReferences, ?customizeDocument ) =
@@ -281,7 +281,7 @@ type Literate private () =
       let output = defaultOutput output input format
       Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
 
-  static member ProcessScriptFile
+  static member ConvertScriptFile
     ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
       ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
@@ -293,7 +293,7 @@ type Literate private () =
         let output = defaultOutput output input format
         Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
 
-  static member ProcessDirectory
+  static member ConvertDirectory
     ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors,
       ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =

@@ -47,7 +47,7 @@ let info =
 let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
         let metadata = ApiDocs.GenerateModel (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
-        DotLiquidApiDocs.Generate (metadata, output, layoutRoots)
+        ApiDocs.GenerateFromModelWithDotLiquid (metadata, output, layoutRoots)
 
         let fileNames = Directory.GetFiles(output)
         let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
@@ -70,7 +70,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
   let library = root </> "files" </> "Deedle.dll"
   let output = getOutputDir()
 
-  DotLiquidApiDocs.Generate
+  ApiDocs.GenerateWithDotLiquid
     ( [library], output, layoutRoots, info, libDirs = [testBin],
       sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
@@ -87,7 +87,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
 let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir()
-  DotLiquidApiDocs.Generate([library], output, layoutRoots, info)
+  ApiDocs.GenerateWithDotLiquid([library], output, layoutRoots, info)
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
@@ -98,7 +98,7 @@ let ``ApiDocs works on two sample F# assemblies``() =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
   let output = getOutputDir()
-  DotLiquidApiDocs.Generate(libraries, output, layoutRoots, info, libDirs = [testBin])
+  ApiDocs.GenerateWithDotLiquid(libraries, output, layoutRoots, info, libDirs = [testBin])
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -149,7 +149,7 @@ let ``ApiDocs generates Go to GitHub source links``() =
       testBin  </> "FsLib2.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
-  DotLiquidApiDocs.Generate
+  ApiDocs.GenerateWithDotLiquid
     ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (root </> "../..") )
@@ -171,7 +171,7 @@ let ``ApiDocs test that cref generation works``() =
       testBin  </> "crefLib4.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
-  DotLiquidApiDocs.Generate
+  ApiDocs.GenerateWithDotLiquid
     ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
@@ -237,7 +237,7 @@ let ``ApiDocs test that csharp (publiconly) support works``() =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
-  DotLiquidApiDocs.Generate
+  ApiDocs.GenerateWithDotLiquid
     ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
@@ -291,7 +291,7 @@ let ``ApiDocs test that csharp support works``() =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir()
   printfn "Output: %s" output
-  DotLiquidApiDocs.Generate
+  ApiDocs.GenerateWithDotLiquid
     ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
@@ -339,7 +339,7 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
     [ testBin  </> "TestLib1.dll"
       testBin </> "TestLib2.dll" ] |> fullpaths
   let files = generate libraries  false
-  //DotLiquidApiDocs.Generate(libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"], markDownComments = false)
+  //ApiDocs.GenerateFromModelWithDotLiquid(libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"], markDownComments = false)
   files.["fslib-class.html"] |> shouldContainText "Readonly int property"
   files.["fslib-record.html"] |> shouldContainText "This is name"
   files.["fslib-record.html"] |> shouldContainText "Additional member"
@@ -355,7 +355,7 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
 [<Test>]
 let ``ApiDocs highlights code snippets in Markdown comments``() =
   let library = testBin </> "TestLib1.dll" |> fullpath
-  //DotLiquidApiDocs.Generate([library], output, layoutRoots, info, libDirs = [root </> "../../lib"], markDownComments = true)
+  //ApiDocs.GenerateFromModelWithDotLiquid([library], output, layoutRoots, info, libDirs = [root </> "../../lib"], markDownComments = true)
 
   let files = generate [library] true
 
@@ -366,7 +366,7 @@ let ``ApiDocs highlights code snippets in Markdown comments``() =
 [<Test>]
 let ``ApiDocs handles c# dlls`` () =
   let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
-  //DotLiquidApiDocs.Generate
+  //ApiDocs.GenerateFromModelWithDotLiquid
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
   let files = (generate [library] false).Keys
@@ -378,7 +378,7 @@ let ``ApiDocs handles c# dlls`` () =
 let ``ApiDocs processes C# types and includes xml comments in docs`` () =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
-    //DotLiquidApiDocs.Generate
+    //ApiDocs.GenerateFromModelWithDotLiquid
     //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
     let files = generate [library]  false

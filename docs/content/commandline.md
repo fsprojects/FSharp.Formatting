@@ -68,9 +68,9 @@ the meta-data from the `*.dll` files of the package and using the XML comments f
 ### Other options
 
   * `--parameters` -  Property settings for the DotLiquid Engine.
-  * `--namespaceTemplate` -  Namespace template file for formatting, defaults to `namespaces.cshtml`.
-  * `--moduleTemplate` -  Module template file for formatting, defaults to `module.cshtml`.
-  * `--typeTemplate` -  Type template file for formatting, defaults to `type.cshtml`.
+  * `--namespaceTemplate` -  Namespace template file for formatting, defaults to `namespaces.html`.
+  * `--moduleTemplate` -  Module template file for formatting, defaults to `module.html`.
+  * `--typeTemplate` -  Type template file for formatting, defaults to `type.html`.
   * `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
   * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
   * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.

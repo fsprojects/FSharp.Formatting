@@ -139,7 +139,7 @@ documents or entire directories.
 
 ### Processing individual files
 
-The `Literate` type has two static methods `ProcessScriptFile` and `ProcessMarkdown`
+The `Literate` type has two static methods `ConvertScriptFile` and `ConvertMarkdown`
 that turn an F# script file and Markdown document, respectively, into an HTML file.
 If you wish to specify the HTML file structure, you can provide a template. Two sample templates
 are included: for a [single file](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-file.html)
@@ -168,14 +168,14 @@ as follows:
 *)
 
 let script = Path.Combine(source, "../docs/script.fsx")
-Literate.ProcessScriptFile(script, template)
+Literate.ConvertScriptFile(script, template)
 
 let doc = Path.Combine(source, "../docs/document.md")
-Literate.ProcessMarkdown(doc, template)
+Literate.ConvertMarkdown(doc, template)
 
 (**
 This sample uses `*.md` extension for Markdown documents, but this is not required when
-using `ProcessMarkdown`. You can use any extension you wish. By default, the methods
+using `ConvertMarkdown`. You can use any extension you wish. By default, the methods
 will generate file with the same name (but with the `.html` extension). You can change
 this by adding a third parameter with the output file name. There are a number of 
 additional parameters that you can specify - these are discussed below.
@@ -199,7 +199,7 @@ let projInfo =
     "project-name", "F# Formatting" ]
 
 // Process all files and save results to 'output' directory
-Literate.ProcessDirectory
+Literate.ConvertDirectory
   (source, projTemplate, source + "\\output", replacements = projInfo)
 
 (**
@@ -209,7 +209,7 @@ projects.
 
 ## Generating LaTeX output
 
-The methods used above (`ProcessScriptFile`, `ProcessMarkdown` as well as `ProcessDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the named parameter `format` to one of the two `OutputKind` cases. The following
 example shows how to call the methods to generate LaTeX documents:
@@ -219,12 +219,12 @@ let texTemplate = Path.Combine(source, "template.tex")
 
 // Process script file, Markdown document and a directory
 let scriptTex = Path.Combine(source, "../docs/script.fsx")
-Literate.ProcessScriptFile(scriptTex, texTemplate, format = OutputKind.Latex)
+Literate.ConvertScriptFile(scriptTex, texTemplate, format = OutputKind.Latex)
 
 let docTex = Path.Combine(source, "../docs/document.md")
-Literate.ProcessMarkdown(docTex, template, format = OutputKind.Latex)
+Literate.ConvertMarkdown(docTex, template, format = OutputKind.Latex)
 
-Literate.ProcessDirectory
+Literate.ConvertDirectory
   ( source, texTemplate, source + "\\output", 
     format = OutputKind.Latex, replacements = projInfo)
 
@@ -233,19 +233,19 @@ Literate.ProcessDirectory
 
 > NOTE: This feature is experimental and not all features of markdown or notebooks is supported
 
-The methods used above (`ProcessScriptFile`, `ProcessMarkdown` as well as `ProcessDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
 can also produce iPython Notebook output. This is done
 by setting the named parameter `format` to `OutputKind.Pynb`:
 *)
 
 // Process script file, Markdown document and a directory
 let scriptPynb = Path.Combine(source, "../docs/script.fsx")
-Literate.ProcessScriptFile(scriptPynb, format = OutputKind.Pynb)
+Literate.ConvertScriptFile(scriptPynb, format = OutputKind.Pynb)
 
 let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ProcessMarkdown(docPynb, template, format = OutputKind.Pynb)
+Literate.ConvertMarkdown(docPynb, template, format = OutputKind.Pynb)
 
-Literate.ProcessDirectory( source, source + "/output", format = OutputKind.Pynb)
+Literate.ConvertDirectory( source, source + "/output", format = OutputKind.Pynb)
 
 (**
 Note that the `template.tex` file needs to contain `{content}` as the key where the body

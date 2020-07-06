@@ -1,4 +1,4 @@
-﻿// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
+// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
 // the following will include binaries and load the literate script
 #load "../../src/FSharp.Formatting.fsx"
 open System.IO
@@ -31,26 +31,26 @@ let processScriptAsHtml () =
   let file = relative "demo.fsx"
   let output = relative "output/demo-script.html"
   let template = relative "templates/template-file.html"
-  DotLiquidLiterate.ProcessScriptFile(file, template, output)
+  Literate.ConvertScriptFileWithDotLiquid(file, template, output)
 
 /// Processes a single F# Script file and produce LaTeX output
 let processScriptAsLatex () =
   let file = relative "demo.fsx"
   let output = relative "output/demo-script.tex"
   let template = relative "templates/template-color.tex"
-  DotLiquidLiterate.ProcessScriptFile(file, template, output, format = OutputKind.Latex)
+  Literate.ConvertScriptFileWithDotLiquid(file, template, output, format = OutputKind.Latex)
 
 /// Processes a single Markdown document and produce HTML output
 let processDocAsHtml () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.html"
   let template = relative "templates/template-file.html"
-  DotLiquidLiterate.ProcessMarkdown(file, template, output)
+  Literate.ConvertMarkdownWithDotLiquid(file, template, output)
 
 /// Processes a single Markdown document and produce LaTeX output
 let processDocAsLatex () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.tex"
   let template = relative "templates/template-color.tex"
-  DotLiquidLiterate.ProcessMarkdown(file, template, output, format = OutputKind.Latex)
+  Literate.ConvertMarkdownWithDotLiquid(file, template, output, format = OutputKind.Latex)
 

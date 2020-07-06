@@ -9,8 +9,8 @@
     <None Include="Files/simple.md" />
     <None Include="Files/simple.fsx" />
     <None Include="Files/template.html" />
-    <None Include="Files/template.cshtml" />
-    <None Include="Files/docpage.cshtml" />
+    <None Include="Files/template.html" />
+    <None Include="Files/docpage.html" />
     <Compile Include="..\Common\MarkdownUnit.fs">
       <Link>Common\MarkdownUnit.fs</Link>
     </Compile>

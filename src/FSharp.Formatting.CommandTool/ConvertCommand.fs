@@ -11,7 +11,7 @@ open FSharp.Formatting.DotLiquid
 
 /// Process directory containing a mix of Markdown documents and F# Script files
 [<Verb("convert", HelpText = "convert a directory of literate scripts or markdown to another format")>]
-type ProcessDirectoryOptions() =
+type ConvertDirectoryOptions() =
 
     // does not work as desired in F#:
     // the HelpOption attribute is not built,
@@ -96,7 +96,7 @@ type ProcessDirectoryOptions() =
                 printfn "%s" (x.GetUsageOfOption())
             else
                 let run () =
-                    DotLiquidLiterate.ProcessDirectory(
+                    Literate.ConvertDirectoryWithDotLiquid(
                         x.input,
                         ?generateAnchors = Some true,
                         ?templateFile = (evalString x.templateFile),
@@ -128,8 +128,8 @@ type ProcessDirectoryOptions() =
 
         with
             | _ as ex ->
-                Log.errorf "received exception in DotLiquidLiterate.ProcessDirectory:\n %A" ex
-                printfn "Error on DotLiquidLiterate.ProcessDirectory: \n%O" ex
+                Log.errorf "received exception in Literate.ConvertDirectoryWithDotLiquid:\n %A" ex
+                printfn "Error on Literate.ConvertDirectoryWithDotLiquid: \n%O" ex
                 res <- -1
         waitForKey x.waitForKey
         res
