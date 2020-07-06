@@ -139,9 +139,19 @@ documents or entire directories.
 
 ### Processing individual files
 
-The `Literate` type has two static methods `ConvertScriptFile` and `ConvertMarkdown`
+The `Literate` type has a static methods `ConvertDocument` for converting based on file extension, and
+two static methods `ConvertScriptFile` and `ConvertMarkdown`
 that turn an F# script file and Markdown document, respectively, into an HTML file.
-If you wish to specify the HTML file structure, you can provide a template. Two sample templates
+*)
+
+let script = Path.Combine(source, "../docs/script.fsx")
+Literate.ConvertDocument(script)
+
+let doc = Path.Combine(source, "../docs/document.md")
+Literate.ConvertDocument(doc)
+
+(**
+If you wish to specify the HTML file structure, you can optionally provide a template. Two sample templates
 are included: for a [single file](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-file.html)
 and for a [project](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-project.html),
 but you can use your own. If no template is provided, the result is simply the HTML body
@@ -209,19 +219,23 @@ projects.
 
 ## Generating LaTeX output
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
+The methods used above (`ConvertDocument`, `ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the named parameter `format` to one of the two `OutputKind` cases. The following
 example shows how to call the methods to generate LaTeX documents:
 *)
+let scriptTex = Path.Combine(source, "../docs/script.fsx")
+Literate.ConvertDocument(scriptTex, format = OutputKind.Latex)
+
+let docTex = Path.Combine(scriptTex, "../docs/document.md")
+Literate.ConvertDocument(docTex, format = OutputKind.Latex)
+
 // Template file containing the {content} tag and possibly others
 let texTemplate = Path.Combine(source, "template.tex")
 
 // Process script file, Markdown document and a directory
-let scriptTex = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(scriptTex, texTemplate, format = OutputKind.Latex)
 
-let docTex = Path.Combine(source, "../docs/document.md")
 Literate.ConvertMarkdown(docTex, template, format = OutputKind.Latex)
 
 Literate.ConvertDirectory
