@@ -2,7 +2,7 @@
 F# Formatting: Output embedding
 ===============================
 
-A nice feature of the literate programming package (`FSharp.Literate.dll` in F# Formatting)
+A nice feature of the literate programming package (`FSharp.Formatting.Literate.dll` in F# Formatting)
 is that it lets you embed the result of running the script as part of the literate output.
 This is a feature of the functions discussed in [literate programming](literate.html) and
 it is implemented using the [F# Compiler service](http://fsharp.github.io/FSharp.Compiler.Service/).
@@ -68,9 +68,20 @@ as follows:
 <table class="pre"><tr><td><pre><code>42
 </code></pre></td></tr></table></blockquote>
 
-In addition to the commands demonstrated in the above sample, you can also use `(*** include-it: test ***)` 
-to include the `it` value that was produced by a snippet named `test` using the `(*** define-output: test ***)` 
-command.
+In addition to the commands demonstrated in the above sample, you can also use
+the following variations to include the output and `it` values produced by a snippet.
+
+    (*** include-it: test ***)
+    (*** include-output: test ***)
+
+If no snippet is named
+the immediately preceeding previous snippet is used.
+
+    printfn "hello world"
+    (*** include-output ***)
+
+    200+300
+    (*** include-it ***)
 
 Specifying the evaluator and formatting 
 ---------------------------------------
@@ -79,9 +90,9 @@ Specifying the evaluator and formatting
 (*** hide ***)
 #I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
 #r "FSharp.Formatting.Common.dll"
-#r "FSharp.Markdown.dll"
-#r "FSharp.CodeFormat.dll"
-#r "FSharp.Literate.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
 (**
 The embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).
@@ -90,8 +101,8 @@ Assuming you have all the references in place, you can now create an instance of
 functions that parse script files or process script files:
 
 *)
-open FSharp.Literate
-open FSharp.Markdown
+open FSharp.Formatting.Literate
+open FSharp.Formatting.Markdown
 
 // Sample literate content
 let content = """
@@ -101,7 +112,7 @@ let a = 10
 // Create evaluator and parse script
 let fsi = FsiEvaluator()
 let doc = Literate.ParseScriptString(content, fsiEvaluator = fsi)
-Literate.WriteHtml(doc)
+Literate.ToHtml(doc)
 (**
 When the `fsiEvaluator` parameter is specified, the script is evaluated and so you
 can use additional commands such as `include-value`. When the evaluator is *not* specified,
@@ -152,8 +163,8 @@ This can be done by calling `RegisterTransformation` on the `FsiEvaluator` insta
 
 *)
 // Create evaluator & register simple formatter for lists
-let fsiOl = FSharp.Literate.FsiEvaluator()
-fsiOl.RegisterTransformation(fun (o, ty) ->
+let fsiOl = FSharp.Formatting.Literate.FsiEvaluator()
+fsiOl.RegisterTransformation(fun (o, ty, _executionCount) ->
   // If the type of value is an F# list, format it nicely
   if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
     let items = 
@@ -182,7 +193,7 @@ let test = ["one";"two";"three"]
 (*** include-value:test ***)"""
 
 let docOl = Literate.ParseScriptString(listy, fsiEvaluator = fsiOl)
-Literate.WriteHtml(docOl)
+Literate.ToHtml(docOl)
 (**
 The resulting HTML formatting of the document contains the snippet that defines `test`,
 followed by a nicely formatted ordered list:

@@ -3,7 +3,7 @@ F# Formatting [![Build Status](https://travis-ci.org/fsprojects/FSharp.Formattin
 
 [![Join the chat at https://gitter.im/fsprojects/FSharp.Formatting](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fsprojects/FSharp.Formatting?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
  
-The F# Formatting libraries (`FSharp.CodeFormat.dll` and `FSharp.Markdown.dll`) include an F# implementation 
+The F# Formatting libraries (`FSharp.Formatting.CodeFormat.dll` and `FSharp.Formatting.Markdown.dll`) include an F# implementation 
 of a Markdown parser and an F# code formatter that can be used to tokenize F# code and obtain information about tokens 
 including tool-tips (as in Visual Studio and MonoDevelop) with type information. The library also comes with 
 a sample that implements literate programming for F#.
@@ -38,4 +38,5 @@ The library is available under Apache 2.0. For more information see the [License
 
 ## Maintainer(s)
 
-- [@cloudroutine](https://github.com/cloudroutine)
+- [@dsyme](https://github.com/dsyme)
+- [@eiriktsarpalis](https://github.com/eiriktsarpalis)

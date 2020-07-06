@@ -4,15 +4,15 @@
 F# Formatting: Code formatting
 ==============================
 
-This page demonstrates how to use `FSharp.CodeFormat.dll` to tokenize 
+This page demonstrates how to use `FSharp.Formatting.CodeFormat.dll` to tokenize 
 F# source code, obtain information about the source code (mainly tooltips
 from the type-checker) and how to turn the code into a nicely formatted HTML.
 
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "FSharp.CodeFormat.dll"
-open FSharp.CodeFormat
+#r "FSharp.Formatting.CodeFormat.dll"
+open FSharp.Formatting.CodeFormat
 open System.Reflection
 
 (**
@@ -20,7 +20,7 @@ open System.Reflection
 Starting a background agent
 ---------------------------
 
-The `FSharp.CodeFormat` namespace contains `CodeFormat` type which is the
+The `FSharp.Formatting.CodeFormat` namespace contains `CodeFormat` type which is the
 entry point. The static method `CreateAgent` starts a background worker that
 can be called to format snippets repeatedly:
 *)

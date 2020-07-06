@@ -4,7 +4,7 @@ module FSharp.MetadataFormat.Tests
 open FsUnit
 open System.IO
 open NUnit.Framework
-open FSharp.MetadataFormat
+open FSharp.Formatting.MetadataFormat
 open FSharp.Formatting.Razor
 open FsUnitTyped
 
@@ -46,7 +46,7 @@ let info =
 
 let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
-        let metadata = MetadataFormat.Generate (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
+        let metadata = MetadataFormat.GenerateReplacements (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
         RazorMetadataFormat.Generate (metadata, output, layoutRoots)
 
         let fileNames = Directory.GetFiles(output)
@@ -71,7 +71,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
   let output = getOutputDir()
 
   RazorMetadataFormat.Generate
-    ( library, output, layoutRoots, info, libDirs = [testBin],
+    ( [library], output, layoutRoots, info, libDirs = [testBin],
       sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
@@ -87,7 +87,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
 let ``MetadataFormat works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir()
-  RazorMetadataFormat.Generate(library, output, layoutRoots, info)
+  RazorMetadataFormat.Generate([library], output, layoutRoots, info)
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
@@ -365,7 +365,7 @@ let ``MetadataFormat highlights code snippets in Markdown comments``() =
 
 [<Test>]
 let ``MetadataFormat handles c# dlls`` () =
-  let library = testBin </> "CSharpFormat.dll" |> fullpath
+  let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
   //RazorMetadataFormat.Generate
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 

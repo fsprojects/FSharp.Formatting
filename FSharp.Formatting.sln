@@ -72,15 +72,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{
 		misc\templates\reference\type.cshtml = misc\templates\reference\type.cshtml
 	EndProjectSection
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Markdown", "src\FSharp.Markdown\FSharp.Markdown.fsproj", "{C44C1C05-599A-40DD-9590-465EAB8960C5}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Markdown", "src\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj", "{C44C1C05-599A-40DD-9590-465EAB8960C5}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.CodeFormat", "src\FSharp.CodeFormat\FSharp.CodeFormat.fsproj", "{341EBF32-D470-4C55-99E9-55F14F7FFBB1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.CodeFormat", "src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj", "{341EBF32-D470-4C55-99E9-55F14F7FFBB1}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.MetadataFormat", "src\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj", "{BC4946BA-2724-4524-AC50-DFC49EE154A1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.MetadataFormat", "src\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj", "{BC4946BA-2724-4524-AC50-DFC49EE154A1}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Literate", "src\FSharp.Literate\FSharp.Literate.fsproj", "{65E6D541-0486-4383-B619-5CFC5D2BA2F0}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Literate", "src\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj", "{65E6D541-0486-4383-B619-5CFC5D2BA2F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpFormat", "src\CSharpFormat\CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharp.Formatting.CSharpFormat", "src\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.CommandTool", "src\FSharp.Formatting.CommandTool\FSharp.Formatting.CommandTool.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
 EndProject

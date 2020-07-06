@@ -1,9 +1,9 @@
-﻿module FSharp.Markdown.Tests.TestFiles
+module FSharp.Markdown.Tests.TestFiles
 // --------------------------------------------------------------------------------------
 // TODO: This is all obsolete
 // --------------------------------------------------------------------------------------
 
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 open System.IO
 open System.Diagnostics
 
@@ -20,7 +20,7 @@ let benchmark file count =
   let sw = new Stopwatch()
   sw.Start()
   for n in 1 .. count do 
-    Markdown.TransformHtml(text) |> ignore 
+    Markdown.ToHtml(text) |> ignore 
   sw.Stop()
 
   printfn "input string length: %d" text.Length
@@ -59,9 +59,9 @@ let transformAndCompare transFunc (source:string) (target:string) (verify:string
 
 let rec runTests dir = 
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare Markdown.TransformHtml file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
+    transformAndCompare Markdown.WriteHtml file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare Markdown.TransformLatex file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
+    transformAndCompare Markdown.WriteLatex file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
   for dir in Directory.GetDirectories(dir) do
     runTests dir
 

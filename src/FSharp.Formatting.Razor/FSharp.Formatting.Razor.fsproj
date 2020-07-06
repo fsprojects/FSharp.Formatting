@@ -2,7 +2,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -15,18 +14,18 @@
     <Compile Include="../Common/StringParsing.fs">
       <Link>Common/StringParsing.fs</Link>
     </Compile>
-    <Compile Include="Razor.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="RazorImpl.fs" />
+    <Compile Include="RazorFormatting.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FSharp.Literate\FSharp.Literate.fsproj" />
-    <ProjectReference Include="..\FSharp.MetadataFormat\FSharp.MetadataFormat.fsproj" PrivateAssets="All" />
+    <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- ugly hack: inline p2p libraries in NuGet package
          workaround for https://github.com/NuGet/Home/issues/3891 -->
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.MetadataFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.MetadataFormat.*" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <!-- Since Paket.Restore.targets isn't capable of expressing this,
@@ -36,7 +35,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor" Version="[2.2, 3.0)" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Runtime" Version="[2.2, 3.0)" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="[2.2, 3.0)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[3.4, 4.0)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[3.6, 4.0)" />
   </ItemGroup>
   
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -6,7 +6,7 @@ let root = "C:\\"
 F# Formatting: Library documentation
 ====================================
 
-The library `FSharp.MetadataFormat.dll` is a replacement for the `FsHtmlTool`
+The library `FSharp.Formatting.MetadataFormat.dll` is a replacement for the `FsHtmlTool`
 which is available in the F# PowerPack and can be used to generate documentation 
 for F# libraries with XML comments. The F# Formatting re-implementation has
 a couple of extensions:
@@ -20,8 +20,8 @@ Building library documentation
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "FSharp.MetadataFormat.dll"
-open FSharp.MetadataFormat
+#r "FSharp.Formatting.MetadataFormat.dll"
+open FSharp.Formatting.MetadataFormat
 open System.IO
 
 (**

@@ -1,5 +1,5 @@
-﻿#if INTERACTIVE
-#r "../../bin/FSharp.Markdown.dll"
+#if INTERACTIVE
+#r "../../bin/FSharp.Formatting.Markdown.dll"
 #r "../../packages/test/NUnit/lib/net45/nunit.framework.dll"
 #r "../../packages/test/FsUnit/lib/net45/FsUnit.NUnit.dll"
 #else
@@ -9,7 +9,7 @@ module FSharp.Markdown.Tests.Externals
 
 open FsUnit
 open NUnit.Framework
-open FSharp.Markdown
+open FSharp.Formatting.Markdown
 
 open System.IO
 open System.Text.RegularExpressions
@@ -66,7 +66,7 @@ let executeTest (dir : string) (source : string) (target : string) (verify : str
     if File.Exists(verify) then
       let text = File.ReadAllText(source)
       (use wr = new StreamWriter(target)
-      Markdown.TransformHtml(text, wr, "\r\n"))
+      Markdown.WriteHtml(text, wr, "\r\n"))
       let contents = File.ReadAllLines(verify)
       File.WriteAllLines(verify, contents)
       let targetHtml = removeWhitespace(File.ReadAllText(target))
