@@ -83,7 +83,7 @@ type RazorApiDocs private() =
 
   /// Generates documentation for multiple files specified by the `dllFiles` parameter
   static member Generate(dllFiles : seq<string>, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
-     ApiDocs.GenerateApiDocsModel(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+     ApiDocs.GenerateModel(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
     |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
 

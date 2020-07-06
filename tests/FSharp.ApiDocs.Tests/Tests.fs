@@ -46,7 +46,7 @@ let info =
 
 let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
-        let metadata = ApiDocs.GenerateApiDocsModel (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
+        let metadata = ApiDocs.GenerateModel (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
         RazorApiDocs.Generate (metadata, output, layoutRoots)
 
         let fileNames = Directory.GetFiles(output)

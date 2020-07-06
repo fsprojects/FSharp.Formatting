@@ -1501,7 +1501,7 @@ type Html private() =
 type ApiDocs =
 
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  static member GenerateApiDocsModel(dllFiles: seq<string>, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
+  static member GenerateModel(dllFiles: seq<string>, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
