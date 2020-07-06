@@ -208,7 +208,7 @@
 
 ## 2.8.0 (and before 20 April, 2015)
 * 1.0.15 - Added latex support, tables and better formatting with line numbers
-* 2.0.0 - New project structure, adding ApiDocs
+* 2.0.0 - New project structure, adding MetadataFormat
 * 2.0.1 - Fixed handling of # in headers
 * 2.0.2 - Change tool tip font for better readability
 * 2.0.3 - Fixed Markdown escaping, nested modules and types in FsHtmlDoc
@@ -275,7 +275,7 @@
 * 2.4.27 - Better mono support and new logo.
 * 2.4.28 - Fix dependencies
 * 2.4.29 - Revert
-* 2.4.30 - Fsharp.Formatting ApiDocs no longer crashes on C# dlls
+* 2.4.30 - Fsharp.Formatting MetadataFormat no longer crashes on C# dlls
 * 2.4.31 - Basic cache for RazorRender instances in FSharp.Formatting.Literate
 * 2.4.32 - Fixed regressions introduced by latest FCS
 * 2.4.33 - Fix cache using incomplete key

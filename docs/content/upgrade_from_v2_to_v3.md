@@ -6,7 +6,7 @@ In `generate.fsx`
 
 - Add `open FSharp.Formatting.Razor` in order to continue using Razor templates (since v2 uses them)
 - `Literate` to `RazorLiterate`
-- `ApiDocs` to `RazorMetadataFormat`
+- `ApiDocs` to `RazorApiDocs`
 
 In the `paket.dependencies` you need to do the following:
 

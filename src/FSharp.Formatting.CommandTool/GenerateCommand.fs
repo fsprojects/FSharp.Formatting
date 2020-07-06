@@ -85,7 +85,7 @@ type GenerateOptions() =
             if x.help then
                 printfn "%s" (x.GetUsageOfOption())
             else
-                RazorMetadataFormat.Generate (
+                RazorApiDocs.Generate (
                     dllFiles = (x.dlls |> List.ofSeq),
                     outDir = x.output,
                     layoutRoots = (x.layoutRoots |> List.ofSeq),
@@ -99,8 +99,8 @@ type GenerateOptions() =
                     ?libDirs = (evalStrings x.libDirs)
                     )
         with ex ->
-            Log.errorf "received exception in RazorMetadataFormat.Generate:\n %A" ex
-            printfn "Error on RazorMetadataFormat.Generate: \n%O" ex
+            Log.errorf "received exception in RazorApiDocs.Generate:\n %A" ex
+            printfn "Error on RazorApiDocs.Generate: \n%O" ex
             res <- -1
         waitForKey x.waitForKey
         res

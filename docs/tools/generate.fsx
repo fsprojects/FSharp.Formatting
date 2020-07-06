@@ -105,7 +105,7 @@ let buildReference () =
   printfn "building reference docs..."
   if Directory.Exists referenceOut then Directory.Delete(referenceOut, true)
   Directory.CreateDirectory referenceOut |> ignore
-  RazorMetadataFormat.Generate
+  RazorApiDocs.Generate
     ( binaries, output + "/" + "reference", layoutRootsAll.["en"],
       parameters = ("root", root)::info,
       sourceRepo = githubLink + "/" + "tree/master",

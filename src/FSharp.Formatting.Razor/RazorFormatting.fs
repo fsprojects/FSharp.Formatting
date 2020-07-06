@@ -37,7 +37,7 @@ open System.IO
 ///    specify references explicitly etc.)
 ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
 ///
-type RazorMetadataFormat private() =
+type RazorApiDocs private() =
 
   static let generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences (generatorOutput: ApiDocsModel) =
     let (@@) a b = Path.Combine(a, b)
