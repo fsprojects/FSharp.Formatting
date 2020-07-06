@@ -6,7 +6,7 @@ let root = "C:\\"
 F# Formatting: Library documentation
 ====================================
 
-The library `FSharp.Formatting.MetadataFormat.dll` is a replacement for the `FsHtmlTool`
+The library `FSharp.Formatting.ApiDocs.dll` is a replacement for the `FsHtmlTool`
 which is available in the F# PowerPack and can be used to generate documentation 
 for F# libraries with XML comments. The F# Formatting re-implementation has
 a couple of extensions:
@@ -20,19 +20,19 @@ Building library documentation
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "FSharp.Formatting.MetadataFormat.dll"
-open FSharp.Formatting.MetadataFormat
+#r "FSharp.Formatting.ApiDocs.dll"
+open FSharp.Formatting.ApiDocs
 open System.IO
 
 (**
 Building the library documentation is easy - you just need to call
-`MetadataFormat.Generate` from your FAKE script or from F# Interactive.
+`ApiDocs.Generate` from your FAKE script or from F# Interactive.
 The method takes three (required) parameters - the path to your `DLL`,
 output directory and directory with Razor templates.
 Assuming `root` is the root directory for your project, you can write:
 *)
 
-MetadataFormat.Generate
+ApiDocs.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ] )
@@ -46,7 +46,7 @@ and `sourceFolder` to the folder where your DLLs are built.
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 *)
 
-MetadataFormat.Generate
+ApiDocs.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ],
@@ -123,7 +123,7 @@ By default `FSharp.Formatting` will expect Markdown documentation comments, to p
 pass the named argument `markDownComments` with value `false`.
 *)
 
-MetadataFormat.Generate
+ApiDocs.Generate
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
     [ Path.Combine(root, "templates") ],

@@ -8,7 +8,7 @@
 #r "FSharp.Formatting.CodeFormat.dll"
 #r "FSharp.Formatting.Literate.dll"
 #r "FSharp.Formatting.Markdown.dll"
-#r "FSharp.Formatting.MetadataFormat.dll"
+#r "FSharp.Formatting.ApiDocs.dll"
 #r "FSharp.Formatting.Common.dll"
 #r "Microsoft.AspNetCore.Razor.dll"
 #r "Microsoft.AspNetCore.Razor.Runtime.dll"
@@ -55,7 +55,7 @@ let info =
     "project-nuget", "http://nuget.org/packages/FSharp.Formatting" ]
 
 let referenceBinaries =
-  [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll"; "FSharp.Formatting.MetadataFormat.dll"; "FSharp.Formatting.Common.dll" ]
+  [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll"; "FSharp.Formatting.ApiDocs.dll"; "FSharp.Formatting.Common.dll" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below

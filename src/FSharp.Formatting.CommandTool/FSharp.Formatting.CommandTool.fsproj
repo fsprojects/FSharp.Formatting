@@ -37,7 +37,7 @@
     <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj" />
+    <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

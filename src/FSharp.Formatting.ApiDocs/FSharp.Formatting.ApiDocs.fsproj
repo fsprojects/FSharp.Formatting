@@ -14,7 +14,7 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
-    <Compile Include="MetadataFormat.fs" />
+    <Compile Include="ApiDocs.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />

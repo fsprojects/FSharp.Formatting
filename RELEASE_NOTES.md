@@ -1,11 +1,11 @@
 ## 5.0.0
   - WriteHtml --> ToHtml/WriteHtml overloads
   - Add preliminary pynb support for output
-  - Fix Literate.* to do approximate (non-razor) templating/  Use RazorLiterate for razor templating.
+  - Fix FSharp.Formatting.Literate.* to do approximate (non-razor) templating/  Use FSharp.Formatting.RazorLiterate for razor templating.
   - FSharp.CodeFormat --> FSharp.Formatting.CodeFormat
   - FSharp.Markdown --> FSharp.Formatting.Markdown
   - FSharp.Literate --> FSharp.Formatting.Literate
-  - Only publish FSharp.Formatting and FSharp.Formatting.Tool nuget packages
+  - FSharp.ApiDocs --> FSharp.Formatting.ApiDocs
   - Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
   - For command line tool, "fsformatting literate process-directory" --> "fsformatting convert"
   - For command line tool, "fsformatting metadata-format generate" --> "fsformatting generate"
@@ -208,7 +208,7 @@
 
 ## 2.8.0 (and before 20 April, 2015)
 * 1.0.15 - Added latex support, tables and better formatting with line numbers
-* 2.0.0 - New project structure, adding MetadataFormat
+* 2.0.0 - New project structure, adding ApiDocs
 * 2.0.1 - Fixed handling of # in headers
 * 2.0.2 - Change tool tip font for better readability
 * 2.0.3 - Fixed Markdown escaping, nested modules and types in FsHtmlDoc
@@ -275,7 +275,7 @@
 * 2.4.27 - Better mono support and new logo.
 * 2.4.28 - Fix dependencies
 * 2.4.29 - Revert
-* 2.4.30 - Fsharp.Formatting MetadataFormat no longer crashes on C# dlls
+* 2.4.30 - Fsharp.Formatting ApiDocs no longer crashes on C# dlls
 * 2.4.31 - Basic cache for RazorRender instances in FSharp.Formatting.Literate
 * 2.4.32 - Fixed regressions introduced by latest FCS
 * 2.4.33 - Fix cache using incomplete key

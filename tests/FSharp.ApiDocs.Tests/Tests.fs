@@ -1,10 +1,10 @@
 [<NUnit.Framework.TestFixture>]
-module FSharp.MetadataFormat.Tests
+module FSharp.ApiDocs.Tests
 
 open FsUnit
 open System.IO
 open NUnit.Framework
-open FSharp.Formatting.MetadataFormat
+open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Razor
 open FsUnitTyped
 
@@ -46,7 +46,7 @@ let info =
 
 let generate (libraries:string list) useMarkdown =
     try let output = getOutputDir ()
-        let metadata = MetadataFormat.GenerateReplacements (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
+        let metadata = ApiDocs.GenerateApiDocsModel (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
         RazorMetadataFormat.Generate (metadata, output, layoutRoots)
 
         let fileNames = Directory.GetFiles(output)
@@ -66,7 +66,7 @@ let generate (libraries:string list) useMarkdown =
 do FSharp.Formatting.TestHelpers.enableLogging()
 
 [<Test>]
-let ``MetadataFormat works on sample Deedle assembly``() =
+let ``ApiDocs works on sample Deedle assembly``() =
   let library = root </> "files" </> "Deedle.dll"
   let output = getOutputDir()
 
@@ -84,7 +84,7 @@ let ``MetadataFormat works on sample Deedle assembly``() =
 
 
 [<Test; Ignore "Ignore by default to make tests run reasonably fast">]
-let ``MetadataFormat works on sample FAKE assembly``() =
+let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir()
   RazorMetadataFormat.Generate([library], output, layoutRoots, info)
@@ -93,7 +93,7 @@ let ``MetadataFormat works on sample FAKE assembly``() =
 
 
 [<Test>]
-let ``MetadataFormat works on two sample F# assemblies``() =
+let ``ApiDocs works on two sample F# assemblies``() =
   let libraries =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
@@ -143,7 +143,7 @@ let ``MetadataFormat works on two sample F# assemblies``() =
   files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultPartial arg1 arg2"
 
 [<Test>]
-let ``MetadataFormat generates Go to GitHub source links``() =
+let ``ApiDocs generates Go to GitHub source links``() =
   let libraries =
     [ testBin  </> "FsLib1.dll"
       testBin  </> "FsLib2.dll" ] |> fullpaths
@@ -156,14 +156,14 @@ let ``MetadataFormat generates Go to GitHub source links``() =
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
-  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib2/Library2.fs#L"
+  files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib2/Library2.fs#L"
   files.["fslib-record.html"] |> shouldContainText "github-link"
-  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
+  files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
   files.["fslib-union.html"] |> shouldContainText "github-link"
-  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.MetadataFormat.Tests/files/FsLib1/Library1.fs#L"
+  files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
 
 [<Test>]
-let ``MetadataFormat test that cref generation works``() =
+let ``ApiDocs test that cref generation works``() =
   let libraries =
     [ testBin  </> "crefLib1.dll"
       testBin  </> "crefLib2.dll"
@@ -232,7 +232,7 @@ let ``MetadataFormat test that cref generation works``() =
   files.["creflib2-class8.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
 
 [<Test>]
-let ``MetadataFormat test that csharp (publiconly) support works``() =
+let ``ApiDocs test that csharp (publiconly) support works``() =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir()
@@ -286,7 +286,7 @@ let ``MetadataFormat test that csharp (publiconly) support works``() =
 
 [<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/fsprojects/FSharp.Formatting/pull/259" >]
 [<Test>]
-let ``MetadataFormat test that csharp support works``() =
+let ``ApiDocs test that csharp support works``() =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir()
@@ -334,7 +334,7 @@ let ``MetadataFormat test that csharp support works``() =
   files.["csharpsupport-samplestaticclass.html"] |> shouldContainText "My_Private_Static_Event"
 
 [<Test>]
-let ``MetadataFormat process XML comments in two sample F# assemblies``() =
+let ``ApiDocs process XML comments in two sample F# assemblies``() =
   let libraries =
     [ testBin  </> "TestLib1.dll"
       testBin </> "TestLib2.dll" ] |> fullpaths
@@ -353,7 +353,7 @@ let ``MetadataFormat process XML comments in two sample F# assemblies``() =
   files.["fslib-nested-submodule.html"] |> shouldContainText "Very nested field"
 
 [<Test>]
-let ``MetadataFormat highlights code snippets in Markdown comments``() =
+let ``ApiDocs highlights code snippets in Markdown comments``() =
   let library = testBin </> "TestLib1.dll" |> fullpath
   //RazorMetadataFormat.Generate([library], output, layoutRoots, info, libDirs = [root </> "../../lib"], markDownComments = true)
 
@@ -364,7 +364,7 @@ let ``MetadataFormat highlights code snippets in Markdown comments``() =
   files.["fslib-myclass.html"] |> shouldContainText """val a : FsLib.MyClass"""
 
 [<Test>]
-let ``MetadataFormat handles c# dlls`` () =
+let ``ApiDocs handles c# dlls`` () =
   let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
   //RazorMetadataFormat.Generate
   //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
@@ -375,7 +375,7 @@ let ``MetadataFormat handles c# dlls`` () =
   optIndex.IsSome |> shouldEqual true
 
 [<Test>]
-let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
+let ``ApiDocs processes C# types and includes xml comments in docs`` () =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     //RazorMetadataFormat.Generate
@@ -387,7 +387,7 @@ let ``MetadataFormat processes C# types and includes xml comments in docs`` () =
     files.["index.html"] |> shouldContainText "Provides a base class for formatting languages similar to C."
 
 [<Test>]
-let ``MetadataFormat processes C# properties on types and includes xml comments in docs`` () =
+let ``ApiDocs processes C# properties on types and includes xml comments in docs`` () =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
     let files = generate [library] false
@@ -396,7 +396,7 @@ let ``MetadataFormat processes C# properties on types and includes xml comments 
     files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "Regular expression string to match single line and multi-line"
 
 [<Test>]
-let ``MetadataFormat generates module link in nested types``() =
+let ``ApiDocs generates module link in nested types``() =
 
   let library =  testBin  </> "FsLib2.dll"
 
@@ -428,7 +428,7 @@ open System.Diagnostics
 open FSharp.Formatting.Common
 
 [<Test>]
-let ``MetadataFormat omit works without markdown``() =
+let ``ApiDocs omit works without markdown``() =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
   let files = generate [library] false
@@ -436,7 +436,7 @@ let ``MetadataFormat omit works without markdown``() =
   files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 [<Test>]
-let ``MetadataFormat test FsLib1``() =
+let ``ApiDocs test FsLib1``() =
   let library = testBin </> "FsLib1.dll" |> fullpath
 
   let files = generate [library] false
@@ -505,35 +505,35 @@ runtest ``Metadata generates cross-type links for Inline Code``;;
 printfn "Metadata generates cross-type links for Indirect Links"
 runtest ``Metadata generates cross-type links for Indirect Links``;;
 
-printfn "MetadataFormat test FsLib1"
-runtest ``MetadataFormat test FsLib1``;;
+printfn "ApiDocs test FsLib1"
+runtest ``ApiDocs test FsLib1``;;
 
-printfn "MetadataFormat omit works without markdown"
-runtest ``MetadataFormat omit works without markdown``;;
+printfn "ApiDocs omit works without markdown"
+runtest ``ApiDocs omit works without markdown``;;
 
-printfn "MetadataFormat generates module link in nested types"
-runtest ``MetadataFormat generates module link in nested types``;;
-runtest ``MetadataFormat processes C# properties on types and includes xml comments in docs``;;
+printfn "ApiDocs generates module link in nested types"
+runtest ``ApiDocs generates module link in nested types``;;
+runtest ``ApiDocs processes C# properties on types and includes xml comments in docs``;;
 
-printfn "MetadataFormat handles c# dlls"
-runtest ``MetadataFormat handles c# dlls``;;
+printfn "ApiDocs handles c# dlls"
+runtest ``ApiDocs handles c# dlls``;;
 
-printfn "MetadataFormat highlights code snippets in Markdown comments"
-runtest ``MetadataFormat highlights code snippets in Markdown comments``;;
+printfn "ApiDocs highlights code snippets in Markdown comments"
+runtest ``ApiDocs highlights code snippets in Markdown comments``;;
 
-printfn "MetadataFormat process XML comments in two sample F# assemblies"
-runtest ``MetadataFormat process XML comments in two sample F# assemblies``;;
+printfn "ApiDocs process XML comments in two sample F# assemblies"
+runtest ``ApiDocs process XML comments in two sample F# assemblies``;;
 
-printfn "MetadataFormat works on sample Deedle assembly"
-runtest ``MetadataFormat works on sample Deedle assembly``;;
+printfn "ApiDocs works on sample Deedle assembly"
+runtest ``ApiDocs works on sample Deedle assembly``;;
 
-printfn "MetadataFormat works on two sample F# assemblies"
-runtest ``MetadataFormat works on two sample F# assemblies``;;
+printfn "ApiDocs works on two sample F# assemblies"
+runtest ``ApiDocs works on two sample F# assemblies``;;
 
-printfn "MetadataFormat test that csharp (publiconly) support works"
-runtest ``MetadataFormat test that csharp (publiconly) support works``;;
+printfn "ApiDocs test that csharp (publiconly) support works"
+runtest ``ApiDocs test that csharp (publiconly) support works``;;
 
-printfn "MetadataFormat test that cref generation works"
-runtest ``MetadataFormat test that cref generation works``;;
+printfn "ApiDocs test that cref generation works"
+runtest ``ApiDocs test that cref generation works``;;
 
 #endif

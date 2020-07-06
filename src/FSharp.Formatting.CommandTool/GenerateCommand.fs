@@ -1,8 +1,8 @@
-namespace FSharp.Formatting.Options.MetadataFormat
+namespace FSharp.Formatting.Options.ApiDocs
 
 open CommandLine
 open CommandLine.Text
-open FSharp.Formatting.MetadataFormat
+open FSharp.Formatting.ApiDocs
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options

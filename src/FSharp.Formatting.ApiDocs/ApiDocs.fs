@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.MetadataFormat
+namespace FSharp.Formatting.ApiDocs
 
 open System
 open System.Reflection
@@ -1464,16 +1464,14 @@ module Reader =
 // Main - generating HTML
 // ------------------------------------------------------------------------------------------------
 
-open System.IO
-
-type GeneratorOutput = {
+type ApiDocsModel = {
   AssemblyGroup      : AssemblyGroup
   ModuleInfos        : ModuleInfo list
   TypesInfos         : TypeInfo list
   Properties         : (string * IDictionary<string, string>) list
 }
 
-/// For use in the tempaltes (lives in namespace FSharp.Formatting.MetadataFormat)
+/// For use in the templates 
 type Html private() =
   static let mutable uniqueNumber = 0
   static member UniqueID() =
@@ -1500,10 +1498,10 @@ type Html private() =
 ///    specify references explicitly etc.)
 ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
 ///
-type MetadataFormat =
+type ApiDocs =
 
   /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  static member GenerateReplacements(dllFiles: seq<string>, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
+  static member GenerateApiDocsModel(dllFiles: seq<string>, ?parameters, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -1639,8 +1637,3 @@ type MetadataFormat =
       Properties = props
     }
 
-  ///// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  //static member Generate(dllFiles : _ seq, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
-  //   MetadataFormat.GenerateReplacements(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
-  //      ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
-  //  |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
