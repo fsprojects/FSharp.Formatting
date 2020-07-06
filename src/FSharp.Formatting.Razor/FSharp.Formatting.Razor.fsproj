@@ -19,13 +19,13 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.MetadataFormat\FSharp.Formatting.MetadataFormat.fsproj" PrivateAssets="All" />
+    <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- ugly hack: inline p2p libraries in NuGet package
          workaround for https://github.com/NuGet/Home/issues/3891 -->
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.MetadataFormat.*" PackagePath="lib/$(TargetFramework)" />
+    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.ApiDocs.*" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <!-- Since Paket.Restore.targets isn't capable of expressing this,

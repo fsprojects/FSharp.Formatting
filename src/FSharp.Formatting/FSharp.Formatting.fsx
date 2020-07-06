@@ -15,7 +15,7 @@
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.Literate.dll"
 #r "FSharp.Formatting.CodeFormat.dll"
-#r "FSharp.Formatting.MetadataFormat.dll"
+#r "FSharp.Formatting.ApiDocs.dll"
 
 // Setup Logging for FSharp.Formatting and Yaaf.FSharp.Scripting
 module Logging = FSharp.Formatting.Common.Log

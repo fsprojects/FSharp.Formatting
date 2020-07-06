@@ -1,5 +1,5 @@
 open FSharp.Formatting.Options.Literate
-open FSharp.Formatting.Options.MetadataFormat
+open FSharp.Formatting.Options.ApiDocs
 open CommandLine
 
 

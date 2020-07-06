@@ -1,6 +1,6 @@
 namespace FSharp.Formatting.Razor
 
-open FSharp.Formatting.MetadataFormat
+open FSharp.Formatting.ApiDocs
 open FSharp.Formatting
 open FSharp.Formatting.Literate
 open FSharp.Formatting.Common
@@ -37,9 +37,9 @@ open System.IO
 ///    specify references explicitly etc.)
 ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
 ///
-type RazorMetadataFormat private() =
+type RazorApiDocs private() =
 
-  static let generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences generatorOutput =
+  static let generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences (generatorOutput: ApiDocsModel) =
     let (@@) a b = Path.Combine(a, b)
 
     let namespaceTemplate = defaultArg namespaceTemplate "namespaces.cshtml"
@@ -53,7 +53,7 @@ type RazorMetadataFormat private() =
 
     // Generate all the HTML stuff
     Log.infof "Starting razor engine"
-    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.Formatting.MetadataFormat"], namespaceTemplate, ?references = assemblyReferences)
+    let razor = RazorRender<AssemblyGroup>(layoutRoots, ["FSharp.Formatting.ApiDocs"], namespaceTemplate, ?references = assemblyReferences)
 
     Log.infof "Generating: index.html"
     let out = razor.ProcessFile(asm, props)
@@ -61,7 +61,7 @@ type RazorMetadataFormat private() =
 
     // Generate documentation for all modules
     Log.infof "Generating modules..."
-    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.Formatting.MetadataFormat"], moduleTemplate, ?references = assemblyReferences)
+    let razor = RazorRender<ModuleInfo>(layoutRoots, ["FSharp.Formatting.ApiDocs"], moduleTemplate, ?references = assemblyReferences)
 
     for modulInfo in moduleInfos do
       Log.infof "Generating module: %s" modulInfo.Module.UrlName
@@ -72,7 +72,7 @@ type RazorMetadataFormat private() =
     Log.infof "Generating types..."
 
     // Generate documentation for all types
-    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.Formatting.MetadataFormat"], typeTemplate, ?references = assemblyReferences)
+    let razor = new RazorRender<TypeInfo>(layoutRoots, ["FSharp.Formatting.ApiDocs"], typeTemplate, ?references = assemblyReferences)
 
     for typInfo in typesInfos do
       Log.infof "Generating type: %s" typInfo.Type.UrlName
@@ -81,13 +81,13 @@ type RazorMetadataFormat private() =
       Log.infof "Finished type: %s" typInfo.Type.UrlName
 
 
-  /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
-  static member Generate(dllFiles : _ seq, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
-     MetadataFormat.GenerateReplacements(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
+  /// Generates documentation for multiple files specified by the `dllFiles` parameter
+  static member Generate(dllFiles : seq<string>, outDir, layoutRoots, ?parameters, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate, ?xmlFile, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?assemblyReferences) =
+     ApiDocs.GenerateModel(dllFiles, ?parameters = parameters, ?xmlFile = xmlFile, ?sourceRepo = sourceRepo, ?sourceFolder = sourceFolder,
         ?publicOnly = publicOnly, ?libDirs = libDirs, ?otherFlags = otherFlags, ?markDownComments = markDownComments, ?urlRangeHighlight = urlRangeHighlight)
     |> generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences
 
-  static member Generate(generatedMetadata:MetadataFormat.GeneratorOutput, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
+  static member Generate(generatedMetadata: ApiDocs.ApiDocsModel, outDir, layoutRoots, ?namespaceTemplate, ?moduleTemplate, ?typeTemplate,?assemblyReferences) =
         generate namespaceTemplate moduleTemplate typeTemplate layoutRoots outDir assemblyReferences generatedMetadata
 
 
