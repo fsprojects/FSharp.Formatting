@@ -58,23 +58,27 @@ type Literate private () =
     | Some c -> c ctx doc
     | None -> doc
 
-  static let replaceParameters (contentTag:string) (parameters:seq<string * string>) input =
+  static let replaceParameters (contentTag:string) (parameters:seq<string * string>) (input: string option) =
     match input with
     | None ->
-        // If there is no template, return just document + tooltips
+        // If there is no template, return just document + tooltips (empty if not HTML)
         let lookup = parameters |> dict
         lookup.[contentTag] + "\n\n" + lookup.["tooltips"]
     | Some input ->
         // First replace keys with some uglier keys and then replace them with values
         // (in case one of the keys appears in some other value)
         let id = System.Guid.NewGuid().ToString("d")
-        let input = parameters |> Seq.fold (fun (html:string) (key, value) ->
-          html.Replace("{" + key + "}", "{" + key + id + "}")) input
-        let result = parameters |> Seq.fold (fun (html:string) (key, value) ->
-          html.Replace("{" + key + id + "}", value)) input
+        let input =
+            (input, parameters) ||> Seq.fold (fun html (key, value) ->
+              let key1 = "{{" + key + "}}"
+              let key2 = "{" + key + "}"
+              let rkey = "{" + key + id + "}"
+              html.Replace(key1, rkey).Replace(key2, rkey)) 
+        let result = (input, parameters) ||> Seq.fold (fun html (key, value) ->
+          html.Replace("{" + key + id + "}", value)) 
         result
 
-  static member GenerateFile (references, contentTag, parameters, templateOpt, output) =
+  static member GenerateFile (contentTag, parameters, templateOpt, output) =
     let templateOpt = templateOpt |> Option.map File.ReadAllText
     File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
 
@@ -84,7 +88,7 @@ type Literate private () =
 
   /// Parse F# Script file
   static member ParseScriptFile
-    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
+    (path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile path (File.ReadAllText path) ctx
     |> transform references
@@ -93,7 +97,7 @@ type Literate private () =
 
   /// Parse F# Script file
   static member ParseScriptString
-    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
+    (content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseScript.parseScriptFile (defaultArg path "C:\\Document.fsx") content ctx
     |> transform references
@@ -102,7 +106,7 @@ type Literate private () =
 
   /// Parse Markdown document
   static member ParseMarkdownFile
-    ( path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
+    (path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path)
     |> transform references
@@ -111,7 +115,7 @@ type Literate private () =
 
   /// Parse Markdown document
   static member ParseMarkdownString
-    ( content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator ) =
+    (content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator) =
     let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content
     |> transform references
@@ -176,54 +180,54 @@ type Literate private () =
 
   /// Process the given literate document
   static member GenerateReplacementsForDocument
-    ( doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?tokenKindToCss) =
+    (doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?tokenKindToCss) =
     let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     Templating.processFile doc output ctx
 
   /// Process Markdown document
   static member GenerateReplacementsForMarkdown
-    ( input, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss ) =
+    (input, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
     let doc =
       Literate.ParseMarkdownFile
-        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
-          ?references = references )
+        (input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
+          ?references = references)
     let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
   /// Process F# Script file
   static member GenerateReplacementsForScriptFile
-    ( input,?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (input,?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
-      ?generateAnchors, ?customizeDocument, ?tokenKindToCss ) =
+      ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
     let doc =
       Literate.ParseScriptFile
-        ( input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
-          ?references = references, ?fsiEvaluator = fsiEvaluator )
+        (input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
+          ?references = references, ?fsiEvaluator = fsiEvaluator)
     let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
   /// Process directory containing a mix of Markdown documents and F# Script files
   static member GenerateReplacementsForDirectory
-    ( inputDirectory, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors, ?processRecursive, ?customizeDocument, ?tokenKindToCss ) =
+    (inputDirectory, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors, ?processRecursive, ?customizeDocument, ?tokenKindToCss) =
 
     let processRecursive = defaultArg processRecursive true
 
     // Call one or the other process function with all the arguments
     let processScriptFile file output =
       Literate.GenerateReplacementsForScriptFile
-        ( file, output = output, ?format = format,
+        (file, output = output, ?format = format,
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
           ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-          ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss )
+          ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
 
     let processMarkdown file output =
       Literate.GenerateReplacementsForMarkdown
-        ( file, output = output, ?format = format,
+        (file, output = output, ?format = format,
           ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
           ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
           ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
@@ -261,49 +265,49 @@ type Literate private () =
     processDirectory inputDirectory outputDirectory
 
   static member ConvertDocument
-    ( doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?assemblyReferences) =
+    (doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements) =
       let res =
           Literate.GenerateReplacementsForDocument
-              (doc, output, ?format = format, ?prefix = prefix, ?lineNumbers = lineNumbers,
-               ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?replacements = replacements)
-      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
+              (doc, output, ?format=format, ?prefix=prefix, ?lineNumbers=lineNumbers,
+               ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?replacements=replacements)
+      Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, output)
 
   static member ConvertMarkdown
-    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors,
-      ?assemblyReferences, ?customizeDocument ) =
+      ?customizeDocument) =
 
       let res =
           Literate.GenerateReplacementsForMarkdown
-              (input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-               ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-               ?replacements = replacements, ?customizeDocument = customizeDocument )
-      let output = defaultOutput output input format
-      Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
+              (input ,?output=output, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
+               ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
+               ?replacements=replacements, ?customizeDocument=customizeDocument)
+      let output=defaultOutput output input format
+      Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, output)
 
   static member ConvertScriptFile
-    ( input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
-      ?generateAnchors, ?assemblyReferences, ?customizeDocument ) =
+      ?generateAnchors, ?customizeDocument) =
         let res =
             Literate.GenerateReplacementsForScriptFile
-                (input ,?output = output, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-                 ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-                 ?replacements = replacements, ?customizeDocument = customizeDocument, ?fsiEvaluator = fsiEvaluator )
-        let output = defaultOutput output input format
-        Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, output)
+                (input ,?output=output, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
+                 ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
+                 ?replacements=replacements, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator)
+        let output=defaultOutput output input format
+        Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, output)
 
   static member ConvertDirectory
-    ( inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors,
-      ?assemblyReferences, ?processRecursive, ?customizeDocument  ) =
-        let outputDirectory = defaultArg outputDirectory inputDirectory
+      ?processRecursive, ?customizeDocument) =
+        let outputDirectory=defaultArg outputDirectory inputDirectory
 
         let res =
             Literate.GenerateReplacementsForDirectory
-                (inputDirectory, outputDirectory, ?format = format, ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-                 ?lineNumbers = lineNumbers, ?references = references, ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-                 ?replacements = replacements, ?customizeDocument = customizeDocument, ?processRecursive = processRecursive, ?fsiEvaluator = fsiEvaluator)
+                (inputDirectory, outputDirectory, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
+                 ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
+                 ?replacements=replacements, ?customizeDocument=customizeDocument, ?processRecursive=processRecursive, ?fsiEvaluator=fsiEvaluator)
 
         for (path, res) in res do
-            Literate.GenerateFile(assemblyReferences, res.ContentTag, res.Parameters, templateFile, path)
+            Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, path)

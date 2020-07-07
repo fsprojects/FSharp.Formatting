@@ -115,6 +115,7 @@ Typical literate setup
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.CodeFormat.dll"
 #r "FSharp.Formatting.Literate.dll"
+#r "FSharp.Formatting.DotLiquid.dll"
 
 (**
 For literate programming support in your project, install the `FSharp.Formatting` nuget package.
@@ -158,13 +159,16 @@ but you can use your own. If no template is provided, the result is simply the H
 of the document with HTML for tool tips appended to the end.
 
 The template should include two parameters that will be replaced with the actual
-HTML: `{document}` will be replaced with the formatted document; `{tooltips}` will be
+HTML: `{document}` or `{{document}} will be replaced with the formatted document;
+`{tooltips}` or `{{tooltips}}` will be
 replaced with (hidden) `<div>` elements containing code for tool tips that appear
 when you place mouse pointer over an identifier. Optionally, you can also use 
-`{page-title}` which will be replaced with the text in a first-level heading.
+`{page-title}` or `{{page-title}}` which will be replaced with the text in a first-level heading.
 The template should also reference `style.css` and `tips.js` that define CSS style
 and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
 and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
+
+You may also use DotLiquid for templating literate files, see below.
 
 Assuming you have `template.html` in the current directory, you can write:
 *)
@@ -257,7 +261,7 @@ let scriptPynb = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(scriptPynb, format = OutputKind.Pynb)
 
 let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docPynb, template, format = OutputKind.Pynb)
+Literate.ConvertMarkdown(docPynb, format = OutputKind.Pynb)
 
 Literate.ConvertDirectory( source, source + "/output", format = OutputKind.Pynb)
 
@@ -296,9 +300,20 @@ version of the F# compiler:
  - `generateAnchors` - when `true`, the generated HTML will automatically include
    anchors for all headings (and so you can click on headings to get a link
    to a section). The default value is `false`.
- - `assemblyReferences` - Extra assemblies to use when processing scripts
-   (if not specified, we use the currently loaded assemblies).
  - `customizeDocument` - Allows you to customize the document before writing it 
    to the output file. This gives you the opportunity to use your own
    code formatting code, for example to support syntax highlighting for another language. 
+
+## Using DotLiquid templating
+
+By default templating is done using simple substitution of tags such as `{document}`.
+You can also use [DotLiquid](http://dotliquidmarkup.org/) for templating:
+*)
+open FSharp.Formatting.DotLiquid
+let script = Path.Combine(source, "../docs/script.fsx")
+let template = Path.Combine(source, "template.liquid")
+Literate.ConvertScriptFileWithDotLiquid(script, template)
+
+(**
+
 *)

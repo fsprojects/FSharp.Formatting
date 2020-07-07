@@ -7,7 +7,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="AttributeTests.fs" />
-    <Compile Include="Tests.fs" />
+    <Compile Include="ApiDocsTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />

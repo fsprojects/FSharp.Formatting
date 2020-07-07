@@ -21,7 +21,9 @@ First, we need to load the assembly and open necessary namespaces:
 *)
 
 #r "FSharp.Formatting.ApiDocs.dll"
+#r "FSharp.Formatting.DotLiquid.dll"
 open FSharp.Formatting.ApiDocs
+open FSharp.Formatting.DotLiquid
 open System.IO
 
 (**
@@ -32,10 +34,10 @@ output directory and directory with DotLiquid templates.
 Assuming `root` is the root directory for your project, you can write:
 *)
 
-ApiDocs.Generate
-  ( Path.Combine(root, "bin/YourLibrary.dll"), 
-    Path.Combine(root, "output"),
-    [ Path.Combine(root, "templates") ] )
+ApiDocs.GenerateWithDotLiquid
+  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
+    outDir=Path.Combine(root, "output"),
+    templatesDir=Path.Combine(root, "templates") )
 
 (**
 Adding Go to GitHub source links
@@ -46,10 +48,10 @@ and `sourceFolder` to the folder where your DLLs are built.
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 *)
 
-ApiDocs.Generate
-  ( Path.Combine(root, "bin/YourLibrary.dll"), 
-    Path.Combine(root, "output"),
-    [ Path.Combine(root, "templates") ],
+ApiDocs.GenerateWithDotLiquid
+  ( [Path.Combine(root, "bin/YourLibrary.dll")], 
+    outDir=Path.Combine(root, "output"),
+    templatesDir=Path.Combine(root, "templates"),
     sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting" )
     
@@ -123,10 +125,10 @@ By default `FSharp.Formatting` will expect Markdown documentation comments, to p
 pass the named argument `markDownComments` with value `false`.
 *)
 
-ApiDocs.Generate
+ApiDocs.GenerateWithDotLiquid
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
-    [ Path.Combine(root, "templates") ],
+    templatesDir=Path.Combine(root, "templates"),
     sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
 (**
@@ -150,7 +152,7 @@ parameters that can be used to tweak how the formatting works:
 
 
   - `outDir` - specifies the output directory where documentation should be placed
-  - `layoutRoots` - a list of paths where DotLiquid templates can be found
+  - `templatesDir` - a path where DotLiquid templates and partials can be found
   - `parameters` - provides additional parameters to the DotLiquid templates
   - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
      the file has the same name as the DLL)

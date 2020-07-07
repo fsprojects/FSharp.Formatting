@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>@Title</title>
+    <title>{{ page-title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{{ description }}">
     <meta name="author" content="{{ project-author }}">
@@ -31,7 +31,8 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          @RenderBody()
+          {{ document }}
+          {{ tooltips }}
         </div>
         <div class="span3">
           <a href="{{ root }}/index.html">

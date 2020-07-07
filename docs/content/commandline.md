@@ -63,7 +63,7 @@ the meta-data from the `*.dll` files of the package and using the XML comments f
 
   * `--dlls` -  List of `dll` input files.
   * `--output` -  Output directory.
-  * `--layoutRoots` -  Search directory list for the DotLiquid Engine templates.
+  * `--templatesDir` -  Directory for the DotLiquid Engine partials.
 
 ### Other options
 
@@ -87,7 +87,7 @@ According to the previous section, a minimum configuration for generating the li
 could be configured by: 
 
     [lang=text]
-    fsformatting generate --generate --dlls lib1.dll "lib 2.dll" --output "../api-docs" --layoutRoots templates
+    fsformatting generate --generate --dlls lib1.dll "lib 2.dll" --output "../api-docs" --templatesDir partials
 
 The following underlying configuration assumptions need to be considered when you adapt this example to your own project:
 
@@ -108,7 +108,7 @@ you copy this file into the subdirectory `templates` of your working directory a
     fsformatting generate
       --dlls lib1.dll "lib 2.dll" 
       --output "../api-docs" 
-      --layoutRoots templates
+      --templatesDir templates
       --parameters "page-author" "Your name(s)"
                     "page-description" "A package for ..."
 	                "github-link" "http://github.com/yourname/project"

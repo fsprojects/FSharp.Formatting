@@ -1,5 +1,5 @@
 [<NUnit.Framework.TestFixture>]
-module FSharp.Formatting.ApiDocs.AttributeTests
+module ApiDocs.AttributeTests
 
 open FsUnit
 open System.IO

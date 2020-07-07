@@ -7,6 +7,7 @@ open System.Text
 open System.IO
 open System.Xml
 open System.Xml.Linq
+open System.Runtime.CompilerServices
 
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Range
@@ -189,17 +190,22 @@ type Member =
   {
     /// Name of the member
     Name : string
+
     /// The declared attributes of the member
     Attributes : Attribute list
+
     /// The category
     Category : string
+
     /// The kind of the member
     Kind : MemberKind
+
     /// Additional details
     Details : MemberOrValue
+
     /// The attached comment
     Comment : Comment
-    }
+  }
   static member Create(name, attributes, kind, cat, details, comment) =
     { Member.Name = name; Kind = kind; Attributes = attributes
       Category = cat; Details = details; Comment = comment }
@@ -227,33 +233,43 @@ type Type =
   {
     /// The name of the type
     Name : string
+
     /// The category of the type
     Category :string
+
     /// The url
     UrlName : string
+
     /// The attached comment
     Comment : Comment
+
     /// The name of the type's assembly
     Assembly : AssemblyName
+
     /// The declared attributes of the type
     Attributes : Attribute list
 
     /// The cases of a union type
     UnionCases : Member list
+
     /// The fields of a record type
     RecordFields : Member list
+
     /// Static parameters
     StaticParameters : Member list
 
     /// All members of the type
     AllMembers : Member list
+
     /// The constuctorsof the type
     Constructors : Member list
+
     /// The instance members of the type
     InstanceMembers : Member list
+
     /// The static members of the type
     StaticMembers : Member list
-    }
+  }
   static member Create(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat) =
     { Type.Name = name
       Category = cat
@@ -283,12 +299,16 @@ type Module =
   {
     /// The name of the module
     Name : string
+
     /// The category of the module
     Category : string
+
     /// The url
     UrlName : string
+
     /// The attached comment
     Comment : Comment
+
     /// The name of the modules assembly
     Assembly : AssemblyName
 
@@ -300,16 +320,19 @@ type Module =
 
     /// All nested modules
     NestedModules : Module list
+
     /// All nested types
     NestedTypes : Type list
 
     /// Values and functions of the module
     ValuesAndFuncs : Member list
+
     /// Type extensions of the module
     TypeExtensions : Member list
+
     /// Active patterns of the module
     ActivePatterns : Member list
-    }
+  }
   static member Create(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats) =
     { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly; Category = cat; Attributes = attributes
       AllMembers = List.concat [ vals; exts; pats ]
@@ -330,8 +353,10 @@ type Namespace =
   {
     /// The name of the namespace
     Name : string
+
     /// All modules in the namespace
     Modules : Module list
+
     /// All types in the namespace
     Types : Type list
   }
@@ -342,22 +367,28 @@ type AssemblyGroup =
   {
     /// Name of the group
     Name : string
+
     /// All assemblies in the group
     Assemblies : AssemblyName list
+
     /// All namespaces in the group
     Namespaces : Namespace list
   }
   static member Create(name, asms, nss) =
     { AssemblyGroup.Name = name; Assemblies = asms; Namespaces = nss }
+
 /// Highlevel information about a module
 type ModuleInfo =
   {
     /// The actual module
     Module : Module
+
     /// The assembly group the module belongs to
     Assembly : AssemblyGroup
+
     /// The namespace the module belongs to
     Namespace : Namespace
+
     /// The parent module, if any.
     ParentModule : Module option
   }
@@ -370,27 +401,31 @@ type TypeInfo =
   {
     /// The actual type
     Type : Type
+
     /// The assembly group the type belongs to
     Assembly : AssemblyGroup
+
     /// The namespace the type belongs to
     Namespace : Namespace
+
     /// The parent module, if any.
     ParentModule : Module option
   }
   member this.HasParentModule = this.ParentModule.IsSome
+
   static member Create(typ, asm, ns, modul) =
     { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; ParentModule = modul }
 
 /// [omit]
-[<System.Runtime.CompilerServices.Extension>]
+[<Extension>]
 module ExtensionMethods =
-   [<System.Runtime.CompilerServices.Extension>]
+   [<Extension>]
    let Exists(opt : Module option) = opt.IsSome
 
 module ValueReader =
-  open System.Collections.ObjectModel
   type CrefReference =
     { IsInternal : bool; ReferenceLink : string; NiceName : string }
+
   type IUrlHolder =
     abstract RegisterEntity : FSharpEntity -> unit
     abstract GetUrl : FSharpEntity -> string
@@ -407,10 +442,12 @@ module ValueReader =
       AssemblyPath : string
       CompilerOptions : string
       FormatAgent : CodeFormatAgent }
+
     member x.XmlMemberLookup(key) =
       match x.XmlMemberMap.TryGetValue(key) with
       | true, v -> Some v
       | _ -> None
+
     static member Create
         ( publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap,
           assemblyPath, compilerOptions, formatAgent ) =
@@ -667,39 +704,6 @@ module ValueReader =
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
     MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location, getCompiledName v)
 
-    (*
-
-    let docL =
-        let afterDocs =
-            [ let argCount = ref 0
-              for xs in argInfos do
-                for x in xs do
-                    incr argCount
-                    yield layoutArgUsage true !argCount x
-
-              if not v.IsGetterMethod && not v.IsSetterMethod && retType.IsSome then
-                  yield wordL "returns" ++ retTypeL
-              match layoutConstraints denv () cxs with
-              | None ->  ()
-              | Some cxsL -> yield cxsL ]
-        match afterDocs with
-        | [] -> emptyL
-        | _ -> (List.reduce (@@) [ yield wordL ""; yield! afterDocs ])
-
-    let noteL =
-        let noteDocs =
-            [ if cxs |> List.exists (snd >> List.exists (fun cx -> cx.IsMemberConstraint)) then
-                  yield (wordL "Note: this operator is overloaded")  ]
-        match noteDocs with
-        | [] -> emptyL
-        | _ -> (List.reduce (@@) [ yield wordL ""; yield! noteDocs ])
-
-    let usageL = if v.IsSetterMethod then usageL --- wordL "<- v" else usageL
-
-    //layoutAttribs denv v.Attributes
-    usageL  , docL, noteL
-    *)
-
   let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
     let formatFieldUsage (field:FSharpField) =
         if field.Name.StartsWith("Item") then
@@ -747,7 +751,6 @@ module ValueReader =
 module Reader =
   open FSharp.Formatting.Markdown
   open FSharp.Formatting.Literate
-  open System.IO
   open ValueReader
 
   // ----------------------------------------------------------------------------------------------

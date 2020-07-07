@@ -180,9 +180,9 @@ let createArg argName arguments =
     |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
-let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parameters sourceRepo =
+let commandToolMetadataFormatArgument dllFiles outDir templatesDir libDirs parameters sourceRepo =
     let dllFilesArg = createArg "dlls" dllFiles
-    let layoutRootsArgs = createArg "layoutRoots" layoutRoots
+    let templatesDirArg = createArg "templatesDir" templatesDir
     let libDirArgs = createArg "libDirs" libDirs
 
     let parametersArg =
@@ -196,31 +196,31 @@ let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parame
         | _ -> ""
 
     sprintf "generate %s %s %s %s %s %s"
-        dllFilesArg (createArg "output" [outDir]) layoutRootsArgs libDirArgs parametersArg
+        dllFilesArg (createArg "output" [outDir]) templatesDirArg libDirArgs parametersArg
         reproAndFolderArg
 
-let commandToolLiterateArgument inDir outDir layoutRoots parameters =
+let commandToolLiterateArgument inDir outDir templatesDir parameters =
     let inDirArg = createArg "input" [ inDir ]
     let outDirArg = createArg "output" [ outDir ]
 
-    let layoutRootsArgs = createArg "layoutRoots" layoutRoots
+    let templatesDirArg = createArg "templatesDir" templatesDir
 
     let replacementsArgs =
         parameters
         |> Seq.collect (fun (key, value) -> [key; value])
         |> createArg "replacements"
 
-    sprintf "convert %s %s %s %s" inDirArg outDirArg layoutRootsArgs replacementsArgs
+    sprintf "convert %s %s %s %s" inDirArg outDirArg templatesDirArg replacementsArgs
 
 
 Target.create "DogFoodCommandTool" (fun _ ->
     // generate metadata reference
     let dllFiles =
       [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll"; "FSharp.Formatting.ApiDocs.dll"; "FSharp.Formatting.DotLiquid.dll" ]
+        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll";
+        "FSharp.Formatting.ApiDocs.dll"; "FSharp.Formatting.DotLiquid.dll" ]
 
-    let layoutRoots =
-      [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
+    let templatesDir = "misc/templates/reference"
     let libDirs = [ "bin/" ]
     let parameters =
       [ "page-author", "Matthias Dittrich"
@@ -232,15 +232,13 @@ Target.create "DogFoodCommandTool" (fun _ ->
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
         "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
     Shell.cleanDir "temp/api_docs"
-    let metadataReferenceArgs =
-        commandToolMetadataFormatArgument
-            dllFiles "temp/api_docs" layoutRoots libDirs parameters None
+    let metadataReferenceArgs = commandToolMetadataFormatArgument dllFiles "temp/api_docs" templatesDir libDirs parameters None
     buildDocumentationCommandTool metadataReferenceArgs
 
     Shell.cleanDir "temp/literate_docs"
     let literateArgs =
         commandToolLiterateArgument
-            "docs/content" "temp/literate_docs" layoutRoots parameters
+            "docs/content" "temp/literate_docs" templatesDir parameters
     buildDocumentationCommandTool literateArgs)
 
 Target.create "GenerateDocs" (fun _ ->

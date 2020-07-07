@@ -9,13 +9,13 @@
     <None Include="Files/simple.md" />
     <None Include="Files/simple.fsx" />
     <None Include="Files/template.html" />
-    <None Include="Files/template.html" />
+    <None Include="Files/template.dotliquid.html" />
     <None Include="Files/docpage.html" />
     <Compile Include="..\Common\MarkdownUnit.fs">
       <Link>Common\MarkdownUnit.fs</Link>
     </Compile>
     <Compile Include="Setup.fs" />
-    <Compile Include="Tests.fs" />
+    <Compile Include="LiterateTests.fs" />
     <Compile Include="EvalTests.fs" />
   </ItemGroup>
   <ItemGroup>
