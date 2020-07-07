@@ -115,7 +115,6 @@ Typical literate setup
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.CodeFormat.dll"
 #r "FSharp.Formatting.Literate.dll"
-#r "FSharp.Formatting.DotLiquid.dll"
 
 (**
 For literate programming support in your project, install the `FSharp.Formatting` nuget package.
@@ -168,8 +167,6 @@ The template should also reference `style.css` and `tips.js` that define CSS sty
 and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
 and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
 
-You may also use DotLiquid for templating literate files, see below.
-
 Assuming you have `template.html` in the current directory, you can write:
 *)
 
@@ -214,7 +211,7 @@ let projInfo =
 
 // Process all files and save results to 'output' directory
 Literate.ConvertDirectory
-  (source, projTemplate, source + "\\output", replacements = projInfo)
+  (source, projTemplate, source + "\\output", replacements=projInfo)
 
 (**
 The sample template `template-project.html` has been used to generate this documentation
@@ -229,22 +226,22 @@ by setting the named parameter `format` to one of the two `OutputKind` cases. Th
 example shows how to call the methods to generate LaTeX documents:
 *)
 let scriptTex = Path.Combine(source, "../docs/script.fsx")
-Literate.ConvertDocument(scriptTex, format = OutputKind.Latex)
+Literate.ConvertDocument(scriptTex, format=OutputKind.Latex)
 
 let docTex = Path.Combine(scriptTex, "../docs/document.md")
-Literate.ConvertDocument(docTex, format = OutputKind.Latex)
+Literate.ConvertDocument(docTex, format=OutputKind.Latex)
 
 // Template file containing the {content} tag and possibly others
 let texTemplate = Path.Combine(source, "template.tex")
 
 // Process script file, Markdown document and a directory
-Literate.ConvertScriptFile(scriptTex, texTemplate, format = OutputKind.Latex)
+Literate.ConvertScriptFile(scriptTex, texTemplate, format=OutputKind.Latex)
 
-Literate.ConvertMarkdown(docTex, template, format = OutputKind.Latex)
+Literate.ConvertMarkdown(docTex, template, format=OutputKind.Latex)
 
 Literate.ConvertDirectory
   ( source, texTemplate, source + "\\output", 
-    format = OutputKind.Latex, replacements = projInfo)
+    format=OutputKind.Latex, replacements=projInfo)
 
 (**
 ## Generating iPython Notebook output
@@ -258,12 +255,12 @@ by setting the named parameter `format` to `OutputKind.Pynb`:
 
 // Process script file, Markdown document and a directory
 let scriptPynb = Path.Combine(source, "../docs/script.fsx")
-Literate.ConvertScriptFile(scriptPynb, format = OutputKind.Pynb)
+Literate.ConvertScriptFile(scriptPynb, format=OutputKind.Pynb)
 
 let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docPynb, format = OutputKind.Pynb)
+Literate.ConvertMarkdown(docPynb, format=OutputKind.Pynb)
 
-Literate.ConvertDirectory( source, source + "/output", format = OutputKind.Pynb)
+Literate.ConvertDirectory( source, source + "/output", format=OutputKind.Pynb)
 
 (**
 Note that the `template.tex` file needs to contain `{content}` as the key where the body
@@ -303,17 +300,5 @@ version of the F# compiler:
  - `customizeDocument` - Allows you to customize the document before writing it 
    to the output file. This gives you the opportunity to use your own
    code formatting code, for example to support syntax highlighting for another language. 
-
-## Using DotLiquid templating
-
-By default templating is done using simple substitution of tags such as `{document}`.
-You can also use [DotLiquid](http://dotliquidmarkup.org/) for templating:
-*)
-open FSharp.Formatting.DotLiquid
-let script = Path.Combine(source, "../docs/script.fsx")
-let template = Path.Combine(source, "template.liquid")
-Literate.ConvertScriptFileWithDotLiquid(script, template)
-
-(**
 
 *)

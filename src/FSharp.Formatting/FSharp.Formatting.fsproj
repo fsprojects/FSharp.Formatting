@@ -17,7 +17,6 @@
     <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
 
     <!-- Assembly dependencies -->
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\DotLiquid.NetCore.dll" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\System.Security.Permissions.dll" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
@@ -40,7 +39,6 @@
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Markdown.*" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Literate.*" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.ApiDocs.*" PackagePath="lib/$(TargetFramework)" />
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.DotLiquid.*" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

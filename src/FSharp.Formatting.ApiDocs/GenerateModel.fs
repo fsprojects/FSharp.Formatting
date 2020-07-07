@@ -362,6 +362,7 @@ type Namespace =
   }
   static member Create(name, mods, typs) =
     { Namespace.Name = name; Modules = mods; Types = typs }
+
 /// Represents a group of assemblies
 type AssemblyGroup =
   {
@@ -483,9 +484,6 @@ module ValueReader =
     if list.IsEmpty then None
     else let revd = List.rev list in Some(List.rev revd.Tail, revd.Head)
 
-  let uncapitalize (s:string) =
-    s.Substring(0, 1).ToLowerInvariant() + s.Substring(1)
-
   let isAttrib<'T> (attrib: FSharpAttribute) =
     attrib.AttributeType.CompiledName = typeof<'T>.Name
 
@@ -525,12 +523,12 @@ module ValueReader =
       match args with
       | [] -> typeName
       | [arg] -> typeName + "<" + (formatTypeWithPrec 4 arg) + ">"
-      | args -> bracketIf (prec <= 1) (typeName + "<" + (formatTypesWithPrec 2 "," args) + ">")
+      | args -> bracketIf (prec <= 1) (typeName + "<" + (formatTypesWithPrec 2 ", " args) + ">")
     else
       match args with
       | [] -> typeName
       | [arg] -> (formatTypeWithPrec 2 arg) + " " + typeName
-      | args -> bracketIf (prec <= 1) ((bracket (formatTypesWithPrec 2 "," args)) + typeName)
+      | args -> bracketIf (prec <= 1) ((bracket (formatTypesWithPrec 2 ", " args)) + typeName)
 
   and formatTypesWithPrec prec sep typs =
     String.concat sep (typs |> Seq.map (formatTypeWithPrec prec))
@@ -638,10 +636,10 @@ module ValueReader =
         else sprintf "(%s)" s)
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors and indexers
-      | _, _, ".ctor", _ -> "new" + (defaultArg parArgs "(...)")
-      | _, true, _, "Item" -> "[" + (defaultArg args "...") + "]"
+      | _, _, ".ctor", _ -> v.ApparentEnclosingEntity.DisplayName + (defaultArg parArgs "(...)")
+      | _, true, _, "Item" -> "this.[" + (defaultArg args "...") + "]"
       // Ordinary instance members
-      | _, true, _, name -> "x." + name + (defaultArg parArgs "(...)")
+      | _, true, _, name -> "this." + name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
       | false, _, _, name when not <| requireQualifiedAccess -> name + (defaultArg parArgs "(...)")
       // Ordinary static members or things (?) that require fully qualified access
@@ -693,6 +691,7 @@ module ValueReader =
       let long = buildUsage (Some usage)
       if long.Length <= length then long
       else buildUsage None
+
     // If there is a signature file, we should go for implementation file
     let loc = tryGetLocation v
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
@@ -706,7 +705,7 @@ module ValueReader =
             field.Name
     let fields = case.UnionCaseFields |> List.ofSeq
     let buildUsage maxLength fields =
-        let long = "(" + (fields |> List.map formatFieldUsage |> String.concat ",") + ")"
+        let long = "(" + (fields |> List.map formatFieldUsage |> String.concat ", ") + ")"
         match long.Length with
         | x when x <= 2 -> ""
         | x when x <= maxLength -> long
@@ -1079,7 +1078,7 @@ module Reader =
                                 else t
                             let paramType = reduceAbb param.Type
                             paramType.TypeDefinition.FullName)
-                "(" + System.String.Join(",", paramTypeList) + ")"
+                "(" + System.String.Join(", ", paramTypeList) + ")"
             else ""
         sprintf "%s%s%s" name typeargs paramList
       with exn ->

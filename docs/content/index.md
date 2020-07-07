@@ -47,9 +47,8 @@ I hope it is also a good sample showing how to write documentation for F# projec
    formatter; it discusses how to call it to obtain information about F# source files.
 
  - [Library documentation tool](metadata.html) - provides a brief documentation for a tool
-   that generates nice HTML documentation from "XML comments" in your (not just) F# libraries.
-   The tool is a replacement of `FsHtmlDoc` - it uses DotLiquid for easy templating and handles
-   comments written in Markdown too. 
+   that generates nice HTML documentation from "XML comments" in your .NET libraries.
+   The tool handles comments written in Markdown too. 
 
  - [Contribute](https://github.com/fsprojects/FSharp.Formatting/blob/master/CONTRIBUTING.md) - how do I contribute?
 

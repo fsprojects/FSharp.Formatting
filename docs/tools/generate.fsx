@@ -10,12 +10,9 @@
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.ApiDocs.dll"
 #r "FSharp.Formatting.Common.dll"
-#r "DotLiquid.dll"
-#r "FSharp.Formatting.DotLiquid.dll"
 
 open System
 open System.IO
-open FSharp.Formatting.DotLiquid
 
 // --------------------------------------------------------------------------------------
 // Helpers
@@ -70,22 +67,9 @@ let content    = "../content"
 let output     = "../output"
 let files      = "../files"
 let templates  = "."
-let formatting = "../../misc/"
-let docTemplate = formatting + "/" + "templates/docpage.html"
-let docTemplateSbS = templates + "/" + "docpage-sidebyside.html"
+let docTemplate = templates + "/" + "templates/template.html"
+let docTemplateSbS = templates + "/" + "template-sidebyside.html"
 let referenceOut = (output + "/" + "reference")
-
-// Where to look for *.csproj templates (in this order)
-let layoutRootsAll = new System.Collections.Generic.Dictionary<string, string list>()
-layoutRootsAll.Add("en",[ templates; formatting + "/" + "templates"
-                          formatting + "/" + "templates/reference" ])
-subDirectories templates
-|> Seq.iter (fun name ->
-                if name.Length = 2 || name.Length = 3 then
-                    layoutRootsAll.Add(
-                            name, [templates + "/" + name
-                                   formatting + "/" + "templates"
-                                   formatting + "/" + "templates/reference" ]))
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () = copyRecursive files output
@@ -102,12 +86,13 @@ let buildReference () =
   printfn "building reference docs..."
   if Directory.Exists referenceOut then Directory.Delete(referenceOut, true)
   Directory.CreateDirectory referenceOut |> ignore
-  ApiDocs.GenerateFromModelWithDotLiquid
-    ( binaries, output + "/" + "reference", layoutRootsAll.["en"],
-      parameters = ("root", root)::info,
-      sourceRepo = githubLink + "/" + "tree/master",
-      sourceFolder = __SOURCE_DIRECTORY__ + "/" + ".." + "/" + "..",
-      publicOnly = true, libDirs = libDirs)
+  ApiDocs.GenerateFromModel
+    (binaries, output + "/" + "reference",
+     template = formatting + "/" + "templates/reference/template.html",
+     parameters = ("root", root)::info,
+     sourceRepo = githubLink + "/" + "tree/master",
+     sourceFolder = __SOURCE_DIRECTORY__ + "/" + ".." + "/" + "..",
+     publicOnly = true, libDirs = libDirs)
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
@@ -120,14 +105,9 @@ let buildDocumentation () =
     let langSpecificPath(lang, path:string) =
         path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
         |> Array.exists(fun i -> i = lang)
-    let layoutRoots =
-        let key = layoutRootsAll.Keys |> Seq.tryFind (fun i -> langSpecificPath(i, dir))
-        match key with
-        | Some lang -> layoutRootsAll.[lang]
-        | None -> layoutRootsAll.["en"] // "en" is the default language
-    Literate.ConvertDirectoryWithDotLiquid
-      ( dir, template, output + "/" + sub, replacements = ("root", root)::info,
-        layoutRoots = layoutRoots,
+    Literate.ConvertDirectory
+      ( dir, template=template, output + "/" + sub,
+        replacements = ("root", root)::info,
         generateAnchors = true,
         processRecursive = false,
         includeSource = true

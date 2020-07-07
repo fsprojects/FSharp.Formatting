@@ -6,13 +6,12 @@ let root = "C:\\"
 F# Formatting: Library documentation
 ====================================
 
-The library `FSharp.Formatting.ApiDocs.dll` is a replacement for the `FsHtmlTool`
-which is available in the F# PowerPack and can be used to generate documentation 
-for F# libraries with XML comments. The F# Formatting re-implementation has
-a couple of extensions:
+The library `FSharp.Formatting.ApiDocs.dll` can be used to generate documentation 
+for F# libraries with XML comments. 
 
  - You can use Markdown instead of XML in `///` comments
- - The HTML is generated using DotLiquid, so it is easy to change the templates
+ - The HTML is built by instantiating a template
+ - An ApiDocs model is available if you want to integrate with your own approach to templating.
 
 Building library documentation
 ------------------------------
@@ -21,23 +20,19 @@ First, we need to load the assembly and open necessary namespaces:
 *)
 
 #r "FSharp.Formatting.ApiDocs.dll"
-#r "FSharp.Formatting.DotLiquid.dll"
 open FSharp.Formatting.ApiDocs
-open FSharp.Formatting.DotLiquid
 open System.IO
 
 (**
 Building the library documentation is easy - you just need to call
 `ApiDocs.Generate` from your FAKE script or from F# Interactive.
-The method takes three (required) parameters - the path to your `DLL`,
-output directory and directory with DotLiquid templates.
 Assuming `root` is the root directory for your project, you can write:
 *)
 
-ApiDocs.GenerateWithDotLiquid
+ApiDocs.GenerateHtml
   ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
     outDir=Path.Combine(root, "output"),
-    templatesDir=Path.Combine(root, "templates") )
+    template=Path.Combine(root, "templates", "template.html") )
 
 (**
 Adding Go to GitHub source links
@@ -48,11 +43,11 @@ and `sourceFolder` to the folder where your DLLs are built.
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 *)
 
-ApiDocs.GenerateWithDotLiquid
+ApiDocs.GenerateHtml
   ( [Path.Combine(root, "bin/YourLibrary.dll")], 
     outDir=Path.Combine(root, "output"),
-    templatesDir=Path.Combine(root, "templates"),
-    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+    template=Path.Combine(root, "templates", "template.html"),
+    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting",
     sourceFolder = "/path/to/FSharp.Formatting" )
     
 
@@ -125,10 +120,10 @@ By default `FSharp.Formatting` will expect Markdown documentation comments, to p
 pass the named argument `markDownComments` with value `false`.
 *)
 
-ApiDocs.GenerateWithDotLiquid
+ApiDocs.GenerateHtml
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
-    templatesDir=Path.Combine(root, "templates"),
+    template=Path.Combine(root, "templates", "template.html"),
     sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
 (**
@@ -152,8 +147,8 @@ parameters that can be used to tweak how the formatting works:
 
 
   - `outDir` - specifies the output directory where documentation should be placed
-  - `templatesDir` - a path where DotLiquid templates and partials can be found
-  - `parameters` - provides additional parameters to the DotLiquid templates
+  - `template` - the template for substitutions
+  - `parameters` - provides additional parameters for substitutions in the template
   - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
      the file has the same name as the DLL)
   - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
@@ -165,10 +160,6 @@ parameters that can be used to tweak how the formatting works:
     (if not specified, `"module.html"` is used).
   - `namespaceTemplate` - the templates to be used for namespaces
     (if not specified, `"namespaces.html"` is used).
-  - `assemblyReferences` - The assemblies to use when compiling DotLiquid templates.
-    Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
-    if you need additional references in your templates
-    (if not specified, we use the currently loaded assemblies).
   - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
     generates links to GitHub pages for each entity.
   - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members

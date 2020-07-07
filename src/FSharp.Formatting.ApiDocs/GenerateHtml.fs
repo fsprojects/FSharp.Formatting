@@ -66,43 +66,47 @@ let renderMembers header tableHeader (members: Member list) =
            for m in members do
              tr [] [
                td [Class "member-name"] [
-                 !! HttpUtility.HtmlEncode(m.Details.FormatUsage(40))
-                  //let id = UniqueID().ToString()
-                  //code [ onmouseout  (sprintf "hideTip(event, '%s', %s)" id)
-                  //       onmouseover (sprintf "showTip(event, '%s', %s)" id)] [
-                  //   HttpUtility.HtmlEncode(m.Details.FormatUsage(40))
-            // <div class="tip" id="@id">
-            //<strong>Signature:</strong> @Html.Encode(m.Details.Signature)<br />
-            //@if (!m.Details.Modifiers.IsEmpty) {
-            //  <strong>Modifiers:</strong> @m.Details.FormatModifiers<br />
-            //}
+                 let id = UniqueID().ToString()
+                 code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
+                        OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] [
+                     !! HttpUtility.HtmlEncode(m.Details.FormatUsage(40))
+                 ]
+                 div [Class "tip"; Id id ] [
+                    strong [] [!! "Signature:"]
+                    !! HttpUtility.HtmlEncode(m.Details.Signature)
+                    br []
+                 ]
+                 if not m.Details.Modifiers.IsEmpty then
+                    strong [] [!! "Modifiers:"]
+                    !! HttpUtility.HtmlEncode(m.Details.FormatModifiers)
+                    br []
                  if not (m.Details.TypeArguments.IsEmpty) then
                     strong [] [!!"Type parameters: "]
                     !!m.Details.FormatTypeArguments
                ]
             
                td [Class "xmldoc"] [
-                  if (m.IsObsolete) then
+                  !!m.Comment.FullText
+                  if m.IsObsolete then
                       obsoleteMessage m.ObsoleteMessage
                   if not (String.IsNullOrEmpty(m.Details.FormatSourceLocation)) then
                     a [Href (m.Details.FormatSourceLocation); Class"github-link" ] [
                       img [Src "../content/img/github.png"; Class "normal"]
                       img [Src "../content/img/github-blue.png"; Class "hover"]
                     ]
-                  !!m.Comment.FullText
-                  if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
-                      p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
+                  //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
+                  //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
                ]
             ]
           ]
         ]
     ]
 
-let moduleContent (modInfo: ModuleInfo) =
+let moduleContent (info: ModuleInfo) =
   // Get all the members & comment for the type
-  let members = modInfo.Module.AllMembers
-  let comment = modInfo.Module.Comment
-  let m = modInfo.Module
+  let members = info.Module.AllMembers
+  let comment = info.Module.Comment
+  let entity = info.Module
 
   // Group all members by their category which is an inline annotation
   // that can be added to members using special XML comment:
@@ -120,25 +124,28 @@ let moduleContent (modInfo: ModuleInfo) =
         let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
         (n, key, elems, name))
 
-  [ h1 [] [!! ("module" + m.Name) ]
-    if (modInfo.Module.IsObsolete) then
-        obsoleteMessage m.ObsoleteMessage
-    span [] [!! ("Namespace: " + modInfo.Namespace.Name)]
+  [ h1 [] [!! (entity.Name + " Module") ]
+    p [] [!! ("Namespace: " + info.Namespace.Name)]
+    p [] [!! ("Assembly: " + info.Assembly.Name)]
     br []
-    match modInfo.ParentModule with
+    match info.ParentModule with
     | None -> ()
     | Some parentModule ->
       span [] [!! ("Parent Module: "); a [Href (parentModule.UrlName + ".html")] [!! parentModule.Name ]]
-      div [Class "xmldoc" ] [
-        // XML comment for the type has multiple sections that can be labelled
-        // with categories (to give comment for an individual category). Here,
-        // we print only those that belong to the <default>
-        for sec in comment.Sections do
-          if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
-            if (sec.Key <> "<default>") then 
-              h2 [] [!!sec.Key]
-          !! sec.Value 
-        ]
+
+    if info.Module.IsObsolete then
+        obsoleteMessage entity.ObsoleteMessage
+
+    div [Class "xmldoc" ] [
+      // XML comment for the type has multiple sections that can be labelled
+      // with categories (to give comment for an individual category). Here,
+      // we print only those that belong to the <default>
+      for sec in comment.Sections do
+        if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
+          if (sec.Key <> "<default>") then 
+            h2 [] [!!sec.Key]
+        !! sec.Value 
+      ]
     if (byCategory.Length > 1) then
       // If there is more than 1 category in the type, generate TOC 
       h2 [] [!!"Table of contents"]
@@ -149,13 +156,14 @@ let moduleContent (modInfo: ModuleInfo) =
 
     //<!-- Render nested types and modules, if there are any -->
 
-    let entities =
-      [ for t in m.NestedTypes -> Choice1Of2 t
-        for m in m.NestedModules -> Choice2Of2 m ]
-    if (entities.Length > 0) then
+    let nestedEntities =
+      [ for t in entity.NestedTypes -> Choice1Of2 t
+        for m in entity.NestedModules -> Choice2Of2 m ]
+
+    if (nestedEntities.Length > 0) then
       div [] [
         h2 [] [!!"Types and modules"]
-        yield! nestedTypesAndModules entities
+        yield! nestedTypesAndModules nestedEntities
       ]
 
     for (n, key, ms, name) in byCategory do
@@ -175,10 +183,10 @@ let moduleContent (modInfo: ModuleInfo) =
       div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = MemberKind.ActivePattern)))
   ]
 
-let typeContent (typInfo: TypeInfo) =
-  let members = typInfo.Type.AllMembers
-  let comment = typInfo.Type.Comment
-  let typ = typInfo.Type
+let typeContent (info: TypeInfo) =
+  let members = info.Type.AllMembers
+  let comment = info.Type.Comment
+  let entity = info.Type
     // Group all members by their category which is an inline annotation
     // that can be added to members using special XML comment:
     //
@@ -195,29 +203,28 @@ let typeContent (typInfo: TypeInfo) =
         let name = (if String.IsNullOrEmpty(g) then "Other type members" else g)
         (n, g, ms, name))
 
-  [ h1 [] [!! typ.Name]
-    p [] [
-
-      if (typ.IsObsolete) then
-          obsoleteMessage typ.ObsoleteMessage
-    ]
-    span [] [!! ("Namespace: " + typInfo.Namespace.Name) ]
+  [ h1 [] [!! (entity.Name + " Type")]
+    p [] [!! ("Namespace: " + info.Namespace.Name)]
+    p [] [!! ("Assembly: " + info.Assembly.Name)]
     br []
-    match typInfo.ParentModule with
+    match info.ParentModule with
     | None -> ()
     | Some parentModule ->
       span [] [!! ("Parent Module: "); a [Href (parentModule.UrlName + ".html")] [!! parentModule.Name ]]
 
-      div [Class "xmldoc" ] [
-        // XML comment for the type has multiple sections that can be labelled
-        // with categories (to give comment for an individual category). Here,
-        // we print only those that belong to the <default>
-        for sec in comment.Sections do
-          if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
-            if (sec.Key <> "<default>") then 
-              h2 [] [!!sec.Key]
-          !! sec.Value 
-        ]
+    if (entity.IsObsolete) then
+        obsoleteMessage entity.ObsoleteMessage
+
+    div [Class "xmldoc" ] [
+      // XML comment for the type has multiple sections that can be labelled
+      // with categories (to give comment for an individual category). Here,
+      // we print only those that belong to the <default>
+      for sec in comment.Sections do
+        if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
+          if (sec.Key <> "<default>") then 
+            h2 [] [!!sec.Key]
+        !! sec.Value 
+    ]
     if (byCategory.Length > 1) then
       // If there is more than 1 category in the type, generate TOC 
       h2 [] [!!"Table of contents"]
@@ -238,7 +245,7 @@ let typeContent (typInfo: TypeInfo) =
       | None -> ()
       | Some key ->
          div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers "Unions cases" "Union case" (ms |> List.filter (fun m -> m.Kind = MemberKind.UnionCase)))
+      div [] (renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = MemberKind.UnionCase)))
       div [] (renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = MemberKind.RecordField)))
       div [] (renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = MemberKind.StaticParameter)))
       div [] (renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = MemberKind.Constructor)))
@@ -323,12 +330,12 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
         Log.infof "Finished module: %s" modulInfo.Module.UrlName
 
-    for typInfo in model.TypesInfos do
-        Log.infof "Generating type: %s" typInfo.Type.UrlName
-        let content = div [] (typeContent typInfo)
-        let outFile = outDir @@ (typInfo.Type.UrlName + ".html")
-        let pageTitle = typInfo.Type.Name + projectName
+    for info in model.TypesInfos do
+        Log.infof "Generating type: %s" info.Type.UrlName
+        let content = div [] (typeContent info)
+        let outFile = outDir @@ (info.Type.UrlName + ".html")
+        let pageTitle = info.Type.Name + projectName
         let parameters = getParameters content pageTitle
 
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
-        Log.infof "Finished type: %s" typInfo.Type.UrlName
+        Log.infof "Finished type: %s" info.Type.UrlName

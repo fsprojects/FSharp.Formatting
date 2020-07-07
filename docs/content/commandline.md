@@ -32,8 +32,8 @@ according to the concept of [Literate Programming](literate.html).
 
 ### Other Options
 
-  * `--templateFile` -  Template file for formatting (optional)
   * `--output` -  Output directory, defaults to input directory.
+  * `--template` -  Template file for formatting (optional)
   * `--format` -  Output format either `latex`, `html` or `ipynb`, defaults to `html`.
   * `--prefix` -  Prefix for formatting, defaults to `fs`.
   * `--compilerOptions` -  Compiler Options.
@@ -48,7 +48,7 @@ according to the concept of [Literate Programming](literate.html).
 ### Example
 
     [lang=text]
-    fsformatting convert --templateFile template-project.html --format latex --replacements "page-author" "Tomas Petricek"
+    fsformatting convert --template template-project.html --format latex --replacements "page-author" "Tomas Petricek"
 
 `generate` command
 -----------------------------
@@ -63,11 +63,10 @@ the meta-data from the `*.dll` files of the package and using the XML comments f
 
   * `--dlls` -  List of `dll` input files.
   * `--output` -  Output directory.
-  * `--templatesDir` -  Directory for the DotLiquid Engine partials.
 
 ### Other options
 
-  * `--parameters` -  Property settings for the DotLiquid Engine.
+  * `--parameters` -  Property settings for simple template instantiation.
   * `--namespaceTemplate` -  Namespace template file for formatting, defaults to `namespaces.html`.
   * `--moduleTemplate` -  Module template file for formatting, defaults to `module.html`.
   * `--typeTemplate` -  Type template file for formatting, defaults to `type.html`.
@@ -87,7 +86,7 @@ According to the previous section, a minimum configuration for generating the li
 could be configured by: 
 
     [lang=text]
-    fsformatting generate --generate --dlls lib1.dll "lib 2.dll" --output "../api-docs" --templatesDir partials
+    fsformatting generate --generate --dlls lib1.dll "lib 2.dll" --output "../api-docs"
 
 The following underlying configuration assumptions need to be considered when you adapt this example to your own project:
 
@@ -108,12 +107,13 @@ you copy this file into the subdirectory `templates` of your working directory a
     fsformatting generate
       --dlls lib1.dll "lib 2.dll" 
       --output "../api-docs" 
-      --templatesDir templates
-      --parameters "page-author" "Your name(s)"
-                    "page-description" "A package for ..."
-	                "github-link" "http://github.com/yourname/project"
-                    "project-name" "your project name"
-	                "root" "http://yourname.github.io/project"
+      --template template.html
+      --parameters
+          "page-author" "Your name(s)"
+          "page-description" "A package for ..."
+	      "github-link" "http://github.com/yourname/project"
+          "project-name" "your project name"
+	      "root" "http://yourname.github.io/project"
 	  
 	  
 Note: depending on the quote evaluation scheme of your OS and shell, you may encounter unexpected errors due to misinterpretation of the string parameters.				   

@@ -1,11 +1,12 @@
 ## 5.0.0
   - WriteHtml --> ToHtml/WriteHtml overloads
   - Add preliminary pynb support for output
-  - Fix FSharp.Formatting.Literate.* to do approximate (non-razor) templating/  Use FSharp.Formatting.DotLiquidLiterate for razor templating.
+  - Fix FSharp.Formatting.Literate.* to do approximate (non-razor) templating/  
   - FSharp.CodeFormat --> FSharp.Formatting.CodeFormat
   - FSharp.Markdown --> FSharp.Formatting.Markdown
   - FSharp.Literate --> FSharp.Formatting.Literate
   - FSharp.ApiDocs --> FSharp.Formatting.ApiDocs
+  - FSharp.ApiDocs uses HTML substitution for templating, no Razor
   - Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
   - For command line tool, "fsformatting literate process-directory" --> "fsformatting convert"
   - For command line tool, "fsformatting metadata-format generate" --> "fsformatting generate"

@@ -631,6 +631,8 @@ type HtmlProperties =
     | Muted of bool
     | Name of string
     | NoValidate of bool
+    | OnMouseOut of string
+    | OnMouseOver of string
     | Open of bool
     | Optimum of float
     | Pattern of string
@@ -777,6 +779,8 @@ type HtmlProperties =
         | Muted s -> sprintf "muted=\"%s\"" (if s then "true" else "false")
         | Name s -> sprintf "name=\"%s\"" s
         | NoValidate s -> sprintf "noValidate=\"%s\"" (if s then "true" else "false")
+        | OnMouseOut s -> sprintf "onmouseout=\"%s\"" s
+        | OnMouseOver s -> sprintf "onmouseover=\"%s\"" s
         | Open s -> sprintf "open=\"%s\"" (if s then "true" else "false")
         | Optimum s -> sprintf "optimum=\"%g\"" s
         | Pattern s -> sprintf "pattern=\"%s\"" s

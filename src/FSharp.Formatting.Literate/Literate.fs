@@ -242,15 +242,15 @@ type Literate private () =
     processDirectory inputDirectory outputDirectory
 
   static member ConvertDocument
-    (doc, output, ?templateFile, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements) =
+    (doc, output, ?template, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements) =
       let res =
           Literate.GenerateReplacementsForDocument
               (doc, output, ?format=format, ?prefix=prefix, ?lineNumbers=lineNumbers,
                ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?replacements=replacements)
-      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, output)
+      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   static member ConvertMarkdown
-    (input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (input, ?template, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors,
       ?customizeDocument) =
 
@@ -260,10 +260,10 @@ type Literate private () =
                ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
                ?replacements=replacements, ?customizeDocument=customizeDocument)
       let output=defaultOutput output input format
-      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, output)
+      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   static member ConvertScriptFile
-    (input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (input, ?template, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
       ?generateAnchors, ?customizeDocument) =
         let res =
@@ -272,10 +272,10 @@ type Literate private () =
                  ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
                  ?replacements=replacements, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator)
         let output=defaultOutput output input format
-        HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, output)
+        HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   static member ConvertDirectory
-    (inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
+    (inputDirectory, ?template, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors,
       ?processRecursive, ?customizeDocument) =
         let outputDirectory=defaultArg outputDirectory inputDirectory
@@ -287,4 +287,4 @@ type Literate private () =
                  ?replacements=replacements, ?customizeDocument=customizeDocument, ?processRecursive=processRecursive, ?fsiEvaluator=fsiEvaluator)
 
         for (path, res) in res do
-            HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, path)
+            HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, path)

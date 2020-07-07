@@ -6,7 +6,7 @@ type ApiDocs =
 
     /// This overload generates documentation for multiple files specified by the `dllFiles` parameter
     ///
-    ///  - `parameters` - provides additional parameters to the DotLiquid templates
+    ///  - `parameters` - provides additional parameters for substitution in the templates
     ///  - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
     ///     the file has the same name as the DLL)
     ///  - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
@@ -15,7 +15,7 @@ type ApiDocs =
     ///  - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
     ///    generates links to GitHub pages for each of the entity.
     ///  - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
-    ///  - `libDirs` - Use this to specify additional paths where referenced DLL files can be found
+    ///  - `libDirs` - Use this to specify additional paths where referenced DLL files can be found when formatting code snippets inside Markdown comments
     ///  - `otherFlags` - Additional flags that are passed to the F# compiler (you can use this if you want to
     ///    specify references explicitly etc.)
     ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links

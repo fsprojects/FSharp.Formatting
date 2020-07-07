@@ -7,8 +7,6 @@ open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options
 open FSharp.Formatting.Options.Common
-open FSharp.Formatting.DotLiquid
-
 
 /// Exposes metadata formatting functionality. 
 [<Verb("generate", HelpText = "generate API reference docs from metadata")>]
@@ -26,7 +24,6 @@ type GenerateOptions() =
         "\n------------------------------------------------" +
         help.ToString()
 
-
     [<Option("help", Required = false,
         HelpText = "Display this message. All options are case-insensitive.")>]
     member val help = false with get, set
@@ -43,25 +40,13 @@ type GenerateOptions() =
         HelpText = "Output Directory.")>]
     member val output = "" with get, set
 
-    [<Option("layoutRoots", Required = true,
-        HelpText = "Search directory list for the DotLiquid Engine.")>]
-    member val layoutRoots = Seq.empty<string> with get, set
-
     [<Option("parameters", Required = false,
-        HelpText = "Property settings for the DotLiquid Engine (optinal).")>]
+        HelpText = "Property settings for {{prop-name}} substitutions in the template (optional).")>]
     member val parameters = Seq.empty<string> with get, set
 
-    [<Option("namespaceTemplate", Required = false,
-        HelpText = "Namespace template file for formatting, defaults to 'namespaces.html' (optional).")>]
-    member val namespaceTemplate = "" with get, set
-
-    [<Option("moduleTemplate", Required = false,
-        HelpText = "Module template file for formatting, defaults to 'module.html' (optional).")>]
-    member val moduleTemplate = "" with get, set
-
-    [<Option("typeTemplate", Required = false,
-        HelpText = "Type template file for formatting, defaults to 'type.html' (optional).")>]
-    member val typeTemplate = "" with get, set
+    [<Option("template", Required = false,
+        HelpText = "template file for formatting (optional).")>]
+    member val template = "" with get, set
 
     [<Option("xmlFile", Required = false,
         HelpText = "Single XML file to use for all DLL files, otherwise using 'file.xml' for each 'file.dll' (optional).")>]
@@ -85,22 +70,19 @@ type GenerateOptions() =
             if x.help then
                 printfn "%s" (x.GetUsageOfOption())
             else
-                ApiDocs.GenerateWithDotLiquid (
+                ApiDocs.GenerateHtml (
                     dllFiles = (x.dlls |> List.ofSeq),
                     outDir = x.output,
-                    layoutRoots = (x.layoutRoots |> List.ofSeq),
                     ?parameters = (evalPairwiseStrings x.parameters),
-                    ?namespaceTemplate = (evalString x.namespaceTemplate),
-                    ?moduleTemplate = (evalString x.moduleTemplate),
-                    ?typeTemplate = (evalString x.typeTemplate),
+                    ?template = (evalString x.template),
                     ?xmlFile = (evalString x.xmlFile),
                     ?sourceRepo = (evalString x.sourceRepo),
                     ?sourceFolder = (evalString x.sourceFolder),
                     ?libDirs = (evalStrings x.libDirs)
                     )
         with ex ->
-            Log.errorf "received exception in ApiDocs.GenerateFromModelWithDotLiquid:\n %A" ex
-            printfn "Error on ApiDocs.GenerateFromModelWithDotLiquid: \n%O" ex
+            Log.errorf "received exception in ApiDocs.GenerateHtml:\n %A" ex
+            printfn "Error on ApiDocs.GenerateHtml: \n%O" ex
             res <- -1
         waitForKey x.waitForKey
         res

@@ -6,7 +6,6 @@ open FSharp.Formatting.Literate
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.Options.Common
-open FSharp.Formatting.DotLiquid
 
 
 /// Process directory containing a mix of Markdown documents and F# Script files
@@ -40,9 +39,9 @@ type ConvertDirectoryOptions() =
         HelpText = "Input directory of *.fsx and *.md files.")>]
     member val input = "" with get, set
 
-    [<Option("templateFile", Required = false,
+    [<Option("template", Required = false,
         HelpText = "Template file for formatting (optional).")>]
-    member val templateFile = "" with get, set
+    member val template = "" with get, set
 
     [<Option("output", Required = false,
         HelpText = "Ouput Directory, defaults to input directory (optional).")>]
@@ -96,10 +95,10 @@ type ConvertDirectoryOptions() =
                 printfn "%s" (x.GetUsageOfOption())
             else
                 let run () =
-                    Literate.ConvertDirectoryWithDotLiquid(
+                    Literate.ConvertDirectory(
                         x.input,
                         ?generateAnchors = Some true,
-                        ?templateFile = (evalString x.templateFile),
+                        ?template = (evalString x.template),
                         ?outputDirectory = Some (if x.output = "" then x.input else x.output),
                         ?format=
                             Some (let fmt = x.format.ToLower()
@@ -128,8 +127,8 @@ type ConvertDirectoryOptions() =
 
         with
             | _ as ex ->
-                Log.errorf "received exception in Literate.ConvertDirectoryWithDotLiquid:\n %A" ex
-                printfn "Error on Literate.ConvertDirectoryWithDotLiquid: \n%O" ex
+                Log.errorf "received exception in Literate.ConvertDirectory:\n %A" ex
+                printfn "Error on Literate.ConvertDirectory: \n%O" ex
                 res <- -1
         waitForKey x.waitForKey
         res

@@ -71,7 +71,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
 
   ApiDocs.GenerateHtml
     ( [library], output, template=docTemplate, parameters=parameters, libDirs = [testBin],
-      sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
+      sourceRepo = "https://github.com/fslaborg/Deedle/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
 
@@ -114,31 +114,32 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-nested-submodule.html"] |> shouldContainText "Very nested field"
 
   // Check that union fields are correctly generated
-  files.["fslib-union.html"] |> shouldContainText "World(string,int)"
-  files.["fslib-union.html"] |> shouldContainText "Naming(rate,string)"
+  files.["fslib-union.html"] |> shouldContainText "World(string, int)"
+  files.["fslib-union.html"] |> shouldContainText "Naming(rate, string)"
 
   // Check that methods with no arguments are correctly generated (#113)
   files.["fslib-record.html"] |> shouldNotContainText "Foo2(arg1)"
   files.["fslib-record.html"] |> shouldContainText "Foo2()"
-  files.["fslib-record.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; int"
-  files.["fslib-class.html"] |> shouldContainText "new()"
-  files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; Class"
+  files.["fslib-record.html"] |> shouldContainText "Signature"
+  files.["fslib-record.html"] |> shouldContainText "unit -&gt; int"
+  files.["fslib-class.html"] |> shouldContainText "Class()"
+  files.["fslib-class.html"] |> shouldContainText "unit -&gt; Class"
 
   // Check that properties are correctly generated (#114)
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">x.Member(arg1)<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">x.Member()<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">x.Member<"
-  files.["fslib-class.html"] |> shouldNotContainText "<strong>Signature:</strong> unit -&gt; int"
-  files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> int"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">this.Member(arg1)<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">this.Member()<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">this.Member<"
+  files.["fslib-class.html"] |> shouldNotContainText "unit -&gt; int"
+  files.["fslib-class.html"] |> shouldContainText "Signature:"
 
   // Check that formatting is correct
   files.["fslib-test_issue472_r.html"] |> shouldContainText "Test_Issue472_R.fmultipleargs x y"
   files.["fslib-test_issue472_r.html"] |> shouldContainText "Test_Issue472_R.ftupled(x, y)"
   files.["fslib-test_issue472.html"] |> shouldContainText "fmultipleargs x y"
   files.["fslib-test_issue472.html"] |> shouldContainText "ftupled(x, y)"
-  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArg(arg1, arg2)"
-  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArgTupled(arg)"
-  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultPartial arg1 arg2"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArg(arg1, arg2)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArgTupled(arg)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultPartial arg1 arg2"
 
 [<Test>]
 let ``ApiDocs generates Go to GitHub source links``() =
@@ -337,7 +338,6 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
     [ testBin  </> "TestLib1.dll"
       testBin </> "TestLib2.dll" ] |> fullpaths
   let files = generateApiDocs libraries  false "TestLibs"
-  //ApiDocs.GenerateFromModelWithDotLiquid(libraries, output, docTemplate, info, libDirs = [root </> "../../lib"; root </> "../../bin"], markDownComments = false)
   files.["fslib-class.html"] |> shouldContainText "Readonly int property"
   files.["fslib-record.html"] |> shouldContainText "This is name"
   files.["fslib-record.html"] |> shouldContainText "Additional member"
@@ -353,7 +353,6 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
 [<Test>]
 let ``ApiDocs highlights code snippets in Markdown comments``() =
   let library = testBin </> "TestLib1.dll" |> fullpath
-  //ApiDocs.GenerateFromModelWithDotLiquid([library], output, docTemplate, info, libDirs = [root </> "../../lib"], markDownComments = true)
 
   let files = generateApiDocs [library] true "TestLib1"
 
@@ -364,8 +363,6 @@ let ``ApiDocs highlights code snippets in Markdown comments``() =
 [<Test>]
 let ``ApiDocs handles c# dlls`` () =
   let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
-  //ApiDocs.GenerateFromModelWithDotLiquid
-  //  ( library, output, docTemplate, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
   let files = (generateApiDocs [library] false "CSharpFormat").Keys
 
@@ -375,9 +372,6 @@ let ``ApiDocs handles c# dlls`` () =
 [<Test>]
 let ``ApiDocs processes C# types and includes xml comments in docs`` () =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
-
-    //ApiDocs.GenerateFromModelWithDotLiquid
-    //    ( library, output, docTemplate, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
     let files = generateApiDocs [library]  false "CSharpFormat2"
 
@@ -409,18 +403,18 @@ let ``ApiDocs generates module link in nested types``() =
 
   // Check that the link to the module is correctly generated
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"fslib-nested.html\">Nested</a>"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"fslib-nested.html\">"
 
   // Only for nested types
   files.["fslib-class.html"] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
   files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"fslib-nested-submodule.html\">Submodule</a>"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"fslib-nested-submodule.html\">"
 
   // Check that nested submodules have links to its module
   files.["fslib-nested-submodule.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"fslib-nested.html\">Nested</a>"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"fslib-nested.html\">"
 
 open System.Diagnostics
 open FSharp.Formatting.Common
