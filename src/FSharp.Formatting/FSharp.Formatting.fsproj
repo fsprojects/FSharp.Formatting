@@ -29,7 +29,6 @@
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" PrivateAssets="all" />
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" PrivateAssets="all" />
     <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" PrivateAssets="all" />
-    <ProjectReference Include="..\FSharp.Formatting.DotLiquid\FSharp.Formatting.DotLiquid.fsproj" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

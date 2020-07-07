@@ -11,12 +11,7 @@ open System.Collections.Generic
 
 open FSharp.Patterns
 open FSharp.Formatting.Markdown.Parser
-open FSharp.Formatting.Markdown.Html
 open FSharp.Formatting.Common
-
-// --------------------------------------------------------------------------------------
-// Expose Markdown transformer functions as an overloaded static method
-// --------------------------------------------------------------------------------------
 
 /// Representation of a Markdown document - the representation of Paragraphs
 /// uses an F# discriminated union type and so is best used from F#.
@@ -58,7 +53,7 @@ type Markdown =
   /// format and write the result to a given writer.
   static member WriteHtml(doc:MarkdownDocument, writer, ?newline) = 
     let newline = defaultArg newline Environment.NewLine
-    formatMarkdown writer false newline false doc.DefinedLinks doc.Paragraphs
+    HtmlFormatting.formatMarkdown writer false newline false doc.DefinedLinks doc.Paragraphs
 
   /// Transform Markdown text into HTML format. The result
   /// will be written to the provided TextWriter.
@@ -84,7 +79,7 @@ type Markdown =
   /// format and write the result to a given writer.
   static member WriteLatex(doc:MarkdownDocument, writer, ?newline) = 
     let newline = defaultArg newline Environment.NewLine
-    Latex.formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
+    LatexFormatting.formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
 
   /// Transform Markdown document into LaTeX format. The result
   /// will be written to the provided TextWriter.
@@ -108,7 +103,7 @@ type Markdown =
   /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
   static member ToPynb(doc: MarkdownDocument) =
     //let newline = defaultArg newline Environment.NewLine
-    Pynb.formatMarkdownAsPynb doc.DefinedLinks doc.Paragraphs
+    PynbFormatting.formatMarkdownAsPynb doc.DefinedLinks doc.Paragraphs
 
   /// Transform the provided markdown text into Pynb and return the result as a string.
   static member ToPynb(markdownText: string) =

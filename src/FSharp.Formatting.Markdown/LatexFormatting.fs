@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 /// [omit]
-module FSharp.Formatting.Markdown.Latex
+module internal FSharp.Formatting.Markdown.LatexFormatting
 
 open System.IO
 open System.Web

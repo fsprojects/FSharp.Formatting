@@ -2,7 +2,8 @@ namespace FSharp.Formatting.Literate
 
 open System
 open System.IO
-open System.Reflection
+open FSharp.Formatting.Common
+open FSharp.Formatting.Common.HtmlModel
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.CodeFormat
 
@@ -58,30 +59,6 @@ type Literate private () =
     | Some c -> c ctx doc
     | None -> doc
 
-  static let replaceParameters (contentTag:string) (parameters:seq<string * string>) (input: string option) =
-    match input with
-    | None ->
-        // If there is no template, return just document + tooltips (empty if not HTML)
-        let lookup = parameters |> dict
-        lookup.[contentTag] + "\n\n" + lookup.["tooltips"]
-    | Some input ->
-        // First replace keys with some uglier keys and then replace them with values
-        // (in case one of the keys appears in some other value)
-        let id = System.Guid.NewGuid().ToString("d")
-        let input =
-            (input, parameters) ||> Seq.fold (fun html (key, value) ->
-              let key1 = "{{" + key + "}}"
-              let key2 = "{" + key + "}"
-              let rkey = "{" + key + id + "}"
-              html.Replace(key1, rkey).Replace(key2, rkey)) 
-        let result = (input, parameters) ||> Seq.fold (fun html (key, value) ->
-          html.Replace("{" + key + id + "}", value)) 
-        result
-
-  static member GenerateFile (contentTag, parameters, templateOpt, output) =
-    let templateOpt = templateOpt |> Option.map File.ReadAllText
-    File.WriteAllText(output, replaceParameters contentTag parameters templateOpt)
-
   // ------------------------------------------------------------------------------------
   // Parsing functions
   // ------------------------------------------------------------------------------------
@@ -133,7 +110,7 @@ type Literate private () =
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
-    Html.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+    HtmlFormatting.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
     sb.ToString()
 
   /// Write the literate document as HTML without using a template
@@ -141,7 +118,7 @@ type Literate private () =
     let ctx = formattingContext (Some OutputKind.Html) prefix lineNumbers None generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
-    Html.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+    HtmlFormatting.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   /// Format the literate document as Latex without using a template
   static member ToLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
@@ -270,7 +247,7 @@ type Literate private () =
           Literate.GenerateReplacementsForDocument
               (doc, output, ?format=format, ?prefix=prefix, ?lineNumbers=lineNumbers,
                ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?replacements=replacements)
-      Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, output)
+      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, output)
 
   static member ConvertMarkdown
     (input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
@@ -283,7 +260,7 @@ type Literate private () =
                ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
                ?replacements=replacements, ?customizeDocument=customizeDocument)
       let output=defaultOutput output input format
-      Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, output)
+      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, output)
 
   static member ConvertScriptFile
     (input, ?templateFile, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
@@ -295,7 +272,7 @@ type Literate private () =
                  ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
                  ?replacements=replacements, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator)
         let output=defaultOutput output input format
-        Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, output)
+        HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, output)
 
   static member ConvertDirectory
     (inputDirectory, ?templateFile, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
@@ -310,4 +287,4 @@ type Literate private () =
                  ?replacements=replacements, ?customizeDocument=customizeDocument, ?processRecursive=processRecursive, ?fsiEvaluator=fsiEvaluator)
 
         for (path, res) in res do
-            Literate.GenerateFile(res.ContentTag, res.Parameters, templateFile, path)
+            HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, templateFile, path)

@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 /// [omit]
-module FSharp.Formatting.Markdown.Pynb
+module internal FSharp.Formatting.Markdown.PynbFormatting
 
 open System.Collections.Generic
 open FSharp.Patterns

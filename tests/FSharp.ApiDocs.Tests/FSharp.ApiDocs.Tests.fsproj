@@ -13,7 +13,6 @@
     <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Formatting.DotLiquid\FSharp.Formatting.DotLiquid.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />
     <ProjectReference Include="files\AttributesTestLib\AttributesTestLib.fsproj" />

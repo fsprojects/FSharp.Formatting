@@ -23,7 +23,6 @@
     <ProjectReference Include="..\..\src\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\..\src\FSharp.Formatting.DotLiquid\FSharp.Formatting.DotLiquid.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />
