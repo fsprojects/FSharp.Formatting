@@ -68,7 +68,6 @@ let output     = "../output"
 let files      = "../files"
 let templates  = "."
 let docTemplate = templates + "/" + "templates/template.html"
-let docTemplateSbS = templates + "/" + "template-sidebyside.html"
 let referenceOut = (output + "/" + "reference")
 
 // Copy static files and CSS + JS from F# Formatting
@@ -97,21 +96,16 @@ let buildReference () =
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
   printfn "building docs..."
-  let subdirs =
-    [ content + "/" + "sidebyside", docTemplateSbS
-      content, docTemplate; ]
-  for dir, template in subdirs do
-    let sub = "." // Everything goes into the same output directory here
-    let langSpecificPath(lang, path:string) =
-        path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
-        |> Array.exists(fun i -> i = lang)
-    Literate.ConvertDirectory
-      ( dir, template=template, output + "/" + sub,
-        replacements = ("root", root)::info,
-        generateAnchors = true,
-        processRecursive = false,
-        includeSource = true
-      )
+  let sub = "." // Everything goes into the same output directory here
+  let langSpecificPath(lang, path:string) =
+      path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
+      |> Array.exists(fun i -> i = lang)
+  Literate.ConvertDirectory
+      (content, template=docTemplate, output + "/" + sub,
+       replacements = ("root", root)::info,
+       generateAnchors = true,
+       processRecursive = false,
+       includeSource = true)
 
 // Generate
 copyFiles()

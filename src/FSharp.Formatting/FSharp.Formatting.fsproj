@@ -18,7 +18,6 @@
 
     <!-- Assembly dependencies -->
     <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\System.Security.Permissions.dll" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <ItemGroup>

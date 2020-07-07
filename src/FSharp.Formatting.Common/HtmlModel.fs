@@ -1278,9 +1278,9 @@ module HtmlFile =
       | None ->
           // If there is no template, return just document + tooltips (empty if not HTML)
           let lookup = parameters |> dict
-          lookup.[contentTag] + "\n\n" + lookup.["tooltips"]
+          lookup.[contentTag] + (if lookup.ContainsKey "tooltips" then "\n\n" + lookup.["tooltips"] else "")
       | Some input ->
-          // First replace keys with some uglier keys and then replace them with values
+          // First replace {{key}} or {key} with some uglier keys and then replace them with values
           // (in case one of the keys appears in some other value)
           let id = System.Guid.NewGuid().ToString("d")
           let input =
@@ -1289,8 +1289,9 @@ module HtmlFile =
                 let key2 = "{" + key + "}"
                 let rkey = "{" + key + id + "}"
                 html.Replace(key1, rkey).Replace(key2, rkey)) 
-          let result = (input, parameters) ||> Seq.fold (fun html (key, value) ->
-            html.Replace("{" + key + id + "}", value)) 
+          let result =
+              (input, parameters) ||> Seq.fold (fun html (key, value) ->
+                  html.Replace("{" + key + id + "}", value)) 
           result
 
     let UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outputFile) =

@@ -180,7 +180,7 @@ let createArg argName arguments =
     |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
-let commandToolMetadataFormatArgument dllFiles outDir libDirs parameters sourceRepo =
+let commandToolGenerateArgument dllFiles outDir template libDirs parameters sourceRepo =
     let dllFilesArg = createArg "dlls" dllFiles
     let libDirArgs = createArg "libDirs" libDirs
 
@@ -191,7 +191,7 @@ let commandToolMetadataFormatArgument dllFiles outDir libDirs parameters sourceR
 
     let reproAndFolderArg =
         match sourceRepo with
-        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\"" repo folder
+        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\" --template \"%s\"" repo folder template
         | _ -> ""
 
     let outArg = (createArg "output" [outDir])
@@ -206,17 +206,17 @@ let commandToolLiterateArgument inDir outDir parameters =
         |> Seq.collect (fun (key, value) -> [key; value])
         |> createArg "replacements"
 
-    sprintf "convert %s %s %s" inDirArg outDirArg replacementsArgs
+    sprintf "convert %s %s %s --template docs/tools/template.html" inDirArg outDirArg replacementsArgs
 
 
 Target.create "DogFoodCommandTool" (fun _ ->
     // generate metadata reference
-    let dllFiles =
+    let dlls =
       [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
         "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll";
         "FSharp.Formatting.ApiDocs.dll" ]
 
-    let libDirs = [ "bin/" ]
+    let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
     let parameters =
       [ "page-author", "Matthias Dittrich"
         "project-author", "Matthias Dittrich"
@@ -227,7 +227,8 @@ Target.create "DogFoodCommandTool" (fun _ ->
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
         "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
     Shell.cleanDir "temp/api_docs"
-    let metadataReferenceArgs = commandToolMetadataFormatArgument dllFiles "temp/api_docs" libDirs parameters None
+    let template = ( __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" @@ "reference" @@ "template.html" )
+    let metadataReferenceArgs = commandToolGenerateArgument dllFiles "temp/api_docs" template [] parameters None
     buildDocumentationCommandTool metadataReferenceArgs
 
     Shell.cleanDir "temp/literate_docs"
