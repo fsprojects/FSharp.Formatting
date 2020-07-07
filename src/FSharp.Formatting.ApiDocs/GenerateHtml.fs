@@ -52,6 +52,14 @@ let UniqueID() =
   uniqueNumber <- uniqueNumber + 1
   uniqueNumber
 
+
+let renderWithToolTip content tip =
+  div [] [
+    let id = UniqueID().ToString()
+    code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
+           OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
+    div [Class "tip"; Id id ] tip
+  ]
 let renderMembers header tableHeader (members: Member list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
@@ -66,23 +74,20 @@ let renderMembers header tableHeader (members: Member list) =
            for m in members do
              tr [] [
                td [Class "member-name"] [
-                 let id = UniqueID().ToString()
-                 code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
-                        OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] [
-                     !! HttpUtility.HtmlEncode(m.Details.FormatUsage(40))
-                 ]
-                 div [Class "tip"; Id id ] [
+                 renderWithToolTip [
+                   !! HttpUtility.HtmlEncode(m.Details.FormatUsage(40)) 
+                 ] [
                     strong [] [!! "Signature:"]
                     !! HttpUtility.HtmlEncode(m.Details.Signature)
                     br []
+                    if not m.Details.Modifiers.IsEmpty then
+                      strong [] [!! "Modifiers:"]
+                      !! HttpUtility.HtmlEncode(m.Details.FormatModifiers)
+                      br []
+                    if not (m.Details.TypeArguments.IsEmpty) then
+                      strong [] [!!"Type parameters: "]
+                      !!m.Details.FormatTypeArguments
                  ]
-                 if not m.Details.Modifiers.IsEmpty then
-                    strong [] [!! "Modifiers:"]
-                    !! HttpUtility.HtmlEncode(m.Details.FormatModifiers)
-                    br []
-                 if not (m.Details.TypeArguments.IsEmpty) then
-                    strong [] [!!"Type parameters: "]
-                    !!m.Details.FormatTypeArguments
                ]
             
                td [Class "xmldoc"] [

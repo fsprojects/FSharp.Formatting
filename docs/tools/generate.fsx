@@ -13,6 +13,9 @@
 
 open System
 open System.IO
+open FSharp.Formatting
+open FSharp.Formatting.ApiDocs
+open FSharp.Formatting.Literate
 
 // --------------------------------------------------------------------------------------
 // Helpers
@@ -67,7 +70,8 @@ let content    = "../content"
 let output     = "../output"
 let files      = "../files"
 let templates  = "."
-let docTemplate = templates + "/" + "templates/template.html"
+let docTemplate = templates + "/template.html"
+let refTemplate = templates + "/reference/template.html"
 let referenceOut = (output + "/" + "reference")
 
 // Copy static files and CSS + JS from F# Formatting
@@ -85,9 +89,9 @@ let buildReference () =
   printfn "building reference docs..."
   if Directory.Exists referenceOut then Directory.Delete(referenceOut, true)
   Directory.CreateDirectory referenceOut |> ignore
-  ApiDocs.GenerateFromModel
+  ApiDocs.GenerateHtml
     (binaries, output + "/" + "reference",
-     template = formatting + "/" + "templates/reference/template.html",
+     template = refTemplate,
      parameters = ("root", root)::info,
      sourceRepo = githubLink + "/" + "tree/master",
      sourceFolder = __SOURCE_DIRECTORY__ + "/" + ".." + "/" + "..",
@@ -96,12 +100,8 @@ let buildReference () =
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
   printfn "building docs..."
-  let sub = "." // Everything goes into the same output directory here
-  let langSpecificPath(lang, path:string) =
-      path.Split([|'/'; '\\'|], System.StringSplitOptions.RemoveEmptyEntries)
-      |> Array.exists(fun i -> i = lang)
   Literate.ConvertDirectory
-      (content, template=docTemplate, output + "/" + sub,
+      (content, template=docTemplate, outputDirectory=output,
        replacements = ("root", root)::info,
        generateAnchors = true,
        processRecursive = false,
