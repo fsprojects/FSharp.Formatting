@@ -33,7 +33,7 @@ type ConvertCommand() =
 
     // default settings will be mapped to 'None'
 
-    [<Option("input", Required = true, HelpText = "Input directory of *.fsx and *.md files.")>]
+    [<Option("input", Required = false, Default="docs", HelpText = "Input directory of *.fsx and *.md files.")>]
     member val input = "" with get, set
 
     [<Option("template", Required = false, HelpText = "Template file for formatting (optional).")>]

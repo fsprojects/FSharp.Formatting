@@ -208,6 +208,7 @@ Target.create "GenerateDocs" (fun _ ->
     let dllFilesArg = createArg "dlls" dllFiles
     docTool (sprintf "convert %s" parametersArg)
     docTool (sprintf "api %s %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo)
+    // for comparison
     docTool (sprintf "build docs --output output2 %s" parametersArg))
 
 // --------------------------------------------------------------------------------------

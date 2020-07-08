@@ -26,7 +26,7 @@ type ApiDocsCommand() =
     [<Option("dlls", Required = true, HelpText = "DLL input file list.")>]
     member val dlls = Seq.empty<string> with get, set
 
-    [<Option("output", Required = false, Default="output", HelpText = "Output Directory (optional, defaults to 'output')")>]
+    [<Option("output", Required = false, Default="output/reference", HelpText = "Output Directory (optional, defaults to 'output')")>]
     member val output = "" with get, set
 
     [<Option("parameters", Required = false, HelpText = "Property settings for {{prop-name}} substitutions in the template (optional).")>]
