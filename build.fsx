@@ -326,14 +326,14 @@ Target.create "CreateTestJson" (fun _ ->
 )
 
 "Root"
-  //==> "Clean"
-  //==> "AssemblyInfo"
-//  ==> "Build"
-  //==> "Tests"
-  //==> "All"
+  ==> "Clean"
+  ==> "AssemblyInfo"
+  ==> "Build"
+  ==> "Tests"
+  ==> "All"
 
-//"Build"
-//  ==> "NuGet"
+"Build"
+  ==> "NuGet"
   ==> "GenerateDocs"
   ==> "All"
 
