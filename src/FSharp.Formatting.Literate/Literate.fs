@@ -306,7 +306,7 @@ type Literate private () =
             match res with
             | None ->
                 printfn "copying %s --> %s" file output
-                File.Copy(file, output)
+                File.Copy(file, output, true)
             | Some (template, model) ->
                 printfn "creating %s" output
                 HtmlFile.UseFileAsSimpleTemplate(model.ContentTag, model.Parameters, template, output)

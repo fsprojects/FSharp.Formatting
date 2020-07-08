@@ -173,8 +173,11 @@ module Crack =
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
-           printfn "args = %A" args
-           runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
+           printfn "%s, args = %A" exePath args
+           let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
+           printfn "done..."
+           res
+
         let msbuildPath = Dotnet.ProjInfo.Inspect.MSBuildExePath.DotnetMsbuild "dotnet"
         let msbuildExec = Dotnet.ProjInfo.Inspect.msbuild msbuildPath runCmd
 
@@ -241,31 +244,41 @@ type CoreBuildOptions(watch) =
                 let slnDir = Path.GetFullPath "."
 
                 printfn "x.projects = %A" x.projects
-                let projects =
+                let slnName, projects =
                     match Seq.toList x.projects with
                     | [] ->
                         match Directory.GetFiles(slnDir, "*.sln") with
                         | [| sln |] ->
                             printfn "getting projects from solution file %s" sln
-                            Crack.getProjectsFromSlnFile sln
+                            let slnName = Path.GetFileNameWithoutExtension(sln)
+                            slnName, Crack.getProjectsFromSlnFile sln
                         | _ -> 
-                            [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
-                              for d in Directory.EnumerateDirectories(slnDir) do
-                                 yield! Directory.EnumerateFiles(d, "*.fsproj")
-                                 for d2 in Directory.EnumerateDirectories(d) do
-                                    yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
+                            let projectFiles =
+                                [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
+                                  for d in Directory.EnumerateDirectories(slnDir) do
+                                     yield! Directory.EnumerateFiles(d, "*.fsproj")
+                                     for d2 in Directory.EnumerateDirectories(d) do
+                                        yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
+                            let slnName = Path.GetFileName(slnDir)
+                            slnName, projectFiles
                                  
-                    | ps -> ps
+                    | projectFiles -> 
+                        let slnName = Path.GetFileName(slnDir)
+                        slnName, projectFiles
                     
                 printfn "projects = %A" projects
+                let projects = projects |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
+                printfn "filtered projects = %A" projects
                 let projectOutputs =
-                    projects |> List.map (fun p ->
+                    [ for p in projects do
                         printfn "cracking project %s" p
-                        Crack.getTargetFromProjectFile slnDir p) 
+                        let tp, isTestProject, isPackable, isLibrary = Crack.getTargetFromProjectFile slnDir p
+                        if (* isPackable &&*)  isLibrary && not isTestProject then
+                           yield tp ]
                 printfn "projectOutputs = %A" projectOutputs
-                let refs = [ for (tp, _, _, _) in projectOutputs -> tp ]
-                let paths = [ for (tp, _, _, _) in projectOutputs -> Path.GetDirectoryName tp ]
-                let parameters = evalPairwiseStrings x.parameters
+
+                let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
+                let parameters = evalPairwiseStringsNoOption x.parameters @ [ ("project-name", slnName) ]
                 let templateFile =
                     let t = Path.Combine(x.input, "_template.html")
                     if File.Exists(t) then
@@ -285,7 +298,7 @@ type CoreBuildOptions(watch) =
                     processRecursive = true,
                     references = true,
                     ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                    ?parameters = parameters,
+                    parameters = parameters,
                     includeSource = true
                 )
                 if x.notebooks then
@@ -300,13 +313,13 @@ type CoreBuildOptions(watch) =
                         processRecursive = true,
                         references = true,
                         ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                        ?parameters = parameters,
+                        parameters = parameters,
                         includeSource = true
                     )
 
                 let initialTemplate2 =
-                    let t2 = Path.Combine(x.input, "reference", "_template.html")
-                    let t1 = Path.Combine(x.input, "_template.html")
+                    let t1 = Path.Combine(x.input, "reference", "_template.html")
+                    let t2 = Path.Combine(x.input, "_template.html")
                     if File.Exists(t1) then
                         Some t1
                     elif File.Exists(t2) then
@@ -316,9 +329,9 @@ type CoreBuildOptions(watch) =
                         None
 
                 ApiDocs.GenerateHtml (
-                    dllFiles = refs,
+                    dllFiles = projectOutputs,
                     outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
-                    ?parameters = parameters,
+                    parameters = parameters,
                     ?template = initialTemplate2,
                     // TODO: grab source repository metadata from project file
                     //?sourceRepo = (evalString x.sourceRepo),
