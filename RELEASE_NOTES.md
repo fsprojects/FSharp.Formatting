@@ -1,4 +1,4 @@
-## 5.0.1
+## 5.0.1-beta1
   - Update to FCS v36.0
   - Add preliminary pynb support for Literate
   - Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
