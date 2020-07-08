@@ -252,33 +252,34 @@ type Literate private () =
             try Directory.CreateDirectory(outdir) |> ignore
             with _ -> failwithf "Cannot create directory '%s'" outdir
 
-          let files = Directory.GetFiles(indir, "*") 
+          let inputs = Directory.GetFiles(indir, "*") 
           let res =
-            [ for file in files do
-                let isFsx = file.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
-                let isMd = file.EndsWith(".md", true, CultureInfo.InvariantCulture) 
+            [ for input in inputs do
+                let isFsx = input.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
+                let isMd = input.EndsWith(".md", true, CultureInfo.InvariantCulture) 
                 let output =
                     if isFsx || isMd then
-                        let name = Path.GetFileNameWithoutExtension(file)
+                        let name = Path.GetFileNameWithoutExtension(input)
                         let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
                         Path.Combine(outdir, sprintf "%s.%s" name ext)
                     else
-                        Path.Combine(outdir, file)
+                        let name = Path.GetFileName(input)
+                        Path.Combine(outdir, name)
 
                 // Update only when needed
-                let changeTime = File.GetLastWriteTime(file)
+                let changeTime = File.GetLastWriteTime(input)
                 let generateTime = File.GetLastWriteTime(output)
                 if changeTime > generateTime then
                     if isFsx then
-                        printfn "analysing %s" file
-                        let res = processScriptFile file output
-                        yield file, output, Some res
+                        printfn "analysing %s" input
+                        let res = processScriptFile input output
+                        yield input, output, Some res
                     elif isMd then
-                        printfn "analysing %s" file
-                        let res = processMarkdown file output
-                        yield file, output, Some res
+                        printfn "analysing %s" input
+                        let res = processMarkdown input output
+                        yield input, output, Some res
                     else 
-                        yield file, output, None
+                        yield input, output, None
               ]
           let resRec =
             [ if processRecursive then
