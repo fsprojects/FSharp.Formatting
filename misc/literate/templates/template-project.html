@@ -1,16 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <!--
-      The {page-title} parameters will be replaced with the
-      document title extracted from the <h1> element or
-      file name, if there is no <h1> heading
-    -->
-    <title>{page-title}</title>
+    <title>{{page-title}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{page-description}">
-    <meta name="author" content="{page-author}">
+    <meta name="description" content="{{page-description}}">
+    <meta name="author" content="{{page-author}}">
     <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
@@ -27,20 +22,20 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="{github-link}">github page</a></li>
+          <li><a href="{{github-link}}">github page</a></li>
         </ul>
-        <h3 class="muted">{project-name}</h3>
+        <h3 class="muted">{{project-name}}</h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          {document}
-          {tooltips}
+          {{document}}
+          {{tooltips}}
         </div>
         <div class="span3">
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">{project-name}</li>
+            <li class="nav-header">{{project-name}}</li>
             <li><a href="../index.html">Home page</a></li>
             <!--
 
@@ -57,6 +52,6 @@
         </div>
       </div>
     </div>
-    <a href="{github-link}"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+    <a href="{{github-link}}"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
   </body>
 </html>

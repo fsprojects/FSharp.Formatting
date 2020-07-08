@@ -36,8 +36,8 @@ let docTemplate =
 
 let parameters =
   [ "project-name", "F# TestProject"
-    "project-author", "Your Name"
-    "project-summary", "A short summary of your project"
+    "page-author", "Your Name"
+    "page-description", "A short summary of your project"
     "project-github", "http://github.com/fsprojects/fsharp-test-project"
     "project-nuget", "http://nuget.com/packages/FSharp.TestProject"
     "root", "http://fsprojects.github.io/fsharp-test-project" ]
@@ -140,6 +140,22 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArg(arg1, arg2)"
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArgTupled(arg)"
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultPartial arg1 arg2"
+
+[<Test>]
+let ``ApiDocs model generation works on two sample F# assemblies``() =
+  let libraries =
+    [ testBin </> "FsLib1.dll"
+      testBin </> "FsLib2.dll" ]
+  let output = getOutputDir "FsLib12"
+  let model = ApiDocs.GenerateModel(libraries, parameters=parameters, libDirs = [testBin])
+  model.AssemblyGroup.Assemblies.Length |> shouldEqual 2
+  model.AssemblyGroup.Assemblies.[0].Name |> shouldEqual "FsLib1"
+  model.AssemblyGroup.Assemblies.[1].Name |> shouldEqual "FsLib2"
+  model.AssemblyGroup.Namespaces.Length |> shouldEqual 1
+  model.AssemblyGroup.Namespaces.[0].Name |> shouldEqual "FsLib"
+  model.AssemblyGroup.Namespaces.[0].Types.Length |> shouldEqual 9
+  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Types -> t.Assembly.Name ]
+  assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
 [<Test>]
 let ``ApiDocs generates Go to GitHub source links``() =

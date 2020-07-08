@@ -1,17 +1,18 @@
 ﻿F# Formatting: Documentation tools
 ==================================
 
-The F# Formatting libraries (`FSharp.Formatting.CodeFormat.dll`, `FSharp.Formatting.Markdown.dll` and `FSharp.Formatting.Literate.dll`) include 
+The FSharp.Formatting package include 
 an F# implementation of a Markdown parser and an F# code formatter that can be used to tokenize F# 
-code and obtain information about tokens including tool-tips (as in Visual Studio and MonoDevelop) 
+code and obtain information about tokens including tool-tips 
 with type information. The package also comes with a sample that implements literate programming for F#
 (and was used to generate this documentation).
 
- - The F# Formatting package is used by the [ProjectScaffold template](http://fsprojects.github.io/ProjectScaffold/) 
-   that is used by a large number of open source .NET projects. If you're interested in using F# Formatting
-   for generating documentation for your project, then starting with ProjectScaffold is the best option.
+Usage:
 
- - The F# Formatting package is [available on NuGet](https://nuget.org/packages/FSharp.Formatting">FSharp.Formatting),
+ - The F# Formatting package is used by the [MiniScaffold template](https://github.com/TheAngryByrd/MiniScaffold/) 
+   that is used by a large number of open source .NET projects. 
+
+ - The F# Formatting package is [available on NuGet](https://nuget.org/packages/FSharp.Formatting),
    so if you want to use some of its components (for blogging, Markdown parsing, or F# code formatting),
    then the best option is to get the package.
 
@@ -19,8 +20,11 @@ with type information. The package also comes with a sample that implements lite
    and paths. If you are calling F# Formatting from a script file, then it is recommended to use `#load "FSharp.Formatting.fsx"`
    as a future-proof way of referencing the library.
 
-You can download the [source as a ZIP file](https://github.com/fsprojects/FSharp.Formatting/zipball/master)
-or download the [compiled binaries](https://github.com/fsprojects/FSharp.Formatting/archive/release.zip) as a ZIP.
+ - F# Formatting can be used as a .NET tool:
+
+       dotnet tool install FSharp.Formatting.CommandTool
+       fsformatting convert --input docs/content --template docs/tools/template.html
+       fsformatting generate --dlls bin/MyLibrary.dll --template docs/tools/reference/template.html
 
 Documentation
 -------------
@@ -46,7 +50,7 @@ I hope it is also a good sample showing how to write documentation for F# projec
  - [F# code formatting](codeformat.html) - this page provides more details about the F# code
    formatter; it discusses how to call it to obtain information about F# source files.
 
- - [Library documentation tool](metadata.html) - provides a brief documentation for a tool
+ - [API documentation tool](metadata.html) - provides a brief documentation for a tool
    that generates nice HTML documentation from "XML comments" in your .NET libraries.
    The tool handles comments written in Markdown too. 
 

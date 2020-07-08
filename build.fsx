@@ -158,7 +158,7 @@ let executeHelper executer traceMsg failMessage configStartInfo =
 let execute = executeHelper executeWithOutput
 
 // Documentation
-let buildDocumentationCommandTool args =
+let docTool args =
   execute
     "Building documentation (CommandTool), this could take some time, please wait..."
     "generating documentation failed"
@@ -171,7 +171,7 @@ let createArg argName arguments =
     |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
-let commandToolGenerateArgument dllFiles outDir libDirs parameters sourceRepo =
+let docToolGenerateArgs dllFiles outDir libDirs parameters sourceRepo =
     let dllFilesArg = createArg "dlls" dllFiles
     let libDirArgs = createArg "libDirs" libDirs
 
@@ -188,7 +188,7 @@ let commandToolGenerateArgument dllFiles outDir libDirs parameters sourceRepo =
     let outArg = (createArg "output" [outDir])
     sprintf "generate %s %s %s %s %s --template docs/tools/reference/template.html" dllFilesArg outArg libDirArgs parametersArg reproAndFolderArg
 
-let commandToolLiterateArgument inDir outDir parameters =
+let docToolConvertArgs inDir outDir parameters template =
     let inDirArg = createArg "input" [ inDir ]
     let outDirArg = createArg "output" [ outDir ]
 
@@ -197,11 +197,12 @@ let commandToolLiterateArgument inDir outDir parameters =
         |> Seq.collect (fun (key, value) -> [key; value])
         |> createArg "replacements"
 
-    sprintf "convert %s %s %s --template docs/tools/template.html" inDirArg outDirArg replacementsArgs
+    sprintf "convert %s %s %s --noRecursive --template %s" inDirArg outDirArg replacementsArgs template
 
 
-Target.create "DogFoodCommandTool" (fun _ ->
+Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir "temp"
+    Shell.cleanDir "docs/output"
     let result =
         DotNet.exec
             (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
@@ -217,31 +218,17 @@ Target.create "DogFoodCommandTool" (fun _ ->
 
     let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
     let parameters =
-      [ "page-author", "Matthias Dittrich"
-        "project-author", "Matthias Dittrich"
-        "page-description", "desc"
+      [ "page-author", "Tomas Petricek and FSharp.Formatting contributors"
+        "page-description", summary
         "github-link", "https://github.com/fsprojects/FSharp.Formatting"
         "project-name", "FSharp.Formatting"
         "root", "https://fsprojects.github.io/FSharp.Formatting"
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
         "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
 
-    let literateArgs = commandToolLiterateArgument "docs/content" "temp" parameters
-    buildDocumentationCommandTool literateArgs
-
-    let metadataReferenceArgs = commandToolGenerateArgument dllFiles "temp/reference" [] parameters None
-    buildDocumentationCommandTool metadataReferenceArgs)
-
-
-Target.create "GenerateDocs" (fun _ ->
-    let result =
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" })
-            "fsi"
-            "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
-
-    if not result.OK then failwith "error generating docs"
-)
+    docTool (docToolConvertArgs "docs/content" "docs/output" parameters "docs/tools/template.html")
+    docTool (docToolConvertArgs "docs/content/sidebyside" "docs/output/sidebyside" parameters "docs/tools/template-sidebyside.html")
+    docTool (docToolGenerateArgs dllFiles "docs/output/reference" [] parameters None))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
@@ -341,13 +328,12 @@ Target.create "CreateTestJson" (fun _ ->
 "Root"
   //==> "Clean"
   //==> "AssemblyInfo"
-  ==> "Build"
-  ==> "Tests"
-  ==> "All"
+//  ==> "Build"
+  //==> "Tests"
+  //==> "All"
 
-"Build"
-  ==> "NuGet"
-  ==> "DogFoodCommandTool"
+//"Build"
+//  ==> "NuGet"
   ==> "GenerateDocs"
   ==> "All"
 

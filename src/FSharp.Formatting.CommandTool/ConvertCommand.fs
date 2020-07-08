@@ -44,7 +44,7 @@ type ConvertDirectoryOptions() =
     member val template = "" with get, set
 
     [<Option("output", Required = false,
-        HelpText = "Ouput Directory, defaults to input directory (optional).")>]
+        HelpText = "Ouput Directory, defaults to 'output' (optional).")>]
     member val output = "" with get, set
 
     [<Option("format", Required = false,
@@ -75,6 +75,10 @@ type ConvertDirectoryOptions() =
         HelpText = "Use the default FsiEvaluator, defaults to 'false'")>]
     member val fsieval = false with set, get
 
+    [<Option("noRecursive", Required = false,
+        HelpText = "Disable recursive processing of sub-directories")>]
+    member val noRecursive = false with set, get
+
     [<Option("replacements", Required = false,
         HelpText = "A whitespace separated list of string pairs as text replacement patterns for the format template file (optional).")>]
     member val replacements = Seq.empty<string> with get, set
@@ -99,7 +103,7 @@ type ConvertDirectoryOptions() =
                         x.input,
                         ?generateAnchors = Some true,
                         ?template = (evalString x.template),
-                        ?outputDirectory = Some (if x.output = "" then x.input else x.output),
+                        ?outputDirectory = Some (if x.output = "" then "output" else x.output),
                         ?format=
                             Some (let fmt = x.format.ToLower()
                                   if fmt = "html" then OutputKind.Html
@@ -110,6 +114,7 @@ type ConvertDirectoryOptions() =
                         ?prefix = (evalString x.prefix),
                         ?compilerOptions = (evalString (concat x.compilerOptions)),
                         ?lineNumbers = Some (not x.noLineNumbers),
+                        ?processRecursive = Some (not x.noRecursive),
                         ?references = Some x.references,
                         ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() :> _) else None),
                         ?replacements = (evalPairwiseStrings x.replacements),

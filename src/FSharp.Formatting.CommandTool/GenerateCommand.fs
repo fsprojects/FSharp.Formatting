@@ -36,8 +36,8 @@ type GenerateOptions() =
         HelpText = "DLL input file list.")>]
     member val dlls = Seq.empty<string> with get, set
 
-    [<Option("output", Required = true,
-        HelpText = "Output Directory.")>]
+    [<Option("output", Required = false,
+        HelpText = "Output Directory (optional, defaults to 'output')")>]
     member val output = "" with get, set
 
     [<Option("parameters", Required = false,
@@ -72,7 +72,7 @@ type GenerateOptions() =
             else
                 ApiDocs.GenerateHtml (
                     dllFiles = (x.dlls |> List.ofSeq),
-                    outDir = x.output,
+                    outDir = (if x.output = "" then "output" else x.output),
                     ?parameters = (evalPairwiseStrings x.parameters),
                     ?template = (evalString x.template),
                     ?xmlFile = (evalString x.xmlFile),
