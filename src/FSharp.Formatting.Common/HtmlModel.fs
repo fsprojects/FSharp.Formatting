@@ -1275,18 +1275,18 @@ module internal Html =
     let (!!) str = HtmlElement.String str
 
 module internal HtmlFile =
-    let internal replaceParameters isHtml (contentTag:string) (parameters:seq<string * string>) (input: string option) =
-      match input with
+    let internal replaceParameters isHtml (contentTag:string) (parameters:seq<string * string>) (templateTextOpt: string option) =
+      match templateTextOpt with
       | None ->
           // If there is no template, return just document + tooltips (empty if not HTML)
           let lookup = parameters |> dict
           lookup.[contentTag] + (if lookup.ContainsKey "tooltips" then "\n\n" + lookup.["tooltips"] else "")
-      | Some input ->
+      | Some templateText ->
           // First replace @Properties["key"] or {{key}} or {key} with some uglier keys and then replace them with values
           // (in case one of the keys appears in some other value)
           let id = System.Guid.NewGuid().ToString("d")
-          let input =
-              (input, parameters) ||> Seq.fold (fun text (key, value) ->
+          let temp =
+              (templateText, parameters) ||> Seq.fold (fun text (key, value) ->
                 let key1 = sprintf "@Properties[\"%s\"]" key
                 let key2 = "{{" + key + "}}"
                 let key3 = "{" + key + "}"
@@ -1296,14 +1296,14 @@ module internal HtmlFile =
                 let text = if not isHtml then text.Replace(key3, rkey) else text
                 text)
           let result =
-              (input, parameters) ||> Seq.fold (fun text (key, value) ->
+              (temp, parameters) ||> Seq.fold (fun text (key, value) ->
                   text.Replace("{" + key + id + "}", value)) 
           result
 
     let UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outputFile) =
-      let templateOpt = templateOpt |> Option.map System.IO.File.ReadAllText
+      let templateTextOpt = templateOpt |> Option.map System.IO.File.ReadAllText
       let isHtml = match templateOpt with None -> false | Some n -> n.EndsWith(".html", true, System.Globalization.CultureInfo.InvariantCulture)
-      let outputText = replaceParameters isHtml contentTag parameters templateOpt
+      let outputText = replaceParameters isHtml contentTag parameters templateTextOpt
       try
         let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
         Directory.CreateDirectory(path) |> ignore

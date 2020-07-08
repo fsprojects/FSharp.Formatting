@@ -62,9 +62,7 @@ module internal CodeFormatHelper =
 /// Exposes functionality of the F# code formatter with a nice interface
 type CodeFormat =
   /// Returns a new instance of the agent that manages code formatting
-  /// using the F# compiler service. The agent requires a reference to
-  /// the 'FSharp.Compiler.dll' assembly. At the moment, the assembly
-  /// is shared by all the instances of formatting agent!
+  /// using the F# compiler service. 
   static member CreateAgent() = CodeFormatAgent()
 
   /// Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should
