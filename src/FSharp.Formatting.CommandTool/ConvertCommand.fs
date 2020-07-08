@@ -21,7 +21,7 @@ type ConvertCommand() =
         let help = new HelpText()
         help.AddDashesToOption <- true
         //help.AddOptions(x)
-        "\nfsformatting literate --processDirectory [options]" +
+        "\nfsdocs convert --processDirectory [options]" +
         "\n--------------------------------------------------" +
         help.ToString()
 

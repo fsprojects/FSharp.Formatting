@@ -13,7 +13,7 @@ type ApiDocsCommand() =
     member x.GetUsageOfOption() =
         let help = new HelpText()
         help.AddDashesToOption <- true
-        "\nfsformatting api [options]" +
+        "\nfsdocs api [options]" +
         "\n------------------------------------------------" +
         help.ToString()
 
