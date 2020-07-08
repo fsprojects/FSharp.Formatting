@@ -15,7 +15,7 @@
   - For command line tool
         Update command line parser
         "fsformatting literate process-directory" --> "fsformatting convert"
-        "fsformatting metadata-format generate" --> "fsformatting generate"
+        "fsformatting metadata-format generate" --> "fsformatting apidocs"
         "--dllFiles" --> "--dlls"
         "--outDir" --> "--output"
         "--outputDirectory" --> "--output"

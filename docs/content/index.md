@@ -24,7 +24,7 @@ Usage:
 
        dotnet tool install FSharp.Formatting.CommandTool
        fsformatting convert --input docs/content --template docs/tools/template.html
-       fsformatting generate --dlls bin/MyLibrary.dll --template docs/tools/reference/template.html
+       fsformatting apidocs --dlls bin/MyLibrary.dll --template docs/tools/reference/template.html
 
 Documentation
 -------------

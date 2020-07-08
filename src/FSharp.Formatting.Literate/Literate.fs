@@ -246,7 +246,10 @@ type Literate private () =
               ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
 
         /// Recursively process all files in the directory tree
-        let rec processDirectory indir outdir =
+        let rec processDirectory template indir outdir =
+          let possibleNewTemplate = Path.Combine(indir, "_templates", "template.html")
+          let template = if (try File.Exists(possibleNewTemplate) with _ -> false) then Some possibleNewTemplate else template
+
           // Create output directory if it does not exist
           if Directory.Exists(outdir) |> not then
             try Directory.CreateDirectory(outdir) |> ignore
@@ -273,11 +276,11 @@ type Literate private () =
                     if isFsx then
                         printfn "analysing %s" input
                         let res = processScriptFile input output
-                        yield input, output, Some res
+                        yield input, output, Some (template, res)
                     elif isMd then
                         printfn "analysing %s" input
                         let res = processMarkdown input output
-                        yield input, output, Some res
+                        yield input, output, Some (template, res)
                     else 
                         yield input, output, None
               ]
@@ -285,17 +288,20 @@ type Literate private () =
             [ if processRecursive then
                 for d in Directory.EnumerateDirectories(indir) do
                   let name = Path.GetFileName(d)
-                  yield! processDirectory (Path.Combine(indir, name)) (Path.Combine(outdir, name))
+                  if name.StartsWith "_"then
+                     printfn "skipping directory %s" d
+                  else
+                     yield! processDirectory template (Path.Combine(indir, name)) (Path.Combine(outdir, name))
             ]
           res @ resRec
 
-        let res = processDirectory inputDirectory outputDirectory
+        let res = processDirectory template inputDirectory outputDirectory
 
         for (file, output, res) in res do
             match res with
             | None ->
                 printfn "copying %s --> %s" file output
                 File.Copy(file, output)
-            | Some model ->
+            | Some (template, model) ->
                 printfn "creating %s" output
                 HtmlFile.UseFileAsSimpleTemplate(model.ContentTag, model.Parameters, template, output)

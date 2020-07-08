@@ -15,8 +15,9 @@
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Options.fs" />
-    <Compile Include="GenerateCommand.fs" />
+    <Compile Include="ApiDocsCommand.fs" />
     <Compile Include="ConvertCommand.fs" />
+    <Compile Include="BuildCommand.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

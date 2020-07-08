@@ -41,14 +41,14 @@ according to the concept of [Literate Programming](literate.html).
   * `--help` -  Display the specific help message for `convert`.
   * `--waitForKey` -  Wait for key before exit.
 
-The generate command
+The apidocs command
 --------------------
 
-The `generate` command builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
+The `apidocs` command builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
 the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
 
     [lang=text]
-    fsformatting generate --dlls lib1.dll "lib 2.dll" --output "../api-docs" --template docs/reference/template.html
+    fsformatting apidocs --dlls lib1.dll "lib 2.dll" --output "../api-docs" --template docs/reference/template.html
 
 ### Required options
 
@@ -63,7 +63,7 @@ the meta-data from the `*.dll` files of the package and using the XML comments f
   * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
   * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
   * `--libDirs` - Search directory list for library references.
-  * `--help` -  Display the specific help message for `generate`.
+  * `--help` -  Display the specific help message for `apidocs`.
   * `--waitForKey` -  Wait for key before exit.
 
 ### Examples
@@ -84,7 +84,7 @@ For example, you can experiment with the [template file of the FSharp.Formatting
 <div></div>
 
     [lang=text]
-    fsformatting generate
+    fsformatting apidocs
       --dlls lib1.dll "lib 2.dll" 
       --output "../api-docs" 
       --template template.html

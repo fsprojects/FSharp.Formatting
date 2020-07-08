@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.CommandTool.Literate
+namespace FSharp.Formatting.CommandTool
 
 open CommandLine
 open CommandLine.Text
@@ -10,7 +10,7 @@ open FSharp.Formatting.CommandTool.Common
 
 /// Process directory containing a mix of Markdown documents and F# Script files
 [<Verb("convert", HelpText = "convert a directory of literate scripts or markdown to another format")>]
-type ConvertDirectoryOptions() =
+type ConvertCommand() =
 
     // does not work as desired in F#:
     // the HelpOption attribute is not built,
@@ -26,7 +26,7 @@ type ConvertDirectoryOptions() =
         help.ToString()
 
     [<Option("help", Required = false,
-        HelpText = "Display this message. All options are case-insensitive.")>]
+        HelpText = "Display this message. All options are case-sensitive.")>]
     member val help = false with get, set
 
     [<Option("waitForKey", Required = false,
