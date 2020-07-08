@@ -152,8 +152,11 @@ and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSh
 
 If you have multiple script files and Markdown documents (this time, they need to have
 the `*.md` file extension) in a single directory, you can run the tool on a directory.
-It will also automatically check that files are re-generated only when they were changed.
-The following sample also uses optional parameter `replacements` to specify additional
+It will also automatically check that files are re-generated only when they were changed,
+and also copy over any other files. Processing is recursive, making this call a form of static
+site generation.
+
+The following sample also uses optional parameter `parameters` to specify additional
 keywords that will be replaced in the template file (this matches the `template-project.html`
 file which is included as a sample in the package):
 *)
@@ -168,7 +171,7 @@ let projInfo =
 
 // Process all files and save results to 'output' directory
 Literate.ConvertDirectory
-  (source, projTemplate, source + "\\output", replacements=projInfo)
+  (source, projTemplate, source + "\\output", parameters=projInfo)
 
 (**
 The sample template `template-project.html` has been used to generate this documentation
@@ -239,9 +242,9 @@ version of the F# compiler:
  - `lineNumbers` - if `true` then the generated F# snippets include line numbers.
  - `references` - if `true` then the script automatically adds a "References" 
    section with all indirect links that are defined and used in the document.
- - `replacements` - a list of key-value pairs containing additional parameters
+ - `parameters` - a list of key-value pairs containing additional parameters
    that should be replaced in the tempalte HTML file.
- - `includeSource` - when `true`, parameter `{source}` will be replaced with a 
+ - `includeSource` - when `true`, parameter `{{source}}` will be replaced with a 
    `<pre>` tag containing the original source code of the F# Script or Markdown document.
  - `errorHandler` - a function that is used to report errors from the F# compiler 
    (if not specified, errors are printed to the standard output)

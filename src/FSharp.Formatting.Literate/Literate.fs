@@ -19,8 +19,8 @@ open FSharp.Formatting.CodeFormat
 type Literate private () =
 
   /// Build default options context for formatting literate document
-  static let formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss =
-    { Replacements = defaultArg replacements []
+  static let formattingContext format prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss =
+    { Replacements = defaultArg parameters []
       GenerateLineNumbers = defaultArg lineNumbers true
       IncludeSource = defaultArg includeSource false
       Prefix = defaultArg prefix "fs"
@@ -158,72 +158,72 @@ type Literate private () =
 
   /// Process the given literate document
   static member internal CreateModelForDocument
-    (doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?tokenKindToCss) =
-    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
+    (doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters, ?tokenKindToCss) =
+    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
     Templating.processFile doc output ctx
 
   /// Process Markdown document
   static member internal CreateModelForMarkdown
     (input, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
+      ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
     let doc =
       Literate.ParseMarkdownFile
         (input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
           ?references = references)
-    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
+    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
   /// Process F# Script file
   static member internal CreateModelForScriptFile
     (input,?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource,
       ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
     let doc =
       Literate.ParseScriptFile
         (input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions,
           ?references = references, ?fsiEvaluator = fsiEvaluator)
-    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
+    let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
 
   static member ConvertDocument
-    (doc, output, ?template, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements) =
+    (doc, output, ?template, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters) =
       let res =
           Literate.CreateModelForDocument
               (doc, output, ?format=format, ?prefix=prefix, ?lineNumbers=lineNumbers,
-               ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?replacements=replacements)
+               ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?parameters=parameters)
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   static member ConvertMarkdown
     (input, ?template, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors,
+      ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors,
       ?customizeDocument) =
 
       let res =
           Literate.CreateModelForMarkdown
               (input ,?output=output, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
                ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
-               ?replacements=replacements, ?customizeDocument=customizeDocument)
+               ?parameters=parameters, ?customizeDocument=customizeDocument)
       let output=defaultOutput output input format
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   static member ConvertScriptFile
     (input, ?template, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource,
       ?generateAnchors, ?customizeDocument) =
         let res =
             Literate.CreateModelForScriptFile
                 (input ,?output=output, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
                  ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
-                 ?replacements=replacements, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator)
+                 ?parameters=parameters, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator)
         let output=defaultOutput output input format
         HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   static member ConvertDirectory
     (inputDirectory, ?template, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors,
       ?processRecursive, ?customizeDocument, ?tokenKindToCss) =
         let outputDirectory=defaultArg outputDirectory inputDirectory
 
@@ -234,7 +234,7 @@ type Literate private () =
           Literate.CreateModelForScriptFile
             (file, output = output, ?format = format,
               ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-              ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
+              ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?parameters = parameters,
               ?includeSource = includeSource, ?generateAnchors = generateAnchors,
               ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
 
@@ -242,7 +242,7 @@ type Literate private () =
           Literate.CreateModelForMarkdown
             (file, output = output, ?format = format,
               ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-              ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
+              ?lineNumbers = lineNumbers, ?references = references, ?parameters = parameters,
               ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
 
         /// Recursively process all files in the directory tree

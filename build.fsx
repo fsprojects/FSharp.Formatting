@@ -35,6 +35,9 @@ let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
+let gitHome = "https://github.com/fsprojects"
+let projectRepo = gitHome + "/FSharp.Formatting"
+
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
 
@@ -171,35 +174,6 @@ let createArg argName arguments =
     |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
-let docToolGenerateArgs dllFiles outDir libDirs parameters sourceRepo =
-    let dllFilesArg = createArg "dlls" dllFiles
-    let libDirArgs = createArg "libDirs" libDirs
-
-    let parametersArg =
-        parameters
-        |> Seq.collect (fun (key, value) -> [key; value])
-        |> createArg "parameters"
-
-    let reproAndFolderArg =
-        match sourceRepo with
-        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\"" repo folder
-        | _ -> ""
-
-    let outArg = (createArg "output" [outDir])
-    sprintf "generate %s %s %s %s %s --template docs/tools/reference/template.html" dllFilesArg outArg libDirArgs parametersArg reproAndFolderArg
-
-let docToolConvertArgs inDir outDir parameters template =
-    let inDirArg = createArg "input" [ inDir ]
-    let outDirArg = createArg "output" [ outDir ]
-
-    let replacementsArgs =
-        parameters
-        |> Seq.collect (fun (key, value) -> [key; value])
-        |> createArg "replacements"
-
-    sprintf "convert %s %s %s --noRecursive --template %s" inDirArg outDirArg replacementsArgs template
-
-
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir "temp"
     Shell.cleanDir "docs/output"
@@ -217,29 +191,32 @@ Target.create "GenerateDocs" (fun _ ->
         "FSharp.Formatting.ApiDocs.dll" ]
 
     let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
-    let sourceRepo = "https://github.com/fsprojects/FSharp.Formatting"
     let parameters =
       [ "root", "https://fsprojects.github.io/FSharp.Formatting"
-        "page-author", "Tomas Petricek and FSharp.Formatting contributors"
+        "page-author", "Tomas Petricek and F# Formatting contributors"
         "page-description", summary
-        "github-link", sourceRepo
-        "project-name", "FSharp.Formatting"
+        "github-link", projectRepo
+        "project-name", "F# Formatting"
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
-        "project-github", sourceRepo ]
+        "project-github", projectRepo ]
 
-    docTool (docToolConvertArgs "docs/content" "docs/output" parameters "docs/tools/template.html")
-    docTool (docToolConvertArgs "docs/content/sidebyside" "docs/output/sidebyside" parameters "docs/tools/template-sidebyside.html")
-    docTool (docToolConvertArgs "docs/content/misc" "docs/output/misc" parameters "docs/tools/template.html")
-    docTool (docToolConvertArgs "docs/content/content" "docs/output/content" parameters "docs/tools/template.html")
-    docTool (docToolGenerateArgs dllFiles "docs/output/reference" [] parameters (Some(sourceRepo, ""))))
+    let parametersArg =
+        parameters
+        |> Seq.collect (fun (key, value) -> [key; value])
+        |> createArg "parameters"
+
+    let dllFilesArg = createArg "dlls" dllFiles
+    docTool (sprintf "convert --input docs/content            --output docs/output            --noRecursive --template docs/tools/template.html %s"  parametersArg)
+    docTool (sprintf "convert --input docs/content/sidebyside --output docs/output/sidebyside --noRecursive --includeSource --template docs/tools/template-sidebyside.html %s" parametersArg)
+    docTool (sprintf "convert --input docs/content/misc       --output docs/output/misc       --template docs/tools/template.html %s" parametersArg)
+    docTool (sprintf "convert --input docs/content/content    --output docs/output/content    --template docs/tools/template.html %s" parametersArg)
+    docTool (sprintf "generate %s --output docs/output --template docs/tools/reference/template.html %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "https://github.com/fsprojects"
-
 Target.create "ReleaseDocs" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting") "temp/gh-pages"
+    Git.Repository.clone "" projectRepo "temp/gh-pages"
     Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
     Shell.copyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
@@ -258,7 +235,7 @@ Target.create "PushPackagesToNugetOrg" (fun _ ->
 )
 
 Target.create "PushReleaseToGithub" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting") "temp/release"
+    Git.Repository.clone "" projectRepo "temp/release"
     Git.Branches.checkoutBranch "temp/release" "release"
     Shell.copyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion

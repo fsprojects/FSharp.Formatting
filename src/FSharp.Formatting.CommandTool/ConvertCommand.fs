@@ -79,9 +79,9 @@ type ConvertDirectoryOptions() =
         HelpText = "Disable recursive processing of sub-directories")>]
     member val noRecursive = false with set, get
 
-    [<Option("replacements", Required = false,
+    [<Option("parameters", Required = false,
         HelpText = "A whitespace separated list of string pairs as text replacement patterns for the format template file (optional).")>]
-    member val replacements = Seq.empty<string> with get, set
+    member val parameters = Seq.empty<string> with get, set
 
     [<Option("includeSource", Required = false,
         HelpText = "Include sourcecode in documentation, defaults to 'false' (optional).")>]
@@ -117,7 +117,7 @@ type ConvertDirectoryOptions() =
                         ?processRecursive = Some (not x.noRecursive),
                         ?references = Some x.references,
                         ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() :> _) else None),
-                        ?replacements = (evalPairwiseStrings x.replacements),
+                        ?parameters = (evalPairwiseStrings x.parameters),
                         ?includeSource = Some x.includeSource)
 
                 if x.live then

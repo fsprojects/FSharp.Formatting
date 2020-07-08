@@ -20,7 +20,7 @@ The `convert` command processes a directory containing a mix of Markdown documen
 according to the concept of [Literate Programming](literate.html).
 
     [lang=text]
-    fsformatting convert --template template.html --format latex --replacements "page-author" "Tomas Petricek"
+    fsformatting convert --template template.html --format latex --parameters "page-author" "Tomas Petricek"
 
 ### Required options
 
@@ -36,7 +36,7 @@ according to the concept of [Literate Programming](literate.html).
   * `--lineNumbers` -  Line number option, defaults to `true`.
   * `--references` -  Turn all indirect links into references, defaults to `false`.
   * `--fsieval` - Use the default FsiEvaluator, defaults to `false`.
-  * `--replacements` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
+  * `--parameters` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
   * `--includeSource` -  Include sourcecode in documentation, defaults to `false`.
   * `--help` -  Display the specific help message for `convert`.
   * `--waitForKey` -  Wait for key before exit.

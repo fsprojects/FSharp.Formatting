@@ -44,7 +44,7 @@ type LiterateProcessingContext =
   { /// Short prefix code added to all HTML 'id' elements
     Prefix : string
 
-    /// Additional replacements to be made in the template file
+    /// Additional parameters to be made in the template file
     Replacements : list<string * string>
 
     /// Generate line numbers for F# snippets?
