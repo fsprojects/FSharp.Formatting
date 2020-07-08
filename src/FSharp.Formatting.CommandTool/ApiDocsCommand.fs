@@ -8,53 +8,43 @@ open FSharp.Formatting.Common
 open FSharp.Formatting.CommandTool.Common
 
 /// Exposes metadata formatting functionality. 
-[<Verb("apidocs", HelpText = "generate API reference docs from metadata")>]
+[<Verb("api", HelpText = "generate API reference docs from metadata")>]
 type ApiDocsCommand() =
     member x.GetUsageOfOption() =
         let help = new HelpText()
         help.AddDashesToOption <- true
-        "\nfsformatting apidocs [options]" +
+        "\nfsformatting api [options]" +
         "\n------------------------------------------------" +
         help.ToString()
 
-    [<Option("help", Required = false,
-        HelpText = "Display this message. All options are case-sensitive.")>]
+    [<Option("help", Required = false, HelpText = "Display this message. All options are case-sensitive.")>]
     member val help = false with get, set
 
-    [<Option("waitForKey", Required = false,
-        HelpText = "Wait for key before exit.")>]
+    [<Option("waitForKey", Required = false, HelpText = "Wait for key before exit.")>]
     member val waitForKey = false with get, set
 
-    [<Option("dlls", Required = true,
-        HelpText = "DLL input file list.")>]
+    [<Option("dlls", Required = true, HelpText = "DLL input file list.")>]
     member val dlls = Seq.empty<string> with get, set
 
-    [<Option("output", Required = false,
-        HelpText = "Output Directory (optional, defaults to 'output')")>]
+    [<Option("output", Required = false, Default="output", HelpText = "Output Directory (optional, defaults to 'output')")>]
     member val output = "" with get, set
 
-    [<Option("parameters", Required = false,
-        HelpText = "Property settings for {{prop-name}} substitutions in the template (optional).")>]
+    [<Option("parameters", Required = false, HelpText = "Property settings for {{prop-name}} substitutions in the template (optional).")>]
     member val parameters = Seq.empty<string> with get, set
 
-    [<Option("template", Required = false,
-        HelpText = "template file for formatting (optional).")>]
+    [<Option("template", Required = false, HelpText = "template file for formatting (optional).")>]
     member val template = "" with get, set
 
-    [<Option("xmlFile", Required = false,
-        HelpText = "Single XML file to use for all DLL files, otherwise using 'file.xml' for each 'file.dll' (optional).")>]
+    [<Option("xmlFile", Required = false, HelpText = "Single XML file to use for all DLL files, otherwise using 'file.xml' for each 'file.dll' (optional).")>]
     member val xmlFile = "" with get, set
 
-    [<Option("sourceRepo", Required = false,
-        HelpText = "Source repository URL; silently ignored, if source repository folder is not provided (optional).")>]
+    [<Option("sourceRepo", Required = false, HelpText = "Source repository URL (optional).")>]
     member val sourceRepo = "" with get, set
 
-    [<Option("sourceFolder", Required = false,
-        HelpText = "Source repository folder; silently ignored, if source repository URL is not provided (optional).")>]
+    [<Option("sourceFolder", Required = false, HelpText = "Source repository folder; silently ignored, if source repository URL is not provided (optional).")>]
     member val sourceFolder = "" with get, set
 
-    [<Option("libDirs", Required = false,
-        HelpText = "Search directory list for library references.")>]
+    [<Option("libDirs", Required = false, HelpText = "Search directory list for library references.")>]
     member val libDirs = Seq.empty<string> with get, set
 
     member x.Execute() =
@@ -65,13 +55,13 @@ type ApiDocsCommand() =
             else
                 ApiDocs.GenerateHtml (
                     dllFiles = (x.dlls |> List.ofSeq),
-                    outDir = (if x.output = "" then "output" else x.output),
-                    ?parameters = (evalPairwiseStrings x.parameters),
-                    ?template = (evalString x.template),
-                    ?xmlFile = (evalString x.xmlFile),
-                    ?sourceRepo = (evalString x.sourceRepo),
-                    ?sourceFolder = (evalString x.sourceFolder),
-                    ?libDirs = (evalStrings x.libDirs)
+                    outDir = x.output,
+                    ?parameters = evalPairwiseStrings x.parameters,
+                    ?template = evalString x.template,
+                    ?xmlFile = evalString x.xmlFile,
+                    ?sourceRepo = evalString x.sourceRepo,
+                    ?sourceFolder = evalString x.sourceFolder,
+                    ?libDirs = evalStrings x.libDirs
                     )
         with ex ->
             Log.errorf "received exception in ApiDocs.GenerateHtml:\n %A" ex

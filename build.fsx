@@ -206,11 +206,9 @@ Target.create "GenerateDocs" (fun _ ->
         |> createArg "parameters"
 
     let dllFilesArg = createArg "dlls" dllFiles
-    docTool (sprintf "convert --input docs/content            --output docs/output            --noRecursive --template docs/tools/template.html %s"  parametersArg)
-    docTool (sprintf "convert --input docs/content/sidebyside --output docs/output/sidebyside --noRecursive --includeSource --template docs/tools/template-sidebyside.html %s" parametersArg)
-    docTool (sprintf "convert --input docs/content/misc       --output docs/output/misc       --template docs/tools/template.html %s" parametersArg)
-    docTool (sprintf "convert --input docs/content/content    --output docs/output/content    --template docs/tools/template.html %s" parametersArg)
-    docTool (sprintf "apidocs %s --output docs/output --template docs/tools/reference/template.html %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo))
+    docTool (sprintf "convert %s" parametersArg)
+    docTool (sprintf "api %s %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo)
+    docTool (sprintf "build docs --output output2 %s" parametersArg))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts

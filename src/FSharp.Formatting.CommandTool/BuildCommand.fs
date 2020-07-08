@@ -98,7 +98,7 @@ module Crack =
         let projects = [ for KeyValue(k,v) in loader.Projects -> v.ProjectFileName ]
         projects
 
-type CoreBuildOptions(live) =
+type CoreBuildOptions(watch) =
 
     let mutable useWaitForKey = false 
 
@@ -117,34 +117,40 @@ type CoreBuildOptions(live) =
     [<Option("eval", Default= true, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = true with get, set
 
+    [<Option("noLineNumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers (optional).")>]
+    member val noLineNumbers = false with get, set
+
+    [<Option("parameters", Required = false, HelpText = "Substitution parameters for templates.")>]
+    member val parameters = Seq.empty<string> with get, set
+
     member x.Execute() =
         let mutable res = 0
-        //use watcher = new System.IO.FileSystemWatcher(x.input)
-        try
-            printfn "x.projects = %A" x.projects
-            let projects =
-                match Seq.toList x.projects with
-                | [] ->
-                    match Directory.GetFiles("*.sln") with
-                    | [| sln |] -> Crack.getProjectsFromSlnFile sln
-                    | _ -> 
-                    Seq.toList (Directory.EnumerateFiles(".", "*.fsproj", EnumerationOptions(RecurseSubdirectories=true)))
-                | ps -> ps
+        use watcher = (if watch then new FileSystemWatcher(x.input) else null )
+        let run () =
+            try
+                printfn "x.projects = %A" x.projects
+                let projects =
+                    match Seq.toList x.projects with
+                    | [] ->
+                        match Directory.GetFiles("*.sln") with
+                        | [| sln |] -> Crack.getProjectsFromSlnFile sln
+                        | _ -> 
+                        Seq.toList (Directory.EnumerateFiles(".", "*.fsproj", EnumerationOptions(RecurseSubdirectories=true)))
+                    | ps -> ps
                     
-            printfn "projects = %A" projects
-            let projectOutputs = List.map Crack.getTargetFromProjectFile projects
-            printfn "projectOutputs = %A" projectOutputs
-            let refs = [ for (tp, _, _, _) in projectOutputs -> tp ]
-            let paths = [ for (tp, _, _, _) in projectOutputs -> Path.GetDirectoryName tp ]
-            let parameters = [] 
-            let run () =
+                printfn "projects = %A" projects
+                let projectOutputs = List.map Crack.getTargetFromProjectFile projects
+                printfn "projectOutputs = %A" projectOutputs
+                let refs = [ for (tp, _, _, _) in projectOutputs -> tp ]
+                let paths = [ for (tp, _, _, _) in projectOutputs -> Path.GetDirectoryName tp ]
+                let parameters = evalPairwiseStrings x.parameters
                 let templateFile =
-                    let t = Path.Combine(x.input, "template.html")
-                    if not (File.Exists(t)) then
+                    let t = Path.Combine(x.input, "_template.html")
+                    if File.Exists(t) then
+                        Some t
+                    else
                         printfn "note, expected template file '%s' to exist, proceeding without template" t
                         None
-                    else
-                        Some t
 
                 Literate.ConvertDirectory(
                     x.input,
@@ -153,11 +159,11 @@ type CoreBuildOptions(live) =
                     outputDirectory = x.output,
                     format=OutputKind.Html,
                     ?formatAgent = None,
-                    lineNumbers = true,
+                    ?lineNumbers = Some (not x.noLineNumbers),
                     processRecursive = true,
                     references = true,
                     ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                    parameters = parameters,
+                    ?parameters = parameters,
                     includeSource = true
                 )
                 if x.notebooks then
@@ -172,43 +178,64 @@ type CoreBuildOptions(live) =
                         processRecursive = true,
                         references = true,
                         ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                        parameters = parameters,
+                        ?parameters = parameters,
                         includeSource = true
                     )
+
+                let initialTemplate2 =
+                    let t2 = Path.Combine(x.input, "reference", "_template.html")
+                    let t1 = Path.Combine(x.input, "_template.html")
+                    if File.Exists(t1) then
+                        Some t1
+                    elif File.Exists(t2) then
+                        Some t2
+                    else
+                        printfn "note, expected template file '%s' or '%s' to exist, proceeding without template" t1 t2
+                        None
+
                 ApiDocs.GenerateHtml (
                     dllFiles = refs,
-                    outDir = (if x.output = "" then "output" else x.output),
-                    parameters = parameters,
-                    ?template = templateFile,
+                    outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
+                    ?parameters = parameters,
+                    ?template = initialTemplate2,
                     // TODO: grab source repository metadata from project file
                     //?sourceRepo = (evalString x.sourceRepo),
                     //?sourceFolder = (evalString x.sourceFolder),
                     libDirs = paths
                     )
 
-                //if live then
-                //    watcher.IncludeSubdirectories <- true
-                //    watcher.NotifyFilter <- System.IO.NotifyFilters.LastWrite
-                //    let monitor = obj()
-                //    useWaitForKey <- true
-                //    Event.add (fun _ -> try lock monitor run with _ -> ()) watcher.Changed
-                //    watcher.EnableRaisingEvents <- true
+            with
+                | _ as ex ->
+                    Log.errorf "received exception :\n %A" ex
+                    printfn "Error : \n%O" ex
+                    res <- -1
 
-            run()
+        let monitor = obj()
+        let mutable queued = true
+        if watch then
+            watcher.IncludeSubdirectories <- true
+            watcher.NotifyFilter <- NotifyFilters.LastWrite
+            useWaitForKey <- true
+            watcher.Changed.Add (fun _ ->
+                if not queued then
+                    queued <- true
+                    printfn "Detected change in docs, waiting to rebuild..." 
+                    lock monitor (fun () ->
+                        queued <- false; run()) ) 
+            watcher.EnableRaisingEvents <- true
+            printfn "Building docs first time..." 
 
-        with
-            | _ as ex ->
-                Log.errorf "received exception :\n %A" ex
-                printfn "Error : \n%O" ex
-                res <- -1
+        lock monitor run
+        queued <- false
+
         waitForKey useWaitForKey
         res
 
-[<Verb("builddocs", HelpText = "build the documentation for a solution based on content and defaults")>]
+[<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
     inherit CoreBuildOptions(false)
 
-//[<Verb("watch", HelpText = "build the documentation for a solution and watch")>]
-//type WatchOptions() =
-//    inherit CoreBuildOptions(true)
+[<Verb("watch", HelpText = "build the documentation for a solution based on content and defaults and watch")>]
+type WatchCommand() =
+    inherit CoreBuildOptions(true)
 

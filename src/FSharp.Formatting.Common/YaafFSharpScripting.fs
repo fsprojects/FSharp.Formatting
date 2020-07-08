@@ -15,7 +15,7 @@ open FSharp.Compiler.Text
 
 [<assembly: InternalsVisibleTo("FSharp.Formatting.CodeFormat");
   assembly: InternalsVisibleTo("FSharp.Formatting.ApiDocs");
-  assembly: InternalsVisibleTo("fsformatting");
+  assembly: InternalsVisibleTo("fsdocs");
   assembly: InternalsVisibleTo("FSharp.Formatting.CSharpFormat");
   assembly: InternalsVisibleTo("FSharp.Formatting.Literate");
   assembly: InternalsVisibleTo("FSharp.Formatting.TestHelpers");

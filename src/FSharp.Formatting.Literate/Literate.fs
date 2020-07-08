@@ -247,7 +247,7 @@ type Literate private () =
 
         /// Recursively process all files in the directory tree
         let rec processDirectory template indir outdir =
-          let possibleNewTemplate = Path.Combine(indir, "_templates", "template.html")
+          let possibleNewTemplate = Path.Combine(indir, "_template.html")
           let template = if (try File.Exists(possibleNewTemplate) with _ -> false) then Some possibleNewTemplate else template
 
           // Create output directory if it does not exist
@@ -258,21 +258,26 @@ type Literate private () =
           let inputs = Directory.GetFiles(indir, "*") 
           let res =
             [ for input in inputs do
-                let isFsx = input.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
-                let isMd = input.EndsWith(".md", true, CultureInfo.InvariantCulture) 
-                let output =
+                let name = Path.GetFileName(input)
+                if name.StartsWith(".") || name = "_template.html" then 
+                     printfn "skipping file %s" input
+                else
+                  let isFsx = input.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
+                  let isMd = input.EndsWith(".md", true, CultureInfo.InvariantCulture) 
+                  let output =
                     if isFsx || isMd then
-                        let name = Path.GetFileNameWithoutExtension(input)
+                        let basename = Path.GetFileNameWithoutExtension(input)
                         let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
-                        Path.Combine(outdir, sprintf "%s.%s" name ext)
+                        Path.Combine(outdir, sprintf "%s.%s" basename ext)
                     else
-                        let name = Path.GetFileName(input)
                         Path.Combine(outdir, name)
 
-                // Update only when needed
-                let changeTime = File.GetLastWriteTime(input)
-                let generateTime = File.GetLastWriteTime(output)
-                if changeTime > generateTime then
+                // Update only when needed - template or file has changed
+                  let fileChangeTime = File.GetLastWriteTime(input)
+                  let templateChangeTime = match template with None -> new DateTime(1,1,1) | Some t -> File.GetLastWriteTime(t)
+                  let changeTime = max fileChangeTime templateChangeTime
+                  let generateTime = File.GetLastWriteTime(output)
+                  if changeTime > generateTime then
                     if isFsx then
                         printfn "analysing %s" input
                         let res = processScriptFile input output
@@ -288,7 +293,7 @@ type Literate private () =
             [ if processRecursive then
                 for d in Directory.EnumerateDirectories(indir) do
                   let name = Path.GetFileName(d)
-                  if name.StartsWith "_"then
+                  if name.StartsWith "." then
                      printfn "skipping directory %s" d
                   else
                      yield! processDirectory template (Path.Combine(indir, name)) (Path.Combine(outdir, name))

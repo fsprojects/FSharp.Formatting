@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>fsformatting</AssemblyName>
+    <AssemblyName>fsdocs</AssemblyName>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>FSharp.Formatting.CommandTool</PackageId>
     <IsPackable>true</IsPackable>
