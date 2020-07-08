@@ -204,7 +204,7 @@ type CoreBuildOptions(live) =
         waitForKey useWaitForKey
         res
 
-[<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
+[<Verb("builddocs", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
     inherit CoreBuildOptions(false)
 
