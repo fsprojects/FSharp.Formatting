@@ -4,12 +4,12 @@
 // --------------------------------------------------------------------------------------
 
 /// [omit]
-module FSharp.Formatting.Markdown.Pynb
+module internal FSharp.Formatting.Markdown.PynbFormatting
 
 open System.Collections.Generic
 open FSharp.Patterns
 open FSharp.Collections
-open FSharp.Formatting.Common.PynbModel
+open FSharp.Formatting.PynbModel
 
 (*
 module Array = 

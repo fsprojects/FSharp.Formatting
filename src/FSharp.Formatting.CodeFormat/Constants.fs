@@ -1,4 +1,4 @@
-﻿module FSharp.Formatting.CodeFormat.Constants
+module internal FSharp.Formatting.CodeFormat.Constants
 
 [<RequireQualifiedAccessAttribute>]
 module CSS =

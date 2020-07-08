@@ -4,13 +4,8 @@ storage: none
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
 nuget FSharp.Compiler.Service ~> 36.0
-nuget RazorEngine.NetCore ~> 2.2.6 lowest_matching:true
 nuget CommandLineParser ~> 2.8
 
-# pin AspNetCore Razor dependencies to v2
-nuget Microsoft.AspNetCore.Razor ~> 2.0
-nuget Microsoft.AspNetCore.Razor.Runtime ~> 2.0
-nuget Microsoft.AspNetCore.Razor.Language ~> 2.0
 nuget Microsoft.CodeAnalysis.CSharp ~> 3.6
 
 # testing dependencies

@@ -1,4 +1,4 @@
-﻿module FSharp.Literate.Tests.Setup
+module FSharp.Literate.Tests.Setup
 
 open System
 open System.IO
@@ -19,4 +19,4 @@ type TempFile() =
 
 let getFormatAgent() = FSharp.Formatting.CodeFormat.CodeFormat.CreateAgent()
 
-let getFsiEvaluator() = FSharp.Formatting.Literate.FsiEvaluator()
+let getFsiEvaluator() = FSharp.Formatting.Literate.Evaluation.FsiEvaluator()

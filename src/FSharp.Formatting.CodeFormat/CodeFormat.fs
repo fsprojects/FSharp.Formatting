@@ -7,14 +7,17 @@ namespace FSharp.Formatting.CodeFormat
 
 open System
 open System.Diagnostics
+open FSharp.Formatting.CodeFormat.Constants
 
-/// Represents an indivudal formatted snippet with title
+/// Represents an individual formatted snippet with title as key
 type FormattedSnippet(key:string, content:string) =
 
-  [<Obsolete("Use .Ley")>]
+  /// Returns the title of the snippet 
   member x.Title = key
+
   /// Returns the key of the snippet 
   member x.Key = key
+
   /// Returns the formatted content code for the snipet
   member x.Content = content
 
@@ -23,11 +26,11 @@ type FormattedSnippet(key:string, content:string) =
 type FormattedContent(snippets:FormattedSnippet[], tips:string) =
   /// Returns the processed snippets as an array
   member x.Snippets = snippets
+
   /// Returns string with ToolTip elements for all the snippets
   member x.ToolTip = tips
 
 module internal CodeFormatHelper =
-  open Constants
 
   let defaultTokenMap kind =
     match kind with
@@ -59,9 +62,7 @@ module internal CodeFormatHelper =
 /// Exposes functionality of the F# code formatter with a nice interface
 type CodeFormat =
   /// Returns a new instance of the agent that manages code formatting
-  /// using the F# compiler service. The agent requires a reference to
-  /// the 'FSharp.Compiler.dll' assembly. At the moment, the assembly
-  /// is shared by all the instances of formatting agent!
+  /// using the F# compiler service. 
   static member CreateAgent() = CodeFormatAgent()
 
   /// Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should

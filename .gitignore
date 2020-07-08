@@ -37,3 +37,4 @@ _NCrunch_*
 *.ncrunchproject
 .ionide/
 artifacts/
+tests/FSharp.ApiDocs.Tests/output/

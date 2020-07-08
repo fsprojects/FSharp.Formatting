@@ -102,6 +102,7 @@ functions that parse script files or process script files:
 
 *)
 open FSharp.Formatting.Literate
+open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Markdown
 
 // Sample literate content
@@ -163,7 +164,7 @@ This can be done by calling `RegisterTransformation` on the `FsiEvaluator` insta
 
 *)
 // Create evaluator & register simple formatter for lists
-let fsiOl = FSharp.Formatting.Literate.FsiEvaluator()
+let fsiOl = FsiEvaluator()
 fsiOl.RegisterTransformation(fun (o, ty, _executionCount) ->
   // If the type of value is an F# list, format it nicely
   if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then

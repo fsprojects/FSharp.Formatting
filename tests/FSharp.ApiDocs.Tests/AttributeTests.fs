@@ -1,5 +1,5 @@
 [<NUnit.Framework.TestFixture>]
-module FSharp.Formatting.ApiDocs.AttributeTests
+module ApiDocs.AttributeTests
 
 open FsUnit
 open System.IO
@@ -59,8 +59,8 @@ let findType name (typeInfos: TypeInfo list)=
 
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
-    "project-author", "Your Name"
-    "project-summary", "A short summary of your project"
+    "page-author", "Your Name"
+    "page-description", "A short summary of your project"
     "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
     "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
     "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]

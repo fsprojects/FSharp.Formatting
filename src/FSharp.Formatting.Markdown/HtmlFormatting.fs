@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------------------
 
 /// [omit]
-module FSharp.Formatting.Markdown.Html
+module FSharp.Formatting.Markdown.HtmlFormatting
 
 open System
 open System.IO
@@ -18,16 +18,16 @@ open FSharp.Collections
 // --------------------------------------------------------------------------------------
 
 /// Basic escaping as done by Markdown
-let htmlEncode (code:string) = 
+let internal htmlEncode (code:string) = 
   code.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
 
 /// Basic escaping as done by Markdown including quotes
-let htmlEncodeQuotes (code:string) = 
+let internal htmlEncodeQuotes (code:string) = 
   (htmlEncode code).Replace("\"", "&quot;")
 
 /// Lookup a specified key in a dictionary, possibly
 /// ignoring newlines or spaces in the key.
-let (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) = 
+let internal (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) = 
   [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); 
     key.Replace("\n", ""); key.Replace("\n", " ") ]
   |> Seq.tryPick (fun key ->
@@ -36,7 +36,7 @@ let (|LookupKey|_|) (dict:IDictionary<_, _>) (key:string) =
     | _ -> None)
 
 /// Generates a unique string out of given input
-type UniqueNameGenerator() =
+type internal UniqueNameGenerator() =
     let generated = new System.Collections.Generic.Dictionary<string, int>()
 
     member __.GetName(name : string) =
@@ -49,7 +49,7 @@ type UniqueNameGenerator() =
             name
 
 /// Context passed around while formatting the HTML
-type FormattingContext =
+type internal FormattingContext =
   { LineBreak : unit -> unit
     Newline : string
     Writer : TextWriter
@@ -59,14 +59,17 @@ type FormattingContext =
     UniqueNameGenerator : UniqueNameGenerator
     ParagraphIndent : unit -> unit }
 
-let bigBreak (ctx:FormattingContext) () =
+let internal bigBreak (ctx:FormattingContext) () =
   ctx.Writer.Write(ctx.Newline)
-let smallBreak (ctx:FormattingContext) () =
+
+let internal smallBreak (ctx:FormattingContext) () =
   ctx.Writer.Write(ctx.Newline)
-let noBreak (ctx:FormattingContext) () = ()
+
+let internal noBreak (ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
-let rec formatSpan (ctx:FormattingContext) = function
+let rec internal formatSpan (ctx:FormattingContext) span =
+  match span with 
   | LatexDisplayMath(body, _) ->
       // use mathjax grammar, for detail, check: http://www.mathjax.org/
       ctx.Writer.Write("<span class=\"math\">\\[" + (htmlEncode body) + "\\]</span>")
@@ -129,10 +132,10 @@ let rec formatSpan (ctx:FormattingContext) = function
       ctx.Writer.Write("</em>")
 
 /// Write list of MarkdownSpan values to a TextWriter
-and formatSpans ctx = List.iter (formatSpan ctx)
+and internal formatSpans ctx = List.iter (formatSpan ctx)
 
 /// generate anchor name from Markdown text
-let formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
+let internal formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
     let extractWords (text:string) =
         Regex.Matches(text, @"\w+")
         |> Seq.cast<Match>
@@ -155,14 +158,15 @@ let formatAnchor (ctx:FormattingContext) (spans:MarkdownSpans) =
     |> String.concat "-"
     |> fun name -> if String.IsNullOrWhiteSpace name then "header" else name
     |> ctx.UniqueNameGenerator.GetName
-let withInner ctx f =
+
+let internal withInner ctx f =
   use sb = new StringWriter()
   let newCtx = { ctx with Writer = sb }
   f newCtx
   sb.ToString()
 
 /// Write a MarkdownParagraph value to a TextWriter
-let rec formatParagraph (ctx:FormattingContext) paragraph =
+let rec internal formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
   | LatexBlock(_env, lines, _) ->
     // use mathjax grammar, for detail, check: http://www.mathjax.org/
@@ -266,7 +270,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagraph values to a TextWriter
-and formatParagraphs ctx paragraphs = 
+and internal formatParagraphs ctx paragraphs = 
   let length = List.length paragraphs
   let smallCtx = { ctx with LineBreak = smallBreak ctx }
   let bigCtx = { ctx with LineBreak = bigBreak ctx }

@@ -19,7 +19,6 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Unit
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
-open FSharp.Formatting.Razor
 open FsUnitTyped
 open FSharp.Formatting
 
@@ -39,7 +38,7 @@ let ``Can embed content from an external file`` () =
     Literate.ParseMarkdownString("""
 a
 
-    [lang=csharp,file=Tests.fs,key=test]
+    [lang=csharp,file=LiterateTests.fs,key=test]
 
 b""", __SOURCE_DIRECTORY__ </> "Test.fsx")
     //[/test]
@@ -433,66 +432,55 @@ let ``Parsing simple script and markdown produces the same result`` () =
 // --------------------------------------------------------------------------------------
 // Test processing simple files using simple templates
 // --------------------------------------------------------------------------------------
-let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
-let templateCsHtml = __SOURCE_DIRECTORY__ </> "files/template.cshtml"
 
 [<Test>]
-let ``Code and HTML is formatted with a tooltip in Markdown file using HTML template``() =
+let ``Code and HTML is formatted with a tooltip in Markdown file using substitution in HTML template``() =
+  let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  RazorLiterate.ProcessMarkdown(simpleMd, templateHtml, temp.File)
-  temp.Content |> shouldContainText "</a>"
-  temp.Content |> shouldContainText "val hello : string"
-
-[<Test>]
-let ``Code and HTML is formatted with a tooltip in F# Script file using HTML template``() =
-  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
-  use temp = new TempFile()
-  RazorLiterate.ProcessScriptFile(simpleFsx, templateHtml, temp.File)
-  temp.Content |> shouldContainText "</a>"
-  temp.Content |> shouldContainText "val hello : string"
-
-[<Test>]
-let ``Code and HTML is formatted with a tooltip in F# Script file using Razor template``() =
-  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
-  use temp = new TempFile()
-  RazorLiterate.ProcessScriptFile
-    ( simpleFsx, templateCsHtml, temp.File,
-      layoutRoots = [__SOURCE_DIRECTORY__ </> "files"] )
+  Literate.ConvertMarkdown(simpleMd, templateHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
+
+[<Test>]
+let ``Code and HTML is formatted with a tooltip in F# Script file using substitution in HTML template``() =
+  let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
+  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+  use temp = new TempFile()
+  Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
+  temp.Content |> shouldContainText "</a>"
+  temp.Content |> shouldContainText "val hello : string"
+  temp.Content |> shouldContainText "<title>Heading"
+
 // --------------------------------------------------------------------------------------
 // Test processing simple files using the NuGet included templates
 // --------------------------------------------------------------------------------------
 
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
-    "project-author", "Your Name"
-    "project-summary", "A short summary of your project"
+    "page-author", "Your Name"
+    "page-description", "A short summary of your project"
     "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
     "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
     "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 
-let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/docpage.cshtml"
 
 [<Test>]
-let ``Can process fsx file using the template included in NuGet package``() =
+let ``Can process fsx file using HTML template``() =
+  let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/template.html"
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
-  RazorLiterate.ProcessScriptFile
-    ( simpleFsx, docPageTemplate, temp.File,
-      layoutRoots = [__SOURCE_DIRECTORY__ </> "../../misc/templates"], replacements = info)
+  Literate.ConvertScriptFile(simpleFsx, docPageTemplate, temp.File, parameters=info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
 
 [<Test>]
-let ``Can process md file using the template included in NuGet package``() =
+let ``Can process md file using HTML template``() =
+  let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/template.html"
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  RazorLiterate.ProcessMarkdown
-    ( simpleMd, docPageTemplate, temp.File,
-      layoutRoots = [__SOURCE_DIRECTORY__ </> "../../misc/templates"], replacements = info)
+  Literate.ConvertMarkdown(simpleMd, docPageTemplate, temp.File, parameters=info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
 

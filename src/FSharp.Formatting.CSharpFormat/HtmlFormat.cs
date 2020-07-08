@@ -58,7 +58,6 @@ namespace FSharp.Formatting.CSharpFormat
 			const string regEntity = @"&amp;\w+;";
 			const string regAttributeMatch = @"(=?"".*?""|=?'.*?')|([\w:-]+)";
 			
-			//the regex object will handle all the replacements in one pass
 			string regAll = "(" + regJavaScript + ")|(" + regComment + ")|(" 
 				+ regAspTag + ")|(" + regAspCode + ")|(" + regPhpCode + ")|(" 
 				+ regTagDelimiter + ")|(" + regTagName + ")|("

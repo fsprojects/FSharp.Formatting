@@ -22,7 +22,7 @@ module Formatting =
     | OutputKind.Html ->
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
-        Html.formatMarkdown wr generateAnchors System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+        HtmlFormatting.formatMarkdown wr generateAnchors System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
         sb.ToString()
 
   /// Try find first-level heading in the paragraph collection
@@ -55,7 +55,7 @@ module Formatting =
 // --------------------------------------------------------------------------------------
 
 /// [omit]
-module Templating =
+module internal Templating =
 
   // ------------------------------------------------------------------------------------
   // Formate literate document

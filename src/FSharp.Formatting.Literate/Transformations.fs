@@ -7,10 +7,10 @@ open System.Collections.Generic
 open FSharp.Formatting.CSharpFormat
 open FSharp.Patterns
 open FSharp.Formatting.CodeFormat
+open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Markdown
 
-/// [omit]
-module Transformations =
+module internal Transformations =
   // ----------------------------------------------------------------------------------------------
   // Replace all code snippets (assume F#) with their nicely formatted versions
   // ----------------------------------------------------------------------------------------------
@@ -383,10 +383,10 @@ module Transformations =
 
   /// Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
   let replaceLiterateParagraphs ctx (doc:LiterateDocument) =
-    let replacements = List.collect collectCodes doc.Paragraphs
-    let snippets = [| for _, (lines, _) in replacements -> Snippet("", lines) |]
+    let parameters = List.collect collectCodes doc.Paragraphs
+    let snippets = [| for _, (lines, _) in parameters -> Snippet("", lines) |]
 
-    // Format all snippets and build lookup dictionary for replacements
+    // Format all snippets and build lookup dictionary for parameters
     let formatted =
       match ctx.OutputKind with
       | OutputKind.Html ->
@@ -407,7 +407,7 @@ module Transformations =
           CodeFormat.FormatPynb(snippets)
 
     let lookup =
-      [ for (key, (_, executionCount)), fmtd in Seq.zip replacements formatted.Snippets ->
+      [ for (key, (_, executionCount)), fmtd in Seq.zip parameters formatted.Snippets ->
           let block = InlineBlock(fmtd.Content, executionCount, None)
           key, block ] |> dict
 

@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.Options
+namespace FSharp.Formatting.CommandTool
 
 module Common =
 
@@ -16,7 +16,7 @@ module Common =
         if a = [|""|] then None
         else Some (a |> Seq.pairwise |> Array.ofSeq |> List.ofArray)
 
-    let concat (a) =
+    let concat a =
         let mutable s = ""
         for i in a do s <- (sprintf "%s %s" s i)
         if s = " " then s <- ""

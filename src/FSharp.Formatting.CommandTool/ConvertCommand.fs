@@ -1,17 +1,16 @@
-namespace FSharp.Formatting.Options.Literate
+namespace FSharp.Formatting.CommandTool.Literate
 
 open CommandLine
 open CommandLine.Text
-open FSharp.Formatting.Literate
 
 open FSharp.Formatting.Common
-open FSharp.Formatting.Options.Common
-open FSharp.Formatting.Razor
-
+open FSharp.Formatting.Literate
+open FSharp.Formatting.Literate.Evaluation
+open FSharp.Formatting.CommandTool.Common
 
 /// Process directory containing a mix of Markdown documents and F# Script files
 [<Verb("convert", HelpText = "convert a directory of literate scripts or markdown to another format")>]
-type ProcessDirectoryOptions() =
+type ConvertDirectoryOptions() =
 
     // does not work as desired in F#:
     // the HelpOption attribute is not built,
@@ -40,12 +39,12 @@ type ProcessDirectoryOptions() =
         HelpText = "Input directory of *.fsx and *.md files.")>]
     member val input = "" with get, set
 
-    [<Option("templateFile", Required = false,
+    [<Option("template", Required = false,
         HelpText = "Template file for formatting (optional).")>]
-    member val templateFile = "" with get, set
+    member val template = "" with get, set
 
     [<Option("output", Required = false,
-        HelpText = "Ouput Directory, defaults to input directory (optional).")>]
+        HelpText = "Ouput Directory, defaults to 'output' (optional).")>]
     member val output = "" with get, set
 
     [<Option("format", Required = false,
@@ -76,17 +75,17 @@ type ProcessDirectoryOptions() =
         HelpText = "Use the default FsiEvaluator, defaults to 'false'")>]
     member val fsieval = false with set, get
 
-    [<Option("replacements", Required = false,
+    [<Option("noRecursive", Required = false,
+        HelpText = "Disable recursive processing of sub-directories")>]
+    member val noRecursive = false with set, get
+
+    [<Option("parameters", Required = false,
         HelpText = "A whitespace separated list of string pairs as text replacement patterns for the format template file (optional).")>]
-    member val replacements = Seq.empty<string> with get, set
+    member val parameters = Seq.empty<string> with get, set
 
     [<Option("includeSource", Required = false,
         HelpText = "Include sourcecode in documentation, defaults to 'false' (optional).")>]
     member val includeSource = false with get, set
-
-    [<Option("layoutRoots", Required = false,
-        HelpText = "Search directory list for the Razor Engine (optional).")>]
-    member val layoutRoots = Seq.empty<string> with get, set
 
     [<Option("live", Required = false,
         HelpText = "Watches for changes in the input directory and re-runs, if a change occures")>]
@@ -100,11 +99,11 @@ type ProcessDirectoryOptions() =
                 printfn "%s" (x.GetUsageOfOption())
             else
                 let run () =
-                    RazorLiterate.ProcessDirectory(
+                    Literate.ConvertDirectory(
                         x.input,
                         ?generateAnchors = Some true,
-                        ?templateFile = (evalString x.templateFile),
-                        ?outputDirectory = Some (if x.output = "" then x.input else x.output),
+                        ?template = (evalString x.template),
+                        ?outputDirectory = Some (if x.output = "" then "output" else x.output),
                         ?format=
                             Some (let fmt = x.format.ToLower()
                                   if fmt = "html" then OutputKind.Html
@@ -115,11 +114,11 @@ type ProcessDirectoryOptions() =
                         ?prefix = (evalString x.prefix),
                         ?compilerOptions = (evalString (concat x.compilerOptions)),
                         ?lineNumbers = Some (not x.noLineNumbers),
+                        ?processRecursive = Some (not x.noRecursive),
                         ?references = Some x.references,
                         ?fsiEvaluator = (if x.fsieval then Some ( FsiEvaluator() :> _) else None),
-                        ?replacements = (evalPairwiseStrings x.replacements),
-                        ?includeSource = Some x.includeSource,
-                        ?layoutRoots = (evalStrings x.layoutRoots))
+                        ?parameters = (evalPairwiseStrings x.parameters),
+                        ?includeSource = Some x.includeSource)
 
                 if x.live then
                     watcher.IncludeSubdirectories <- true
@@ -133,8 +132,8 @@ type ProcessDirectoryOptions() =
 
         with
             | _ as ex ->
-                Log.errorf "received exception in RazorLiterate.ProcessDirectory:\n %A" ex
-                printfn "Error on RazorLiterate.ProcessDirectory: \n%O" ex
+                Log.errorf "received exception in Literate.ConvertDirectory:\n %A" ex
+                printfn "Error on Literate.ConvertDirectory: \n%O" ex
                 res <- -1
         waitForKey x.waitForKey
         res

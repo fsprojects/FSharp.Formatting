@@ -1,4 +1,4 @@
-module FSharp.Formatting.Common.PynbModel
+module internal FSharp.Formatting.PynbModel
 
 open System
 open System.IO

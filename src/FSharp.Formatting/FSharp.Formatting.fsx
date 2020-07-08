@@ -10,14 +10,14 @@
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/netstandard2.0"
 
-// Reference VS PowerTools, Razor and F# Formatting components
+// Reference F# Formatting components
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.Literate.dll"
 #r "FSharp.Formatting.CodeFormat.dll"
 #r "FSharp.Formatting.ApiDocs.dll"
 
-// Setup Logging for FSharp.Formatting and Yaaf.FSharp.Scripting
+// Setup Logging for FSharp.Formatting and FSharp.Formatting.Internal
 module Logging = FSharp.Formatting.Common.Log
 type TraceOptions = System.Diagnostics.TraceOptions
 
@@ -40,7 +40,7 @@ try
 
   let setupListener listener =
     [ FSharp.Formatting.Common.Log.source
-      Yaaf.FSharp.Scripting.Log.source ]
+      FSharp.Formatting.Internal.Log.source ]
     |> Seq.iter (fun source ->
         source.Switch.Level <- System.Diagnostics.SourceLevels.All
         Logging.AddListener listener source)
@@ -52,6 +52,6 @@ try
 
   // Test that everything works
   Logging.infof "FSharp.Formatting Logging setup!"
-  Yaaf.FSharp.Scripting.Log.infof "Yaaf.FSharp.Scripting Logging setup!"
+  FSharp.Formatting.Internal.Log.infof "FSharp.Formatting.Internal Logging setup!"
 with e ->
   printfn "FSharp.Formatting Logging setup failed: %A" e

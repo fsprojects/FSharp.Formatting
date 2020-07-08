@@ -1,5 +1,5 @@
-open FSharp.Formatting.Options.Literate
-open FSharp.Formatting.Options.ApiDocs
+open FSharp.Formatting.CommandTool.Literate
+open FSharp.Formatting.CommandTool.ApiDocs
 open CommandLine
 
 
@@ -13,9 +13,9 @@ let printAssemblies msg =
 [<EntryPoint>]
 let main argv =
     try
-      CommandLine.Parser.Default.ParseArguments(argv, typeof<ProcessDirectoryOptions>, typeof<GenerateOptions>)
+      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertDirectoryOptions>, typeof<GenerateOptions>)
         .MapResult(
-            (fun (opts: ProcessDirectoryOptions ) -> opts.Execute()),
+            (fun (opts: ConvertDirectoryOptions ) -> opts.Execute()),
             (fun (opts: GenerateOptions) -> opts.Execute()),
             (fun errs -> 1));
     with e ->

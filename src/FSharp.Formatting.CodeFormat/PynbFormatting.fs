@@ -7,7 +7,7 @@ module internal FSharp.Formatting.CodeFormat.Pynb
 
 open System
 open FSharp.Formatting.CodeFormat
-open FSharp.Formatting.Common.PynbModel
+open FSharp.Formatting.PynbModel
 
 let pynbEncode s = s
     //specialChars |> Array.fold (fun (acc:string) (k, v) -> acc.Replace(k, v)) (HttpUtility.HtmlDecode s)

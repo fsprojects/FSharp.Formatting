@@ -1,14 +1,12 @@
-namespace FSharp.Formatting.Options.ApiDocs
+namespace FSharp.Formatting.CommandTool.ApiDocs
 
 open CommandLine
 open CommandLine.Text
 open FSharp.Formatting.ApiDocs
 
 open FSharp.Formatting.Common
-open FSharp.Formatting.Options
-open FSharp.Formatting.Options.Common
-open FSharp.Formatting.Razor
-
+open FSharp.Formatting.CommandTool
+open FSharp.Formatting.CommandTool.Common
 
 /// Exposes metadata formatting functionality. 
 [<Verb("generate", HelpText = "generate API reference docs from metadata")>]
@@ -26,7 +24,6 @@ type GenerateOptions() =
         "\n------------------------------------------------" +
         help.ToString()
 
-
     [<Option("help", Required = false,
         HelpText = "Display this message. All options are case-insensitive.")>]
     member val help = false with get, set
@@ -39,29 +36,17 @@ type GenerateOptions() =
         HelpText = "DLL input file list.")>]
     member val dlls = Seq.empty<string> with get, set
 
-    [<Option("output", Required = true,
-        HelpText = "Output Directory.")>]
+    [<Option("output", Required = false,
+        HelpText = "Output Directory (optional, defaults to 'output')")>]
     member val output = "" with get, set
 
-    [<Option("layoutRoots", Required = true,
-        HelpText = "Search directory list for the Razor Engine.")>]
-    member val layoutRoots = Seq.empty<string> with get, set
-
     [<Option("parameters", Required = false,
-        HelpText = "Property settings for the Razor Engine (optinal).")>]
+        HelpText = "Property settings for {{prop-name}} substitutions in the template (optional).")>]
     member val parameters = Seq.empty<string> with get, set
 
-    [<Option("namespaceTemplate", Required = false,
-        HelpText = "Namespace template file for formatting, defaults to 'namespaces.cshtml' (optional).")>]
-    member val namespaceTemplate = "" with get, set
-
-    [<Option("moduleTemplate", Required = false,
-        HelpText = "Module template file for formatting, defaults to 'module.cshtml' (optional).")>]
-    member val moduleTemplate = "" with get, set
-
-    [<Option("typeTemplate", Required = false,
-        HelpText = "Type template file for formatting, defaults to 'type.cshtml' (optional).")>]
-    member val typeTemplate = "" with get, set
+    [<Option("template", Required = false,
+        HelpText = "template file for formatting (optional).")>]
+    member val template = "" with get, set
 
     [<Option("xmlFile", Required = false,
         HelpText = "Single XML file to use for all DLL files, otherwise using 'file.xml' for each 'file.dll' (optional).")>]
@@ -85,22 +70,19 @@ type GenerateOptions() =
             if x.help then
                 printfn "%s" (x.GetUsageOfOption())
             else
-                RazorApiDocs.Generate (
+                ApiDocs.GenerateHtml (
                     dllFiles = (x.dlls |> List.ofSeq),
-                    outDir = x.output,
-                    layoutRoots = (x.layoutRoots |> List.ofSeq),
+                    outDir = (if x.output = "" then "output" else x.output),
                     ?parameters = (evalPairwiseStrings x.parameters),
-                    ?namespaceTemplate = (evalString x.namespaceTemplate),
-                    ?moduleTemplate = (evalString x.moduleTemplate),
-                    ?typeTemplate = (evalString x.typeTemplate),
+                    ?template = (evalString x.template),
                     ?xmlFile = (evalString x.xmlFile),
                     ?sourceRepo = (evalString x.sourceRepo),
                     ?sourceFolder = (evalString x.sourceFolder),
                     ?libDirs = (evalStrings x.libDirs)
                     )
         with ex ->
-            Log.errorf "received exception in RazorApiDocs.Generate:\n %A" ex
-            printfn "Error on RazorApiDocs.Generate: \n%O" ex
+            Log.errorf "received exception in ApiDocs.GenerateHtml:\n %A" ex
+            printfn "Error on ApiDocs.GenerateHtml: \n%O" ex
             res <- -1
         waitForKey x.waitForKey
         res

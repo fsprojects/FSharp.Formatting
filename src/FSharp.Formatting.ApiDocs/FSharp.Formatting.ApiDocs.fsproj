@@ -14,6 +14,8 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
+    <Compile Include="GenerateModel.fs" />
+    <Compile Include="GenerateHtml.fs" />
     <Compile Include="ApiDocs.fs" />
   </ItemGroup>
   <ItemGroup>

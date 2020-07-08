@@ -14,7 +14,8 @@ open FSharp.Compiler.SourceCodeServices
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
-open Yaaf.FSharp.Scripting
+open FSharp.Formatting.Internal
+open FSharp.Formatting.Markdown
 // --------------------------------------------------------------------------------------
 // ?
 // --------------------------------------------------------------------------------------
@@ -95,16 +96,12 @@ module private Helpers =
         | _ -> yield 0
     ] |> Seq.fold min 0
 
-// --------------------------------------------------------------------------------------
-// Main type that implements parsing and uses F# services
-// --------------------------------------------------------------------------------------
-
-
-
-type [<Struct>] Range = {
+[<Struct>]
+type internal Range =
+  {
     LeftCol : int
     RightCol : int
-} with
+  }
   static member Create leftCol rightCol =
     { LeftCol = leftCol; RightCol = rightCol }
 

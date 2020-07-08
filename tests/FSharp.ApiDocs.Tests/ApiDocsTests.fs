@@ -1,11 +1,10 @@
 [<NUnit.Framework.TestFixture>]
-module FSharp.ApiDocs.Tests
+module ApiDocs.Tests
 
 open FsUnit
 open System.IO
 open NUnit.Framework
 open FSharp.Formatting.ApiDocs
-open FSharp.Formatting.Razor
 open FsUnitTyped
 
 // --------------------------------------------------------------------------------------
@@ -23,38 +22,38 @@ let root = __SOURCE_DIRECTORY__ |> fullpath
 // test project to be directed to the directory below
 let testBin = AttributeTests.testBin
 
-let getOutputDir()  =
-  let tempFile = Path.GetTempFileName()
-  File.Delete tempFile
-  Directory.CreateDirectory(tempFile).FullName
+let getOutputDir (uniq: string)  =
+  let outDir = __SOURCE_DIRECTORY__ + "/output/" + uniq
+  while (try Directory.Exists outDir with _ -> false) do
+      Directory.Delete(outDir, true)
+  Directory.CreateDirectory(outDir).FullName
 
 let removeWhiteSpace (str:string) =
     str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
+let docTemplate =
+  root </> "../../misc/templates/reference" </> "template.html"
 
-let layoutRoots =
-  [ root </> "../../misc/templates"
-    root </> "../../misc/templates/reference" ]
+let parameters =
+  [ "project-name", "F# TestProject"
+    "page-author", "Your Name"
+    "page-description", "A short summary of your project"
+    "project-github", "http://github.com/fsprojects/fsharp-test-project"
+    "project-nuget", "http://nuget.com/packages/FSharp.TestProject"
+    "root", "http://fsprojects.github.io/fsharp-test-project" ]
 
-let info =
-  [ "project-name", "FSharp.ProjectScaffold"
-    "project-author", "Your Name"
-    "project-summary", "A short summary of your project"
-    "project-github", "http://github.com/pblasucci/fsharp-project-scaffold"
-    "project-nuget", "http://nuget.com/packages/FSharp.ProjectScaffold"
-    "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
-
-let generate (libraries:string list) useMarkdown =
-    try let output = getOutputDir ()
-        let metadata = ApiDocs.GenerateModel (libraries,parameters=info,libDirs = [root],markDownComments = useMarkdown)
-        RazorApiDocs.Generate (metadata, output, layoutRoots)
+let generateApiDocs (libraries:string list) useMarkdown uniq =
+    try
+        let output = getOutputDir uniq
+        let metadata = ApiDocs.GenerateModel (libraries,parameters=parameters,libDirs = [root],markDownComments = useMarkdown)
+        ApiDocs.GenerateHtmlFromModel (metadata, output, docTemplate)
 
         let fileNames = Directory.GetFiles(output)
         let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
         files
 
     with e ->
-        printfn "Failed to Generate Metadata -\n%s\n\n%s\n" e.Message e.StackTrace
+        printfn "Failed to Generate API Docs -\n%s\n\n%s\n" e.Message e.StackTrace
         System.AppDomain.CurrentDomain.GetAssemblies ()
         |> Seq.iter (fun x ->
             try sprintf "%s\n - %s" x.FullName x.Location |> System.Console.WriteLine
@@ -68,11 +67,11 @@ do FSharp.Formatting.TestHelpers.enableLogging()
 [<Test>]
 let ``ApiDocs works on sample Deedle assembly``() =
   let library = root </> "files" </> "Deedle.dll"
-  let output = getOutputDir()
+  let output = getOutputDir "Deedle"
 
-  RazorApiDocs.Generate
-    ( [library], output, layoutRoots, info, libDirs = [testBin],
-      sourceRepo = "https://github.com/BlueMountainCapital/Deedle/tree/master/",
+  ApiDocs.GenerateHtml
+    ( [library], output, template=docTemplate, parameters=parameters, libDirs = [testBin],
+      sourceRepo = "https://github.com/fslaborg/Deedle/",
       sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
 
@@ -82,12 +81,11 @@ let ``ApiDocs works on sample Deedle assembly``() =
   let optSeriesMod = files |> Seq.tryFind (fun s -> s.Contains "seriesmodule")
   optSeriesMod.IsSome |> shouldEqual true
 
-
 [<Test; Ignore "Ignore by default to make tests run reasonably fast">]
 let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
-  let output = getOutputDir()
-  RazorApiDocs.Generate([library], output, layoutRoots, info)
+  let output = getOutputDir "FakeLib"
+  ApiDocs.GenerateHtml([library], output, template=docTemplate, parameters=parameters)
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
@@ -97,8 +95,8 @@ let ``ApiDocs works on two sample F# assemblies``() =
   let libraries =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
-  let output = getOutputDir()
-  RazorApiDocs.Generate(libraries, output, layoutRoots, info, libDirs = [testBin])
+  let output = getOutputDir "FsLib12"
+  ApiDocs.GenerateHtml(libraries, output, template=docTemplate, parameters=parameters, libDirs = [testBin])
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -116,41 +114,58 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-nested-submodule.html"] |> shouldContainText "Very nested field"
 
   // Check that union fields are correctly generated
-  files.["fslib-union.html"] |> shouldContainText "World(string,int)"
-  files.["fslib-union.html"] |> shouldContainText "Naming(rate,string)"
+  files.["fslib-union.html"] |> shouldContainText "World(string, int)"
+  files.["fslib-union.html"] |> shouldContainText "Naming(rate, string)"
 
   // Check that methods with no arguments are correctly generated (#113)
   files.["fslib-record.html"] |> shouldNotContainText "Foo2(arg1)"
   files.["fslib-record.html"] |> shouldContainText "Foo2()"
-  files.["fslib-record.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; int"
-  files.["fslib-class.html"] |> shouldContainText "new()"
-  files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> unit -&gt; Class"
+  files.["fslib-record.html"] |> shouldContainText "Signature"
+  files.["fslib-record.html"] |> shouldContainText "unit -&gt; int"
+  files.["fslib-class.html"] |> shouldContainText "Class()"
+  files.["fslib-class.html"] |> shouldContainText "unit -&gt; Class"
 
   // Check that properties are correctly generated (#114)
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">x.Member(arg1)<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">x.Member()<"
-  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">x.Member<"
-  files.["fslib-class.html"] |> shouldNotContainText "<strong>Signature:</strong> unit -&gt; int"
-  files.["fslib-class.html"] |> shouldContainText "<strong>Signature:</strong> int"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">this.Member(arg1)<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldNotContainText ">this.Member()<"
+  files.["fslib-class.html"] |> removeWhiteSpace |> shouldContainText ">this.Member<"
+  files.["fslib-class.html"] |> shouldNotContainText "unit -&gt; int"
+  files.["fslib-class.html"] |> shouldContainText "Signature:"
 
   // Check that formatting is correct
   files.["fslib-test_issue472_r.html"] |> shouldContainText "Test_Issue472_R.fmultipleargs x y"
   files.["fslib-test_issue472_r.html"] |> shouldContainText "Test_Issue472_R.ftupled(x, y)"
   files.["fslib-test_issue472.html"] |> shouldContainText "fmultipleargs x y"
   files.["fslib-test_issue472.html"] |> shouldContainText "ftupled(x, y)"
-  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArg(arg1, arg2)"
-  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultArgTupled(arg)"
-  files.["fslib-test_issue472_t.html"] |> shouldContainText "x.MultPartial arg1 arg2"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArg(arg1, arg2)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArgTupled(arg)"
+  files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultPartial arg1 arg2"
+
+[<Test>]
+let ``ApiDocs model generation works on two sample F# assemblies``() =
+  let libraries =
+    [ testBin </> "FsLib1.dll"
+      testBin </> "FsLib2.dll" ]
+  let output = getOutputDir "FsLib12"
+  let model = ApiDocs.GenerateModel(libraries, parameters=parameters, libDirs = [testBin])
+  model.AssemblyGroup.Assemblies.Length |> shouldEqual 2
+  model.AssemblyGroup.Assemblies.[0].Name |> shouldEqual "FsLib1"
+  model.AssemblyGroup.Assemblies.[1].Name |> shouldEqual "FsLib2"
+  model.AssemblyGroup.Namespaces.Length |> shouldEqual 1
+  model.AssemblyGroup.Namespaces.[0].Name |> shouldEqual "FsLib"
+  model.AssemblyGroup.Namespaces.[0].Types.Length |> shouldEqual 9
+  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Types -> t.Assembly.Name ]
+  assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
 [<Test>]
 let ``ApiDocs generates Go to GitHub source links``() =
   let libraries =
     [ testBin  </> "FsLib1.dll"
       testBin  </> "FsLib2.dll" ] |> fullpaths
-  let output = getOutputDir()
+  let output = getOutputDir "FsLib12_SourceLinks"
   printfn "Output: %s" output
-  RazorApiDocs.Generate
-    ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
+  ApiDocs.GenerateHtml
+    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (root </> "../..") )
   let fileNames = Directory.GetFiles(output)
@@ -169,10 +184,10 @@ let ``ApiDocs test that cref generation works``() =
       testBin  </> "crefLib2.dll"
       testBin  </> "crefLib3.dll"
       testBin  </> "crefLib4.dll" ] |> fullpaths
-  let output = getOutputDir()
+  let output = getOutputDir "crefLibs"
   printfn "Output: %s" output
-  RazorApiDocs.Generate
-    ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
+  ApiDocs.GenerateHtml
+    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       markDownComments = false )
@@ -235,10 +250,10 @@ let ``ApiDocs test that cref generation works``() =
 let ``ApiDocs test that csharp (publiconly) support works``() =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
-  let output = getOutputDir()
+  let output = getOutputDir "csharpSupport"
   printfn "Output: %s" output
-  RazorApiDocs.Generate
-    ( libraries, output, layoutRoots, info, libDirs = ([testBin]  |> fullpaths),
+  ApiDocs.GenerateHtml
+    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = true,
@@ -289,10 +304,10 @@ let ``ApiDocs test that csharp (publiconly) support works``() =
 let ``ApiDocs test that csharp support works``() =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
-  let output = getOutputDir()
+  let output = getOutputDir "csharpSupport_private"
   printfn "Output: %s" output
-  RazorApiDocs.Generate
-    ( libraries, output, layoutRoots, info, libDirs = ([testBin] |> fullpaths),
+  ApiDocs.GenerateHtml
+    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
       sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
       sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
       publicOnly = false,
@@ -338,8 +353,7 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
   let libraries =
     [ testBin  </> "TestLib1.dll"
       testBin </> "TestLib2.dll" ] |> fullpaths
-  let files = generate libraries  false
-  //RazorApiDocs.Generate(libraries, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"], markDownComments = false)
+  let files = generateApiDocs libraries  false "TestLibs"
   files.["fslib-class.html"] |> shouldContainText "Readonly int property"
   files.["fslib-record.html"] |> shouldContainText "This is name"
   files.["fslib-record.html"] |> shouldContainText "Additional member"
@@ -355,9 +369,8 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
 [<Test>]
 let ``ApiDocs highlights code snippets in Markdown comments``() =
   let library = testBin </> "TestLib1.dll" |> fullpath
-  //RazorApiDocs.Generate([library], output, layoutRoots, info, libDirs = [root </> "../../lib"], markDownComments = true)
 
-  let files = generate [library] true
+  let files = generateApiDocs [library] true "TestLib1"
 
   files.["fslib-myclass.html"] |> shouldContainText """<span class="k">let</span>"""
   files.["fslib-myclass.html"] |> shouldContainText """<span class="k">var</span>"""
@@ -366,10 +379,8 @@ let ``ApiDocs highlights code snippets in Markdown comments``() =
 [<Test>]
 let ``ApiDocs handles c# dlls`` () =
   let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
-  //RazorApiDocs.Generate
-  //  ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
 
-  let files = (generate [library] false).Keys
+  let files = (generateApiDocs [library] false "CSharpFormat").Keys
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
@@ -378,10 +389,7 @@ let ``ApiDocs handles c# dlls`` () =
 let ``ApiDocs processes C# types and includes xml comments in docs`` () =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
-    //RazorApiDocs.Generate
-    //    ( library, output, layoutRoots, info, libDirs = [root </> "../../lib"; root </> "../../bin"])
-
-    let files = generate [library]  false
+    let files = generateApiDocs [library]  false "CSharpFormat2"
 
     files.["index.html"] |> shouldContainText "CLikeFormat"
     files.["index.html"] |> shouldContainText "Provides a base class for formatting languages similar to C."
@@ -390,7 +398,7 @@ let ``ApiDocs processes C# types and includes xml comments in docs`` () =
 let ``ApiDocs processes C# properties on types and includes xml comments in docs`` () =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
-    let files = generate [library] false
+    let files = generateApiDocs [library] false "CSharpFormat3"
 
     files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "CommentRegEx"
     files.["manoli-utils-csharpformat-clikeformat.html"] |> shouldContainText "Regular expression string to match single line and multi-line"
@@ -400,7 +408,7 @@ let ``ApiDocs generates module link in nested types``() =
 
   let library =  testBin  </> "FsLib2.dll"
 
-  let files = generate [library] false
+  let files = generateApiDocs [library] false "FsLib2"
 
   // Check that the modules and type files have namespace information
   files.["fslib-class.html"] |> shouldContainText "Namespace: FsLib"
@@ -411,18 +419,18 @@ let ``ApiDocs generates module link in nested types``() =
 
   // Check that the link to the module is correctly generated
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"fslib-nested.html\">Nested</a>"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"fslib-nested.html\">"
 
   // Only for nested types
   files.["fslib-class.html"] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
   files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"fslib-nested-submodule.html\">Submodule</a>"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"fslib-nested-submodule.html\">"
 
   // Check that nested submodules have links to its module
   files.["fslib-nested-submodule.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"fslib-nested.html\">Nested</a>"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"fslib-nested.html\">"
 
 open System.Diagnostics
 open FSharp.Formatting.Common
@@ -431,7 +439,7 @@ open FSharp.Formatting.Common
 let ``ApiDocs omit works without markdown``() =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
-  let files = generate [library] false
+  let files = generateApiDocs [library] false "FsLib2_omit"
 
   files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
@@ -439,16 +447,16 @@ let ``ApiDocs omit works without markdown``() =
 let ``ApiDocs test FsLib1``() =
   let library = testBin </> "FsLib1.dll" |> fullpath
 
-  let files = generate [library] false
+  let files = generateApiDocs [library] false "FsLib1_omit"
 
   files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
 
 // -------------------Indirect links----------------------------------
 [<Test>]
-let ``Metadata generates cross-type links for Indirect Links``() =
+let ``ApiDocs generates cross-type links for Indirect Links``() =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
-  let files = generate [library]  true
+  let files = generateApiDocs [library]  true "FsLib2_indirect"
 
   // Check that a link to MyType exists when using Full Name of the type
   files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
@@ -473,7 +481,7 @@ let ``Metadata generates cross-type links for Indirect Links``() =
 let ``Metadata generates cross-type links for Inline Code``() =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
-  let files = generate [library] true
+  let files = generateApiDocs [library] true "FsLib2_inline"
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
   files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"

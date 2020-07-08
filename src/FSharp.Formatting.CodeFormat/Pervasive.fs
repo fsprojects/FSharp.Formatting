@@ -3,9 +3,13 @@ module internal FSharp.Formatting.CodeFormat.Pervasive
 
 open System
 open System.Diagnostics
+open System.Runtime.CompilerServices
 open FSharp.Compiler.SyntaxTree
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Text
+
+[<assembly: InternalsVisibleTo("FSharp.CodeFormat.Tests")>]
+do()
 
 [<Sealed>]
 type AsyncMaybeBuilder () =

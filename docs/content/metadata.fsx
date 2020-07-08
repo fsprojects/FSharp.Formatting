@@ -6,13 +6,12 @@ let root = "C:\\"
 F# Formatting: Library documentation
 ====================================
 
-The library `FSharp.Formatting.ApiDocs.dll` is a replacement for the `FsHtmlTool`
-which is available in the F# PowerPack and can be used to generate documentation 
-for F# libraries with XML comments. The F# Formatting re-implementation has
-a couple of extensions:
+The library `FSharp.Formatting.ApiDocs.dll` can be used to generate documentation 
+for F# libraries with XML comments. 
 
  - You can use Markdown instead of XML in `///` comments
- - The HTML is generated using Razor, so it is easy to change the templates
+ - The HTML is built by instantiating a template
+ - An ApiDocs model is available if you want to integrate with your own approach to templating.
 
 Building library documentation
 ------------------------------
@@ -27,15 +26,13 @@ open System.IO
 (**
 Building the library documentation is easy - you just need to call
 `ApiDocs.Generate` from your FAKE script or from F# Interactive.
-The method takes three (required) parameters - the path to your `DLL`,
-output directory and directory with Razor templates.
 Assuming `root` is the root directory for your project, you can write:
 *)
 
-ApiDocs.Generate
-  ( Path.Combine(root, "bin/YourLibrary.dll"), 
-    Path.Combine(root, "output"),
-    [ Path.Combine(root, "templates") ] )
+ApiDocs.GenerateHtml
+  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
+    outDir=Path.Combine(root, "output"),
+    template=Path.Combine(root, "templates", "template.html") )
 
 (**
 Adding Go to GitHub source links
@@ -46,11 +43,11 @@ and `sourceFolder` to the folder where your DLLs are built.
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 *)
 
-ApiDocs.Generate
-  ( Path.Combine(root, "bin/YourLibrary.dll"), 
-    Path.Combine(root, "output"),
-    [ Path.Combine(root, "templates") ],
-    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+ApiDocs.GenerateHtml
+  ( [Path.Combine(root, "bin/YourLibrary.dll")], 
+    outDir=Path.Combine(root, "output"),
+    template=Path.Combine(root, "templates", "template.html"),
+    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting",
     sourceFolder = "/path/to/FSharp.Formatting" )
     
 
@@ -123,10 +120,10 @@ By default `FSharp.Formatting` will expect Markdown documentation comments, to p
 pass the named argument `markDownComments` with value `false`.
 *)
 
-ApiDocs.Generate
+ApiDocs.GenerateHtml
   ( Path.Combine(root, "bin/YourLibrary.dll"), 
     Path.Combine(root, "output"),
-    [ Path.Combine(root, "templates") ],
+    template=Path.Combine(root, "templates", "template.html"),
     sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
     sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
 (**
@@ -150,23 +147,14 @@ parameters that can be used to tweak how the formatting works:
 
 
   - `outDir` - specifies the output directory where documentation should be placed
-  - `layoutRoots` - a list of paths where Razor templates can be found
-  - `parameters` - provides additional parameters to the Razor templates
+  - `template` - the template for substitutions
+  - `parameters` - provides additional parameters for substitutions in the template
   - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
      the file has the same name as the DLL)
   - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
     With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
     recommended for C# assemblies (if not specified, `true` is used).
-  - `typeTemplate` - the templates to be used for normal types (and C# types)
-    (if not specified, `"type.cshtml"` is used).
-  - `moduleTemplate` - the templates to be used for modules
-    (if not specified, `"module.cshtml"` is used).
-  - `namespaceTemplate` - the templates to be used for namespaces
-    (if not specified, `"namespaces.cshtml"` is used).
-  - `assemblyReferences` - The assemblies to use when compiling Razor templates.
-    Use this parameter if templates fail to compile with `mcs` on Linux or Mac or
-    if you need additional references in your templates
-    (if not specified, we use the currently loaded assemblies).
+  - `template` - the templates to be used for documentation pages
   - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
     generates links to GitHub pages for each entity.
   - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
@@ -177,14 +165,5 @@ parameters that can be used to tweak how the formatting works:
 
 
 
-Work in progress!
------------------
-
-This library is under active development and it is not completely functional.
-For more examples of how it can be used, see the 
-[build script](https://github.com/BlueMountainCapital/FSharp.DataFrame/blob/master/tools/build.fsx) 
-for F# DataFrame. The project also includes nice 
-[Razor templates](https://github.com/BlueMountainCapital/FSharp.DataFrame/tree/master/tools/reference) 
-that you can use.
 
 *)

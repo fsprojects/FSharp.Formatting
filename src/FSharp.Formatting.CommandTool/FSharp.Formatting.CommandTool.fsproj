@@ -22,8 +22,8 @@
 
   <ItemGroup>
     <!-- NuGet package content -->
-    <Content Include="..\..\misc\templates\*.cshtml" PackagePath="templates" />
-    <Content Include="..\..\misc\templates\reference\*.cshtml" PackagePath="templates/reference" />
+    <Content Include="..\..\misc\templates\*.html" PackagePath="templates" />
+    <Content Include="..\..\misc\templates\reference\*.html" PackagePath="templates/reference" />
     <Content Include="..\..\misc\literate\*" PackagePath="literate" />
     <Content Include="..\..\misc\literate\templates\*" PackagePath="literate/templates" />
     <Content Include="..\..\docs\files\content\*" PackagePath="styles" />
@@ -34,7 +34,6 @@
     <ProjectReference Include="..\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
     <ProjectReference Include="..\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
-    <ProjectReference Include="..\FSharp.Formatting.Razor\FSharp.Formatting.Razor.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />

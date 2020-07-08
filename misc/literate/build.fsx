@@ -1,9 +1,8 @@
-﻿// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
+// Given a typical setup (with 'FSharp.Formatting' referenced using NuGet),
 // the following will include binaries and load the literate script
 #load "../../src/FSharp.Formatting.fsx"
 open System.IO
 open FSharp.Formatting.Literate
-open FSharp.Formatting.Razor
 
 // ----------------------------------------------------------------------------
 // SETUP
@@ -31,26 +30,33 @@ let processScriptAsHtml () =
   let file = relative "demo.fsx"
   let output = relative "output/demo-script.html"
   let template = relative "templates/template-file.html"
-  RazorLiterate.ProcessScriptFile(file, template, output)
-
-/// Processes a single F# Script file and produce LaTeX output
-let processScriptAsLatex () =
-  let file = relative "demo.fsx"
-  let output = relative "output/demo-script.tex"
-  let template = relative "templates/template-color.tex"
-  RazorLiterate.ProcessScriptFile(file, template, output, format = OutputKind.Latex)
+  Literate.ConvertScriptFile(file, template, output)
 
 /// Processes a single Markdown document and produce HTML output
 let processDocAsHtml () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.html"
   let template = relative "templates/template-file.html"
-  RazorLiterate.ProcessMarkdown(file, template, output)
+  Literate.ConvertMarkdown(file, template=template, output=output)
+
+/// Processes a single Markdown document and produce HTML output
+let processDocAsHtml () =
+  let file = relative "demo.md"
+  let output = relative "output/demo-doc.html"
+  let template = relative "templates/template-file.html"
+  Literate.ConvertMarkdown(file, template=template, output=output)
+
+/// Processes a single F# Script file and produce LaTeX output
+let processScriptAsLatex () =
+  let file = relative "demo.fsx"
+  let output = relative "output/demo-script.tex"
+  let template = relative "templates/template-color.tex"
+  Literate.ConvertScriptFile(file, template=template, output=output format=OutputKind.Latex)
 
 /// Processes a single Markdown document and produce LaTeX output
 let processDocAsLatex () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.tex"
   let template = relative "templates/template-color.tex"
-  RazorLiterate.ProcessMarkdown(file, template, output, format = OutputKind.Latex)
+  Literate.ConvertMarkdown(file, template=template, output=output format=OutputKind.Latex)
 

@@ -1,4 +1,4 @@
-﻿(**
+(**
 Literate sample
 ===============
 
@@ -21,8 +21,7 @@ And numerous other [Markdown][md] features.
 Writing F# code
 ---------------
 Code that is not inside comment will be formatted as
-a sample snippet (which also means that you can 
-run it in Visual Studio or MonoDevelop).
+a sample snippet.
 *)
 
 /// The Hello World of functional languages!

@@ -1,10 +1,9 @@
-namespace FSharp.Formatting.Literate
+namespace FSharp.Formatting.Literate.Evaluation
 
 open System
 open System.IO
 open FSharp.Formatting.Markdown
-open Yaaf.FSharp.Scripting
-
+open FSharp.Formatting.Internal
 
 // ------------------------------------------------------------------------------------------------
 // Evaluator

@@ -1,18 +1,26 @@
-## 5.0.0
-  - WriteHtml --> ToHtml/WriteHtml overloads
-  - Add preliminary pynb support for output
-  - Fix FSharp.Formatting.Literate.* to do approximate (non-razor) templating/  Use FSharp.Formatting.RazorLiterate for razor templating.
+## 5.0.1-beta1
+  - Update to FCS v36.0
+  - Add preliminary pynb support for Literate
+  - Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
+  - MetadataFormat.Generate --> ApiDocs.GenerateHtml/ApiDocs.GenerateModel overloads
+  - Fix Literate.* to do approximate (non-razor) templating/  
+  - Remove Razor support
+  - HTML templates now use `{{prop-name}}`
   - FSharp.CodeFormat --> FSharp.Formatting.CodeFormat
   - FSharp.Markdown --> FSharp.Formatting.Markdown
-  - FSharp.Literate --> FSharp.Formatting.Literate
-  - FSharp.ApiDocs --> FSharp.Formatting.ApiDocs
+  - FSharp.Literate --> FSharp.Formatting.Literate and FSharp.Formatting.Literate.Evaluation
+  - FSharp.MetadataFormat --> FSharp.Formatting.ApiDocs
+  - FSharp.ApiDocs uses HTML substitution for templating, no Razor
   - Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
-  - For command line tool, "fsformatting literate process-directory" --> "fsformatting convert"
-  - For command line tool, "fsformatting metadata-format generate" --> "fsformatting generate"
-  - For command line tool, "--dllFiles" --> "--dlls"
-  - For command line tool, "--outDir" --> "--output"
-  - For command line tool, "--outputDirectory" --> "--output"
-  - For command line tool, "--inputDirectory" --> "--input"
+  - For command line tool
+        Update command line parser
+        "fsformatting literate process-directory" --> "fsformatting convert"
+        "fsformatting metadata-format generate" --> "fsformatting generate"
+        "--dllFiles" --> "--dlls"
+        "--outDir" --> "--output"
+        "--outputDirectory" --> "--output"
+        "--output" is optional (defaults to 'output')
+        "--inputDirectory" --> "--input"
 
 ## 4.1.0
   - Support preview F# language features.

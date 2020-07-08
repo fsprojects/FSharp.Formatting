@@ -35,6 +35,9 @@ let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
+let gitHome = "https://github.com/fsprojects"
+let projectRepo = gitHome + "/FSharp.Formatting"
+
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
 
@@ -117,15 +120,6 @@ Target.create "NuGet" (fun _ ->
 
 let toolPath = "temp"
 
-Target.create "InstallAsDotnetTool" (fun _ ->
-    let result =
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
-            "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
-
-    if not result.OK then failwith "failed to install fsformatting as dotnet tool"
-)
-
 let commandToolPath = toolPath </> "fsformatting" + (if Environment.isWindows then ".exe" else "")
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
@@ -167,7 +161,7 @@ let executeHelper executer traceMsg failMessage configStartInfo =
 let execute = executeHelper executeWithOutput
 
 // Documentation
-let buildDocumentationCommandTool args =
+let docTool args =
   execute
     "Building documentation (CommandTool), this could take some time, please wait..."
     "generating documentation failed"
@@ -180,86 +174,49 @@ let createArg argName arguments =
     |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
-let commandToolMetadataFormatArgument dllFiles outDir layoutRoots libDirs parameters sourceRepo =
-    let dllFilesArg = createArg "dlls" dllFiles
-    let layoutRootsArgs = createArg "layoutRoots" layoutRoots
-    let libDirArgs = createArg "libDirs" libDirs
+Target.create "GenerateDocs" (fun _ ->
+    Shell.cleanDir "temp"
+    Shell.cleanDir "docs/output"
+    let result =
+        DotNet.exec
+            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
+            "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
+
+    if not result.OK then failwith "failed to install fsformatting as dotnet tool"
+
+    // generate metadata reference
+    let dlls =
+      [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
+        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll";
+        "FSharp.Formatting.ApiDocs.dll" ]
+
+    let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
+    let parameters =
+      [ "root", "https://fsprojects.github.io/FSharp.Formatting"
+        "page-author", "Tomas Petricek and F# Formatting contributors"
+        "page-description", summary
+        "github-link", projectRepo
+        "project-name", "F# Formatting"
+        "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
+        "project-github", projectRepo ]
 
     let parametersArg =
         parameters
         |> Seq.collect (fun (key, value) -> [key; value])
         |> createArg "parameters"
 
-    let reproAndFolderArg =
-        match sourceRepo with
-        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\"" repo folder
-        | _ -> ""
-
-    sprintf "generate %s %s %s %s %s %s"
-        dllFilesArg (createArg "output" [outDir]) layoutRootsArgs libDirArgs parametersArg
-        reproAndFolderArg
-
-let commandToolLiterateArgument inDir outDir layoutRoots parameters =
-    let inDirArg = createArg "input" [ inDir ]
-    let outDirArg = createArg "output" [ outDir ]
-
-    let layoutRootsArgs = createArg "layoutRoots" layoutRoots
-
-    let replacementsArgs =
-        parameters
-        |> Seq.collect (fun (key, value) -> [key; value])
-        |> createArg "replacements"
-
-    sprintf "convert %s %s %s %s" inDirArg outDirArg layoutRootsArgs replacementsArgs
-
-
-Target.create "DogFoodCommandTool" (fun _ ->
-    // generate metadata reference
-    let dllFiles =
-      [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll"; "FSharp.Formatting.ApiDocs.dll"; "FSharp.Formatting.Razor.dll" ]
-
-    let layoutRoots =
-      [ "docs/tools"; "misc/templates"; "misc/templates/reference" ]
-    let libDirs = [ "bin/" ]
-    let parameters =
-      [ "page-author", "Matthias Dittrich"
-        "project-author", "Matthias Dittrich"
-        "page-description", "desc"
-        "github-link", "https://github.com/fsprojects/FSharp.Formatting"
-        "project-name", "FSharp.Formatting"
-        "root", "https://fsprojects.github.io/FSharp.Formatting"
-        "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
-        "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
-    Shell.cleanDir "temp/api_docs"
-    let metadataReferenceArgs =
-        commandToolMetadataFormatArgument
-            dllFiles "temp/api_docs" layoutRoots libDirs parameters None
-    buildDocumentationCommandTool metadataReferenceArgs
-
-    Shell.cleanDir "temp/literate_docs"
-    let literateArgs =
-        commandToolLiterateArgument
-            "docs/content" "temp/literate_docs" layoutRoots parameters
-    buildDocumentationCommandTool literateArgs)
-
-Target.create "GenerateDocs" (fun _ ->
-    let result =
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" })
-            "fsi"
-            "--define:RELEASE --define:REFERENCE --define:HELP --exec generate.fsx"
-
-    if not result.OK then failwith "error generating docs"
-)
+    let dllFilesArg = createArg "dlls" dllFiles
+    docTool (sprintf "convert --input docs/content            --output docs/output            --noRecursive --template docs/tools/template.html %s"  parametersArg)
+    docTool (sprintf "convert --input docs/content/sidebyside --output docs/output/sidebyside --noRecursive --includeSource --template docs/tools/template-sidebyside.html %s" parametersArg)
+    docTool (sprintf "convert --input docs/content/misc       --output docs/output/misc       --template docs/tools/template.html %s" parametersArg)
+    docTool (sprintf "convert --input docs/content/content    --output docs/output/content    --template docs/tools/template.html %s" parametersArg)
+    docTool (sprintf "generate %s --output docs/output --template docs/tools/reference/template.html %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
-let gitHome = "https://github.com/fsprojects"
-
 Target.create "ReleaseDocs" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting") "temp/gh-pages"
+    Git.Repository.clone "" projectRepo "temp/gh-pages"
     Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
     Shell.copyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
@@ -278,7 +235,7 @@ Target.create "PushPackagesToNugetOrg" (fun _ ->
 )
 
 Target.create "PushReleaseToGithub" (fun _ ->
-    Git.Repository.clone "" (gitHome + "/FSharp.Formatting") "temp/release"
+    Git.Repository.clone "" projectRepo "temp/release"
     Git.Branches.checkoutBranch "temp/release" "release"
     Shell.copyRecursive "bin" "temp/release" true |> printfn "%A"
     let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
@@ -353,9 +310,10 @@ Target.create "CreateTestJson" (fun _ ->
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "Tests"
+  ==> "All"
+
+"Build"
   ==> "NuGet"
-  ==> "InstallAsDotnetTool"
-  ==> "DogFoodCommandTool"
   ==> "GenerateDocs"
   ==> "All"
 
@@ -368,4 +326,4 @@ Target.create "CreateTestJson" (fun _ ->
 
 "DownloadPython" ==> "CreateTestJson"
 
-Target.runOrDefault "All"
+Target.runOrDefaultWithArguments "All"

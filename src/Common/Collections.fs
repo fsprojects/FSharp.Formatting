@@ -5,14 +5,12 @@
 
 namespace FSharp.Collections
 
-
 // --------------------------------------------------------------------------------------
 // Various helper functions for working with lists 
 // that are useful when writing parsers by hand.
 // --------------------------------------------------------------------------------------
 
-/// [omit]
-module List = 
+module internal List = 
   /// Partitions list into an initial sequence (while the 
   /// specified predicate returns true) and a rest of the list.
   let partitionWhile p input = 
@@ -88,11 +86,9 @@ module List =
 
 /// Represents a tree with nodes containing values an a list of children
 ///
-/// [omit]
-type Tree<'T> = Node of 'T * list<Tree<'T>>
+type internal Tree<'T> = Node of 'T * list<Tree<'T>>
 
-/// [omit]
-module Tree = 
+module internal Tree = 
   /// Takes all elements at the specified level and turns them into nodes
   let rec private takeAtLevel indent tail = 
     match tail with 
