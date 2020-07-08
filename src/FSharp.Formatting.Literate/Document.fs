@@ -1,6 +1,5 @@
 namespace FSharp.Formatting.Literate
 
-open System
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.CodeFormat
 open System.Collections.Generic
@@ -66,10 +65,6 @@ type LiterateParagraph =
   interface MarkdownEmbedParagraphs with
     member x.Render() = 
       failwith "LiterateParagraph elements cannot be directly formatted"
-
-// --------------------------------------------------------------------------------------
-// Literate document information
-// --------------------------------------------------------------------------------------
 
 /// Represents the source of a literate document. This is esither Markdown (as a `string`)
 /// or parsed F# script file consisting of snippets.

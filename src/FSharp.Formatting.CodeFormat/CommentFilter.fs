@@ -4,14 +4,10 @@
 // --------------------------------------------------------------------------------------
 module private FSharp.Formatting.CodeFormat.CommentFilter
 
-open System
-open System.IO
 open System.Text
-open System.Web
-
 open FSharp.Patterns
 open FSharp.Collections
-open FSharp.Formatting.Common
+open FSharp.Formatting.Markdown
 open FSharp.Compiler.SourceCodeServices
 
 // --------------------------------------------------------------------------------------

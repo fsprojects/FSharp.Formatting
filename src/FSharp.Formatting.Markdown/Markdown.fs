@@ -9,6 +9,7 @@ open System
 open System.IO
 open System.Collections.Generic
 
+open FSharp.Collections
 open FSharp.Patterns
 open FSharp.Formatting.Markdown.Parser
 open FSharp.Formatting.Common
@@ -44,7 +45,7 @@ type Markdown =
     let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some(MarkdownRange.zero) }
     let paragraphs =
       lines
-      |> FSharp.Collections.List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
+      |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
       |> parseParagraphs ctx
       |> List.ofSeq
     MarkdownDocument(paragraphs, links)

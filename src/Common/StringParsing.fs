@@ -7,7 +7,7 @@ module internal FSharp.Patterns
 
 open System
 open FSharp.Collections
-open FSharp.Formatting.Common
+open FSharp.Formatting.Markdown
 
 // --------------------------------------------------------------------------------------
 // Active patterns that simplify parsing of strings and lists of strings (lines)

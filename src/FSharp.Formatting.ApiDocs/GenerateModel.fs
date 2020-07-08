@@ -7,47 +7,56 @@ open System.Text
 open System.IO
 open System.Xml
 open System.Xml.Linq
-open System.Runtime.CompilerServices
 
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Range
 open FSharp.Formatting.Common
-open Yaaf.FSharp.Scripting
+open FSharp.Formatting.Internal
 open FSharp.Patterns
 open FSharp.Formatting.CodeFormat
 
-/// Represents a comment attached to F# source code
-type Comment =
-  { Blurb : string
+/// Represents a documentation comment attached to source code
+type DocComment =
+  {
+    /// The summary for the comment
+    Blurb : string
+
+    /// The full text of the comment
     FullText : string
+
+    /// The parsed sections of the comment
     Sections : list<KeyValuePair<string, string>>
+
+    /// The raw data of the comment
     RawData: list<KeyValuePair<string, string>> }
 
-  static member Empty =
+  static member internal Empty =
     { Blurb = ""; FullText = ""; Sections = []; RawData = [] }
 
-  static member Create(blurb, full, sects, rawData) =
+  static member internal Create(blurb, full, sects, rawData) =
     { Blurb = blurb; FullText = full; Sections = sects; RawData = rawData }
 
-/// Represents a custom attribute attached to F# source code
+/// Represents a custom attribute attached to source code
 type Attribute =
   {
     /// The name of the attribute
     Name : string
+
     /// The qualified name of the attribute
     FullName : string
+
     /// The arguments to the constructor for the attribute
     ConstructorArguments : obj list
+
     /// The named arguments for the attribute
     NamedConstructorArguments : (string*obj) list
   }
 
-  static member Create(name, fullName, constructorArguments, namedConstructorArguments) =
+  static member internal Create(name, fullName, constructorArguments, namedConstructorArguments) =
         { Name = name
           FullName = fullName
           ConstructorArguments = constructorArguments
           NamedConstructorArguments = namedConstructorArguments }
-
 
   /// Gets a value indicating whether this attribute the System.ObsoleteAttribute
   member x.IsObsoleteAttribute =
@@ -139,36 +148,47 @@ type Attribute =
     |> Option.map (fun a -> a.CustomOperationName)
     |> Option.defaultValue ""
 
-/// Represents the details of an F# method, property, event, function or value, including extension members
-type MemberOrValue =
+/// Represents the details of an method, property, event, function or value, including extension members,
+/// integrated with its associated documentation.
+type MemberOrValueDetails =
   {
     /// Formats usage
     Usage : int -> string
+
     /// The members modifiers
     Modifiers : string list
+
     /// The members type arguments
     TypeArguments : string list
+
     /// The members signature
     Signature : string
+
     /// The members source location, if any
     SourceLocation : string option
+
     /// The members compiled name, if any
     CompiledName : string option
   }
   /// Formats usage
   member x.FormatUsage(maxLength) = x.Usage(maxLength)
+
   /// Formats type arguments
   member x.FormatTypeArguments = String.concat ", " x.TypeArguments
+
   /// Formats modifiers
   member x.FormatModifiers = String.concat " " x.Modifiers
+
   /// Formats source location
   member x.FormatSourceLocation = defaultArg x.SourceLocation ""
+
   /// Formats the compiled name
   member x.FormatCompiledName = defaultArg x.CompiledName ""
 
-  static member Create(usage, mods, typars, sign, location, compiledName) =
+  static member internal Create(usage, mods, typars, sign, location, compiledName) =
     { Usage = usage; Modifiers = mods; TypeArguments = typars;
       Signature = sign; SourceLocation = location; CompiledName = compiledName }
+
 /// Represents the kind of member
 type MemberKind =
   // In a module
@@ -185,7 +205,9 @@ type MemberKind =
   | UnionCase = 100
   | RecordField = 101
   | StaticParameter = 102
-/// Represents an F# method, property, constructor, function or value, record field, union case or static parameter. Includes extension members
+
+/// Represents an method, property, constructor, function or value, record field, union case or static parameter
+/// integrated with its associated documentation. Includes extension members.
 type Member =
   {
     /// Name of the member
@@ -201,12 +223,12 @@ type Member =
     Kind : MemberKind
 
     /// Additional details
-    Details : MemberOrValue
+    Details : MemberOrValueDetails
 
     /// The attached comment
-    Comment : Comment
+    Comment : DocComment
   }
-  static member Create(name, attributes, kind, cat, details, comment) =
+  static member internal Create(name, attributes, kind, cat, details, comment) =
     { Member.Name = name; Kind = kind; Attributes = attributes
       Category = cat; Details = details; Comment = comment }
 
@@ -228,7 +250,7 @@ type Member =
   member x.CustomOperationName =
     Attribute.TryGetCustomOperationName(x.Attributes)
 
-/// Represents an F# type.
+/// Represents a type definition integrated with its associated documentation
 type Type =
   {
     /// The name of the type
@@ -241,7 +263,7 @@ type Type =
     UrlName : string
 
     /// The attached comment
-    Comment : Comment
+    Comment : DocComment
 
     /// The name of the type's assembly
     Assembly : AssemblyName
@@ -270,7 +292,7 @@ type Type =
     /// The static members of the type
     StaticMembers : Member list
   }
-  static member Create(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat) =
+  static member internal Create(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat) =
     { Type.Name = name
       Category = cat
       UrlName = url
@@ -294,7 +316,7 @@ type Type =
   member x.ObsoleteMessage =
     Attribute.TryGetObsoleteMessage(x.Attributes)
 
-/// Represents an F# module
+/// Represents an F# module definition integrated with its associated documentation
 type Module =
   {
     /// The name of the module
@@ -307,9 +329,9 @@ type Module =
     UrlName : string
 
     /// The attached comment
-    Comment : Comment
+    Comment : DocComment
 
-    /// The name of the modules assembly
+    /// The name of the module's assembly
     Assembly : AssemblyName
 
     /// The declared attributes of the module
@@ -333,7 +355,7 @@ type Module =
     /// Active patterns of the module
     ActivePatterns : Member list
   }
-  static member Create(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats) =
+  static member internal Create(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats) =
     { Module.Name = name; UrlName = url; Comment = comment; Assembly = assembly; Category = cat; Attributes = attributes
       AllMembers = List.concat [ vals; exts; pats ]
       NestedModules = modules; NestedTypes = types
@@ -348,7 +370,7 @@ type Module =
   member x.ObsoleteMessage =
     Attribute.TryGetObsoleteMessage(x.Attributes)
 
-/// Represents a namespace
+/// Represents a namespace integrated with its associated documentation
 type Namespace =
   {
     /// The name of the namespace
@@ -360,10 +382,10 @@ type Namespace =
     /// All types in the namespace
     Types : Type list
   }
-  static member Create(name, mods, typs) =
+  static member internal Create(name, mods, typs) =
     { Namespace.Name = name; Modules = mods; Types = typs }
 
-/// Represents a group of assemblies
+/// Represents a group of assemblies integrated with its associated documentation
 type AssemblyGroup =
   {
     /// Name of the group
@@ -375,10 +397,10 @@ type AssemblyGroup =
     /// All namespaces in the group
     Namespaces : Namespace list
   }
-  static member Create(name, asms, nss) =
+  static member internal Create(name, asms, nss) =
     { AssemblyGroup.Name = name; Assemblies = asms; Namespaces = nss }
 
-/// Highlevel information about a module
+/// High-level information about a module definition
 type ModuleInfo =
   {
     /// The actual module
@@ -394,10 +416,10 @@ type ModuleInfo =
     ParentModule : Module option
   }
   member this.HasParentModule = this.ParentModule.IsSome
-  static member Create(modul, asm, ns, parent) =
+  static member internal Create(modul, asm, ns, parent) =
     { ModuleInfo.Module = modul; Assembly = asm; Namespace = ns; ParentModule = parent }
 
-/// Highlevel information about a type
+/// High-level information about a type definition
 type TypeInfo =
   {
     /// The actual type
@@ -414,10 +436,10 @@ type TypeInfo =
   }
   member this.HasParentModule = this.ParentModule.IsSome
 
-  static member Create(typ, asm, ns, modul) =
+  static member internal Create(typ, asm, ns, modul) =
     { TypeInfo.Type = typ; Assembly = asm; Namespace = ns; ParentModule = modul }
 
-module ValueReader =
+module internal ValueReader =
   type CrefReference =
     { IsInternal : bool; ReferenceLink : string; NiceName : string }
 
@@ -443,15 +465,16 @@ module ValueReader =
       | true, v -> Some v
       | _ -> None
 
-    static member Create
-        ( publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap,
-          assemblyPath, compilerOptions, formatAgent ) =
-      { PublicOnly=publicOnly;
+    static member internal Create
+        (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap,
+         assemblyPath, compilerOptions, formatAgent ) =
+
+      { PublicOnly=publicOnly
         Assembly = assembly
-        XmlMemberMap = map;
-        MarkdownComments = markDownComments;
-        UrlMap = urlMap;
-        UrlRangeHighlight = urlRangeHighlight;
+        XmlMemberMap = map
+        MarkdownComments = markDownComments
+        UrlMap = urlMap
+        UrlRangeHighlight = urlRangeHighlight
         SourceFolderRepository = sourceFolderRepo
         AssemblyPath = assemblyPath
         CompilerOptions = compilerOptions
@@ -695,7 +718,7 @@ module ValueReader =
     // If there is a signature file, we should go for implementation file
     let loc = tryGetLocation v
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(buildShortUsage, modifiers, typars, signature, location, getCompiledName v)
+    MemberOrValueDetails.Create(buildShortUsage, modifiers, typars, signature, location, getCompiledName v)
 
   let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
     let formatFieldUsage (field:FSharpField) =
@@ -716,7 +739,7 @@ module ValueReader =
     let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
     let loc = tryGetLocation case
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(usage, modifiers, typeparams, signature, location, getCompiledName case)
+    MemberOrValueDetails.Create(usage, modifiers, typeparams, signature, location, getCompiledName case)
 
   let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
     let usage (maxLength:int) = field.Name
@@ -727,7 +750,7 @@ module ValueReader =
     let signature = formatType field.FieldType
     let loc = tryGetLocation field
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(usage, modifiers, typeparams, signature, location, if field.Name <> field.DisplayName then Some field.Name else None)
+    MemberOrValueDetails.Create(usage, modifiers, typeparams, signature, location, if field.Name <> field.DisplayName then Some field.Name else None)
 
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName =
     "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
@@ -739,9 +762,9 @@ module ValueReader =
     let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
     let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    MemberOrValue.Create(usage, modifiers, typeparams, signature, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
+    MemberOrValueDetails.Create(usage, modifiers, typeparams, signature, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
 
-module Reader =
+module internal Reader =
   open FSharp.Formatting.Markdown
   open FSharp.Formatting.Literate
   open ValueReader
@@ -783,7 +806,7 @@ module Reader =
           let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
           let html = Literate.ToHtml(doc.With(body))
           KeyValuePair(k, html) ]
-    Comment.Create(blurb, full, sections, raw)
+    DocComment.Create(blurb, full, sections, raw)
 
   let findCommand = (function
     | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) ->
@@ -915,7 +938,7 @@ module Reader =
    // via reflection this tags are not so important in F#
    let str = full.ToString()
    let raw = rawData |> Seq.toList
-   Comment.Create(str, str, [KeyValuePair("<default>", str)], raw)
+   DocComment.Create(str, str, [KeyValuePair("<default>", str)], raw)
 
   /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
@@ -989,14 +1012,14 @@ module Reader =
     | None ->
         if not (System.String.IsNullOrEmpty xmlSig) then
             Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
-        dict[], Comment.Empty
+        dict[], DocComment.Empty
     | Some el ->
         let sum = el.Element(XName.Get "summary")
         match sum with
         | null when String.IsNullOrEmpty el.Value ->
-          dict[], Comment.Empty
+          dict[], DocComment.Empty
         | null ->
-          dict[], (Comment.Create ("", el.Value, [], []))
+          dict[], (DocComment.Create ("", el.Value, [], []))
         | sum ->
           let lines = removeSpaces sum.Value |> Seq.map (fun s -> (s, MarkdownRange.zero))
           let cmds = new System.Collections.Generic.Dictionary<_, _>()
@@ -1098,7 +1121,7 @@ module Reader =
   let getTypeProviderXmlSig (typ:FSharpEntity) =
     "T:" + typ.AccessPath + "." + typ.LogicalName
 
-  let createUrlHolder ()=
+  let createUrlHolder () =
     let toReplace =
         ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
             (Path.GetInvalidPathChars()
@@ -1110,6 +1133,7 @@ module Reader =
     let registeredEntities = Dictionary<_, _>()
     let entityLookup = Dictionary<_, _>()
     let niceNameEntityLookup = Dictionary<_, _>()
+
     let nameGen (name:string) =
       let nice = (toReplace
                   |> Seq.fold (fun (s:string) (inv, repl) -> s.Replace(inv, repl)) name)
@@ -1120,6 +1144,7 @@ module Reader =
         |> Seq.find (usedNames.ContainsKey >> not)
       usedNames.Add(found, true)
       found
+
     let rec registerEntity (entity: FSharpEntity) =
         let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
         registeredEntities.[entity] <- newName
@@ -1140,12 +1165,14 @@ module Reader =
     let removeParen (memberName:string) =
         let firstParen = memberName.IndexOf("(")
         if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
+
     let tryGetTypeFromMemberName (memberName : string) =
         let sub = removeParen memberName
         let lastPeriod = sub.LastIndexOf(".")
         if lastPeriod > 0 then
             Some (memberName.Substring(0, lastPeriod))
         else None
+
     let getNoNamespaceMemberName keepParts (memberNameNoParen:string) =
         let splits = memberNameNoParen.Split([|'.'|])
         let noNamespaceParts =
@@ -1386,8 +1413,7 @@ module Reader =
       let inst = readAllMembers ctx MemberKind.InstanceMember ivals
       let stat = readAllMembers ctx MemberKind.StaticMember svals
 
-      Type.Create
-        ( name, cat, urlName, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors, inst, stat ))
+      Type.Create (name, cat, urlName, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -1419,6 +1445,7 @@ module Reader =
 
     // Read in the supplied XML file, map its name attributes to document text
     let doc = XDocument.Load(xmlFile)
+
     // don't use 'dict' to allow the dictionary to be mutated later on
     let xmlMemberMap = Dictionary()
     for key, value in
@@ -1442,8 +1469,8 @@ module Reader =
     let formatAgent = CodeFormat.CreateAgent()
     let ctx =
       ReadingContext.Create
-        ( publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
-          markDownComments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent)
+        (publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
+         markDownComments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent)
 
     //
     let namespaces =
@@ -1456,10 +1483,7 @@ module Reader =
 
     assemblyName, namespaces
 
-// ------------------------------------------------------------------------------------------------
-// Main - generating HTML
-// ------------------------------------------------------------------------------------------------
-
+/// Represents a set of assemblies integrated with their associated documentation
 type ApiDocsModel =
   {
     AssemblyGroup      : AssemblyGroup
@@ -1481,6 +1505,7 @@ type ApiDocsModel =
     let dllFiles = dllFiles |> List.ofSeq |>  List.map Path.GetFullPath
     let urlRangeHighlight =
       defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
+
     let sourceFolderRepo =
         match sourceFolder, sourceRepo with
         | Some folder, Some repo -> Some(folder, repo)
@@ -1521,7 +1546,7 @@ type ApiDocsModel =
     let assemblies =
       let resolvedList =
         //FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
-        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags,manualResolve=true)
+        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
         |> Seq.toList
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
@@ -1558,9 +1583,10 @@ type ApiDocsModel =
           | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
           | Some xmlFile ->
             Reader.readAssembly
-              ( asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight,
-                defaultArg markDownComments true, urlMap, codeFormatCompilerArgs )
+              (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight,
+               defaultArg markDownComments true, urlMap, codeFormatCompilerArgs )
             |> Some)
+
     // Get the name - either from parameters, or name of the assembly (if there is just one)
     let name =
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
@@ -1568,6 +1594,7 @@ type ApiDocsModel =
       | _, Some name -> name
       | [ asm, _ ], _ -> asm.Name
       | _ -> failwith "Unknown project name. Provide 'properties' parameter with 'project-name' key."
+
     // Union namespaces from multiple libraries
     let namespaces = Dictionary<_, _>()
     for _, nss in assemblies do
@@ -1576,12 +1603,19 @@ type ApiDocsModel =
         | true, (mods, typs) -> namespaces.[ns.Name] <- (mods @ ns.Modules, typs @ ns.Types)
         | false, _ -> namespaces.Add(ns.Name, (ns.Modules, ns.Types))
 
-    let namespaces = [ for (KeyValue(name, (mods, typs))) in namespaces -> Namespace.Create(name, mods, typs) ]
+    let namespaces =
+      [ for (KeyValue(name, (mods, typs))) in namespaces do
+          if mods.Length + typs.Length > 0 then
+              Namespace.Create(name, mods, typs) ]
+
     let asm = AssemblyGroup.Create(name, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
-    let rec nestedModules ns parent (modul:Module) = seq {
-      yield ModuleInfo.Create(modul, asm, ns, parent)
-      for n in modul.NestedModules do yield! nestedModules ns (Some modul) n }
+    let rec nestedModules ns parent (modul:Module) =
+      seq {
+        yield ModuleInfo.Create(modul, asm, ns, parent)
+        for n in modul.NestedModules do yield! nestedModules ns (Some modul) n
+      }
+
     let moduleInfos =
       [ for ns in asm.Namespaces do
           for n in ns.Modules do yield! nestedModules ns None n ]
@@ -1592,6 +1626,7 @@ type ApiDocsModel =
     let rec nestedTypes ns (modul:Module) = seq {
       yield! (modul.NestedTypes |> List.map (createType ns (Some modul) ))
       for n in modul.NestedModules do yield! nestedTypes ns n }
+
     let typesInfos =
       [ for ns in asm.Namespaces do
           for n in ns.Modules do yield! nestedTypes ns n

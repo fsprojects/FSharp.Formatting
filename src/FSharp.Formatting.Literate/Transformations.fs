@@ -7,10 +7,10 @@ open System.Collections.Generic
 open FSharp.Formatting.CSharpFormat
 open FSharp.Patterns
 open FSharp.Formatting.CodeFormat
+open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Markdown
 
-/// [omit]
-module Transformations =
+module internal Transformations =
   // ----------------------------------------------------------------------------------------------
   // Replace all code snippets (assume F#) with their nicely formatted versions
   // ----------------------------------------------------------------------------------------------

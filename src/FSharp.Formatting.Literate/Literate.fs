@@ -3,7 +3,7 @@ namespace FSharp.Formatting.Literate
 open System
 open System.IO
 open FSharp.Formatting.Common
-open FSharp.Formatting.Common.HtmlModel
+open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.CodeFormat
 
@@ -156,13 +156,13 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
 
   /// Process the given literate document
-  static member GenerateReplacementsForDocument
+  static member internal CreateModelForDocument
     (doc, output, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements, ?tokenKindToCss) =
     let ctx = formattingContext format prefix lineNumbers includeSource generateAnchors replacements tokenKindToCss
     Templating.processFile doc output ctx
 
   /// Process Markdown document
-  static member GenerateReplacementsForMarkdown
+  static member internal CreateModelForMarkdown
     (input, ?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?replacements, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
     let doc =
@@ -174,7 +174,7 @@ type Literate private () =
     Templating.processFile doc (defaultOutput output input format) ctx
 
   /// Process F# Script file
-  static member GenerateReplacementsForScriptFile
+  static member internal CreateModelForScriptFile
     (input,?output, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
       ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
@@ -186,65 +186,11 @@ type Literate private () =
     let doc = customize customizeDocument ctx doc
     Templating.processFile doc (defaultOutput output input format) ctx
 
-  /// Process directory containing a mix of Markdown documents and F# Script files
-  static member GenerateReplacementsForDirectory
-    (inputDirectory, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors, ?processRecursive, ?customizeDocument, ?tokenKindToCss) =
-
-    let processRecursive = defaultArg processRecursive true
-
-    // Call one or the other process function with all the arguments
-    let processScriptFile file output =
-      Literate.GenerateReplacementsForScriptFile
-        (file, output = output, ?format = format,
-          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-          ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
-          ?includeSource = includeSource, ?generateAnchors = generateAnchors,
-          ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
-
-    let processMarkdown file output =
-      Literate.GenerateReplacementsForMarkdown
-        (file, output = output, ?format = format,
-          ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
-          ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
-          ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
-
-    /// Recursively process all files in the directory tree
-    let rec processDirectory indir outdir =
-      // Create output directory if it does not exist
-      if Directory.Exists(outdir) |> not then
-        try Directory.CreateDirectory(outdir) |> ignore
-        with _ -> failwithf "Cannot create directory '%s'" outdir
-
-      let fsx = [ for f in Directory.GetFiles(indir, "*.fsx") -> processScriptFile, f ]
-      let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
-      let res =
-        [ for func, file in fsx @ mds do
-            let name = Path.GetFileNameWithoutExtension(file)
-            let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
-            let output = Path.Combine(outdir, sprintf "%s.%s" name ext)
-
-            // Update only when needed
-            let changeTime = File.GetLastWriteTime(file)
-            let generateTime = File.GetLastWriteTime(output)
-            if changeTime > generateTime then
-              yield output,(func file output) ]
-      let resRec =
-        [ if processRecursive then
-            for d in Directory.EnumerateDirectories(indir) do
-              let name = Path.GetFileName(d)
-              yield! processDirectory (Path.Combine(indir, name)) (Path.Combine(outdir, name))
-        ]
-      res @ resRec
-
-
-    let outputDirectory = defaultArg outputDirectory inputDirectory
-    processDirectory inputDirectory outputDirectory
 
   static member ConvertDocument
     (doc, output, ?template, ?format, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?replacements) =
       let res =
-          Literate.GenerateReplacementsForDocument
+          Literate.CreateModelForDocument
               (doc, output, ?format=format, ?prefix=prefix, ?lineNumbers=lineNumbers,
                ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?replacements=replacements)
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
@@ -255,7 +201,7 @@ type Literate private () =
       ?customizeDocument) =
 
       let res =
-          Literate.GenerateReplacementsForMarkdown
+          Literate.CreateModelForMarkdown
               (input ,?output=output, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
                ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
                ?replacements=replacements, ?customizeDocument=customizeDocument)
@@ -267,7 +213,7 @@ type Literate private () =
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource,
       ?generateAnchors, ?customizeDocument) =
         let res =
-            Literate.GenerateReplacementsForScriptFile
+            Literate.CreateModelForScriptFile
                 (input ,?output=output, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
                  ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
                  ?replacements=replacements, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator)
@@ -277,14 +223,56 @@ type Literate private () =
   static member ConvertDirectory
     (inputDirectory, ?template, ?outputDirectory, ?format, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?replacements, ?includeSource, ?generateAnchors,
-      ?processRecursive, ?customizeDocument) =
+      ?processRecursive, ?customizeDocument, ?tokenKindToCss) =
         let outputDirectory=defaultArg outputDirectory inputDirectory
 
-        let res =
-            Literate.GenerateReplacementsForDirectory
-                (inputDirectory, outputDirectory, ?format=format, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
-                 ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
-                 ?replacements=replacements, ?customizeDocument=customizeDocument, ?processRecursive=processRecursive, ?fsiEvaluator=fsiEvaluator)
+        let processRecursive = defaultArg processRecursive true
+
+        // Call one or the other process function with all the arguments
+        let processScriptFile file output =
+          Literate.CreateModelForScriptFile
+            (file, output = output, ?format = format,
+              ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+              ?lineNumbers = lineNumbers, ?references = references, ?fsiEvaluator = fsiEvaluator, ?replacements = replacements,
+              ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+              ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
+
+        let processMarkdown file output =
+          Literate.CreateModelForMarkdown
+            (file, output = output, ?format = format,
+              ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+              ?lineNumbers = lineNumbers, ?references = references, ?replacements = replacements,
+              ?includeSource = includeSource, ?generateAnchors = generateAnchors, ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss)
+
+        /// Recursively process all files in the directory tree
+        let rec processDirectory indir outdir =
+          // Create output directory if it does not exist
+          if Directory.Exists(outdir) |> not then
+            try Directory.CreateDirectory(outdir) |> ignore
+            with _ -> failwithf "Cannot create directory '%s'" outdir
+
+          let fsx = [ for f in Directory.GetFiles(indir, "*.fsx") -> processScriptFile, f ]
+          let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
+          let res =
+            [ for func, file in fsx @ mds do
+                let name = Path.GetFileNameWithoutExtension(file)
+                let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
+                let output = Path.Combine(outdir, sprintf "%s.%s" name ext)
+
+                // Update only when needed
+                let changeTime = File.GetLastWriteTime(file)
+                let generateTime = File.GetLastWriteTime(output)
+                if changeTime > generateTime then
+                  yield output,(func file output) ]
+          let resRec =
+            [ if processRecursive then
+                for d in Directory.EnumerateDirectories(indir) do
+                  let name = Path.GetFileName(d)
+                  yield! processDirectory (Path.Combine(indir, name)) (Path.Combine(outdir, name))
+            ]
+          res @ resRec
+
+        let res = processDirectory inputDirectory outputDirectory
 
         for (path, res) in res do
             HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, path)

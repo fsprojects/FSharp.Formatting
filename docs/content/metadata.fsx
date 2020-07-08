@@ -154,12 +154,7 @@ parameters that can be used to tweak how the formatting works:
   - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
     With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
     recommended for C# assemblies (if not specified, `true` is used).
-  - `typeTemplate` - the templates to be used for normal types (and C# types)
-    (if not specified, `"type.html"` is used).
-  - `moduleTemplate` - the templates to be used for modules
-    (if not specified, `"module.html"` is used).
-  - `namespaceTemplate` - the templates to be used for namespaces
-    (if not specified, `"namespaces.html"` is used).
+  - `template` - the templates to be used for documentation pages
   - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
     generates links to GitHub pages for each entity.
   - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members

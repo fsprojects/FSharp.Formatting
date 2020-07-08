@@ -1,6 +1,8 @@
-namespace FSharp.Formatting.Common.HtmlModel
+namespace FSharp.Formatting.HtmlModel
 
-type CSSProperties =
+open System.IO
+
+type internal CSSProperties =
     | ColumnCount of float
     | Flex of string
     | FlexGrow of float
@@ -549,7 +551,7 @@ type CSSProperties =
         | WritingMode s ->  sprintf "writing-mode: %s;" s
         | Custom (name, value) -> sprintf "%s: %s;" name value
 
-type HtmlProperties =
+type internal HtmlProperties =
     | DefaultChecked of bool
     | DefaultValue of string
     | Accept of string
@@ -844,7 +846,7 @@ type HtmlProperties =
         | Unselectable s -> sprintf "unselectable=\"%s\"" (if s then "true" else "false")
         | Custom (k,v) -> sprintf "%s=\"%s\"" k v
 
-type HtmlElement =
+type internal HtmlElement =
     private
     | A of props: HtmlProperties list * children: HtmlElement list
     | Abbr of props: HtmlProperties list * children: HtmlElement list
@@ -1137,7 +1139,7 @@ type HtmlElement =
 
         helper 1 tag
 
-module Html =
+module internal Html =
     let a (props : HtmlProperties list) (children: HtmlElement list) = HtmlElement.A(props,children)
     let abbr (props : HtmlProperties list) (children: HtmlElement list) = HtmlElement.Abbr(props,children)
     let address (props : HtmlProperties list) (children: HtmlElement list) = HtmlElement.Address(props,children)
@@ -1272,30 +1274,39 @@ module Html =
     let string str = HtmlElement.String str
     let (!!) str = HtmlElement.String str
 
-module HtmlFile =
-    let internal replaceParameters (contentTag:string) (parameters:seq<string * string>) (input: string option) =
+module internal HtmlFile =
+    let internal replaceParameters isHtml (contentTag:string) (parameters:seq<string * string>) (input: string option) =
       match input with
       | None ->
           // If there is no template, return just document + tooltips (empty if not HTML)
           let lookup = parameters |> dict
           lookup.[contentTag] + (if lookup.ContainsKey "tooltips" then "\n\n" + lookup.["tooltips"] else "")
       | Some input ->
-          // First replace {{key}} or {key} with some uglier keys and then replace them with values
+          // First replace @Properties["key"] or {{key}} or {key} with some uglier keys and then replace them with values
           // (in case one of the keys appears in some other value)
           let id = System.Guid.NewGuid().ToString("d")
           let input =
-              (input, parameters) ||> Seq.fold (fun html (key, value) ->
-                let key1 = "{{" + key + "}}"
-                let key2 = "{" + key + "}"
+              (input, parameters) ||> Seq.fold (fun text (key, value) ->
+                let key1 = sprintf "@Properties[\"%s\"]" key
+                let key2 = "{{" + key + "}}"
+                let key3 = "{" + key + "}"
                 let rkey = "{" + key + id + "}"
-                html.Replace(key1, rkey).Replace(key2, rkey)) 
+                let text = if isHtml then text.Replace(key1, rkey) else text
+                let text = if isHtml then text.Replace(key2, rkey) else text
+                let text = if not isHtml then text.Replace(key3, rkey) else text
+                text)
           let result =
-              (input, parameters) ||> Seq.fold (fun html (key, value) ->
-                  html.Replace("{" + key + id + "}", value)) 
+              (input, parameters) ||> Seq.fold (fun text (key, value) ->
+                  text.Replace("{" + key + id + "}", value)) 
           result
 
     let UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outputFile) =
       let templateOpt = templateOpt |> Option.map System.IO.File.ReadAllText
-      let outputText = replaceParameters contentTag parameters templateOpt
-      System.IO.File.WriteAllText(outputFile, outputText)
+      let isHtml = match templateOpt with None -> false | Some n -> n.EndsWith(".html", true, System.Globalization.CultureInfo.InvariantCulture)
+      let outputText = replaceParameters isHtml contentTag parameters templateOpt
+      try
+        let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
+        Directory.CreateDirectory(path) |> ignore
+      with _ -> ()
+      File.WriteAllText(outputFile, outputText)
 

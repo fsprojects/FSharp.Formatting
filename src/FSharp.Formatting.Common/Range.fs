@@ -1,6 +1,7 @@
-﻿namespace FSharp.Formatting.Common
+namespace FSharp.Formatting.Markdown
 
-type [<Struct>] MarkdownRange = { 
+[<Struct>]
+type MarkdownRange = { 
     StartLine   : int 
     StartColumn : int
     EndLine     : int

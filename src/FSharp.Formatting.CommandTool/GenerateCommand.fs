@@ -1,12 +1,12 @@
-namespace FSharp.Formatting.Options.ApiDocs
+namespace FSharp.Formatting.CommandTool.ApiDocs
 
 open CommandLine
 open CommandLine.Text
 open FSharp.Formatting.ApiDocs
 
 open FSharp.Formatting.Common
-open FSharp.Formatting.Options
-open FSharp.Formatting.Options.Common
+open FSharp.Formatting.CommandTool
+open FSharp.Formatting.CommandTool.Common
 
 /// Exposes metadata formatting functionality. 
 [<Verb("generate", HelpText = "generate API reference docs from metadata")>]

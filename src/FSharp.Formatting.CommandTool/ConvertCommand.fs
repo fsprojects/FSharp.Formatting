@@ -1,12 +1,12 @@
-namespace FSharp.Formatting.Options.Literate
+namespace FSharp.Formatting.CommandTool.Literate
 
 open CommandLine
 open CommandLine.Text
-open FSharp.Formatting.Literate
 
 open FSharp.Formatting.Common
-open FSharp.Formatting.Options.Common
-
+open FSharp.Formatting.Literate
+open FSharp.Formatting.Literate.Evaluation
+open FSharp.Formatting.CommandTool.Common
 
 /// Process directory containing a mix of Markdown documents and F# Script files
 [<Verb("convert", HelpText = "convert a directory of literate scripts or markdown to another format")>]

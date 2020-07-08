@@ -4,8 +4,8 @@ open System
 open System.IO
 open System.Web
 open FSharp.Formatting.Common
-open FSharp.Formatting.Common.HtmlModel
-open FSharp.Formatting.Common.HtmlModel.Html
+open FSharp.Formatting.HtmlModel
+open FSharp.Formatting.HtmlModel.Html
 
 let obsoleteMessage msg =
     div [Class "alert alert-warning"] [
@@ -265,7 +265,7 @@ let namespacesContent (asm: AssemblyGroup) =
         [ for t in ns.Types -> Choice1Of2 t
           for m in ns.Modules -> Choice2Of2 m ]
 
-      let allCategories =
+      let entitiesByCategory =
         [ for e in entities ->
              match e with
              | Choice1Of2 t -> t.Category
@@ -274,7 +274,7 @@ let namespacesContent (asm: AssemblyGroup) =
         |> List.sortBy (fun s -> if String.IsNullOrEmpty(s) then "ZZZ" else s)
 
       let allByCategory =
-          [ for (catIndex, c) in Seq.indexed allCategories do
+          [ for (catIndex, c) in Seq.indexed entitiesByCategory do
                 let name = (if String.IsNullOrEmpty(c) then "Other namespace members" else c)
                 let index = String.Format("{0}_{1}", nsIndex, catIndex)
                 let entities =

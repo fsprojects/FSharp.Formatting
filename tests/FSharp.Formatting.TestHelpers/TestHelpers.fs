@@ -18,7 +18,7 @@ let enableLogging() =
 
       let setupListener listener =
         [ FSharp.Formatting.Common.Log.source
-          Yaaf.FSharp.Scripting.Log.source ]
+          FSharp.Formatting.Internal.Log.source ]
         |> Seq.iter (fun source ->
             source.Switch.Level <- System.Diagnostics.SourceLevels.All
             Logging.AddListener listener source)
@@ -30,6 +30,6 @@ let enableLogging() =
 
       // Test that everything works
       Logging.infof "FSharp.Formatting Logging setup!"
-      Yaaf.FSharp.Scripting.Log.infof "Yaaf.FSharp.Scripting Logging setup!"
+      FSharp.Formatting.Internal.Log.infof "FSharp.Formatting.Internal Logging setup!"
     with e ->
       printfn "FSharp.Formatting Logging setup failed: %A" e

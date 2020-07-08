@@ -1,9 +1,10 @@
 namespace FSharp.Formatting.Literate
 
-open FSharp.Formatting.Markdown
+open System.Collections.Generic
 open FSharp.Patterns
 open FSharp.Formatting.CodeFormat
-open System.Collections.Generic
+open FSharp.Formatting.Literate.Evaluation
+open FSharp.Formatting.Markdown
 
 // --------------------------------------------------------------------------------------
 // CodeBlockUtils module

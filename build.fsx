@@ -117,15 +117,6 @@ Target.create "NuGet" (fun _ ->
 
 let toolPath = "temp"
 
-Target.create "InstallAsDotnetTool" (fun _ ->
-    let result =
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
-            "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
-
-    if not result.OK then failwith "failed to install fsformatting as dotnet tool"
-)
-
 let commandToolPath = toolPath </> "fsformatting" + (if Environment.isWindows then ".exe" else "")
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
@@ -180,7 +171,7 @@ let createArg argName arguments =
     |> fun e -> if String.IsNullOrWhiteSpace e then ""
                 else sprintf "--%s \"%s\"" argName e
 
-let commandToolGenerateArgument dllFiles outDir template libDirs parameters sourceRepo =
+let commandToolGenerateArgument dllFiles outDir libDirs parameters sourceRepo =
     let dllFilesArg = createArg "dlls" dllFiles
     let libDirArgs = createArg "libDirs" libDirs
 
@@ -191,11 +182,11 @@ let commandToolGenerateArgument dllFiles outDir template libDirs parameters sour
 
     let reproAndFolderArg =
         match sourceRepo with
-        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\" --template \"%s\"" repo folder template
+        | Some (repo, folder) -> sprintf "--sourceRepo \"%s\" --sourceFolder \"%s\"" repo folder
         | _ -> ""
 
     let outArg = (createArg "output" [outDir])
-    sprintf "generate %s %s %s %s %s" dllFilesArg outArg libDirArgs parametersArg reproAndFolderArg
+    sprintf "generate %s %s %s %s %s --template docs/tools/reference/template.html" dllFilesArg outArg libDirArgs parametersArg reproAndFolderArg
 
 let commandToolLiterateArgument inDir outDir parameters =
     let inDirArg = createArg "input" [ inDir ]
@@ -210,6 +201,14 @@ let commandToolLiterateArgument inDir outDir parameters =
 
 
 Target.create "DogFoodCommandTool" (fun _ ->
+    Shell.cleanDir "temp"
+    let result =
+        DotNet.exec
+            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
+            "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
+
+    if not result.OK then failwith "failed to install fsformatting as dotnet tool"
+
     // generate metadata reference
     let dlls =
       [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
@@ -226,14 +225,13 @@ Target.create "DogFoodCommandTool" (fun _ ->
         "root", "https://fsprojects.github.io/FSharp.Formatting"
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
         "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
-    Shell.cleanDir "temp/api_docs"
-    let template = ( __SOURCE_DIRECTORY__ @@ "docs" @@ "tools" @@ "reference" @@ "template.html" )
-    let metadataReferenceArgs = commandToolGenerateArgument dllFiles "temp/api_docs" template [] parameters None
-    buildDocumentationCommandTool metadataReferenceArgs
 
-    Shell.cleanDir "temp/literate_docs"
-    let literateArgs = commandToolLiterateArgument "docs/content" "temp/literate_docs" parameters
-    buildDocumentationCommandTool literateArgs)
+    let literateArgs = commandToolLiterateArgument "docs/content" "temp" parameters
+    buildDocumentationCommandTool literateArgs
+
+    let metadataReferenceArgs = commandToolGenerateArgument dllFiles "temp/reference" [] parameters None
+    buildDocumentationCommandTool metadataReferenceArgs)
+
 
 Target.create "GenerateDocs" (fun _ ->
     let result =
@@ -341,12 +339,14 @@ Target.create "CreateTestJson" (fun _ ->
 )
 
 "Root"
-  ==> "Clean"
-  ==> "AssemblyInfo"
+  //==> "Clean"
+  //==> "AssemblyInfo"
   ==> "Build"
   ==> "Tests"
+  ==> "All"
+
+"Build"
   ==> "NuGet"
-  ==> "InstallAsDotnetTool"
   ==> "DogFoodCommandTool"
   ==> "GenerateDocs"
   ==> "All"
@@ -360,4 +360,4 @@ Target.create "CreateTestJson" (fun _ ->
 
 "DownloadPython" ==> "CreateTestJson"
 
-Target.runOrDefault "All"
+Target.runOrDefaultWithArguments "All"

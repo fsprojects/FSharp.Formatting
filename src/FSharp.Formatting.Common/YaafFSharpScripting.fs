@@ -1,8 +1,28 @@
-namespace Yaaf.FSharp.Scripting
+namespace FSharp.Formatting.Internal
+
+open System
+open System.IO
+open System.Text
+open System.Reflection
+open System.Diagnostics
+open System.Runtime.CompilerServices
+open FSharp.Compiler
+open FSharp.Compiler.Interactive.Shell
+open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Text
 
 #nowarn "25" // Binding incomplete: let [ t ] = list
 
-module Env =
+[<assembly: InternalsVisibleTo("FSharp.Formatting.CodeFormat");
+  assembly: InternalsVisibleTo("FSharp.Formatting.ApiDocs");
+  assembly: InternalsVisibleTo("fsformatting");
+  assembly: InternalsVisibleTo("FSharp.Formatting.CSharpFormat");
+  assembly: InternalsVisibleTo("FSharp.Formatting.Literate");
+  assembly: InternalsVisibleTo("FSharp.Formatting.TestHelpers");
+  assembly: InternalsVisibleTo("FSharp.Formatting.Markdown")>]
+do()
+
+module internal Env =
   let inline isNull o = obj.ReferenceEquals(null, o)
   let isMono = try System.Type.GetType("Mono.Runtime") |> isNull |> not with _ -> false
   let (++) a b = System.IO.Path.Combine(a,b)
@@ -11,10 +31,9 @@ module Env =
 
   let isNetCoreApp = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Core")
 
-open System
-open System.Diagnostics
-module Log =
-  let source = new TraceSource("Yaaf.FSharp.Scripting")
+open Env
+module internal Log =
+  let source = new TraceSource("FSharp.Formatting.Internal")
 
   let traceEventf t f =
     Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
@@ -32,22 +51,10 @@ module Log =
     System.String.Join("\n  ", paths |> Seq.map (sprintf "\"%s\""))
     |> sprintf "\n[ %s ]"
 
-open Env
 [<AutoOpen>]
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-module CompilerServiceExtensions =
-#else
 module internal CompilerServiceExtensions =
-#endif
-  open System
-  open System.Reflection
-  open FSharp.Compiler
-  open FSharp.Compiler.SourceCodeServices
-  open FSharp.Compiler.Text
-  open System.IO
 
   module FSharpAssemblyHelper =
-      open System.IO
       let checker = FSharpChecker.Create()
       let defaultFrameworkVersion = "4.6.1"
 
@@ -219,10 +226,6 @@ module internal CompilerServiceExtensions =
               FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
             else true)
 
-        // See https://github.com/tpetricek/FSharp.Formatting/commit/22ffb8ec3c743ceaf069893a46a7521667c6fc9d
-        //let blacklist =
-        //  [ "FSharp.Core.dll"; "mscorlib.dll" ]
-
         // See https://github.com/tpetricek/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
         let _dllFiles, _libDirs =
           if resolveDirs then
@@ -298,22 +301,14 @@ module internal CompilerServiceExtensions =
       /// Gets a string that can be used in F# source code to reference the current type instance.
       member x.FSharpFullNameWithTypeArgs = x.FSharpFullName + x.FSharpParamList
 
-type OutputData =
+type internal OutputData =
   { FsiOutput : string; ScriptOutput : string; Merged : string }
 
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type InteractionResult =
-#else
 type internal InteractionResult =
-#endif
   { Output : OutputData; Error : OutputData }
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type FsiEvaluationException =
-#else
 type internal FsiEvaluationException =
-#endif
     inherit System.Exception
     val private result : InteractionResult
     val private input : string
@@ -340,11 +335,7 @@ type internal FsiEvaluationException =
         
 
 /// Exception for invalid expression types
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type FsiExpressionTypeException =
-#else
 type internal FsiExpressionTypeException =
-#endif
     val private value : obj option
     val private expected : System.Type
     inherit FsiEvaluationException
@@ -356,21 +347,13 @@ type internal FsiExpressionTypeException =
     member x.Value with get () = x.value
     member x.ExpectedType with get () = x.expected
 
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type HandledResult<'a> =
-#else
 type internal HandledResult<'a> =
-#endif
   | InvalidExpressionType of FsiExpressionTypeException
   | InvalidCode of FsiEvaluationException
   | Result of 'a
 
 /// Represents a simple F# interactive session.
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type IFsiSession =
-#else
 type internal IFsiSession =
-#endif
     inherit IDisposable
     /// Evaluate the given interaction.
     abstract member EvalInteractionWithOutput : string -> InteractionResult
@@ -382,11 +365,7 @@ type internal IFsiSession =
     abstract member DynamicAssembly : System.Reflection.Assembly
 
 [<AutoOpen>]
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-module Extensions =
-#else
 module internal Extensions =
-#endif
   type IFsiSession with
       member x.EvalInteraction s = x.EvalInteractionWithOutput s |> ignore
       member x.TryEvalExpression s = x.TryEvalExpressionWithOutput s |> snd
@@ -489,11 +468,7 @@ module internal Extensions =
         | :? System.Reflection.Emit.AssemblyBuilder as builder -> builder
         | _ -> failwith "The DynamicAssembly property is no AssemblyBuilder!"
 
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-module Shell =
-#else
 module internal Shell =
-#endif
   /// Represents a simple (fake) event loop for the 'fsi' object
   type SimpleEventLoop () =
     member __.Run () = ()
@@ -554,22 +529,16 @@ module internal ArgParser =
       | "-" -> Some false
       | _ -> None
     | _ -> None
+
 open ArgParser
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type DebugMode =
-#else
+
 type internal DebugMode =
-#endif
   | Full
   | PdbOnly
   | Portable
   | NoDebug
 
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type OptimizationType =
-#else
 type internal OptimizationType =
-#endif
   | NoJitOptimize
   | NoJitTracking
   | NoLocalOptimize
@@ -577,11 +546,7 @@ type internal OptimizationType =
   | NoTailCalls
 
 /// See https://msdn.microsoft.com/en-us/library/dd233172.aspx
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type FsiOptions =
-#else
 type internal FsiOptions =
-#endif
   { Checked : bool option
     Codepage : int option
     CrossOptimize : bool option
@@ -641,7 +606,7 @@ type internal FsiOptions =
       ScriptArgs  = [] }
   static member Default =
     let includes = []
-    if isNetCoreApp then
+    if Env.isNetCoreApp then
         { FsiOptions.Empty with
             LibDirs = includes
             NonInteractive = true }
@@ -870,10 +835,7 @@ type internal FsiOptions =
     |]
 
 module internal Helper =
-  open System
-  open FSharp.Compiler.Interactive.Shell
-  open System.IO
-  open System.Text
+
   type ForwardTextWriter (f) =
     inherit TextWriter()
     override __.Flush() = ()
@@ -1040,12 +1002,7 @@ module internal Helper =
       //session.Let "fsi" fsi
       session
 
-open System.IO
-#if YAAF_FSHARP_SCRIPTING_PUBLIC
-type ScriptHost private() =
-#else
 type internal ScriptHost private() =
-#endif
   /// Creates a forwarder Textwriter, which forwards all output to the given function.
   /// Set revertRedirect only to "false" if you know that f doesn't print anything to the stdout.
   /// When revertRedirect is true we capture the Console.Out property and set it before calling f.
