@@ -2,6 +2,7 @@ namespace FSharp.Formatting.Literate
 
 open System
 open System.IO
+open System.Globalization
 open FSharp.Formatting.Common
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.Markdown
@@ -251,19 +252,34 @@ type Literate private () =
             try Directory.CreateDirectory(outdir) |> ignore
             with _ -> failwithf "Cannot create directory '%s'" outdir
 
-          let fsx = [ for f in Directory.GetFiles(indir, "*.fsx") -> processScriptFile, f ]
-          let mds = [ for f in Directory.GetFiles(indir, "*.md") -> processMarkdown, f ]
+          let files = Directory.GetFiles(indir, "*") 
           let res =
-            [ for func, file in fsx @ mds do
-                let name = Path.GetFileNameWithoutExtension(file)
-                let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
-                let output = Path.Combine(outdir, sprintf "%s.%s" name ext)
+            [ for file in files do
+                let isFsx = file.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
+                let isMd = file.EndsWith(".md", true, CultureInfo.InvariantCulture) 
+                let output =
+                    if isFsx || isMd then
+                        let name = Path.GetFileNameWithoutExtension(file)
+                        let ext = (match format with Some OutputKind.Latex -> "tex" | _ -> "html")
+                        Path.Combine(outdir, sprintf "%s.%s" name ext)
+                    else
+                        Path.Combine(outdir, file)
 
                 // Update only when needed
                 let changeTime = File.GetLastWriteTime(file)
                 let generateTime = File.GetLastWriteTime(output)
                 if changeTime > generateTime then
-                  yield output,(func file output) ]
+                    if isFsx then
+                        printfn "analysing %s" file
+                        let res = processScriptFile file output
+                        yield file, output, Some res
+                    elif isMd then
+                        printfn "analysing %s" file
+                        let res = processMarkdown file output
+                        yield file, output, Some res
+                    else 
+                        yield file, output, None
+              ]
           let resRec =
             [ if processRecursive then
                 for d in Directory.EnumerateDirectories(indir) do
@@ -274,5 +290,11 @@ type Literate private () =
 
         let res = processDirectory inputDirectory outputDirectory
 
-        for (path, res) in res do
-            HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, path)
+        for (file, output, res) in res do
+            match res with
+            | None ->
+                printfn "copying %s --> %s" file output
+                File.Copy(file, output)
+            | Some model ->
+                printfn "creating %s" output
+                HtmlFile.UseFileAsSimpleTemplate(model.ContentTag, model.Parameters, template, output)

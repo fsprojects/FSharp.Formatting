@@ -218,16 +218,18 @@ Target.create "GenerateDocs" (fun _ ->
 
     let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
     let parameters =
-      [ "page-author", "Tomas Petricek and FSharp.Formatting contributors"
+      [ "root", "https://fsprojects.github.io/FSharp.Formatting"
+        "page-author", "Tomas Petricek and FSharp.Formatting contributors"
         "page-description", summary
         "github-link", "https://github.com/fsprojects/FSharp.Formatting"
         "project-name", "FSharp.Formatting"
-        "root", "https://fsprojects.github.io/FSharp.Formatting"
         "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
         "project-github", "https://github.com/fsprojects/FSharp.Formatting" ]
 
     docTool (docToolConvertArgs "docs/content" "docs/output" parameters "docs/tools/template.html")
     docTool (docToolConvertArgs "docs/content/sidebyside" "docs/output/sidebyside" parameters "docs/tools/template-sidebyside.html")
+    docTool (docToolConvertArgs "docs/content/misc" "docs/output/misc" parameters "")
+    docTool (docToolConvertArgs "docs/content/content" "docs/output/content" parameters "")
     docTool (docToolGenerateArgs dllFiles "docs/output/reference" [] parameters None))
 
 // --------------------------------------------------------------------------------------

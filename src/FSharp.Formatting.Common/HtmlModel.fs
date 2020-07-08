@@ -1293,7 +1293,7 @@ module internal HtmlFile =
                 let rkey = "{" + key + id + "}"
                 let text = if isHtml then text.Replace(key1, rkey) else text
                 let text = if isHtml then text.Replace(key2, rkey) else text
-                let text = if not isHtml then text.Replace(key3, rkey) else text
+                let text = text.Replace(key3, rkey)
                 text)
           let result =
               (temp, parameters) ||> Seq.fold (fun text (key, value) ->
