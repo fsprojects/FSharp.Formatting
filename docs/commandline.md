@@ -16,6 +16,27 @@ in the solution according to the rules of [API doc generation](metadata.html)
     [lang=text]
     fsdocs build
 
+### Content
+
+The expected structure for a docs directory is
+
+    docs\**\*.md                          -- markdown with embedded code, converted to html and optionally tex/ipynb
+    docs\**\*.fsx                         -- fsx scripts converted to html and optionally tex/ipynb
+    docs\**\*                             -- other content, copied over
+    docs\**\_template.html                -- specifies the default template for this directory and its contents
+    docs\reference\_template.html         -- optionally specifies the default template for reference docs
+
+The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
+
+    --parameters 
+        "root" "https://fsprojects.github.io/FSharp.Formatting" 
+        "page-author" "Tomas Petricek" 
+        "page-description" "Libraries" 
+        "github-link" "https://github.com/fsprojects/FSharp.Formatting" 
+        "project-name" "F# Formatting" 
+        "project-nuget" "https://www.nuget.org/packages/FSharp.Formatting/" 
+        "project-github" "https://github.com/fsprojects/FSharp.Formatting" 
+
 ### Options
 
   * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
@@ -35,6 +56,8 @@ The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, 
 
     [lang=text]
     fsdocs watch
+
+The same parameters are accepted.  Restarting may be necesssary on changes to project files.
 
 The convert command
 ----------------------------

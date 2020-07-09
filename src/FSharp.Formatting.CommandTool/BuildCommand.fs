@@ -239,42 +239,42 @@ type CoreBuildOptions(watch) =
     member x.Execute() =
         let mutable res = 0
         use watcher = (if watch then new FileSystemWatcher(x.input) else null )
+        let slnDir = Path.GetFullPath "."
+
+        printfn "x.projects = %A" x.projects
+        let slnName, projects =
+            match Seq.toList x.projects with
+            | [] ->
+                match Directory.GetFiles(slnDir, "*.sln") with
+                | [| sln |] ->
+                    printfn "getting projects from solution file %s" sln
+                    let slnName = Path.GetFileNameWithoutExtension(sln)
+                    slnName, Crack.getProjectsFromSlnFile sln
+                | _ -> 
+                    let projectFiles =
+                        [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
+                          for d in Directory.EnumerateDirectories(slnDir) do
+                                yield! Directory.EnumerateFiles(d, "*.fsproj")
+                                for d2 in Directory.EnumerateDirectories(d) do
+                                yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
+                    let slnName = Path.GetFileName(slnDir)
+                    slnName, projectFiles
+                            
+            | projectFiles -> 
+                let slnName = Path.GetFileName(slnDir)
+                slnName, projectFiles
+            
+        printfn "projects = %A" projects
+        let projects = projects |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
+        printfn "filtered projects = %A" projects
+        let projectOutputs =
+            [ for p in projects do
+                printfn "cracking project %s" p
+                let tp, isTestProject, isPackable, isLibrary = Crack.getTargetFromProjectFile slnDir p
+                if (* isPackable &&*)  isLibrary && not isTestProject then
+                    yield tp ]
         let run () =
             try
-                let slnDir = Path.GetFullPath "."
-
-                printfn "x.projects = %A" x.projects
-                let slnName, projects =
-                    match Seq.toList x.projects with
-                    | [] ->
-                        match Directory.GetFiles(slnDir, "*.sln") with
-                        | [| sln |] ->
-                            printfn "getting projects from solution file %s" sln
-                            let slnName = Path.GetFileNameWithoutExtension(sln)
-                            slnName, Crack.getProjectsFromSlnFile sln
-                        | _ -> 
-                            let projectFiles =
-                                [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
-                                  for d in Directory.EnumerateDirectories(slnDir) do
-                                     yield! Directory.EnumerateFiles(d, "*.fsproj")
-                                     for d2 in Directory.EnumerateDirectories(d) do
-                                        yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
-                            let slnName = Path.GetFileName(slnDir)
-                            slnName, projectFiles
-                                 
-                    | projectFiles -> 
-                        let slnName = Path.GetFileName(slnDir)
-                        slnName, projectFiles
-                    
-                printfn "projects = %A" projects
-                let projects = projects |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
-                printfn "filtered projects = %A" projects
-                let projectOutputs =
-                    [ for p in projects do
-                        printfn "cracking project %s" p
-                        let tp, isTestProject, isPackable, isLibrary = Crack.getTargetFromProjectFile slnDir p
-                        if (* isPackable &&*)  isLibrary && not isTestProject then
-                           yield tp ]
                 printfn "projectOutputs = %A" projectOutputs
 
                 let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
@@ -333,7 +333,7 @@ type CoreBuildOptions(watch) =
                     outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
                     parameters = parameters,
                     ?template = initialTemplate2,
-                    // TODO: grab source repository metadata from project file
+                    // TODO: grab source repository metadata from project file or parameters
                     //?sourceRepo = (evalString x.sourceRepo),
                     //?sourceFolder = (evalString x.sourceFolder),
                     libDirs = paths
