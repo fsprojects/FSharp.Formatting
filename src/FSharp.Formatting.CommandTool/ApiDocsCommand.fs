@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.CommandTool
 
+open System.IO
 open CommandLine
 open CommandLine.Text
 
@@ -53,11 +54,26 @@ type ApiDocsCommand() =
             if x.help then
                 printfn "%s" (x.GetUsageOfOption())
             else
+                let template = evalString x.template
+                let template =
+                    match template with
+                    | Some s -> Some s
+                    | None ->
+                    let t1 = Path.Combine("docs", "reference", "_template.html")
+                    let t2 = Path.Combine("docs", "_template.html")
+                    if File.Exists(t1) then
+                        Some t1
+                    elif File.Exists(t2) then
+                        Some t2
+                    else
+                        printfn "note, expected template file '%s' or '%s' to exist, proceeding without template" t1 t2
+                        None
+
                 ApiDocs.GenerateHtml (
                     dllFiles = (x.dlls |> List.ofSeq),
                     outDir = x.output,
                     ?parameters = evalPairwiseStrings x.parameters,
-                    ?template = evalString x.template,
+                    ?template = template,
                     ?xmlFile = evalString x.xmlFile,
                     ?sourceRepo = evalString x.sourceRepo,
                     ?sourceFolder = evalString x.sourceFolder,
