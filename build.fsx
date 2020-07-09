@@ -120,7 +120,7 @@ Target.create "NuGet" (fun _ ->
 
 let toolPath = "temp"
 
-let commandToolPath = toolPath </> "fsformatting" + (if Environment.isWindows then ".exe" else "")
+let commandToolPath = toolPath </> "fsdocs" + (if Environment.isWindows then ".exe" else "")
 let commandToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
         { info with
@@ -158,7 +158,7 @@ let executeHelper executer traceMsg failMessage configStartInfo =
         failwith failMessage
     ()
 
-let execute = executeHelper executeWithOutput
+let execute traceMsg failMessage configStartInfo = executeHelper executeWithOutput traceMsg failMessage configStartInfo
 
 // Documentation
 let docTool args =
@@ -182,7 +182,7 @@ Target.create "GenerateDocs" (fun _ ->
             (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
             "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
 
-    if not result.OK then failwith "failed to install fsformatting as dotnet tool"
+    if not result.OK then failwith "failed to install fsdocs as dotnet tool"
 
     // generate metadata reference
     let dlls =
@@ -206,11 +206,10 @@ Target.create "GenerateDocs" (fun _ ->
         |> createArg "parameters"
 
     let dllFilesArg = createArg "dlls" dllFiles
-    docTool (sprintf "convert --input docs/content            --output docs/output            --noRecursive --template docs/tools/template.html %s"  parametersArg)
-    docTool (sprintf "convert --input docs/content/sidebyside --output docs/output/sidebyside --noRecursive --includeSource --template docs/tools/template-sidebyside.html %s" parametersArg)
-    docTool (sprintf "convert --input docs/content/misc       --output docs/output/misc       --template docs/tools/template.html %s" parametersArg)
-    docTool (sprintf "convert --input docs/content/content    --output docs/output/content    --template docs/tools/template.html %s" parametersArg)
-    docTool (sprintf "generate %s --output docs/output --template docs/tools/reference/template.html %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo))
+    docTool (sprintf "convert %s" parametersArg)
+    docTool (sprintf "api %s %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo)
+    // for comparison
+    docTool (sprintf "build docs --output output2 %s" parametersArg))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts

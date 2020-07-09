@@ -1,4 +1,4 @@
-## 5.0.1-beta1
+## 5.0.1-beta6
   - Update to FCS v36.0
   - Add preliminary pynb support for Literate
   - Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
@@ -13,14 +13,18 @@
   - FSharp.ApiDocs uses HTML substitution for templating, no Razor
   - Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
   - For command line tool
+        Rename fsformatting to fsdocs
         Update command line parser
-        "fsformatting literate process-directory" --> "fsformatting convert"
-        "fsformatting metadata-format generate" --> "fsformatting generate"
+        "fsformatting literate process-directory" --> "fsdocs convert"
+        "fsformatting metadata-format generate" --> "fsdocs api"
         "--dllFiles" --> "--dlls"
         "--outDir" --> "--output"
         "--outputDirectory" --> "--output"
         "--output" is optional (defaults to 'output')
         "--inputDirectory" --> "--input"
+        Add --nonPublic
+        Add --xmlComments
+  - Add a fsdocs build command to the documentation generator that has lots of sensible defaults.
 
 ## 4.1.0
   - Support preview F# language features.

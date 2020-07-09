@@ -16,6 +16,11 @@ module Common =
         if a = [|""|] then None
         else Some (a |> Seq.pairwise |> Array.ofSeq |> List.ofArray)
 
+    let evalPairwiseStringsNoOption a =
+        let a = Seq.toArray a
+        if a = [|""|] then []
+        else a |> Seq.pairwise |> Array.ofSeq |> List.ofArray
+
     let concat a =
         let mutable s = ""
         for i in a do s <- (sprintf "%s %s" s i)

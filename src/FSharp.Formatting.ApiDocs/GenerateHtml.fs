@@ -311,7 +311,6 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
 
     let props = (dict model.Properties).["Properties"]
     let projectName = if props.ContainsKey "project-name" then " - " + props.["project-name"] else ""
-    Log.infof "Generating: index.html"
     let contentTag = "document"
     let pageTitleTag = "page-title"
 
@@ -324,6 +323,7 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
     let outFile = outDir @@ "index.html"
     let pageTitle = "API Reference" + projectName
     let parameters = getParameters content pageTitle
+    printfn "Generating %s" outFile
     HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
 
     for modulInfo in model.ModuleInfos do
@@ -332,6 +332,7 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
         let outFile = outDir @@ (modulInfo.Module.UrlName + ".html")
         let pageTitle = modulInfo.Module.Name + projectName
         let parameters = getParameters content pageTitle
+        printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
         Log.infof "Finished module: %s" modulInfo.Module.UrlName
 
@@ -342,5 +343,6 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
         let pageTitle = info.Type.Name + projectName
         let parameters = getParameters content pageTitle
 
+        printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
         Log.infof "Finished type: %s" info.Type.UrlName

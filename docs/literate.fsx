@@ -169,6 +169,18 @@ let projInfo =
     "github-link", "https://github.com/fsprojects/FSharp.Formatting"
     "project-name", "F# Formatting" ]
 
+(**
+You can also convert entire directories of content.
+
+- Content that is not `*.fsx` or `*.md` is copied across 
+
+- If a file `_template.html` exists then is used as the template for that directory and all sub-content.
+
+- Any file or directory beginning with `.` is ignored.
+
+- A set of parameter substitutions can be provided operative across all files.
+*)
+
 // Process all files and save results to 'output' directory
 Literate.ConvertDirectory
   (source, projTemplate, source + "\\output", parameters=projInfo)

@@ -1,7 +1,7 @@
-open FSharp.Formatting.CommandTool.Literate
-open FSharp.Formatting.CommandTool.ApiDocs
-open CommandLine
 
+module FSharp.Formatting.CommandTool.Main
+
+open CommandLine
 
 let printAssemblies msg =
   printfn "%s. Loaded Assemblies:" msg
@@ -13,12 +13,14 @@ let printAssemblies msg =
 [<EntryPoint>]
 let main argv =
     try
-      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertDirectoryOptions>, typeof<GenerateOptions>)
+      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertCommand>, typeof<ApiDocsCommand>, typeof<BuildCommand>, typeof<WatchCommand>)
         .MapResult(
-            (fun (opts: ConvertDirectoryOptions ) -> opts.Execute()),
-            (fun (opts: GenerateOptions) -> opts.Execute()),
+            (fun (opts: ConvertCommand) -> opts.Execute()),
+            (fun (opts: ApiDocsCommand) -> opts.Execute()),
+            (fun (opts: BuildCommand) -> opts.Execute()),
+            (fun (opts: WatchCommand) -> opts.Execute()),
             (fun errs -> 1));
     with e ->
         printAssemblies "(DIAGNOSTICS) Documentation failed"
-        printfn "fsformatting.exe failed: %O" e
+        printfn "fsdocs.exe failed: %O" e
         reraise()
