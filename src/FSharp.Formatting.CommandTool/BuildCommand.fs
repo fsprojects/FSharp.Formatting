@@ -10,6 +10,7 @@ open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.CommandTool.Common
 
 open Dotnet.ProjInfo
+open System.Threading.Tasks
 
 module internal InspectSln =
 
@@ -173,6 +174,7 @@ module Crack =
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
+           let args = List.append args [ "/p:DesignTimeBuild=true" ]
            printfn "%s, args = %A" exePath args
            let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
            printfn "done..."
@@ -264,15 +266,23 @@ type CoreBuildOptions(watch) =
                 let slnName = Path.GetFileName(slnDir)
                 slnName, projectFiles
             
+        //let iterParallel numberOfThreads (action: string -> unit) (array: string []) =
+        //    let opts = ParallelOptions()
+        //    opts.MaxDegreeOfParallelism <- numberOfThreads
+        //    Parallel.For(0, array.Length, opts, fun i -> action array.[i]) |> ignore
+
         printfn "projects = %A" projects
         let projects = projects |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
         printfn "filtered projects = %A" projects
         let projectOutputs =
-            [ for p in projects do
+            projects |> Array.ofList |> Array.Parallel.map (fun p -> 
                 printfn "cracking project %s" p
-                let tp, isTestProject, isPackable, isLibrary = Crack.getTargetFromProjectFile slnDir p
-                if (* isPackable &&*)  isLibrary && not isTestProject then
-                    yield tp ]
+                Crack.getTargetFromProjectFile slnDir p) |> Array.toList
+        let projectOutputs =
+            projectOutputs |> List.choose (fun (tp, isTestProject, isPackable, isLibrary) ->
+                if (* isPackable &&*)  isLibrary && not isTestProject then 
+                    Some tp
+                else None )
         let run () =
             try
                 printfn "projectOutputs = %A" projectOutputs
