@@ -235,6 +235,12 @@ type CoreBuildOptions(watch) =
     [<Option("noLineNumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers (optional).")>]
     member val noLineNumbers = false with get, set
 
+    [<Option("nonPublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
+    member val nonPublic = false with get, set
+
+    [<Option("xmlComments", Default=false, Required = false, HelpText = "Do not use the Markdown parser for in-code comments. Recommended for C# assemblies (optional, default true)")>]
+    member val xmlComments = false with get, set
+
     [<Option("parameters", Required = false, HelpText = "Substitution parameters for templates.")>]
     member val parameters = Seq.empty<string> with get, set
 
@@ -346,7 +352,9 @@ type CoreBuildOptions(watch) =
                     // TODO: grab source repository metadata from project file or parameters
                     //?sourceRepo = (evalString x.sourceRepo),
                     //?sourceFolder = (evalString x.sourceFolder),
-                    libDirs = paths
+                    libDirs = paths,
+                    ?publicOnly = Some (not x.nonPublic),
+                    ?markDownComments = Some (not x.xmlComments)
                     )
 
             with

@@ -43,8 +43,10 @@ The output goes in `output/` by default.  Typically a `--parameters` argument is
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
   * `--output` -  Output directory, defaults to `output`
   * `--template` -  Default template file for formatting. For HTML should contain `{{document}}` and `{{tooltips}}` tags.
+  * `--nonPublic` -  Generate docs for non-public members
+  * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
+  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--generateNotebooks` -  Include conversion from scripts to `ipynb`
-  * `--eval` - Use the default FsiEvaluator, defaults to `false`.
   * `--parameters` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
   * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--help` -  Display the specific help message for `convert`.
@@ -78,7 +80,7 @@ according to the concept of [Literate Programming](literate.html).
   * `--compilerOptions` -  Compiler options passed when evaluating snippets.
   * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--references` -  Turn all indirect links into references, defaults to `false`.
-  * `--fsieval` - Use the default FsiEvaluator, defaults to `false`.
+  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--parameters` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
   * `--includeSource` -  Include sourcecode in documentation for substitution as `{{source}}`, defaults to `false`.
   * `--help` -  Display the specific help message for `convert`.
@@ -105,6 +107,8 @@ the meta-data from the `*.dll` files of the package and using the XML comments f
   * `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
   * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
   * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
+  * `--nonPublic` -  Generate docs for non-public members
+  * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
   * `--libDirs` - Search directory list for library references.
   * `--help` -  Display the specific help message for `apidocs`.
   * `--waitForKey` -  Wait for key before exit.

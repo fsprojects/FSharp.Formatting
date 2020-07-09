@@ -39,6 +39,12 @@ type ApiDocsCommand() =
     [<Option("xmlFile", Required = false, HelpText = "Single XML file to use for all DLL files, otherwise using 'file.xml' for each 'file.dll' (optional).")>]
     member val xmlFile = "" with get, set
 
+    [<Option("nonPublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
+    member val nonPublic = false with get, set
+
+    [<Option("xmlComments", Default=false, Required = false, HelpText = "Do not use the Markdown parser for in-code comments. Recommended for C# assemblies (optional, default true)")>]
+    member val xmlComments = false with get, set
+
     [<Option("sourceRepo", Required = false, HelpText = "Source repository URL (optional).")>]
     member val sourceRepo = "" with get, set
 
@@ -77,7 +83,9 @@ type ApiDocsCommand() =
                     ?xmlFile = evalString x.xmlFile,
                     ?sourceRepo = evalString x.sourceRepo,
                     ?sourceFolder = evalString x.sourceFolder,
-                    ?libDirs = evalStrings x.libDirs
+                    ?libDirs = evalStrings x.libDirs,
+                    ?publicOnly = Some (not x.nonPublic),
+                    ?markDownComments = Some (not x.xmlComments)
                     )
         with ex ->
             Log.errorf "received exception in ApiDocs.GenerateHtml:\n %A" ex
