@@ -60,7 +60,6 @@ let findType name (typeInfos: TypeInfo list)=
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
     "authors", "Your Name"
-    "page-description", "A short summary of your project"
     "repository-url", "http://github.com/pblasucci/fsharp-project-scaffold"
     "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 

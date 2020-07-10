@@ -2,6 +2,7 @@ namespace FSharp.Formatting.CommandTool
 
 open CommandLine
 
+open System
 open System.IO
 open FSharp.Formatting.Common
 open FSharp.Formatting.Literate
@@ -12,9 +13,8 @@ open FSharp.Formatting.CommandTool.Common
 open Dotnet.ProjInfo
 open System.Threading.Tasks
 
-module internal InspectSln =
 
-  open System
+module internal InspectSln =
 
   let private normalizeDirSeparators (path: string) =
       match System.IO.Path.DirectorySeparatorChar with
@@ -126,7 +126,7 @@ module Crack =
     let msbuildPropBool (s: string) =
         match s.Trim() with
         | "" -> None
-        | Dotnet.ProjInfo.Inspect.MSBuild.ConditionEquals "True" -> Some true
+        | Inspect.MSBuild.ConditionEquals "True" -> Some true
         | _ -> Some false
 
     let runProcess (log: string -> unit) (workingDir: string) (exePath: string) (args: string) =
@@ -172,12 +172,16 @@ module Crack =
               "RepositoryUrl"
               "PackageProjectUrl"
               "Authors"
-              "Description"
+              //"Description"
               "PackageLicenseExpression"
               "PackageTags"
               "Copyright"
+              "PackageVersion"
+              "PackageIconUrl"
+              "PackageReleaseNotes"
+              "RepositoryCommit"
             ]
-        let gp () = Dotnet.ProjInfo.Inspect.getProperties (["TargetPath"] @ additionalInfo)
+        let gp () = Inspect.getProperties (["TargetPath"] @ additionalInfo)
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
@@ -187,10 +191,10 @@ module Crack =
            printfn "done..."
            res
 
-        let msbuildPath = Dotnet.ProjInfo.Inspect.MSBuildExePath.DotnetMsbuild "dotnet"
-        let msbuildExec = Dotnet.ProjInfo.Inspect.msbuild msbuildPath runCmd
+        let msbuildPath = Inspect.MSBuildExePath.DotnetMsbuild "dotnet"
+        let msbuildExec = Inspect.msbuild msbuildPath runCmd
 
-        let result = file |> Dotnet.ProjInfo.Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
+        let result = file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
         match result with
@@ -207,13 +211,19 @@ module Crack =
                    RepositoryUrl = props |> Map.tryFind "RepositoryUrl" 
                    PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
                    Authors = props |> Map.tryFind "Authors" 
-                   Description = props |> Map.tryFind "Description" 
+                   //Description = props |> Map.tryFind "Description" 
                    PackageLicenseExpression = props |> Map.tryFind "PackageLicenseExpression" 
                    PackageTags = props |> Map.tryFind "PackageTags" 
-                   Copyright = props |> Map.tryFind "Copyright" |}
+                   Copyright = props |> Map.tryFind "Copyright"
+                   PackageVersion = props |> Map.tryFind "PackageVersion"
+                   PackageIconUrl = props |> Map.tryFind "PackageIconUrl"
+                   PackageReleaseNotes = props |> Map.tryFind "PackageReleaseNotes"
+                   RepositoryCommit = props |> Map.tryFind "RepositoryCommit" |}
                 
-            | _ -> failwithf "error - %s" (String.concat "\n" msgs)
-        | _ -> failwithf "error - %s" (String.concat "\n" msgs)
+            | Ok err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+            | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+        | Ok ok -> failwithf "huh? ok = %A" ok
+        | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
                 
     let getProjectsFromSlnFile (slnPath : string) =
         match InspectSln.tryParseSln slnPath with
@@ -311,20 +321,28 @@ type CoreBuildOptions(watch) =
                     "{{" + tag + "}}"
         let root = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
         let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
-        let description = tryFindValue (fun info -> info.Description) "Description" "description"
+        //let description = tryFindValue (fun info -> info.Description) "Description" "description"
         let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
         let repoUrl = tryFindValue (fun info -> info.RepositoryUrl) "RepositoryUrl" "repository-url"
         let packageLicenseExpression = tryFindValue (fun info -> info.PackageLicenseExpression) "PackageLicenseExpression" "package-license"
         let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
+        let packageVersion = tryFindValue (fun info -> info.PackageVersion) "PackageVersion" "package-version"
+        let packageIconUrl = tryFindValue (fun info -> info.PackageIconUrl) "PackageIconUrl" "package-icon-url"
+        let packageReleaseNotes = tryFindValue (fun info -> info.PackageReleaseNotes) "PackageReleaseNotes" "package-release-notes"
+        let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
         let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
         let parameters = 
           [ "project-name", slnName
             "root", root
             "authors", authors
-            "description", description
+            //"description", description
             "repository-url", repoUrl
             "package-license", packageLicenseExpression
+            "package-release-notes", packageReleaseNotes
+            "package-icon-url", packageIconUrl
             "package-tags", packageTags
+            "package-version", packageVersion
+            "repository-commit", repositoryCommit
             "copyright", copyright]
         let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
         let parameters = evalPairwiseStringsNoOption x.parameters @ parameters

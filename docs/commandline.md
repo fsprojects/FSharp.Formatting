@@ -37,7 +37,6 @@ be the same across all projects.
 |   {{project-name}}     | Name of .sln or containing directory |
 |   {{root}}             | <PackageProjectUrl>         |
 |   {{authors}}          | <Authors>                   |
-|   {{description}}      | <Description>               |
 |   {{repository-url}}   | <RepositoryUrl>             | 
 |   {{package-license}}  | <PackageLicenseExpression>  | 
 |   {{package-tags}}     | <PackageTags>               |
@@ -144,7 +143,6 @@ Tou can experiment with the [template file of the FSharp.Formatting project](htt
       --template template.html
       --parameters
           "authors" "Your name(s)"
-          "page-description" "A package for ..."
 	      "github-link" "http://github.com/yourname/project"
           "project-name" "your project name"
 	      "root" "http://yourname.github.io/project"

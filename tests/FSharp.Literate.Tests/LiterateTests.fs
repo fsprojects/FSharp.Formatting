@@ -460,7 +460,6 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using substitu
 let info =
   [ "project-name", "FSharp.ProjectScaffold"
     "authors", "Your Name"
-    "page-description", "A short summary of your project"
     "repository-url", "http://github.com/pblasucci/fsharp-project-scaffold"
     "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 

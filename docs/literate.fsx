@@ -164,8 +164,7 @@ file which is included as a sample in the package):
 // Load the template & specify project information
 let projTemplate = source + "template-project.html"
 let projInfo =
-  [ "page-description", "F# Literate programming"
-    "authors", "Tomas Petricek"
+  [ "authors", "Tomas Petricek"
     "github-link", "https://github.com/fsprojects/FSharp.Formatting"
     "project-name", "F# Formatting" ]
 

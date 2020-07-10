@@ -37,7 +37,6 @@ let docTemplate =
 let parameters =
   [ "project-name", "F# TestProject"
     "authors", "Your Name"
-    "page-description", "A short summary of your project"
     "repository-url", "http://github.com/fsprojects/fsharp-test-project"
     "root", "http://fsprojects.github.io/fsharp-test-project" ]
 

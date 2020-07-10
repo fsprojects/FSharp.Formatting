@@ -184,32 +184,7 @@ Target.create "GenerateDocs" (fun _ ->
 
     if not result.OK then failwith "failed to install fsdocs as dotnet tool"
 
-    // generate metadata reference
-    let dlls =
-      [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll";
-        "FSharp.Formatting.ApiDocs.dll" ]
-
-    let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
-    let parameters =
-      [ "root", "https://fsprojects.github.io/FSharp.Formatting"
-        "authors", "Tomas Petricek and F# Formatting contributors"
-        "page-description", summary
-        "github-link", projectRepo
-        "project-name", "F# Formatting"
-        "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
-        "repository-url", projectRepo ]
-
-    let parametersArg =
-        parameters
-        |> Seq.collect (fun (key, value) -> [key; value])
-        |> createArg "parameters"
-
-    let dllFilesArg = createArg "dlls" dllFiles
-    docTool (sprintf "convert %s --output old" parametersArg)
-    docTool (sprintf "api %s %s  --output old --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo)
-    // for comparison
-    docTool (sprintf "build docs %s" parametersArg))
+    docTool (sprintf "build docs"))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
