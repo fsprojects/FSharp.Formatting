@@ -36,10 +36,9 @@ let docTemplate =
 
 let parameters =
   [ "project-name", "F# TestProject"
-    "page-author", "Your Name"
+    "authors", "Your Name"
     "page-description", "A short summary of your project"
-    "project-github", "http://github.com/fsprojects/fsharp-test-project"
-    "project-nuget", "http://nuget.com/packages/FSharp.TestProject"
+    "repository-url", "http://github.com/fsprojects/fsharp-test-project"
     "root", "http://fsprojects.github.io/fsharp-test-project" ]
 
 let generateApiDocs (libraries:string list) useMarkdown uniq =

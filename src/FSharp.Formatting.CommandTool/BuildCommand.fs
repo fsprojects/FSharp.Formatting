@@ -169,6 +169,13 @@ module Crack =
             [ "OutputType"
               "IsTestProject"
               "IsPackable"
+              "RepositoryUrl"
+              "PackageProjectUrl"
+              "Authors"
+              "Description"
+              "PackageLicenseExpression"
+              "PackageTags"
+              "Copyright"
             ]
         let gp () = Dotnet.ProjInfo.Inspect.getProperties (["TargetPath"] @ additionalInfo)
 
@@ -191,16 +198,20 @@ module Crack =
             match gpResult with
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
-                let targetPath =
-                    match props |> Map.tryFind "TargetPath" with
-                    | Some t -> t
-                    | None -> failwith "error, 'TargetPath' property not found"
-                let msbuildPropBool prop =
-                    props |> Map.tryFind prop |> Option.bind msbuildPropBool
-                let isTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                let isLibrary = props |> Map.tryFind "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
-                let isPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                (targetPath, isTestProject, isPackable, isLibrary)
+                let msbuildPropBool prop = props |> Map.tryFind prop |> Option.bind msbuildPropBool
+
+                {| TargetPath = props |> Map.tryFind "TargetPath"
+                   IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
+                   IsLibrary = props |> Map.tryFind "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
+                   IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
+                   RepositoryUrl = props |> Map.tryFind "RepositoryUrl" 
+                   PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
+                   Authors = props |> Map.tryFind "Authors" 
+                   Description = props |> Map.tryFind "Description" 
+                   PackageLicenseExpression = props |> Map.tryFind "PackageLicenseExpression" 
+                   PackageTags = props |> Map.tryFind "PackageTags" 
+                   Copyright = props |> Map.tryFind "Copyright" |}
+                
             | _ -> failwithf "error - %s" (String.concat "\n" msgs)
         | _ -> failwithf "error - %s" (String.concat "\n" msgs)
                 
@@ -250,7 +261,7 @@ type CoreBuildOptions(watch) =
         let slnDir = Path.GetFullPath "."
 
         printfn "x.projects = %A" x.projects
-        let slnName, projects =
+        let slnName, projectFiles =
             match Seq.toList x.projects with
             | [] ->
                 match Directory.GetFiles(slnDir, "*.sln") with
@@ -262,8 +273,8 @@ type CoreBuildOptions(watch) =
                     let projectFiles =
                         [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
                           for d in Directory.EnumerateDirectories(slnDir) do
-                                yield! Directory.EnumerateFiles(d, "*.fsproj")
-                                for d2 in Directory.EnumerateDirectories(d) do
+                             yield! Directory.EnumerateFiles(d, "*.fsproj")
+                             for d2 in Directory.EnumerateDirectories(d) do
                                 yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
                     let slnName = Path.GetFileName(slnDir)
                     slnName, projectFiles
@@ -272,29 +283,55 @@ type CoreBuildOptions(watch) =
                 let slnName = Path.GetFileName(slnDir)
                 slnName, projectFiles
             
-        //let iterParallel numberOfThreads (action: string -> unit) (array: string []) =
-        //    let opts = ParallelOptions()
-        //    opts.MaxDegreeOfParallelism <- numberOfThreads
-        //    Parallel.For(0, array.Length, opts, fun i -> action array.[i]) |> ignore
-
-        printfn "projects = %A" projects
-        let projects = projects |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
-        printfn "filtered projects = %A" projects
-        let projectOutputs =
-            projects |> Array.ofList |> Array.Parallel.map (fun p -> 
+        printfn "projects = %A" projectFiles
+        let projectFiles =
+            projectFiles |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
+        printfn "filtered projects = %A" projectFiles
+        if projectFiles.Length = 0 then
+            printfn "no project files found, no API docs will be generated"
+        let projectInfos =
+            projectFiles |> Array.ofList |> Array.Parallel.map (fun p -> 
                 printfn "cracking project %s" p
                 Crack.getTargetFromProjectFile slnDir p) |> Array.toList
-        let projectOutputs =
-            projectOutputs |> List.choose (fun (tp, isTestProject, isPackable, isLibrary) ->
-                if (* isPackable &&*)  isLibrary && not isTestProject then 
-                    Some tp
+        let projectInfos =
+            projectInfos |> List.choose (fun info ->
+                if (* isPackable &&*)  info.TargetPath.IsSome && info.IsLibrary && not info.IsTestProject then 
+                    Some info
                 else None )
+        let projectOutputs =
+            projectInfos |> List.map (fun info -> info.TargetPath.Value)
+
+        let tryFindValue f nm tag  =
+            projectInfos
+            |> List.tryPick f
+            |> function
+                | Some url -> url
+                | None ->
+                    printfn "no project defined <%s>, the {{%s}} substitution will not be replaced in any HTML templates" nm tag ;
+                    "{{" + tag + "}}"
+        let root = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
+        let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
+        let description = tryFindValue (fun info -> info.Description) "Description" "description"
+        let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
+        let repoUrl = tryFindValue (fun info -> info.RepositoryUrl) "RepositoryUrl" "repository-url"
+        let packageLicenseExpression = tryFindValue (fun info -> info.PackageLicenseExpression) "PackageLicenseExpression" "package-license"
+        let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
+        let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
+        let parameters = 
+          [ "project-name", slnName
+            "root", root
+            "authors", authors
+            "description", description
+            "repository-url", repoUrl
+            "package-license", packageLicenseExpression
+            "package-tags", packageTags
+            "copyright", copyright]
+        let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
+        let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
         let run () =
             try
-                printfn "projectOutputs = %A" projectOutputs
+                printfn "projectInfos = %A" projectInfos
 
-                let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
-                let parameters = evalPairwiseStringsNoOption x.parameters @ [ ("project-name", slnName) ]
                 let templateFile =
                     let t = Path.Combine(x.input, "_template.html")
                     if File.Exists(t) then
@@ -349,8 +386,7 @@ type CoreBuildOptions(watch) =
                     outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
                     parameters = parameters,
                     ?template = initialTemplate2,
-                    // TODO: grab source repository metadata from project file or parameters
-                    //?sourceRepo = (evalString x.sourceRepo),
+                    ?sourceRepo = repoUrlOption,
                     //?sourceFolder = (evalString x.sourceFolder),
                     libDirs = paths,
                     ?publicOnly = Some (not x.nonPublic),

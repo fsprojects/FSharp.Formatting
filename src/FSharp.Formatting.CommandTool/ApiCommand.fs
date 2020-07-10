@@ -10,7 +10,7 @@ open FSharp.Formatting.CommandTool.Common
 
 /// Exposes metadata formatting functionality. 
 [<Verb("api", HelpText = "generate API reference docs from metadata")>]
-type ApiDocsCommand() =
+type ApiCommand() =
     member x.GetUsageOfOption() =
         let help = new HelpText()
         help.AddDashesToOption <- true

@@ -13,10 +13,10 @@ let printAssemblies msg =
 [<EntryPoint>]
 let main argv =
     try
-      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertCommand>, typeof<ApiDocsCommand>, typeof<BuildCommand>, typeof<WatchCommand>)
+      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertCommand>, typeof<ApiCommand>, typeof<BuildCommand>, typeof<WatchCommand>)
         .MapResult(
             (fun (opts: ConvertCommand) -> opts.Execute()),
-            (fun (opts: ApiDocsCommand) -> opts.Execute()),
+            (fun (opts: ApiCommand) -> opts.Execute()),
             (fun (opts: BuildCommand) -> opts.Execute()),
             (fun (opts: WatchCommand) -> opts.Execute()),
             (fun errs -> 1));
