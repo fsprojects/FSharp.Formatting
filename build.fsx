@@ -61,10 +61,10 @@ Target.create "AssemblyInfo" (fun _ ->
 Target.create "Clean" (fun _ ->
     !! artifactsDir
     ++ "temp"
-    ++ "docs/output"
+    ++ "output"
     |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
-    ["bin"; "temp"; "docs/output"; "tests/bin"]
+    ["bin"; "temp"; "output"; "tests/bin"]
     |> Seq.iter Directory.ensure
 )
 
@@ -176,7 +176,7 @@ let createArg argName arguments =
 
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir "temp"
-    Shell.cleanDir "docs/output"
+    Shell.cleanDir "output"
     let result =
         DotNet.exec
             (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
@@ -184,32 +184,7 @@ Target.create "GenerateDocs" (fun _ ->
 
     if not result.OK then failwith "failed to install fsdocs as dotnet tool"
 
-    // generate metadata reference
-    let dlls =
-      [ "FSharp.Formatting.CodeFormat.dll"; "FSharp.Formatting.Common.dll"
-        "FSharp.Formatting.Literate.dll"; "FSharp.Formatting.Markdown.dll";
-        "FSharp.Formatting.ApiDocs.dll" ]
-
-    let dllFiles = [ for f in dlls -> @"src/FSharp.Formatting/bin/Release/netstandard2.0" @@ f ]
-    let parameters =
-      [ "root", "https://fsprojects.github.io/FSharp.Formatting"
-        "page-author", "Tomas Petricek and F# Formatting contributors"
-        "page-description", summary
-        "github-link", projectRepo
-        "project-name", "F# Formatting"
-        "project-nuget", "https://www.nuget.org/packages/FSharp.Formatting/"
-        "project-github", projectRepo ]
-
-    let parametersArg =
-        parameters
-        |> Seq.collect (fun (key, value) -> [key; value])
-        |> createArg "parameters"
-
-    let dllFilesArg = createArg "dlls" dllFiles
-    docTool (sprintf "convert %s" parametersArg)
-    docTool (sprintf "api %s %s --sourceRepo \"%s\"" dllFilesArg parametersArg projectRepo)
-    // for comparison
-    docTool (sprintf "build docs --output output2 %s" parametersArg))
+    docTool (sprintf "build docs"))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
@@ -217,7 +192,7 @@ Target.create "GenerateDocs" (fun _ ->
 Target.create "ReleaseDocs" (fun _ ->
     Git.Repository.clone "" projectRepo "temp/gh-pages"
     Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
-    Shell.copyRecursive "docs/output" "temp/gh-pages" true |> printfn "%A"
+    Shell.copyRecursive "output" "temp/gh-pages" true |> printfn "%A"
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"

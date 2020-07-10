@@ -39,24 +39,37 @@ F# script file. Most of the features should be quite self-explanatory:
 
 The F# script files is processed as follows:
 
- - A multi-line comment starting with `(**` and ending with `*)` is 
-   turned into text and is processed using the F# Markdown processor 
-   (which supports standard Markdown commands).
+- A multi-line comment starting with `(**` and ending with `*)` is 
+  turned into text and is processed using the F# Markdown processor 
+  (which supports standard Markdown commands).
 
- - A single-line comment starting with `(***` and ending with `***)` 
-   is treated as a special command. The command can consist of 
-   `key`, `key: value` or `key=value` pairs.
+- A single-line comment starting with `(***` and ending with `***)` 
+  is treated as a special command. The command can consist of 
+  `key`, `key: value` or `key=value` pairs.
 
-Two of the supported commands are `define`, which defines a named
-snippet (such as `final-sample`) and removes the command together with 
+|  Literate Command     | Description               |
+|:-----------------------|:----------------------------|
+|   `(** ... *)`       | Markdown  |
+|   `(*** define: snippet-name ***)`       | Define a named snippet  |
+|   `(*** hide ***)`       | Hide the subsequent snippet  |
+|   `(*** include-output ***)`       | The output of the preceeding snippet   |
+|   `(*** include-otuput: snippet-name ***)`       | The output of the snippet  |
+|   `(*** include-it ***)`       | The formatted result of the preceeding snippet |
+|   `(*** include-it: snippet-name ***)`       | The formatted result of the snippet  |
+|   `(*** include-value: value-name ***)`       | The formatted value  |
+|   `(*** include: snippet-name ***)`       | Include the code of the snippet |
+|   `(*** raw ***)`       | The subsequent code is treated as raw text |
+
+The command `define` defines a named snippet (such as `final-sample`) and removes the command together with 
 the following F# code block from the main document. The snippet can then
 be inserted elsewhere in the document using `include`. This makes it
 possible to write documents without the ordering requirements of the
 F# language.
 
-Another command is `hide` (without a value) which specifies that the
-following F# code block (until the next comment or command) should be 
+The command `hide` specifies that the following F# code block (until the next comment or command) should be 
 omitted from the output.
+
+Other commands are explained in [evaluation](evaluation.html).
 
 ### Markdown documents
 
@@ -164,8 +177,7 @@ file which is included as a sample in the package):
 // Load the template & specify project information
 let projTemplate = source + "template-project.html"
 let projInfo =
-  [ "page-description", "F# Literate programming"
-    "page-author", "Tomas Petricek"
+  [ "authors", "Tomas Petricek"
     "github-link", "https://github.com/fsprojects/FSharp.Formatting"
     "project-name", "F# Formatting" ]
 

@@ -1,4 +1,4 @@
-## 5.0.1-beta6
+## 5.0.1-beta7
   - Update to FCS v36.0
   - Add preliminary pynb support for Literate
   - Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
@@ -24,7 +24,7 @@
         "--inputDirectory" --> "--input"
         Add --nonPublic
         Add --xmlComments
-  - Add a fsdocs build command to the documentation generator that has lots of sensible defaults.
+  - Add `fsdocs build` command to the documentation generator that has lots of sensible defaults.
 
 ## 4.1.0
   - Support preview F# language features.

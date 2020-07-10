@@ -21,8 +21,8 @@
     <Authors>Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich</Authors>
     <Copyright>Copyright 2014</Copyright>
     <PackageTags>F# fsharp formatting markdown code fssnip literate programming</PackageTags>
-    <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting/</RepositoryUrl>
-    <PackageProjectUrl>http://fsprojects.github.io/FSharp.Formatting/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting</RepositoryUrl>
+    <PackageProjectUrl>http://fsprojects.github.io/FSharp.Formatting</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/FSharp.Formatting/master/docs/files/misc/logo.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>

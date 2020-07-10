@@ -13,14 +13,19 @@ let printAssemblies msg =
 [<EntryPoint>]
 let main argv =
     try
-      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertCommand>, typeof<ApiDocsCommand>, typeof<BuildCommand>, typeof<WatchCommand>)
+      CommandLine.Parser.Default.ParseArguments(argv, typeof<ConvertCommand>, typeof<ApiCommand>, typeof<BuildCommand>, typeof<WatchCommand>)
         .MapResult(
             (fun (opts: ConvertCommand) -> opts.Execute()),
-            (fun (opts: ApiDocsCommand) -> opts.Execute()),
+            (fun (opts: ApiCommand) -> opts.Execute()),
             (fun (opts: BuildCommand) -> opts.Execute()),
             (fun (opts: WatchCommand) -> opts.Execute()),
             (fun errs -> 1));
     with e ->
-        printAssemblies "(DIAGNOSTICS) Documentation failed"
+        let e =
+            match e with
+            | :? System.AggregateException as ex -> ex.InnerExceptions.[0]
+            | _ -> e
+        //printAssemblies "(DIAGNOSTICS) Documentation failed"
         printfn "fsdocs.exe failed: %O" e
-        reraise()
+        1
+        //reraise()

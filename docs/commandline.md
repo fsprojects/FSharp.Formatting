@@ -28,14 +28,25 @@ The expected structure for a docs directory is
 
 The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
 
-    --parameters 
-        "root" "https://fsprojects.github.io/FSharp.Formatting" 
-        "page-author" "Tomas Petricek" 
-        "page-description" "Libraries" 
-        "github-link" "https://github.com/fsprojects/FSharp.Formatting" 
-        "project-name" "F# Formatting" 
-        "project-nuget" "https://www.nuget.org/packages/FSharp.Formatting/" 
-        "project-github" "https://github.com/fsprojects/FSharp.Formatting" 
+The following substitutions are defined based on metadata that may be present in project files.
+The first metadata value detected across project files is used, it is assumed these values will
+be the same across all projects.
+
+|  Substitution name     | Source               |
+|:-----------------------|:----------------------------|
+|   {{page-title}}       | First h1 heading in literate file, generated for API docs  |
+|   {{project-name}}     | Name of .sln or containing directory |
+|   {{root}}             | `<PackageProjectUrl>`         |
+|   {{authors}}          | `<Authors>`                   |
+|   {{repository-url}}   | `<RepositoryUrl>`             |
+|   {{package-license}}  | `<PackageLicenseExpression>`  |
+|   {{package-tags}}     | `<PackageTags>`               |
+|   {{copyright}}        | `<Copyright>`                 |
+|   {{document}}         | generated html contents       |
+|   {contents}           | generated latex contents       |
+|   {{cells}}            | generated ipynb contents       |
+|   {{tooltips}}         | generated html tooltips contents       |
+|   {{source}}           | original script source           |
 
 ### Options
 
@@ -47,7 +58,7 @@ The output goes in `output/` by default.  Typically a `--parameters` argument is
   * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
   * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--generateNotebooks` -  Include conversion from scripts to `ipynb`
-  * `--parameters` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
+  * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
   * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--help` -  Display the specific help message for `convert`.
 
@@ -68,7 +79,7 @@ The `fsdocs convert` command processes a directory containing a mix of Markdown 
 according to the concept of [Literate Programming](literate.html).
 
     [lang=text]
-    fsdocs convert --input docs/scripts --format latex --parameters "page-author" "Tomas Petricek"
+    fsdocs convert --input docs/scripts --format latex --parameters "authors" "Tomas Petricek"
 
 ### Options
 
@@ -137,8 +148,7 @@ Tou can experiment with the [template file of the FSharp.Formatting project](htt
       --output "../api-docs" 
       --template template.html
       --parameters
-          "page-author" "Your name(s)"
-          "page-description" "A package for ..."
+          "authors" "Your name(s)"
 	      "github-link" "http://github.com/yourname/project"
           "project-name" "your project name"
 	      "root" "http://yourname.github.io/project"

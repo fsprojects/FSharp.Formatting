@@ -6,7 +6,7 @@ lib/
 obj/
 paket-files/
 nuget/*.nupkg
-docs/output/
+output/
 literate/outputs/*
 packages/*
 !packages/FSharp.Formatting

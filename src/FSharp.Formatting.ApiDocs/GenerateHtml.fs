@@ -317,6 +317,7 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
     let getParameters (content: HtmlElement) pageTitle =
         [| for KeyValue(k,v) in props -> (k, v)
            yield (contentTag, content.ToString() )
+           yield ("tooltips", "" )
            yield (pageTitleTag, pageTitle ) |]
 
     let content = div [] (namespacesContent model.AssemblyGroup)
