@@ -61,10 +61,10 @@ Target.create "AssemblyInfo" (fun _ ->
 Target.create "Clean" (fun _ ->
     !! artifactsDir
     ++ "temp"
-    ++ "docs/output"
+    ++ "output"
     |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
-    ["bin"; "temp"; "docs/output"; "tests/bin"]
+    ["bin"; "temp"; "output"; "tests/bin"]
     |> Seq.iter Directory.ensure
 )
 

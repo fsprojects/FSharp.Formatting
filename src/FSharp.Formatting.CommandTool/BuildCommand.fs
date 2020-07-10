@@ -186,9 +186,9 @@ module Crack =
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
            let args = List.append args [ "/p:DesignTimeBuild=true" ]
-           printfn "%s, args = %A" exePath args
+           //printfn "%s, args = %A" exePath args
            let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
-           printfn "done..."
+           //printfn "done..."
            res
 
         let msbuildPath = Inspect.MSBuildExePath.DotnetMsbuild "dotnet"
@@ -270,7 +270,7 @@ type CoreBuildOptions(watch) =
         use watcher = (if watch then new FileSystemWatcher(x.input) else null )
         let slnDir = Path.GetFullPath "."
 
-        printfn "x.projects = %A" x.projects
+        //printfn "x.projects = %A" x.projects
         let slnName, projectFiles =
             match Seq.toList x.projects with
             | [] ->
@@ -293,10 +293,10 @@ type CoreBuildOptions(watch) =
                 let slnName = Path.GetFileName(slnDir)
                 slnName, projectFiles
             
-        printfn "projects = %A" projectFiles
+        //printfn "projects = %A" projectFiles
         let projectFiles =
             projectFiles |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
-        printfn "filtered projects = %A" projectFiles
+        //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 then
             printfn "no project files found, no API docs will be generated"
         let projectInfos =
@@ -348,7 +348,7 @@ type CoreBuildOptions(watch) =
         let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
         let run () =
             try
-                printfn "projectInfos = %A" projectInfos
+                //printfn "projectInfos = %A" projectInfos
 
                 let templateFile =
                     let t = Path.Combine(x.input, "_template.html")
@@ -388,28 +388,29 @@ type CoreBuildOptions(watch) =
                         includeSource = true
                     )
 
-                let initialTemplate2 =
-                    let t1 = Path.Combine(x.input, "reference", "_template.html")
-                    let t2 = Path.Combine(x.input, "_template.html")
-                    if File.Exists(t1) then
-                        Some t1
-                    elif File.Exists(t2) then
-                        Some t2
-                    else
-                        printfn "note, expected template file '%s' or '%s' to exist, proceeding without template" t1 t2
-                        None
+                if projectOutputs.Length > 0 then
+                    let initialTemplate2 =
+                        let t1 = Path.Combine(x.input, "reference", "_template.html")
+                        let t2 = Path.Combine(x.input, "_template.html")
+                        if File.Exists(t1) then
+                            Some t1
+                        elif File.Exists(t2) then
+                            Some t2
+                        else
+                            printfn "note, expected template file '%s' or '%s' to exist, proceeding without template" t1 t2
+                            None
 
-                ApiDocs.GenerateHtml (
-                    dllFiles = projectOutputs,
-                    outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
-                    parameters = parameters,
-                    ?template = initialTemplate2,
-                    ?sourceRepo = repoUrlOption,
-                    //?sourceFolder = (evalString x.sourceFolder),
-                    libDirs = paths,
-                    ?publicOnly = Some (not x.nonPublic),
-                    ?markDownComments = Some (not x.xmlComments)
-                    )
+                    ApiDocs.GenerateHtml (
+                        dllFiles = projectOutputs,
+                        outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
+                        parameters = parameters,
+                        ?template = initialTemplate2,
+                        ?sourceRepo = repoUrlOption,
+                        //?sourceFolder = (evalString x.sourceFolder),
+                        libDirs = paths,
+                        ?publicOnly = Some (not x.nonPublic),
+                        ?markDownComments = Some (not x.xmlComments)
+                        )
 
             with
                 | _ as ex ->

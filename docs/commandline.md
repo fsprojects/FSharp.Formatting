@@ -32,15 +32,21 @@ The following substitutions are defined based on metadata that may be present in
 The first metadata value detected across project files is used, it is assumed these values will
 be the same across all projects.
 
-|  Susbtitution name     | .fsproj entry               |
+|  Substitution name     | Source               |
 |:-----------------------|:----------------------------|
+|   {{page-title}}       | First h1 heading in literate file, generated for API docs  |
 |   {{project-name}}     | Name of .sln or containing directory |
-|   {{root}}             | <PackageProjectUrl>         |
-|   {{authors}}          | <Authors>                   |
-|   {{repository-url}}   | <RepositoryUrl>             | 
-|   {{package-license}}  | <PackageLicenseExpression>  | 
-|   {{package-tags}}     | <PackageTags>               |
-|   {{copyright}}        | <Copyright>                 |
+|   {{root}}             | `<PackageProjectUrl>`         |
+|   {{authors}}          | `<Authors>`                   |
+|   {{repository-url}}   | `<RepositoryUrl>`             |
+|   {{package-license}}  | `<PackageLicenseExpression>`  |
+|   {{package-tags}}     | `<PackageTags>`               |
+|   {{copyright}}        | `<Copyright>`                 |
+|   {{document}}         | generated html contents       |
+|   {contents}           | generated latex contents       |
+|   {{cells}}            | generated ipynb contents       |
+|   {{tooltips}}         | generated html tooltips contents       |
+|   {{source}}           | original script source           |
 
 ### Options
 
