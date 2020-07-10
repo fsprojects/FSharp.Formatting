@@ -21,6 +21,11 @@ let main argv =
             (fun (opts: WatchCommand) -> opts.Execute()),
             (fun errs -> 1));
     with e ->
-        printAssemblies "(DIAGNOSTICS) Documentation failed"
+        let e =
+            match e with
+            | :? System.AggregateException as ex -> ex.InnerExceptions.[0]
+            | _ -> e
+        //printAssemblies "(DIAGNOSTICS) Documentation failed"
         printfn "fsdocs.exe failed: %O" e
-        reraise()
+        1
+        //reraise()

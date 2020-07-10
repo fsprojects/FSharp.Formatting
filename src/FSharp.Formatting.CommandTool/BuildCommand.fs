@@ -398,6 +398,7 @@ module Crack =
               "RepositoryUrl"
               "PackageProjectUrl"
               "Authors"
+              "GenerateDocumentationFile"
               //"Description"
               "PackageLicenseExpression"
               "PackageTags"
@@ -430,13 +431,15 @@ module Crack =
                 let props = props |> Map.ofList
                 let msbuildPropBool prop = props |> Map.tryFind prop |> Option.bind msbuildPropBool
 
-                {| TargetPath = props |> Map.tryFind "TargetPath"
+                {| ProjectFileName = file
+                   TargetPath = props |> Map.tryFind "TargetPath"
                    IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
                    IsLibrary = props |> Map.tryFind "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
                    RepositoryUrl = props |> Map.tryFind "RepositoryUrl" 
                    PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
                    Authors = props |> Map.tryFind "Authors" 
+                   GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
                    //Description = props |> Map.tryFind "Description" 
                    PackageLicenseExpression = props |> Map.tryFind "PackageLicenseExpression" 
                    PackageTags = props |> Map.tryFind "PackageTags" 
@@ -463,13 +466,13 @@ type CoreBuildOptions(watch) =
 
     let mutable useWaitForKey = false 
 
-    [<Option("input", Required=false, Default="docs", HelpText = "Input directory of documentation content, defaults to 'docs'.")>]
+    [<Option("input", Required=false, Default="docs", HelpText = "Input directory of documentation content.")>]
     member val input = "" with get, set
 
     [<Option("projects", Required=false, HelpText = "Project files to build API docs for outputs, defaults to all packable projects.")>]
     member val projects = Seq.empty<string> with get, set
 
-    [<Option("output", Default= "output", Required = false, HelpText = "Ouput Directory, defaults to 'output' (optional).")>]
+    [<Option("output", Default= "output", Required = false, HelpText = "Ouput Directory.")>]
     member val output = "" with get, set
 
     [<Option("generateNotebooks", Default= false, Required = false, HelpText = "Include 'ipynb' notebooks in outputs.")>]
@@ -478,13 +481,13 @@ type CoreBuildOptions(watch) =
     [<Option("eval", Default= true, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = true with get, set
 
-    [<Option("noLineNumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers (optional).")>]
+    [<Option("noLineNumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
     member val noLineNumbers = false with get, set
 
     [<Option("nonPublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
     member val nonPublic = false with get, set
 
-    [<Option("xmlComments", Default=false, Required = false, HelpText = "Do not use the Markdown parser for in-code comments. Recommended for C# assemblies (optional, default true)")>]
+    [<Option("xmlComments", Default=false, Required = false, HelpText = "Do not use the Markdown parser for in-code comments. Recommended for C# assemblies.")>]
     member val xmlComments = false with get, set
 
     [<Option("parameters", Required = false, HelpText = "Substitution parameters for templates.")>]
@@ -520,19 +523,44 @@ type CoreBuildOptions(watch) =
             
         //printfn "projects = %A" projectFiles
         let projectFiles =
-            projectFiles |> List.filter (fun s -> not (s.Contains(".Tests")) && not (s.Contains("test")))
+            projectFiles |> List.choose (fun s ->
+                if s.Contains(".Tests") || s.Contains("test") then
+                    printfn "skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
+                    None
+                else
+                    Some s)
         //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 then
             printfn "no project files found, no API docs will be generated"
+        printfn "cracking projects..." 
         let projectInfos =
-            projectFiles |> Array.ofList |> Array.Parallel.map (fun p -> 
-                printfn "cracking project %s" p
-                Crack.getTargetFromProjectFile slnDir p) |> Array.toList
+            projectFiles
+            |> Array.ofList
+            |> Array.Parallel.choose (fun p -> 
+                try
+                   Some (Crack.getTargetFromProjectFile slnDir p)
+                with e -> 
+                   printfn "skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
+                   None)
+            |> Array.toList
         let projectInfos =
-            projectInfos |> List.choose (fun info ->
-                if (* isPackable &&*)  info.TargetPath.IsSome && info.IsLibrary && not info.IsTestProject then 
-                    Some info
-                else None )
+            projectInfos
+            |> List.choose (fun info ->
+                let shortName = Path.GetFileName info.ProjectFileName
+                if info.TargetPath.IsNone then
+                    printfn "skipping project '%s' because it doesn't have a target path" shortName
+                    None
+                elif not info.IsLibrary then 
+                    printfn "skipping project '%s' because it isn't a library" shortName
+                    None
+                elif info.IsTestProject then 
+                    printfn "skipping project '%s' because it has <IsTestProject> true" shortName
+                    None
+                elif not info.GenerateDocumentationFile then 
+                    printfn "skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
+                    None
+                else
+                    Some info)
         let projectOutputs =
             projectInfos |> List.map (fun info -> info.TargetPath.Value)
 
@@ -638,6 +666,10 @@ type CoreBuildOptions(watch) =
                         )
 
             with
+                | :?AggregateException as ex ->
+                    Log.errorf "received exception :\n %A" ex
+                    printfn "Error : \n%O" ex
+                    res <- -1
                 | _ as ex ->
                     Log.errorf "received exception :\n %A" ex
                     printfn "Error : \n%O" ex
