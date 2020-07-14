@@ -64,6 +64,7 @@ be the same across all projects.
   * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
   * `--output` -  Output directory, defaults to `output`
+  * `--clean` -  Clean the output directory before building (except directories starting with ".")
   * `--template` -  Default template file for formatting. For HTML 
   * `--nonPublic` -  Generate docs for non-public members
   * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code

@@ -4,17 +4,17 @@ using System.Reflection;
 
 [assembly: AssemblyProduct("FSharp.Formatting")]
 [assembly: AssemblyDescription("A package of libraries for building great F# documentation, samples and blogs")]
-[assembly: AssemblyVersion("5.0.2")]
-[assembly: AssemblyFileVersion("5.0.2")]
-[assembly: AssemblyInformationalVersion("5.0.2")]
+[assembly: AssemblyVersion("5.0.3")]
+[assembly: AssemblyFileVersion("5.0.3")]
+[assembly: AssemblyInformationalVersion("5.0.3")]
 [assembly: AssemblyCopyright("Apache 2.0 License")]
 namespace System {
     internal static class AssemblyVersionInformation {
         internal const System.String AssemblyProduct = "FSharp.Formatting";
         internal const System.String AssemblyDescription = "A package of libraries for building great F# documentation, samples and blogs";
-        internal const System.String AssemblyVersion = "5.0.2";
-        internal const System.String AssemblyFileVersion = "5.0.2";
-        internal const System.String AssemblyInformationalVersion = "5.0.2";
+        internal const System.String AssemblyVersion = "5.0.3";
+        internal const System.String AssemblyFileVersion = "5.0.3";
+        internal const System.String AssemblyInformationalVersion = "5.0.3";
         internal const System.String AssemblyCopyright = "Apache 2.0 License";
     }
 }

@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
 (**
 F# Formatting: Code formatting
 ==============================
@@ -76,7 +76,7 @@ about the tokens of our sample snippet:
 let (Snippet(title, lines)) = snippets |> Seq.head
 
 // Iterate over all lines and all tokens on each line
-for (Line(tokens)) in lines do
+for (Line(_, tokens)) in lines do
   for token in tokens do
     match token with
     | TokenSpan.Token(kind, code, tip) -> 
