@@ -1,3 +1,8 @@
+## 5.0.3
+
+  - Paket update and remove workaround code
+  - add '--clean' to fsdocs 
+
 ## 5.0.2
   - Update to FCS v36.0
   - Add .ipynb output option for documents
