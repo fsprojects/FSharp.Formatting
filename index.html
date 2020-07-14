@@ -5,8 +5,7 @@
     <title>F# Formatting: Documentation tools
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package of libraries for building great F# documentation, samples and blogs">
-    <meta name="author" content="Tomas Petricek and F# Formatting contributors">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -27,61 +26,42 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">F# Formatting</a></h3>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
           <h1><a name="F-Formatting-Documentation-tools" class="anchor" href="#F-Formatting-Documentation-tools">F# Formatting: Documentation tools</a></h1>
-<p>The FSharp.Formatting package include
-an F# implementation of a Markdown parser and an F# code formatter that can be used to tokenize F#
-code and obtain information about tokens including tool-tips
-with type information. The package also comes with a sample that implements literate programming for F#
-(and was used to generate this documentation).</p>
-<p>Usage:</p>
-<ul>
-<li>
-<p>The F# Formatting package is used by the <a href="https://github.com/TheAngryByrd/MiniScaffold/">MiniScaffold template</a>
-that is used by a large number of open source .NET projects.</p>
-</li>
-<li>
-<p>The F# Formatting package is <a href="https://nuget.org/packages/FSharp.Formatting">available on NuGet</a>,
-so if you want to use some of its components (for blogging, Markdown parsing, or F# code formatting),
-then the best option is to get the package.</p>
-</li>
-<li>
-<p>The NuGet package comes with a load script <code>FSharp.Formatting.fsx</code> that references all the required DLLs
-and paths. If you are calling F# Formatting from a script file, then it is recommended to use <code>#load "FSharp.Formatting.fsx"</code>
-as a future-proof way of referencing the library.</p>
-</li>
-<li>
-<p>F# Formatting can be used as a .NET tool:</p>
+<p>The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
+for documentation generation.</p>
+<p>Functionality from the F# Formatting package is used by the <a href="https://github.com/TheAngryByrd/MiniScaffold/">MiniScaffold template</a>
+that is used by a large number of open source .NET projects, as well as Waypoint and many other repositories.</p>
+<p>F# Formatting can be used as a .NET tool called <code>fsdocs</code>:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
+<span class="l">4: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
-<span class="id">fsformatting</span> <span class="id">convert</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span><span class="o">/</span><span class="id">content</span> <span class="o">--</span><span class="id">template</span> <span class="id">docs</span><span class="o">/</span><span class="id">tools</span><span class="o">/</span><span class="id">template</span><span class="pn">.</span><span class="id">html</span>
-<span class="id">fsformatting</span> <span class="id">generate</span> <span class="o">--</span><span class="id">dlls</span> <span class="id">bin</span><span class="o">/</span><span class="id">MyLibrary</span><span class="pn">.</span><span class="id">dll</span> <span class="o">--</span><span class="id">template</span> <span class="id">docs</span><span class="o">/</span><span class="id">tools</span><span class="o">/</span><span class="id">reference</span><span class="o">/</span><span class="id">template</span><span class="pn">.</span><span class="id">html</span>
+<span class="id">fsdocs</span> <span class="id">build</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span> 
+<span class="id">fsdocs</span> <span class="id">convert</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span><span class="o">/</span><span class="id">scripts</span> <span class="o">--</span><span class="id">format</span> <span class="id">latex</span>
+<span class="id">fsdocs</span> <span class="id">api</span> <span class="o">--</span><span class="id">dlls</span> <span class="id">bin</span><span class="o">/</span><span class="id">MyLibrary</span><span class="pn">.</span><span class="id">dll</span> <span class="o">--</span><span class="id">template</span> <span class="id">docs</span><span class="o">/</span><span class="id">tools</span><span class="o">/</span><span class="id">reference</span><span class="o">/</span><span class="id">_template</span><span class="pn">.</span><span class="id">html</span>
 </code></pre></td>
 </tr>
 </table>
-</li>
-</ul>
-<h2><a name="Documentation" class="anchor" href="#Documentation">Documentation</a></h2>
-<p>The documentation for this library is generated automatically using the literate programming
-tools that are built on top of it and are described in the <a href="literate.html">literate programming page</a>.
-If you spot a typo, please submit a pull request! The source Markdown and F# script files are
-available in the <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/docs">docs folder on GitHub</a>.
-I hope it is also a good sample showing how to write documentation for F# projects.</p>
+<p>The F# Formatting package is also <a href="https://nuget.org/packages/FSharp.Formatting">available on NuGet</a> if you want to use
+it as a library or from a script. The NuGet package comes with a load script <code>FSharp.Formatting.fsx</code> that references all the required DLLs
+and paths.</p>
+<p>The sub-components are:</p>
 <ul>
+<li><p><a href="commandline.html">Command line tool</a> - documents how to use the <code>fsdocs</code> tool.</p></li>
 <li>
 <p><a href="literate.html">Literate programming</a> - if you want to use the library to generate documentation
 for your projects or if you want to use it to write nicely formatted F# blog posts, then
-start here! This page describes the literate programming sample.</p>
+start here. This page describes the literate programming sample.</p>
 </li>
 <li>
-<p><a href="evaluation.html">Output embedding</a> provides more details on literate programming and
+<p><a href="evaluation.html">Literate output embedding</a> provides more details on literate programming and
 explains how to embed results of a literate script file in the generated output. This way,
 you can easily format the results of running your code!</p>
 </li>
@@ -101,6 +81,10 @@ The tool handles comments written in Markdown too.</p>
 </li>
 <li><p><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/CONTRIBUTING.md">Contribute</a> - how do I contribute?</p></li>
 </ul>
+<p>The documentation for this library is generated automatically using the literate programming
+tools that are built on top of it and are described in the <a href="literate.html">literate programming page</a>.
+If you spot a typo, please submit a pull request! The source Markdown and F# script files are
+available in the <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/docs">docs folder on GitHub</a>.</p>
 <h2><a name="More-information" class="anchor" href="#More-information">More information</a></h2>
 <p>The project is hosted on <a href="https://github.com/fsprojects/FSharp.Formatting">GitHub</a> where you can
 <a href="https://github.com/fsprojects/FSharp.Formatting/issues">report issues</a>, fork the project and submit pull requests.
@@ -118,10 +102,9 @@ The library is available under Apache 2.0. For more information see the
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
+            <li class="nav-header">FSharp.Formatting</li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="https://www.nuget.org/packages/FSharp.Formatting/">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>

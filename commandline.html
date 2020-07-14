@@ -5,8 +5,7 @@
     <title>F# Formatting: Command line tool
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package of libraries for building great F# documentation, samples and blogs">
-    <meta name="author" content="Tomas Petricek and F# Formatting contributors">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -27,74 +26,196 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">F# Formatting</a></h3>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
         <div class="span9" id="main">
           <h1><a name="F-Formatting-Command-line-tool" class="anchor" href="#F-Formatting-Command-line-tool">F# Formatting: Command line tool</a></h1>
-<p>To use F# Formatting tools via the command line, you can use the
-<code>fsformatting</code> dotnet tool.</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
-</code></pre></td>
-</tr>
-</table>
-<p>The format of the command line interface is as follows. Command line arguments are case-sensitive.</p>
+<p>To use F# Formatting tools via the command line, you can use the <code>fsdocs</code> dotnet tool.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting --help 
-fsformatting [command] [function] [options]
-</code></pre></td></tr></table>
-<h2><a name="The-convert-command" class="anchor" href="#The-convert-command">The convert command</a></h2>
-<p>The <code>convert</code> command processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
-according to the concept of <a href="literate.html">Literate Programming</a>.</p>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
+<span class="id">fsdocs</span> <span class="pn">[</span><span class="id">command</span><span class="pn">]</span> <span class="pn">[</span><span class="id">options</span><span class="pn">]</span>
+</code></pre></td>
+</tr>
+</table>
+<h2><a name="The-build-commands" class="anchor" href="#The-build-commands">The build commands</a></h2>
+<p>The <code>fsdocs build</code>  command processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
+according to the rules of <a href="literate.html">Literate Programming</a>, and also generates API docs for projects
+in the solution according to the rules of <a href="metadata.html">API doc generation</a></p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting convert --template template.html --format latex --parameters "page-author" "Tomas Petricek"
+<td class="snippet"><pre class="fssnip"><code lang="text">fsdocs build
 </code></pre></td></tr></table>
-<h3><a name="Required-options" class="anchor" href="#Required-options">Required options</a></h3>
+<h3><a name="Content" class="anchor" href="#Content">Content</a></h3>
+<p>The expected structure for a docs directory is</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">docs</span>
+<span class="id">docs</span>
+<span class="id">docs</span>
+<span class="id">docs</span>
+<span class="id">docs</span>
+<span class="id">docs</span>
+<span class="id">docs</span>
+<span class="id">docs</span>
+</code></pre></td>
+</tr>
+</table>
+<p>]
+The output goes in <code>output/</code> by default.  Typically a <code>--parameters</code> argument is needed for substitutions in the template, e.g.</p>
+<p>Template files are as follows:</p>
 <ul>
-<li><code>--input</code> - Input directory containing <code>*.fsx</code> and <code>*.md</code> files.</li>
+<li><code>_template.html</code> - absent, empty or contain <code>{{document}}</code> and <code>{{tooltips}}</code> placeholders.</li>
+<li><code>_template.tex</code> - absent, empty or contain <code>{content}</code> placeholder.</li>
+<li><code>_template.ipynb</code> - absent, empty or contain <code>{{cells}}</code> placeholder.</li>
+<li><code>_template.fsx</code> - absent, empty or contain <code>{{code}}</code> placeholder.</li>
 </ul>
-<h3><a name="Other-Options" class="anchor" href="#Other-Options">Other Options</a></h3>
+<p>The following substitutions are defined based on metadata that may be present in project files.
+The first metadata value detected across project files is used, it is assumed these values will
+be the same across all projects.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Substitution name</p></th>
+<th align="left"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p>{{page-title}}</p></td>
+<td align="left"><p>First h1 heading in literate file, generated for API docs</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{project-name}}</p></td>
+<td align="left"><p>Name of .sln or containing directory</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>{{root}}</p></td>
+<td align="left"><p><code>&lt;PackageProjectUrl&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{authors}}</p></td>
+<td align="left"><p><code>&lt;Authors&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>{{repository-url}}</p></td>
+<td align="left"><p><code>&lt;RepositoryUrl&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{package-project-url}}</p></td>
+<td align="left"><p><code>&lt;PackageProjectUrl&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>{{package-license}}</p></td>
+<td align="left"><p><code>&lt;PackageLicenseExpression&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{package-tags}}</p></td>
+<td align="left"><p><code>&lt;PackageTags&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>{{copyright}}</p></td>
+<td align="left"><p><code>&lt;Copyright&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{document}}</p></td>
+<td align="left"><p>generated html contents</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>{contents}</p></td>
+<td align="left"><p>generated latex contents</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{cells}}</p></td>
+<td align="left"><p>generated ipynb contents</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p>{{tooltips}}</p></td>
+<td align="left"><p>generated html tooltips contents</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p>{{source}}</p></td>
+<td align="left"><p>original script source</p></td>
+</tr>
+</tbody>
+</table>
+
+<h3><a name="Options" class="anchor" href="#Options">Options</a></h3>
 <ul>
-<li><code>--output</code> -  Output directory, defaults to input directory.</li>
-<li><code>--template</code> -  Template file for formatting. For HTML should contain <code>{{document}}</code> and <code>{{tooltips}}</code> tags.</li>
-<li><code>--format</code> -  Output format either <code>latex</code>, <code>html</code> or <code>ipynb</code>, defaults to <code>html</code>.</li>
+<li><code>--projects</code> - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.</li>
+<li><code>--input</code> - Input directory containing <code>*.fsx</code> and <code>*.md</code> files and other content, defaults to <code>docs</code>.</li>
+<li><code>--output</code> -  Output directory, defaults to <code>output</code></li>
+<li><code>--template</code> -  Default template file for formatting. For HTML</li>
+<li><code>--nonPublic</code> -  Generate docs for non-public members</li>
+<li><code>--xmlComments</code> -  Generate docs assuming XML comments not markdown comments in source code</li>
+<li><code>--eval</code> - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to <code>false</code>.</li>
+<li><code>--parameters</code> -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.</li>
+<li><code>--noLineNumbers</code> -  Line number option, defaults to <code>true</code>.</li>
+<li><code>--help</code> -  Display the specific help message for <code>convert</code>.</li>
+</ul>
+<h2><a name="The-watch-commands" class="anchor" href="#The-watch-commands">The watch commands</a></h2>
+<p>The <code>fsdocs watch</code> command does the same as <code>fsdocs build</code> but in "watch" mode, waiting for changes.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsdocs watch
+</code></pre></td></tr></table>
+<p>The same parameters are accepted.  Restarting may be necesssary on changes to project files.</p>
+<h2><a name="The-convert-command" class="anchor" href="#The-convert-command">The convert command</a></h2>
+<p>The <code>fsdocs convert</code> command processes a directory containing a mix of Markdown documents <code>*.md</code> and F# Script files <code>*.fsx</code>
+according to the concept of <a href="literate.html">Literate Programming</a> and the same rules used for <code>build</code> above.  It
+doesn't generate API documentation.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">fsdocs convert --input docs/scripts --parameters "authors" "Tomas Petricek"
+</code></pre></td></tr></table>
+<h3><a name="Options-1" class="anchor" href="#Options-1">Options</a></h3>
+<ul>
+<li><code>--input</code> - Input directory containing <code>*.fsx</code> and <code>*.md</code> files. Required,</li>
+<li><code>--output</code> -  Output directory, defaults to <code>output</code></li>
+<li><code>--template</code> -  Default template file for formatting. For HTML should contain <code>{{document}}</code> and <code>{{tooltips}}</code> tags.</li>
 <li><code>--prefix</code> -  Prefix for formatting, defaults to <code>fs</code>.</li>
 <li><code>--compilerOptions</code> -  Compiler options passed when evaluating snippets.</li>
-<li><code>--lineNumbers</code> -  Line number option, defaults to <code>true</code>.</li>
+<li><code>--noLineNumbers</code> -  Line number option, defaults to <code>true</code>.</li>
 <li><code>--references</code> -  Turn all indirect links into references, defaults to <code>false</code>.</li>
-<li><code>--fsieval</code> - Use the default FsiEvaluator, defaults to <code>false</code>.</li>
+<li><code>--eval</code> - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to <code>false</code>.</li>
 <li><code>--parameters</code> -  A whitespace separated list of string pairs as text replacement patterns for the format template file.</li>
-<li><code>--includeSource</code> -  Include sourcecode in documentation, defaults to <code>false</code>.</li>
+<li><code>--includeSource</code> -  Include sourcecode in documentation for substitution as <code>{{source}}</code>, defaults to <code>false</code>.</li>
 <li><code>--help</code> -  Display the specific help message for <code>convert</code>.</li>
 <li><code>--waitForKey</code> -  Wait for key before exit.</li>
 </ul>
-<h2><a name="The-generate-command" class="anchor" href="#The-generate-command">The generate command</a></h2>
-<p>The <code>generate</code> command builds the <a href="http://fsprojects.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading
+<h2><a name="The-api-command" class="anchor" href="#The-api-command">The api command</a></h2>
+<p>The <code>fsdocs api</code> command builds the <a href="http://fsprojects.github.io/FSharp.Formatting/metadata.html">library documentation</a> by reading
 the meta-data from the <code>*.dll</code> files of the package and using the XML comments from matching <code>*.xml</code> files produced by the F# compiler.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting generate --dlls lib1.dll "lib 2.dll" --output "../api-docs" --template docs/reference/template.html
+<td class="snippet"><pre class="fssnip"><code lang="text">fsdocs api --dlls lib1.dll "lib 2.dll" --output "../api-docs" --template docs/reference/_template.html
 </code></pre></td></tr></table>
-<h3><a name="Required-options-1" class="anchor" href="#Required-options-1">Required options</a></h3>
+<h3><a name="Required-options" class="anchor" href="#Required-options">Required options</a></h3>
 <ul>
 <li><code>--dlls</code> -  List of <code>dll</code> input files.</li>
-<li><code>--output</code> -  Output directory.</li>
-<li><code>--template</code> -  Template file for formatting, should containt <code>{{document}}</code> tag</li>
+<li><code>--template</code> -  Template file for formatting, the file should contain <code>{{document}}</code> tag</li>
 </ul>
 <h3><a name="Other-options" class="anchor" href="#Other-options">Other options</a></h3>
 <ul>
+<li><code>--output</code> -  Output directory, defaults to <code>output</code></li>
 <li><code>--parameters</code> -  Property settings for simple template instantiation.</li>
 <li><code>--xmlFile</code> -  Single XML file to use for all <code>dll</code> files, otherwise using <code>file.xml</code> for each <code>file.dll</code>.</li>
 <li><code>--sourceRepo</code> -  Source repository URL; silently ignored, if a source repository folder is not provided.</li>
 <li><code>--sourceFolder</code> -  Source repository folder; silently ignored, if a source repository URL is not provided.</li>
+<li><code>--nonPublic</code> -  Generate docs for non-public members</li>
+<li><code>--xmlComments</code> -  Generate docs assuming XML comments not markdown comments in source code</li>
 <li><code>--libDirs</code> - Search directory list for library references.</li>
-<li><code>--help</code> -  Display the specific help message for <code>generate</code>.</li>
+<li><code>--help</code> -  Display the specific help message for <code>apidocs</code>.</li>
 <li><code>--waitForKey</code> -  Wait for key before exit.</li>
 </ul>
 <h3><a name="Examples" class="anchor" href="#Examples">Examples</a></h3>
@@ -106,31 +227,29 @@ corresponding meta-data files <code>lib1.xml</code> and <code>lib 2.xml</code>, 
 </li>
 <li>The output directory is in this example within the parent directory of your working directory.</li>
 <li>
-<p>The example assumes that the necessary <code>template.html</code> file is present and contains the <code>{{document}}</code> tag
-for substitutions.</p>
+<p>The example assumes that the necessary <code>_template.html</code> file is present and contains the <code>{{document}}</code> tag
+for content substitution.</p>
 </li>
 </ol>
-<p>You can add further substitutions using the <code>--parameters</code> list.
-For example, you can experiment with the <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/tools/reference/template.html">template file of the FSharp.Formatting project</a>.</p>
+<p>You can add further substitutions using the <code>--parameters</code> list.</p>
+<p>Tou can experiment with the <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/reference/_template.html">template file of the FSharp.Formatting project</a>.</p>
 <div></div>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
-<span class="l"> 2: </span>
-<span class="l"> 3: </span>
-<span class="l"> 4: </span>
-<span class="l"> 5: </span>
-<span class="l"> 6: </span>
-<span class="l"> 7: </span>
-<span class="l"> 8: </span>
-<span class="l"> 9: </span>
-<span class="l">10: </span>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="text">fsformatting generate
+<td class="snippet"><pre class="fssnip"><code lang="text">fsdocs api
   --dlls lib1.dll "lib 2.dll" 
   --output "../api-docs" 
   --template template.html
   --parameters
-      "page-author" "Your name(s)"
-      "page-description" "A package for ..."
+      "authors" "Your name(s)"
       "github-link" "http://github.com/yourname/project"
       "project-name" "your project name"
       "root" "http://yourname.github.io/project"
@@ -145,10 +264,9 @@ For example, you can experiment with the <a href="https://github.com/fsprojects/
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
+            <li class="nav-header">FSharp.Formatting</li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="https://www.nuget.org/packages/FSharp.Formatting/">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>

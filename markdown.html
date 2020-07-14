@@ -5,8 +5,7 @@
     <title>F# Formatting: Markdown parser
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package of libraries for building great F# documentation, samples and blogs">
-    <meta name="author" content="Tomas Petricek and F# Formatting contributors">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -27,7 +26,7 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">F# Formatting</a></h3>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -219,8 +218,8 @@ in the Markdown format into an HTML document (without the intermediate step).</p
 <div class="tip" id="fs3">namespace FSharp.Formatting.Markdown</div>
 <div class="tip" id="fs4">val document : string</div>
 <div class="tip" id="fs5">val parsed : MarkdownDocument</div>
-<div class="tip" id="fs6">type Markdown =<br />&#160;&#160;static member Parse : text:string * ?newline:string -&gt; MarkdownDocument<br />&#160;&#160;static member ToHtml : markdownText:string * ?newline:string -&gt; string<br />&#160;&#160;static member ToHtml : doc:MarkdownDocument * ?newline:string -&gt; string<br />&#160;&#160;static member ToLatex : markdownText:string * ?newline:string -&gt; string<br />&#160;&#160;static member ToLatex : doc:MarkdownDocument * ?newline:string -&gt; string<br />&#160;&#160;static member ToPynb : markdownText:string -&gt; string<br />&#160;&#160;static member ToPynb : doc:MarkdownDocument -&gt; string<br />&#160;&#160;static member WriteHtml : markdownText:string * writer:TextWriter * ?newline:string -&gt; unit<br />&#160;&#160;static member WriteHtml : doc:MarkdownDocument * writer:TextWriter * ?newline:string -&gt; unit<br />&#160;&#160;static member WriteLatex : markdownText:string * writer:TextWriter * ?newline:string -&gt; unit<br />&#160;&#160;...</div>
-<div class="tip" id="fs7">static member Markdown.Parse : text:string * ?newline:string -&gt; MarkdownDocument</div>
+<div class="tip" id="fs6">type Markdown =<br />&#160;&#160;static member Parse : text:string * ?newline:string * ?parseOptions:MarkdownParseOptions -&gt; MarkdownDocument<br />&#160;&#160;static member ToFsx : doc:MarkdownDocument * ?newline:string * ?parameters:(string * string) list -&gt; string<br />&#160;&#160;static member ToHtml : markdownText:string * ?newline:string -&gt; string<br />&#160;&#160;static member ToHtml : doc:MarkdownDocument * ?newline:string -&gt; string<br />&#160;&#160;static member ToLatex : markdownText:string * ?newline:string -&gt; string<br />&#160;&#160;static member ToLatex : doc:MarkdownDocument * ?newline:string -&gt; string<br />&#160;&#160;static member ToPynb : doc:MarkdownDocument * ?newline:string * ?parameters:(string * string) list -&gt; string<br />&#160;&#160;static member WriteHtml : markdownText:string * writer:TextWriter * ?newline:string -&gt; unit<br />&#160;&#160;static member WriteHtml : doc:MarkdownDocument * writer:TextWriter * ?newline:string -&gt; unit<br />&#160;&#160;static member WriteLatex : markdownText:string * writer:TextWriter * ?newline:string -&gt; unit<br />&#160;&#160;...</div>
+<div class="tip" id="fs7">static member Markdown.Parse : text:string * ?newline:string * ?parseOptions:MarkdownParseOptions -&gt; MarkdownDocument</div>
 <div class="tip" id="fs8">property MarkdownDocument.DefinedLinks: System.Collections.Generic.IDictionary&lt;string,(string * string option)&gt; with get</div>
 <div class="tip" id="fs9">val par : MarkdownParagraph</div>
 <div class="tip" id="fs10">property MarkdownDocument.Paragraphs: MarkdownParagraphs with get</div>
@@ -260,10 +259,9 @@ in the Markdown format into an HTML document (without the intermediate step).</p
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
+            <li class="nav-header">FSharp.Formatting</li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="https://www.nuget.org/packages/FSharp.Formatting/">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
