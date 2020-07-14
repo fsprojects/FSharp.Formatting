@@ -31,34 +31,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57
 		misc\literate\demo.md = misc\literate\demo.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{EDE95A19-2D92-4F2B-BCF3-1B08A555969D}"
-	ProjectSection(SolutionItems) = preProject
-		docs\files\content\style.css = docs\files\content\style.css
-		docs\files\content\tips.js = docs\files\content\tips.js
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1068-4804-89E7-0AFBAD5F885F}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\codeformat.fsx = docs\content\codeformat.fsx
-		docs\content\commandline.md = docs\content\commandline.md
-		docs\content\diagnostics.md = docs\content\diagnostics.md
-		docs\content\evaluation.fsx = docs\content\evaluation.fsx
-		docs\content\index.md = docs\content\index.md
-		docs\content\literate.fsx = docs\content\literate.fsx
-		docs\content\markdown.fsx = docs\content\markdown.fsx
-		docs\content\metadata.fsx = docs\content\metadata.fsx
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sidebyside", "sidebyside", "{561B2DD7-455E-4464-B585-C8768C633EFC}"
-	ProjectSection(SolutionItems) = preProject
-		docs\content\sidebyside\sideextensions.md = docs\content\sidebyside\sideextensions.md
-		docs\content\sidebyside\sidemarkdown.md = docs\content\sidebyside\sidemarkdown.md
-		docs\content\sidebyside\sidescript.fsx = docs\content\sidebyside\sidescript.fsx
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820}"
-	ProjectSection(SolutionItems) = preProject
-		docs\tools\generate.fsx = docs\tools\generate.fsx
+		docs\_template.html = docs\_template.html
+		docs\codeformat.fsx = docs\codeformat.fsx
+		docs\commandline.md = docs\commandline.md
+		docs\development.md = docs\development.md
+		docs\diagnostics.md = docs\diagnostics.md
+		docs\evaluation.fsx = docs\evaluation.fsx
+		docs\index.md = docs\index.md
+		docs\literate.fsx = docs\literate.fsx
+		docs\markdown.fsx = docs\markdown.fsx
+		docs\metadata.fsx = docs\metadata.fsx
+		docs\upgrade_from_v2_to_v3.md = docs\upgrade_from_v2_to_v3.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{D0550510-0DCE-4B40-B4FB-091668E1C5FD}"
@@ -126,6 +111,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4089E333-3857-4771-B209-5673EF4EEDA3}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting", "src\FSharp.Formatting\FSharp.Formatting.fsproj", "{CB78F0EA-8005-4735-A02C-B86CEDC29D85}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{0DB855C0-34FC-49F0-A202-48F31963F402}"
+	ProjectSection(SolutionItems) = preProject
+		docs\reference\_template.html = docs\reference\_template.html
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -230,9 +220,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EDE95A19-2D92-4F2B-BCF3-1B08A555969D} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
-		{561B2DD7-455E-4464-B585-C8768C633EFC} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
-		{BEE70727-0C9E-42DE-A65B-5CB8F4EF1820} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 		{917A4F64-8304-4228-B29A-E2FB474B761B} = {D0550510-0DCE-4B40-B4FB-091668E1C5FD}
 		{C44C1C05-599A-40DD-9590-465EAB8960C5} = {4089E333-3857-4771-B209-5673EF4EEDA3}
 		{341EBF32-D470-4C55-99E9-55F14F7FFBB1} = {4089E333-3857-4771-B209-5673EF4EEDA3}
@@ -258,6 +245,7 @@ Global
 		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
 		{B266D118-15AE-4BE6-809E-E9E30CE5C62F} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{CB78F0EA-8005-4735-A02C-B86CEDC29D85} = {4089E333-3857-4771-B209-5673EF4EEDA3}
+		{0DB855C0-34FC-49F0-A202-48F31963F402} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}

@@ -68,7 +68,7 @@ type TokenSpans = TokenSpan list
 
 /// Represents a line of source code as a list of `TokenSpan` values. This is
 /// a single case discriminated union with `Line` constructor.
-type Line = Line of TokenSpans
+type Line = Line of originalLine: string * tokenSpans: TokenSpans
 
 /// An F# snippet consists of a snippet title and a list of lines
 type Snippet = Snippet of string * Line list

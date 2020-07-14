@@ -16,7 +16,7 @@ type internal CompilerContext =
     CompilerOptions : string option
 
     /// Defined symbols for the F# compiler
-    DefinedSymbols : string option
+    ConditionalDefines : string list
   }
 
 /// Defines the possible output types from literate script (HTML, Latex, Pynb)
@@ -30,6 +30,15 @@ type OutputKind =
 
   /// Requests Notebook output
   | Pynb
+
+  /// Requests F# Script output
+  | Fsx
+  member x.Extension =
+      match x with
+      | Fsx -> "fsx"
+      | Latex -> "tex"
+      | Html -> "html"
+      | Pynb -> "ipynb"
 
 
 /// Defines input type for output generator
@@ -45,7 +54,7 @@ type LiterateProcessingContext =
     Prefix : string
 
     /// Additional parameters to be made in the template file
-    Replacements : list<string * string>
+    Replacements : (string * string) list
 
     /// Generate line numbers for F# snippets?
     GenerateLineNumbers : bool
@@ -58,6 +67,9 @@ type LiterateProcessingContext =
 
     /// The output format
     OutputKind : OutputKind
+
+    /// Conditional defines for the processing
+    ConditionalDefines: string list
 
     /// Function assigning CSS class to given token kind. If not specified, default mapping will be used
     TokenKindToCss : (TokenKind -> string) option

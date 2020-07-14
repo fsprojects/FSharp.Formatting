@@ -90,8 +90,10 @@ type CodeFormat =
     FormattedContent(snips, "")
 
   /// Formats the .fsx snippets as iPython notebook using the default settings.
-  static member FormatPynb(snippets) =
-    let snips = Pynb.format snippets
+  static member FormatFsx(snippets) =
+    let snips =
+        [| for (Snippet(key, lines)) in snippets do
+            let str = [| for (Line (originalLine, _spans)) in lines -> originalLine |]  |> String.concat Environment.NewLine
+            yield key, str |]
     let snips = Array.map FormattedSnippet snips
     FormattedContent(snips, "")
-

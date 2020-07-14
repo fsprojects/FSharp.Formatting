@@ -286,7 +286,10 @@ module Lines =
     | _ -> None
 
   /// Removes whitespace lines from the beginning of the list
-  let (|TrimBlankStart|) = List.skipWhile (fun (s:string, n:MarkdownRange) -> String.IsNullOrWhiteSpace s)
+  let (|TrimBlankStart|) (lines: (string * MarkdownRange) list) =
+      let takenLines = lines |> List.takeWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
+      let rest = lines |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
+      takenLines, rest
 
   /// Trims all lines of the current paragraph
   let (|TrimParagraphLines|) lines =

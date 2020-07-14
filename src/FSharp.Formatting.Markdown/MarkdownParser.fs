@@ -171,7 +171,10 @@ let (|HtmlEntity|_|) input =
 type ParsingContext =
   { Links : Dictionary<string, string * option<string>>
     Newline : string
-    CurrentRange : MarkdownRange option }
+    CurrentRange : MarkdownRange option
+    ParseOptions: MarkdownParseOptions }
+  member x.ParseCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseCodeAsOther) <> enum 0
+  member x.ParseNonCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseNonCodeAsOther) <> enum 0
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx:ParsingContext) = seq {
@@ -318,12 +321,13 @@ let rec trimSpaces numSpaces (s:string) =
 // --------------------------------------------------------------------------------------
 
 /// Recognizes heading, either prefixed with #s or followed by === or --- line
-let (|Heading|_|) = function
-  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("=", MarkdownRange.zero))) :: rest ->
-      Some(1, header, rest)
-  | (StringPosition.TrimBoth header) :: (StringPosition.TrimEnd (StringPosition.EqualsRepeated("-", MarkdownRange.zero))) :: rest ->
-      Some(2, header, rest)
-  | StringPosition.StartsWithRepeated "#" (n, StringPosition.TrimBoth(header, ln)) :: rest ->
+let (|Heading|_|) lines =
+  match lines with
+  | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd (StringPosition.EqualsRepeated("=", MarkdownRange.zero))) as line2) :: rest ->
+      Some(1, header, [line1; line2], rest)
+  | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd (StringPosition.EqualsRepeated("-", MarkdownRange.zero))) as line2) :: rest ->
+      Some(2, header, [line1; line2], rest)
+  | (StringPosition.StartsWithRepeated "#" (n, StringPosition.TrimBoth(header, ln)) as line1) :: rest ->
       let header =
         // Drop "##" at the end, but only when it is preceded by some whitespace
         // (For example "## Hello F#" should be "Hello F#")
@@ -332,7 +336,7 @@ let (|Heading|_|) = function
           if noHash.Length > 0 && Char.IsWhiteSpace(noHash.Chars(noHash.Length - 1))
           then noHash else header
         else header
-      Some(n, (header, ln), rest)
+      Some(n, (header, ln), [line1], rest)
   | rest ->
       None
 
@@ -349,38 +353,43 @@ let (|HorizontalRule|_|) (line:string, n:MarkdownRange) =
   loop (0, 0, 0) 0
 
 /// Recognizes a code block - lines starting with four spaces (including blank)
-let (|NestedCodeBlock|_|) = function
-  | Lines.TakeCodeBlock (numspaces, Lines.TrimBlank lines, rest) when lines <> [] ->
+let (|NestedCodeBlock|_|) lines =
+  match lines with
+  | Lines.TakeCodeBlock (numspaces, (Lines.TrimBlank lines as takenLines), rest) when lines <> [] ->
       let code =
         [ for (l, n) in lines ->
             if String.IsNullOrEmpty l then ""
             else trimSpaces 4 l ]
-      Some(code @ [""], rest, "", "")
+      Some(code @ [""], takenLines, rest, "", "")
   | _ -> None
 
 /// Recognizes a fenced code block - starting and ending with at least ``` or ~~~
-let (|FencedCodeBlock|_|) = function
-  | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "~" (Let "~" (start,num), indent, header) :: lines
+let (|FencedCodeBlock|_|) lines =
+  match lines with
+  | (StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "~" (Let "~" (start,num), indent, header) as takenLine) :: lines
   //    when num > 2
-  | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "`" (Let "`" (start,num), indent, header) :: lines
+  | (StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "`" (Let "`" (start,num), indent, header) as takenLine) :: lines
       when num > 2 ->
     let mutable endStr = String.replicate num start
     if header.Contains (start) then None // info string cannot contain backspaces
     else
-      let code, rest = lines |> List.partitionUntil (fun line ->
-        match [line] with
-        // end cannot contain info string afterwards (see http://spec.commonmark.org/0.23/#example-104)
-        // end must be indended with less then 4 spaces: http://spec.commonmark.org/0.23/#example-95
-        | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && String.IsNullOrWhiteSpace h ->
-          endStr <- String.replicate n start
-          true
-        | _ -> false)
+      let codeLines, rest =
+        lines |> List.partitionUntil (fun line ->
+          match [line] with
+          // end cannot contain info string afterwards (see http://spec.commonmark.org/0.23/#example-104)
+          // end must be indended with less then 4 spaces: http://spec.commonmark.org/0.23/#example-95
+          | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when n >= num && i < 4 && String.IsNullOrWhiteSpace h ->
+            endStr <- String.replicate n start
+            true
+          | _ -> false)
+
       let handleIndent (l:string) =
         if l.Length <= indent && String.IsNullOrWhiteSpace l then ""
         elif l.Length > indent && String.IsNullOrWhiteSpace (l.Substring(0, indent)) then l.Substring(indent, l.Length - indent)
         else l.TrimStart()
-      let code =
-        [ for (l, n) in code -> handleIndent l ]
+
+      let codeWithoutIndent =
+        [ for (l, _n) in codeLines -> handleIndent l ]
 
       // langString is the part after ``` and ignoredString is the rest until the line ends.
       let langString, ignoredString =
@@ -391,20 +400,21 @@ let (|FencedCodeBlock|_|) = function
         | Some langString ->
             let ignoredString = header.Substring(header.IndexOf(langString) + langString.Length)
             langString, if String.IsNullOrWhiteSpace ignoredString then "" else ignoredString
+
       // Handle the ending line
-      let code, rest =
+      let takenLines2, codeWithoutEnding, rest =
         match rest with
-        | (hd, n) :: tl ->
+        | ((hd, n) as takenLine2) :: tl ->
             let idx = hd.IndexOf(endStr)
             if idx > -1 && idx + endStr.Length <= hd.Length then
                 let pre = hd.Substring(0, idx)
                 let after = hd.Substring(idx + endStr.Length)
-                code @ [""], (if String.IsNullOrWhiteSpace after then tl else (after, n) :: tl)
+                [takenLine2], codeWithoutIndent @ [""], (if String.IsNullOrWhiteSpace after then tl else (after, n) :: tl)
             else
-                code @ [""], tl
+                [takenLine2], codeWithoutIndent @ [""], tl
         | _ ->
-            code, rest
-      Some (code, rest, langString, ignoredString)
+            [], codeWithoutIndent, rest
+      Some (codeWithoutEnding, (takenLine::codeLines @ takenLines2),  rest, langString, ignoredString)
   | _ -> None
 
 /// Matches when the input starts with a number. Returns the
@@ -445,21 +455,22 @@ let (|ListStart|_|) = function
   | _ -> None
 
 /// Splits input into lines until whitespace or starting of a list and the rest.
-let (|LinesUntilListOrWhite|) =
-  List.partitionUntil (function
+let (|LinesUntilListOrWhite|) lines =
+  lines |> List.partitionUntil (function
     | ListStart _ | StringPosition.WhiteSpace -> true | _ -> false)
 
 /// Splits input into lines until not-indented line or starting of a list and the rest.
-let (|LinesUntilListOrUnindented|) =
-  List.partitionUntilLookahead (function
+let (|LinesUntilListOrUnindented|) lines =
+  lines |> List.partitionUntilLookahead (function
     | (ListStart _ | StringPosition.Unindented)::_
     | StringPosition.WhiteSpace::StringPosition.WhiteSpace::_ -> true | _ -> false)
 
 /// Recognizes a list item until the next list item (possibly nested) or end of a list.
 /// The parameter specifies whether the previous line was simple (single-line not
 /// separated by a white line - simple items are not wrapped in <p>)
-let (|ListItem|_|) prevSimple = function
-  | ListStart(kind, startIndent, endIndent, item)::
+let (|ListItem|_|) prevSimple lines = 
+  match lines with
+  | (ListStart(kind, startIndent, endIndent, item) as takenLine) ::
       // Take remaining lines that belong to the same item
       // (everything until an empty line or start of another list item)
       LinesUntilListOrWhite
@@ -492,19 +503,20 @@ let (|ListItem|_|) prevSimple = function
             //let trimmed = line.TrimStart()
             //if trimmed.Length >= line.Length - endIndent then yield trimmed
             //else yield line.Substring(endIndent) ]
-      Some(startIndent, (simple, kind, lines), rest)
+      Some(startIndent, (simple, kind, lines), (takenLine :: continued @ more), rest)
   | _ -> None
 
 /// Recognizes a list - returns list items with information about
 /// their indents - these need to be turned into a tree structure later.
-let rec (|ListItems|_|) prevSimple = function
-  | ListItem prevSimple (indent, ((nextSimple, _, _) as info), rest) ->
+let rec (|ListItems|_|) prevSimple lines =
+  match lines with 
+  | ListItem prevSimple (indent, ((nextSimple, _, _) as info), takenLines, rest) ->
       match rest with
-      | (HorizontalRule _)::_ ->
-          Some([indent, info], rest)
-      | ListItems nextSimple (items, rest) ->
-          Some((indent, info)::items, rest)
-      | _ -> Some([indent, info], rest)
+      | ((HorizontalRule _) as takenLine2) ::_ ->
+          Some([indent, info], takenLines@[takenLine2], rest)
+      | ListItems nextSimple (items, takenLines2, rest) ->
+          Some((indent, info)::items, (takenLines @ takenLines2), rest)
+      | _ -> Some([indent, info], takenLines, rest)
   | _ -> None
 
 
@@ -584,20 +596,21 @@ let (|PipeSeparatorRow|_|) size = function
 
 /// Recognizes pipe table
 let (|PipeTableBlock|_|) input =
-  let rec getTableRows size acc = function
-    | (PipeTableRow size [|'|'|] columns) :: rest ->
-        getTableRows size (List.map (fun l -> [l]) columns :: acc) rest
-    | rest -> (List.rev acc, rest)
+  let rec getTableRows size acc takenLinesAcc lines =
+    match lines with
+    | (PipeTableRow size [|'|'|] columns) as takenLine :: rest ->
+        getTableRows size (List.map (fun l -> [l]) columns :: acc) (takenLine::takenLinesAcc) rest
+    | rest -> (List.rev acc, List.rev takenLinesAcc, rest)
   match input with
-  | (PipeSeparatorRow None alignments) :: rest ->
-      let rows, others = getTableRows (Some alignments.Length) [] rest
-      Some((None, alignments, rows), others)
-  | (PipeTableRow None [|'|'|] headers) :: rest ->
+  | (PipeSeparatorRow None alignments) as takenLine :: rest ->
+      let rows, takenLines, others = getTableRows (Some alignments.Length) [] [] rest
+      Some((None, alignments, rows), takenLine::takenLines, others)
+  | ((PipeTableRow None [|'|'|] headers) as takenLine) :: rest ->
       match rest with
-      | (PipeSeparatorRow (Some headers.Length) alignments) :: rest ->
-          let rows, others = getTableRows (Some headers.Length) [] rest
+      | ((PipeSeparatorRow (Some headers.Length) alignments) as takenLine2) :: rest ->
+          let rows, takenLines, others = getTableRows (Some headers.Length) [] [] rest
           let header_paragraphs = headers |> List.map (fun l -> [l])
-          Some((Some(header_paragraphs), alignments, rows), others)
+          Some((Some(header_paragraphs), alignments, rows), takenLine::takenLine2::takenLines, others)
       | _ -> None
   | _ -> None
 
@@ -618,13 +631,13 @@ let (|EmacsTableLine|_|) (grid:option<int []>) (c:char) (check:string * Markdown
     if List.forall check parts then Some(p, parts) else None
 
 /// Recognizes emacs table
-let (|EmacsTableBlock|_|) (input) =
+let (|EmacsTableBlock|_|) (lines) =
   let isCellSep = StringPosition.(|EqualsRepeated|_|)("-", MarkdownRange.zero) >> Option.isSome
   let isAlignedCellSep = ( |TableCellSeparator|_| ) >> Option.isSome
   let isHeadCellSep = StringPosition.(|EqualsRepeated|_|)("=", MarkdownRange.zero) >> Option.isSome
   let isText (s:string, n:MarkdownRange) = true
-  match input with
-  | (EmacsTableLine None '+' isAlignedCellSep (grid, parts)) :: rest ->
+  match lines with
+  | ((EmacsTableLine None '+' isAlignedCellSep (grid, parts)) as takenLine) :: rest ->
     let alignments = List.choose ( |TableCellSeparator|_| ) parts
     // iterate over rows and go from state to state
     // headers - the content of head row (initially none)
@@ -632,16 +645,17 @@ let (|EmacsTableBlock|_|) (input) =
     // cur - list of paragraphs in the current row (list of empty lists after each separator line)
     // flag indicates whether current row is empty (similar to List.forall (List.isEmpty) cur)
     let emptyCur = List.replicate<(string * MarkdownRange) list> (grid.Length - 1) []
-    let rec loop flag headers (prevRows:(string * MarkdownRange) list list list) (cur:(string * MarkdownRange) list list) = function
-      | (EmacsTableLine (Some grid) '|' isText (_, parts)) :: others ->
-          loop false headers prevRows (List.zip parts cur |> List.map (fun ((h, n), t) -> (h.TrimEnd(), n) :: t)) others
-      | (EmacsTableLine (Some grid) '+' isCellSep _) :: others ->
-          loop true headers (List.map (List.rev) cur :: prevRows) emptyCur others
-      | (EmacsTableLine (Some grid) '+' isHeadCellSep _) :: others when Option.isNone headers ->
-          loop true (Some (List.map (List.rev) cur)) prevRows emptyCur others
-      | others when flag -> Some((headers, alignments, List.rev prevRows), others)
+    let rec loop flag takenLines2 headers (prevRows:(string * MarkdownRange) list list list) (cur:(string * MarkdownRange) list list) lines =
+      match lines with 
+      | ((EmacsTableLine (Some grid) '|' isText (_, parts)) as takenLine2) :: others ->
+          loop false (takenLine2::takenLines2) headers prevRows (List.zip parts cur |> List.map (fun ((h, n), t) -> (h.TrimEnd(), n) :: t)) others
+      | ((EmacsTableLine (Some grid) '+' isCellSep _) as takenLine2) :: others ->
+          loop true (takenLine2::takenLines2) headers (List.map (List.rev) cur :: prevRows) emptyCur others
+      | ((EmacsTableLine (Some grid) '+' isHeadCellSep _) as takenLine2) :: others when Option.isNone headers ->
+          loop true (takenLine2::takenLines2) (Some (List.map (List.rev) cur)) prevRows emptyCur others
+      | others when flag -> Some((headers, alignments, List.rev prevRows), takenLine :: List.rev takenLines2, others)
       | _ -> None
-    loop true None [] emptyCur rest
+    loop true [] None [] emptyCur rest
   | _ -> None
 
 /// Recognizes a start of a blockquote
@@ -671,76 +685,88 @@ let (|TakeParagraphLines|_|) input =
 
 /// Recognize nested HTML block
 /// TODO: This is too simple - takes paragraph that starts with <
-let (|HtmlBlock|_|) = function
-  | (first, n)::_ & TakeParagraphLines(html, rest) when first.StartsWith("<") ->
-      Some(html, rest)
+let (|HtmlBlock|_|) lines =
+  match lines with
+  | ((first, n) as takenLine) ::_ & TakeParagraphLines(html, rest) when first.StartsWith("<") ->
+      Some(html, takenLine::html, rest)
   | _ -> None
 
-/// Continues taking lines until a whitespace line or start of a blockquote
+/// "Markdown allows you to be lazy and only put the > before the first line of a hard-wrapped paragraph"
+// Continues taking lines until a whitespace line or start of a blockquote
 let (|LinesUntilBlockquoteEnds|) input =
-  List.partitionUntilLookahead (fun next ->
+   input |> List.partitionUntilLookahead (fun next ->
     match next with
-    | BlockquoteStart _ :: _
-    | Heading _
+    | BlockquoteStart _ :: _  -> true
+    | Heading _ -> true
     | StringPosition.WhiteSpace :: _ -> true
-    | _ ->
-      false) input
+    | _ -> false)
 
 /// Recognizes blockquote - continues taking paragraphs
 /// starting with '>' until there is something else
-let rec (|Blockquote|_|) s =
-  match s with 
-  | EmptyBlockquote(Lines.TrimBlankStart rest) ->
-      Some ([("", MarkdownRange.zero)], rest)
-  | BlockquoteStart(line)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart rest) ->
-      let moreLines, rest =
+let rec (|Blockquote|_|) lines =
+  match lines with 
+  | EmptyBlockquote(takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+      Some ([("", MarkdownRange.zero)], takenLines@takenLines2, rest)
+  | (BlockquoteStart(quoteLine) as takenLine)::LinesUntilBlockquoteEnds(continued, Lines.TrimBlankStart (takenLines2, rest)) ->
+      let moreQuoteLines, moreTakenLines, rest =
         match rest with
-        | Blockquote(lines, rest) -> lines, rest
-        | _ -> [], rest
-      Some (line::continued @ moreLines, rest)
+        | Blockquote(lines, takenLines, rest) -> lines, takenLines, rest
+        | _ -> [], [], rest
+      Some (quoteLine::continued @ moreQuoteLines, takenLine::continued @ takenLines2 @ moreTakenLines, rest)
   | _ -> None
 
 /// Recognizes a special case: an empty blockquote line should terminate
 /// the blockquote if the next line is not a blockquote
-and (|EmptyBlockquote|_|) s =
-  match s with 
+and (|EmptyBlockquote|_|) lines =
+  match lines with 
   | BlockquoteStart(StringPosition.WhiteSpace) :: Blockquote(_) -> None
-  | BlockquoteStart(StringPosition.WhiteSpace) :: rest -> Some rest
+  | (BlockquoteStart(StringPosition.WhiteSpace) as takenLine) :: rest -> Some ([takenLine], rest)
   | _ -> None
 
-/// Recognizes Latex block - start with "$$$"
-/// See also formats accepted at https://stackoverflow.com/questions/13208286/how-to-write-latex-in-ipython-notebook
+/// Recognizes Latex block
+///   1. indented paragraph starting with "$$$".  This is F#-literate-specific, not part of the usual
+///      ipynb way of putting latex in markdown. The "raw markdown" version of this (takenLines) has
+///      a \begin{equation} \end{equation} wrapping instead of "$$$"
+///
+///   2. Single line latex starting with `$$`.
+///
+///   3. Block delimited by \begin{equation} \end{equation}. 
+///
+///   4. Block delimited by \begin{align} \end{align}.
+///
+/// See formats accepted at https://stackoverflow.com/questions/13208286/how-to-write-latex-in-ipython-notebook
 let (|LatexBlock|_|) (lines:(string * MarkdownRange) list) =
   match lines with 
-  | (first, _n)::rest when (first.TrimEnd()) = "$$$" ->
+  | (first, n) as _takenLine1::rest when (first.TrimEnd()) = "$$$" ->
       match rest with
-      | TakeParagraphLines(body, rest) -> Some("equation", body, rest)
+      | TakeParagraphLines(body, rest) ->
+          Some("equation", body, (("\begin{equation}", n)::body@[("\end{equation}", n)]), rest)
       | _ -> None
-  | (first, n)::rest when first.TrimEnd().StartsWith("$$")  && first.TrimEnd().EndsWith("$$") && first.TrimEnd().Length >= 4 ->
+  | ((first, n) as takenLine)::rest when first.TrimEnd().StartsWith("$$")  && first.TrimEnd().EndsWith("$$") && first.TrimEnd().Length >= 4 ->
       let text = first.TrimEnd()
-      Some("equation", [ (text.[2..text.Length - 3], n) ], rest)
-  | (first, _n)::rest when (first.TrimEnd()) = "\begin{equation}" ->
+      Some("equation", [ (text.[2..text.Length - 3], n) ], [takenLine], rest)
+  | ((first, _n) as takenLine)::rest when (first.TrimEnd()) = "\begin{equation}" ->
       let body = rest |> List.takeWhile (fun s -> fst s <> "\end{equation}")
       let res = rest |> List.skipWhile (fun s -> fst s <> "\end{equation}") 
       match res with
-      | _::rest -> Some ("equation", body, rest)
+      | _::rest -> Some ("equation", body, takenLine::body,  rest)
       | [] -> None
-  | (first, _n)::rest when (first.TrimEnd()) = "\begin{align}" ->
+  | ((first, _n) as takenLine)::rest when (first.TrimEnd()) = "\begin{align}" ->
       let body = rest |> List.takeWhile (fun s -> fst s <> "\end{align}")
       let res = rest |> List.skipWhile (fun s -> fst s <> "\end{align}") 
       match res with
-      | _::rest -> Some ("align", body, rest)
+      | _::rest -> Some ("align", body, takenLine::body, rest)
       | [] -> None
   | _ -> None
 
 /// Recognize a definition of a link as in `[key]: http://url ...`
 let (|LinkDefinition|_|) s =
   match s with 
-  | ( StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link)
-    | StringPosition.StartsWithWrapped (" [", "]:") (wrapped, StringPosition.TrimBoth link)
-    | StringPosition.StartsWithWrapped ("  [", "]:") (wrapped, StringPosition.TrimBoth link)
-    | StringPosition.StartsWithWrapped ("   [", "]:") (wrapped, StringPosition.TrimBoth link) ) :: rest ->
-        Some((wrapped, link), rest)
+  | (( StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link)
+     | StringPosition.StartsWithWrapped (" [", "]:") (wrapped, StringPosition.TrimBoth link)
+     | StringPosition.StartsWithWrapped ("  [", "]:") (wrapped, StringPosition.TrimBoth link)
+     | StringPosition.StartsWithWrapped ("   [", "]:") (wrapped, StringPosition.TrimBoth link) ) as line) :: rest ->
+        Some((wrapped, link), [line], rest)
   | _ -> None
 
 let updateCurrentRange lines =
@@ -753,89 +779,127 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
   let ctx = { ctx with CurrentRange = updateCurrentRange lines }
   match lines with
   // Recognize various kinds of standard paragraphs
-  | LinkDefinition ((key, link), Lines.TrimBlankStart lines) ->
-      if ctx.Links.ContainsKey(key) then
-        failwithf "Cannot define a link to the reference %s twice." key
-      ctx.Links.Add(key, getLinkAndTitle link)
+  | LinkDefinition ((key, link), takenLines, Lines.TrimBlankStart (takenLines2, lines)) ->
+      if ctx.ParseNonCodeAsOther then
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          if ctx.Links.ContainsKey(key) then
+            failwithf "Cannot define a link to the reference %s twice." key
+          ctx.Links.Add(key, getLinkAndTitle link)
       yield! parseParagraphs ctx lines
-  | NestedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine)
-  | FencedCodeBlock(code, Lines.TrimBlankStart lines, langString, ignoredLine) ->
-      let code = code |> String.concat ctx.Newline
-      yield CodeBlock(code, None, langString, ignoredLine, ctx.CurrentRange)
+
+  | NestedCodeBlock(code, takenLines, Lines.TrimBlankStart (takenLines2, lines), langString, ignoredLine)
+  | FencedCodeBlock(code, takenLines, Lines.TrimBlankStart (takenLines2, lines), langString, ignoredLine) ->
+      if ctx.ParseCodeAsOther then
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          let code = code |> String.concat ctx.Newline
+          yield CodeBlock(code, None, langString, ignoredLine, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
-  | Blockquote(body, Lines.TrimBlankStart rest) ->
-      yield QuotedBlock(parseParagraphs ctx (body @ [("", MarkdownRange.zero)]) |> List.ofSeq, ctx.CurrentRange)
+
+  | Blockquote(body, takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+      if ctx.ParseNonCodeAsOther then
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          yield QuotedBlock(parseParagraphs ctx (body @ [("", MarkdownRange.zero)]) |> List.ofSeq, ctx.CurrentRange)
       yield! parseParagraphs ctx rest
-  | EmacsTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest)
-  | PipeTableBlock((headers, alignments, rows), Lines.TrimBlankStart rest) ->
-      let headParagraphs =
-        if headers.IsNone then None
-        else Some(headers.Value |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
-      yield TableBlock(headParagraphs, alignments,
-        rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq)), ctx.CurrentRange)
+
+  | EmacsTableBlock((headers, alignments, rows), takenLines, Lines.TrimBlankStart (takenLines2, rest))
+  | PipeTableBlock((headers, alignments, rows), takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          let headParagraphs =
+            if headers.IsNone then None
+            else Some(headers.Value |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
+          let rows = rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
+          yield TableBlock(headParagraphs, alignments, rows, ctx.CurrentRange)
       yield! parseParagraphs ctx rest
-  | HorizontalRule(c) :: (Lines.TrimBlankStart lines) ->
-      yield HorizontalRule(c, ctx.CurrentRange)
+
+  | HorizontalRule(c) as takenLine :: (Lines.TrimBlankStart (takenLines2, lines)) ->
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLine::takenLines2, ctx.CurrentRange)
+      else
+          yield HorizontalRule(c, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
-  | LatexBlock(env, body, Lines.TrimBlankStart rest) ->
-    yield LatexBlock(env, body |> List.map fst, ctx.CurrentRange)
-    yield! parseParagraphs ctx rest
+
+  | LatexBlock(env, body, takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+        yield LatexBlock(env, body |> List.map fst, ctx.CurrentRange)
+      yield! parseParagraphs ctx rest
 
 
   // Recognize list of list items and turn it into nested lists
-  | ListItems true (items, Lines.TrimBlankStart rest) ->
-      let tree = Tree.ofIndentedList items
+  | ListItems true (items, takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          let tree = Tree.ofIndentedList items
 
-      // Nest all items that have another kind (i.e. UL vs. OL)
-      let rec nestUnmatchingItems items =
-        match items with
-        | Node((_, baseKind, _), _)::_ ->
-            items
-            |> List.nestUnderLastMatching (fun (Node((_, kind, _), _)) -> kind = baseKind)
-            |> List.map (fun (Node(info, children), nested) ->
-                let children = nestUnmatchingItems children
-                Node(info, children @ nested))
-        | [] -> []
+          // Nest all items that have another kind (i.e. UL vs. OL)
+          let rec nestUnmatchingItems items =
+            match items with
+            | Node((_, baseKind, _), _)::_ ->
+                items
+                |> List.nestUnderLastMatching (fun (Node((_, kind, _), _)) -> kind = baseKind)
+                |> List.map (fun (Node(info, children), nested) ->
+                    let children = nestUnmatchingItems children
+                    Node(info, children @ nested))
+            | [] -> []
 
-      // Turn tree into nested list definitions
-      let rec formatTree (nodes:Tree<bool * MarkdownListKind * (string * MarkdownRange) list> list) =
-        let kind = match nodes with Node((_, kind, _), _)::_ -> kind | _ -> Unordered
-        let items =
-          [ for (Node((simple, _, body), nested)) in nodes ->
-              [ let rng = body |> List.map snd |> MarkdownRange.mergeRanges
-                if not simple then yield! parseParagraphs ctx body
-                else yield MarkdownParagraph.Span(parseSpans(body |> List.map fst |> String.concat ctx.Newline, rng) ctx, ctx.CurrentRange)
-                if nested <> [] then
-                  yield formatTree nested ] ]
-        ListBlock(kind, items, ctx.CurrentRange)
+          // Turn tree into nested list definitions
+          let rec formatTree (nodes:Tree<bool * MarkdownListKind * (string * MarkdownRange) list> list) =
+            let kind = match nodes with Node((_, kind, _), _)::_ -> kind | _ -> Unordered
+            let items =
+              [ for (Node((simple, _, body), nested)) in nodes ->
+                  [ let rng = body |> List.map snd |> MarkdownRange.mergeRanges
+                    if not simple then yield! parseParagraphs ctx body
+                    else yield MarkdownParagraph.Span(parseSpans(body |> List.map fst |> String.concat ctx.Newline, rng) ctx, ctx.CurrentRange)
+                    if nested <> [] then
+                      yield formatTree nested ] ]
+            ListBlock(kind, items, ctx.CurrentRange)
 
-      // Make sure all items of the list have are either simple or not.
-      let rec unifySimpleProperty (nodes:Tree<bool * MarkdownListKind * (string * MarkdownRange) list> list) =
-        let containsNonSimple =
-          tree |> Seq.exists (function
-            | Node ((false, _, _), _) -> true
-            | _ -> false)
-        if containsNonSimple then
-          nodes |> List.map (function
-            | Node ((_, kind, content), nested) -> Node((false, kind, content), unifySimpleProperty nested))
-        else nodes
+          // Make sure all items of the list have are either simple or not.
+          let rec unifySimpleProperty (nodes:Tree<bool * MarkdownListKind * (string * MarkdownRange) list> list) =
+            let containsNonSimple =
+              tree |> Seq.exists (function
+                | Node ((false, _, _), _) -> true
+                | _ -> false)
+            if containsNonSimple then
+              nodes |> List.map (function
+                | Node ((_, kind, content), nested) -> Node((false, kind, content), unifySimpleProperty nested))
+            else nodes
 
-      yield  tree |> unifySimpleProperty |> formatTree
+          yield  tree |> unifySimpleProperty |> formatTree
       yield! parseParagraphs ctx rest
 
   // Recognize remaining types of paragraphs
-  | Heading(n, body, Lines.TrimBlankStart lines) ->
-      yield Heading(n, parseSpans body ctx, ctx.CurrentRange)
+  | Heading(n, body, takenLines, Lines.TrimBlankStart (takenLines2, lines)) ->
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          yield Heading(n, parseSpans body ctx, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
-  | HtmlBlock(code, Lines.TrimBlankStart lines) when
+
+  | HtmlBlock(code, takenLines, Lines.TrimBlankStart (takenLines2, lines)) when
         ( let all = String.concat ctx.Newline (code |> List.map fst)
           not (all.StartsWith("<http://")) && not (all.StartsWith("<ftp://")) && not (all.Contains("@")) ) ->
-      let all = String.concat ctx.Newline (code |> List.map fst)
-      yield InlineBlock(all, None, ctx.CurrentRange)
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          let all = String.concat ctx.Newline (code |> List.map fst)
+          yield InlineBlock(all, None, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
-  | TakeParagraphLines(Lines.TrimParagraphLines lines, Lines.TrimBlankStart rest) ->
-      yield Paragraph (parseSpans (lines |> List.map fst |> String.concat ctx.Newline, lines |> List.map snd |> MarkdownRange.mergeRanges) ctx, ctx.CurrentRange)
+
+  | TakeParagraphLines((Lines.TrimParagraphLines lines as takenLines), Lines.TrimBlankStart (takenLines2, rest)) ->
+      if ctx.ParseNonCodeAsOther then 
+          yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
+      else
+          yield Paragraph (parseSpans (lines |> List.map fst |> String.concat ctx.Newline, lines |> List.map snd |> MarkdownRange.mergeRanges) ctx, ctx.CurrentRange)
       yield! parseParagraphs ctx rest
 
-  | Lines.TrimBlankStart [] -> ()
+  | Lines.TrimBlankStart (takenLines2, []) -> ()
+
   | _ -> failwithf "Unexpectedly stopped!\n%A" lines }

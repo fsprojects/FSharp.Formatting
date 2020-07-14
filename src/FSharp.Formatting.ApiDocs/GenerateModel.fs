@@ -1005,7 +1005,7 @@ module internal Reader =
     |> Seq.map (getTypeLink ctx)
     |> Seq.iter (addLinkToType doc)
 
-    LiterateDocument(replacedParagraphs, doc.FormattedTips, doc.DefinedLinks, doc.Source, doc.SourceFile, doc.Errors)
+    doc.With(paragraphs=replacedParagraphs)
 
   let readCommentAndCommands (ctx:ReadingContext) xmlSig =
     match ctx.XmlMemberLookup(xmlSig) with

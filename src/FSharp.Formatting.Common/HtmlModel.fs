@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.HtmlModel
 
+open System.Globalization
 open System.IO
 
 type internal CSSProperties =
@@ -1275,25 +1276,26 @@ module internal Html =
     let (!!) str = HtmlElement.String str
 
 module internal HtmlFile =
-    let internal replaceParameters isHtml (contentTag:string) (parameters:seq<string * string>) (templateTextOpt: string option) =
+
+    // Replace '{{xyz}}' or '{xyz}' in template text
+    //
+    // Latex uses only '{xyz}' 
+    let internal replaceParameters useSingleBraceSubstitutions (contentTag:string) (parameters:seq<string * string>) (templateTextOpt: string option) =
       match templateTextOpt with
-      | None ->
-          // If there is no template, return just document + tooltips (empty if not HTML)
+      | None | Some "" ->
+          // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
           let lookup = parameters |> dict
           lookup.[contentTag] + (if lookup.ContainsKey "tooltips" then "\n\n" + lookup.["tooltips"] else "")
       | Some templateText ->
-          // First replace @Properties["key"] or {{key}} or {key} with some uglier keys and then replace them with values
+          // First replace {{key}} or {key} with some uglier keys and then replace them with values
           // (in case one of the keys appears in some other value)
           let id = System.Guid.NewGuid().ToString("d")
           let temp =
               (templateText, parameters) ||> Seq.fold (fun text (key, value) ->
-                let key1 = sprintf "@Properties[\"%s\"]" key
                 let key2 = "{{" + key + "}}"
                 let key3 = "{" + key + "}"
                 let rkey = "{" + key + id + "}"
-                let text = if isHtml then text.Replace(key1, rkey) else text
-                let text = if isHtml then text.Replace(key2, rkey) else text
-                let text = text.Replace(key3, rkey)
+                let text = if useSingleBraceSubstitutions then text.Replace(key3, rkey) else text.Replace(key2, rkey) 
                 text)
           let result =
               (temp, parameters) ||> Seq.fold (fun text (key, value) ->
@@ -1302,8 +1304,11 @@ module internal HtmlFile =
 
     let UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outputFile) =
       let templateTextOpt = templateOpt |> Option.map System.IO.File.ReadAllText
-      let isHtml = match templateOpt with None -> false | Some n -> n.EndsWith(".html", true, System.Globalization.CultureInfo.InvariantCulture)
-      let outputText = replaceParameters isHtml contentTag parameters templateTextOpt
+      let useSingleBraceSubstitutions =
+          match templateOpt with
+          | None -> false
+          | Some n -> n.EndsWith(".tex", true, CultureInfo.InvariantCulture)
+      let outputText = replaceParameters useSingleBraceSubstitutions contentTag parameters templateTextOpt
       try
         let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
         Directory.CreateDirectory(path) |> ignore

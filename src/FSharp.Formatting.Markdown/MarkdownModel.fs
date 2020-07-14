@@ -5,7 +5,7 @@
 
 namespace rec FSharp.Formatting.Markdown
 
-open FSharp.Formatting.Common
+open System.Collections.Generic
 
 // --------------------------------------------------------------------------------------
 // Definition of the Markdown format
@@ -64,6 +64,8 @@ type MarkdownParagraph =
   | HorizontalRule of character:char * range:MarkdownRange option
   | TableBlock of headers:option<MarkdownTableRow> * alignments:list<MarkdownColumnAlignment> * rows:list<MarkdownTableRow> * range:MarkdownRange option
   | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
+  /// Reprsents a block of markdown produced when parsing of tables or quoted blocks is suppressed
+  | OtherBlock of lines:(string * MarkdownRange) list * range:MarkdownRange option
 
 /// A type alias for a list of paragraphs
 type MarkdownParagraphs = list<MarkdownParagraph>
@@ -123,6 +125,7 @@ module MarkdownPatterns =
     | Paragraph(spans, _)
     | Span(spans, _) ->
         ParagraphSpans(PS par, spans)
+    | OtherBlock _
     | OutputBlock _
     | CodeBlock _
     | InlineBlock _ 
@@ -164,3 +167,10 @@ module MarkdownPatterns =
         if List.isEmpty rows || headers.IsNone then TableBlock(None, alignments, rows, r)
         else TableBlock(Some(List.head rows), alignments, List.tail rows, r)
     | _ -> invalidArg "" "Incorrect ParagraphNestedInfo."
+
+/// Controls the parsing of markdown
+type MarkdownParseOptions =
+  | None = 0
+  | ParseCodeAsOther = 1
+  | ParseNonCodeAsOther = 2
+

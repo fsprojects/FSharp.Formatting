@@ -20,13 +20,23 @@ in the solution according to the rules of [API doc generation](metadata.html)
 
 The expected structure for a docs directory is
 
-    docs\**\*.md                          -- markdown with embedded code, converted to html and optionally tex/ipynb
-    docs\**\*.fsx                         -- fsx scripts converted to html and optionally tex/ipynb
-    docs\**\*                             -- other content, copied over
-    docs\**\_template.html                -- specifies the default template for this directory and its contents
-    docs\reference\_template.html         -- optionally specifies the default template for reference docs
-
+    docs\**\*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
+    docs\**\*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
+    docs\**\*                     -- other content, copied over
+    docs\**\_template.html        -- specifies the default HTML template for this directory and its contents
+    docs\**\_template.tex         -- specifies Latex files should also be generated
+    docs\**\_template.ipynb       -- specifies F# ipynb files should also be generated
+    docs\**\_template.fsx         -- specifies F# fsx files should also be generated (even from markdown)
+    docs\reference\_template.html -- optionally specifies the default template for reference docs
+]
 The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
+
+Template files are as follows:
+
+- `_template.html` - absent, empty or contain `{{document}}` and `{{tooltips}}` placeholders.
+- `_template.tex` - absent, empty or contain `{content}` placeholder.
+- `_template.ipynb` - absent, empty or contain `{{cells}}` placeholder.
+- `_template.fsx` - absent, empty or contain `{{code}}` placeholder.
 
 The following substitutions are defined based on metadata that may be present in project files.
 The first metadata value detected across project files is used, it is assumed these values will
@@ -39,6 +49,7 @@ be the same across all projects.
 |   {{root}}             | `<PackageProjectUrl>`         |
 |   {{authors}}          | `<Authors>`                   |
 |   {{repository-url}}   | `<RepositoryUrl>`             |
+|   {{package-project-url}}  | `<PackageProjectUrl>`  |
 |   {{package-license}}  | `<PackageLicenseExpression>`  |
 |   {{package-tags}}     | `<PackageTags>`               |
 |   {{copyright}}        | `<Copyright>`                 |
@@ -53,11 +64,10 @@ be the same across all projects.
   * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
   * `--output` -  Output directory, defaults to `output`
-  * `--template` -  Default template file for formatting. For HTML should contain `{{document}}` and `{{tooltips}}` tags.
+  * `--template` -  Default template file for formatting. For HTML 
   * `--nonPublic` -  Generate docs for non-public members
   * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
   * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
-  * `--generateNotebooks` -  Include conversion from scripts to `ipynb`
   * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
   * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--help` -  Display the specific help message for `convert`.
@@ -76,17 +86,17 @@ The convert command
 ----------------------------
 
 The `fsdocs convert` command processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
-according to the concept of [Literate Programming](literate.html).
+according to the concept of [Literate Programming](literate.html) and the same rules used for `build` above.  It
+doesn't generate API documentation.
 
     [lang=text]
-    fsdocs convert --input docs/scripts --format latex --parameters "authors" "Tomas Petricek"
+    fsdocs convert --input docs/scripts --parameters "authors" "Tomas Petricek"
 
 ### Options
 
   * `--input` - Input directory containing `*.fsx` and `*.md` files. Required,
   * `--output` -  Output directory, defaults to `output`
   * `--template` -  Default template file for formatting. For HTML should contain `{{document}}` and `{{tooltips}}` tags.
-  * `--format` -  Output format either `latex`, `html` or `ipynb`, defaults to `html`.
   * `--prefix` -  Prefix for formatting, defaults to `fs`.
   * `--compilerOptions` -  Compiler options passed when evaluating snippets.
   * `--noLineNumbers` -  Line number option, defaults to `true`.

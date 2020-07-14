@@ -165,7 +165,7 @@ let internal withInner ctx f =
   f newCtx
   sb.ToString()
 
-/// Write a MarkdownParagraph value to a TextWriter
+/// Write a MarkdownParagraph value to a TextWriter as HTML
 let rec internal formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
   | LatexBlock(_env, lines, _) ->
@@ -267,6 +267,12 @@ let rec internal formatParagraph (ctx:FormattingContext) paragraph =
       formatSpans ctx spans
   | InlineBlock(code, _, _) ->
       ctx.Writer.Write(code)
+  | OtherBlock (lines, _) ->
+      if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+      ctx.Writer.Write(sprintf "<pre><code>")
+      for (code, _) in lines do
+          ctx.Writer.Write(htmlEncode code)
+      ctx.Writer.Write("</code></pre>")
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagraph values to a TextWriter

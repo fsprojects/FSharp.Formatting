@@ -1,7 +1,6 @@
 namespace FSharp.Formatting.CommandTool
 
 open CommandLine
-open CommandLine.Text
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.Literate
@@ -12,11 +11,7 @@ open FSharp.Formatting.CommandTool.Common
 [<Verb("convert", HelpText = "convert a directory of literate scripts or markdown to another format")>]
 type ConvertCommand() =
 
-    [<Option("waitForKey", Required = false, HelpText = "Wait for key before exit.")>]
-    member val waitForKey = false with get, set
-
     // default settings will be mapped to 'None'
-
     [<Option("input", Required = false, Default="docs", HelpText = "Input directory of *.fsx and *.md files.")>]
     member val input = "" with get, set
 
@@ -25,13 +20,6 @@ type ConvertCommand() =
 
     [<Option("output", Required = false, Default="output", HelpText = "Ouput Directory, defaults to 'output' (optional).")>]
     member val output = "" with get, set
-
-    [<Option("format", Required = false, HelpText = "Ouput format either 'latex', 'ipynb' or 'html', defaults to 'html' (optional).")>]
-    member val format = "html" with get, set
-
-//    [<Option("formatAgent", Required = false,
-//        HelpText = "FSharp Compiler selection, defaults to 'FSharp.Compiler.dll' which throws a 'file not found' exception if not in search path (optional).")>]
-//    member val fsharpCompiler = "" with get, set
 
     [<Option("prefix", Required = false, HelpText = "Prefix for formatting, defaults to 'fs' (optional).")>]
     member val prefix = "" with get, set
@@ -57,9 +45,6 @@ type ConvertCommand() =
     [<Option("includeSource", Required = false, HelpText = "Include sourcecode in documentation, defaults to 'false' (optional).")>]
     member val includeSource = false with get, set
 
-    [<Option("live", Required = false, HelpText = "Watches for changes in the input directory and re-runs, if a change occures")>]
-    member val live = false with get, set
-
     member x.Execute() =
         let mutable res = 0
         use watcher = new System.IO.FileSystemWatcher(x.input)
@@ -68,31 +53,17 @@ type ConvertCommand() =
                     Literate.ConvertDirectory(
                         x.input,
                         ?generateAnchors = Some true,
-                        ?template = (evalString x.template),
+                        ?htmlTemplate = (evalString x.template),
                         ?outputDirectory = Some x.output,
-                        ?format=
-                            Some (let fmt = x.format.ToLower()
-                                  if fmt = "html" then OutputKind.Html
-                                  elif fmt = "ipynb" then OutputKind.Pynb
-                                  elif fmt = "tex" || fmt = "latex" then OutputKind.Latex
-                                  else failwithf "unknown format '%s'" x.format),
                         ?formatAgent = None,
                         ?prefix = (evalString x.prefix),
                         ?compilerOptions = (evalString (concat x.compilerOptions)),
                         ?lineNumbers = Some (not x.noLineNumbers),
-                        ?processRecursive = Some (not x.noRecursive),
+                        ?recursive = Some (not x.noRecursive),
                         ?references = Some x.references,
                         ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
                         ?parameters = evalPairwiseStrings x.parameters,
                         ?includeSource = Some x.includeSource)
-
-                if x.live then
-                    watcher.IncludeSubdirectories <- true
-                    watcher.NotifyFilter <- System.IO.NotifyFilters.LastWrite
-                    let monitor = obj()
-                    x.waitForKey <- true
-                    Event.add (fun _ -> try lock monitor run with _ -> ()) watcher.Changed
-                    watcher.EnableRaisingEvents <- true
 
                 run()
 
@@ -101,5 +72,4 @@ type ConvertCommand() =
                 Log.errorf "received exception in Literate.ConvertDirectory:\n %A" ex
                 printfn "Error on Literate.ConvertDirectory: \n%O" ex
                 res <- -1
-        waitForKey x.waitForKey
         res

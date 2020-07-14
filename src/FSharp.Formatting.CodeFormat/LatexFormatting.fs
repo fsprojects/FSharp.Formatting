@@ -101,7 +101,7 @@ let formatSnippets (ctx:FormattingContext) (snippets:Snippet[]) =
         ctx.Writer.WriteLine(@"[commandchars=\\\{\}]")
 
       // Print all lines of the snippet
-      lines |> List.iter (fun (Line spans) ->
+      lines |> List.iter (fun (Line (_originalLine, spans)) ->
         // Write tokens & end of the line
         formatTokenSpans ctx spans
         ctx.Writer.WriteLine())

@@ -50,6 +50,10 @@ The F# script files is processed as follows:
 |  Literate Command     | Description               |
 |:-----------------------|:----------------------------|
 |   `(** ... *)`       | Markdown  |
+|   `(*** condition: prepare ***)`       | Utilise a code snippet when analyzing for tooltips or executing for outputs |
+|   `(*** condition: ipynb ***)`       | Include a code snippet when making a .ipynb notebook  |
+|   `(*** condition: tex ***)`       | Include a code snippet when making a .tex output   |
+|   `(*** condition: html ***)`       | Include a code snippet when making HTML output   |
 |   `(*** define: snippet-name ***)`       | Define a named snippet  |
 |   `(*** hide ***)`       | Hide the subsequent snippet  |
 |   `(*** include-output ***)`       | The output of the preceeding snippet   |

@@ -208,6 +208,14 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       formatSpans ctx spans
   | InlineBlock(code, _executionCount, _) ->
       ctx.Writer.Write(code)
+  | OtherBlock (code, _) ->
+      ctx.Writer.Write(@"\begin{lstlisting}")
+      ctx.LineBreak()
+      for (code, _) in code do
+          ctx.Writer.Write(code)
+      ctx.LineBreak()
+      ctx.Writer.Write(@"\end{lstlisting}")
+      ctx.LineBreak()
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagraph values to a TextWriter
