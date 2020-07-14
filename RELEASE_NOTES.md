@@ -1,4 +1,4 @@
-## 5.0.1-beta7
+## 5.0.2
   - Update to FCS v36.0
   - Add .ipynb output option for documents
   - Add .fsx output option for documents
