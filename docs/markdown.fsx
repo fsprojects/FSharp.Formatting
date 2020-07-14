@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
 (**
 F# Formatting: Markdown parser
 ==============================

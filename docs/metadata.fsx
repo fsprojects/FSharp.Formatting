@@ -1,5 +1,5 @@
 (*** hide ***)
-#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
 let root = "C:\\"
 
 (**
@@ -90,13 +90,13 @@ module Foo =
         b.id * 42
 
 /// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`
-module Foo2 =
+module Foo3 =
     
     /// This is not the same type as `Foo.Bar`
     type Bar = double
 
     /// Using the simple name for [Bar] will fail to create a link because the name is duplicated in 
-    /// [Foo.Bar] and in [Foo2.Bar]. In this case, using the full name works.
+    /// [Foo.Bar] and in [Foo3.Bar]. In this case, using the full name works.
     let f2 b =
          b * 50
 
@@ -121,7 +121,7 @@ pass the named argument `markDownComments` with value `false`.
 *)
 
 ApiDocs.GenerateHtml
-  ( Path.Combine(root, "bin/YourLibrary.dll"), 
+  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
     Path.Combine(root, "output"),
     template=Path.Combine(root, "templates", "template.html"),
     sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
@@ -133,7 +133,7 @@ An example of an XML documentation comment:
 /// Some actual comment
 /// <para>Another paragraph</para>
 /// </summary>
-module Foo = 
+module Foo2 = 
    let a = 42
 (**
 Note that currently our code is not handling `<parameter>` and `<result> tags, this is 

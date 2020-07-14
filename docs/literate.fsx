@@ -121,7 +121,7 @@ Typical literate setup
 
 (*** hide ***)
 #nowarn "211"
-#I "../../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.CodeFormat.dll"
@@ -214,18 +214,16 @@ projects.
 
 The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
-by setting the named parameter `format` to one of the two `OutputKind` cases. The following
+by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:
 *)
 let templateTex = Path.Combine(source, "template.tex")
 
 let scriptTex = Path.Combine(source, "../docs/script.fsx")
-Literate.ConvertScriptFile(scriptTex, templateTex, format=OutputKind.Latex)
+Literate.ConvertScriptFile(scriptTex, templateTex, outputKind=OutputKind.Latex)
 
 let docTex = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docTex, templateTex, format=OutputKind.Latex)
-
-Literate.ConvertDirectory(source, templateTex, source + "\\output",  format=OutputKind.Latex)
+Literate.ConvertMarkdown(docTex, templateTex, outputKind=OutputKind.Latex)
 
 (**
 Note that the `template.tex` file needs to contain `{content}` as the key where the body
@@ -248,12 +246,10 @@ by setting the named parameter `format` to `OutputKind.Pynb`:
 
 // Process script file, Markdown document and a directory
 let scriptPynb = Path.Combine(source, "../docs/script.fsx")
-Literate.ConvertScriptFile(scriptPynb, format=OutputKind.Pynb)
+Literate.ConvertScriptFile(scriptPynb, outputKind=OutputKind.Pynb)
 
 let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docPynb, format=OutputKind.Pynb)
-
-Literate.ConvertDirectory( source, source + "/output", format=OutputKind.Pynb)
+Literate.ConvertMarkdown(docPynb, outputKind=OutputKind.Pynb)
 
 (**
 
