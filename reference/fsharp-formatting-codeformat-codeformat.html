@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>CodeFormat - F# Formatting</title>
+    <title>CodeFormat - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package of libraries for building great F# documentation, samples and blogs">
-    <meta name="author" content="Tomas Petricek and F# Formatting contributors">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -26,7 +25,7 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">F# Formatting</a></h3>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -39,7 +38,7 @@
     Namespace: FSharp.Formatting.CodeFormat
   </p>
   <p>
-    Assembly: F# Formatting
+    Assembly: FSharp.Formatting
   </p>
   <br/>
   <div class="xmldoc">
@@ -71,10 +70,10 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
+              <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
                 CodeFormat.CreateAgent()
               </code>
-              <div class="tip" id="110">
+              <div class="tip" id="187">
                 <strong>
                   Signature:
                 </strong>
@@ -93,10 +92,31 @@ using the F# compiler service.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
+              <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
+                CodeFormat.FormatFsx(snippets)
+              </code>
+              <div class="tip" id="188">
+                <strong>
+                  Signature:
+                </strong>
+                snippets:seq&lt;Snippet&gt; -&gt; FormattedContent
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats the .fsx snippets as iPython notebook using the default settings.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
                 CodeFormat.FormatHtml(...)
               </code>
-              <div class="tip" id="111">
+              <div class="tip" id="189">
                 <strong>
                   Signature:
                 </strong>
@@ -115,10 +135,10 @@ be added to outputs and whether errors should be printed.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
+              <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
                 CodeFormat.FormatLatex(...)
               </code>
-              <div class="tip" id="112">
+              <div class="tip" id="190">
                 <strong>
                   Signature:
                 </strong>
@@ -134,27 +154,6 @@ be added to outputs.</p>
 
           </td>
         </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
-                CodeFormat.FormatPynb(snippets)
-              </code>
-              <div class="tip" id="113">
-                <strong>
-                  Signature:
-                </strong>
-                (snippets:Snippet []) -&gt; FormattedContent
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>Formats the .fsx snippets as iPython notebook using the default settings.</p>
-
-
-          </td>
-        </tr>
       </tbody>
     </table>
   </div>
@@ -166,10 +165,9 @@ be added to outputs.</p>
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
+            <li class="nav-header">FSharp.Formatting</li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="https://www.nuget.org/packages/FSharp.Formatting/">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>

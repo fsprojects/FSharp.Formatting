@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>LiterateParagraph - F# Formatting</title>
+    <title>LiterateParagraph - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package of libraries for building great F# documentation, samples and blogs">
-    <meta name="author" content="Tomas Petricek and F# Formatting contributors">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -26,7 +25,7 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">F# Formatting</a></h3>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -39,7 +38,7 @@
     Namespace: FSharp.Formatting.Literate
   </p>
   <p>
-    Assembly: F# Formatting
+    Assembly: FSharp.Formatting
   </p>
   <br/>
   <div class="xmldoc">
@@ -68,14 +67,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '203', 203)" onmouseover="showTip(event, '203', 203)">
-                CodeReference(string)
+              <code onmouseout="hideTip(event, '280', 280)" onmouseover="showTip(event, '280', 280)">
+                CodeReference(...)
               </code>
-              <div class="tip" id="203">
+              <div class="tip" id="280">
                 <strong>
                   Signature:
                 </strong>
-                string
+                string * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -89,14 +88,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '204', 204)" onmouseover="showTip(event, '204', 204)">
-                ItValueReference(string)
+              <code onmouseout="hideTip(event, '281', 281)" onmouseover="showTip(event, '281', 281)">
+                ItValueReference(...)
               </code>
-              <div class="tip" id="204">
+              <div class="tip" id="281">
                 <strong>
                   Signature:
                 </strong>
-                string
+                string * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -111,14 +110,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '205', 205)" onmouseover="showTip(event, '205', 205)">
-                LanguageTaggedCode(string, string)
+              <code onmouseout="hideTip(event, '282', 282)" onmouseover="showTip(event, '282', 282)">
+                LanguageTaggedCode(...)
               </code>
-              <div class="tip" id="205">
+              <div class="tip" id="282">
                 <strong>
                   Signature:
                 </strong>
-                string * string
+                string * string * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -132,14 +131,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '206', 206)" onmouseover="showTip(event, '206', 206)">
+              <code onmouseout="hideTip(event, '283', 283)" onmouseover="showTip(event, '283', 283)">
                 LiterateCode(...)
               </code>
-              <div class="tip" id="206">
+              <div class="tip" id="283">
                 <strong>
                   Signature:
                 </strong>
-                Line list * LiterateCodeOptions
+                Line list * LiterateCodeOptions * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -153,14 +152,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '207', 207)" onmouseover="showTip(event, '207', 207)">
-                OutputReference(string)
+              <code onmouseout="hideTip(event, '284', 284)" onmouseover="showTip(event, '284', 284)">
+                OutputReference(...)
               </code>
-              <div class="tip" id="207">
+              <div class="tip" id="284">
                 <strong>
                   Signature:
                 </strong>
-                string
+                string * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -175,14 +174,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
-                RawBlock(Line list)
+              <code onmouseout="hideTip(event, '285', 285)" onmouseover="showTip(event, '285', 285)">
+                RawBlock(...)
               </code>
-              <div class="tip" id="208">
+              <div class="tip" id="285">
                 <strong>
                   Signature:
                 </strong>
-                Line list
+                Line list * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -196,14 +195,14 @@ additional kinds of paragraphs that can appear in literate F# scripts
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
-                ValueReference(string)
+              <code onmouseout="hideTip(event, '286', 286)" onmouseover="showTip(event, '286', 286)">
+                ValueReference(...)
               </code>
-              <div class="tip" id="209">
+              <div class="tip" id="286">
                 <strong>
                   Signature:
                 </strong>
-                string
+                string * LiterateParagraphOptions
                 <br/>
               </div>
             </div>
@@ -220,7 +219,44 @@ additional kinds of paragraphs that can appear in literate F# scripts
   <div></div>
   <div></div>
   <div></div>
-  <div></div>
+  <div>
+    <h3>
+      Instance members
+    </h3>
+    <table class="table table-bordered member-list">
+      <thead>
+        <tr>
+          <td>
+            Instance member
+          </td>
+          <td>
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '287', 287)" onmouseover="showTip(event, '287', 287)">
+                this.ParagraphOptions
+              </code>
+              <div class="tip" id="287">
+                <strong>
+                  Signature:
+                </strong>
+                LiterateParagraphOptions
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div></div>
 </div>
         </div>
@@ -230,10 +266,9 @@ additional kinds of paragraphs that can appear in literate F# scripts
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
+            <li class="nav-header">FSharp.Formatting</li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="https://www.nuget.org/packages/FSharp.Formatting/">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>

@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>LiterateDocument - F# Formatting</title>
+    <title>LiterateDocument - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A package of libraries for building great F# documentation, samples and blogs">
-    <meta name="author" content="Tomas Petricek and F# Formatting contributors">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
@@ -26,7 +25,7 @@
           <li><a href="http://fsharp.org">fsharp.org</a></li>
           <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">F# Formatting</a></h3>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -39,7 +38,7 @@
     Namespace: FSharp.Formatting.Literate
   </p>
   <p>
-    Assembly: F# Formatting
+    Assembly: FSharp.Formatting
   </p>
   <br/>
   <div class="xmldoc">
@@ -70,14 +69,14 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
+              <code onmouseout="hideTip(event, '271', 271)" onmouseover="showTip(event, '271', 271)">
                 LiterateDocument(...)
               </code>
-              <div class="tip" id="194">
+              <div class="tip" id="271">
                 <strong>
                   Signature:
                 </strong>
-                (paragraphs:MarkdownParagraphs * formattedTips:string * links:IDictionary&lt;string, (string * string option)&gt; * source:LiterateSource * sourceFile:string * errors:seq&lt;SourceError&gt;) -&gt; LiterateDocument
+                (paragraphs:MarkdownParagraphs * formattedTips:string * links:IDictionary&lt;string, (string * string option)&gt; * source:LiterateSource * sourceFile:string * diagnostics:SourceError []) -&gt; LiterateDocument
                 <br/>
               </div>
             </div>
@@ -108,10 +107,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
+              <code onmouseout="hideTip(event, '272', 272)" onmouseover="showTip(event, '272', 272)">
                 this.DefinedLinks
               </code>
-              <div class="tip" id="195">
+              <div class="tip" id="272">
                 <strong>
                   Signature:
                 </strong>
@@ -129,14 +128,14 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
-                this.Errors
+              <code onmouseout="hideTip(event, '273', 273)" onmouseover="showTip(event, '273', 273)">
+                this.Diagnostics
               </code>
-              <div class="tip" id="196">
+              <div class="tip" id="273">
                 <strong>
                   Signature:
                 </strong>
-                seq&lt;SourceError&gt;
+                SourceError []
                 <br/>
               </div>
             </div>
@@ -150,10 +149,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
+              <code onmouseout="hideTip(event, '274', 274)" onmouseover="showTip(event, '274', 274)">
                 this.FormattedTips
               </code>
-              <div class="tip" id="197">
+              <div class="tip" id="274">
                 <strong>
                   Signature:
                 </strong>
@@ -171,10 +170,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
+              <code onmouseout="hideTip(event, '275', 275)" onmouseover="showTip(event, '275', 275)">
                 this.MarkdownDocument
               </code>
-              <div class="tip" id="198">
+              <div class="tip" id="275">
                 <strong>
                   Signature:
                 </strong>
@@ -192,10 +191,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
+              <code onmouseout="hideTip(event, '276', 276)" onmouseover="showTip(event, '276', 276)">
                 this.Paragraphs
               </code>
-              <div class="tip" id="199">
+              <div class="tip" id="276">
                 <strong>
                   Signature:
                 </strong>
@@ -213,10 +212,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
+              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
                 this.Source
               </code>
-              <div class="tip" id="200">
+              <div class="tip" id="277">
                 <strong>
                   Signature:
                 </strong>
@@ -234,10 +233,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '201', 201)" onmouseover="showTip(event, '201', 201)">
+              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
                 this.SourceFile
               </code>
-              <div class="tip" id="201">
+              <div class="tip" id="278">
                 <strong>
                   Signature:
                 </strong>
@@ -255,14 +254,14 @@ uses an F# discriminated union type and so is best used from F#.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
+              <code onmouseout="hideTip(event, '279', 279)" onmouseover="showTip(event, '279', 279)">
                 this.With(...)
               </code>
-              <div class="tip" id="202">
+              <div class="tip" id="279">
                 <strong>
                   Signature:
                 </strong>
-                (paragraphs:MarkdownParagraphs option * formattedTips:string option * definedLinks:IDictionary&lt;string, (string * string option)&gt; option * source:LiterateSource option * sourceFile:string option * errors:seq&lt;SourceError&gt; option) -&gt; LiterateDocument
+                (paragraphs:MarkdownParagraphs option * formattedTips:string option * definedLinks:IDictionary&lt;string, (string * string option)&gt; option * source:LiterateSource option * sourceFile:string option * diagnostics:SourceError [] option) -&gt; LiterateDocument
                 <br/>
               </div>
             </div>
@@ -285,10 +284,9 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </a>
 
           <ul class="nav nav-list" id="menu">
-            <li class="nav-header">F# Formatting</li>
+            <li class="nav-header">FSharp.Formatting</li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="https://www.nuget.org/packages/FSharp.Formatting/">Get Library via NuGet</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
             <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
