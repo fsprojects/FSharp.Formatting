@@ -161,3 +161,4 @@ type FSharpChecker with
                     return bindParsedInput results
                 }
             else parseAndCheckFile |> Async.map bindParsedInput
+

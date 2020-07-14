@@ -28,8 +28,11 @@ type MarkdownDocument(paragraphs, links) =
 type Markdown =
   /// Parse the specified text into a MarkdownDocument. Line breaks in the
   /// inline HTML (etc.) will be stored using the specified string.
-  static member Parse(text, ?newline) =
+  ///
+  ///  - `parseOptions`: Controls whether code and non-code blocks are parsed as raw lines or not.
+  static member Parse(text, ?newline, ?parseOptions) =
     let newline = defaultArg newline Environment.NewLine
+    let parseOptions = defaultArg parseOptions MarkdownParseOptions.None
     use reader = new StringReader(text)
     let lines = 
       [ let line = ref ""
@@ -42,7 +45,11 @@ type Markdown =
       //|> Utils.replaceTabs 4
     let links = Dictionary<_, _>()
     //let (Lines.TrimBlank lines) = lines
-    let ctx : ParsingContext = { Newline = newline; Links = links; CurrentRange = Some(MarkdownRange.zero) }
+    let ctx : ParsingContext =
+        { Newline = newline
+          Links = links
+          CurrentRange = Some(MarkdownRange.zero)
+          ParseOptions=parseOptions }
     let paragraphs =
       lines
       |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
@@ -102,12 +109,14 @@ type Markdown =
     Markdown.ToLatex(doc, ?newline=newline)
 
   /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
-  static member ToPynb(doc: MarkdownDocument) =
-    //let newline = defaultArg newline Environment.NewLine
-    PynbFormatting.formatMarkdownAsPynb doc.DefinedLinks doc.Paragraphs
+  static member ToPynb(doc: MarkdownDocument, ?newline, ?parameters) =
+    let newline = defaultArg newline Environment.NewLine
+    let parameters = defaultArg parameters []
+    PynbFormatting.formatAsPynb doc.DefinedLinks parameters newline doc.Paragraphs
 
-  /// Transform the provided markdown text into Pynb and return the result as a string.
-  static member ToPynb(markdownText: string) =
-    let doc = Markdown.Parse(markdownText)
-    Markdown.ToPynb(doc)
+  /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
+  static member ToFsx(doc: MarkdownDocument, ?newline, ?parameters) =
+    let newline = defaultArg newline Environment.NewLine
+    let parameters = defaultArg parameters []
+    FsxFormatting.formatAsFsx doc.DefinedLinks parameters newline doc.Paragraphs
 

@@ -46,7 +46,7 @@ b""", __SOURCE_DIRECTORY__ </> "Test.fsx")
   doc.Paragraphs |> shouldMatchPar (function Paragraph([Literal("b", Some({ StartLine = 6 }))], Some({ StartLine = 6 })) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | EmbedParagraphs(:? LiterateParagraph as cd, Some({ StartLine = 4 })) ->
-        match cd with LanguageTaggedCode("csharp", text) -> text.Contains "magic" | _ -> false
+        match cd with LanguageTaggedCode("csharp", text, _popts) -> text.Contains "magic" | _ -> false
     | _ -> false)
 
 // --------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ let ``Can parse literate F# script`` () =
 (** **hello** *)
 let test = 42"""
   let doc = Literate.ParseScriptString(content, "C" </> "A.fsx", getFormatAgent())
-  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Diagnostics |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
@@ -82,7 +82,7 @@ let ``Can parse markdown with F# snippet`` () =
 
     let test = 42"""
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
-  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Diagnostics |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
@@ -97,7 +97,7 @@ let ``Can parse markdown with Github-flavoured F# snippet`` () =
 let test = 42
 ```"""
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
-  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Diagnostics |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
@@ -112,7 +112,7 @@ let test = 42
 
 ```"""
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
-  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Diagnostics |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> shouldMatchPar (function
     | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
 
@@ -136,7 +136,7 @@ let ``Can report errors in F# code snippets (in F# script file)`` () =
 
     let test = 4 + 1.0"""
   let doc = Literate.ParseMarkdownString(content, formatAgent = getFormatAgent())
-  doc.Errors |> Seq.length |> should be (greaterThan 0)
+  doc.Diagnostics |> Seq.length |> should be (greaterThan 0)
 
 [<Test>]
 let ``Can report errors in F# code snippets (in Markdown document)`` () =
@@ -144,7 +144,7 @@ let ``Can report errors in F# code snippets (in Markdown document)`` () =
 (** **hello** *)
 let test = 4 + 1.0"""
   let doc = Literate.ParseScriptString(content, "C" </> "A.fsx", getFormatAgent())
-  doc.Errors |> Seq.length |> should be (greaterThan 0)
+  doc.Diagnostics |> Seq.length |> should be (greaterThan 0)
 
 // --------------------------------------------------------------------------------------
 // Formatting code snippets
@@ -533,7 +533,7 @@ hello
 let test = 42
 """
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent())
-  let doc2 = Literate.FormatLiterateNodes(doc,format=OutputKind.Html)
+  let doc2 = Literate.FormatLiterateNodes(doc,outputKind=OutputKind.Html)
   let html = Literate.ToHtml(doc2.With(formattedTips=""))
   let tips = doc2.FormattedTips
   tips |> shouldContainText "test : int"
@@ -592,20 +592,24 @@ With some [hyperlink](http://tomasp.net)
   
 [<Test>]
 let ``Markdown with code is formatted as Pynb``() =
+
+  // Note the parsing options used for markdown --> ipynb mean most the markdown (except code) is parsed throuhh
+  // unchanged
   let md = Literate.ParseMarkdownString("""Heading
 =======
   
 With some [hyperlink](http://tomasp.net)
   
     let hello = "Code sample"
-  """)
+  """, parseOptions=MarkdownParseOptions.ParseNonCodeAsOther)
   let pynb = Literate.ToPynb(md)
   printfn "----" 
   printfn "%s" pynb
   printfn "----" 
   pynb |> shouldContainText """ "cells": ["""
   pynb |> shouldContainText """ "cell_type": "markdown","""
-  pynb |> shouldContainText """ "source": ["#Heading\n","""
+  pynb |> shouldContainText """ "source": ["Heading\n","""
+  pynb |> shouldContainText """"=======\n","""
   pynb |> shouldContainText """With some [hyperlink](http://tomasp.net)"""
   pynb |> shouldContainText """ "cell_type": "code","""
   pynb |> shouldContainText """ "execution_count": null, "outputs": [], """
@@ -620,24 +624,121 @@ With some [hyperlink](http://tomasp.net)
   
   
 [<Test>]
-let ``Script with markdown is formatted as Pynb``() =
+let ``Script with markdown is formatted as Pynb with all markdown passed through``() =
   let md = Literate.ParseScriptString("""
 (**
 Heading
 =======
 
+|  Col1 | Col2 |
+|:----:|------|
+|  Table with heading cell A1   | Table with heading cell B1    |
+|  Table with heading cell A2   | Table with heading cell B2    |
+
+|:----:|------|
+|  Table without heading cell A1   | Table without heading cell B1    |
+|  Table without heading cell A2   | Table without heading cell B2    |
+
+
+```emptyblockcode
+```
+
+```singlelineblockcode
+single line block code
+```
+
+```
+two line block code line 1
+two line block code line 2
+```
+
+> hello
+
+> two line blockquote line 1
+> two line blockquote line 2
+
+two line paragraph line 1
+two line paragraph line 2
+
+- list block line 1
+- list block line 2
+
+Another paragraph
+
+- list block with gap line 1
+
+- list block with gap line 2
+
+Another paragraph
+
+1. ordered list block line 1
+2. ordered list block line 2
+
+Another paragraph
+
+1. ordered list block with gap line 1
+
+2. ordered list block with gap line 2
+
 With some [hyperlink](http://tomasp.net)
 *)
 let hello = "Code sample"
-""")
+(*** condition: ipynb ***)
+#if IPYNB
+let hello1 = 1 // Conditional code is still present in notebooks
+#endif // IPYNB
+(*** condition: fsx ***)
+let hello2 = 2 // Conditional code is not present in notebooks
+(*** condition: formatting ***)
+let hello3 = 3 // Formatting code is not present in notebooks
+(*** condition: html ***)
+let hello4 = 4 // Conditional code is not present in notebooks
+(*** condition: prepare ***)
+let hello5 = 4 // Doc preparation code is not present in generated notebooks
+
+""", parseOptions=(MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther))
   let pynb = Literate.ToPynb(md)
   printfn "----" 
   printfn "%s" pynb
   printfn "----" 
   pynb |> shouldContainText """ "cells": ["""
   pynb |> shouldContainText """ "cell_type": "markdown","""
-  pynb |> shouldContainText """ "source": ["#Heading\n","""
+  pynb |> shouldContainText """ "source": ["Heading"""
+  pynb |> shouldContainText """====="""
+  pynb |> shouldContainText """```emptyblockcode"""
+  pynb |> shouldContainText """|  Table with heading cell A2"""
+  pynb |> shouldContainText """|  Col1 | Col2 |"""
+  pynb |> shouldContainText """|:----:|------|"""
+  pynb |> shouldContainText """|  Table with heading cell A1   | Table with heading cell B1    |"""
+  pynb |> shouldContainText """|  Table with heading cell A2   | Table with heading cell B2    |"""
+  pynb |> shouldContainText """|:----:|------|"""
+  pynb |> shouldContainText """|  Table without heading cell A1   | Table without heading cell B1    |"""
+  pynb |> shouldContainText """|  Table without heading cell A2   | Table without heading cell B2    |"""
+  pynb |> shouldContainText """```emptyblockcode"""
+  pynb |> shouldContainText """```singlelineblockcode"""
+  pynb |> shouldContainText """single line block code"""
+  pynb |> shouldContainText """two line block code line 1"""
+  pynb |> shouldContainText """two line block code line 2"""
+  pynb |> shouldContainText """\u003e hello"""
+  pynb |> shouldContainText """\u003e two line blockquote line 1"""
+  pynb |> shouldContainText """\u003e two line blockquote line 2"""
+  pynb |> shouldContainText """two line paragraph line 1"""
+  pynb |> shouldContainText """two line paragraph line 2"""
+  pynb |> shouldContainText """- list block line 1"""
+  pynb |> shouldContainText """- list block line 2"""
+  pynb |> shouldContainText """- list block with gap line 1"""
+  pynb |> shouldContainText """- list block with gap line 2"""
+  pynb |> shouldContainText """1. ordered list block line 1"""
+  pynb |> shouldContainText """2. ordered list block line 2"""
+  pynb |> shouldContainText """1. ordered list block with gap line 1"""
+  pynb |> shouldContainText """2. ordered list block with gap line 2"""
   pynb |> shouldContainText """With some [hyperlink](http://tomasp.net)"""
+  pynb |> shouldContainText """let hello1 = 1 // Conditional code is still present in notebooks"""
+  pynb |> shouldNotContainText """#if IPYNB"""
+  pynb |> shouldNotContainText """#endif"""
+  pynb |> shouldNotContainText """Conditional code is not present in notebooks"""
+  pynb |> shouldNotContainText """Formatting code is not present in notebooks"""
+  pynb |> shouldNotContainText """Doc preparation code is not present in generated notebooks"""
   pynb |> shouldContainText """ "cell_type": "code","""
   pynb |> shouldContainText """ "execution_count": null, "outputs": [], """
   pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
@@ -650,3 +751,63 @@ let hello = "Code sample"
   pynb |> shouldContainText """ "nbformat_minor": 1"""
   
   
+[<Test>]
+let ``Notebook output is exactly right``() =
+  let md = Literate.ParseScriptString("""
+let hello = 1
+
+let goodbye = 2
+""", parseOptions=(MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther))
+  let pynb = Literate.ToPynb(md)
+  printfn "----" 
+  printfn "%s" pynb
+  printfn "----" 
+  let pynb2 = pynb.Replace("\r\n", "\n").Replace("\n", "!")
+  let expected = """
+        {
+            "cells": [
+          {
+           "cell_type": "code",
+           "metadata": {},
+            "execution_count": null, "outputs": [], 
+           "source": ["let hello = 1\n",
+"\n",
+"let goodbye = 2\n"]
+          }],
+            "metadata": {
+            "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},
+            "langauge_info": {
+        "file_extension": ".fs",
+        "mimetype": "text/x-fsharp",
+        "name": "C#",
+        "pygments_lexer": "fsharp",
+        "version": "4.5"
+        }
+        },
+            "nbformat": 4,
+            "nbformat_minor": 1
+        }
+        """
+  let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+  pynb2 |> shouldEqual expected2
+
+  
+[<Test>]
+let ``Script output is exactly right``() =
+  let md = Literate.ParseScriptString("""
+let hello = 1
+
+let goodbye = 2
+""", parseOptions=(MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther))
+  let fsx = Literate.ToFsx(md)
+  printfn "----" 
+  printfn "%s" fsx
+  printfn "----" 
+  let fsx2 = fsx.Replace("\r\n", "\n").Replace("\n", "!")
+// NOTE: the script output is a bit trimmed, we should fix this
+  let expected = """let hello = 1
+
+let goodbye = 2"""
+  let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+  fsx2 |> shouldEqual expected2
+

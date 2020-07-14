@@ -246,7 +246,7 @@ type CodeFormatAgent() =
         }
 
         // Process the current line & return info about it
-        Line (loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
+        Line (lineStr, loop [] (List.ofSeq lineTokens) None |> List.ofSeq)
 
     /// Process snippet
     let processSnippet checkResults categorizedRanges lines (snippet: Snippet) =
@@ -353,6 +353,9 @@ type CodeFormatAgent() =
         // Run the second phase - perform type checking
         Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
         let! res = fsChecker.ParseAndCheckDocument(filePath, source,opts,false)
+
+        //printfn "opts = %A" source
+        //printfn "source = %A" source
         //fsChecker.InvalidateConfiguration(opts)
         //results.
         match res with
@@ -396,9 +399,9 @@ type CodeFormatAgent() =
                     // Remove additional whitespace from start of lines
                     let spaces = Helpers.countStartingSpaces lines
                     let parsed =  parsed |> List.map (function
-                        | Line ((TokenSpan.Token(kind, body, tip))::rest) ->
+                        | Line (originalLine, (TokenSpan.Token(kind, body, tip))::rest) ->
                             let body = body.Substring(spaces)
-                            Line ((TokenSpan.Token(kind, body, tip))::rest)
+                            Line (originalLine, (TokenSpan.Token(kind, body, tip))::rest)
                         | line -> line
                         )
                     // Return parsed snippet as 'Snippet' value
@@ -439,7 +442,7 @@ type CodeFormatAgent() =
             chnl.Reply(Choice2Of2(e)) // new Exception(Utilities.formatException e, e)))
         })
 
-    /// Parse the source code specified by 'source', assuming that it
+    /// Parse, check and annotate the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
     member __.AsyncParseSource(file, source, ?options, ?defines) = async {
@@ -448,14 +451,7 @@ type CodeFormatAgent() =
         | Choice1Of2 res -> return res
         | Choice2Of2 exn -> return Helpers.ediRaise exn }
 
-    /// Parse the source code specified by 'source', assuming that it
-    /// is located in a specified 'file'. Optional arguments can be used
-    /// to give compiler command line options and preprocessor definitions
-    member x.ParseSourceAsync(file, source, options, defines) =
-        x.AsyncParseSource(file, source, options, defines)
-        |> Async.StartAsTask
-
-    /// Parse the source code specified by 'source', assuming that it
+    /// Parse, check and annotate the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
     member __.ParseSource(file, source, ?options, ?defines) =

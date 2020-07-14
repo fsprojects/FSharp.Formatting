@@ -1,6 +1,7 @@
 ## 5.0.1-beta7
   - Update to FCS v36.0
-  - Add preliminary pynb support for Literate
+  - Add .ipynb output option for documents
+  - Add .fsx output option for documents
   - Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
   - MetadataFormat.Generate --> ApiDocs.GenerateHtml/ApiDocs.GenerateModel overloads
   - Fix Literate.* to do approximate (non-razor) templating/  
@@ -24,6 +25,7 @@
         "--inputDirectory" --> "--input"
         Add --nonPublic
         Add --xmlComments
+        Automatically populate metadata from project settings.
   - Add `fsdocs build` command to the documentation generator that has lots of sensible defaults.
 
 ## 4.1.0

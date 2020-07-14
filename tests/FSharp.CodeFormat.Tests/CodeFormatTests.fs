@@ -22,7 +22,7 @@ let agent = CodeFormat.CreateAgent()
 // Check that snippet constains a specific span
 let containsSpan f snips =
   snips |> Seq.exists (fun (Snippet(_, lines)) ->
-    lines |> Seq.exists (fun (Line spans) -> spans |> Seq.exists f))
+    lines |> Seq.exists (fun (Line (_, spans)) -> spans |> Seq.exists f))
 
 // Check that tool tips contains a specified token
 let (|ToolTipWithLiteral|_|) text tips =
@@ -315,13 +315,13 @@ let ``Simple code snippet is formatted as Latex``() =
     content |> shouldContainText (sprintf @"\kwd{let} \id{hello} \ops{=} \num{10}")
     content |> shouldContainText (sprintf @"\end{Verbatim}")
 
-let getPynb (source: string) =
+let getFsx (source: string) =
   let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
-  let res = CodeFormat.FormatPynb(snips)
+  let res = CodeFormat.FormatFsx(snips)
   (Seq.head res.Snippets).Content
 
 [<Test>]
-let ``Simple code snippet is formatted as Pynb code cell content``() =
-    let content = getPynb """let hello = 10"""
-    content |> shouldContainText "let hello = 10"
+let ``Simple code snippet is formatted as code cell content``() =
+    let content = getFsx """let hello = 10"""
+    content |> shouldEqual "let hello = 10"
 

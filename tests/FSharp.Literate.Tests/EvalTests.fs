@@ -41,10 +41,10 @@ printf ">>%d<<" 12343
 
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
 
-  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Diagnostics |> Seq.length |> shouldEqual 0
   // Contains formatted code and markdown
   doc.Paragraphs |> shouldMatchPar (function
-    | MarkdownPatterns.LiterateParagraph(LiterateCode(_, _)) -> true | _ -> false)
+    | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
   doc.Paragraphs |> shouldMatchPar (function
     | Paragraph([Strong([Literal("hello", _)], _)], _) -> true | _ -> false)
 
@@ -83,7 +83,7 @@ test2 + 16
 
   let doc = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = getFsiEvaluator())
 
-  doc.Errors |> Seq.length |> shouldEqual 0
+  doc.Diagnostics |> Seq.length |> shouldEqual 0
   // Contains transformed output
   doc.Paragraphs |> shouldMatchPar (function
     | OutputBlock ("42", "text/plain", Some 2) -> true | _ -> false)
@@ -360,8 +360,16 @@ $$$
   \frac{x}{y} > 5.4
   
 *)
+
+(*** condition: prepare ***)
+10000 + 20001
+(*** include-it ***)
 """
-  let md = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let md =
+      Literate.ParseScriptString(content, "." </> "A.fsx",
+          formatAgent=getFormatAgent(),
+          fsiEvaluator=fsie,
+          parseOptions=(MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther))
   let pynb = Literate.ToPynb(md)
   printfn "----" 
   printfn "%s" pynb
@@ -377,3 +385,4 @@ $$$
   pynb |> shouldNotContainText """execution_count": null""" // all cells are executed
   pynb |> shouldContainText """\begin{equation}"""
   pynb |> shouldContainText """\end{equation}"""
+  pynb |> shouldContainText """30001"""

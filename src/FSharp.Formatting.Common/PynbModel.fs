@@ -143,7 +143,7 @@ type Notebook =
             (this.cells |> Array.map string |> String.concat "\n,") 
             this.metadata this.nbformat this.nbformat_minor
 
-let internal splitLines (s: string) = s.Split([|'\n';'\r'|])
+let internal splitLines (s: string) = s.Replace("\r\n", "\n").Split([|'\n'|])
 
 let codeCell(lines: string[]) executionCount outputs = 
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd

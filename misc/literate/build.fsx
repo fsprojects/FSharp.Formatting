@@ -51,12 +51,12 @@ let processScriptAsLatex () =
   let file = relative "demo.fsx"
   let output = relative "output/demo-script.tex"
   let template = relative "templates/template-color.tex"
-  Literate.ConvertScriptFile(file, template=template, output=output format=OutputKind.Latex)
+  Literate.ConvertScriptFile(file, template=template, output=output, outputKind=OutputKind.Latex)
 
 /// Processes a single Markdown document and produce LaTeX output
 let processDocAsLatex () =
   let file = relative "demo.md"
   let output = relative "output/demo-doc.tex"
   let template = relative "templates/template-color.tex"
-  Literate.ConvertMarkdown(file, template=template, output=output format=OutputKind.Latex)
+  Literate.ConvertMarkdown(file, template=template, output=output, outputKind=OutputKind.Latex)
 
