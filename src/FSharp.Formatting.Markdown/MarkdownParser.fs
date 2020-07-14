@@ -740,20 +740,20 @@ let (|LatexBlock|_|) (lines:(string * MarkdownRange) list) =
   | (first, n) as _takenLine1::rest when (first.TrimEnd()) = "$$$" ->
       match rest with
       | TakeParagraphLines(body, rest) ->
-          Some("equation", body, (("\begin{equation}", n)::body@[("\end{equation}", n)]), rest)
+          Some("equation", body, ((@"\begin{equation}", n)::body@[(@"\end{equation}", n)]), rest)
       | _ -> None
   | ((first, n) as takenLine)::rest when first.TrimEnd().StartsWith("$$")  && first.TrimEnd().EndsWith("$$") && first.TrimEnd().Length >= 4 ->
       let text = first.TrimEnd()
       Some("equation", [ (text.[2..text.Length - 3], n) ], [takenLine], rest)
-  | ((first, _n) as takenLine)::rest when (first.TrimEnd()) = "\begin{equation}" ->
-      let body = rest |> List.takeWhile (fun s -> fst s <> "\end{equation}")
-      let res = rest |> List.skipWhile (fun s -> fst s <> "\end{equation}") 
+  | ((first, _n) as takenLine)::rest when (first.TrimEnd()) = @"\begin{equation}" ->
+      let body = rest |> List.takeWhile (fun s -> fst s <> @"\end{equation}")
+      let res = rest |> List.skipWhile (fun s -> fst s <> @"\end{equation}") 
       match res with
       | _::rest -> Some ("equation", body, takenLine::body,  rest)
       | [] -> None
-  | ((first, _n) as takenLine)::rest when (first.TrimEnd()) = "\begin{align}" ->
-      let body = rest |> List.takeWhile (fun s -> fst s <> "\end{align}")
-      let res = rest |> List.skipWhile (fun s -> fst s <> "\end{align}") 
+  | ((first, _n) as takenLine)::rest when (first.TrimEnd()) = @"\begin{align}" ->
+      let body = rest |> List.takeWhile (fun s -> fst s <> @"\end{align}")
+      let res = rest |> List.skipWhile (fun s -> fst s <> @"\end{align}") 
       match res with
       | _::rest -> Some ("align", body, takenLine::body, rest)
       | [] -> None

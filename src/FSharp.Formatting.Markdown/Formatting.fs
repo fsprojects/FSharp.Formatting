@@ -98,10 +98,10 @@ module internal MarkdownUtils =
     let rec formatParagraph (ctx: FormattingContext) paragraph =
         [  match paragraph with
             | LatexBlock(env, lines, _) ->
-                yield sprintf "\begin{%s}" env
+                yield sprintf "\\begin{%s}" env
                 for line in lines do
                     yield line
-                yield sprintf "\end{%s}"  env
+                yield sprintf "\\end{%s}"  env
                 yield ""
 
             | Heading(n, spans, _) -> 

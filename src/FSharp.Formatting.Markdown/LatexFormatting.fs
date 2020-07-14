@@ -112,11 +112,11 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
   match paragraph with
   | LatexBlock(env, lines, _) ->
     ctx.LineBreak(); ctx.LineBreak()
-    ctx.Writer.Write(sprintf "\begin{%s}" env); ctx.LineBreak()
+    ctx.Writer.Write(sprintf @"\begin{%s}" env); ctx.LineBreak()
     for line in lines do
       ctx.Writer.Write(line)
       ctx.LineBreak()
-    ctx.Writer.Write(sprintf "\end{%s}" env)
+    ctx.Writer.Write(sprintf @"\end{%s}" env)
     ctx.LineBreak(); ctx.LineBreak()
 
   | EmbedParagraphs(cmd, _) -> formatParagraphs ctx (cmd.Render())
