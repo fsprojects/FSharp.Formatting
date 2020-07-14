@@ -61,10 +61,9 @@ Target.create "AssemblyInfo" (fun _ ->
 Target.create "Clean" (fun _ ->
     !! artifactsDir
     ++ "temp"
-    ++ "output"
     |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
-    ["bin"; "temp"; "output"; "tests/bin"]
+    ["bin"; "temp"; "tests/bin"]
     |> Seq.iter Directory.ensure
 )
 
@@ -120,11 +119,11 @@ Target.create "NuGet" (fun _ ->
 
 let toolPath = "temp"
 
-let commandToolPath = toolPath </> "fsdocs" + (if Environment.isWindows then ".exe" else "")
-let commandToolStartInfo workingDirectory environmentVars args =
+let docsToolPath = toolPath </> "fsdocs" + (if Environment.isWindows then ".exe" else "")
+let docsToolStartInfo workingDirectory environmentVars args =
     (fun (info:ProcStartInfo) ->
         { info with
-            FileName = Path.GetFullPath commandToolPath
+            FileName = Path.GetFullPath docsToolPath
             Arguments = args
             WorkingDirectory = workingDirectory
         }
@@ -165,7 +164,7 @@ let docTool args =
   execute
     "Building documentation (CommandTool), this could take some time, please wait..."
     "generating documentation failed"
-    (commandToolStartInfo __SOURCE_DIRECTORY__ [] args)
+    (docsToolStartInfo __SOURCE_DIRECTORY__ [] args)
 
 
 let createArg argName arguments =
@@ -176,7 +175,6 @@ let createArg argName arguments =
 
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir "temp"
-    Shell.cleanDir "output"
     let result =
         DotNet.exec
             (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
@@ -184,7 +182,7 @@ Target.create "GenerateDocs" (fun _ ->
 
     if not result.OK then failwith "failed to install fsdocs as dotnet tool"
 
-    docTool (sprintf "build docs"))
+    docTool (sprintf "build docs --clean"))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
