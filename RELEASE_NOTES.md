@@ -1,3 +1,7 @@
+## 5.0.5
+
+  - Correct behaviour of '--clean'
+
 ## 5.0.4
 
   - Fix emit of odd character in latex output
