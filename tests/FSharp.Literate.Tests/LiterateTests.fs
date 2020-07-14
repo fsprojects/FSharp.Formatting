@@ -583,8 +583,8 @@ With some [hyperlink](http://tomasp.net)
   printfn "----" 
   printfn "%s" latex
   printfn "----" 
-  latex |> shouldContainText "\section*{Heading}"
-  latex |> shouldContainText "With some \href{http://tomasp.net}{hyperlink}"
+  latex |> shouldContainText @"\section*{Heading}"
+  latex |> shouldContainText @"With some \href{http://tomasp.net}{hyperlink}"
   latex |> shouldContainText @"\begin{Verbatim}[commandchars=\\\{\}, numbers=left]"
   latex |> shouldContainText """\kwd{let} \id{hello} \ops{=} \str{"Code sample"}"""
   latex |> shouldContainText """\end{Verbatim}"""
