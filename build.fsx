@@ -202,7 +202,7 @@ Target.create "ReleaseDocs" (fun _ ->
 
 Target.create "PushPackagesToNugetOrg" (fun _ ->
     let source = "https://api.nuget.org/v3/index.json"
-    let apikey =  Environment.environVarOrDefault "NUGET_KEY" ""
+    let apikey =  Environment.environVar "NUGET_KEY"
     for artifact in !! (artifactsDir + "/*nupkg") do
         let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
         if not result.OK then failwith "failed to push packages"  
@@ -219,7 +219,7 @@ Target.create "PushReleaseToGithub" (fun _ ->
 
 Target.create "CreateTag" (fun _ ->
     Git.Branches.tag "" release.NugetVersion
-    Git.Branches.pushTag "" "origin" release.NugetVersion
+    Git.Branches.pushTag "" projectRepo release.NugetVersion
 )
 
 Target.create "Root" ignore
