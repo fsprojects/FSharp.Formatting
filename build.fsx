@@ -289,10 +289,13 @@ Target.create "CreateTestJson" (fun _ ->
   ==> "GenerateDocs"
   ==> "All"
 
+"GenerateDocs"
+  ==> "ReleaseDocs"
+  ==> "Release"
+
 "All"
   ==> "CreateTag"
   ==> "PushPackagesToNugetOrg"
-  ==> "ReleaseDocs"
   ==> "PushReleaseToGithub"
   ==> "Release"
 
