@@ -31,26 +31,22 @@
       <hr />
       <div class="row">
         <div class="span9" id="main">
-          <h1><a name="F-Formatting-Documentation-tools" class="anchor" href="#F-Formatting-Documentation-tools">F# Formatting: Documentation tools</a></h1>
+          <p><a href="https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=index.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Binder" /></a></p>
+<h1><a name="F-Formatting-Documentation-tools" class="anchor" href="#F-Formatting-Documentation-tools">F# Formatting: Documentation tools</a></h1>
 <p>The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
 for documentation generation.</p>
 <p>Functionality from the F# Formatting package is used by the <a href="https://github.com/TheAngryByrd/MiniScaffold/">MiniScaffold template</a>
 that is used by a large number of open source .NET projects, as well as Waypoint and many other repositories.</p>
-<p>F# Formatting can be used as a .NET tool called <code>fsdocs</code>:</p>
+<p>F# Formatting can be used as a .NET tool called <a href="commandline.html"><code>fsdocs</code></a>:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
-<span class="id">fsdocs</span> <span class="id">build</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span> 
-<span class="id">fsdocs</span> <span class="id">convert</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span><span class="o">/</span><span class="id">scripts</span> <span class="o">--</span><span class="id">format</span> <span class="id">latex</span>
-<span class="id">fsdocs</span> <span class="id">api</span> <span class="o">--</span><span class="id">dlls</span> <span class="id">bin</span><span class="o">/</span><span class="id">MyLibrary</span><span class="pn">.</span><span class="id">dll</span> <span class="o">--</span><span class="id">template</span> <span class="id">docs</span><span class="o">/</span><span class="id">tools</span><span class="o">/</span><span class="id">reference</span><span class="o">/</span><span class="id">_template</span><span class="pn">.</span><span class="id">html</span>
+<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">build</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span> 
 </code></pre></td>
 </tr>
 </table>
-<p>The F# Formatting package is also <a href="https://nuget.org/packages/FSharp.Formatting">available on NuGet</a> if you want to use
-it as a library or from a script. The NuGet package comes with a load script <code>FSharp.Formatting.fsx</code> that references all the required DLLs
+<p>The F# Formatting package is also <a href="https://nuget.org/packages/FSharp.Formatting">available on NuGet</a> as a set of libraries. The NuGet package comes with a load script <code>FSharp.Formatting.fsx</code> that references all the required DLLs
 and paths.</p>
 <p>The sub-components are:</p>
 <ul>
