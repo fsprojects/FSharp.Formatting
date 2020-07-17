@@ -20,15 +20,15 @@ in the solution according to the rules of [API doc generation](metadata.html)
 
 The expected structure for a docs directory is
 
-    docs\**\*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
-    docs\**\*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
-    docs\**\*                     -- other content, copied over
-    docs\**\_template.html        -- specifies the default HTML template for this directory and its contents
-    docs\**\_template.tex         -- specifies Latex files should also be generated
-    docs\**\_template.ipynb       -- specifies F# ipynb files should also be generated
-    docs\**\_template.fsx         -- specifies F# fsx files should also be generated (even from markdown)
-    docs\reference\_template.html -- optionally specifies the default template for reference docs
-]
+    docs/**/*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
+    docs/**/*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
+    docs/**/*                     -- other content, copied over
+    docs/**/_template.html        -- specifies the default HTML template for this directory and its contents
+    docs/**/_template.tex         -- specifies Latex files should also be generated
+    docs/**/_template.ipynb       -- specifies F# ipynb files should also be generated
+    docs/**/_template.fsx         -- specifies F# fsx files should also be generated (even from markdown)
+    docs/reference/_template.html -- optionally specifies the default template for reference docs
+
 The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
 
 Template files are as follows:
