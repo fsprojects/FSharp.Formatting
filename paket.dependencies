@@ -7,6 +7,7 @@ nuget FSharp.Compiler.Service ~> 36.0
 nuget CommandLineParser ~> 2.8
 nuget Dotnet.ProjInfo
 nuget Dotnet.ProjInfo.Workspace
+nuget Newtonsoft.Json
 
 nuget Microsoft.CodeAnalysis.CSharp ~> 3.6
 

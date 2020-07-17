@@ -200,25 +200,24 @@ type CoreBuildOptions(watch) =
         let mutable res = 0
         use watcher = (if watch then new FileSystemWatcher(x.input) else null )
 
-
-        let projectOutputs, paths, parameters, repoUrlOption =
+        let projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption =
           let projects = Seq.toList x.projects
           let cacheFile = ".fsdocs/cache"
           Utils.cacheBinary cacheFile projects.IsEmpty (fun () ->
             if x.noApiDocs then
-                [], [], [], None
+                "", [], [], [], "", None
             else
               let slnDir = Path.GetFullPath "."
                 
               //printfn "x.projects = %A" x.projects
-              let slnName, projectFiles =
+              let projectName, projectFiles =
                 match projects with
                 | [] ->
                     match Directory.GetFiles(slnDir, "*.sln") with
                     | [| sln |] ->
                         printfn "getting projects from solution file %s" sln
-                        let slnName = Path.GetFileNameWithoutExtension(sln)
-                        slnName, Crack.getProjectsFromSlnFile sln
+                        let projectName = Path.GetFileNameWithoutExtension(sln)
+                        projectName, Crack.getProjectsFromSlnFile sln
                     | _ -> 
                         let projectFiles =
                             [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
@@ -226,12 +225,12 @@ type CoreBuildOptions(watch) =
                                  yield! Directory.EnumerateFiles(d, "*.fsproj")
                                  for d2 in Directory.EnumerateDirectories(d) do
                                     yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
-                        let slnName = Path.GetFileName(slnDir)
-                        slnName, projectFiles
+                        let projectName = Path.GetFileName(slnDir)
+                        projectName, projectFiles
                             
                 | projectFiles -> 
-                    let slnName = Path.GetFileName(slnDir)
-                    slnName, projectFiles
+                    let projectName = Path.GetFileName(slnDir)
+                    projectName, projectFiles
             
               //printfn "projects = %A" projectFiles
               let projectFiles =
@@ -284,7 +283,7 @@ type CoreBuildOptions(watch) =
                     | None ->
                         printfn "no project defined <%s>, the {{%s}} substitution will not be replaced in any HTML templates" nm tag ;
                         "{{" + tag + "}}"
-              let root = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
+              let packageProjectUrl = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
               let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
               //let description = tryFindValue (fun info -> info.Description) "Description" "description"
               let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
@@ -297,8 +296,8 @@ type CoreBuildOptions(watch) =
               let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
               let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
               let parameters = 
-                [ "project-name", slnName
-                  "root", root
+                [ "project-name", projectName
+                  "root", packageProjectUrl
                   "authors", authors
                   //"description", description
                   "repository-url", repoUrl
@@ -312,7 +311,7 @@ type CoreBuildOptions(watch) =
               let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
               let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
 
-              projectOutputs, paths, parameters, repoUrlOption)
+              projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption)
 
         let run () =
             try
@@ -344,17 +343,24 @@ type CoreBuildOptions(watch) =
                             None
 
                     if not x.noApiDocs then
-                        ApiDocs.GenerateHtml (
+                        let outdir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference"))
+                        let index =
+                          ApiDocs.GenerateHtml (
                             dllFiles = projectOutputs,
-                            outDir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference")),
+                            outDir = outdir,
                             parameters = parameters,
                             ?template = initialTemplate2,
                             ?sourceRepo = repoUrlOption,
+                            collectionName = projectName,
+                            rootUrl = packageProjectUrl,
                             //?sourceFolder = (evalString x.sourceFolder),
                             libDirs = paths,
                             ?publicOnly = Some (not x.nonPublic),
                             ?markDownComments = Some (not x.xmlComments)
                             )
+                        let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
+
+                        File.WriteAllText(Path.Combine(outdir, "index.json"), indxTxt)
 
             with
                 | :?AggregateException as ex ->

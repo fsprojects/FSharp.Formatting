@@ -13,7 +13,7 @@ let obsoleteMessage msg =
         p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
     ]
 
-let nestedTypesAndModules (entities: Choice<FSharp.Formatting.ApiDocs.Type, Module> list) =
+let nestedTypesAndModules (entities: Choice<ApiDocType, ApiDocModule> list) =
   [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (function Choice1Of2 _ -> true | _ -> false)
       let hasModules = entities |> List.exists (function Choice2Of2 _ -> true | _ -> false)
@@ -60,7 +60,7 @@ let renderWithToolTip content tip =
            OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
     div [Class "tip"; Id id ] tip
   ]
-let renderMembers header tableHeader (members: Member list) =
+let renderMembers header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
        table [Class "table table-bordered member-list"] [
@@ -75,18 +75,18 @@ let renderMembers header tableHeader (members: Member list) =
              tr [] [
                td [Class "member-name"] [
                  renderWithToolTip [
-                   !! HttpUtility.HtmlEncode(m.Details.FormatUsage(40)) 
+                   !! HttpUtility.HtmlEncode(m.FormatUsage(40)) 
                  ] [
                     strong [] [!! "Signature:"]
-                    !! HttpUtility.HtmlEncode(m.Details.Signature)
+                    !! HttpUtility.HtmlEncode(m.Signature)
                     br []
-                    if not m.Details.Modifiers.IsEmpty then
+                    if not m.Modifiers.IsEmpty then
                       strong [] [!! "Modifiers:"]
-                      !! HttpUtility.HtmlEncode(m.Details.FormatModifiers)
+                      !! HttpUtility.HtmlEncode(m.FormatModifiers)
                       br []
-                    if not (m.Details.TypeArguments.IsEmpty) then
+                    if not (m.TypeArguments.IsEmpty) then
                       strong [] [!!"Type parameters: "]
-                      !!m.Details.FormatTypeArguments
+                      !!m.FormatTypeArguments
                  ]
                ]
             
@@ -94,8 +94,8 @@ let renderMembers header tableHeader (members: Member list) =
                   !!m.Comment.FullText
                   if m.IsObsolete then
                       obsoleteMessage m.ObsoleteMessage
-                  if not (String.IsNullOrEmpty(m.Details.FormatSourceLocation)) then
-                    a [Href (m.Details.FormatSourceLocation); Class"github-link" ] [
+                  if not (String.IsNullOrEmpty(m.FormatSourceLocation)) then
+                    a [Href (m.FormatSourceLocation); Class"github-link" ] [
                       img [Src "../content/img/github.png"; Class "normal"]
                       img [Src "../content/img/github-blue.png"; Class "hover"]
                     ]
@@ -107,7 +107,7 @@ let renderMembers header tableHeader (members: Member list) =
         ]
     ]
 
-let moduleContent (info: ModuleInfo) =
+let moduleContent (info: ApiDocModuleInfo) =
   // Get all the members & comment for the type
   let members = info.Module.AllMembers
   let comment = info.Module.Comment
@@ -183,12 +183,12 @@ let moduleContent (info: ModuleInfo) =
       | None -> ()
       | Some key ->
          div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = MemberKind.ValueOrFunction)))
-      div [] (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = MemberKind.TypeExtension)))
-      div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = MemberKind.ActivePattern)))
+      div [] (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
+      div [] (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
+      div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
   ]
 
-let typeContent (info: TypeInfo) =
+let typeContent (info: ApiDocTypeInfo) =
   let members = info.Type.AllMembers
   let comment = info.Type.Comment
   let entity = info.Type
@@ -204,7 +204,7 @@ let typeContent (info: TypeInfo) =
     |> List.groupBy(fun m -> m.Category)
     |> List.sortBy(fun (g, ms) -> if String.IsNullOrEmpty(g) then "ZZZ" else g)
     |> List.mapi (fun n (g, ms) -> 
-        let ms = ms |> List.sortBy(fun m -> if (m.Kind = MemberKind.StaticParameter) then "" else m.Name)
+        let ms = ms |> List.sortBy(fun m -> if (m.Kind = ApiDocMemberKind.StaticParameter) then "" else m.Name)
         let name = (if String.IsNullOrEmpty(g) then "Other type members" else g)
         (n, g, ms, name))
 
@@ -250,15 +250,15 @@ let typeContent (info: TypeInfo) =
       | None -> ()
       | Some key ->
          div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = MemberKind.UnionCase)))
-      div [] (renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = MemberKind.RecordField)))
-      div [] (renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = MemberKind.StaticParameter)))
-      div [] (renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = MemberKind.Constructor)))
-      div [] (renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = MemberKind.InstanceMember)))
-      div [] (renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = MemberKind.StaticMember)))
+      div [] (renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
+      div [] (renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
+      div [] (renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
+      div [] (renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
+      div [] (renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
+      div [] (renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
   ]
     
-let namespacesContent (asm: AssemblyGroup) =
+let namespacesContent (asm: ApiDocAssemblyGroup) =
   [ h1 [] [!! asm.Name]
     for (nsIndex, ns) in Seq.indexed asm.Namespaces do
       let entities =

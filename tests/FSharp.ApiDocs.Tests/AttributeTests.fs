@@ -47,12 +47,12 @@ printfn "\n-- TestBin - %s" testBin;;
 do FSharp.Formatting.TestHelpers.enableLogging()
 let library = testBin </> "AttributesTestLib.dll"
 
-let findModule name (moduleInfos: ModuleInfo list)=
+let findModule name (moduleInfos: ApiDocModuleInfo list)=
     moduleInfos
     |> List.map (fun m-> m.Module)
     |> List.find (fun m-> m.Name = name)
 
-let findType name (typeInfos: TypeInfo list)=
+let findType name (typeInfos: ApiDocTypeInfo list)=
     typeInfos
     |> List.map (fun t -> t.Type)
     |> List.find (fun t-> t.Name = name)
@@ -153,7 +153,7 @@ let ``ApiDocs extracts Attribute on instance member in class``() =
 let ``ApiDocs extracts Attribute on class constructor``() =
   let typeInfos = ApiDocs.GenerateModel([library], info, libDirs = [testBin]).TypesInfos
   let class' = typeInfos |> findType "AttributeClass"
-  let ctor = class'.Constructors |> Seq.find (fun v -> v.Details.Signature ="i:int -> AttributeClass")
+  let ctor = class'.Constructors |> Seq.find (fun v -> v.Signature ="i:int -> AttributeClass")
   let attribute = ctor.Attributes.Head
   attribute.Name |> shouldEqual "TestAttribute"
   attribute.FullName |> shouldEqual "AttributeTestNamespace.TestAttribute"

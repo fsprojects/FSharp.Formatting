@@ -67,10 +67,11 @@ let ``ApiDocs works on sample Deedle assembly``() =
   let library = root </> "files" </> "Deedle.dll"
   let output = getOutputDir "Deedle"
 
-  ApiDocs.GenerateHtml
-    ( [library], output, template=docTemplate, parameters=parameters, libDirs = [testBin],
-      sourceRepo = "https://github.com/fslaborg/Deedle/",
-      sourceFolder = "c:/dev/FSharp.DataFrame")
+  let index =
+      ApiDocs.GenerateHtml
+        ( [library], output, template=docTemplate, parameters=parameters, libDirs = [testBin],
+          sourceRepo = "https://github.com/fslaborg/Deedle/",
+          sourceFolder = "c:/dev/FSharp.DataFrame")
   let files = Directory.GetFiles(output)
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -83,7 +84,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
 let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir "FakeLib"
-  ApiDocs.GenerateHtml([library], output, template=docTemplate, parameters=parameters)
+  let searchIndex = ApiDocs.GenerateHtml([library], output, template=docTemplate, parameters=parameters)
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
@@ -94,7 +95,8 @@ let ``ApiDocs works on two sample F# assemblies``() =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
   let output = getOutputDir "FsLib12"
-  ApiDocs.GenerateHtml(libraries, output, template=docTemplate, parameters=parameters, libDirs = [testBin])
+  let searchIndex = ApiDocs.GenerateHtml(libraries, output, template=docTemplate, collectionName="FsLibs", rootUrl="http://root.io/root", parameters=parameters, libDirs = [testBin])
+
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -139,12 +141,22 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArgTupled(arg)"
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultPartial arg1 arg2"
 
+  let indxTxt = searchIndex |> Newtonsoft.Json.JsonConvert.SerializeObject
+
+  // Test a few entries in the search index
+  indxTxt |> shouldContainText "\"uri\""
+  indxTxt |> shouldContainText "\"content\""
+  indxTxt |> shouldContainText "\"title\""
+  indxTxt |> shouldContainText "http://root.io/root/reference/FsLibs/fslib-nested-submodule-verynestedtype.html#Member"
+  indxTxt |> shouldContainText "http://root.io/root/reference/FsLibs/fslib-test_issue472_t.html#MultArg"
+  indxTxt |> shouldContainText """ITest_Issue229.Name \nName \n"""
+  indxTxt |> shouldContainText """DuplicatedTypeName \n<p>This type name will be duplicated in"""
+
 [<Test>]
 let ``ApiDocs model generation works on two sample F# assemblies``() =
   let libraries =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
-  let output = getOutputDir "FsLib12"
   let model = ApiDocs.GenerateModel(libraries, parameters=parameters, libDirs = [testBin])
   model.AssemblyGroup.Assemblies.Length |> shouldEqual 2
   model.AssemblyGroup.Assemblies.[0].Name |> shouldEqual "FsLib1"
@@ -162,10 +174,11 @@ let ``ApiDocs generates Go to GitHub source links``() =
       testBin  </> "FsLib2.dll" ] |> fullpaths
   let output = getOutputDir "FsLib12_SourceLinks"
   printfn "Output: %s" output
-  ApiDocs.GenerateHtml
-    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
-      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-      sourceFolder = (root </> "../..") )
+  let searchIndex =
+    ApiDocs.GenerateHtml
+      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
+        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+        sourceFolder = (root </> "../..") )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
@@ -184,11 +197,12 @@ let ``ApiDocs test that cref generation works``() =
       testBin  </> "crefLib4.dll" ] |> fullpaths
   let output = getOutputDir "crefLibs"
   printfn "Output: %s" output
-  ApiDocs.GenerateHtml
-    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
-      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-      sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-      markDownComments = false )
+  let searchIndex =
+    ApiDocs.GenerateHtml
+      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
+        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+        sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+        markDownComments = false )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -250,12 +264,13 @@ let ``ApiDocs test that csharp (publiconly) support works``() =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir "csharpSupport"
   printfn "Output: %s" output
-  ApiDocs.GenerateHtml
-    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
-      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-      sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-      publicOnly = true,
-      markDownComments = false )
+  let searchIndex =
+    ApiDocs.GenerateHtml
+      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
+        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+        sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+        publicOnly = true,
+        markDownComments = false )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -304,12 +319,13 @@ let ``ApiDocs test that csharp support works``() =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir "csharpSupport_private"
   printfn "Output: %s" output
-  ApiDocs.GenerateHtml
-    ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
-      sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-      sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-      publicOnly = false,
-      markDownComments = false )
+  let searchIndex =
+    ApiDocs.GenerateHtml
+      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
+        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+        sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+        publicOnly = false,
+        markDownComments = false )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
