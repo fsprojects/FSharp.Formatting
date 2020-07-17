@@ -1,3 +1,10 @@
+## 6.0.1
+
+ - build the Lunr `index.json` from every execution of `fsdocs build`
+ - Make the search index entries available as part of the ApiDocs model
+ - Add `ApiDocs` prefix to all types in `ApiDocsModel`
+ - Remove `Details` from `ApiDocsModel`
+
 ## 5.0.4
 
   - Fix emit of odd character in latex output
