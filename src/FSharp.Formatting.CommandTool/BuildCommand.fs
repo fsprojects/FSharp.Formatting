@@ -383,10 +383,10 @@ type CoreBuildOptions(watch) =
 
         if x.clean then
             let rec clean dir =
-                for file in Directory.EnumerateFiles dir do
+                for file in Directory.EnumerateFiles(dir) do
                     File.Delete file |> ignore
                 for subdir in Directory.EnumerateDirectories dir do
-                   if not (subdir.StartsWith ".") then
+                   if not (Path.GetFileName(subdir).StartsWith ".") then
                        clean subdir
             if x.output <> "/" && x.output <> "." && Path.GetFullPath x.output <> Path.GetFullPath x.input && not (String.IsNullOrEmpty x.output) then
                 try clean (Path.GetFullPath x.output)

@@ -1,4 +1,23 @@
+(*** condition: prepare ***)
+#nowarn "211"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
+(*** condition: fsx ***)
+#if FSX
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // FSX
+(*** condition: ipynb ***)
+#if IPYNB
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // IPYNB
+
+
 (**
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
+
 F# Formatting: Literate programming
 ===================================
 
@@ -119,13 +138,6 @@ Typical literate setup
 ----------------------
 *)
 
-(*** hide ***)
-#nowarn "211"
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.Formatting.Markdown.dll"
-#r "FSharp.Formatting.CodeFormat.dll"
-#r "FSharp.Formatting.Literate.dll"
 (**
 For literate programming support in your project, install the `FSharp.Formatting` nuget package.
 

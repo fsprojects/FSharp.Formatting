@@ -1,4 +1,6 @@
-﻿F# Formatting: Documentation tools
+﻿[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=index.ipynb)
+
+F# Formatting: Documentation tools
 ==================================
 
 The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
@@ -7,15 +9,12 @@ for documentation generation.
 Functionality from the F# Formatting package is used by the [MiniScaffold template](https://github.com/TheAngryByrd/MiniScaffold/) 
 that is used by a large number of open source .NET projects, as well as Waypoint and many other repositories.
 
-F# Formatting can be used as a .NET tool called `fsdocs`:
+F# Formatting can be used as a .NET tool called [`fsdocs`](commandline.html):
 
     dotnet tool install FSharp.Formatting.CommandTool
-    fsdocs build --input docs 
-    fsdocs convert --input docs/scripts --format latex
-    fsdocs api --dlls bin/MyLibrary.dll --template docs/tools/reference/_template.html
+    dotnet fsdocs build --input docs 
 
-The F# Formatting package is also [available on NuGet](https://nuget.org/packages/FSharp.Formatting) if you want to use
-it as a library or from a script. The NuGet package comes with a load script `FSharp.Formatting.fsx` that references all the required DLLs
+The F# Formatting package is also [available on NuGet](https://nuget.org/packages/FSharp.Formatting) as a set of libraries. The NuGet package comes with a load script `FSharp.Formatting.fsx` that references all the required DLLs
 and paths. 
 
 The sub-components are:

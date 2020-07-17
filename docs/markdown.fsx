@@ -1,6 +1,19 @@
-(*** hide ***)
+(*** condition: prepare ***)
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Markdown.dll"
+(*** condition: fsx ***)
+#if FSX
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // FSX
+(*** condition: ipynb ***)
+#if IPYNB
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // IPYNB
+
+
 (**
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=markdown.ipynb)
 F# Formatting: Markdown parser
 ==============================
 
@@ -11,8 +24,6 @@ how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.Formatting.Markdown.dll"
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.Common
 
