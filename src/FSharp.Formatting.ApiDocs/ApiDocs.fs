@@ -31,9 +31,9 @@ type ApiDocs =
     static member GenerateHtmlFromModel(model: ApiDocsModel, outDir, ?template) =
         GenerateHtml.Generate(model, outDir, template)
 
-    /// Generates default HTML pages for the given documentation model
+    /// Generates the search index from the given documentation model
     ///
-    ///  - `template` - the template to use for each documentation page
+    ///  - `rootUrl` - The root url of the generated documentation within the website
     static member GenerateSearchIndexFromModel(model: ApiDocsModel, rootUrl) =
         GenerateSearchIndex.generateSearchIndex rootUrl model 
 
