@@ -98,4 +98,29 @@ $( document ).ready(function() {
             location.href = item.getAttribute('data-uri');
         }
     });
+    var ajax;
+    jQuery('[data-search-input]').on('input', function() {
+        var input = jQuery(this),
+            value = input.val(),
+            items = jQuery('[data-nav-id]');
+        items.removeClass('search-match');
+        if (!value.length) {
+            $('ul.topics').removeClass('searched');
+            items.css('display', 'block');
+            sessionStorage.removeItem('search-value');
+            $(".highlightable").unhighlight({ element: 'mark' })
+            return;
+        }
+
+        sessionStorage.setItem('search-value', value);
+        $(".highlightable").unhighlight({ element: 'mark' }).highlight(value, { element: 'mark' });
+
+        if (ajax && ajax.abort) ajax.abort();
+
+        jQuery('[data-search-clear]').on('click', function() {
+            jQuery('[data-search-input]').val('').trigger('input');
+            sessionStorage.removeItem('search-input');
+            $(".highlightable").unhighlight({ element: 'mark' })
+        });
+    });
 });
