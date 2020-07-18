@@ -110,12 +110,60 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '359', 359)" onmouseover="showTip(event, '359', 359)">
-                CodeBlock(...)
+              <code onmouseout="hideTip(event, '364', 364)" onmouseover="showTip(event, '364', 364)">
+                <a name="CodeBlock">
+                  CodeBlock(...)
+                </a>
               </code>
-              <div class="tip" id="359">
+              <div class="tip" id="364">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                CodeBlock(code, executionCount, language, ignoredLine, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      code
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      executionCount
+                    </b>
+                    :
+                    int option
+                  </li>
+                  <li>
+                    <b>
+                      language
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      ignoredLine
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 string * int option * string * string * MarkdownRange option
                 <br/>
@@ -129,12 +177,39 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '360', 360)" onmouseover="showTip(event, '360', 360)">
-                EmbedParagraphs(customParagraphs, range)
+              <code onmouseout="hideTip(event, '365', 365)" onmouseover="showTip(event, '365', 365)">
+                <a name="EmbedParagraphs">
+                  EmbedParagraphs(customParagraphs, range)
+                </a>
               </code>
-              <div class="tip" id="360">
+              <div class="tip" id="365">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                EmbedParagraphs(customParagraphs, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      customParagraphs
+                    </b>
+                    :
+                    MarkdownEmbedParagraphs
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 MarkdownEmbedParagraphs * MarkdownRange option
                 <br/>
@@ -148,12 +223,46 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '361', 361)" onmouseover="showTip(event, '361', 361)">
-                Heading(size, body, range)
+              <code onmouseout="hideTip(event, '366', 366)" onmouseover="showTip(event, '366', 366)">
+                <a name="Heading">
+                  Heading(size, body, range)
+                </a>
               </code>
-              <div class="tip" id="361">
+              <div class="tip" id="366">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Heading(size, body, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      size
+                    </b>
+                    :
+                    int
+                  </li>
+                  <li>
+                    <b>
+                      body
+                    </b>
+                    :
+                    MarkdownSpans
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 int * MarkdownSpans * MarkdownRange option
                 <br/>
@@ -167,12 +276,39 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '362', 362)" onmouseover="showTip(event, '362', 362)">
-                HorizontalRule(character, range)
+              <code onmouseout="hideTip(event, '367', 367)" onmouseover="showTip(event, '367', 367)">
+                <a name="HorizontalRule">
+                  HorizontalRule(character, range)
+                </a>
               </code>
-              <div class="tip" id="362">
+              <div class="tip" id="367">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                HorizontalRule(character, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      character
+                    </b>
+                    :
+                    char
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 char * MarkdownRange option
                 <br/>
@@ -186,12 +322,46 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '363', 363)" onmouseover="showTip(event, '363', 363)">
-                InlineBlock(code, executionCount, range)
+              <code onmouseout="hideTip(event, '368', 368)" onmouseover="showTip(event, '368', 368)">
+                <a name="InlineBlock">
+                  InlineBlock(code, executionCount, range)
+                </a>
               </code>
-              <div class="tip" id="363">
+              <div class="tip" id="368">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                InlineBlock(code, executionCount, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      code
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      executionCount
+                    </b>
+                    :
+                    int option
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 string * int option * MarkdownRange option
                 <br/>
@@ -205,12 +375,46 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '364', 364)" onmouseover="showTip(event, '364', 364)">
-                LatexBlock(env, body, range)
+              <code onmouseout="hideTip(event, '369', 369)" onmouseover="showTip(event, '369', 369)">
+                <a name="LatexBlock">
+                  LatexBlock(env, body, range)
+                </a>
               </code>
-              <div class="tip" id="364">
+              <div class="tip" id="369">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                LatexBlock(env, body, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      env
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      body
+                    </b>
+                    :
+                    string list
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 string * string list * MarkdownRange option
                 <br/>
@@ -224,12 +428,46 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '365', 365)" onmouseover="showTip(event, '365', 365)">
-                ListBlock(kind, items, range)
+              <code onmouseout="hideTip(event, '370', 370)" onmouseover="showTip(event, '370', 370)">
+                <a name="ListBlock">
+                  ListBlock(kind, items, range)
+                </a>
               </code>
-              <div class="tip" id="365">
+              <div class="tip" id="370">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                ListBlock(kind, items, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      kind
+                    </b>
+                    :
+                    MarkdownListKind
+                  </li>
+                  <li>
+                    <b>
+                      items
+                    </b>
+                    :
+                    MarkdownParagraphs list
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 MarkdownListKind * MarkdownParagraphs list * MarkdownRange option
                 <br/>
@@ -243,12 +481,39 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '366', 366)" onmouseover="showTip(event, '366', 366)">
-                OtherBlock(lines, range)
+              <code onmouseout="hideTip(event, '371', 371)" onmouseover="showTip(event, '371', 371)">
+                <a name="OtherBlock">
+                  OtherBlock(lines, range)
+                </a>
               </code>
-              <div class="tip" id="366">
+              <div class="tip" id="371">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                OtherBlock(lines, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      lines
+                    </b>
+                    :
+                    (string * MarkdownRange) list
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (string * MarkdownRange) list * MarkdownRange option
                 <br/>
@@ -264,12 +529,46 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '367', 367)" onmouseover="showTip(event, '367', 367)">
-                OutputBlock(...)
+              <code onmouseout="hideTip(event, '372', 372)" onmouseover="showTip(event, '372', 372)">
+                <a name="OutputBlock">
+                  OutputBlock(...)
+                </a>
               </code>
-              <div class="tip" id="367">
+              <div class="tip" id="372">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                OutputBlock(output, kind, executionCount)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      output
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      kind
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      executionCount
+                    </b>
+                    :
+                    int option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 string * string * int option
                 <br/>
@@ -283,12 +582,39 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '368', 368)" onmouseover="showTip(event, '368', 368)">
-                Paragraph(body, range)
+              <code onmouseout="hideTip(event, '373', 373)" onmouseover="showTip(event, '373', 373)">
+                <a name="Paragraph">
+                  Paragraph(body, range)
+                </a>
               </code>
-              <div class="tip" id="368">
+              <div class="tip" id="373">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Paragraph(body, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      body
+                    </b>
+                    :
+                    MarkdownSpans
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 MarkdownSpans * MarkdownRange option
                 <br/>
@@ -302,12 +628,39 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '369', 369)" onmouseover="showTip(event, '369', 369)">
-                QuotedBlock(paragraphs, range)
+              <code onmouseout="hideTip(event, '374', 374)" onmouseover="showTip(event, '374', 374)">
+                <a name="QuotedBlock">
+                  QuotedBlock(paragraphs, range)
+                </a>
               </code>
-              <div class="tip" id="369">
+              <div class="tip" id="374">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                QuotedBlock(paragraphs, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      paragraphs
+                    </b>
+                    :
+                    MarkdownParagraphs
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 MarkdownParagraphs * MarkdownRange option
                 <br/>
@@ -321,12 +674,39 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '370', 370)" onmouseover="showTip(event, '370', 370)">
-                Span(body, range)
+              <code onmouseout="hideTip(event, '375', 375)" onmouseover="showTip(event, '375', 375)">
+                <a name="Span">
+                  Span(body, range)
+                </a>
               </code>
-              <div class="tip" id="370">
+              <div class="tip" id="375">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Span(body, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      body
+                    </b>
+                    :
+                    MarkdownSpans
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 MarkdownSpans * MarkdownRange option
                 <br/>
@@ -340,12 +720,53 @@ also embedded LaTeX blocks.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '371', 371)" onmouseover="showTip(event, '371', 371)">
-                TableBlock(...)
+              <code onmouseout="hideTip(event, '376', 376)" onmouseover="showTip(event, '376', 376)">
+                <a name="TableBlock">
+                  TableBlock(...)
+                </a>
               </code>
-              <div class="tip" id="371">
+              <div class="tip" id="376">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                TableBlock(headers, alignments, rows, range)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      headers
+                    </b>
+                    :
+                    MarkdownTableRow option
+                  </li>
+                  <li>
+                    <b>
+                      alignments
+                    </b>
+                    :
+                    MarkdownColumnAlignment list
+                  </li>
+                  <li>
+                    <b>
+                      rows
+                    </b>
+                    :
+                    MarkdownTableRow list
+                  </li>
+                  <li>
+                    <b>
+                      range
+                    </b>
+                    :
+                    MarkdownRange option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 MarkdownTableRow option * MarkdownColumnAlignment list * MarkdownTableRow list * MarkdownRange option
                 <br/>

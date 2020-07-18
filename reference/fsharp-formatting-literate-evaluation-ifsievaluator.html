@@ -112,17 +112,56 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '335', 335)" onmouseover="showTip(event, '335', 335)">
-                this.Evaluate(code, asExpression, file)
+              <code onmouseout="hideTip(event, '340', 340)" onmouseover="showTip(event, '340', 340)">
+                <a name="Evaluate">
+                  this.Evaluate(code, asExpression, file)
+                </a>
               </code>
-              <div class="tip" id="335">
+              <div class="tip" id="340">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                this.Evaluate(code, asExpression, file)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      code
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      asExpression
+                    </b>
+                    :
+                    bool
+                  </li>
+                  <li>
+                    <b>
+                      file
+                    </b>
+                    :
+                    string option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                IFsiEvaluationResult
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (code:string * asExpression:bool * file:string option) -&gt; IFsiEvaluationResult
                 <br/>
                 <strong>
-                  Modifiers:
+                  Modifiers: 
                 </strong>
                 abstract
                 <br/>
@@ -138,17 +177,56 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '336', 336)" onmouseover="showTip(event, '336', 336)">
-                this.Format(...)
+              <code onmouseout="hideTip(event, '341', 341)" onmouseover="showTip(event, '341', 341)">
+                <a name="Format">
+                  this.Format(...)
+                </a>
               </code>
-              <div class="tip" id="336">
+              <div class="tip" id="341">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                this.Format(result, kind, executionCount)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      result
+                    </b>
+                    :
+                    IFsiEvaluationResult
+                  </li>
+                  <li>
+                    <b>
+                      kind
+                    </b>
+                    :
+                    FsiEmbedKind
+                  </li>
+                  <li>
+                    <b>
+                      executionCount
+                    </b>
+                    :
+                    int
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                MarkdownParagraphs
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (result:IFsiEvaluationResult * kind:FsiEmbedKind * executionCount:int) -&gt; MarkdownParagraphs
                 <br/>
                 <strong>
-                  Modifiers:
+                  Modifiers: 
                 </strong>
                 abstract
                 <br/>

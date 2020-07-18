@@ -113,12 +113,25 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
-                CodeFormat.CreateAgent()
+              <code onmouseout="hideTip(event, '207', 207)" onmouseover="showTip(event, '207', 207)">
+                <a name="CreateAgent">
+                  CodeFormat.CreateAgent()
+                </a>
               </code>
-              <div class="tip" id="202">
+              <div class="tip" id="207">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                CodeFormat.CreateAgent()
+                <br/>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                CodeFormatAgent
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 unit -&gt; CodeFormatAgent
                 <br/>
@@ -135,12 +148,37 @@ using the F# compiler service.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '203', 203)" onmouseover="showTip(event, '203', 203)">
-                CodeFormat.FormatFsx(snippets)
+              <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
+                <a name="FormatFsx">
+                  CodeFormat.FormatFsx(snippets)
+                </a>
               </code>
-              <div class="tip" id="203">
+              <div class="tip" id="208">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                CodeFormat.FormatFsx(snippets)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      snippets
+                    </b>
+                    :
+                    seq&lt;Snippet&gt;
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                FormattedContent
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 snippets:seq&lt;Snippet&gt; -&gt; FormattedContent
                 <br/>
@@ -156,12 +194,93 @@ using the F# compiler service.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '204', 204)" onmouseover="showTip(event, '204', 204)">
-                CodeFormat.FormatHtml(...)
+              <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
+                <a name="FormatHtml">
+                  CodeFormat.FormatHtml(...)
+                </a>
               </code>
-              <div class="tip" id="204">
+              <div class="tip" id="209">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                CodeFormat.FormatHtml(snippets, prefix, openTag, closeTag, addLines, openLinesTag, closeLinesTag, addErrors, tokenKindToCss)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      snippets
+                    </b>
+                    :
+                    Snippet []
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      openTag
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      closeTag
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      addLines
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      openLinesTag
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      closeLinesTag
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      addErrors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      tokenKindToCss
+                    </b>
+                    :
+                    (TokenKind -&gt; string) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                FormattedContent
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (snippets:Snippet [] * prefix:string * openTag:string option * closeTag:string option * addLines:bool option * openLinesTag:string option * closeLinesTag:string option * addErrors:bool option * tokenKindToCss:(TokenKind -&gt; string) option) -&gt; FormattedContent
                 <br/>
@@ -178,12 +297,58 @@ be added to outputs and whether errors should be printed.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '205', 205)" onmouseover="showTip(event, '205', 205)">
-                CodeFormat.FormatLatex(...)
+              <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
+                <a name="FormatLatex">
+                  CodeFormat.FormatLatex(...)
+                </a>
               </code>
-              <div class="tip" id="205">
+              <div class="tip" id="210">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                CodeFormat.FormatLatex(snippets, openTag, closeTag, addLines)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      snippets
+                    </b>
+                    :
+                    Snippet []
+                  </li>
+                  <li>
+                    <b>
+                      openTag
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      closeTag
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      addLines
+                    </b>
+                    :
+                    bool option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                FormattedContent
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (snippets:Snippet [] * openTag:string option * closeTag:string option * addLines:bool option) -&gt; FormattedContent
                 <br/>

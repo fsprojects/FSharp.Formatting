@@ -116,12 +116,130 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '264', 264)" onmouseover="showTip(event, '264', 264)">
-                Literate.ConvertDirectory(...)
+              <code onmouseout="hideTip(event, '269', 269)" onmouseover="showTip(event, '269', 269)">
+                <a name="ConvertDirectory">
+                  Literate.ConvertDirectory(...)
+                </a>
               </code>
-              <div class="tip" id="264">
+              <div class="tip" id="269">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ConvertDirectory(inputDirectory, htmlTemplate, outputDirectory, formatAgent, prefix, compilerOptions, lineNumbers, references, fsiEvaluator, parameters, includeSource, generateAnchors, recursive, customizeDocument, tokenKindToCss)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      inputDirectory
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      htmlTemplate
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      outputDirectory
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      fsiEvaluator
+                    </b>
+                    :
+                    IFsiEvaluator option
+                  </li>
+                  <li>
+                    <b>
+                      parameters
+                    </b>
+                    :
+                    (string * string) list option
+                  </li>
+                  <li>
+                    <b>
+                      includeSource
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      recursive
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      customizeDocument
+                    </b>
+                    :
+                    (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option
+                  </li>
+                  <li>
+                    <b>
+                      tokenKindToCss
+                    </b>
+                    :
+                    (TokenKind -&gt; string) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (inputDirectory:string * htmlTemplate:string option * outputDirectory:string option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * fsiEvaluator:IFsiEvaluator option * parameters:(string * string) list option * includeSource:bool option * generateAnchors:bool option * recursive:bool option * customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option * tokenKindToCss:(TokenKind -&gt; string) option) -&gt; unit
                 <br/>
@@ -129,102 +247,7 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '265', 265)" onmouseover="showTip(event, '265', 265)">
-                Literate.ConvertDocument(...)
-              </code>
-              <div class="tip" id="265">
-                <strong>
-                  Signature:
-                </strong>
-                (doc:LiterateDocument * output:string * template:string option * outputKind:OutputKind option * prefix:string option * lineNumbers:bool option * includeSource:bool option * generateAnchors:bool option * parameters:(string * string) list option) -&gt; unit
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '266', 266)" onmouseover="showTip(event, '266', 266)">
-                Literate.ConvertMarkdown(...)
-              </code>
-              <div class="tip" id="266">
-                <strong>
-                  Signature:
-                </strong>
-                (input:string * template:string option * output:string option * outputKind:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * parameters:(string * string) list option * includeSource:bool option * generateAnchors:bool option * customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option) -&gt; unit
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '267', 267)" onmouseover="showTip(event, '267', 267)">
-                Literate.ConvertScriptFile(...)
-              </code>
-              <div class="tip" id="267">
-                <strong>
-                  Signature:
-                </strong>
-                (input:string * template:string option * output:string option * outputKind:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * fsiEvaluator:IFsiEvaluator option * parameters:(string * string) list option * includeSource:bool option * generateAnchors:bool option * customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option) -&gt; unit
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '268', 268)" onmouseover="showTip(event, '268', 268)">
-                Literate.FormatLiterateNodes(...)
-              </code>
-              <div class="tip" id="268">
-                <strong>
-                  Signature:
-                </strong>
-                (doc:LiterateDocument * outputKind:OutputKind option * prefix:string option * lineNumbers:bool option * generateAnchors:bool option * tokenKindToCss:(TokenKind -&gt; string) option) -&gt; LiterateDocument
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '269', 269)" onmouseover="showTip(event, '269', 269)">
-                Literate.ParseMarkdownFile(...)
-              </code>
-              <div class="tip" id="269">
-                <strong>
-                  Signature:
-                </strong>
-                (path:string * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:string list option * references:bool option * fsiEvaluator:IFsiEvaluator option * parseOptions:MarkdownParseOptions option) -&gt; LiterateDocument
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>Parse Markdown document</p>
+            <p>Convert markdown, script and other content into a static site</p>
 
 
           </td>
@@ -233,11 +256,608 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '270', 270)" onmouseover="showTip(event, '270', 270)">
-                Literate.ParseMarkdownString(...)
+                <a name="ConvertDocument">
+                  Literate.ConvertDocument(...)
+                </a>
               </code>
               <div class="tip" id="270">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ConvertDocument(doc, output, template, outputKind, prefix, lineNumbers, includeSource, generateAnchors, parameters)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      output
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      template
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      outputKind
+                    </b>
+                    :
+                    OutputKind option
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      includeSource
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      parameters
+                    </b>
+                    :
+                    (string * string) list option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (doc:LiterateDocument * output:string * template:string option * outputKind:OutputKind option * prefix:string option * lineNumbers:bool option * includeSource:bool option * generateAnchors:bool option * parameters:(string * string) list option) -&gt; unit
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Convert a document file into HTML or another output kind</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '271', 271)" onmouseover="showTip(event, '271', 271)">
+                <a name="ConvertMarkdown">
+                  Literate.ConvertMarkdown(...)
+                </a>
+              </code>
+              <div class="tip" id="271">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Literate.ConvertMarkdown(input, template, output, outputKind, formatAgent, prefix, compilerOptions, lineNumbers, references, parameters, includeSource, generateAnchors, customizeDocument)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      input
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      template
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      output
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      outputKind
+                    </b>
+                    :
+                    OutputKind option
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      parameters
+                    </b>
+                    :
+                    (string * string) list option
+                  </li>
+                  <li>
+                    <b>
+                      includeSource
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      customizeDocument
+                    </b>
+                    :
+                    (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (input:string * template:string option * output:string option * outputKind:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * parameters:(string * string) list option * includeSource:bool option * generateAnchors:bool option * customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option) -&gt; unit
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Convert a markdown file into HTML or another output kind</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '272', 272)" onmouseover="showTip(event, '272', 272)">
+                <a name="ConvertScriptFile">
+                  Literate.ConvertScriptFile(...)
+                </a>
+              </code>
+              <div class="tip" id="272">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Literate.ConvertScriptFile(input, template, output, outputKind, formatAgent, prefix, compilerOptions, lineNumbers, references, fsiEvaluator, parameters, includeSource, generateAnchors, customizeDocument)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      input
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      template
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      output
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      outputKind
+                    </b>
+                    :
+                    OutputKind option
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      fsiEvaluator
+                    </b>
+                    :
+                    IFsiEvaluator option
+                  </li>
+                  <li>
+                    <b>
+                      parameters
+                    </b>
+                    :
+                    (string * string) list option
+                  </li>
+                  <li>
+                    <b>
+                      includeSource
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      customizeDocument
+                    </b>
+                    :
+                    (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (input:string * template:string option * output:string option * outputKind:OutputKind option * formatAgent:CodeFormatAgent option * prefix:string option * compilerOptions:string option * lineNumbers:bool option * references:bool option * fsiEvaluator:IFsiEvaluator option * parameters:(string * string) list option * includeSource:bool option * generateAnchors:bool option * customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) option) -&gt; unit
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Convert a script file into HTML or another output kind</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '273', 273)" onmouseover="showTip(event, '273', 273)">
+                <a name="FormatLiterateNodes">
+                  Literate.FormatLiterateNodes(...)
+                </a>
+              </code>
+              <div class="tip" id="273">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Literate.FormatLiterateNodes(doc, outputKind, prefix, lineNumbers, generateAnchors, tokenKindToCss)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      outputKind
+                    </b>
+                    :
+                    OutputKind option
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      tokenKindToCss
+                    </b>
+                    :
+                    (TokenKind -&gt; string) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                LiterateDocument
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (doc:LiterateDocument * outputKind:OutputKind option * prefix:string option * lineNumbers:bool option * generateAnchors:bool option * tokenKindToCss:(TokenKind -&gt; string) option) -&gt; LiterateDocument
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Replace literate paragraphs with plain paragraphs</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '274', 274)" onmouseover="showTip(event, '274', 274)">
+                <a name="ParseMarkdownFile">
+                  Literate.ParseMarkdownFile(...)
+                </a>
+              </code>
+              <div class="tip" id="274">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Literate.ParseMarkdownFile(path, formatAgent, compilerOptions, definedSymbols, references, fsiEvaluator, parseOptions)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      path
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      definedSymbols
+                    </b>
+                    :
+                    string list option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      fsiEvaluator
+                    </b>
+                    :
+                    IFsiEvaluator option
+                  </li>
+                  <li>
+                    <b>
+                      parseOptions
+                    </b>
+                    :
+                    MarkdownParseOptions option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                LiterateDocument
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (path:string * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:string list option * references:bool option * fsiEvaluator:IFsiEvaluator option * parseOptions:MarkdownParseOptions option) -&gt; LiterateDocument
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Parse Markdown document</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '275', 275)" onmouseover="showTip(event, '275', 275)">
+                <a name="ParseMarkdownString">
+                  Literate.ParseMarkdownString(...)
+                </a>
+              </code>
+              <div class="tip" id="275">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Literate.ParseMarkdownString(content, path, formatAgent, compilerOptions, definedSymbols, references, fsiEvaluator, parseOptions)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      content
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      path
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      definedSymbols
+                    </b>
+                    :
+                    string list option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      fsiEvaluator
+                    </b>
+                    :
+                    IFsiEvaluator option
+                  </li>
+                  <li>
+                    <b>
+                      parseOptions
+                    </b>
+                    :
+                    MarkdownParseOptions option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                LiterateDocument
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (content:string * path:string option * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:string list option * references:bool option * fsiEvaluator:IFsiEvaluator option * parseOptions:MarkdownParseOptions option) -&gt; LiterateDocument
                 <br/>
@@ -253,12 +873,79 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '271', 271)" onmouseover="showTip(event, '271', 271)">
-                Literate.ParseScriptFile(...)
+              <code onmouseout="hideTip(event, '276', 276)" onmouseover="showTip(event, '276', 276)">
+                <a name="ParseScriptFile">
+                  Literate.ParseScriptFile(...)
+                </a>
               </code>
-              <div class="tip" id="271">
+              <div class="tip" id="276">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ParseScriptFile(path, formatAgent, compilerOptions, definedSymbols, references, fsiEvaluator, parseOptions)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      path
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      definedSymbols
+                    </b>
+                    :
+                    string list option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      fsiEvaluator
+                    </b>
+                    :
+                    IFsiEvaluator option
+                  </li>
+                  <li>
+                    <b>
+                      parseOptions
+                    </b>
+                    :
+                    MarkdownParseOptions option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                LiterateDocument
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (path:string * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:string list option * references:bool option * fsiEvaluator:IFsiEvaluator option * parseOptions:MarkdownParseOptions option) -&gt; LiterateDocument
                 <br/>
@@ -274,12 +961,86 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '272', 272)" onmouseover="showTip(event, '272', 272)">
-                Literate.ParseScriptString(...)
+              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
+                <a name="ParseScriptString">
+                  Literate.ParseScriptString(...)
+                </a>
               </code>
-              <div class="tip" id="272">
+              <div class="tip" id="277">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ParseScriptString(content, path, formatAgent, compilerOptions, definedSymbols, references, fsiEvaluator, parseOptions)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      content
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      path
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      formatAgent
+                    </b>
+                    :
+                    CodeFormatAgent option
+                  </li>
+                  <li>
+                    <b>
+                      compilerOptions
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      definedSymbols
+                    </b>
+                    :
+                    string list option
+                  </li>
+                  <li>
+                    <b>
+                      references
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      fsiEvaluator
+                    </b>
+                    :
+                    IFsiEvaluator option
+                  </li>
+                  <li>
+                    <b>
+                      parseOptions
+                    </b>
+                    :
+                    MarkdownParseOptions option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                LiterateDocument
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (content:string * path:string option * formatAgent:CodeFormatAgent option * compilerOptions:string option * definedSymbols:string list option * references:bool option * fsiEvaluator:IFsiEvaluator option * parseOptions:MarkdownParseOptions option) -&gt; LiterateDocument
                 <br/>
@@ -295,12 +1056,44 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '273', 273)" onmouseover="showTip(event, '273', 273)">
-                Literate.ToFsx(doc, parameters)
+              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
+                <a name="ToFsx">
+                  Literate.ToFsx(doc, parameters)
+                </a>
               </code>
-              <div class="tip" id="273">
+              <div class="tip" id="278">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ToFsx(doc, parameters)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      parameters
+                    </b>
+                    :
+                    (string * string) list option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                string
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (doc:LiterateDocument * parameters:(string * string) list option) -&gt; string
                 <br/>
@@ -316,12 +1109,65 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '274', 274)" onmouseover="showTip(event, '274', 274)">
-                Literate.ToHtml(...)
+              <code onmouseout="hideTip(event, '279', 279)" onmouseover="showTip(event, '279', 279)">
+                <a name="ToHtml">
+                  Literate.ToHtml(...)
+                </a>
               </code>
-              <div class="tip" id="274">
+              <div class="tip" id="279">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ToHtml(doc, prefix, lineNumbers, generateAnchors, tokenKindToCss)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      tokenKindToCss
+                    </b>
+                    :
+                    (TokenKind -&gt; string) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                string
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (doc:LiterateDocument * prefix:string option * lineNumbers:bool option * generateAnchors:bool option * tokenKindToCss:(TokenKind -&gt; string) option) -&gt; string
                 <br/>
@@ -337,12 +1183,58 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '275', 275)" onmouseover="showTip(event, '275', 275)">
-                Literate.ToLatex(...)
+              <code onmouseout="hideTip(event, '280', 280)" onmouseover="showTip(event, '280', 280)">
+                <a name="ToLatex">
+                  Literate.ToLatex(...)
+                </a>
               </code>
-              <div class="tip" id="275">
+              <div class="tip" id="280">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ToLatex(doc, prefix, lineNumbers, generateAnchors)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                string
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (doc:LiterateDocument * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; string
                 <br/>
@@ -358,12 +1250,44 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '276', 276)" onmouseover="showTip(event, '276', 276)">
-                Literate.ToPynb(doc, parameters)
+              <code onmouseout="hideTip(event, '281', 281)" onmouseover="showTip(event, '281', 281)">
+                <a name="ToPynb">
+                  Literate.ToPynb(doc, parameters)
+                </a>
               </code>
-              <div class="tip" id="276">
+              <div class="tip" id="281">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.ToPynb(doc, parameters)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      parameters
+                    </b>
+                    :
+                    (string * string) list option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                string
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (doc:LiterateDocument * parameters:(string * string) list option) -&gt; string
                 <br/>
@@ -379,12 +1303,67 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
-                Literate.WriteHtml(...)
+              <code onmouseout="hideTip(event, '282', 282)" onmouseover="showTip(event, '282', 282)">
+                <a name="WriteHtml">
+                  Literate.WriteHtml(...)
+                </a>
               </code>
-              <div class="tip" id="277">
+              <div class="tip" id="282">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.WriteHtml(doc, writer, prefix, lineNumbers, generateAnchors, tokenKindToCss)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      writer
+                    </b>
+                    :
+                    TextWriter
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      tokenKindToCss
+                    </b>
+                    :
+                    (TokenKind -&gt; string) option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (doc:LiterateDocument * writer:TextWriter * prefix:string option * lineNumbers:bool option * generateAnchors:bool option * tokenKindToCss:(TokenKind -&gt; string) option) -&gt; unit
                 <br/>
@@ -400,12 +1379,60 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
-                Literate.WriteLatex(...)
+              <code onmouseout="hideTip(event, '283', 283)" onmouseover="showTip(event, '283', 283)">
+                <a name="WriteLatex">
+                  Literate.WriteLatex(...)
+                </a>
               </code>
-              <div class="tip" id="278">
+              <div class="tip" id="283">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                Literate.WriteLatex(doc, writer, prefix, lineNumbers, generateAnchors)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      writer
+                    </b>
+                    :
+                    TextWriter
+                  </li>
+                  <li>
+                    <b>
+                      prefix
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      lineNumbers
+                    </b>
+                    :
+                    bool option
+                  </li>
+                  <li>
+                    <b>
+                      generateAnchors
+                    </b>
+                    :
+                    bool option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (doc:LiterateDocument * writer:TextWriter * prefix:string option * lineNumbers:bool option * generateAnchors:bool option) -&gt; unit
                 <br/>

@@ -111,12 +111,25 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '206', 206)" onmouseover="showTip(event, '206', 206)">
-                CodeFormatAgent()
+              <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
+                <a name="( .ctor )">
+                  CodeFormatAgent()
+                </a>
               </code>
-              <div class="tip" id="206">
+              <div class="tip" id="211">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                CodeFormatAgent()
+                <br/>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                CodeFormatAgent
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 unit -&gt; CodeFormatAgent
                 <br/>
@@ -149,12 +162,58 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '207', 207)" onmouseover="showTip(event, '207', 207)">
-                this.AsyncParseSource(...)
+              <code onmouseout="hideTip(event, '212', 212)" onmouseover="showTip(event, '212', 212)">
+                <a name="AsyncParseSource">
+                  this.AsyncParseSource(...)
+                </a>
               </code>
-              <div class="tip" id="207">
+              <div class="tip" id="212">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                this.AsyncParseSource(file, source, options, defines)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      file
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      source
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      options
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      defines
+                    </b>
+                    :
+                    string option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                Async&lt;Snippet [] * SourceError []&gt;
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (file:string * source:string * options:string option * defines:string option) -&gt; Async&lt;Snippet [] * SourceError []&gt;
                 <br/>
@@ -172,12 +231,58 @@ to give compiler command line options and preprocessor definitions</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
-                this.ParseSource(...)
+              <code onmouseout="hideTip(event, '213', 213)" onmouseover="showTip(event, '213', 213)">
+                <a name="ParseSource">
+                  this.ParseSource(...)
+                </a>
               </code>
-              <div class="tip" id="208">
+              <div class="tip" id="213">
                 <strong>
-                  Signature:
+                  Full Usage: 
+                </strong>
+                this.ParseSource(file, source, options, defines)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      file
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      source
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      options
+                    </b>
+                    :
+                    string option
+                  </li>
+                  <li>
+                    <b>
+                      defines
+                    </b>
+                    :
+                    string option
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Returns: 
+                </strong>
+                Snippet [] * SourceError []
+                <br/>
+                <strong>
+                  Signature: 
                 </strong>
                 (file:string * source:string * options:string option * defines:string option) -&gt; Snippet [] * SourceError []
                 <br/>
