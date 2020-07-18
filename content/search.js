@@ -52,6 +52,7 @@ console.warn("Loading search.js");
  */
 function search(queryTerm) {
     // Find the item in our index corresponding to the lunr one to have more info
+    console.warn("search.js: searching for: ", queryTerm);
     return lunrIndex.search(queryTerm+"^100"+" "+queryTerm+"*^10"+" "+"*"+queryTerm+"^10"+" "+queryTerm+"~2^1").map(function(result) {
             return pagesIndex.filter(function(page) {
                 return page.uri === result.ref;
@@ -68,6 +69,7 @@ $( document ).ready(function() {
     console.warn("search.js: document ready");
     var searchList = new autoComplete({
         /* selector for the search box element */
+        minChars: 1,
         selector: $("#search-by").get(0),
         /* source is the callback to perform the search */
         source: function(term, response) {
@@ -76,24 +78,22 @@ $( document ).ready(function() {
             response(search(term));
         },
         /* renderItem displays individual search results */
-        renderItem: function(item, term) {
-            console.warn("search.js: renderItem");
-            var numContextWords = 2;
-            var text = item.content.match(
-                "(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}" +
-                    term+"(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}");
-            item.context = text;
-            console.warn("search.js: renderItem, text = ", text);
-            return '<div class="autocomplete-suggestion" ' +
-                'data-term="' + term + '" ' +
-                'data-title="' + item.title + '" ' +
-                'data-uri="'+ item.uri + '" ' +
-                'data-context="' + item.context + '">' +
-                '» ' + item.title +
-                '<div class="context">' +
-                (item.context || '') +'</div>' +
-                '</div>';
-        },
+        // renderItem: function(item, term) {
+        //     var numContextWords = 2;
+        //     var text = item.content.match(
+        //         "(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}" +
+        //             term+"(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}");
+        //     item.context = text;
+        //     return '<div class="autocomplete-suggestion" ' +
+        //         'data-term="' + term + '" ' +
+        //         'data-title="' + item.title + '" ' +
+        //         'data-uri="'+ item.uri + '" ' +
+        //         'data-context="' + item.context + '">' +
+        //         '» ' + item.title +
+        //         '<div class="context">' +
+        //         (item.context || '') +'</div>' +
+        //         '</div>';
+        // },
         /* onSelect callback fires when a search suggestion is chosen */
         onSelect: function(e, term, item) {
             console.warn("search.js: onSelect, location.href = ", item.getAttribute('data-uri'));
