@@ -20,15 +20,15 @@ in the solution according to the rules of [API doc generation](metadata.html)
 
 The expected structure for a docs directory is
 
-    docs\**\*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
-    docs\**\*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
-    docs\**\*                     -- other content, copied over
-    docs\**\_template.html        -- specifies the default HTML template for this directory and its contents
-    docs\**\_template.tex         -- specifies Latex files should also be generated
-    docs\**\_template.ipynb       -- specifies F# ipynb files should also be generated
-    docs\**\_template.fsx         -- specifies F# fsx files should also be generated (even from markdown)
-    docs\reference\_template.html -- optionally specifies the default template for reference docs
-]
+    docs/**/*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
+    docs/**/*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
+    docs/**/*                     -- other content, copied over
+    docs/**/_template.html        -- specifies the default HTML template for this directory and its contents
+    docs/**/_template.tex         -- specifies Latex files should also be generated
+    docs/**/_template.ipynb       -- specifies F# ipynb files should also be generated
+    docs/**/_template.fsx         -- specifies F# fsx files should also be generated (even from markdown)
+    docs/reference/_template.html -- optionally specifies the default template for reference docs
+
 The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
 
 Template files are as follows:
@@ -61,22 +61,23 @@ be the same across all projects.
 
 ### Options
 
-  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
+  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--output` -  Output directory, defaults to `output`
-  * `--clean` -  Clean the output directory before building (except directories starting with ".")
-  * `--template` -  Default template file for formatting. For HTML 
+  * `--noApiDocs` -  Do not generate API docs
+  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
+  * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--nonPublic` -  Generate docs for non-public members
   * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
-  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
-  * `--noLineNumbers` -  Line number option, defaults to `true`.
+  * `--clean` -  Clean the output directory before building (except directories starting with ".")
   * `--help` -  Display the specific help message for `convert`.
 
 The watch commands
 ----------------------------
 
-The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes.
+The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
+directory (e.g. `docs`) are watched.
 
     [lang=text]
     fsdocs watch

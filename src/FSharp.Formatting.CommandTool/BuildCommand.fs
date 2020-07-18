@@ -98,13 +98,15 @@ module Crack =
               "PackageProjectUrl"
               "Authors"
               "GenerateDocumentationFile"
+              //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
               //"Description"
               "PackageLicenseExpression"
               "PackageTags"
               "Copyright"
               "PackageVersion"
               "PackageIconUrl"
-              "PackageReleaseNotes"
+              //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+              //"PackageReleaseNotes"
               "RepositoryCommit"
             ]
         let gp () = Inspect.getProperties (["TargetPath"] @ additionalInfo)
@@ -139,13 +141,15 @@ module Crack =
                    PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
                    Authors = props |> Map.tryFind "Authors" 
                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
+                   //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
                    //Description = props |> Map.tryFind "Description" 
                    PackageLicenseExpression = props |> Map.tryFind "PackageLicenseExpression" 
                    PackageTags = props |> Map.tryFind "PackageTags" 
                    Copyright = props |> Map.tryFind "Copyright"
                    PackageVersion = props |> Map.tryFind "PackageVersion"
                    PackageIconUrl = props |> Map.tryFind "PackageIconUrl"
-                   PackageReleaseNotes = props |> Map.tryFind "PackageReleaseNotes"
+                   //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+                   //PackageReleaseNotes = props |> Map.tryFind "PackageReleaseNotes"
                    RepositoryCommit = props |> Map.tryFind "RepositoryCommit" |}
                 
             | Ok ok -> failwithf "huh? ok = %A" ok
@@ -198,7 +202,6 @@ type CoreBuildOptions(watch) =
 
     member x.Execute() =
         let mutable res = 0
-        use watcher = (if watch then new FileSystemWatcher(x.input) else null )
 
         let projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption =
           let projects = Seq.toList x.projects
@@ -292,7 +295,7 @@ type CoreBuildOptions(watch) =
               let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
               let packageVersion = tryFindValue (fun info -> info.PackageVersion) "PackageVersion" "package-version"
               let packageIconUrl = tryFindValue (fun info -> info.PackageIconUrl) "PackageIconUrl" "package-icon-url"
-              let packageReleaseNotes = tryFindValue (fun info -> info.PackageReleaseNotes) "PackageReleaseNotes" "package-release-notes"
+              //let packageReleaseNotes = tryFindValue (fun info -> info.PackageReleaseNotes) "PackageReleaseNotes" "package-release-notes"
               let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
               let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
               let parameters = 
@@ -302,7 +305,7 @@ type CoreBuildOptions(watch) =
                   //"description", description
                   "repository-url", repoUrl
                   "package-license", packageLicenseExpression
-                  "package-release-notes", packageReleaseNotes
+                  //"package-release-notes", packageReleaseNotes
                   "package-icon-url", packageIconUrl
                   "package-tags", packageTags
                   "package-version", packageVersion
@@ -313,7 +316,7 @@ type CoreBuildOptions(watch) =
 
               projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption)
 
-        let run () =
+        let runConvert () =
             try
                 //printfn "projectInfos = %A" projectInfos
 
@@ -330,6 +333,18 @@ type CoreBuildOptions(watch) =
                     includeSource = true
                 )
 
+            with
+                | :?AggregateException as ex ->
+                    Log.errorf "received exception :\n %A" ex
+                    printfn "Error : \n%O" ex
+                    res <- -1
+                | _ as ex ->
+                    Log.errorf "received exception :\n %A" ex
+                    printfn "Error : \n%O" ex
+                    res <- -1
+
+        let runGenerate () =
+            try
                 if projectOutputs.Length > 0 then
                     let initialTemplate2 =
                         let t1 = Path.Combine(x.input, "reference", "_template.html")
@@ -372,27 +387,52 @@ type CoreBuildOptions(watch) =
                     printfn "Error : \n%O" ex
                     res <- -1
 
+        use docsWatcher = (if watch then new FileSystemWatcher(x.input) else null )
+        let projectOutputWatchers = (if watch then [ for projectOuput in projectOutputs -> (new FileSystemWatcher(x.input), projectOuput) ] else [] )
+        use _holder = { new IDisposable with member __.Dispose() = for (p,_) in projectOutputWatchers do p.Dispose() }
+
+        // Only one update at a time
         let monitor = obj()
-        let mutable queued = true
+        // One of each kind of request at a time
+        let mutable docsQueued = true
+        let mutable generateQueued = true
+
         if watch then
-            watcher.IncludeSubdirectories <- true
-            watcher.NotifyFilter <- NotifyFilters.LastWrite
+            docsWatcher.IncludeSubdirectories <- true
+            docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
             useWaitForKey <- true
-            watcher.Changed.Add (fun _ ->
-                if not queued then
-                    queued <- true
-                    printfn "Detected change in docs, waiting to rebuild..." 
+            docsWatcher.Changed.Add (fun _ ->
+                if not docsQueued then
+                    docsQueued <- true
+                    printfn "Detected change in '%s', scheduling rebuild of docs..."  x.input
                     lock monitor (fun () ->
-                        queued <- false; run()) ) 
-            watcher.EnableRaisingEvents <- true
+                        docsQueued <- false
+                        runConvert()) ) 
+
+            for (projectOutputWatcher, projectOutput) in projectOutputWatchers do
+                
+               projectOutputWatcher.Filter <- Path.GetFileName(projectOutput)
+               projectOutputWatcher.Path <- Path.GetDirectoryName(projectOutput)
+               projectOutputWatcher.NotifyFilter <- NotifyFilters.LastWrite
+               projectOutputWatcher.Changed.Add (fun _ ->
+                if not generateQueued then
+                    generateQueued <- true
+                    printfn "Detected change in '%s', scheduling rebuild of API docs..." projectOutput
+                    lock monitor (fun () ->
+                        generateQueued <- false
+                        runGenerate()) ) 
+
+            docsWatcher.EnableRaisingEvents <- true
+            for (pathWatcher, _path) in projectOutputWatchers do
+                pathWatcher.EnableRaisingEvents <- true
             printfn "Building docs first time..." 
 
         if x.clean then
             let rec clean dir =
-                for file in Directory.EnumerateFiles dir do
+                for file in Directory.EnumerateFiles(dir) do
                     File.Delete file |> ignore
                 for subdir in Directory.EnumerateDirectories dir do
-                   if not (subdir.StartsWith ".") then
+                   if not (Path.GetFileName(subdir).StartsWith ".") then
                        clean subdir
             if x.output <> "/" && x.output <> "." && Path.GetFullPath x.output <> Path.GetFullPath x.input && not (String.IsNullOrEmpty x.output) then
                 try clean (Path.GetFullPath x.output)
@@ -400,8 +440,12 @@ type CoreBuildOptions(watch) =
             else
                 printfn "warning: skipping cleaning due to strange output path: \"%s\"" x.output
 
-        lock monitor run
-        queued <- false
+        if watch then
+            printfn "Building docs first time..." 
+
+        lock monitor (fun () -> runConvert(); runGenerate())
+        generateQueued <- false
+        docsQueued <- false
 
         waitForKey useWaitForKey
         res

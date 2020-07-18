@@ -53,6 +53,15 @@ Target.create "AssemblyInfo" (fun _ ->
 
     AssemblyInfoFile.createFSharp "src/Common/AssemblyInfo.fs" info
     AssemblyInfoFile.createCSharp "src/Common/AssemblyInfo.cs" info
+    let releaseNotes = String.toLines release.Notes |> System.Net.WebUtility.HtmlEncode
+    File.WriteAllText("version.props", sprintf """<Project>
+      <PropertyGroup>
+        <Version>%s</Version>
+        <PackageReleaseNotes>
+%s
+        </PackageReleaseNotes>
+      </PropertyGroup>
+    </Project>""" release.NugetVersion releaseNotes)
 )
 
 // Clean build results
@@ -74,13 +83,7 @@ let solutionFile = "FSharp.Formatting.sln"
 
 Target.create "Build" (fun _ ->
     solutionFile
-    |> DotNet.build (fun opts ->
-        { opts with
-            Configuration = configuration
-            MSBuildParams =
-                { opts.MSBuildParams with
-                    Properties = [("Version", release.NugetVersion)] }
-        })
+    |> DotNet.build (fun opts -> { opts with Configuration = configuration } )
 )
 
 Target.create "Tests" (fun _ ->
@@ -100,16 +103,10 @@ Target.create "Tests" (fun _ ->
 // Build a NuGet package
 
 Target.create "NuGet" (fun _ ->
-    let releaseNotes = String.toLines release.Notes |> System.Net.WebUtility.HtmlEncode
     DotNet.pack (fun pack ->
         { pack with
             OutputPath = Some artifactsDir 
-            Configuration = configuration
-            MSBuildParams =
-                { pack.MSBuildParams with
-                    Properties = 
-                        [("Version", release.NugetVersion)
-                         ("PackageReleaseNotes", releaseNotes)] }
+            Configuration = configuration 
         }) solutionFile
 )
 
@@ -120,7 +117,7 @@ Target.create "NuGet" (fun _ ->
 let toolPath = "temp"
 
 let docsToolPath = toolPath </> "fsdocs" + (if Environment.isWindows then ".exe" else "")
-let docsToolStartInfo workingDirectory environmentVars args =
+let docsToolStartInfo workingDirectory args =
     (fun (info:ProcStartInfo) ->
         { info with
             FileName = Path.GetFullPath docsToolPath
@@ -164,7 +161,7 @@ let docTool args =
   execute
     "Building documentation (CommandTool), this could take some time, please wait..."
     "generating documentation failed"
-    (docsToolStartInfo __SOURCE_DIRECTORY__ [] args)
+    (docsToolStartInfo __SOURCE_DIRECTORY__ args)
 
 
 let createArg argName arguments =
@@ -289,13 +286,16 @@ Target.create "CreateTestJson" (fun _ ->
   ==> "GenerateDocs"
   ==> "All"
 
+"GenerateDocs"
+  ==> "ReleaseDocs"
+  ==> "Release"
+
 "All"
   ==> "CreateTag"
   ==> "PushPackagesToNugetOrg"
-  ==> "ReleaseDocs"
   ==> "PushReleaseToGithub"
   ==> "Release"
 
 "DownloadPython" ==> "CreateTestJson"
 
-Target.runOrDefaultWithArguments "All"
+Target.runOrDefault "All"
