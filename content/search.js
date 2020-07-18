@@ -72,6 +72,7 @@ $( document ).ready(function() {
         /* source is the callback to perform the search */
         source: function(term, response) {
             console.warn("search.js: source callback");
+            console.warn("search.js: source callback, term = ", term);
             response(search(term));
         },
         /* renderItem displays individual search results */
@@ -82,6 +83,7 @@ $( document ).ready(function() {
                 "(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}" +
                     term+"(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}");
             item.context = text;
+            console.warn("search.js: renderItem, text = ", text);
             return '<div class="autocomplete-suggestion" ' +
                 'data-term="' + term + '" ' +
                 'data-title="' + item.title + '" ' +
@@ -94,33 +96,33 @@ $( document ).ready(function() {
         },
         /* onSelect callback fires when a search suggestion is chosen */
         onSelect: function(e, term, item) {
-            console.warn("search.js: onSelect");
+            console.warn("search.js: onSelect, location.href = ", item.getAttribute('data-uri'));
             location.href = item.getAttribute('data-uri');
         }
     });
-    var ajax;
-    jQuery('[data-search-input]').on('input', function() {
-        var input = jQuery(this),
-            value = input.val(),
-            items = jQuery('[data-nav-id]');
-        items.removeClass('search-match');
-        if (!value.length) {
-            $('ul.topics').removeClass('searched');
-            items.css('display', 'block');
-            sessionStorage.removeItem('search-value');
-            $(".highlightable").unhighlight({ element: 'mark' })
-            return;
-        }
+    // var ajax;
+    // jQuery('[data-search-input]').on('input', function() {
+    //     var input = jQuery(this),
+    //         value = input.val(),
+    //         items = jQuery('[data-nav-id]');
+    //     items.removeClass('search-match');
+    //     if (!value.length) {
+    //         $('ul.topics').removeClass('searched');
+    //         items.css('display', 'block');
+    //         sessionStorage.removeItem('search-value');
+    //         $(".highlightable").unhighlight({ element: 'mark' })
+    //         return;
+    //     }
 
-        sessionStorage.setItem('search-value', value);
-        $(".highlightable").unhighlight({ element: 'mark' }).highlight(value, { element: 'mark' });
+    //     sessionStorage.setItem('search-value', value);
+    //     $(".highlightable").unhighlight({ element: 'mark' }).highlight(value, { element: 'mark' });
 
-        if (ajax && ajax.abort) ajax.abort();
+    //     if (ajax && ajax.abort) ajax.abort();
 
-        jQuery('[data-search-clear]').on('click', function() {
-            jQuery('[data-search-input]').val('').trigger('input');
-            sessionStorage.removeItem('search-input');
-            $(".highlightable").unhighlight({ element: 'mark' })
-        });
-    });
+    //     jQuery('[data-search-clear]').on('click', function() {
+    //         jQuery('[data-search-input]').val('').trigger('input');
+    //         sessionStorage.removeItem('search-input');
+    //         $(".highlightable").unhighlight({ element: 'mark' })
+    //     });
+    // });
 });
