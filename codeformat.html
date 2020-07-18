@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>F# Formatting: Code formatting
-</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
+<head>
+  <meta charset="utf-8">
+  <title>F# Formatting: Code formatting
+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
+
+  <!--
     <link rel="icon" type="image/png" sizes="32x32" href="https://fsprojects.github.io/FSharp.Formatting/static/images/favicon.png"/>
-<!--
 
 
     <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/nucleus.css"/>
@@ -21,34 +22,56 @@
     <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/theme.css"/>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/atom-one-dark.min.css"/>
     <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/theme-green.css"/>
--->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.0/dist/perfect-scrollbar.common.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
+    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/perfect-scrollbar.jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-js/1.3.0/sticky.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"></script>
+    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/modernizr.custom-3.6.0.js"></script>
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/learn.js"></script>
+    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/hugo-learn.js"></script> 
+     <link rel="stylesheet" href="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.css"/>
+    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.js"></script> 
+    <script>
+      mermaid.initialize({ startOnLoad: true });
+    </script> 
+   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/languages/fsharp.min.js"></script>
+    <script>
+      hljs.initHighlightingOnLoad()
+    </script>
+  
+  -->
 
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-   
-    
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+  <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
+
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+  <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
+  <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 </head>
-  <body>
-    <div class="container">
-      <div class="masthead">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="http://fsharp.org">fsharp.org</a></li>
-        </ul>
-        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
-      </div>
-      <hr />
-      <div class="row">
-        <div class="span9" id="main">
-          <h1><a name="F-Formatting-Code-formatting" class="anchor" href="#F-Formatting-Code-formatting">F# Formatting: Code formatting</a></h1>
+
+<body>
+  <div class="container">
+    <div class="masthead">
+      <ul class="nav nav-pills pull-right">
+        <li><a href="http://fsharp.org">fsharp.org</a></li>
+      </ul>
+      <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+    </div>
+    <hr />
+    <div class="row">
+      <div class="span9" id="main">
+        <h1><a name="F-Formatting-Code-formatting" class="anchor" href="#F-Formatting-Code-formatting">F# Formatting: Code formatting</a></h1>
 <p>This page demonstrates how to use <code>FSharp.Formatting.CodeFormat.dll</code> to tokenize
 F# source code, obtain information about the source code (mainly tooltips
 from the type-checker) and how to turn the code into a nicely formatted HTML.</p>
@@ -211,7 +234,7 @@ to generate nice HTML output from an F# snippet. This is used, for example, on
 <p>then the formatter returns multiple HTML blocks. However, the generated tool tips
 are shared by all snippets (to save space) and so they are returned separately.</p>
 
-          <div class="tip" id="fs1">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
+        <div class="tip" id="fs1">Multiple items<br />namespace FSharp<br /><br />--------------------<br />namespace Microsoft.FSharp</div>
 <div class="tip" id="fs2">namespace FSharp.Formatting</div>
 <div class="tip" id="fs3">namespace FSharp.Formatting.CodeFormat</div>
 <div class="tip" id="fs4">namespace System</div>
@@ -253,83 +276,65 @@ are shared by all snippets (to save space) and so they are returned separately.<
 <div class="tip" id="fs40">property FormattedSnippet.Content: string with get</div>
 <div class="tip" id="fs41">property FormattedContent.ToolTip: string with get</div>
 
-        </div>
-        <div class="span3">
-          <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
-            <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
-          </a>
+      </div>
+      <div class="span3">
+        <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
+          <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png"
+            style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+        </a>
 
-          <div id="header">
-            <div class="searchbox">
+        <div id="header">
+          <div class="searchbox">
             <label for="search-by">
               <i class="fas fa-search"></i>
             </label>
-            <input data-search-input="" id="search-by" type="search" placeholder="Search..."/>
+            <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
             <span data-search-clear="">
               <i class="fas fa-times"></i>
             </span>
           </div>
-          <script type="text/javascript">
-            var baseurl ='https://fsprojects.github.io/FSharp.Formatting'
-          </script>
-          <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-          <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-          <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
         </div>
-            <ul class="nav nav-list" id="menu">
-            <li class="nav-header">FSharp.Formatting</li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
-            <li class="divider"></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+        <ul class="nav nav-list" id="menu">
+          <li class="nav-header">FSharp.Formatting</li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
+          <li class="divider"></li>
+          <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+          <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+          <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
-            <li class="nav-header">Using F# Formatting</li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">Library documentation</a></li>
+          <li class="nav-header">Using F# Formatting</li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">Library documentation</a></li>
 
-            <li class="nav-header">Examples</li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+          <li class="nav-header">Examples</li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
 
-            <li class="nav-header">Documentation</li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
-            <li class="divider"></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
-          </ul>
-        </div>
+          <li class="nav-header">Documentation</li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
+          <li class="divider"></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
+          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
+        </ul>
       </div>
     </div>
-    <a href="https://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
-<!--    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.0/dist/perfect-scrollbar.common.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/perfect-scrollbar.jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-js/1.3.0/sticky.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/modernizr.custom-3.6.0.js"></script>
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/learn.js"></script> -->
-<!--    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/hugo-learn.js"></script> -->
-<!--    <link rel="stylesheet" href="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.css"/>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.js"></script> 
-    <script>
-      mermaid.initialize({ startOnLoad: true });
-    </script> -->
-<!--    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/languages/fsharp.min.js"></script> -->
-<!--    <script>
-      hljs.initHighlightingOnLoad()
-    </script>
-  -->
-   </body>
-  </html>
+  </div>
+  <a href="https://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;"
+      src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  <script type="text/javascript">var baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+  <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
+</body>
+
+</html>
+

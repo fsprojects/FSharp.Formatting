@@ -42,6 +42,7 @@ function initLunr() {
             console.error("Error getting Hugo index file:", err);
         });
 }
+console.warn("Loading search.js");
 
 /**
  * Trigger a search in lunr and transform the result
@@ -57,19 +58,25 @@ function search(queryTerm) {
             })[0];
         });
 }
+console.warn("search.js: initLunr");
 
 // Let's get started
 initLunr();
+
+console.warn("search.js: after initLunr");
 $( document ).ready(function() {
+    console.warn("search.js: document ready");
     var searchList = new autoComplete({
         /* selector for the search box element */
         selector: $("#search-by").get(0),
         /* source is the callback to perform the search */
         source: function(term, response) {
+            console.warn("search.js: source callback");
             response(search(term));
         },
         /* renderItem displays individual search results */
         renderItem: function(item, term) {
+            console.warn("search.js: renderItem");
             var numContextWords = 2;
             var text = item.content.match(
                 "(?:\\s?(?:[\\w]+)\\s?){0,"+numContextWords+"}" +
@@ -87,6 +94,7 @@ $( document ).ready(function() {
         },
         /* onSelect callback fires when a search suggestion is chosen */
         onSelect: function(e, term, item) {
+            console.warn("search.js: onSelect");
             location.href = item.getAttribute('data-uri');
         }
     });
