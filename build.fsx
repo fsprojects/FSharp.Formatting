@@ -172,6 +172,7 @@ let createArg argName arguments =
 
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir "temp"
+    Shell.cleanDir ".fsdocs"
     let result =
         DotNet.exec
             (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })

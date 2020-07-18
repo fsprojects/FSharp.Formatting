@@ -314,6 +314,9 @@ type CoreBuildOptions(watch) =
               let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
               let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
 
+              for pn, p in parameters do
+                  printfn "parameter %s = %s" pn p
+
               projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption)
 
         let runConvert () =
