@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="version.props" />
   <PropertyGroup>
     <!-- Include PDBs in Nuget package. -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb; $(AllowedOutputExtensionsInPackageBuildOutputFolder)</AllowedOutputExtensionsInPackageBuildOutputFolder>

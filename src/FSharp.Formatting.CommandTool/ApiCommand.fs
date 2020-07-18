@@ -63,7 +63,8 @@ type ApiCommand() =
                         printfn "note, expected template file '%s' or '%s' to exist, proceeding without template" t1 t2
                         None
 
-                ApiDocs.GenerateHtml (
+                let index =
+                  ApiDocs.GenerateHtml (
                     dllFiles = (x.dlls |> List.ofSeq),
                     outDir = x.output,
                     ?parameters = evalPairwiseStrings x.parameters,
@@ -75,6 +76,9 @@ type ApiCommand() =
                     ?publicOnly = Some (not x.nonPublic),
                     ?markDownComments = Some (not x.xmlComments)
                     )
+                let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
+
+                File.WriteAllText(Path.Combine(x.output, "index.json"), indxTxt)
         with ex ->
             Log.errorf "received exception in ApiDocs.GenerateHtml:\n %A" ex
             printfn "Error on ApiDocs.GenerateHtml: \n%O" ex

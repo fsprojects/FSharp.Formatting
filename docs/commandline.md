@@ -61,22 +61,23 @@ be the same across all projects.
 
 ### Options
 
-  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
+  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--output` -  Output directory, defaults to `output`
-  * `--clean` -  Clean the output directory before building (except directories starting with ".")
-  * `--template` -  Default template file for formatting. For HTML 
+  * `--noApiDocs` -  Do not generate API docs
+  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
+  * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--nonPublic` -  Generate docs for non-public members
   * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
-  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
-  * `--noLineNumbers` -  Line number option, defaults to `true`.
+  * `--clean` -  Clean the output directory before building (except directories starting with ".")
   * `--help` -  Display the specific help message for `convert`.
 
 The watch commands
 ----------------------------
 
-The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes.
+The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
+directory (e.g. `docs`) are watched.
 
     [lang=text]
     fsdocs watch
