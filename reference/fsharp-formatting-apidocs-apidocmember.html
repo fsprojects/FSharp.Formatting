@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ApiDocMember - FSharp.Formatting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
+        </ul>
+        <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          <div>
+  <h1>
+    ApiDocMember Type
+  </h1>
+  <p>
+    Namespace: FSharp.Formatting.ApiDocs
+  </p>
+  <p>
+    Assembly: FSharp.Formatting
+  </p>
+  <br/>
+  <div class="xmldoc">
+    <p>Represents an method, property, constructor, function or value, record field, union case or static parameter
+integrated with its associated documentation. Includes extension members.</p>
+
+
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Constructors
+    </h3>
+    <table class="table table-bordered member-list">
+      <thead>
+        <tr>
+          <td>
+            Constructor
+          </td>
+          <td>
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
+                ApiDocMember(...)
+              </code>
+              <div class="tip" id="33">
+                <strong>
+                  Signature:
+                </strong>
+                (name:string * attributes:ApiDocAttribute list * kind:ApiDocMemberKind * cat:string * details:((int -&gt; string) * string list * string list * string * string option * string option) * comment:ApiDocComment * symbol:FSharpSymbol) -&gt; ApiDocMember
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>
+      Instance members
+    </h3>
+    <table class="table table-bordered member-list">
+      <thead>
+        <tr>
+          <td>
+            Instance member
+          </td>
+          <td>
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+                this.Attributes
+              </code>
+              <div class="tip" id="34">
+                <strong>
+                  Signature:
+                </strong>
+                ApiDocAttribute list
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The declared attributes of the member</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
+                this.Category
+              </code>
+              <div class="tip" id="35">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The category</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
+                this.Comment
+              </code>
+              <div class="tip" id="36">
+                <strong>
+                  Signature:
+                </strong>
+                ApiDocComment
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The attached comment</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
+                this.CompiledName
+              </code>
+              <div class="tip" id="37">
+                <strong>
+                  Signature:
+                </strong>
+                string option
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The members compiled name, if any</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '38', 38)" onmouseover="showTip(event, '38', 38)">
+                this.CustomOperationName
+              </code>
+              <div class="tip" id="38">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '39', 39)" onmouseover="showTip(event, '39', 39)">
+                this.Details
+              </code>
+              <div class="tip" id="39">
+                <strong>
+                  Signature:
+                </strong>
+                int
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The members compiled name, if any</p>
+
+
+            <div class="alert alert-warning">
+              <strong>
+                NOTE:
+              </strong>
+              <p>
+                This API is obsoleteRemove &#39;.Details&#39;. &#39;ApiDocsMemberDetails&#39; has been merged with &#39;ApiDocsMember&#39;
+              </p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '40', 40)" onmouseover="showTip(event, '40', 40)">
+                this.FormatCompiledName
+              </code>
+              <div class="tip" id="40">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats the compiled name</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '41', 41)" onmouseover="showTip(event, '41', 41)">
+                this.FormatModifiers
+              </code>
+              <div class="tip" id="41">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats modifiers</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '42', 42)" onmouseover="showTip(event, '42', 42)">
+                this.FormatSourceLocation
+              </code>
+              <div class="tip" id="42">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats source location</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '43', 43)" onmouseover="showTip(event, '43', 43)">
+                this.FormatTypeArguments
+              </code>
+              <div class="tip" id="43">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats type arguments</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '44', 44)" onmouseover="showTip(event, '44', 44)">
+                this.FormatUsage(maxLength)
+              </code>
+              <div class="tip" id="44">
+                <strong>
+                  Signature:
+                </strong>
+                maxLength:int -&gt; string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats usage</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '45', 45)" onmouseover="showTip(event, '45', 45)">
+                this.IsCustomOperation
+              </code>
+              <div class="tip" id="45">
+                <strong>
+                  Signature:
+                </strong>
+                bool
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Gets a value indicating whether this member has CustomOperationAttribute</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '46', 46)" onmouseover="showTip(event, '46', 46)">
+                this.IsObsolete
+              </code>
+              <div class="tip" id="46">
+                <strong>
+                  Signature:
+                </strong>
+                bool
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Gets a value indicating whether this member is obsolete</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '47', 47)" onmouseover="showTip(event, '47', 47)">
+                this.Kind
+              </code>
+              <div class="tip" id="47">
+                <strong>
+                  Signature:
+                </strong>
+                ApiDocMemberKind
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The kind of the member</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '48', 48)" onmouseover="showTip(event, '48', 48)">
+                this.Modifiers
+              </code>
+              <div class="tip" id="48">
+                <strong>
+                  Signature:
+                </strong>
+                string list
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The members modifiers</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '49', 49)" onmouseover="showTip(event, '49', 49)">
+                this.Name
+              </code>
+              <div class="tip" id="49">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Name of the member</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '50', 50)" onmouseover="showTip(event, '50', 50)">
+                this.ObsoleteMessage
+              </code>
+              <div class="tip" id="50">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '51', 51)" onmouseover="showTip(event, '51', 51)">
+                this.Signature
+              </code>
+              <div class="tip" id="51">
+                <strong>
+                  Signature:
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The members signature</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '52', 52)" onmouseover="showTip(event, '52', 52)">
+                this.SourceLocation
+              </code>
+              <div class="tip" id="52">
+                <strong>
+                  Signature:
+                </strong>
+                string option
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The members source location, if any</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
+                this.Symbol
+              </code>
+              <div class="tip" id="53">
+                <strong>
+                  Signature:
+                </strong>
+                FSharpSymbol
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The symbol this member is related to</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
+                this.TypeArguments
+              </code>
+              <div class="tip" id="54">
+                <strong>
+                  Signature:
+                </strong>
+                string list
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The members type arguments</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
+                this.Usage
+              </code>
+              <div class="tip" id="55">
+                <strong>
+                  Signature:
+                </strong>
+                int -&gt; string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formats usage</p>
+
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+</div>
+        </div>
+        <div class="span3">
+          <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
+            <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+          </a>
+
+          <ul class="nav nav-list" id="menu">
+            <li class="nav-header">FSharp.Formatting</li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+            <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+            <li class="nav-header">Using F# Formatting</li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/metadata.html">Library documentation</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+
+            <li class="nav-header">Examples</li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
+            <li class="divider"></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-markdown-markdown.html">Markdown type</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-codeformat-codeformat.html">CodeFormat type</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-literate-literate.html">Literate type</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-apidocs-apidocs.html">ApiDocs type</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>
