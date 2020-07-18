@@ -80,7 +80,7 @@ $( document ).ready(function() {
         renderItem: function(item, search) {
             search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
             var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-            return '<div class="autocomplete-suggestion" data-val="'+search+'" data-uri="' + uri + '">' + item.title.replace(re, "<b>$1</b>") + '</div>';
+            return '<div class="autocomplete-suggestion" data-val="'+search+'" data-uri="' + item.uri + '">' + item.title.replace(re, "<b>$1</b>") + '</div>';
         },
         /* onSelect callback fires when a search suggestion is chosen */
         onSelect: function(e, term, item) {
