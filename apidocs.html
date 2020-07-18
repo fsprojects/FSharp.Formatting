@@ -25,10 +25,9 @@
 
     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/fsharp.min.js"></script>
+   
     
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
@@ -43,7 +42,6 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="http://fsharp.github.io/FSharp.Compiler.Service"><img src="https://fsharp.github.io/FSharp.Compiler.Service/images/logo.png" style="width:16px; height:16px;" /> F# Compiler Services</a></li>
         </ul>
         <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
       </div>
@@ -98,10 +96,10 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 <span class="l">6: </span>
 <span class="l">7: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs7', 29)" onmouseover="showTip(event, 'fs7', 29)" class="rt">ApiDocs</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 30)" onmouseover="showTip(event, 'fs8', 30)" class="id">GenerateHtml</span>
-  <span class="pn">(</span> <span class="pn">[</span><span onmouseout="hideTip(event, 'fs9', 31)" onmouseover="showTip(event, 'fs9', 31)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 32)" onmouseover="showTip(event, 'fs10', 32)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 33)" onmouseover="showTip(event, 'fs1', 33)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span><span class="pn">]</span><span class="pn">,</span> 
-    <span class="id">outDir</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 34)" onmouseover="showTip(event, 'fs9', 34)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 35)" onmouseover="showTip(event, 'fs10', 35)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 36)" onmouseover="showTip(event, 'fs1', 36)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
-    <span class="id">template</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 37)" onmouseover="showTip(event, 'fs9', 37)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 38)" onmouseover="showTip(event, 'fs10', 38)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 39)" onmouseover="showTip(event, 'fs1', 39)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">,</span> <span class="s">&quot;template.html&quot;</span><span class="pn">)</span><span class="pn">,</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs7', 18)" onmouseover="showTip(event, 'fs7', 18)" class="rt">ApiDocs</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="id">GenerateHtml</span>
+  <span class="pn">(</span> <span class="pn">[</span><span onmouseout="hideTip(event, 'fs9', 20)" onmouseover="showTip(event, 'fs9', 20)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 21)" onmouseover="showTip(event, 'fs10', 21)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 22)" onmouseover="showTip(event, 'fs1', 22)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span><span class="pn">]</span><span class="pn">,</span> 
+    <span class="id">outDir</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 23)" onmouseover="showTip(event, 'fs9', 23)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 24)" onmouseover="showTip(event, 'fs10', 24)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 25)" onmouseover="showTip(event, 'fs1', 25)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
+    <span class="id">template</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 26)" onmouseover="showTip(event, 'fs9', 26)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 27)" onmouseover="showTip(event, 'fs10', 27)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 28)" onmouseover="showTip(event, 'fs1', 28)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">,</span> <span class="s">&quot;template.html&quot;</span><span class="pn">)</span><span class="pn">,</span>
     <span class="id">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting&quot;</span><span class="pn">,</span>
     <span class="id">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span> <span class="pn">)</span>
     
@@ -111,24 +109,7 @@ It is assumed that <code>sourceRepo</code> and <code>sourceFolder</code> have sy
 <h2><a name="Searchable-API-docs" class="anchor" href="#Searchable-API-docs">Searchable API docs</a></h2>
 <p>By default the command-tool <code>fsdocs</code> generates a Lunr search index <code>index.json</code> in the output directory.
 The source code for this documentation shows how to access this from a search box.</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs7', 29)" onmouseover="showTip(event, 'fs7', 29)" class="rt">ApiDocs</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 30)" onmouseover="showTip(event, 'fs8', 30)" class="id">GenerateHtml</span>
-  <span class="pn">(</span> <span class="pn">[</span><span onmouseout="hideTip(event, 'fs9', 31)" onmouseover="showTip(event, 'fs9', 31)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 32)" onmouseover="showTip(event, 'fs10', 32)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 33)" onmouseover="showTip(event, 'fs1', 33)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span><span class="pn">]</span><span class="pn">,</span> 
-    <span class="id">outDir</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 34)" onmouseover="showTip(event, 'fs9', 34)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 35)" onmouseover="showTip(event, 'fs10', 35)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 36)" onmouseover="showTip(event, 'fs1', 36)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
-    <span class="id">template</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 37)" onmouseover="showTip(event, 'fs9', 37)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 38)" onmouseover="showTip(event, 'fs10', 38)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 39)" onmouseover="showTip(event, 'fs1', 39)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">,</span> <span class="s">&quot;template.html&quot;</span><span class="pn">)</span><span class="pn">,</span>
-    <span class="id">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting&quot;</span><span class="pn">,</span>
-    <span class="id">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span> <span class="pn">)</span>
-    
-</code></pre></td>
-</tr>
-</table>
+<p>The method <code>ApiDocs.GenerateSearchIndexFromModel</code> can be used to generate the source index from a model.</p>
 <h2><a name="Adding-cross-type-links-to-modules-and-types-in-the-same-assembly" class="anchor" href="#Adding-cross-type-links-to-modules-and-types-in-the-same-assembly">Adding cross-type links to modules and types in the same assembly</a></h2>
 <p>You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
 You can do this in two different ways:</p>
@@ -187,25 +168,25 @@ If a type with the given name is not found in the same assembly the link will no
 <span class="k">module</span> <span class="m">Foo</span> <span class="o">=</span> 
     
     <span class="c">/// Bar is just an `int` and belongs to module [Foo]</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs11', 40)" onmouseover="showTip(event, 'fs11', 40)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 41)" onmouseover="showTip(event, 'fs12', 41)" class="vt">int</span>
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs11', 29)" onmouseover="showTip(event, 'fs11', 29)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs12', 30)" onmouseover="showTip(event, 'fs12', 30)" class="vt">int</span>
     
     <span class="c">/// Baz contains a `Foo.Bar` as its `id`</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs13', 42)" onmouseover="showTip(event, 'fs13', 42)" class="rt">Baz</span> <span class="o">=</span> <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs14', 43)" onmouseover="showTip(event, 'fs14', 43)" class="id">id</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs11', 44)" onmouseover="showTip(event, 'fs11', 44)" class="vt">Bar</span> <span class="pn">}</span>
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs13', 31)" onmouseover="showTip(event, 'fs13', 31)" class="rt">Baz</span> <span class="o">=</span> <span class="pn">{</span> <span onmouseout="hideTip(event, 'fs14', 32)" onmouseover="showTip(event, 'fs14', 32)" class="id">id</span><span class="pn">:</span> <span onmouseout="hideTip(event, 'fs11', 33)" onmouseover="showTip(event, 'fs11', 33)" class="vt">Bar</span> <span class="pn">}</span>
 
     <span class="c">/// This function operates on `Baz` types.</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 45)" onmouseover="showTip(event, 'fs15', 45)" class="fn">f</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs16', 46)" onmouseover="showTip(event, 'fs16', 46)" class="id">b</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs13', 47)" onmouseover="showTip(event, 'fs13', 47)" class="rt">Baz</span><span class="pn">)</span> <span class="o">=</span> 
-        <span onmouseout="hideTip(event, 'fs16', 48)" onmouseover="showTip(event, 'fs16', 48)" class="id">b</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs17', 49)" onmouseover="showTip(event, 'fs17', 49)" class="id">id</span> <span class="o">*</span> <span class="n">42</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 34)" onmouseover="showTip(event, 'fs15', 34)" class="fn">f</span> <span class="pn">(</span><span onmouseout="hideTip(event, 'fs16', 35)" onmouseover="showTip(event, 'fs16', 35)" class="id">b</span><span class="pn">:</span><span onmouseout="hideTip(event, 'fs13', 36)" onmouseover="showTip(event, 'fs13', 36)" class="rt">Baz</span><span class="pn">)</span> <span class="o">=</span> 
+        <span onmouseout="hideTip(event, 'fs16', 37)" onmouseover="showTip(event, 'fs16', 37)" class="id">b</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs17', 38)" onmouseover="showTip(event, 'fs17', 38)" class="id">id</span> <span class="o">*</span> <span class="n">42</span>
 
 <span class="c">/// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`</span>
 <span class="k">module</span> <span class="m">Foo3</span> <span class="o">=</span>
     
     <span class="c">/// This is not the same type as `Foo.Bar`</span>
-    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs18', 50)" onmouseover="showTip(event, 'fs18', 50)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 51)" onmouseover="showTip(event, 'fs19', 51)" class="vt">double</span>
+    <span class="k">type</span> <span onmouseout="hideTip(event, 'fs18', 39)" onmouseover="showTip(event, 'fs18', 39)" class="vt">Bar</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 40)" onmouseover="showTip(event, 'fs19', 40)" class="vt">double</span>
 
     <span class="c">/// Using the simple name for [Bar] will fail to create a link because the name is duplicated in </span>
     <span class="c">/// [Foo.Bar] and in [Foo3.Bar]. In this case, using the full name works.</span>
-    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 52)" onmouseover="showTip(event, 'fs20', 52)" class="fn">f2</span> <span onmouseout="hideTip(event, 'fs21', 53)" onmouseover="showTip(event, 'fs21', 53)" class="id">b</span> <span class="o">=</span>
-         <span onmouseout="hideTip(event, 'fs21', 54)" onmouseover="showTip(event, 'fs21', 54)" class="id">b</span> <span class="o">*</span> <span class="n">50</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs20', 41)" onmouseover="showTip(event, 'fs20', 41)" class="fn">f2</span> <span onmouseout="hideTip(event, 'fs21', 42)" onmouseover="showTip(event, 'fs21', 42)" class="id">b</span> <span class="o">=</span>
+         <span onmouseout="hideTip(event, 'fs21', 43)" onmouseover="showTip(event, 'fs21', 43)" class="id">b</span> <span class="o">*</span> <span class="n">50</span>
 </code></pre></td>
 </tr>
 </table>
@@ -220,7 +201,7 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// [omit]</span>
 <span class="c">/// Some actual comment</span>
 <span class="k">module</span> <span class="m">Bar</span> <span class="o">=</span> 
-   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 55)" onmouseover="showTip(event, 'fs22', 55)" class="id">a</span> <span class="o">=</span> <span class="n">42</span>
+   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 44)" onmouseover="showTip(event, 'fs22', 44)" class="id">a</span> <span class="o">=</span> <span class="n">42</span>
 </code></pre></td>
 </tr>
 </table>
@@ -234,10 +215,10 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="l">5: </span>
 <span class="l">6: </span>
 </pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs7', 56)" onmouseover="showTip(event, 'fs7', 56)" class="rt">ApiDocs</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 57)" onmouseover="showTip(event, 'fs8', 57)" class="id">GenerateHtml</span>
-  <span class="pn">(</span> <span class="pn">[</span> <span onmouseout="hideTip(event, 'fs9', 58)" onmouseover="showTip(event, 'fs9', 58)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 59)" onmouseover="showTip(event, 'fs10', 59)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 60)" onmouseover="showTip(event, 'fs1', 60)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span> <span class="pn">]</span><span class="pn">,</span> 
-    <span onmouseout="hideTip(event, 'fs9', 61)" onmouseover="showTip(event, 'fs9', 61)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 62)" onmouseover="showTip(event, 'fs10', 62)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 63)" onmouseover="showTip(event, 'fs1', 63)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
-    <span class="id">template</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 64)" onmouseover="showTip(event, 'fs9', 64)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 65)" onmouseover="showTip(event, 'fs10', 65)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 66)" onmouseover="showTip(event, 'fs1', 66)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">,</span> <span class="s">&quot;template.html&quot;</span><span class="pn">)</span><span class="pn">,</span>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs7', 45)" onmouseover="showTip(event, 'fs7', 45)" class="rt">ApiDocs</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs8', 46)" onmouseover="showTip(event, 'fs8', 46)" class="id">GenerateHtml</span>
+  <span class="pn">(</span> <span class="pn">[</span> <span onmouseout="hideTip(event, 'fs9', 47)" onmouseover="showTip(event, 'fs9', 47)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 48)" onmouseover="showTip(event, 'fs10', 48)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 49)" onmouseover="showTip(event, 'fs1', 49)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;bin/YourLibrary.dll&quot;</span><span class="pn">)</span> <span class="pn">]</span><span class="pn">,</span> 
+    <span onmouseout="hideTip(event, 'fs9', 50)" onmouseover="showTip(event, 'fs9', 50)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 51)" onmouseover="showTip(event, 'fs10', 51)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 52)" onmouseover="showTip(event, 'fs1', 52)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;output&quot;</span><span class="pn">)</span><span class="pn">,</span>
+    <span class="id">template</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs9', 53)" onmouseover="showTip(event, 'fs9', 53)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs10', 54)" onmouseover="showTip(event, 'fs10', 54)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs1', 55)" onmouseover="showTip(event, 'fs1', 55)" class="id">root</span><span class="pn">,</span> <span class="s">&quot;templates&quot;</span><span class="pn">,</span> <span class="s">&quot;template.html&quot;</span><span class="pn">)</span><span class="pn">,</span>
     <span class="id">sourceRepo</span> <span class="o">=</span> <span class="s">&quot;https://github.com/fsprojects/FSharp.Formatting/tree/master&quot;</span><span class="pn">,</span>
     <span class="id">sourceFolder</span> <span class="o">=</span> <span class="s">&quot;/path/to/FSharp.Formatting&quot;</span><span class="pn">,</span> <span class="id">markDownComments</span> <span class="o">=</span> <span class="k">false</span> <span class="pn">)</span>
 </code></pre></td>
@@ -255,8 +236,8 @@ pass the named argument <code>markDownComments</code> with value <code>false</co
 <span class="c">/// Some actual comment</span>
 <span class="c">/// &lt;para&gt;Another paragraph&lt;/para&gt;</span>
 <span class="c">/// &lt;/summary&gt;</span>
-<span class="k">module</span> <span onmouseout="hideTip(event, 'fs23', 67)" onmouseover="showTip(event, 'fs23', 67)" class="m">Foo2</span> <span class="o">=</span> 
-   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 68)" onmouseover="showTip(event, 'fs22', 68)" class="id">a</span> <span class="o">=</span> <span class="n">42</span>
+<span class="k">module</span> <span onmouseout="hideTip(event, 'fs23', 56)" onmouseover="showTip(event, 'fs23', 56)" class="m">Foo2</span> <span class="o">=</span> 
+   <span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 57)" onmouseover="showTip(event, 'fs22', 57)" class="id">a</span> <span class="o">=</span> <span class="n">42</span>
 </code></pre></td>
 </tr>
 </table>
@@ -368,14 +349,32 @@ specify references explicitly etc.)
             <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
             <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
             <li class="divider"></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown type</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat type</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate type</a></li>
-            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs type</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
+            <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
           </ul>
         </div>
       </div>
     </div>
     <a href="https://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
-  </body>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
+<!--    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/perfect-scrollbar.jquery.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-js/1.3.0/sticky.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"></script>
+<!--    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/modernizr.custom-3.6.0.js"></script> -->
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/learn.js"></script>
+<!--    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/hugo-learn.js"></script> -->
+<!--    <link rel="stylesheet" href="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.css"/>
+    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.js"></script> 
+    <script>
+      mermaid.initialize({ startOnLoad: true });
+    </script> -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/languages/fsharp.min.js"></script>
+    <script>
+      hljs.initHighlightingOnLoad()
+    </script>
+   </body>
   </html>
