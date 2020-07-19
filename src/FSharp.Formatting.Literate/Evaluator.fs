@@ -12,8 +12,15 @@ open FSharp.Formatting.Internal
 /// Represents a kind of thing that can be embedded 
 [<RequireQualifiedAccessAttribute>]
 type FsiEmbedKind = 
-  | Output
+  /// The FSI output 
+  | FsiOutput
+  /// The combined FSI output and console output
+  | FsiMergedOutput
+  /// The stdout from this part of the execution (not including FSI output)
+  | ConsoleOutput
+  /// The 'it' value
   | ItValue
+  /// A specific value
   | Value
 
 /// An interface that represents FSI evaluation result
@@ -24,6 +31,8 @@ type IFsiEvaluationResult = interface end
 /// the generated console output together with a result and its static type.
 type FsiEvaluationResult = 
   { Output : string option
+    FsiOutput : string option
+    FsiMergedOutput : string option
     ItValue : (obj * Type) option
     Result : (obj * Type) option }
   interface IFsiEvaluationResult
@@ -99,19 +108,210 @@ type FsiEvaluatorConfig() =
   static member CreateNoOpFsiObject() = box (new NoOpFsiObject())
 
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
-type FsiEvaluator(?options:string[], ?fsiObj) =
-  // Initialize F# Interactive evaluation session
-  let fsiOptions = (Option.map FsiOptions.ofArgs options) |> Option.defaultWith (fun _ -> FsiOptions.Default)
-  let fsiSession = ScriptHost.Create(fsiOptions, preventStdOut = true, ?fsiObj = fsiObj)
+type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?discardStdOut: bool) =
+
+  let discardStdOut = defaultArg discardStdOut true
+  let fsiObj = defaultArg fsiObj (box FSharp.Compiler.Interactive.Shell.Settings.fsi)
+  let addHtmlPrinter = defaultArg addHtmlPrinter false
+  let options =
+     options
+     |> Option.map (Array.append (if addHtmlPrinter then [| "--define:HAS_FSI_ADDHTMLPRINTER" |] else [| |])) 
+     //|> Option.map (Array.append [| "-r:FSharp.Compiler.Interactive.Settings.dll" |]) 
+
+  let fsiOptions = options |> Option.map FsiOptions.ofArgs |> Option.defaultWith (fun _ -> FsiOptions.Default)
+  let fsiSession = ScriptHost.Create(fsiOptions, discardStdOut = discardStdOut, fsiObj = fsiObj)
+
+  let mutable plainTextPrinters : Choice<(obj -> string option), (obj -> obj option)>  list = []
+  let mutable htmlPrinters : (obj -> (seq<string * string> * string) option) list = []
+
+  //----------------------------------------------------
+  // Inject the standard 'fsi' script control model into the evaluation session
+  // without referencing FSharp.Compiler.Interactive.Settings (which is highly problematic)
+  //
+  // Injecting arbitrary .NET values into F# interactive sessions from the outside is non-trivial.
+  // The technique here is to inject a script which reads values out of static fields
+  // in this assembly via reflection.
+
+  let thisTypeName = typeof<FsiEvaluator>.AssemblyQualifiedName
+  let addPrinterThunk(f: obj, ty: Type) =
+      let realPrinter (value:obj) =
+        match value with
+        | null -> None
+        | _ ->
+            if ty.IsAssignableFrom(value.GetType()) then
+                match f with
+                | :? (obj -> string)  as f2 ->
+                    match f2 value with
+                    | null -> None
+                    | s -> Some s
+                | _ -> None
+            else None
+      plainTextPrinters <- Choice1Of2 realPrinter :: plainTextPrinters
+
+  let addPrintTransformerThunk(f: obj, ty: Type) =
+      let realPrinter (value:obj) =
+        match value with
+        | null -> None
+        | _ ->
+            if ty.IsAssignableFrom(value.GetType()) then
+                match f with
+                | :? (obj -> obj)  as f2 ->
+                    match f2 value with
+                    | null -> None
+                    | o -> Some o
+                | _ -> None
+            else None
+      plainTextPrinters <- Choice2Of2 realPrinter :: plainTextPrinters
+
+  let addHtmlPrinterThunk(f: obj, ty: Type) =
+      let realHtmlPrinter (value:obj) =
+        match value with
+        | null -> None
+        | _ ->
+            if ty.IsAssignableFrom(value.GetType()) then
+                match f with
+                | :? (obj -> seq<string * string> * string) as f2 -> Some(f2 value)
+                | _ -> None
+            else None
+      htmlPrinters <- realHtmlPrinter :: htmlPrinters
+
+  do FsiEvaluator.InjectedAddPrinter <- addPrinterThunk
+  do FsiEvaluator.InjectedAddPrintTransformer <- addPrintTransformerThunk
+  do FsiEvaluator.InjectedAddHtmlPrinter <- addHtmlPrinterThunk
+  do FsiEvaluator.InjectedFsiObj <- fsiObj
+  do
+    let fsiEstablishText =
+      sprintf """
+namespace global
+[<AutoOpen>]
+module __FsiSettings =
+   open System
+   open System.Reflection
+   type fsi private() =
+       static let ty = System.Type.GetType("%s")
+       static let __InjectedAddPrinter =
+           ty.InvokeMember("InjectedAddPrinter", (BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.GetProperty), null, null, [| |]) 
+           :?> ((obj -> string) * Type -> unit)
+       static let __InjectedAddPrintTransformer =
+           ty.InvokeMember("InjectedAddPrintTransformer", (BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.GetProperty), null, null, [| |]) 
+           :?> ((obj -> obj) * Type -> unit)
+       static let __InjectedAddHtmlPrinter =
+           ty.InvokeMember("InjectedAddHtmlPrinter", (BindingFlags.Static ||| BindingFlags.Public ||| BindingFlags.NonPublic ||| BindingFlags.GetProperty), null, null, [| |]) 
+           :?> ((obj -> seq<string * string> * string) * Type -> unit)
+       static let __FsiObj =
+          ty.InvokeMember("InjectedFsiObj", (BindingFlags.Static ||| BindingFlags.GetProperty ||| BindingFlags.Public ||| BindingFlags.NonPublic), null, null, [| |]) 
+
+       static let getInstanceProp nm = __FsiObj.GetType().InvokeMember(nm, (BindingFlags.Instance ||| BindingFlags.GetProperty ||| BindingFlags.Public), null, __FsiObj, [|  |])
+       static let setInstanceProp nm v = __FsiObj.GetType().InvokeMember(nm, (BindingFlags.Instance ||| BindingFlags.SetProperty ||| BindingFlags.Public), null, __FsiObj, [| box v |]) |> ignore
+
+       /// Get or set the floating point format used in the output of the interactive session.
+       static member FloatingPointFormat
+           with get() = getInstanceProp "FloatingPointFormat" :?> string
+           and set(v:string) = setInstanceProp "FloatingPointFormat" v
+
+       /// Get or set the format provider used in the output of the interactive session.
+       static member FormatProvider 
+           with get() = getInstanceProp "FormatProvider" :?> System.IFormatProvider 
+           and set(v:System.IFormatProvider) = setInstanceProp "FormatProvider" v
+
+       /// Get or set the print width of the interactive session.
+       static member PrintWidth 
+           with get() = getInstanceProp "PrintWidth" :?> int  
+           and set(v:int  ) = setInstanceProp "PrintWidth" v
+
+       /// Get or set the print depth of the interactive session.
+       static member PrintDepth 
+           with get() = getInstanceProp "PrintDepth" :?> int
+           and set(v:int) = setInstanceProp "PrintDepth" v
+
+       /// Get or set the total print length of the interactive session.
+       static member PrintLength 
+           with get() = getInstanceProp "PrintLength" :?> int  
+           and set(v:int) = setInstanceProp "PrintLength" v
+
+       /// Get or set the total print size of the interactive session.
+       static member PrintSize  
+           with get() = getInstanceProp "PrintSize" :?> int
+           and set(v:int) = setInstanceProp "PrintSize" v
+
+       /// When set to 'false', disables the display of properties of evaluated objects in the output of the interactive session.
+       static member ShowProperties  
+           with get() = getInstanceProp "ShowProperties" :?> bool
+           and set(v:bool) = setInstanceProp "ShowProperties" v
+
+       /// When set to 'false', disables the display of sequences in the output of the interactive session.
+       static member ShowIEnumerable  
+           with get() = getInstanceProp "ShowIEnumerable" :?> bool
+           and set(v:bool) = setInstanceProp "ShowIEnumerable" v
+
+       /// When set to 'false', disables the display of declaration values in the output of the interactive session.
+       static member ShowDeclarationValues 
+           with get() = getInstanceProp "ShowDeclarationValues" :?> bool
+           and set(v:bool) = setInstanceProp "ShowDeclarationValues" v
+
+       /// Register a printer that controls the output of the interactive session.
+       static member AddPrinter<'T>(f:'T -> string) =
+           __InjectedAddPrinter ((fun (v:obj) -> f (unbox<'T> v)), typeof<'T>)
+           __FsiObj.GetType().GetMethod("AddPrinter", (BindingFlags.Instance ||| BindingFlags.Public)).MakeGenericMethod([| typeof<'T> |]).Invoke(__FsiObj, [|  box f |]) |> ignore
+
+       /// Register a print transformer that controls the output of the interactive session.
+       static member AddPrintTransformer<'T>(f: 'T -> obj) =
+           __InjectedAddPrintTransformer ((fun (v:obj) -> f (unbox<'T> v)), typeof<'T>)
+           __FsiObj.GetType().GetMethod("AddPrintTransformer", (BindingFlags.Instance ||| BindingFlags.Public)).MakeGenericMethod([| typeof<'T> |]).Invoke(__FsiObj, [|  box f |]) |> ignore
+
+       static member AddHtmlPrinter<'T>(f:'T -> seq<string * string> * string) =
+           __InjectedAddHtmlPrinter ((fun (v:obj) -> f (unbox<'T> v)), typeof<'T>)
+
+       /// The command line arguments after ignoring the arguments relevant to the interactive environment
+       static member CommandLineArgs 
+           with get() = getInstanceProp "CommandLineArgs" :?> string []
+           and set(v:string[]) = setInstanceProp "CommandLineArgs" v
+    """ thisTypeName
+
+    let path = Path.GetTempFileName() + ".fs"
+    File.WriteAllText(path, fsiEstablishText)
+    let outputs, res = fsiSession.EvalInteraction(sprintf "#load @\"%s\"" path)
+    File.Delete(path)
+    match res with
+    | Ok v -> ()
+    | Error exn ->
+       printfn "outputs.Output: <<<%A>>>" outputs.Output
+       printfn "outputs.Error: <<<%A>>>" outputs.Error
+       printfn "exn: <<<%A>>>" exn
+       raise exn
+
 
   let evalFailed = new Event<_>()
   let lockObj = obj()
+
+  let rec plainTextPrint depth (v:obj) =
+      if depth > 10 then
+          sprintf "%A" v // recursion in print transformers
+      else
+          plainTextPrinters
+          // Try to find a printer or print transformer
+          |> List.tryPick (fun f ->
+               match f with
+               | Choice1Of2 addedPrinter -> addedPrinter v
+               | Choice2Of2 addedPrintTransformer -> addedPrintTransformer v |> Option.map (plainTextPrint (depth+1)))
+          |> function
+              | None -> sprintf "%A" v // no printer found
+              | Some t -> t
 
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
   let mutable valueTransformations = 
     [ (fun (o:obj, t:Type, executionCount: int) ->
-        Some([OutputBlock(sprintf "%A" o, "text/plain", Some executionCount)]) ) ]
+        Some([OutputBlock(plainTextPrint 0 o, "text/plain", Some executionCount)]) ) ]
+
+  /// Temporarily holds the function value injected into the F# evaluation session
+  static member val internal InjectedAddPrintTransformer : ((obj -> obj) * Type -> unit) = Unchecked.defaultof<_>  with get, set
+  /// Temporarily holds the function value injected into the F# evaluation session
+  static member val internal InjectedAddPrinter : ((obj -> string) * Type -> unit) = Unchecked.defaultof<_>  with get, set
+  /// Temporarily holds the function value injected into the F# evaluation session
+  static member val internal InjectedAddHtmlPrinter : ((obj -> seq<string * string> * string) * Type -> unit) = Unchecked.defaultof<_>  with get, set
+  /// Temporarily holds the object value injected into the F# evaluation session
+  static member val internal InjectedFsiObj : obj = Unchecked.defaultof<_>  with get, set
 
   /// Register a function that formats (some) values that are produced by the evaluator.
   /// The specified function should return 'Some' when it knows how to format a value
@@ -128,8 +328,16 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
       if not (result :? FsiEvaluationResult) then 
         invalidArg "result" "FsiEvaluator.Format: Expected 'FsiEvaluationResult' value as argument."
       match result :?> FsiEvaluationResult, kind with
-      | result, FsiEmbedKind.Output -> 
+      | result, FsiEmbedKind.ConsoleOutput -> 
         let outputText = defaultArg result.Output "No output has been produced."
+        let output = outputText.Trim()
+        [ OutputBlock (output, "text/plain", Some executionCount) ]
+      | result, FsiEmbedKind.FsiOutput -> 
+        let outputText = defaultArg result.FsiOutput "No output has been produced."
+        let output = outputText.Trim()
+        [ OutputBlock (output, "text/plain", Some executionCount) ]
+      | result, FsiEmbedKind.FsiMergedOutput -> 
+        let outputText = defaultArg result.FsiMergedOutput "No output has been produced."
         let output = outputText.Trim()
         [ OutputBlock (output, "text/plain", Some executionCount) ]
       | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItValue
@@ -161,18 +369,33 @@ type FsiEvaluator(?options:string[], ?fsiObj) =
             | Some f -> Path.GetDirectoryName f
             | None -> Directory.GetCurrentDirectory()
           fsiSession.WithCurrentDirectory dir (fun () ->
-            let (output, value), itvalue =
+            let output, value, itvalue =
               if asExpression then
-                fsiSession.TryEvalExpressionWithOutput text, None
+                let output, res = fsiSession.TryEvalExpression text
+                match res with
+                | Error _ -> output, None, None
+                | Ok res -> output, res, None
               else
-                let output = fsiSession.EvalInteractionWithOutput text
-                // try get the "it" value, but silently ignore any errors
-                try
-                  (output, None), fsiSession.TryEvalExpression "it"
-                with _ -> (output, None), None
-            { Output = Some output.Output.ScriptOutput; Result = value; ItValue = itvalue  } :> _
+                let output, res = fsiSession.EvalInteraction text
+                match res with
+                | Error _ -> output, None, None
+                | Ok _ ->
+                    // try get the "it" value, but silently ignore any errors
+                    let _outputs, res = fsiSession.TryEvalExpression "it"
+                    match res with
+                    | Ok v -> output, None, v
+                    | Error _ -> output, None, None
+            { Output = Some output.Output.ScriptOutput
+              FsiMergedOutput = Some output.Output.Merged
+              FsiOutput = Some output.Output.FsiOutput
+              Result = value
+              ItValue = itvalue  } :> _
           )
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
-        { Output = None; Result = None; ItValue = None } :> _
+        { Output = None
+          FsiOutput = None
+          FsiMergedOutput = None
+          Result = None
+          ItValue = None } :> _
 

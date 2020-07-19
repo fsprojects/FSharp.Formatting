@@ -6,7 +6,6 @@ open System.Text
 open System.Reflection
 open System.Diagnostics
 open System.Runtime.CompilerServices
-open FSharp.Compiler
 open FSharp.Compiler.Interactive.Shell
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Text
@@ -302,18 +301,18 @@ module internal CompilerServiceExtensions =
       member x.FSharpFullNameWithTypeArgs = x.FSharpFullName + x.FSharpParamList
 
 type internal OutputData =
-  { FsiOutput : string; ScriptOutput : string; Merged : string }
+  { FsiOutput: string; ScriptOutput: string; Merged: string }
 
-type internal InteractionResult =
-  { Output : OutputData; Error : OutputData }
+type internal InteractionOutputs =
+  { Output: OutputData; Error: OutputData }
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
 type internal FsiEvaluationException =
-    inherit System.Exception
-    val private result : InteractionResult
-    val private input : string
-    val private arguments : string list option
-    new (msg:string, input:string, args : string list option, result: InteractionResult, inner:System.Exception) = {
+    inherit Exception
+    val private result: InteractionOutputs
+    val private input: string
+    val private arguments: string list option
+    new (msg:string, input:string, args: string list option, result: InteractionOutputs, inner:System.Exception) = {
       inherit System.Exception(msg, inner)
       input = input
       result = result
@@ -336,10 +335,10 @@ type internal FsiEvaluationException =
 
 /// Exception for invalid expression types
 type internal FsiExpressionTypeException =
-    val private value : obj option
-    val private expected : System.Type
+    val private value: obj option
+    val private expected: System.Type
     inherit FsiEvaluationException
-    new (msg:string, input:string, result: InteractionResult, expect : System.Type, ?value : obj) = {
+    new (msg:string, input:string, result: InteractionOutputs, expect: System.Type, ?value: obj) = {
       inherit FsiEvaluationException(msg, input, None, result, null)
       expected = expect
       value = value }
@@ -351,122 +350,6 @@ type internal HandledResult<'a> =
   | InvalidExpressionType of FsiExpressionTypeException
   | InvalidCode of FsiEvaluationException
   | Result of 'a
-
-/// Represents a simple F# interactive session.
-type internal IFsiSession =
-    inherit IDisposable
-    /// Evaluate the given interaction.
-    abstract member EvalInteractionWithOutput : string -> InteractionResult
-    /// Try to evaluate the given expression and return its result.
-    abstract member TryEvalExpressionWithOutput : string -> InteractionResult * ((obj * System.Type) option)
-    /// Evaluate the given script.
-    abstract member EvalScriptWithOutput : string -> InteractionResult
-    /// Gets the currently build dynamic assembly.
-    abstract member DynamicAssembly : System.Reflection.Assembly
-
-[<AutoOpen>]
-module internal Extensions =
-  type IFsiSession with
-      member x.EvalInteraction s = x.EvalInteractionWithOutput s |> ignore
-      member x.TryEvalExpression s = x.TryEvalExpressionWithOutput s |> snd
-      member x.EvalScript s = x.EvalScriptWithOutput s |> ignore
-      /// See https://github.com/Microsoft/visualfsharp/issues/1392
-      member x.EvalScriptAsInteractionWithOutput s =
-          // See https://github.com/fsharp/FSharp.Compiler.Service/issues/621
-          let scriptContents = 
-            sprintf "#line 1 @\"%s\"\n" s + 
-            System.IO.File.ReadAllText s + 
-            "\n()"
-          x.EvalInteraction scriptContents
-      /// See https://github.com/Microsoft/visualfsharp/issues/1392
-      member x.EvalScriptAsInteraction s =
-          x.EvalScriptAsInteractionWithOutput s |> ignore
-
-      member x.EvalExpressionWithOutput<'a> text =
-        match x.TryEvalExpressionWithOutput text with
-        | int, Some (value, _) ->
-          match value with
-          | :? 'a as v -> int, v
-          | o ->
-            let msg = sprintf "the returned value (%O) doesn't match the expected type (%A) but has type %A" o (typeof<'a>) (o.GetType())
-            raise <| new FsiExpressionTypeException(msg, text, int, typeof<'a>, o)
-        | int, _ ->
-          let msg = sprintf "no value was returned by expression: %s" text
-          raise <| new FsiExpressionTypeException(msg, text, int, typeof<'a>)
-
-      /// Evaluate the given expression and return its result.
-      member x.EvalExpression<'a> text =
-        x.EvalExpressionWithOutput<'a> text |> snd
-      /// Assigns the given object to the given name (ie "let varName = obj")
-      member x.Let<'a> varName obj =
-          let typeName = typeof<'a>.FSharpFullNameWithTypeArgs
-          x.EvalInteraction (sprintf "let mutable __hook = ref Unchecked.defaultof<%s>" typeName)
-          let __hook = x.EvalExpression<'a ref> "__hook"
-          __hook := obj
-          x.EvalInteraction (sprintf "let %s = !__hook" varName)
-
-      member x.Open ns =
-          x.EvalInteraction (sprintf "open %s" ns)
-      member x.Reference file =
-          x.EvalInteraction (sprintf "#r @\"%s\"" file)
-      member x.Include dir =
-          x.EvalInteraction (sprintf "#I @\"%s\"" dir)
-      member x.Load file =
-          x.EvalInteraction (sprintf "#load @\"%s\" " file)
-
-      /// Change the current directory (so that relative paths within scripts work properly).
-      /// Returns a handle to change the current directory back to it's initial state
-      /// (Because this will change the current directory of the currently running code as well!).
-      member x.Cd dir =
-          let oldDir = System.IO.Directory.GetCurrentDirectory()
-          let cd dir =
-            x.EvalInteraction (sprintf "#cd @\"%s\"" dir)
-          cd dir
-          let isDisposed = ref false
-          { new System.IDisposable with
-              member __.Dispose() =
-                if not !isDisposed then
-                  cd oldDir
-                  isDisposed := true }
-
-      /// Same as Cd but takes a function for the scope.
-      member x.WithCd dir f =
-          use __ = x.ChangeCurrentDirectory dir
-          f ()
-          
-      /// Change the current directory (so that relative paths within scripts work properly).
-      /// Returns a handle to change the current directory back to it's initial state
-      /// (Because this will change the current directory of the currently running code as well!).
-      member x.ChangeCurrentDirectory dir =
-          let oldDir = System.IO.Directory.GetCurrentDirectory()
-          let cd dir =
-            x.EvalInteraction (sprintf "System.Environment.CurrentDirectory <- @\"%s\"" dir)
-            x.EvalInteraction (sprintf "#cd @\"%s\"" dir)
-          cd dir
-          let isDisposed = ref false
-          { new System.IDisposable with
-              member __.Dispose() =
-                if not !isDisposed then
-                  cd oldDir
-                  isDisposed := true }
-
-      /// Same as ChangeCurrentDirectory but takes a function for the scope.
-      member x.WithCurrentDirectory dir f =
-          use __ = x.ChangeCurrentDirectory dir
-          f ()
-
-      /// Handle the given evaluation function
-      member __.Handle f (text:string) =
-        try Result <| f text
-        with
-        | :? FsiExpressionTypeException as e -> InvalidExpressionType e
-        | :? FsiEvaluationException as e -> InvalidCode e
-
-      // Try to get the AssemblyBuilder
-      member x.DynamicAssemblyBuilder =
-        match x.DynamicAssembly with
-        | :? System.Reflection.Emit.AssemblyBuilder as builder -> builder
-        | _ -> failwith "The DynamicAssembly property is no AssemblyBuilder!"
 
 module internal Shell =
   /// Represents a simple (fake) event loop for the 'fsi' object
@@ -504,14 +387,14 @@ module internal Shell =
     member __.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
     member __.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
     member __.CommandLineArgs with get() = args  and set v  = args <- v
-    member __.AddPrinter(printer : 'T -> string) =
+    member __.AddPrinter(printer: 'T -> string) =
       addedPrinters <- Choice1Of2 (typeof<'T>, unbox >> printer) :: addedPrinters
 
     member __.EventLoop
       with get () = evLoop
       and set (_:SimpleEventLoop)  = ()
 
-    member __.AddPrintTransformer(printer : 'T -> obj) =
+    member __.AddPrintTransformer(printer: 'T -> obj) =
       addedPrinters <- Choice2Of2 (typeof<'T>, unbox >> printer) :: addedPrinters
 
 module internal ArgParser =
@@ -547,34 +430,34 @@ type internal OptimizationType =
 
 /// See https://msdn.microsoft.com/en-us/library/dd233172.aspx
 type internal FsiOptions =
-  { Checked : bool option
-    Codepage : int option
-    CrossOptimize : bool option
-    Debug : DebugMode option
-    Defines : string list
-    Exec : bool
-    FullPaths : bool
-    Gui : bool option
-    LibDirs : string list
-    Loads : string list
-    NoFramework : bool
-    NoLogo : bool
-    NonInteractive : bool
-    NoWarns : int list
-    Optimize : (bool * OptimizationType list) list
-    Quiet : bool
-    QuotationsDebug : bool
-    ReadLine : bool option
-    References : string list
-    TailCalls : bool option
-    Uses : string list
-    Utf8Output : bool
+  { Checked: bool option
+    Codepage: int option
+    CrossOptimize: bool option
+    Debug: DebugMode option
+    Defines: string list
+    Exec: bool
+    FullPaths: bool
+    Gui: bool option
+    LibDirs: string list
+    Loads: string list
+    NoFramework: bool
+    NoLogo: bool
+    NonInteractive: bool
+    NoWarns: int list
+    Optimize: (bool * OptimizationType list) list
+    Quiet: bool
+    QuotationsDebug: bool
+    ReadLine: bool option
+    References: string list
+    TailCalls: bool option
+    Uses: string list
+    Utf8Output: bool
     /// Sets a warning level (0 to 5). The default level is 3. Each warning is given a level based on its severity. Level 5 gives more, but less severe, warnings than level 1.
     /// Level 5 warnings are: 21 (recursive use checked at runtime), 22 (let rec evaluated out of order), 45 (full abstraction), and 52 (defensive copy). All other warnings are level 2.
-    WarnLevel : int option
-    WarnAsError : bool option
-    WarnAsErrorList : (bool * int list) list
-    ScriptArgs : string list }
+    WarnLevel: int option
+    WarnAsError: bool option
+    WarnAsErrorList: (bool * int list) list
+    ScriptArgs: string list }
   static member Empty =
     { Checked = None
       Codepage = None
@@ -834,6 +717,7 @@ type internal FsiOptions =
         yield! l
     |]
 
+[<AutoOpen>]
 module internal Helper =
 
   type ForwardTextWriter (f) =
@@ -848,7 +732,7 @@ module internal Helper =
       if r then f null
     override __.Encoding = Encoding.UTF8
     static member Create f = new ForwardTextWriter (f) :> TextWriter
-  type CombineTextWriter (l : TextWriter list) =
+  type CombineTextWriter (l: TextWriter list) =
     inherit TextWriter()
     do assert (l.Length > 0)
     let doAll f =
@@ -863,7 +747,7 @@ module internal Helper =
       if r then doAll (fun t -> t.Dispose())
     override __.Encoding = Encoding.UTF8
     static member Create l = new CombineTextWriter (l) :> TextWriter
-  type OutStreamHelper (saveGlobal, liveOutWriter : _ option, liveFsiWriter : _ option) =
+  type OutStreamHelper (saveGlobal, liveOutWriter: _ option, liveFsiWriter: _ option) =
     let globalFsiOut = new StringBuilder()
     let globalStdOut = new StringBuilder()
     let globalMergedOut = new StringBuilder()
@@ -904,7 +788,7 @@ module internal Helper =
       Console.SetOut defOut
       Console.SetError defErr
 
-  let getSession (fsi : obj, options : FsiOptions, reportGlobal, liveOut, liveOutFsi, liveErr, liveErrFsi, preventStdOut) =
+type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, liveOutFsi, liveErr, liveErrFsi, discardStdOut) =
       // Intialize output and input streams
       let out = new OutStreamHelper(reportGlobal, liveOut, liveOutFsi)
       let err = new OutStreamHelper(reportGlobal, liveErr, liveErrFsi)
@@ -915,26 +799,30 @@ module internal Helper =
       let args =
         [| yield "C:\\fsi.exe"
            yield! options.AsArgs |]
-      Log.verbf "Starting nested fsi.exe with args: %s" (Log.formatArgs args)
+      do Log.verbf "Starting nested fsi.exe with args: %s" (Log.formatArgs args)
+
       let saveOutput () =
         let out = out.GetOutputAndResetLocal()
         let err = err.GetOutputAndResetLocal()
         { Output = out; Error = err }
+
       let getMessages () =
         let out = out.GetOutputAndResetLocal()
         let err = err.GetOutputAndResetLocal()
         let inp = sbInput.ToString()
         err, out, inp
+
       let redirectOut f =
-        let defOut = Console.Out
-        let defErr = Console.Error
         let captureOut, captureErr =
-          if preventStdOut then
+          if discardStdOut then
             out.StdOutWriter, err.StdOutWriter
           else
+            let defOut = Console.Out
+            let defErr = Console.Error
             (CombineTextWriter.Create [defOut; out.StdOutWriter]),
             (CombineTextWriter.Create [defErr; err.StdOutWriter])
         consoleCapture captureOut captureErr f
+
       let fsiSession =
         try
           let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi, false)
@@ -979,95 +867,161 @@ module internal Helper =
                 sbInput.AppendLine(sprintf "#load @\"%s\" " path) |> ignore
               f path)
 
-      let evalInteraction = save fsiSession.EvalInteraction
-      let evalExpression = save fsiSession.EvalExpression
-      let evalScript = saveScript fsiSession.EvalScript
+      let evalInteraction = save fsiSession.EvalInteractionNonThrowing
+      let evalExpression = save fsiSession.EvalExpressionNonThrowing
+      let evalScript = saveScript fsiSession.EvalScriptNonThrowing
+      let diagsToString (diags: FSharpErrorInfo[]) =
+         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
-      let session =
-        { new IFsiSession with
-            member __.EvalInteractionWithOutput text = evalInteraction text |> fst
-            member __.EvalScriptWithOutput path = evalScript path |> fst
-            member __.TryEvalExpressionWithOutput text =
-              let i, r = evalExpression text
-              i, r |> Option.map (fun r -> r.ReflectionValue, r.ReflectionType)
-            member __.DynamicAssembly =
-              fsiSession.DynamicAssembly
-            member __.Dispose() =
-              (fsiSession :> IDisposable).Dispose()
-        }
-      // This works around a FCS bug, I would expect "fsi" to be defined already...
-      // This is probably not the case because we do not have any type with the correct signature loaded
-      // We just compile ourself a forwarder to fix that.
-      //session.Reference (typeof<FSharp.Compiler.Interactive.Shell.Settings.InteractiveSettings>.Assembly.Location)
-      //session.Let "fsi" fsi
-      session
+      let addDiagsToFsiOutput (o: InteractionOutputs) diags =
+         { o with Output = { o.Output with FsiOutput = diagsToString diags + o.Output.FsiOutput } }
 
-type internal ScriptHost private() =
-  /// Creates a forwarder Textwriter, which forwards all output to the given function.
-  /// Set revertRedirect only to "false" if you know that f doesn't print anything to the stdout.
-  /// When revertRedirect is true we capture the Console.Out property and set it before calling f.
-  /// removeNewLines handles the newline characters properly and calls f for every new line instead of every call to
-  /// to the underlaying writers.
-  /// The difference is that with removeNewLines you should use printfn and get lines without newline characters.
-  /// On the other hand without removeNewLines you are called on every TextWriter.Write call,
-  /// so you might be called multiple times for a single lines or a single time for multiple lines.
-  static member CreateForwardWriter (f, ?revertRedirect, ?removeNewLines) =
-    let revertRedirect = defaultArg revertRedirect true
-    let removeNewLines = defaultArg removeNewLines false
-    let captureOut = System.Console.Out
-    let captureErr = System.Console.Error
-    let bufferF =
-      let builder = new System.Text.StringBuilder()
-      let properEndLine = ref false
-      let clearBuilder () =
-        let current = builder.ToString()
-        builder.Clear() |> ignore
-        let reader = new StringReader(current)
-        let mutable line = ""
-        while isNull line |> not do
-          line <- reader.ReadLine()
-          if isNull line |> not then
-            if reader.Peek() = -1 && not (current.EndsWith "\n") then
-              properEndLine := false
-              builder.Append line |> ignore
-            else
-              properEndLine := true
-              f line
-      (fun (data:string) ->
-        if isNull data then
-          // finished.
-          let last = builder.ToString()
-          if !properEndLine || not (System.String.IsNullOrEmpty last) then
-            f last
-        else
-        builder.Append data |> ignore
-        clearBuilder())
-    let withBuffer = if removeNewLines then bufferF else (fun s -> if isNull s |> not then f s)
-    let myF data = Helper.consoleCapture captureOut captureErr (fun () -> withBuffer data)
-    Helper.ForwardTextWriter.Create
-      (if revertRedirect then myF else withBuffer)
+      member __.EvalInteraction text = 
+        let i, (r, diags) = evalInteraction text
+        let i2 = addDiagsToFsiOutput i diags
+        let res =
+            match r with
+            | Choice1Of2 v -> Ok v
+            | Choice2Of2 exn -> Error exn
+        i2, res
+        
+      member __.EvalScript path = 
+        let i, (r, diags) = evalScript path
+        let i2 = addDiagsToFsiOutput i diags
+        let res =
+            match r with
+            | Choice1Of2 v -> Ok v
+            | Choice2Of2 exn -> Error exn
+        i2, res
+
+      member __.TryEvalExpression text =
+        let i, (r, diags) = evalExpression text
+        let i2 = addDiagsToFsiOutput i diags
+        let res =
+            match r with
+            | Choice1Of2 v -> Ok (v |> Option.map (fun r -> r.ReflectionValue, r.ReflectionType))
+            | Choice2Of2 exn -> Error exn
+        i2, res
+
+      member __.DynamicAssembly =
+        fsiSession.DynamicAssembly
+
+      member __.Dispose() =
+        (fsiSession :> IDisposable).Dispose()
+
+      /// See https://github.com/Microsoft/visualfsharp/issues/1392
+      member x.EvalScriptAsInteraction s =
+          // See https://github.com/fsharp/FSharp.Compiler.Service/issues/621
+          let scriptContents = 
+            sprintf "#line 1 @\"%s\"\n" s + 
+            System.IO.File.ReadAllText s + 
+            "\n()"
+          x.EvalInteraction scriptContents
+
+      //member x.EvalExpression<'a> text =
+      //  match x.TryEvalExpression text with
+      //  | int, Ok (Some (value, _typ)), diags ->
+      //    match value with
+      //    | :? 'a as v -> int, v
+      //    | o ->
+      //      let msg = sprintf "the returned value (%O) doesn't match the expected type (%A) but has type %A" o (typeof<'a>) (o.GetType())
+      //      raise <| new FsiExpressionTypeException(msg, text, int, typeof<'a>, o)
+      //  | int, Error exn, _ ->
+      //    let msg = sprintf "no value was returned by expression: %s\n%A" text exn
+      //    raise (new FsiExpressionTypeException(msg, text, int, typeof<'a>))
+
+      ///// Assigns the given object to the given name (ie "let varName = obj")
+      //member x.Let<'a> varName obj =
+      //    let typeName = typeof<'a>.FSharpFullNameWithTypeArgs
+      //    x.EvalInteraction (sprintf "let mutable __hook = ref Unchecked.defaultof<%s>" typeName) |> ignore
+      //    let __hook = x.EvalExpression<'a ref> "__hook"
+      //    __hook := obj
+      //    x.EvalInteraction (sprintf "let %s = !__hook" varName)
+
+      member x.Open ns =
+          x.EvalInteraction (sprintf "open %s" ns)
+
+      member x.Reference file =
+          x.EvalInteraction (sprintf "#r @\"%s\"" file)
+
+      member x.Include dir =
+          x.EvalInteraction (sprintf "#I @\"%s\"" dir)
+
+      member x.Load file =
+          x.EvalInteraction (sprintf "#load @\"%s\" " file)
+
+      /// Change the current directory (so that relative paths within scripts work properly).
+      /// Returns a handle to change the current directory back to it's initial state
+      /// (Because this will change the current directory of the currently running code as well!).
+      member x.Cd dir =
+          let oldDir = System.IO.Directory.GetCurrentDirectory()
+          let cd dir =
+            x.EvalInteraction (sprintf "#cd @\"%s\"" dir) |> ignore
+          cd dir
+          let isDisposed = ref false
+          { new System.IDisposable with
+              member __.Dispose() =
+                if not !isDisposed then
+                  cd oldDir
+                  isDisposed := true }
+
+      /// Same as Cd but takes a function for the scope.
+      member x.WithCd dir f =
+          use __ = x.ChangeCurrentDirectory dir
+          f ()
+          
+      /// Change the current directory (so that relative paths within scripts work properly).
+      /// Returns a handle to change the current directory back to it's initial state
+      /// (Because this will change the current directory of the currently running code as well!).
+      member x.ChangeCurrentDirectory dir =
+          let oldDir = Directory.GetCurrentDirectory()
+          let cd dir =
+            x.EvalInteraction (sprintf "System.Environment.CurrentDirectory <- @\"%s\"" dir) |> ignore
+            x.EvalInteraction (sprintf "#cd @\"%s\"" dir)  |> ignore
+          cd dir
+          let isDisposed = ref false
+          { new System.IDisposable with
+              member __.Dispose() =
+                if not !isDisposed then
+                  cd oldDir
+                  isDisposed := true }
+
+      /// Same as ChangeCurrentDirectory but takes a function for the scope.
+      member x.WithCurrentDirectory dir f =
+          use __ = x.ChangeCurrentDirectory dir
+          f ()
+
+      /// Handle the given evaluation function
+      member __.Handle f (text:string) =
+        try Result <| f text
+        with
+        | :? FsiExpressionTypeException as e -> InvalidExpressionType e
+        | :? FsiEvaluationException as e -> InvalidCode e
+
+      // Try to get the AssemblyBuilder
+      member x.DynamicAssemblyBuilder =
+        match x.DynamicAssembly with
+        | :? System.Reflection.Emit.AssemblyBuilder as builder -> builder
+        | _ -> failwith "The DynamicAssembly property is no AssemblyBuilder!"
+
+type internal ScriptHost() =
+
   /// Create a new IFsiSession by specifying all fsi arguments manually.
-  static member Create
-   ( opts : FsiOptions, ?fsiObj : obj, ?reportGlobal,
-     ?outWriter : TextWriter, ?fsiOutWriter : TextWriter,
-     ?errWriter : TextWriter, ?fsiErrWriter : TextWriter,
-     ?preventStdOut) =
-    Helper.getSession(
-      defaultArg fsiObj (FSharp.Compiler.Interactive.Shell.Settings.fsi :> obj),
-      opts,
-      defaultArg reportGlobal false, outWriter, fsiOutWriter, errWriter, fsiErrWriter,
-      defaultArg preventStdOut false)
+  static member Create(opts: FsiOptions, ?fsiObj: obj, ?reportGlobal, ?outWriter: TextWriter, ?fsiOutWriter: TextWriter,
+     ?errWriter: TextWriter, ?fsiErrWriter: TextWriter, ?discardStdOut) =
+
+    let fsiObj = defaultArg fsiObj (FSharp.Compiler.Interactive.Shell.Settings.fsi :> obj)
+    let reportGlobal = defaultArg reportGlobal false
+    let discardStdOut = defaultArg discardStdOut false
+    FsiSession(fsiObj, opts, reportGlobal, outWriter, fsiOutWriter, errWriter, fsiErrWriter, discardStdOut)
+
   /// Quickly create a new IFsiSession with some sane defaults
-  static member CreateNew
-   ( ?defines : string list, ?fsiObj : obj, ?reportGlobal,
-     ?outWriter : TextWriter, ?fsiOutWriter : TextWriter,
-     ?errWriter : TextWriter, ?fsiErrWriter : TextWriter,
-     ?preventStdOut) =
-    let opts =
-      { FsiOptions.Default with
-          Defines = defaultArg defines [] }
+  static member CreateNew(?defines: string list, ?fsiObj: obj, ?reportGlobal,
+     ?outWriter: TextWriter, ?fsiOutWriter: TextWriter, ?errWriter: TextWriter, ?fsiErrWriter: TextWriter,
+     ?discardStdOut) =
+    let opts = { FsiOptions.Default with Defines = defaultArg defines [] }
     ScriptHost.Create
       (opts, ?fsiObj = fsiObj, ?reportGlobal = reportGlobal,
        ?outWriter = outWriter, ?fsiOutWriter = fsiOutWriter,
        ?errWriter = errWriter, ?fsiErrWriter = fsiErrWriter,
-       ?preventStdOut = preventStdOut)
+       ?discardStdOut = discardStdOut)

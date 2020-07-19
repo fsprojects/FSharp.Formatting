@@ -185,6 +185,9 @@ type CoreBuildOptions(watch) =
     [<Option("eval", Default= true, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = true with get, set
 
+    [<Option("saveImages", Default= "some", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
+    member val saveImages = "some" with get, set
+
     [<Option("noLineNumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
     member val noLineNumbers = false with get, set
 
@@ -203,7 +206,7 @@ type CoreBuildOptions(watch) =
     member x.Execute() =
         let mutable res = 0
 
-        let projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption =
+        let overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption =
           let projects = Seq.toList x.projects
           let cacheFile = ".fsdocs/cache"
           Utils.cacheBinary cacheFile projects.IsEmpty (fun () ->
@@ -213,14 +216,14 @@ type CoreBuildOptions(watch) =
               let slnDir = Path.GetFullPath "."
                 
               //printfn "x.projects = %A" x.projects
-              let projectName, projectFiles =
+              let overallProjectName, projectFiles =
                 match projects with
                 | [] ->
                     match Directory.GetFiles(slnDir, "*.sln") with
                     | [| sln |] ->
                         printfn "getting projects from solution file %s" sln
-                        let projectName = Path.GetFileNameWithoutExtension(sln)
-                        projectName, Crack.getProjectsFromSlnFile sln
+                        let overallProjectName = Path.GetFileNameWithoutExtension(sln)
+                        overallProjectName, Crack.getProjectsFromSlnFile sln
                     | _ -> 
                         let projectFiles =
                             [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
@@ -228,12 +231,12 @@ type CoreBuildOptions(watch) =
                                  yield! Directory.EnumerateFiles(d, "*.fsproj")
                                  for d2 in Directory.EnumerateDirectories(d) do
                                     yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
-                        let projectName = Path.GetFileName(slnDir)
-                        projectName, projectFiles
+                        let overallProjectName = Path.GetFileName(slnDir)
+                        overallProjectName, projectFiles
                             
                 | projectFiles -> 
-                    let projectName = Path.GetFileName(slnDir)
-                    projectName, projectFiles
+                    let overallProjectName = Path.GetFileName(slnDir)
+                    overallProjectName, projectFiles
             
               //printfn "projects = %A" projectFiles
               let projectFiles =
@@ -299,7 +302,7 @@ type CoreBuildOptions(watch) =
               let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
               let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
               let parameters = 
-                [ "project-name", projectName
+                [ "project-name", overallProjectName
                   "root", packageProjectUrl
                   "authors", authors
                   //"description", description
@@ -317,7 +320,7 @@ type CoreBuildOptions(watch) =
               for pn, p in parameters do
                   printfn "parameter %s = %s" pn p
 
-              projectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption)
+              overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption)
 
         let runConvert () =
             try
@@ -331,6 +334,7 @@ type CoreBuildOptions(watch) =
                     ?lineNumbers = Some (not x.noLineNumbers),
                     recursive = true,
                     references = false,
+                    ?saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None),
                     ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
                     parameters = parameters,
                     includeSource = true

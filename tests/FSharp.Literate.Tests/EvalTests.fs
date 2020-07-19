@@ -170,56 +170,48 @@ printfn "%d" (40 + 2)
   html2.Contains("42") |> shouldEqual false
 
 
-[<Test; Ignore("fsi object not being resolve by interactive service")>]
+[<Test>]
 let ``Can #load script with fsi-AddPrinter (without failing)`` () =
   // Generate a script file that uses 'fsi.AddPrinter' in the TEMP folder
   let file =  """namespace FsLab
 module Demo =
-  let test = 42
-module FsiAutoShow = 
-  fsi.AddPrinter(fun (n:int) -> n.ToString())"""
+  type C() = class end
+  type D() = class end
+  let test = C()
+  let test2 = D()
+module FsiAutoShow =
+  fsi.AddPrinter(fun (n:C) -> "QUACK")
+  fsi.AddPrintTransformer(fun (n:D) -> box "SUMMERTIME")
+  let others =
+      (fsi.FloatingPointFormat,
+       fsi.FormatProvider,
+       fsi.PrintWidth,
+       fsi.PrintDepth,
+       fsi.PrintLength,
+       fsi.PrintSize,
+       fsi.ShowProperties,
+       fsi.ShowIEnumerable,
+       fsi.ShowDeclarationValues,
+       fsi.CommandLineArgs)"""
+
   let path = Path.GetTempFileName() + ".fsx"
   File.WriteAllText(path, file)
 
-  // Eval script that #loads the script file and uses something from it
+  // Eval script that #loads the script file and uses printer defined in it
   let content = """
-(*** define-output:t ***)
+(*** hide ***)
 #load @"[PATH]" 
-printfn "%d" FsLab.Demo.test
-(*** include-output:t ***)""".Replace("[PATH]", path)
+(** *)
+FsLab.Demo.test
+(*** include-fsi-output ***)
+FsLab.Demo.test2
+(*** include-it ***)""".Replace("[PATH]", path)
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
   let html1 = Literate.ToHtml(doc1)
-  html1.Contains("42") |> shouldEqual true
-  File.Delete(path)
-
-[<Test; Ignore("fsi object not being resolve by interactive service")>]
-let ``Can specify `fsi` object that ignores all printers`` () =
-  // Generate a script file that uses 'fsi.AddPrinter' in the TEMP folder
-  let file =  """namespace FsLab
-module Demo =
-  let mutable test = "Not executed"
-  fsi.AddPrinter(fun (n:int) -> 
-    test <- "Executed"
-    "")"""
-  let path = Path.GetTempFileName() + ".fsx"
-  File.WriteAllText(path, file)
-
-  // Eval script that #loads the script file and uses something from it
-  let content = """
-(*** define-output:t1 ***)
-#load @"[PATH]" 
-1
-(*** include-it:t1 ***)
-(*** define-output:t2 ***)
-FsLab.Demo.test
-(*** include-it:t2 ***)""".Replace("[PATH]", path)
-  let fsie = FSharp.Formatting.Literate.Evaluation.FsiEvaluator(fsiObj = FsiEvaluatorConfig.CreateNoOpFsiObject())
-  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
-  let html1 = Literate.ToHtml(doc1)
-  html1.Contains("Not executed") |> shouldEqual true
-  html1.Contains("Executed") |> shouldEqual false
+  html1 |> shouldContainText "QUACK"
+  html1 |> shouldContainText "SUMMERTIME"
   File.Delete(path)
 
 [<Test>]
@@ -269,6 +261,33 @@ let ``Can include-it`` () =
   let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "1000"
   html1 |> shouldContainText "2000"
+
+[<Test>]
+let ``Can include-fsi-output`` () =
+  let content = """
+let xxxxxxx = 1
+(*** include-fsi-output ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtml(doc1)
+  html1 |> shouldContainText "val xxxxxxx : int = 1"
+
+[<Test>]
+let ``Can include-fsi-merged-output`` () =
+  let content = """
+printfn "HELLO"
+let xxxxxxx = [ 0 .. 10 ]
+printfn "GOODBYE"
+(*** include-fsi-merged-output ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtml(doc1)
+  html1 |> shouldContainText "HELLO"
+  html1 |> shouldContainText "GOODBYE"
+  html1 |> shouldContainText "val xxxxxxx : int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10]"
+  html1 |> shouldContainText "val it : unit = ()"
 
 [<Test>]
 let ``Can hide and include-it`` () =

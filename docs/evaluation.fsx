@@ -32,72 +32,33 @@ a couple of additional special comments are added.
 
 The following snippet (F# Script file) demonstates the functionality:
 
-    (** 
-    ### Evaluation demo 
-    The following is a simple calculation: *)
     let test = 40 + 2
 
-    (** We can print it as follows: *)
-    (*** define-output:test ***)
-    printf "Result is: %d" test
-
-    (** The result of the previous snippet is: *)
-    (*** include-output:test ***)
-
-    (** And the variable `test` has the following value: *)
-    (*** include-value: test ***)
-
-The script defines a variable `test` and then prints it. The comment `(*** define-output:test ***)` 
-is used to capture the result of the printing (using the key `test`) so that it can be embedded
-later in the script. We refer to it using another special comment written as `(*** include-output:test ***)`.
-In addition, it is also possible to include the value of any variable using the comment
-`(*** include-value: test ***)`. By default, this is formatted using the `"%A"` formatter in F# (but
-the next section shows how to override this behavior). The formatted result of the above snippet looks
-as follows:
-
-<blockquote>
-<h3>Evaluation demo</h3>
-<p>The following is a simple calculation:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span class="i">test</span> <span class="o">=</span> <span class="n">40</span> <span class="o">+</span> <span class="n">2</span></pre>
-</td>
-</tr>
-</table>
-<p>We can print it as follows:</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="i">printf</span> <span class="s">&quot;</span><span class="s">Result</span><span class="s"> </span><span class="s">is</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span class="i">test</span></pre>
-</td>
-</tr>
-</table>
-<p>The result of the previous snippet is:</p>
-<table class="pre"><tr><td><pre><code>Result is: 42
-</code></pre></td></tr></table>
-<p>And the variable <code>test</code> has the following value:</p>
-<table class="pre"><tr><td><pre><code>42
-</code></pre></td></tr></table></blockquote>
-
-In addition to the commands demonstrated in the above sample, you can also use
-the following variations to include the output and `it` values produced by a snippet.
-
-    (*** include-it: test ***)
-    (*** include-output: test ***)
-
-If no snippet is named
-the immediately preceeding previous snippet is used.
-
-    printfn "hello world"
+    printf "A result is: %d" test
     (*** include-output ***)
 
-    200+300
-    (*** include-it ***)
+You can also use `(*** include-fsi-output ***)` to include the F# interactive output instead,
+such as type signatures.
+
+    let test = 40 + 3
+
+    (*** include-fsi-output ***)
+
+To include both console otuput and F# Interactive output use `(*** include-fsi-merged-output ***)`.
+
+    let test = 40 + 4
+
+    (*** include-fsi-merged-output ***)
+
+The script defines a variable `test` and then prints it. The console output is included
+in the output.
+
+In addition to the commands demonstrated in the above sample, you can also use
+the following variations to include the output and `it` values produced by a named snippet.
+
+    (*** include-it: test ***)
+    (*** include-fsi-output: test ***)
+    (*** include-output: test ***)
 
 Specifying the evaluator and formatting 
 ---------------------------------------

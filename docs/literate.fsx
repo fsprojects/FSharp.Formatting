@@ -91,11 +91,15 @@ The F# script files is processed as follows:
 |   `(*** define: snippet-name ***)`       | Define a named snippet  |
 |   `(*** hide ***)`       | Hide the subsequent snippet  |
 |   `(*** include-output ***)`       | The output of the preceeding snippet   |
-|   `(*** include-otuput: snippet-name ***)`       | The output of the snippet  |
+|   `(*** include-output: snippet-name ***)`       | The output of the named snippet  |
+|   `(*** include-fsi-output ***)`       | The F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-output: snippet-name ***)`       | The F# Interactive output of the named snippet  |
+|   `(*** include-fsi-merged-output ***)`       | The merge of console output and F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-merged-output: snippet-name ***)`       | The merge of console output and F# Interactive output of the named snippet  |
 |   `(*** include-it ***)`       | The formatted result of the preceeding snippet |
-|   `(*** include-it: snippet-name ***)`       | The formatted result of the snippet  |
+|   `(*** include-it: snippet-name ***)`       | The formatted result of the named snippet  |
 |   `(*** include-value: value-name ***)`       | The formatted value  |
-|   `(*** include: snippet-name ***)`       | Include the code of the snippet |
+|   `(*** include: snippet-name ***)`       | Include the code of the named snippet |
 |   `(*** raw ***)`       | The subsequent code is treated as raw text |
 
 The command `define` defines a named snippet (such as `final-sample`) and removes the command together with 
@@ -135,7 +139,7 @@ commands. Some of them are demonstrated in the following example:
 
 When processing the document, all F# snippets are copied to a separate file that
 is type-checked using the F# compiler (to obtain colours and tool tips).
-The commands are written on the first line of the snippet, wrapped in `[...]`:
+The commands are written on the first line of the named snippet, wrapped in `[...]`:
 
  - The `hide` command specifies that the F# snippet should not be included in the
    final document. This can be used to include code that is needed to type-check
@@ -145,7 +149,7 @@ The commands are written on the first line of the snippet, wrapped in `[...]`:
    is placed. Use this command if you need multiple versions of the same snippet
    or if you need to separate code from different snippets.
 
- - The `lang=foo` command specifies the language of the snippet. If the language
+ - The `lang=foo` command specifies the language of the named snippet. If the language
    is other than `fsharp`, the snippet is copied to the output as `<pre>` HTML
    tag without any processing.
 
@@ -190,7 +194,7 @@ let script = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(script, template)
 
 let doc = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(doc, template)
+Literate.ConvertMarkdownFile(doc, template)
 
 (**
 
@@ -219,7 +223,7 @@ Literate.ConvertDirectory
 
 ## Generating LaTeX output
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:
@@ -230,13 +234,13 @@ let scriptTex = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(scriptTex, templateTex, outputKind=OutputKind.Latex)
 
 let docTex = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docTex, templateTex, outputKind=OutputKind.Latex)
+Literate.ConvertMarkdownFile(docTex, templateTex, outputKind=OutputKind.Latex)
 
 (**
 
 ## Generating iPython Notebook output
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
 can also produce iPython Notebook output. This is done
 by setting the named parameter `format` to `OutputKind.Pynb`:
 *)
@@ -246,7 +250,7 @@ let scriptPynb = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(scriptPynb, outputKind=OutputKind.Pynb)
 
 let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docPynb, outputKind=OutputKind.Pynb)
+Literate.ConvertMarkdownFile(docPynb, outputKind=OutputKind.Pynb)
 
 (**
 
