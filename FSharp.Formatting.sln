@@ -34,6 +34,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1068-4804-89E7-0AFBAD5F885F}"
 	ProjectSection(SolutionItems) = preProject
 		docs\_template.html = docs\_template.html
+		docs\apidocs.fsx = docs\apidocs.fsx
 		docs\codeformat.fsx = docs\codeformat.fsx
 		docs\commandline.md = docs\commandline.md
 		docs\development.md = docs\development.md
@@ -42,7 +43,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 		docs\index.md = docs\index.md
 		docs\literate.fsx = docs\literate.fsx
 		docs\markdown.fsx = docs\markdown.fsx
-		docs\apidocs.fsx = docs\apidocs.fsx
 		docs\upgrade_from_v2_to_v3.md = docs\upgrade_from_v2_to_v3.md
 	EndProjectSection
 EndProject
@@ -111,11 +111,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4089E333-3857-4771-B209-5673EF4EEDA3}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting", "src\FSharp.Formatting\FSharp.Formatting.fsproj", "{CB78F0EA-8005-4735-A02C-B86CEDC29D85}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference", "reference", "{0DB855C0-34FC-49F0-A202-48F31963F402}"
-	ProjectSection(SolutionItems) = preProject
-		docs\reference\_template.html = docs\reference\_template.html
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -245,7 +240,6 @@ Global
 		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
 		{B266D118-15AE-4BE6-809E-E9E30CE5C62F} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{CB78F0EA-8005-4735-A02C-B86CEDC29D85} = {4089E333-3857-4771-B209-5673EF4EEDA3}
-		{0DB855C0-34FC-49F0-A202-48F31963F402} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}
