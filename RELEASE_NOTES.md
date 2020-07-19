@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 ## 6.0.1
 
   - build the Lunr `index.json` from every execution of `fsdocs build`
@@ -8,7 +6,6 @@
   - Add `ApiDocs` prefix to all types in `ApiDocsModel`
   - Remove `Details` from `ApiDocsModel`
 
->>>>>>> 2a1d1204b88f74095df5e057d294ab0368f8007a
 ## 5.0.5
 
   - Correct behaviour of '--clean'
