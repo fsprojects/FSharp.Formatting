@@ -81,6 +81,7 @@ in the solution according to the rules of <a href="apidocs.html">API doc generat
 <p>The output goes in <code>output/</code> by default.  Typically a <code>--parameters</code> argument is needed for substitutions in the template, e.g.</p>
 <p>A Lunr search index is also generated for the API docs. See  <a href="apidocs.html">API doc generation</a> for details about
 how to add a search box to your <code>_template.html</code>.</p>
+<p>You can experiment with the <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html">template file of this project</a>.</p>
 <p>Template files are as follows:</p>
 <ul>
 <li><code>_template.html</code> - absent, empty or contain <code>{{document}}</code> and <code>{{tooltips}}</code> placeholders.</li>
@@ -172,7 +173,7 @@ be the same across all projects.</p>
 <li><code>--clean</code> -  Clean the output directory before building (except directories starting with ".")</li>
 <li><code>--help</code> -  Display the specific help message for <code>convert</code>.</li>
 </ul>
-<h2><a name="The-watch-commands" class="anchor" href="#The-watch-commands">The watch commands</a></h2>
+<h2><a name="The-watch-command" class="anchor" href="#The-watch-command">The watch command</a></h2>
 <p>The <code>fsdocs watch</code> command does the same as <code>fsdocs build</code> but in "watch" mode, waiting for changes. Only the files in the input
 directory (e.g. <code>docs</code>) are watched.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
@@ -217,28 +218,6 @@ for content substitution.</p>
 </li>
 </ol>
 <p>You can add further substitutions using the <code>--parameters</code> list.</p>
-<p>Tou can experiment with the <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/reference/_template.html">template file of the FSharp.Formatting project</a>.</p>
-<div></div>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
-<span class="l">9: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip"><code lang="text">fsdocs api
-  --dlls lib1.dll "lib 2.dll" 
-  --output "../api-docs" 
-  --template template.html
-  --parameters
-      "authors" "Your name(s)"
-      "github-link" "http://github.com/yourname/project"
-      "project-name" "your project name"
-      "root" "http://yourname.github.io/project"
-</code></pre></td></tr></table>
 
                 <div class="tip" id="fs1">namespace Microsoft.FSharp</div>
 
