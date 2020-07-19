@@ -361,7 +361,7 @@ type CoreBuildOptions(watch) =
                             None
 
                     if not x.noApiDocs then
-                        let outdir = (if x.output = "" then "output/reference" else Path.Combine(x.output, "reference"))
+                        let outdir = Path.Combine(x.output, "reference")
                         let index =
                           ApiDocs.GenerateHtml (
                             dllFiles = projectOutputs,
@@ -369,7 +369,7 @@ type CoreBuildOptions(watch) =
                             parameters = parameters,
                             ?template = initialTemplate2,
                             ?sourceRepo = repoUrlOption,
-                            collectionName = projectName,
+                            //?sigWidth = sigWidth,
                             rootUrl = packageProjectUrl,
                             //?sourceFolder = (evalString x.sourceFolder),
                             libDirs = paths,
@@ -378,7 +378,7 @@ type CoreBuildOptions(watch) =
                             )
                         let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
 
-                        File.WriteAllText(Path.Combine(outdir, "index.json"), indxTxt)
+                        File.WriteAllText(Path.Combine(x.output, "index.json"), indxTxt)
 
             with
                 | :?AggregateException as ex ->

@@ -1,3 +1,19 @@
+(*** condition: prepare ***)
+#nowarn "211"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
+(*** condition: fsx ***)
+#if FSX
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // FSX
+(*** condition: ipynb ***)
+#if IPYNB
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // IPYNB
+
 (**
 F# Formatting: Output embedding
 ===============================
@@ -87,12 +103,6 @@ Specifying the evaluator and formatting
 ---------------------------------------
 *)
 
-(*** hide ***)
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.Formatting.Markdown.dll"
-#r "FSharp.Formatting.CodeFormat.dll"
-#r "FSharp.Formatting.Literate.dll"
 (**
 The embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).

@@ -95,7 +95,7 @@ let ``ApiDocs works on two sample F# assemblies``() =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
   let output = getOutputDir "FsLib12"
-  let searchIndex = ApiDocs.GenerateHtml(libraries, output, template=docTemplate, collectionName="FsLibs", rootUrl="http://root.io/root", parameters=parameters, libDirs = [testBin])
+  let searchIndex = ApiDocs.GenerateHtml(libraries, output, template=docTemplate, rootUrl="http://root.io/root", parameters=parameters, libDirs = [testBin])
 
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
@@ -147,8 +147,8 @@ let ``ApiDocs works on two sample F# assemblies``() =
   indxTxt |> shouldContainText "\"uri\""
   indxTxt |> shouldContainText "\"content\""
   indxTxt |> shouldContainText "\"title\""
-  indxTxt |> shouldContainText "http://root.io/root/reference/FsLibs/fslib-nested-submodule-verynestedtype.html#Member"
-  indxTxt |> shouldContainText "http://root.io/root/reference/FsLibs/fslib-test_issue472_t.html#MultArg"
+  indxTxt |> shouldContainText "http://root.io/root/reference/fslib-nested-submodule-verynestedtype.html#Member"
+  indxTxt |> shouldContainText "http://root.io/root/reference/fslib-test_issue472_t.html#MultArg"
   indxTxt |> shouldContainText """ITest_Issue229.Name \nName \n"""
   indxTxt |> shouldContainText """DuplicatedTypeName \n<p>This type name will be duplicated in"""
 

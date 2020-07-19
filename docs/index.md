@@ -36,9 +36,9 @@ The sub-components are:
  - [F# code formatting](codeformat.html) - this page provides more details about the F# code
    formatter; it discusses how to call it to obtain information about F# source files.
 
- - [API documentation tool](metadata.html) - provides a brief documentation for a tool
+ - [API documentation tool](apidocs.html) - provides a brief documentation for a tool
    that generates nice HTML documentation from "XML comments" in your .NET libraries.
-   The tool handles comments written in Markdown too. 
+   The tool handles comments written in Markdown too and generates a search index.
 
  - [Contribute](https://github.com/fsprojects/FSharp.Formatting/blob/master/CONTRIBUTING.md) - how do I contribute?
 

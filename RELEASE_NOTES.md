@@ -2,6 +2,7 @@
 
   - build the Lunr `index.json` from every execution of `fsdocs build`
   - Make the search index entries available as part of the ApiDocs model
+  - Add search box to generated docs
   - Add `ApiDocs` prefix to all types in `ApiDocsModel`
   - Remove `Details` from `ApiDocsModel`
 

@@ -1,57 +1,65 @@
-(*** hide ***)
+(*** condition: prepare ***)
+#nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
+(*** condition: fsx ***)
+#if FSX
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // FSX
+(*** condition: ipynb ***)
+#if IPYNB
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // IPYNB
+
+(*** hide ***)
 let root = "C:\\"
 
 (**
-F# Formatting: Library documentation
+F# Formatting: API Documentation generation 
 ====================================
 
-The library `FSharp.Formatting.ApiDocs.dll` can be used to generate documentation 
+The [command-line tool `fsdocs`](commandline.html) or the namespace `FSharp.Formatting.ApiDocs` can be used to generate documentation 
 for F# libraries with XML comments. 
 
  - You can use Markdown instead of XML in `///` comments
  - The HTML is built by instantiating a template
  - An ApiDocs model is available if you want to integrate with your own approach to templating.
 
-Building library documentation
-------------------------------
 
-First, we need to load the assembly and open necessary namespaces:
-*)
-
-#r "FSharp.Formatting.ApiDocs.dll"
-open FSharp.Formatting.ApiDocs
-open System.IO
-
-(**
-Building the library documentation is easy - you just need to call
-`ApiDocs.Generate` from your FAKE script or from F# Interactive.
-Assuming `root` is the root directory for your project, you can write:
-*)
-
-ApiDocs.GenerateHtml
-  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
-    outDir=Path.Combine(root, "output"),
-    template=Path.Combine(root, "templates", "template.html") )
-
-(**
 Adding Go to GitHub source links
 -----------------
 You can automatically add GitHub links to each functions, values and class members for further reference.
 You need to specify two more arguments: `sourceRepo` to the GitHub repository 
 and `sourceFolder` to the folder where your DLLs are built.
+
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
-*)
 
-ApiDocs.GenerateHtml
-  ( [Path.Combine(root, "bin/YourLibrary.dll")], 
-    outDir=Path.Combine(root, "output"),
-    template=Path.Combine(root, "templates", "template.html"),
-    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting",
-    sourceFolder = "/path/to/FSharp.Formatting" )
-    
+Searchable API docs
+-----------------
 
-(**
+When using the command-line tool a Lunr search index is automatically generated in `index.json`.
+
+To add a search box to your `_template.html`, load the small `search.js` found in this repo
+(see the relevant sections of [`_template.html` used here](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html),
+for example this HTML code:
+
+    ...
+    <div id="header">
+      <div class="searchbox">
+        <label for="search-by">
+          <i class="fas fa-search"></i>
+        </label>
+        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+        <span data-search-clear="">
+          <i class="fas fa-times"></i>
+        </span>
+      </div>
+    </div>
+    ...
+
 Adding cross-type links to modules and types in the same assembly
 -----------------
 You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
@@ -118,15 +126,7 @@ Classic XML documentation comments
 
 By default `FSharp.Formatting` will expect Markdown documentation comments, to parse XML comments
 pass the named argument `markDownComments` with value `false`.
-*)
 
-ApiDocs.GenerateHtml
-  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
-    Path.Combine(root, "output"),
-    template=Path.Combine(root, "templates", "template.html"),
-    sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-    sourceFolder = "/path/to/FSharp.Formatting", markDownComments = false )
-(**
 An example of an XML documentation comment:
 *)
 /// <summary>
@@ -140,30 +140,26 @@ Note that currently our code is not handling `<parameter>` and `<result> tags, t
 not so much of a problem given that FSharp.Formatting infers the signature via reflection.
 
 
-## Optional parameters
 
-All of the three methods discussed in the previous two sections take a number of optional
-parameters that can be used to tweak how the formatting works:
+Building library documentation programmatically
+------------------------------
 
-
-  - `outDir` - specifies the output directory where documentation should be placed
-  - `template` - the template for substitutions
-  - `parameters` - provides additional parameters for substitutions in the template
-  - `xmlFile` - can be used to override the default name of the XML file (by default, we assume
-     the file has the same name as the DLL)
-  - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
-    With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is 
-    recommended for C# assemblies (if not specified, `true` is used).
-  - `template` - the templates to be used for documentation pages
-  - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
-    generates links to GitHub pages for each entity.
-  - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
-  - `libDirs` - Use this to specify additional paths where referenced DLL files can be found
-  - `otherFlags` - Additional flags that are passed to the F# compiler (you can use this if you want to 
-    specify references explicitly etc.)
-  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
-
-
-
-
+First, we need to load the assembly and open necessary namespaces:
 *)
+
+#r "FSharp.Formatting.ApiDocs.dll"
+open FSharp.Formatting.ApiDocs
+open System.IO
+
+(**
+Building the library documentation is easy - you just need to call
+`ApiDocs.Generate` from your FAKE script or from F# Interactive.
+Assuming `root` is the root directory for your project, you can write:
+*)
+
+ApiDocs.GenerateHtml
+  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
+    outDir=Path.Combine(root, "output"),
+    template=Path.Combine(root, "templates", "template.html") )
+
+    

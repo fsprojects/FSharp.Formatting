@@ -76,4 +76,7 @@ type Snippet = Snippet of string * Line list
 /// Error reported from the F# compiler consists of location (start and end),
 /// error kind and the message (wrapped in a single case discriminated union
 /// with constructor `SourceError`)
-type SourceError = SourceError of (int * int) * (int * int) * ErrorKind * string
+type SourceError =
+    /// Error reported from the F# compiler consists of location (start and end),
+    /// error kind and the message
+    | SourceError of start: (int * int) * finish: (int * int) * errorKind: ErrorKind * message: string
