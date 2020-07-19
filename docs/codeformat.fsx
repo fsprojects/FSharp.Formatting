@@ -1,5 +1,19 @@
-(*** hide ***)
+(*** condition: prepare ***)
+#nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
+(*** condition: fsx ***)
+#if FSX
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // FSX
+(*** condition: ipynb ***)
+#if IPYNB
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // IPYNB
+
 (**
 F# Formatting: Code formatting
 ==============================
@@ -11,7 +25,6 @@ from the type-checker) and how to turn the code into a nicely formatted HTML.
 First, we need to load the assembly and open necessary namespaces:
 *)
 
-#r "FSharp.Formatting.CodeFormat.dll"
 open FSharp.Formatting.CodeFormat
 open System.Reflection
 

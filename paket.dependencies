@@ -7,6 +7,13 @@ nuget FSharp.Compiler.Service ~> 36.0
 nuget CommandLineParser ~> 2.8
 nuget Dotnet.ProjInfo
 nuget Dotnet.ProjInfo.Workspace
+nuget Newtonsoft.Json
+
+# Used to create notebook docs with mybinder links that work
+# See https://github.com/dotnet/interactive/blob/master/docs/CreateBinder.md
+# Currently if these change copy them over manually into docs
+# github https://github.com/dotnet/interactive/tree/master/samples/my%20binder Dockerfile
+# github https://github.com/dotnet/interactive/tree/master/samples/my%20binder NuGet.config
 
 nuget Microsoft.CodeAnalysis.CSharp ~> 3.6
 

@@ -11,7 +11,7 @@ The build commands
 
 The `fsdocs build`  command processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
 according to the rules of [Literate Programming](literate.html), and also generates API docs for projects
-in the solution according to the rules of [API doc generation](metadata.html)
+in the solution according to the rules of [API doc generation](apidocs.html)
 
     [lang=text]
     fsdocs build
@@ -30,6 +30,11 @@ The expected structure for a docs directory is
     docs/reference/_template.html -- optionally specifies the default template for reference docs
 
 The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
+
+A Lunr search index is also generated for the API docs. See  [API doc generation](apidocs.html) for details about
+how to add a search box to your `_template.html`.
+
+You can experiment with the [template file of this project](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html). 
 
 Template files are as follows:
 
@@ -61,22 +66,23 @@ be the same across all projects.
 
 ### Options
 
-  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
+  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--output` -  Output directory, defaults to `output`
-  * `--clean` -  Clean the output directory before building (except directories starting with ".")
-  * `--template` -  Default template file for formatting. For HTML 
+  * `--noApiDocs` -  Do not generate API docs
+  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
+  * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--nonPublic` -  Generate docs for non-public members
   * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
-  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
-  * `--noLineNumbers` -  Line number option, defaults to `true`.
+  * `--clean` -  Clean the output directory before building (except directories starting with ".")
   * `--help` -  Display the specific help message for `convert`.
 
-The watch commands
+The watch command
 ----------------------------
 
-The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes.
+The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
+directory (e.g. `docs`) are watched.
 
     [lang=text]
     fsdocs watch
@@ -108,33 +114,6 @@ doesn't generate API documentation.
   * `--help` -  Display the specific help message for `convert`.
   * `--waitForKey` -  Wait for key before exit.
 
-The api command
---------------------
-
-The `fsdocs api` command builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
-the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
-
-    [lang=text]
-    fsdocs api --dlls lib1.dll "lib 2.dll" --output "../api-docs" --template docs/reference/_template.html
-
-### Required options
-
-  * `--dlls` -  List of `dll` input files.
-  * `--template` -  Template file for formatting, the file should contain `{{document}}` tag
-
-### Other options
-
-  * `--output` -  Output directory, defaults to `output`
-  * `--parameters` -  Property settings for simple template instantiation.
-  * `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
-  * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
-  * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
-  * `--nonPublic` -  Generate docs for non-public members
-  * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
-  * `--libDirs` - Search directory list for library references.
-  * `--help` -  Display the specific help message for `apidocs`.
-  * `--waitForKey` -  Wait for key before exit.
-
 ### Examples
 
 For the example above:
@@ -149,20 +128,4 @@ corresponding meta-data files `lib1.xml` and `lib 2.xml`, which are the result o
    
 You can add further substitutions using the `--parameters` list. 
 
-Tou can experiment with the [template file of the FSharp.Formatting project](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/reference/_template.html). 
 
-<div></div>
-
-    [lang=text]
-    fsdocs api
-      --dlls lib1.dll "lib 2.dll" 
-      --output "../api-docs" 
-      --template template.html
-      --parameters
-          "authors" "Your name(s)"
-	      "github-link" "http://github.com/yourname/project"
-          "project-name" "your project name"
-	      "root" "http://yourname.github.io/project"
-	  
-	  
-				   

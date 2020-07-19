@@ -142,17 +142,10 @@ type Literate private () =
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.ToFsx(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?parameters=parameters)
 
-  // ------------------------------------------------------------------------------------
-  // Replace literate paragraphs with plain paragraphs
-  // ------------------------------------------------------------------------------------
-
+  /// Replace literate paragraphs with plain paragraphs
   static member FormatLiterateNodes(doc:LiterateDocument, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let ctx = formattingContext outputKind prefix lineNumbers None generateAnchors None tokenKindToCss
     Transformations.replaceLiterateParagraphs ctx doc
-
-  // ------------------------------------------------------------------------------------
-  // Processing functions that handle templating etc.
-  // ------------------------------------------------------------------------------------
 
   /// Process the given literate document
   static member internal TransformDocument
@@ -160,7 +153,7 @@ type Literate private () =
     let ctx = formattingContext outputKind prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
     Formatting.transformDocument doc output ctx
 
-  /// Process Markdown document
+  /// Parse and transform a markdown document
   static member internal ParseAndTransformMarkdown
     (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors, ?customizeDocument, ?tokenKindToCss) =
@@ -176,7 +169,7 @@ type Literate private () =
     let doc = customize customizeDocument ctx doc
     Formatting.transformDocument doc (defaultOutput output input outputKind) ctx
 
-  /// Process F# Script file
+  /// Parse and transform an F# script file
   static member internal ParseAndTransformScriptFile
     (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource,
@@ -193,6 +186,7 @@ type Literate private () =
     let doc = customize customizeDocument ctx doc
     Formatting.transformDocument doc (defaultOutput output input outputKind) ctx
 
+  /// Convert a document file into HTML or another output kind
   static member ConvertDocument
     (doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters) =
       let res =
@@ -201,6 +195,7 @@ type Literate private () =
                ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?parameters=parameters)
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
+  /// Convert a markdown file into HTML or another output kind
   static member ConvertMarkdown
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors,
@@ -214,6 +209,7 @@ type Literate private () =
       let output=defaultOutput output input outputKind
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
+  /// Convert a script file into HTML or another output kind
   static member ConvertScriptFile
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource,
@@ -226,6 +222,7 @@ type Literate private () =
         let output=defaultOutput output input outputKind
         HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
+  /// Convert markdown, script and other content into a static site
   static member ConvertDirectory
     (inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?compilerOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors,

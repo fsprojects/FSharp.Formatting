@@ -344,7 +344,7 @@ module internal Transformations =
             //| { Condition=Some define } when define <> "prepare" -> ()
             //| _ ->
             match para with
-            | LiterateCode(lines, ({ Visibility = NamedCode id} as opts), _popts) ->
+            | LiterateCode(lines, ({ Visibility = LiterateCodeVisibility.NamedCode id} as opts), _popts) ->
                 yield Choice2Of2(id), (lines, opts.ExecutionCount)
             | LiterateCode(lines, opts, _popts) ->
                 yield Choice1Of2(lines), (lines, opts.ExecutionCount)
@@ -366,11 +366,11 @@ module internal Transformations =
         | _ ->
         // Remove "(** hide ***)" from output unless the condition is satisfied
         match special with
-        | LiterateCode(_, { Visibility = HiddenCode }, _) -> None
+        | LiterateCode(_, { Visibility = LiterateCodeVisibility.HiddenCode }, _) -> None
         | _ ->
         // Remove "(** define: name ***)" from output, they should be referenced elsewhere
         match special with
-        | LiterateCode(_, { Visibility = NamedCode _ }, _) -> None
+        | LiterateCode(_, { Visibility = LiterateCodeVisibility.NamedCode _ }, _) -> None
         | _ -> 
         match special with
         | RawBlock (lines, _) -> Some (InlineBlock(unparse lines, None, None))
