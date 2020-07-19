@@ -180,8 +180,8 @@ module Demo =
   let test = C()
   let test2 = D()
 module FsiAutoShow =
-  fsi.AddPrinter(fun (n:C) -> "QUACK")
-  fsi.AddPrintTransformer(fun (n:D) -> box "SUMMERTIME")
+  fsi.AddPrinter(fun (n:Demo.C) -> "QUACK")
+  fsi.AddPrintTransformer(fun (n:Demo.D) -> box "SUMMERTIME")
   let others =
       (fsi.FloatingPointFormat,
        fsi.FormatProvider,
@@ -209,6 +209,7 @@ FsLab.Demo.test2
   let fsie = getFsiEvaluator()
   fsie.EvaluationFailed.Add(printfn "%A")
   let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  doc1.Diagnostics.Length |> shouldEqual 0
   let html1 = Literate.ToHtml(doc1)
   html1 |> shouldContainText "QUACK"
   html1 |> shouldContainText "SUMMERTIME"

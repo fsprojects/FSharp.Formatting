@@ -2,6 +2,10 @@
 
   - Always inject `fsi.AddPrinter`, `fsi.AddHtmlPrinter` etc. into the programming model for literate scripts
   - Remove the `api` command from the command line tool (`build` generalises it)
+ - Add missing search.js
+ - Add `(*** include-fsi-output **)`
+ - Add `(*** include-fsi-merged-output **)`
+
 
 ## 6.0.1
 
