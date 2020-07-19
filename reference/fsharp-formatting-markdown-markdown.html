@@ -2,78 +2,45 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title>Markdown - FSharp.Formatting</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
+    <meta charset="utf-8">
+    <title>Markdown - FSharp.Formatting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
-  <!--
-    <link rel="icon" type="image/png" sizes="32x32" href="https://fsprojects.github.io/FSharp.Formatting/static/images/favicon.png"/>
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <script type="text/javascript">var baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
+    <!-- END SEARCH BOX: this adds support for the search box -->
 
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/nucleus.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/js/fontawesome.min.js"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/hybrid.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/featherlight.min.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/perfect-scrollbar.min.css"/>
-  -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css"/>
-  <!--
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/atom-one-dark-reasonable.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/theme.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/theme-green.css"/>
-<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.0/dist/perfect-scrollbar.common.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/perfect-scrollbar.jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-js/1.3.0/sticky.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/modernizr.custom-3.6.0.js"></script>
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/learn.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/hugo-learn.js"></script> 
-     <link rel="stylesheet" href="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.css"/>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.js"></script> 
-    <script>
-      mermaid.initialize({ startOnLoad: true });
-    </script> 
-  
-  -->
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/atom-one-dark.min.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/languages/fsharp.min.js"></script>
-  <script>
-    hljs.initHighlightingOnLoad()
-  </script>
-  <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-  <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-
-
-  <script type="text/javascript" async
-    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-  <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
-
-  <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
-  <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 </head>
 
 <body>
-  <div class="container">
-    <div class="masthead">
-      <ul class="nav nav-pills pull-right">
-        <li><a href="http://fsharp.org">fsharp.org</a></li>
-      </ul>
-      <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
-    </div>
-    <hr />
-    <div class="row">
-      <div class="span9" id="main">
-        <div>
+    <div class="container">
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+            </ul>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                <div>
   <h1>
     Markdown Type
   </h1>
@@ -114,16 +81,16 @@ and transforming Markdown documents.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '342', 342)" onmouseover="showTip(event, '342', 342)">
+              <code onmouseout="hideTip(event, '343', 343)" onmouseover="showTip(event, '343', 343)">
                 <a name="Parse">
-                  Markdown.Parse(...)
+                  Markdown.Parse(text, ?newline, ?parseOptions)
                 </a>
               </code>
-              <div class="tip" id="342">
+              <div class="tip" id="343">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.Parse(text, newline, parseOptions)
+                Markdown.Parse(text, ?newline, ?parseOptions)
                 <br/>
                 <strong>
                   Parameters: 
@@ -138,17 +105,17 @@ and transforming Markdown documents.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                   <li>
                     <b>
-                      parseOptions
+                      ?parseOptions
                     </b>
                     :
-                    MarkdownParseOptions option
+                    MarkdownParseOptions
                   </li>
                 </ul>
                 <br/>
@@ -160,7 +127,7 @@ and transforming Markdown documents.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (text:string * newline:string option * parseOptions:MarkdownParseOptions option) -&gt; MarkdownDocument
+                (text: string * newline: string * parseOptions: MarkdownParseOptions) -&gt; MarkdownDocument
                 <br/>
               </div>
             </div>
@@ -178,16 +145,16 @@ inline HTML (etc.) will be stored using the specified string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '343', 343)" onmouseover="showTip(event, '343', 343)">
+              <code onmouseout="hideTip(event, '344', 344)" onmouseover="showTip(event, '344', 344)">
                 <a name="ToFsx">
-                  Markdown.ToFsx(doc, newline, parameters)
+                  Markdown.ToFsx(doc, ?newline, ?parameters)
                 </a>
               </code>
-              <div class="tip" id="343">
+              <div class="tip" id="344">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.ToFsx(doc, newline, parameters)
+                Markdown.ToFsx(doc, ?newline, ?parameters)
                 <br/>
                 <strong>
                   Parameters: 
@@ -202,17 +169,17 @@ inline HTML (etc.) will be stored using the specified string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                   <li>
                     <b>
-                      parameters
+                      ?parameters
                     </b>
                     :
-                    (string * string) list option
+                    (string * string) list
                   </li>
                 </ul>
                 <br/>
@@ -224,7 +191,7 @@ inline HTML (etc.) will be stored using the specified string.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (doc:MarkdownDocument * newline:string option * parameters:(string * string) list option) -&gt; string
+                (doc: MarkdownDocument * newline: string * parameters: (string * string) list) -&gt; string
                 <br/>
               </div>
             </div>
@@ -238,16 +205,16 @@ inline HTML (etc.) will be stored using the specified string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '344', 344)" onmouseover="showTip(event, '344', 344)">
+              <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
                 <a name="ToHtml">
-                  Markdown.ToHtml(markdownText, newline)
+                  Markdown.ToHtml(markdownText, ?newline)
                 </a>
               </code>
-              <div class="tip" id="344">
+              <div class="tip" id="345">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.ToHtml(markdownText, newline)
+                Markdown.ToHtml(markdownText, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -262,10 +229,10 @@ inline HTML (etc.) will be stored using the specified string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
@@ -277,7 +244,7 @@ inline HTML (etc.) will be stored using the specified string.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (markdownText:string * newline:string option) -&gt; string
+                (markdownText: string * newline: string) -&gt; string
                 <br/>
               </div>
             </div>
@@ -292,16 +259,16 @@ The result will be returned as a string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
+              <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
                 <a name="ToHtml">
-                  Markdown.ToHtml(doc, newline)
+                  Markdown.ToHtml(doc, ?newline)
                 </a>
               </code>
-              <div class="tip" id="345">
+              <div class="tip" id="346">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.ToHtml(doc, newline)
+                Markdown.ToHtml(doc, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -316,10 +283,10 @@ The result will be returned as a string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
@@ -331,7 +298,7 @@ The result will be returned as a string.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (doc:MarkdownDocument * newline:string option) -&gt; string
+                (doc: MarkdownDocument * newline: string) -&gt; string
                 <br/>
               </div>
             </div>
@@ -346,16 +313,16 @@ format and return the result as a string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
+              <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
                 <a name="ToLatex">
-                  Markdown.ToLatex(markdownText, newline)
+                  Markdown.ToLatex(markdownText, ?newline)
                 </a>
               </code>
-              <div class="tip" id="346">
+              <div class="tip" id="347">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.ToLatex(markdownText, newline)
+                Markdown.ToLatex(markdownText, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -370,10 +337,10 @@ format and return the result as a string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
@@ -385,7 +352,7 @@ format and return the result as a string.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (markdownText:string * newline:string option) -&gt; string
+                (markdownText: string * newline: string) -&gt; string
                 <br/>
               </div>
             </div>
@@ -399,16 +366,16 @@ format and return the result as a string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
+              <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
                 <a name="ToLatex">
-                  Markdown.ToLatex(doc, newline)
+                  Markdown.ToLatex(doc, ?newline)
                 </a>
               </code>
-              <div class="tip" id="347">
+              <div class="tip" id="348">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.ToLatex(doc, newline)
+                Markdown.ToLatex(doc, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -423,10 +390,10 @@ format and return the result as a string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
@@ -438,7 +405,7 @@ format and return the result as a string.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (doc:MarkdownDocument * newline:string option) -&gt; string
+                (doc: MarkdownDocument * newline: string) -&gt; string
                 <br/>
               </div>
             </div>
@@ -453,16 +420,16 @@ format and return the result as a string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
+              <code onmouseout="hideTip(event, '349', 349)" onmouseover="showTip(event, '349', 349)">
                 <a name="ToPynb">
-                  Markdown.ToPynb(...)
+                  Markdown.ToPynb(doc, ?newline, ?parameters)
                 </a>
               </code>
-              <div class="tip" id="348">
+              <div class="tip" id="349">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.ToPynb(doc, newline, parameters)
+                Markdown.ToPynb(doc, ?newline, ?parameters)
                 <br/>
                 <strong>
                   Parameters: 
@@ -477,17 +444,17 @@ format and return the result as a string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                   <li>
                     <b>
-                      parameters
+                      ?parameters
                     </b>
                     :
-                    (string * string) list option
+                    (string * string) list
                   </li>
                 </ul>
                 <br/>
@@ -499,7 +466,7 @@ format and return the result as a string.</p>
                 <strong>
                   Signature: 
                 </strong>
-                (doc:MarkdownDocument * newline:string option * parameters:(string * string) list option) -&gt; string
+                (doc: MarkdownDocument * newline: string * parameters: (string * string) list) -&gt; string
                 <br/>
               </div>
             </div>
@@ -513,16 +480,16 @@ format and return the result as a string.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '349', 349)" onmouseover="showTip(event, '349', 349)">
+              <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
                 <a name="WriteHtml">
-                  Markdown.WriteHtml(...)
+                  Markdown.WriteHtml(markdownText, writer, ?newline)
                 </a>
               </code>
-              <div class="tip" id="349">
+              <div class="tip" id="350">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.WriteHtml(markdownText, writer, newline)
+                Markdown.WriteHtml(markdownText, writer, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -544,17 +511,17 @@ format and return the result as a string.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                (markdownText:string * writer:TextWriter * newline:string option) -&gt; unit
+                (markdownText: string * writer: TextWriter * newline: string) -&gt; unit
                 <br/>
               </div>
             </div>
@@ -569,16 +536,16 @@ will be written to the provided TextWriter.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
+              <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
                 <a name="WriteHtml">
-                  Markdown.WriteHtml(doc, writer, newline)
+                  Markdown.WriteHtml(doc, writer, ?newline)
                 </a>
               </code>
-              <div class="tip" id="350">
+              <div class="tip" id="351">
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.WriteHtml(doc, writer, newline)
+                Markdown.WriteHtml(doc, writer, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -600,17 +567,17 @@ will be written to the provided TextWriter.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                (doc:MarkdownDocument * writer:TextWriter * newline:string option) -&gt; unit
+                (doc: MarkdownDocument * writer: TextWriter * newline: string) -&gt; unit
                 <br/>
               </div>
             </div>
@@ -618,62 +585,6 @@ will be written to the provided TextWriter.</p>
           <td class="xmldoc">
             <p>Transform the provided MarkdownDocument into HTML
 format and write the result to a given writer.</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
-                <a name="WriteLatex">
-                  Markdown.WriteLatex(...)
-                </a>
-              </code>
-              <div class="tip" id="351">
-                <strong>
-                  Full Usage: 
-                </strong>
-                Markdown.WriteLatex(markdownText, writer, newline)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      markdownText
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      writer
-                    </b>
-                    :
-                    TextWriter
-                  </li>
-                  <li>
-                    <b>
-                      newline
-                    </b>
-                    :
-                    string option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                (markdownText:string * writer:TextWriter * newline:string option) -&gt; unit
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>Transform Markdown document into LaTeX format. The result
-will be written to the provided TextWriter.</p>
 
 
           </td>
@@ -690,7 +601,63 @@ will be written to the provided TextWriter.</p>
                 <strong>
                   Full Usage: 
                 </strong>
-                Markdown.WriteLatex(doc, writer, newline)
+                Markdown.WriteLatex(markdownText, writer, ?newline)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      markdownText
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      writer
+                    </b>
+                    :
+                    TextWriter
+                  </li>
+                  <li>
+                    <b>
+                      ?newline
+                    </b>
+                    :
+                    string
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (markdownText: string * writer: TextWriter * newline: string) -&gt; unit
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Transform Markdown document into LaTeX format. The result
+will be written to the provided TextWriter.</p>
+
+
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '353', 353)" onmouseover="showTip(event, '353', 353)">
+                <a name="WriteLatex">
+                  Markdown.WriteLatex(doc, writer, ?newline)
+                </a>
+              </code>
+              <div class="tip" id="353">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Markdown.WriteLatex(doc, writer, ?newline)
                 <br/>
                 <strong>
                   Parameters: 
@@ -712,17 +679,17 @@ will be written to the provided TextWriter.</p>
                   </li>
                   <li>
                     <b>
-                      newline
+                      ?newline
                     </b>
                     :
-                    string option
+                    string
                   </li>
                 </ul>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                (doc:MarkdownDocument * writer:TextWriter * newline:string option) -&gt; unit
+                (doc: MarkdownDocument * writer: TextWriter * newline: string) -&gt; unit
                 <br/>
               </div>
             </div>
@@ -738,65 +705,64 @@ format and write the result to a given writer.</p>
     </table>
   </div>
 </div>
-        
-      </div>
-      <div class="span3">
-        <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
-          <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png"
-            style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
-        </a>
+                
+            </div>
+            <div class="span3">
+                <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
+                    <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png"
+                         style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+                </a>
 
-        <div id="header">
-          <div class="searchbox">
-            <label for="search-by">
-              <i class="fas fa-search"></i>
-            </label>
-            <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-            <span data-search-clear="">
-              <i class="fas fa-times"></i>
-            </span>
-          </div>
+                <div id="header">
+                    <div class="searchbox">
+                        <label for="search-by">
+                            <i class="fas fa-search"></i>
+                        </label>
+                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                        <span data-search-clear="">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </div>
+                <ul class="nav nav-list" id="menu">
+                    <li class="nav-header">FSharp.Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+                    <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                    <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+                    <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">Library documentation</a></li>
+
+                    <li class="nav-header">Examples</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
+                </ul>
+            </div>
         </div>
-        <ul class="nav nav-list" id="menu">
-          <li class="nav-header">FSharp.Formatting</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
-          <li class="divider"></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-
-          <li class="nav-header">Using F# Formatting</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">Library documentation</a></li>
-
-          <li class="nav-header">Examples</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
-
-          <li class="nav-header">Documentation</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
-          <li class="divider"></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
-        </ul>
-      </div>
     </div>
-  </div>
-  <a href="https://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;"
-      src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
-  <script type="text/javascript">var baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-  <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
+    <a href="https://github.com/fsprojects/FSharp.Formatting">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
+    </a>
+
 </body>
 
 </html>

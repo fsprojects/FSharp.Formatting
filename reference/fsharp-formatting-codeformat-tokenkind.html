@@ -2,78 +2,45 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <title>TokenKind - FSharp.Formatting</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
+    <meta charset="utf-8">
+    <title>TokenKind - FSharp.Formatting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
-  <!--
-    <link rel="icon" type="image/png" sizes="32x32" href="https://fsprojects.github.io/FSharp.Formatting/static/images/favicon.png"/>
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <script type="text/javascript">var baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
+    <!-- END SEARCH BOX: this adds support for the search box -->
 
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/nucleus.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/js/fontawesome.min.js"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/hybrid.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/featherlight.min.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/perfect-scrollbar.min.css"/>
-  -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css"/>
-  <!--
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/atom-one-dark-reasonable.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/theme.css"/>
-    <link rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/static/css/theme-green.css"/>
-<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/perfect-scrollbar@1.5.0/dist/perfect-scrollbar.common.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.0/perfect-scrollbar.min.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/perfect-scrollbar.jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-js/1.3.0/sticky.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/featherlight/1.7.13/featherlight.min.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/modernizr.custom-3.6.0.js"></script>
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/learn.js"></script>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/js/hugo-learn.js"></script> 
-     <link rel="stylesheet" href="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.css"/>
-    <script src="https://fsharp.github.io/fsharp-core-api-docs//static/mermaid/mermaid.js"></script> 
-    <script>
-      mermaid.initialize({ startOnLoad: true });
-    </script> 
-  
-  -->
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/atom-one-dark.min.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/languages/fsharp.min.js"></script>
-  <script>
-    hljs.initHighlightingOnLoad()
-  </script>
-  <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-  <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-
-
-  <script type="text/javascript" async
-    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-  <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
-
-  <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
-  <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 </head>
 
 <body>
-  <div class="container">
-    <div class="masthead">
-      <ul class="nav nav-pills pull-right">
-        <li><a href="http://fsharp.org">fsharp.org</a></li>
-      </ul>
-      <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
-    </div>
-    <hr />
-    <div class="row">
-      <div class="span9" id="main">
-        <div>
+    <div class="container">
+        <div class="masthead">
+            <ul class="nav nav-pills pull-right">
+                <li><a href="http://fsharp.org">fsharp.org</a></li>
+            </ul>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/index.html">FSharp.Formatting</a></h3>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="span9" id="main">
+                <div>
   <h1>
     TokenKind Type
   </h1>
@@ -108,12 +75,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '226', 226)" onmouseover="showTip(event, '226', 226)">
+              <code onmouseout="hideTip(event, '227', 227)" onmouseover="showTip(event, '227', 227)">
                 <a name="Comment">
                   TokenKind.Comment
                 </a>
               </code>
-              <div class="tip" id="226">
+              <div class="tip" id="227">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -123,34 +90,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '227', 227)" onmouseover="showTip(event, '227', 227)">
-                <a name="Default">
-                  TokenKind.Default
-                </a>
-              </code>
-              <div class="tip" id="227">
-                <strong>
-                  Full Usage: 
-                </strong>
-                TokenKind.Default
-                <br/>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -163,21 +103,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '228', 228)" onmouseover="showTip(event, '228', 228)">
-                <a name="Disposable">
-                  TokenKind.Disposable
+                <a name="Default">
+                  TokenKind.Default
                 </a>
               </code>
               <div class="tip" id="228">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Disposable
+                TokenKind.Default
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -190,21 +130,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '229', 229)" onmouseover="showTip(event, '229', 229)">
-                <a name="Enumeration">
-                  TokenKind.Enumeration
+                <a name="Disposable">
+                  TokenKind.Disposable
                 </a>
               </code>
               <div class="tip" id="229">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Enumeration
+                TokenKind.Disposable
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -217,21 +157,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '230', 230)" onmouseover="showTip(event, '230', 230)">
-                <a name="Escaped">
-                  TokenKind.Escaped
+                <a name="Enumeration">
+                  TokenKind.Enumeration
                 </a>
               </code>
               <div class="tip" id="230">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Escaped
+                TokenKind.Enumeration
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -244,21 +184,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '231', 231)" onmouseover="showTip(event, '231', 231)">
-                <a name="Function">
-                  TokenKind.Function
+                <a name="Escaped">
+                  TokenKind.Escaped
                 </a>
               </code>
               <div class="tip" id="231">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Function
+                TokenKind.Escaped
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -271,21 +211,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '232', 232)" onmouseover="showTip(event, '232', 232)">
-                <a name="Identifier">
-                  TokenKind.Identifier
+                <a name="Function">
+                  TokenKind.Function
                 </a>
               </code>
               <div class="tip" id="232">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Identifier
+                TokenKind.Function
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -298,21 +238,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '233', 233)" onmouseover="showTip(event, '233', 233)">
-                <a name="Inactive">
-                  TokenKind.Inactive
+                <a name="Identifier">
+                  TokenKind.Identifier
                 </a>
               </code>
               <div class="tip" id="233">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Inactive
+                TokenKind.Identifier
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -325,21 +265,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '234', 234)" onmouseover="showTip(event, '234', 234)">
-                <a name="Interface">
-                  TokenKind.Interface
+                <a name="Inactive">
+                  TokenKind.Inactive
                 </a>
               </code>
               <div class="tip" id="234">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Interface
+                TokenKind.Inactive
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -352,21 +292,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '235', 235)" onmouseover="showTip(event, '235', 235)">
-                <a name="Keyword">
-                  TokenKind.Keyword
+                <a name="Interface">
+                  TokenKind.Interface
                 </a>
               </code>
               <div class="tip" id="235">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Keyword
+                TokenKind.Interface
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -379,21 +319,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '236', 236)" onmouseover="showTip(event, '236', 236)">
-                <a name="Module">
-                  TokenKind.Module
+                <a name="Keyword">
+                  TokenKind.Keyword
                 </a>
               </code>
               <div class="tip" id="236">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Module
+                TokenKind.Keyword
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -406,21 +346,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '237', 237)" onmouseover="showTip(event, '237', 237)">
-                <a name="MutableVar">
-                  TokenKind.MutableVar
+                <a name="Module">
+                  TokenKind.Module
                 </a>
               </code>
               <div class="tip" id="237">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.MutableVar
+                TokenKind.Module
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -433,21 +373,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '238', 238)" onmouseover="showTip(event, '238', 238)">
-                <a name="Number">
-                  TokenKind.Number
+                <a name="MutableVar">
+                  TokenKind.MutableVar
                 </a>
               </code>
               <div class="tip" id="238">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Number
+                TokenKind.MutableVar
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -460,21 +400,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '239', 239)" onmouseover="showTip(event, '239', 239)">
-                <a name="Operator">
-                  TokenKind.Operator
+                <a name="Number">
+                  TokenKind.Number
                 </a>
               </code>
               <div class="tip" id="239">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Operator
+                TokenKind.Number
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -487,21 +427,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '240', 240)" onmouseover="showTip(event, '240', 240)">
-                <a name="Pattern">
-                  TokenKind.Pattern
+                <a name="Operator">
+                  TokenKind.Operator
                 </a>
               </code>
               <div class="tip" id="240">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Pattern
+                TokenKind.Operator
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -514,21 +454,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '241', 241)" onmouseover="showTip(event, '241', 241)">
-                <a name="Preprocessor">
-                  TokenKind.Preprocessor
+                <a name="Pattern">
+                  TokenKind.Pattern
                 </a>
               </code>
               <div class="tip" id="241">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Preprocessor
+                TokenKind.Pattern
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -541,21 +481,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '242', 242)" onmouseover="showTip(event, '242', 242)">
-                <a name="Printf">
-                  TokenKind.Printf
+                <a name="Preprocessor">
+                  TokenKind.Preprocessor
                 </a>
               </code>
               <div class="tip" id="242">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Printf
+                TokenKind.Preprocessor
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -568,21 +508,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '243', 243)" onmouseover="showTip(event, '243', 243)">
-                <a name="Property">
-                  TokenKind.Property
+                <a name="Printf">
+                  TokenKind.Printf
                 </a>
               </code>
               <div class="tip" id="243">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Property
+                TokenKind.Printf
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -595,21 +535,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '244', 244)" onmouseover="showTip(event, '244', 244)">
-                <a name="Punctuation">
-                  TokenKind.Punctuation
+                <a name="Property">
+                  TokenKind.Property
                 </a>
               </code>
               <div class="tip" id="244">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.Punctuation
+                TokenKind.Property
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -622,21 +562,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '245', 245)" onmouseover="showTip(event, '245', 245)">
-                <a name="ReferenceType">
-                  TokenKind.ReferenceType
+                <a name="Punctuation">
+                  TokenKind.Punctuation
                 </a>
               </code>
               <div class="tip" id="245">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.ReferenceType
+                TokenKind.Punctuation
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -649,21 +589,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '246', 246)" onmouseover="showTip(event, '246', 246)">
-                <a name="String">
-                  TokenKind.String
+                <a name="ReferenceType">
+                  TokenKind.ReferenceType
                 </a>
               </code>
               <div class="tip" id="246">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.String
+                TokenKind.ReferenceType
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -676,21 +616,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '247', 247)" onmouseover="showTip(event, '247', 247)">
-                <a name="TypeArgument">
-                  TokenKind.TypeArgument
+                <a name="String">
+                  TokenKind.String
                 </a>
               </code>
               <div class="tip" id="247">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.TypeArgument
+                TokenKind.String
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -703,21 +643,21 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '248', 248)" onmouseover="showTip(event, '248', 248)">
-                <a name="UnionCase">
-                  TokenKind.UnionCase
+                <a name="TypeArgument">
+                  TokenKind.TypeArgument
                 </a>
               </code>
               <div class="tip" id="248">
                 <strong>
                   Full Usage: 
                 </strong>
-                TokenKind.UnionCase
+                TokenKind.TypeArgument
                 <br/>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -730,11 +670,38 @@
           <td class="member-name">
             <div>
               <code onmouseout="hideTip(event, '249', 249)" onmouseover="showTip(event, '249', 249)">
+                <a name="UnionCase">
+                  TokenKind.UnionCase
+                </a>
+              </code>
+              <div class="tip" id="249">
+                <strong>
+                  Full Usage: 
+                </strong>
+                TokenKind.UnionCase
+                <br/>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                TokenKind
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '250', 250)" onmouseover="showTip(event, '250', 250)">
                 <a name="ValueType">
                   TokenKind.ValueType
                 </a>
               </code>
-              <div class="tip" id="249">
+              <div class="tip" id="250">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -744,7 +711,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                
+                TokenKind
                 <br/>
               </div>
             </div>
@@ -762,65 +729,64 @@
   <div></div>
   <div></div>
 </div>
-        
-      </div>
-      <div class="span3">
-        <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
-          <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png"
-            style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
-        </a>
+                
+            </div>
+            <div class="span3">
+                <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
+                    <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png"
+                         style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
+                </a>
 
-        <div id="header">
-          <div class="searchbox">
-            <label for="search-by">
-              <i class="fas fa-search"></i>
-            </label>
-            <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-            <span data-search-clear="">
-              <i class="fas fa-times"></i>
-            </span>
-          </div>
+                <div id="header">
+                    <div class="searchbox">
+                        <label for="search-by">
+                            <i class="fas fa-search"></i>
+                        </label>
+                        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                        <span data-search-clear="">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </div>
+                <ul class="nav nav-list" id="menu">
+                    <li class="nav-header">FSharp.Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
+                    <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                    <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+
+                    <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">Library documentation</a></li>
+
+                    <li class="nav-header">Examples</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+
+                    <li class="nav-header">Documentation</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
+                    <li class="divider"></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
+                </ul>
+            </div>
         </div>
-        <ul class="nav nav-list" id="menu">
-          <li class="nav-header">FSharp.Formatting</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting">Home page</a></li>
-          <li class="divider"></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Formatting">Source Code on GitHub</a></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
-
-          <li class="nav-header">Using F# Formatting</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">Markdown parser</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">F# code formatting</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">Library documentation</a></li>
-
-          <li class="nav-header">Examples</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
-
-          <li class="nav-header">Documentation</li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/development.html">Contribute / Development Topics</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/diagnostics.html">Diagnostics &amp; debugging</a></li>
-          <li class="divider"></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown-markdown.html">Markdown API</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">CodeFormat API</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-literate.html">Literate API</a></li>
-          <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs-apidocs.html">ApiDocs API</a></li>
-        </ul>
-      </div>
     </div>
-  </div>
-  <a href="https://github.com/fsprojects/FSharp.Formatting"><img style="position: absolute; top: 0; right: 0; border: 0;"
-      src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
-  <script type="text/javascript">var baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-  <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
+    <a href="https://github.com/fsprojects/FSharp.Formatting">
+        <img style="position: absolute; top: 0; right: 0; border: 0;"
+             src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
+    </a>
+
 </body>
 
 </html>
