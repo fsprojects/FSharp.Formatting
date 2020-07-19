@@ -73,7 +73,7 @@ be the same across all projects.
   * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--noLineNumbers` -  Line number option, defaults to `true`.
   * `--nonPublic` -  Generate docs for non-public members
-  * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
+  * `--markdownComments` -  Assume `///` comments in F# code are markdown style
   * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
   * `--clean` -  Clean the output directory before building (except directories starting with ".")
   * `--help` -  Display the specific help message for `convert`.

@@ -29,6 +29,11 @@
     <Content Include="..\..\docs\files\content\*" PackagePath="styles" />
     <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="..\..\misc\literate\demo.fsx" />
+    <Content Remove="..\..\misc\literate\demo.md" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />

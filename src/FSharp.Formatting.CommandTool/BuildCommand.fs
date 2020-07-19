@@ -191,8 +191,8 @@ type CoreBuildOptions(watch) =
     [<Option("nonPublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
     member val nonPublic = false with get, set
 
-    [<Option("xmlComments", Default=false, Required = false, HelpText = "Do not use the Markdown parser for in-code comments. Recommended for C# assemblies.")>]
-    member val xmlComments = false with get, set
+    [<Option("markdownComments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style.")>]
+    member val markdownComments = false with get, set
 
     [<Option("parameters", Required = false, HelpText = "Additional substitution parameters for templates.")>]
     member val parameters = Seq.empty<string> with get, set
@@ -374,7 +374,7 @@ type CoreBuildOptions(watch) =
                             //?sourceFolder = (evalString x.sourceFolder),
                             libDirs = paths,
                             ?publicOnly = Some (not x.nonPublic),
-                            ?markDownComments = Some (not x.xmlComments)
+                            ?markDownComments = Some x.markdownComments
                             )
                         let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
 

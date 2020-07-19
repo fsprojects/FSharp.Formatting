@@ -10,11 +10,8 @@
     <Content Include="FSharp.Formatting.fsx" PackagePath="FSharp.Formatting.fsx" />
     <!-- Templates & styles & literate demos -->
     <Content Include="..\..\misc\templates\*.html" PackagePath="templates" />
-    <Content Include="..\..\misc\templates\reference\*.html" PackagePath="templates/reference" />
-    <Content Include="..\..\misc\literate\*" PackagePath="literate" />
-    <Content Include="..\..\misc\literate\templates\*" PackagePath="literate/templates" />
-    <Content Include="..\..\docs\files\content\*" PackagePath="styles" />
-    <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
+    <Content Include="..\..\docs\content\*" PackagePath="styles" />
+    <Content Include="..\..\docs\content\img\*" PackagePath="styles/img" />
 
     <!-- Assembly dependencies -->
     <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />

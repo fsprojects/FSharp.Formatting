@@ -26,7 +26,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
 	ProjectSection(SolutionItems) = preProject
-		misc\literate\build.fsx = misc\literate\build.fsx
 		misc\literate\demo.fsx = misc\literate\demo.fsx
 		misc\literate\demo.md = misc\literate\demo.md
 	EndProjectSection

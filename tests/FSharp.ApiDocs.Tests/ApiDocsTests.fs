@@ -32,7 +32,7 @@ let removeWhiteSpace (str:string) =
     str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
 let docTemplate =
-  root </> "../../misc/templates/reference" </> "_template.html"
+  root </> "../../misc/templates/_template.html"
 
 let parameters =
   [ "project-name", "F# TestProject"
