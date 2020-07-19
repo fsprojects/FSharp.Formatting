@@ -908,7 +908,7 @@ module internal Reader =
      full.Append("</p>") |> ignore
    )
 
-   let exceptions = doc.Descendants(XName.Get "exceptions")
+   let exceptions = doc.Descendants(XName.Get "exception")
    if Seq.length exceptions > 0 then
      full.Append("<h4>Exceptions</h4>") |> ignore
      full.Append("<table>") |> ignore
