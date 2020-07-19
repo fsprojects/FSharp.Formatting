@@ -18,7 +18,7 @@
 let root = "C:\\"
 
 (**
-F# Formatting: Library documentation
+F# Formatting: API Documentation generation 
 ====================================
 
 The [command-line tool `fsdocs`](commandline.html) or the namespace `FSharp.Formatting.ApiDocs` can be used to generate documentation 
@@ -42,25 +42,23 @@ Searchable API docs
 
 When using the command-line tool a Lunr search index is automatically generated in `index.json`.
 
-To add a search box to your `_template.html`, load the small `search.js` found in this repo plus this HTML code (check the latest `_template.html` in this repo):
+To add a search box to your `_template.html`, load the small `search.js` found in this repo
+(see the relevant sections of [`_template.html` used here](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html),
+for example this HTML code:
 
     ...
-        <div id="header">
-          <div class="searchbox">
-            <label for="search-by">
-              <i class="fas fa-search"></i>
-            </label>
-            <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-            <span data-search-clear="">
-              <i class="fas fa-times"></i>
-            </span>
-          </div>
-        </div>
+    <div id="header">
+      <div class="searchbox">
+        <label for="search-by">
+          <i class="fas fa-search"></i>
+        </label>
+        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+        <span data-search-clear="">
+          <i class="fas fa-times"></i>
+        </span>
+      </div>
+    </div>
     ...
-    <script type="text/javascript">var baseurl = '{{root}}'</script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="{{root}}/content/search.js"></script>
 
 Adding cross-type links to modules and types in the same assembly
 -----------------

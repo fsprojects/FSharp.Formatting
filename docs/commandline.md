@@ -34,6 +34,8 @@ The output goes in `output/` by default.  Typically a `--parameters` argument is
 A Lunr search index is also generated for the API docs. See  [API doc generation](apidocs.html) for details about
 how to add a search box to your `_template.html`.
 
+You can experiment with the [template file of this project](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html). 
+
 Template files are as follows:
 
 - `_template.html` - absent, empty or contain `{{document}}` and `{{tooltips}}` placeholders.
@@ -76,7 +78,7 @@ be the same across all projects.
   * `--clean` -  Clean the output directory before building (except directories starting with ".")
   * `--help` -  Display the specific help message for `convert`.
 
-The watch commands
+The watch command
 ----------------------------
 
 The `fsdocs watch` command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
@@ -126,20 +128,4 @@ corresponding meta-data files `lib1.xml` and `lib 2.xml`, which are the result o
    
 You can add further substitutions using the `--parameters` list. 
 
-Tou can experiment with the [template file of the FSharp.Formatting project](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/reference/_template.html). 
 
-<div></div>
-
-    [lang=text]
-    fsdocs api
-      --dlls lib1.dll "lib 2.dll" 
-      --output "../api-docs" 
-      --template template.html
-      --parameters
-          "authors" "Your name(s)"
-	      "github-link" "http://github.com/yourname/project"
-          "project-name" "your project name"
-	      "root" "http://yourname.github.io/project"
-	  
-	  
-				   

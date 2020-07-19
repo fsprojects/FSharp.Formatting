@@ -573,7 +573,7 @@ module internal ValueReader =
       | Some nm -> nm
     let isOptionalArg = arg.IsOptionalArg || hasAttrib<OptionalArgumentAttribute> arg.Attributes
     let argName = if isOptionalArg then "?" + nm else nm
-    let argType = arg .Type
+    let argType = arg.Type
     let argType =
         // Strip off the 'option' type for optional arguments
         if isOptionalArg && argType.HasTypeDefinition && argType.GenericArguments.Count = 1 then
