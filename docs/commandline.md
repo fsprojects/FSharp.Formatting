@@ -11,7 +11,7 @@ The build commands
 
 The `fsdocs build`  command processes a directory containing a mix of Markdown documents `*.md` and F# Script files `*.fsx`
 according to the rules of [Literate Programming](literate.html), and also generates API docs for projects
-in the solution according to the rules of [API doc generation](metadata.html)
+in the solution according to the rules of [API doc generation](apidocs.html)
 
     [lang=text]
     fsdocs build
@@ -112,7 +112,7 @@ doesn't generate API documentation.
 The api command
 --------------------
 
-The `fsdocs api` command builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/metadata.html) by reading 
+The `fsdocs api` command builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/apidocs.html) by reading 
 the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
 
     [lang=text]

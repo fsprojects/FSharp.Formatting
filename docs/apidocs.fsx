@@ -1,12 +1,27 @@
-(*** hide ***)
+(*** condition: prepare ***)
+#nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#r "FSharp.Formatting.Common.dll"
+#r "FSharp.Formatting.Markdown.dll"
+#r "FSharp.Formatting.CodeFormat.dll"
+#r "FSharp.Formatting.Literate.dll"
+(*** condition: fsx ***)
+#if FSX
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // FSX
+(*** condition: ipynb ***)
+#if IPYNB
+#r "nuget: FSharp.Formatting,{{package-version}}"
+#endif // IPYNB
+
+(*** hide ***)
 let root = "C:\\"
 
 (**
 F# Formatting: Library documentation
 ====================================
 
-The library `FSharp.Formatting.ApiDocs.dll` can be used to generate documentation 
+The [command-line tool `fsdocs`](commandline.html) or the namespace `FSharp.Formatting.ApiDocs` can be used to generate documentation 
 for F# libraries with XML comments. 
 
  - You can use Markdown instead of XML in `///` comments

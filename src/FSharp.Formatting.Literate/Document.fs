@@ -8,13 +8,17 @@ open System.Collections.Generic
 // Special paragraphs used in literate documents
 // --------------------------------------------------------------------------------------
 
-/// Specifies visibility of a code snippet. This can be either ordinary
-/// visible code, hidden snippet or named snippet with captured output.
+/// Specifies visibility of a code snippet. 
+[<RequireQualifiedAccess>]
 type LiterateCodeVisibility = 
+  /// Ordinary visible code
   | VisibleCode
+  /// Hidden snippet
   | HiddenCode
+  /// Named snippet with captured output
   | NamedCode of string
 
+/// Specifies the options for a literate paragraph
 type LiterateParagraphOptions = 
   { /// Specifies a conditional for inclusion of the snippet paragraph
     Condition : string option
@@ -81,10 +85,13 @@ type LiterateParagraph =
     member x.Render() = 
       failwith "LiterateParagraph elements cannot be directly formatted"
 
-/// Represents the source of a literate document. This is esither Markdown (as a `string`)
-/// or parsed F# script file consisting of snippets.
+/// Represents the source of a literate document. 
+[<RequireQualifiedAccess>]
 type LiterateSource = 
+  /// A markdown source
   | Markdown of string
+
+  /// A parsed F# script file consisting of snippets.
   | Script of Snippet[]
 
 /// Representation of a literate document - the representation of Paragraphs

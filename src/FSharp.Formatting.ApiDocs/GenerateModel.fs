@@ -45,9 +45,13 @@ type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArgum
     /// The named arguments for the attribute
   member x.NamedConstructorArguments : (string*obj) list = namedConstructorArguments
 
-  /// Gets a value indicating whether this attribute the System.ObsoleteAttribute
+  /// Gets a value indicating whether this attribute is System.ObsoleteAttribute
   member x.IsObsoleteAttribute =
     x.FullName = "System.ObsoleteAttribute"
+
+  /// Gets a value indicating whether this attribute is RequireQualifiedAccessAttribute
+  member x.IsRequireQualifiedAccessAttribute =
+    x.FullName = typeof<RequireQualifiedAccessAttribute>.FullName
 
   /// Returns the obsolete message, when this attribute is the System.ObsoleteAttribute. When its not or no message was specified, an empty string is returned
   member x.ObsoleteMessage =
@@ -155,32 +159,41 @@ type ApiDocMemberKind =
 
 /// Represents an method, property, constructor, function or value, record field, union case or static parameter
 /// integrated with its associated documentation. Includes extension members.
-type ApiDocMember(name: string, attributes: ApiDocAttribute list, kind, cat, details, comment, symbol) =
-  let (usage, mods, typars, sign, location, compiledName) = details
-    /// Formats usage
-  member x.Usage : int -> string = usage
+type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityUrl, kind, cat, details, comment, symbol) =
+  // The URL for a member is currently the #DisplayName on the enclosing entity
+  let url = sprintf "%s.html#%s" entityUrl displayName
+  let (usage, usageTooltip, parameterTooltips, returnTooltip, mods, typars, signatureTooltip, location, compiledName) = details
 
-    /// The members modifiers
+    /// The member's modifiers
   member x.Modifiers : string list = mods
 
-    /// The members type arguments
+    /// The member's type arguments
   member x.TypeArguments : string list = typars
 
-    /// The members signature
-  member x.Signature : string = sign
+    /// The usage section in a typical tooltip
+  member x.UsageTooltip : string = usageTooltip
 
-    /// The members source location, if any
+    /// The return section in a typical tooltip
+  member x.ReturnTooltip : string option = returnTooltip
+
+    /// The full signature section in a typical tooltip
+  member x.SignatureTooltip : string = signatureTooltip
+
+    /// The member's parameter sections in a typical tooltip
+  member x.ParameterTooltips: (string * string) list = parameterTooltips
+
+    /// The member's source location, if any
   member x.SourceLocation : string option = location
 
-/// The members compiled name, if any
+/// The member's compiled name, if any
   [<Obsolete("Remove '.Details'. 'ApiDocsMemberDetails' has been merged with 'ApiDocsMember'", true)>]
   member x.Details : int = 0
 
-    /// The members compiled name, if any
+    /// The member's compiled name, if any
   member x.CompiledName : string option = compiledName
 
   /// Formats usage
-  member x.FormatUsage(maxLength) = x.Usage(maxLength)
+  member x.FormatUsage(maxLength) = usage(maxLength)
 
   /// Formats type arguments
   member x.FormatTypeArguments = String.concat ", " x.TypeArguments
@@ -195,7 +208,13 @@ type ApiDocMember(name: string, attributes: ApiDocAttribute list, kind, cat, det
   member x.FormatCompiledName = defaultArg x.CompiledName ""
 
     /// Name of the member
-  member x.Name = name
+  member x.Name = displayName
+
+    /// The URL of the best link documentation for the item (without the http://site.io/reference)
+  member x.UrlBaseName = entityUrl
+
+    /// The URL of the best link documentation for the item (without the http://site.io/reference)
+  member x.UrlFileNameAndHash = url
 
     /// The declared attributes of the member
   member x.Attributes = attributes
@@ -221,6 +240,10 @@ type ApiDocMember(name: string, attributes: ApiDocAttribute list, kind, cat, det
   member x.ObsoleteMessage =
     ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
 
+  member x.IsRequireQualifiedAccessAttribute =
+    x.Attributes
+    |> Seq.exists (fun a -> a.IsRequireQualifiedAccessAttribute)
+
   /// Gets a value indicating whether this member has CustomOperationAttribute
   member x.IsCustomOperation =
     x.Attributes
@@ -238,8 +261,8 @@ type ApiDocType(name, cat, url, comment, assembly, attributes, cases, fields, st
     /// The category of the type
   member x.Category :string = cat
 
-    /// The url
-  member x.UrlName : string = url
+    /// The URL of the best link documentation for the item (without the http://site.io/reference or .html)
+  member x.UrlBaseName : string = url
 
     /// The attached comment
   member x.Comment : ApiDocComment = comment
@@ -288,8 +311,8 @@ type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types,
     /// The category of the module
   member x.Category : string = cat
 
-    /// The url
-  member x.UrlName : string = url
+    /// The URL of the best link documentation for the item (without the http://site.io/reference or .html)
+  member x.UrlBaseName : string = url
 
     /// The attached comment
   member x.Comment : ApiDocComment = comment
@@ -538,20 +561,33 @@ module internal ValueReader =
   let formatType typ =
     formatTypeWithPrec 5 typ
 
-  // Format each argument, including its name and type
-  let formatArgUsage generateTypes i (arg:FSharpParameter) =
+  let isUnitType (ty: FSharpType) =
+      ty.HasTypeDefinition && ty.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" 
+
+  let formatArgNameAndType i (arg:FSharpParameter) =
     let nm =
       match arg.Name with
       | None ->
-          if arg.Type.HasTypeDefinition && arg.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" then "()"
+          if isUnitType arg.Type then "()"
           else "arg" + string i
       | Some nm -> nm
-    // Detect an optional argument
-    let isOptionalArg = hasAttrib<OptionalArgumentAttribute> arg.Attributes
+    let isOptionalArg = arg.IsOptionalArg || hasAttrib<OptionalArgumentAttribute> arg.Attributes
     let argName = if isOptionalArg then "?" + nm else nm
+    let argType = arg .Type
+    let argType =
+        // Strip off the 'option' type for optional arguments
+        if isOptionalArg && argType.HasTypeDefinition && argType.GenericArguments.Count = 1 then
+            argType.GenericArguments.[0]
+        else
+            argType
+    argName, argType
+
+  // Format each argument, including its name and type
+  let formatArgUsage generateTypes i (arg:FSharpParameter) =
+    let argName, argType = formatArgNameAndType i arg
     if generateTypes then
-      (match arg.Name with None -> "" | Some argName -> argName + ":") +
-      formatTypeWithPrec 2 arg.Type
+      (match arg.Name with None -> "" | Some argName -> argName + ": ") +
+      formatTypeWithPrec 2 argType
     else argName
 
   let formatArgsUsage generateTypes (v:FSharpMemberOrFunctionOrValue) args =
@@ -595,24 +631,26 @@ module internal ValueReader =
     let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList
 
     let buildUsage (args:string option) =
-      let parArgs = args |> Option.map (fun s ->
-        if String.IsNullOrWhiteSpace(s) then ""
-        elif s.StartsWith("(") then s
-        // curried arguments should not have brackets, see https://github.com/fsprojects/FSharp.Formatting/issues/472
-        elif argInfos.Length > 1 then " " + s
-        else sprintf "(%s)" s)
+
+      let parArgs =
+        args |> Option.map (fun s ->
+          if String.IsNullOrWhiteSpace(s) then ""
+          elif s.StartsWith("(") then s
+          // curried arguments should not have brackets, see https://github.com/fsprojects/FSharp.Formatting/issues/472
+          elif argInfos.Length > 1 then " " + s
+          else sprintf "(%s)" s)
+
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
-      // Constructors and indexers
+      // Constructors 
       | _, _, ".ctor", _ -> v.ApparentEnclosingEntity.DisplayName + (defaultArg parArgs "(...)")
+      // Indexers
       | _, true, _, "Item" -> "this.[" + (defaultArg args "...") + "]"
       // Ordinary instance members
       | _, true, _, name -> "this." + name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
-      | false, _, _, name when not <| requireQualifiedAccess -> name + (defaultArg parArgs "(...)")
+      | false, _, _, name when not requireQualifiedAccess -> name + (defaultArg parArgs "(...)")
       // Ordinary static members or things (?) that require fully qualified access
       | _, false, _, name -> v.ApparentEnclosingEntity.DisplayName + "." + name + (defaultArg parArgs "(...)")
-      // Ordinary static members or things (?) that require fully qualified access
-      //| _, _, _, name -> name + (defaultArg parArgs "(...)")
 
     let modifiers =
       [ // TODO: v.Accessibility does not contain anything
@@ -627,6 +665,11 @@ module internal ValueReader =
         | [[]], true, _ -> [], Some retType
         | _, _, _ -> argInfos, Some retType
 
+    let paramTooltips =
+        argInfos
+        |> List.concat
+        |> List.mapi (fun i p -> let nm, ty = formatArgNameAndType i p in nm, formatType ty)
+           
     // Extension members can have apparent parents which are not F# types.
     // Hence getting the generic argument count if this is a little trickier
     let numGenericParamsOfApparentParent =
@@ -637,53 +680,81 @@ module internal ValueReader =
         //    else 0
         //else
         pty.GenericParameters.Count
+
     // Ensure that there is enough number of elements to skip
     let tps = v.GenericParameters |> Seq.skip (min v.GenericParameters.Count numGenericParamsOfApparentParent)
     let typars = formatTypeArguments tps
 
     //let cxs  = indexedConstraints v.GenericParameters
-    let retType = defaultArg (retType |> Option.map formatType) "unit"
-    let signature =
-      match argInfos with
-      | [] -> retType
-      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> retType
-      | _  -> (formatArgsUsage true v argInfos) + " -> " + retType
+    let retTypeText = defaultArg (retType |> Option.map formatType) "unit"
 
-    let usage =
+    let returnTooltip =
+       match retType with None -> None | Some retType -> if isUnitType retType then None else Some retTypeText 
+
+    let signatureTooltip =
       match argInfos with
-      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && x.Type.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" -> ""
+      | [] -> retTypeText
+      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && isUnitType x.Type -> retTypeText
+      | _  -> (formatArgsUsage true v argInfos) + " -> " + retTypeText
+
+    let fullArgUsage =
+      match argInfos with
+      | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && isUnitType x.Type -> ""
       | _  -> formatArgsUsage false v argInfos
 
+    let usageTooltip = buildUsage (Some fullArgUsage)
+
     let buildShortUsage length =
-      let long = buildUsage (Some usage)
-      if long.Length <= length then long
+      if usageTooltip.Length <= length then usageTooltip
       else buildUsage None
 
     // If there is a signature file, we should go for implementation file
     let loc = tryGetLocation v
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    (buildShortUsage, modifiers, typars, signature, location, getCompiledName v)
+    (buildShortUsage, usageTooltip, paramTooltips, returnTooltip, modifiers, typars, signatureTooltip, location, getCompiledName v)
 
-  let readUnionCase (ctx:ReadingContext) (case:FSharpUnionCase) =
+  let readUnionCase (ctx:ReadingContext) (typ: FSharpEntity) (case:FSharpUnionCase) =
+
+    let requireQualifiedAccess =
+        hasAttrib<RequireQualifiedAccessAttribute> typ.Attributes
+
     let formatFieldUsage (field:FSharpField) =
         if field.Name.StartsWith("Item") then
             formatType field.FieldType
         else
             field.Name
+
     let fields = case.UnionCaseFields |> List.ofSeq
-    let buildUsage maxLength fields =
+
+    let buildUsage maxLength =
         let long = "(" + (fields |> List.map formatFieldUsage |> String.concat ", ") + ")"
         match long.Length with
         | x when x <= 2 -> ""
         | x when x <= maxLength -> long
         | _ -> "(...)"
-    let usage (maxLength:int) = case.Name + buildUsage (maxLength - case.Name.Length) fields
+
+    let paramTooltips =
+        fields |> List.map (fun p -> p.Name, formatType p.FieldType)
+
+    let returnTooltip = None
+       //if isUnitType retType then None else Some retTypeText 
+
+    let usage (maxLength:int) =
+       let nm = (if requireQualifiedAccess then typ.DisplayName + "." else "") + case.Name
+       nm + buildUsage (maxLength - nm.Length) 
+
+    let usageTooltip = usage Int32.MaxValue
     let modifiers = List.empty
     let typeparams = List.empty
-    let signature = fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * "
+
+    let retTypeText = formatType case.ReturnType
+    let signatureTooltip =
+       match fields with
+       | [] -> retTypeText
+       | _ -> (fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * ") + " -> " + retTypeText
     let loc = tryGetLocation case
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    (usage, modifiers, typeparams, signature, location, getCompiledName case)
+    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, location, getCompiledName case)
 
   let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
     let usage (maxLength:int) = field.Name
@@ -691,10 +762,15 @@ module internal ValueReader =
       [ if field.IsMutable then yield "mutable"
         if field.IsStatic then yield "static" ]
     let typeparams = List.empty
-    let signature = formatType field.FieldType
+    let signatureTooltip = formatType field.FieldType
+    let paramTooltips = []
+
+    let returnTooltip = None
+       //if isUnitType retType then None else Some retTypeText 
     let loc = tryGetLocation field
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    (usage, modifiers, typeparams, signature, location, if field.Name <> field.DisplayName then Some field.Name else None)
+    let usageTooltip = usage Int32.MaxValue
+    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, location, if field.Name <> field.DisplayName then Some field.Name else None)
 
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName =
     "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
@@ -703,10 +779,13 @@ module internal ValueReader =
     let usage (maxLength:int) = staticParam.Name
     let modifiers = List.empty
     let typeparams = List.empty
-    let signature = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
+    let paramTooltips = []
+    let returnTooltip = None
+    let signatureTooltip = formatType staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
     let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    (usage, modifiers, typeparams, signature, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
+    let usageTooltip = usage Int32.MaxValue
+    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
 
 module internal Reader =
   open FSharp.Formatting.Markdown
@@ -731,9 +810,8 @@ module internal Reader =
     groups.Add(current, [])
     let raw =
         match doc.Source with
-        | Markdown (string) -> [KeyValuePair(current, string)]
-        | Script _ -> []
-
+        | LiterateSource.Markdown (string) -> [KeyValuePair(current, string)]
+        | LiterateSource.Script _ -> []
 
     for par in doc.Paragraphs do
       match par with
@@ -810,7 +888,7 @@ module internal Reader =
 
    let parameters = doc.Descendants(XName.Get "param")
    if Seq.length parameters > 0 then
-     full.Append("<h2>Parameters</h2>") |> ignore
+     full.Append("<h4>Parameters</h4>") |> ignore
      full.Append("<dl>") |> ignore
      for e in parameters do
        let name = e.Attribute(XName.Get "name").Value
@@ -832,7 +910,7 @@ module internal Reader =
 
    let exceptions = doc.Descendants(XName.Get "exceptions")
    if Seq.length exceptions > 0 then
-     full.Append("<h2>Exceptions</h2>") |> ignore
+     full.Append("<h4>Exceptions</h4>") |> ignore
      full.Append("<table>") |> ignore
      for e in exceptions do
        let cref = e.Attribute(XName.Get "cref")
@@ -849,7 +927,7 @@ module internal Reader =
 
    let remarks = doc.Descendants(XName.Get "remarks")
    if Seq.length remarks > 0 then
-     full.Append("<h2>Remarks</h2>") |> ignore
+     full.Append("<h4>Remarks</h4>") |> ignore
      remarks |> Seq.iteri (fun id e ->
        let n = if id = 0 then "remarks" else "remarks-" + string id
        rawData.[n] <- e.Value
@@ -1064,7 +1142,7 @@ module internal Reader =
 
   let createUrlHolder () =
     let toReplace =
-        ([(".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
+        ([("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
             (Path.GetInvalidPathChars()
             |> Seq.append (Path.GetInvalidFileNameChars())
             |> Seq.map (fun inv -> (inv.ToString(), "_")) |> Seq.toList))
@@ -1205,7 +1283,7 @@ module internal Reader =
                 try
                   let ass = sym.Assembly
                   match ass.FileName with
-                  | Some f -> f
+                  | Some file -> file
                   | None -> ass.QualifiedName
                 with _ -> "unknown"
               sprintf "unknown, part of %s" part
@@ -1223,21 +1301,21 @@ module internal Reader =
     |> Seq.choose (reader ctx)
     |> List.ofSeq
 
-  let tryReadMember (ctx:ReadingContext) kind (memb:FSharpMemberOrFunctionOrValue) =
+  let tryReadMember (ctx:ReadingContext) entityUrl kind (memb:FSharpMemberOrFunctionOrValue) =
     readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
-      ApiDocMember(memb.DisplayName, readAttributes memb.Attributes, kind, cat, readMemberOrVal ctx memb, comment, memb))
+      ApiDocMember(memb.DisplayName, readAttributes memb.Attributes, entityUrl, kind, cat, readMemberOrVal ctx memb, comment, memb))
 
-  let readAllMembers ctx kind (members:seq<FSharpMemberOrFunctionOrValue>) =
+  let readAllMembers ctx entityUrl kind (members:seq<FSharpMemberOrFunctionOrValue>) =
     members
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
     |> Seq.filter (fun v -> not v.IsCompilerGenerated && not v.IsPropertyGetterMethod && not v.IsPropertyGetterMethod)
-    |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
+    |> Seq.choose (tryReadMember ctx entityUrl kind) |> List.ofSeq
 
-  let readMembers ctx kind (entity:FSharpEntity) cond =
+  let readMembers ctx entityUrl kind (entity:FSharpEntity) cond =
     entity.MembersFunctionsAndValues
     |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
     |> Seq.filter (fun v -> not v.IsCompilerGenerated)
-    |> Seq.filter cond |> Seq.choose (tryReadMember ctx kind) |> List.ofSeq
+    |> Seq.filter cond |> Seq.choose (tryReadMember ctx entityUrl kind) |> List.ofSeq
 
   let readTypeName (typ:FSharpEntity) =
     typ.GenericParameters
@@ -1247,28 +1325,31 @@ module internal Reader =
     | [] -> typ.DisplayName
     | gnames -> sprintf "%s<%s>" typ.DisplayName (String.concat ", " gnames)
 
-  let readUnionCases ctx (typ:FSharpEntity) =
+  let readUnionCases ctx entityUrl (typ:FSharpEntity) =
     typ.UnionCases
     |> List.ofSeq
     |> List.filter (fun v -> checkAccess ctx v.Accessibility)
     |> List.choose (fun case ->
       readCommentsInto case ctx case.XmlDocSig (fun cat _ comment ->
-        ApiDocMember(case.Name, readAttributes case.Attributes, ApiDocMemberKind.UnionCase, cat, readUnionCase ctx case, comment, case)))
+        let details = readUnionCase ctx typ case
+        ApiDocMember(case.Name, readAttributes case.Attributes, entityUrl, ApiDocMemberKind.UnionCase, cat, details, comment, case)))
 
-  let readRecordFields ctx (typ:FSharpEntity) =
+  let readRecordFields ctx entityUrl (typ:FSharpEntity) =
     typ.FSharpFields
     |> List.ofSeq
     |> List.filter (fun field -> not field.IsCompilerGenerated)
     |> List.choose (fun field ->
       readCommentsInto field ctx field.XmlDocSig (fun cat _ comment ->
-        ApiDocMember(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), ApiDocMemberKind.RecordField, cat, readFSharpField ctx field, comment, field)))
+        let details = readFSharpField ctx field
+        ApiDocMember(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), entityUrl, ApiDocMemberKind.RecordField, cat, details, comment, field)))
 
-  let readStaticParams ctx (typ:FSharpEntity) =
+  let readStaticParams ctx entityUrl (typ:FSharpEntity) =
     typ.StaticParameters
     |> List.ofSeq
     |> List.choose (fun staticParam ->
       readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
-        ApiDocMember(staticParam.Name, [], ApiDocMemberKind.StaticParameter, cat, readFSharpStaticParam ctx staticParam, comment, staticParam)))
+        let details = readFSharpStaticParam ctx staticParam
+        ApiDocMember(staticParam.Name, [], entityUrl, ApiDocMemberKind.StaticParameter, cat, details, comment, staticParam)))
 
   // ----------------------------------------------------------------------------------------------
   // Reading modules types (mutually recursive, because of nesting)
@@ -1306,7 +1387,7 @@ module internal Reader =
         registerTypeProviderXmlDocs ctx typ
     let xmlDocSig = getXmlDocSigForType typ
     readCommentsInto typ ctx xmlDocSig (fun cat cmds comment ->
-      let urlName = ctx.UrlMap.GetUrl typ
+      let entityUrl = ctx.UrlMap.GetUrl typ
 
       let rec getMembers (typ:FSharpEntity) = [
         yield! typ.MembersFunctionsAndValues
@@ -1344,32 +1425,32 @@ module internal Reader =
       *)
 
       let name = readTypeName typ
-      let cases = readUnionCases ctx typ
-      let fields = readRecordFields ctx typ
-      let statParams = readStaticParams ctx typ
+      let cases = readUnionCases ctx entityUrl typ
+      let fields = readRecordFields ctx entityUrl typ
+      let statParams = readStaticParams ctx entityUrl typ
 
       let attrs = readAttributes typ.Attributes
 
-      let ctors = readAllMembers ctx ApiDocMemberKind.Constructor cvals
-      let inst = readAllMembers ctx ApiDocMemberKind.InstanceMember ivals
-      let stat = readAllMembers ctx ApiDocMemberKind.StaticMember svals
+      let ctors = readAllMembers ctx entityUrl ApiDocMemberKind.Constructor cvals
+      let inst = readAllMembers ctx entityUrl ApiDocMemberKind.InstanceMember ivals
+      let stat = readAllMembers ctx entityUrl ApiDocMemberKind.StaticMember svals
 
-      ApiDocType (name, cat, urlName, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors, inst, stat ))
+      ApiDocType (name, cat, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors, inst, stat ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
 
       // Properties & value bindings in the module
-      let urlName = ctx.UrlMap.GetUrl modul
-      let vals = readMembers ctx ApiDocMemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
-      let exts = readMembers ctx ApiDocMemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
-      let pats = readMembers ctx ApiDocMemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
+      let entityUrl = ctx.UrlMap.GetUrl modul
+      let vals = readMembers ctx entityUrl ApiDocMemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
+      let exts = readMembers ctx entityUrl ApiDocMemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
+      let pats = readMembers ctx entityUrl ApiDocMemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
       let attrs = readAttributes modul.Attributes
       // Nested modules and types
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
 
       ApiDocModule
-        ( modul.DisplayName, cat, urlName, comment, ctx.Assembly, attrs,
+        ( modul.DisplayName, cat, entityUrl, comment, ctx.Assembly, attrs,
           modules, types,
           vals, exts, pats ))
 
@@ -1431,10 +1512,10 @@ type ApiDocsModel =
     ModuleInfos        : ApiDocModuleInfo list
     TypesInfos         : ApiDocTypeInfo list
     Properties         : (string * IDictionary<string, string>) list
-    CollectionName     : string
+    CollectionRootUrl  : string
   }
 
-  static member Generate(dllFiles: seq<string>, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, markDownComments, urlRangeHighlight, collectionName) =
+  static member Generate(dllFiles: seq<string>, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, markDownComments, urlRangeHighlight, rootUrl) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -1458,14 +1539,6 @@ type ApiDocsModel =
             Log.warnf "Source folder should be specified along with repository url."
             None
         | _ -> None
-
-    let collectionName =
-        match collectionName with
-        | Some p -> p
-        | None ->
-        match dllFiles with
-        | h :: _ -> Path.GetFileNameWithoutExtension(h)
-        | _ -> ""
 
     // When resolving assemblies, look in folders where all DLLs live
     AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
@@ -1587,7 +1660,7 @@ type ApiDocsModel =
       ModuleInfos = moduleInfos
       TypesInfos = typesInfos
       Properties = props
-      CollectionName = collectionName
+      CollectionRootUrl = sprintf "%s/reference" rootUrl
     }
 
 /// Represents an entry suitable for constructing a Lunr index

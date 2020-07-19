@@ -11,7 +11,6 @@ let stripMicrosoft (str: string) =
         str
 
 type AssemblyEntities = {
-  Label: string
   Modules: ApiDocModule list
   Types: ApiDocType list
   GeneratorOutput: ApiDocsModel
@@ -24,8 +23,7 @@ let rec collectModules (m: ApiDocModule) =
         yield! m.NestedModules |> List.collect collectModules
     ]
 
-let generateSearchIndex rootUrl (model: ApiDocsModel) =
-    let collectionName = model.CollectionName
+let generateSearchIndex (model: ApiDocsModel) =
     let allModules =
         [ for n in model.AssemblyGroup.Namespaces do
             for m in n.Modules do
@@ -42,20 +40,19 @@ let generateSearchIndex rootUrl (model: ApiDocsModel) =
         ]
 
     let entities = {
-        Label = collectionName
         Modules = allModules
         Types = allTypes
         GeneratorOutput = model
     }
 
-    let doMember enclName url (memb: ApiDocMember) =
+    let doMember enclName (memb: ApiDocMember) =
         let cnt =
             [ enclName + "." + memb.Name
               memb.Name
               memb.Comment.FullText
             ] |> String.concat " \n"
 
-        { uri = sprintf "%s#%s" url memb.Name
+        { uri = sprintf "%s/%s" model.CollectionRootUrl memb.UrlFileNameAndHash
           title = enclName + "." + memb.Name
           content = cnt }
 
@@ -70,8 +67,8 @@ let generateSearchIndex rootUrl (model: ApiDocsModel) =
                     typ.Name
                 ] |> String.concat " \n"
 
-            { uri = (rootUrl + sprintf "/reference/%s/index.html" entities.Label )
-              title = sprintf "%s - API Reference" entities.Label
+            { uri = (sprintf "%s/index.html" model.CollectionRootUrl )
+              title = "API Reference"
               content = ctn }
 
             // generate a search index entry for each module in the assembly
@@ -97,14 +94,14 @@ let generateSearchIndex rootUrl (model: ApiDocsModel) =
                     ] |> String.concat " \n"
 
 
-                let url = rootUrl + sprintf "/reference/%s/%s.html" entities.Label (stripMicrosoft modul.UrlName)
+                let url = sprintf "%s/%s.html" model.CollectionRootUrl modul.UrlBaseName
                 { uri = url
                   title = modul.Name
                   content = cnt }
 
                 // generate a search index entry for each value, function or member in each module
                 for memb in modul.ValuesAndFuncs do
-                    doMember modul.Name url memb
+                    doMember modul.Name memb
 
             // generate a search index entry for each type definition in the assembly
             for typ in entities.Types do
@@ -118,13 +115,13 @@ let generateSearchIndex rootUrl (model: ApiDocsModel) =
 
                         ] |> String.concat " \n"
 
-                let url = rootUrl + sprintf "/reference/%s/%s.html" entities.Label (stripMicrosoft typ.UrlName)
+                let url = sprintf "%s/%s.html" model.CollectionRootUrl typ.UrlBaseName
                 { uri = url
                   title = typ.Name
                   content = cnt }
 
                 for memb in typ.AllMembers do
-                    doMember typ.Name url memb
+                    doMember typ.Name memb
         |]
 
     refs

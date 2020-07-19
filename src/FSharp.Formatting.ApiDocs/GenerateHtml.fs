@@ -13,7 +13,7 @@ let obsoleteMessage msg =
         p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
     ]
 
-let nestedTypesAndModules (entities: Choice<ApiDocType, ApiDocModule> list) =
+let renderEntities (entities: Choice<ApiDocType, ApiDocModule> list) =
   [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (function Choice1Of2 _ -> true | _ -> false)
       let hasModules = entities |> List.exists (function Choice2Of2 _ -> true | _ -> false)
@@ -29,10 +29,12 @@ let nestedTypesAndModules (entities: Choice<ApiDocType, ApiDocModule> list) =
             tr [] [
                td [Class "type-name"] [
                  let nm = match e with Choice1Of2 t -> t.Name | Choice2Of2 m -> m.Name
-                 let urlnm = match e with Choice1Of2 t -> t.UrlName | Choice2Of2 m -> m.UrlName
+                 let urlnm = match e with Choice1Of2 t -> t.UrlBaseName | Choice2Of2 m -> m.UrlBaseName
                  let multi = (entities |> List.filter (function Choice1Of2 t -> t.Name = nm | Choice2Of2 m -> m.Name = nm) |> List.length) > 1
-                 let nm = if multi then match e with Choice1Of2 _ -> nm + " (Type)" | Choice2Of2 _ -> nm + " (Module)" else nm
-                 a [Href (urlnm + ".html")] [!!nm]
+                 let nmWithSiffix = if multi then match e with Choice1Of2 _ -> nm + " (Type)" | Choice2Of2 _ -> nm + " (Module)" else nm
+
+                 // This adds #EntityName anchor. These may currently be ambiguous
+                 a [Name nm] [a [Href (urlnm + ".html")] [!!nmWithSiffix]]
                ]
                td [Class "xmldoc" ] [
                    let isObsolete = match e with Choice1Of2 t -> t.IsObsolete | Choice2Of2 m -> m.IsObsolete
@@ -60,7 +62,7 @@ let renderWithToolTip content tip =
            OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
     div [Class "tip"; Id id ] tip
   ]
-let renderMembers header tableHeader (members: ApiDocMember list) =
+let renderMembers sigWidth header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
        table [Class "table table-bordered member-list"] [
@@ -74,20 +76,43 @@ let renderMembers header tableHeader (members: ApiDocMember list) =
            for m in members do
              tr [] [
                td [Class "member-name"] [
-                 renderWithToolTip [
-                   !! HttpUtility.HtmlEncode(m.FormatUsage(40)) 
-                 ] [
-                    strong [] [!! "Signature:"]
-                    !! HttpUtility.HtmlEncode(m.Signature)
-                    br []
-                    if not m.Modifiers.IsEmpty then
-                      strong [] [!! "Modifiers:"]
-                      !! HttpUtility.HtmlEncode(m.FormatModifiers)
-                      br []
-                    if not (m.TypeArguments.IsEmpty) then
-                      strong [] [!!"Type parameters: "]
-                      !!m.FormatTypeArguments
-                 ]
+                  
+                  renderWithToolTip [
+                      // This adds #MemberName anchor. These may currently be ambiguous
+                      a [Name m.Name] [!! HttpUtility.HtmlEncode(m.FormatUsage(sigWidth)) ]
+                    ]
+                    [
+                        strong [] [!! "Full Usage: "]
+                        !! HttpUtility.HtmlEncode(m.UsageTooltip)
+                        br []
+                        if not m.ParameterTooltips.IsEmpty then
+                            strong [] [!! "Parameters: "]
+                            ul [] [
+                              for (pname, ptyp) in m.ParameterTooltips do
+                                li [] [
+                                  b [] [!! pname]
+                                  !! ":"
+                                  !! HttpUtility.HtmlEncode(ptyp)
+                                ]
+                            ]
+                        br []
+                        match m.ReturnTooltip with
+                        | None -> ()
+                        | Some t ->
+                            strong [] [!! "Returns: "]
+                            !! HttpUtility.HtmlEncode(t)
+                            br []
+                        strong [] [!! "Signature: "]
+                        !! HttpUtility.HtmlEncode(m.SignatureTooltip)
+                        br []
+                        if not m.Modifiers.IsEmpty then
+                          strong [] [!! "Modifiers: "]
+                          !! HttpUtility.HtmlEncode(m.FormatModifiers)
+                          br []
+                        if not (m.TypeArguments.IsEmpty) then
+                          strong [] [!!"Type parameters: "]
+                          !!m.FormatTypeArguments
+                    ]
                ]
             
                td [Class "xmldoc"] [
@@ -107,7 +132,7 @@ let renderMembers header tableHeader (members: ApiDocMember list) =
         ]
     ]
 
-let moduleContent (info: ApiDocModuleInfo) =
+let moduleContent sigWidth (info: ApiDocModuleInfo) =
   // Get all the members & comment for the type
   let members = info.Module.AllMembers
   let comment = info.Module.Comment
@@ -136,7 +161,7 @@ let moduleContent (info: ApiDocModuleInfo) =
     match info.ParentModule with
     | None -> ()
     | Some parentModule ->
-      span [] [!! ("Parent Module: "); a [Href (parentModule.UrlName + ".html")] [!! parentModule.Name ]]
+      span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
 
     if info.Module.IsObsolete then
         obsoleteMessage entity.ObsoleteMessage
@@ -168,7 +193,7 @@ let moduleContent (info: ApiDocModuleInfo) =
     if (nestedEntities.Length > 0) then
       div [] [
         h2 [] [!!"Types and modules"]
-        yield! nestedTypesAndModules nestedEntities
+        yield! renderEntities nestedEntities
       ]
 
     for (n, key, ms, name) in byCategory do
@@ -183,12 +208,12 @@ let moduleContent (info: ApiDocModuleInfo) =
       | None -> ()
       | Some key ->
          div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
-      div [] (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
-      div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
+      div [] (renderMembers sigWidth "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
+      div [] (renderMembers sigWidth "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
+      div [] (renderMembers sigWidth "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
   ]
 
-let typeContent (info: ApiDocTypeInfo) =
+let typeContent sigWidth (info: ApiDocTypeInfo) =
   let members = info.Type.AllMembers
   let comment = info.Type.Comment
   let entity = info.Type
@@ -215,9 +240,9 @@ let typeContent (info: ApiDocTypeInfo) =
     match info.ParentModule with
     | None -> ()
     | Some parentModule ->
-      span [] [!! ("Parent Module: "); a [Href (parentModule.UrlName + ".html")] [!! parentModule.Name ]]
+      span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
 
-    if (entity.IsObsolete) then
+    if entity.IsObsolete then
         obsoleteMessage entity.ObsoleteMessage
 
     div [Class "xmldoc" ] [
@@ -250,12 +275,12 @@ let typeContent (info: ApiDocTypeInfo) =
       | None -> ()
       | Some key ->
          div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
-      div [] (renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
-      div [] (renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
-      div [] (renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
-      div [] (renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
-      div [] (renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
+      div [] (renderMembers sigWidth "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
+      div [] (renderMembers sigWidth "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
+      div [] (renderMembers sigWidth "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
+      div [] (renderMembers sigWidth "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
+      div [] (renderMembers sigWidth "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
+      div [] (renderMembers sigWidth "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
   ]
     
 let namespacesContent (asm: ApiDocAssemblyGroup) =
@@ -287,7 +312,7 @@ let namespacesContent (asm: ApiDocAssemblyGroup) =
                         cat = c)
                     |> List.sortBy (fun e ->
                         match e with
-                        | Choice1Of2 t -> (t.Name, t.UrlName)
+                        | Choice1Of2 t -> (t.Name, t.UrlBaseName)
                         | Choice2Of2 m -> (m.Name, "ZZZ")
                     )
                 if entities.Length > 0 then
@@ -303,12 +328,12 @@ let namespacesContent (asm: ApiDocAssemblyGroup) =
       for (name, index, entities) in allByCategory do
         if (allByCategory.Length > 1) then
            h3 [] [a [Class "anchor"; Name ("section" + index); Href ("#section" + index)] [!! name]]
-        yield! nestedTypesAndModules entities
+        yield! renderEntities entities
     ]
 
-let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
+let Generate(model: ApiDocsModel, outDir: string, templateOpt, sigWidth) =
     let (@@) a b = Path.Combine(a, b)
-
+    let sigWidth = defaultArg sigWidth 50
     let props = (dict model.Properties).["Properties"]
     let projectName = if props.ContainsKey "project-name" then " - " + props.["project-name"] else ""
     let contentTag = "document"
@@ -328,22 +353,22 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt) =
     HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
 
     for modulInfo in model.ModuleInfos do
-        Log.infof "Generating module: %s" modulInfo.Module.UrlName
-        let content = div [] (moduleContent modulInfo)
-        let outFile = outDir @@ (modulInfo.Module.UrlName + ".html")
+        Log.infof "Generating module: %s" modulInfo.Module.UrlBaseName
+        let content = div [] (moduleContent sigWidth modulInfo)
+        let outFile = outDir @@ (modulInfo.Module.UrlBaseName + ".html")
         let pageTitle = modulInfo.Module.Name + projectName
         let parameters = getParameters content pageTitle
         printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
-        Log.infof "Finished module: %s" modulInfo.Module.UrlName
+        Log.infof "Finished module: %s" modulInfo.Module.UrlBaseName
 
     for info in model.TypesInfos do
-        Log.infof "Generating type: %s" info.Type.UrlName
-        let content = div [] (typeContent info)
-        let outFile = outDir @@ (info.Type.UrlName + ".html")
+        Log.infof "Generating type: %s" info.Type.UrlBaseName
+        let content = div [] (typeContent sigWidth info)
+        let outFile = outDir @@ (info.Type.UrlBaseName + ".html")
         let pageTitle = info.Type.Name + projectName
         let parameters = getParameters content pageTitle
 
         printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
-        Log.infof "Finished type: %s" info.Type.UrlName
+        Log.infof "Finished type: %s" info.Type.UrlBaseName

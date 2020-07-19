@@ -21,7 +21,7 @@
 F# Formatting: Literate programming
 ===================================
 
-The `FSharp.Formatting.Literate` namespace implements 
+The [command-line tool `fsdocs`](commandline.html) or the `FSharp.Formatting.Literate` namespace implements 
 a literate programming model for F# script files (`*.fsx` files) or Markdown
 documents (`*.md` files) containing F# snippets.
 
@@ -169,7 +169,7 @@ but you can use your own. If no template is provided, the result is simply the H
 of the document with HTML for tool tips appended to the end.
 
 The template should include two parameters that will be replaced with the actual
-HTML: `{{document}} will be replaced with the formatted document;
+HTML: `{{document}}` will be replaced with the formatted document;
 `{{tooltips}}` will be replaced with (hidden) `<div>` elements containing code for tool tips that appear
 when you place mouse pointer over an identifier. Optionally, you can also use 
 `{{page-title}}` which will be replaced with the text in a first-level heading.
