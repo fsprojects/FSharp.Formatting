@@ -108,11 +108,13 @@ type FsiEvaluatorConfig() =
   static member CreateNoOpFsiObject() = box (new NoOpFsiObject())
 
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
-type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?discardStdOut: bool) =
+type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?discardStdOut: bool, ?disableFsiObj: bool) =
 
   let discardStdOut = defaultArg discardStdOut true
   let fsiObj = defaultArg fsiObj (box FSharp.Compiler.Interactive.Shell.Settings.fsi)
-  let addHtmlPrinter = defaultArg addHtmlPrinter false
+  let addHtmlPrinter = defaultArg addHtmlPrinter true
+  let disableFsiObj = defaultArg disableFsiObj false
+
   let options =
      options
      |> Option.map (Array.append (if addHtmlPrinter then [| "--define:HAS_FSI_ADDHTMLPRINTER" |] else [| |])) 
@@ -175,12 +177,7 @@ type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?disca
             else None
       htmlPrinters <- realHtmlPrinter :: htmlPrinters
 
-  do FsiEvaluator.InjectedAddPrinter <- addPrinterThunk
-  do FsiEvaluator.InjectedAddPrintTransformer <- addPrintTransformerThunk
-  do FsiEvaluator.InjectedAddHtmlPrinter <- addHtmlPrinterThunk
-  do FsiEvaluator.InjectedFsiObj <- fsiObj
-  do
-    let fsiEstablishText =
+  let fsiEstablishText =
       sprintf """
 namespace global
 [<AutoOpen>]
@@ -268,17 +265,25 @@ module __FsiSettings =
            and set(v:string[]) = setInstanceProp "CommandLineArgs" v
     """ thisTypeName
 
-    let path = Path.GetTempFileName() + ".fs"
-    File.WriteAllText(path, fsiEstablishText)
-    let outputs, res = fsiSession.EvalInteraction(sprintf "#load @\"%s\"" path)
-    File.Delete(path)
-    match res with
-    | Ok v -> ()
-    | Error exn ->
-       printfn "outputs.Output: <<<%A>>>" outputs.Output
-       printfn "outputs.Error: <<<%A>>>" outputs.Error
-       printfn "exn: <<<%A>>>" exn
-       raise exn
+  do
+    if not disableFsiObj then
+        FsiEvaluator.InjectedAddPrinter <- addPrinterThunk
+        FsiEvaluator.InjectedAddPrintTransformer <- addPrintTransformerThunk
+        FsiEvaluator.InjectedAddHtmlPrinter <- addHtmlPrinterThunk
+        FsiEvaluator.InjectedFsiObj <- fsiObj
+
+        let path = Path.GetTempFileName() + ".fs"
+        File.WriteAllText(path, fsiEstablishText)
+        let outputs, res = fsiSession.EvalInteraction(sprintf "#load @\"%s\"" path)
+        File.Delete(path)
+        match res with
+        | Ok v -> ()
+        | Error exn ->
+           printfn "Error establishing FSI:"
+           printfn "%s" outputs.Output.Merged
+           printfn "%s" outputs.Error.Merged
+           printfn "Exception: %A" exn
+           raise exn
 
 
   let evalFailed = new Event<_>()
@@ -389,7 +394,7 @@ module __FsiSettings =
               FsiMergedOutput = Some output.Output.Merged
               FsiOutput = Some output.Output.FsiOutput
               Result = value
-              ItValue = itvalue  } :> _
+              ItValue = itvalue  } :> IFsiEvaluationResult
           )
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
@@ -397,5 +402,5 @@ module __FsiSettings =
           FsiOutput = None
           FsiMergedOutput = None
           Result = None
-          ItValue = None } :> _
+          ItValue = None } :> IFsiEvaluationResult
 

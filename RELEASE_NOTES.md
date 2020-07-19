@@ -1,3 +1,8 @@
+## 6.0.2
+
+  - Always inject `fsi.AddPrinter`, `fsi.AddHtmlPrinter` etc. into the programming model for literate scripts
+  - Remove the `api` command from the command line tool (`build` generalises it)
+
 ## 6.0.1
 
   - build the Lunr `index.json` from every execution of `fsdocs build`
