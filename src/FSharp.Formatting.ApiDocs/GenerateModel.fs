@@ -871,6 +871,10 @@ module internal Reader =
               full.AppendFormat("<a href=\"{0}\">{1}</a>", reference.ReferenceLink, reference.NiceName) |> ignore
             | _ ->
               full.AppendFormat("UNRESOLVED({0})", cref.Value) |> ignore
+        | "c" ->
+           full.Append("<code>") |> ignore
+           full.Append(elem.Value) |> ignore
+           full.Append("</code>") |> ignore
         | _ ->
           ()
        ) (e.Nodes())
