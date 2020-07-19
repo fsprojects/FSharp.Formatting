@@ -282,9 +282,9 @@ module __FsiSettings =
         | Error exn ->
            printfn "Error establishing FSI:"
            printfn "%s" outputs.Output.FsiOutput
-           printfn "%s" outputs.Output.ConsoleOutput
+           printfn "%s" outputs.Output.ScriptOutput
            printfn "%s" outputs.Error.FsiOutput
-           printfn "%s" outputs.Error.ConsoleOutput
+           printfn "%s" outputs.Error.ScriptOutput
            printfn "Exception: %A" exn
            raise exn
 
