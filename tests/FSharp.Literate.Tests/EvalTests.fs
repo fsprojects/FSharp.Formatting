@@ -274,6 +274,36 @@ let xxxxxxx = 1
   html1 |> shouldContainText "val xxxxxxx : int = 1"
 
 [<Test>]
+let ``Can include-html-output`` () =
+  let content = """
+type Html = Html of string
+#if HAS_FSI_ADDHTMLPRINTER
+fsi.AddHtmlPrinter(fun (Html h) -> seq [], h)
+#endif
+Html "<b>HELLO</b>"
+(*** include-it ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtml(doc1)
+  html1 |> shouldContainText "<b>HELLO</b>"
+
+[<Test>]
+let ``Can include-html-output-even-without-hash-if-and-print-transformer-works-for-html-too`` () =
+  let content = """
+type Html = Html of string
+type Quack = Quack of string
+fsi.AddPrintTransformer(fun (Quack h) -> box (Html h))
+fsi.AddHtmlPrinter(fun (Html h) -> seq [], "<b>QUACK</b>")
+Quack "<b>HELLO</b>"
+(*** include-it ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtml(doc1)
+  html1 |> shouldContainText "<b>QUACK</b>"
+
+[<Test>]
 let ``Can include-fsi-merged-output`` () =
   let content = """
 printfn "HELLO"

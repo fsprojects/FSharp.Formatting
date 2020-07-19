@@ -115,16 +115,16 @@ type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?disca
   let addHtmlPrinter = defaultArg addHtmlPrinter true
   let disableFsiObj = defaultArg disableFsiObj false
 
-  let options =
-     options
-     |> Option.map (Array.append (if addHtmlPrinter then [| "--define:HAS_FSI_ADDHTMLPRINTER" |] else [| |])) 
-     //|> Option.map (Array.append [| "-r:FSharp.Compiler.Interactive.Settings.dll" |]) 
-
   let fsiOptions = options |> Option.map FsiOptions.ofArgs |> Option.defaultWith (fun _ -> FsiOptions.Default)
+  let fsiOptions =
+     if addHtmlPrinter then
+         { fsiOptions with Defines=fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ] }
+     else
+         fsiOptions
   let fsiSession = ScriptHost.Create(fsiOptions, discardStdOut = discardStdOut, fsiObj = fsiObj)
 
   let mutable plainTextPrinters : Choice<(obj -> string option), (obj -> obj option)>  list = []
-  let mutable htmlPrinters : (obj -> (seq<string * string> * string) option) list = []
+  let mutable htmlPrinters : Choice<(obj -> (seq<string * string> * string) option), (obj -> obj option)>  list = []
 
   //----------------------------------------------------
   // Inject the standard 'fsi' script control model into the evaluation session
@@ -164,6 +164,7 @@ type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?disca
                 | _ -> None
             else None
       plainTextPrinters <- Choice2Of2 realPrinter :: plainTextPrinters
+      htmlPrinters <- Choice2Of2 realPrinter :: htmlPrinters
 
   let addHtmlPrinterThunk(f: obj, ty: Type) =
       let realHtmlPrinter (value:obj) =
@@ -175,7 +176,7 @@ type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?disca
                 | :? (obj -> seq<string * string> * string) as f2 -> Some(f2 value)
                 | _ -> None
             else None
-      htmlPrinters <- realHtmlPrinter :: htmlPrinters
+      htmlPrinters <- Choice1Of2 realHtmlPrinter :: htmlPrinters
 
   let fsiEstablishText =
       sprintf """
@@ -247,17 +248,17 @@ module __FsiSettings =
            and set(v:bool) = setInstanceProp "ShowDeclarationValues" v
 
        /// Register a printer that controls the output of the interactive session.
-       static member AddPrinter<'T>(f:'T -> string) =
-           __InjectedAddPrinter ((fun (v:obj) -> f (unbox<'T> v)), typeof<'T>)
-           __FsiObj.GetType().GetMethod("AddPrinter", (BindingFlags.Instance ||| BindingFlags.Public)).MakeGenericMethod([| typeof<'T> |]).Invoke(__FsiObj, [|  box f |]) |> ignore
+       static member AddPrinter<'T>(printer:'T -> string) =
+           __InjectedAddPrinter ((fun (v:obj) -> printer (unbox<'T> v)), typeof<'T>)
+           __FsiObj.GetType().GetMethod("AddPrinter", (BindingFlags.Instance ||| BindingFlags.Public)).MakeGenericMethod([| typeof<'T> |]).Invoke(__FsiObj, [|  box printer |]) |> ignore
 
        /// Register a print transformer that controls the output of the interactive session.
-       static member AddPrintTransformer<'T>(f: 'T -> obj) =
-           __InjectedAddPrintTransformer ((fun (v:obj) -> f (unbox<'T> v)), typeof<'T>)
-           __FsiObj.GetType().GetMethod("AddPrintTransformer", (BindingFlags.Instance ||| BindingFlags.Public)).MakeGenericMethod([| typeof<'T> |]).Invoke(__FsiObj, [|  box f |]) |> ignore
+       static member AddPrintTransformer<'T>(printer: 'T -> obj) =
+           __InjectedAddPrintTransformer ((fun (v:obj) -> printer (unbox<'T> v)), typeof<'T>)
+           __FsiObj.GetType().GetMethod("AddPrintTransformer", (BindingFlags.Instance ||| BindingFlags.Public)).MakeGenericMethod([| typeof<'T> |]).Invoke(__FsiObj, [|  box printer |]) |> ignore
 
-       static member AddHtmlPrinter<'T>(f:'T -> seq<string * string> * string) =
-           __InjectedAddHtmlPrinter ((fun (v:obj) -> f (unbox<'T> v)), typeof<'T>)
+       static member AddHtmlPrinter<'T>(printer:'T -> seq<string * string> * string) =
+           __InjectedAddHtmlPrinter ((fun (v:obj) -> printer (unbox<'T> v)), typeof<'T>)
 
        /// The command line arguments after ignoring the arguments relevant to the interactive environment
        static member CommandLineArgs 
@@ -280,8 +281,10 @@ module __FsiSettings =
         | Ok v -> ()
         | Error exn ->
            printfn "Error establishing FSI:"
-           printfn "%s" outputs.Output.Merged
-           printfn "%s" outputs.Error.Merged
+           printfn "%s" outputs.Output.FsiOutput
+           printfn "%s" outputs.Output.ConsoleOutput
+           printfn "%s" outputs.Error.FsiOutput
+           printfn "%s" outputs.Error.ConsoleOutput
            printfn "Exception: %A" exn
            raise exn
 
@@ -290,23 +293,47 @@ module __FsiSettings =
   let lockObj = obj()
 
   let rec plainTextPrint depth (v:obj) =
-      if depth > 10 then
-          sprintf "%A" v // recursion in print transformers
+      // guard against recursion in print transformers
+      if depth > 20 then
+          try sprintf "%A" v with e -> e.ToString() 
       else
           plainTextPrinters
           // Try to find a printer or print transformer
           |> List.tryPick (fun f ->
                match f with
-               | Choice1Of2 addedPrinter -> addedPrinter v
-               | Choice2Of2 addedPrintTransformer -> addedPrintTransformer v |> Option.map (plainTextPrint (depth+1)))
+               | Choice1Of2 addedPrinter -> 
+                  try addedPrinter v with _ -> None
+               | Choice2Of2 addedPrintTransformer ->
+                  (try addedPrintTransformer v with _ -> None)
+                  |> Option.map (plainTextPrint (depth+1)))
           |> function
-              | None -> sprintf "%A" v // no printer found
+              | None ->
+                  // no printer found
+                  try sprintf "%A" v with e -> e.ToString() 
               | Some t -> t
+
+  let rec tryHtmlPrint depth (v:obj) =
+      if depth > 10 then
+          None
+      else
+          htmlPrinters
+          // Try to find a printer or print transformer
+          |> List.tryPick (fun f ->
+               match f with
+               | Choice1Of2 addedPrinter ->
+                  try addedPrinter v with _ -> None
+               | Choice2Of2 addedPrintTransformer ->
+                  (try addedPrintTransformer v with _ -> None)
+                  |> Option.bind (tryHtmlPrint (depth+1)))
 
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
   let mutable valueTransformations = 
     [ (fun (o:obj, t:Type, executionCount: int) ->
+        tryHtmlPrint 0 o |> Option.map (fun (_tags, html) -> 
+           [OutputBlock(html, "text/html", Some executionCount)]) )
+
+      (fun (o:obj, t:Type, executionCount: int) ->
         Some([OutputBlock(plainTextPrint 0 o, "text/plain", Some executionCount)]) ) ]
 
   /// Temporarily holds the function value injected into the F# evaluation session
