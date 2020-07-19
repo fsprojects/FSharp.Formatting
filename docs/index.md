@@ -38,7 +38,7 @@ The sub-components are:
 
  - [API documentation tool](apidocs.html) - provides a brief documentation for a tool
    that generates nice HTML documentation from "XML comments" in your .NET libraries.
-   The tool handles comments written in Markdown too. 
+   The tool handles comments written in Markdown too and generates a search index.
 
  - [Contribute](https://github.com/fsprojects/FSharp.Formatting/blob/master/CONTRIBUTING.md) - how do I contribute?
 

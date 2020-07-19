@@ -153,7 +153,7 @@ let ``ApiDocs extracts Attribute on instance member in class``() =
 let ``ApiDocs extracts Attribute on class constructor``() =
   let typeInfos = ApiDocs.GenerateModel([library], info, libDirs = [testBin]).TypesInfos
   let class' = typeInfos |> findType "AttributeClass"
-  let ctor = class'.Constructors |> Seq.find (fun v -> v.SignatureTooltip ="i:int -> AttributeClass")
+  let ctor = class'.Constructors |> Seq.find (fun v -> v.SignatureTooltip ="i: int -> AttributeClass")
   let attribute = ctor.Attributes.Head
   attribute.Name |> shouldEqual "TestAttribute"
   attribute.FullName |> shouldEqual "AttributeTestNamespace.TestAttribute"

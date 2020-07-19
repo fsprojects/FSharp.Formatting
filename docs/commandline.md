@@ -31,6 +31,9 @@ The expected structure for a docs directory is
 
 The output goes in `output/` by default.  Typically a `--parameters` argument is needed for substitutions in the template, e.g.
 
+A Lunr search index is also generated for the API docs. See  [API doc generation](apidocs.html) for details about
+how to add a search box to your `_template.html`.
+
 Template files are as follows:
 
 - `_template.html` - absent, empty or contain `{{document}}` and `{{tooltips}}` placeholders.
@@ -107,33 +110,6 @@ doesn't generate API documentation.
   * `--parameters` -  A whitespace separated list of string pairs as text replacement patterns for the format template file.
   * `--includeSource` -  Include sourcecode in documentation for substitution as `{{source}}`, defaults to `false`.
   * `--help` -  Display the specific help message for `convert`.
-  * `--waitForKey` -  Wait for key before exit.
-
-The api command
---------------------
-
-The `fsdocs api` command builds the [library documentation](http://fsprojects.github.io/FSharp.Formatting/apidocs.html) by reading 
-the meta-data from the `*.dll` files of the package and using the XML comments from matching `*.xml` files produced by the F# compiler.
-
-    [lang=text]
-    fsdocs api --dlls lib1.dll "lib 2.dll" --output "../api-docs" --template docs/reference/_template.html
-
-### Required options
-
-  * `--dlls` -  List of `dll` input files.
-  * `--template` -  Template file for formatting, the file should contain `{{document}}` tag
-
-### Other options
-
-  * `--output` -  Output directory, defaults to `output`
-  * `--parameters` -  Property settings for simple template instantiation.
-  * `--xmlFile` -  Single XML file to use for all `dll` files, otherwise using `file.xml` for each `file.dll`.
-  * `--sourceRepo` -  Source repository URL; silently ignored, if a source repository folder is not provided.
-  * `--sourceFolder` -  Source repository folder; silently ignored, if a source repository URL is not provided.
-  * `--nonPublic` -  Generate docs for non-public members
-  * `--xmlComments` -  Generate docs assuming XML comments not markdown comments in source code
-  * `--libDirs` - Search directory list for library references.
-  * `--help` -  Display the specific help message for `apidocs`.
   * `--waitForKey` -  Wait for key before exit.
 
 ### Examples
