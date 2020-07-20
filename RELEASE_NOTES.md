@@ -2,10 +2,10 @@
 
   - Always inject `fsi.AddPrinter`, `fsi.AddHtmlPrinter` etc. into the programming model for literate scripts
   - Remove the `api` command from the command line tool (`build` generalises it)
- - Add missing search.js
- - Add `(*** include-fsi-output **)`
- - Add `(*** include-fsi-merged-output **)`
-
+  - Add missing search.js
+  - Add `(*** include-fsi-output **)`
+  - Add `(*** include-fsi-merged-output **)`
+  - Add server to `dotnet watch` and by default switch to local host
 
 ## 6.0.1
 
