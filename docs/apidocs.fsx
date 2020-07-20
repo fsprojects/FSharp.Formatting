@@ -28,14 +28,14 @@ for F# libraries with XML comments.
  - The HTML is built by instantiating a template
  - An ApiDocs model is available if you want to integrate with your own approach to templating.
 
+The documentation is normally built using
 
-Adding Go to GitHub source links
------------------
-You can automatically add GitHub links to each functions, values and class members for further reference.
-You need to specify two more arguments: `sourceRepo` to the GitHub repository 
-and `sourceFolder` to the folder where your DLLs are built.
+    [lang=text]
+    fsdocs build
 
-It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
+The output will be placed in `output\reference` by default, and the template used is
+`docs\_template.html`.
+
 
 Searchable API docs
 -----------------
@@ -59,6 +59,14 @@ for example this HTML code:
       </div>
     </div>
     ...
+
+Adding Go to GitHub source links
+-----------------
+You can automatically add GitHub links to each functions, values and class members for further reference.
+You need to specify two more arguments: `sourceRepo` to the GitHub repository 
+and `sourceFolder` to the folder where your DLLs are built.
+
+It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 
 Adding cross-type links to modules and types in the same assembly
 -----------------
@@ -161,5 +169,3 @@ ApiDocs.GenerateHtml
   ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
     outDir=Path.Combine(root, "output"),
     template=Path.Combine(root, "templates", "template.html") )
-
-    
