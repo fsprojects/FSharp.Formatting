@@ -676,7 +676,7 @@ module internal ValueReader =
           // single argument F# function values should not have brackets if they are not tuples 
           // single argument F# members should not have brackets if they are lower case
           elif argInfos.Length > 1 ||
-               (s <> "()" && not (s.Contains(",")) && (v.IsModuleValueOrMember || (Char.IsLower(v.DisplayName.[0])))) then
+               (s <> "()" && not (s.Contains(",")) && (not v.IsMember || (Char.IsLower(v.DisplayName.[0])))) then
               " " + s
           else
               sprintf "(%s)" s)

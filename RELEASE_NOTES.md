@@ -1,3 +1,6 @@
+## 6.0.5
+  - improve display in FSharp.Formatting API docs and add more information
+
 ## 6.0.4
   - Watch defaults to `tmp/watch`
 
