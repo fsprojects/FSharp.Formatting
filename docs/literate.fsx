@@ -18,40 +18,11 @@
 (**
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
 
-F# Formatting: Literate programming
+F# Formatting: Literate Scripts and Markdown
 ===================================
 
-The [command-line tool `fsdocs`](commandline.html) or the `FSharp.Formatting.Literate` namespace implements 
-a literate programming model for F# script files (`*.fsx` files) or Markdown
-documents (`*.md` files) containing F# snippets.
-
-Two inputs are accepted:
-
- - Documents that are valid F# script files (`*.fsx`) and contain special
-   comments with documentation and commands for generating HTML output
-
- - Documents that are Markdown documents (`*.md`) and contain blocks of 
-   F# code (indented by four spaces as usual in Markdown)
-
-If you have multiple script files and Markdown documents (this time, they need to have
-the `*.md` file extension) in a single directory, you can run the tool on a directory.
-It will also automatically check that files are re-generated only when they were changed,
-and also copy over any other files. Processing is recursive, making this call a form of static
-site generation.
-
-- Content that is not `*.fsx` or `*.md` is copied across 
-
-- If a file `_template.html` exists then is used as the template for that directory and all sub-content.
-
-- Any file or directory beginning with `.` is ignored.
-
-- A set of parameter substitutions can be provided operative across all files.
-
-
-### F# Script files
-
 The following example shows most of the features that can be used in a literate
-F# script file. Most of the features should be quite self-explanatory:
+F# script file with `.fsx` extension. Most of the features should be quite self-explanatory:
 
     (**
     # First-level heading
@@ -88,34 +59,44 @@ The F# script files is processed as follows:
 |   `(*** condition: ipynb ***)`       | Include a code snippet when making a .ipynb notebook  |
 |   `(*** condition: tex ***)`       | Include a code snippet when making a .tex output   |
 |   `(*** condition: html ***)`       | Include a code snippet when making HTML output   |
-|   `(*** define: snippet-name ***)`       | Define a named snippet  |
 |   `(*** hide ***)`       | Hide the subsequent snippet  |
 |   `(*** include-output ***)`       | The output of the preceeding snippet   |
-|   `(*** include-output: snippet-name ***)`       | The output of the named snippet  |
 |   `(*** include-fsi-output ***)`       | The F# Interactive output of the preceeding snippet   |
-|   `(*** include-fsi-output: snippet-name ***)`       | The F# Interactive output of the named snippet  |
 |   `(*** include-fsi-merged-output ***)`       | The merge of console output and F# Interactive output of the preceeding snippet   |
-|   `(*** include-fsi-merged-output: snippet-name ***)`       | The merge of console output and F# Interactive output of the named snippet  |
 |   `(*** include-it ***)`       | The formatted result of the preceeding snippet |
-|   `(*** include-it: snippet-name ***)`       | The formatted result of the named snippet  |
 |   `(*** include-value: value-name ***)`       | The formatted value  |
-|   `(*** include: snippet-name ***)`       | Include the code of the named snippet |
 |   `(*** raw ***)`       | The subsequent code is treated as raw text |
+
+### Named snippets
 
 The command `define` defines a named snippet (such as `final-sample`) and removes the command together with 
 the following F# code block from the main document. The snippet can then
-be inserted elsewhere in the document using `include`. This makes it
+be referred to using these variations. This makes it
 possible to write documents without the ordering requirements of the
 F# language.
+
+|  Literate Command     | Description               |
+|:-----------------------|:----------------------------|
+|   `(*** define: snippet-name ***)`       | Define a named snippet  |
+|   `(*** include-output: snippet-name ***)`       | The output of the named snippet  |
+|   `(*** include-fsi-output: snippet-name ***)`       | The F# Interactive output of the named snippet  |
+|   `(*** include-fsi-merged-output: snippet-name ***)`       | The merge of console output and F# Interactive output of the named snippet  |
+|   `(*** include-it: snippet-name ***)`       | The formatted result of the named snippet  |
+|   `(*** include: snippet-name ***)`       | Include the code of the named snippet |
+
+#### Hiding code snippets
 
 The command `hide` specifies that the following F# code block (until the next comment or command) should be 
 omitted from the output.
 
-Other commands are explained in [evaluation](evaluation.html).
+#### Evaluating and formatting results
 
-### Markdown documents
+The commands to evaluate and format results are explained in [evaluation](evaluation.html).
+You must build your documentation with evaluation turned on using `--eval`.
 
-In the Markdown mode, the entire file is a valid Markdown document, which may
+### Literate Markdown Documents
+
+For files with `.md` extension, the entire file is a Markdown document, which may
 contain F# code snippets (but also other code snippets). As usual, snippets are
 indented with four spaces. In addition, the snippets can be annotated with special
 commands. Some of them are demonstrated in the following example: 
@@ -156,30 +137,59 @@ The commands are written on the first line of the named snippet, wrapped in `[..
 *)
 
 (**
+### LaTeX in Literate Scripts and Markdown Documents
 
-### Processing literate docs using the command line tool
+Literate Scripts may contain LaTeX sections in Markdown using these forms:
 
-The [command-line tool `fsdocs`](commandline.html) is normally used to process 
-documents in a `docs` directory.  See the guide there.
+1. Single line latex starting with `$$`.
 
-### The document template
+2. A block delimited by `\begin{equation}...\end{equation}` or `\begin{align}...\end{align}`. 
 
-For HTML, you can optionally provide a template `_template.html`. If no template is provided, the result is simply the HTML body
-of the document with HTML for tool tips appended to the end.
+3. An indented paragraph starting with `$$$`.  This is F#-literate-specific and corresponds to
+   `\begin{equation}...\end{equation}`.
 
-The template should include two parameters that will be replaced with the actual
-HTML: `{{document}}` will be replaced with the formatted document;
-`{{tooltips}}` will be replaced with (hidden) `<div>` elements containing code for tool tips that appear
-when you place mouse pointer over an identifier. Optionally, you can also use 
-`{{page-title}}` which will be replaced with the text in a first-level heading.
-The template should also reference `style.css` and `tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
-and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
+For example
 
-For Latex, the the `_template.tex` file needs to contain `{content}` as the key where the body
-of the document is placed. 
+    [lang=text]
+    $$\frac{x}{y}$$
 
-### Processing files programatically
+    \begin{equation}
+       \frac{d}{dx} \left. \left( x \left( \left. \frac{d}{dy} x y \; \right|_{y=3} \right) \right) \right|_{x=2}
+    \end{equation}
+
+Becomes
+
+$$\frac{x}{y}$$
+
+\begin{equation}
+   \frac{d}{dx} \left. \left( x \left( \left. \frac{d}{dy} x y \; \right|_{y=3} \right) \right) \right|_{x=2}
+\end{equation}
+
+The LaTeX will also be used in HTML and iPython notebook outputs.
+
+### Making literate scripts work for different outputs
+
+Literate scripts and markdown can by turned into LaTex, Python Notebooks and F# scripts.
+
+A header may be needed to get the code to load, a typical example is this:
+
+    (*** condition: prepare ***)
+    #nowarn "211"
+    #I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+    #r "FSharp.Formatting.Common.dll"
+    #r "FSharp.Formatting.Markdown.dll"
+    #r "FSharp.Formatting.CodeFormat.dll"
+    #r "FSharp.Formatting.Literate.dll"
+    (*** condition: fsx ***)
+    #if FSX
+    #r "nuget: FSharp.Formatting,{{package-version}}"
+    #endif // FSX
+    (*** condition: ipynb ***)
+    #if IPYNB
+    #r "nuget: FSharp.Formatting,{{package-version}}"
+    #endif // IPYNB
+
+### Processing literate files programatically
 
 To process file Use the two static methods to turn single documents into HTML
 as follows:
@@ -221,8 +231,6 @@ Literate.ConvertDirectory
 
 (**
 
-## Generating LaTeX output
-
 The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
@@ -238,8 +246,6 @@ Literate.ConvertMarkdownFile(docTex, templateTex, outputKind=OutputKind.Latex)
 
 (**
 
-## Generating iPython Notebook output
-
 The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
 can also produce iPython Notebook output. This is done
 by setting the named parameter `format` to `OutputKind.Pynb`:
@@ -253,8 +259,6 @@ let docPynb = Path.Combine(source, "../docs/document.md")
 Literate.ConvertMarkdownFile(docPynb, outputKind=OutputKind.Pynb)
 
 (**
-
-## Optional parameters
 
 All of the three methods discussed in the previous two sections take a number of optional
 parameters that can be used to tweak how the formatting works or even to specify a different

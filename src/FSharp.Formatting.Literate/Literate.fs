@@ -183,6 +183,7 @@ type Literate private () =
                 let fn = sprintf "%s/savedimages/saved%d%s" outputDirectory counter ext
 
                 ensureDirectory (sprintf "%s/savedimages" outputDirectory)
+                printfn "downloading %s --> %s" url fn
                 wc.DownloadFile(url, fn)
                 fn
             else url

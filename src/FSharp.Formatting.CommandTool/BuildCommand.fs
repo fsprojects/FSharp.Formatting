@@ -5,7 +5,6 @@ open CommandLine
 open System
 open System.IO
 open System.Text
-open System.Runtime.Serialization
 open System.Runtime.Serialization.Formatters.Binary
 
 open FSharp.Formatting.Common
@@ -28,28 +27,34 @@ module Utils =
     let saveBinary (object:'T) (fileName:string) =
         try Directory.CreateDirectory (Path.GetDirectoryName(fileName)) |> ignore with _ -> ()
         let formatter = BinaryFormatter()
-        let fs = new FileStream(fileName, FileMode.Create)
+        use fs = new FileStream(fileName, FileMode.Create)
         formatter.Serialize(fs, object)
         fs.Flush()
-        fs.Close()
 
     let loadBinary<'T> (fileName:string):'T option =
         let formatter = BinaryFormatter()
-        let fs = new FileStream(fileName, FileMode.Open)
+        use fs = new FileStream(fileName, FileMode.Open)
         try
             let object = formatter.Deserialize(fs) :?> 'T
-            fs.Close()
             Some object
         with e -> None
 
     let cacheBinary cacheFile cacheValid (f: unit -> 'T)  : 'T =
         let attempt =
-            if cacheValid && File.Exists(cacheFile) then loadBinary cacheFile
+            if File.Exists(cacheFile) then
+               let v = loadBinary cacheFile
+               match v with
+               | Some v ->
+                   if cacheValid v then
+                       printfn "restored project state from '%s'" cacheFile
+                       Some v
+                   else
+                       printfn "discarding project state in '%s' as now invalid" cacheFile
+                       None
+               | None -> None
             else None
         match attempt with
-        | Some r ->
-            printfn "restored project state from '%s'" cacheFile
-            r
+        | Some r -> r
         | None ->
             let res = f()
             saveBinary res cacheFile
@@ -175,6 +180,113 @@ module Crack =
         | Error d ->
             failwithf "cannot load the sln: %A" d
 
+
+    let crackProjects projects =
+          let slnDir = Path.GetFullPath "."
+        
+          //printfn "x.projects = %A" x.projects
+          let overallProjectName, projectFiles =
+            match projects with
+            | [] ->
+                match Directory.GetFiles(slnDir, "*.sln") with
+                | [| sln |] ->
+                    printfn "getting projects from solution file %s" sln
+                    let overallProjectName = Path.GetFileNameWithoutExtension(sln)
+                    overallProjectName, getProjectsFromSlnFile sln
+                | _ -> 
+                    let projectFiles =
+                        [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
+                          for d in Directory.EnumerateDirectories(slnDir) do
+                             yield! Directory.EnumerateFiles(d, "*.fsproj")
+                             for d2 in Directory.EnumerateDirectories(d) do
+                                yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
+                    let overallProjectName = Path.GetFileName(slnDir)
+                    overallProjectName, projectFiles
+                    
+            | projectFiles -> 
+                let overallProjectName = Path.GetFileName(slnDir)
+                overallProjectName, projectFiles
+    
+          //printfn "projects = %A" projectFiles
+          let projectFiles =
+            projectFiles |> List.choose (fun s ->
+                if s.Contains(".Tests") || s.Contains("test") then
+                    printfn "skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
+                    None
+                else
+                    Some s)
+          //printfn "filtered projects = %A" projectFiles
+          if projectFiles.Length = 0 then
+            printfn "no project files found, no API docs will be generated"
+          printfn "cracking projects..." 
+          let projectInfos =
+            projectFiles
+            |> Array.ofList
+            |> Array.Parallel.choose (fun p -> 
+                try
+                   Some (getTargetFromProjectFile slnDir p)
+                with e -> 
+                   printfn "skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
+                   None)
+            |> Array.toList
+          let projectInfos =
+            projectInfos
+            |> List.choose (fun info ->
+                let shortName = Path.GetFileName info.ProjectFileName
+                if info.TargetPath.IsNone then
+                    printfn "skipping project '%s' because it doesn't have a target path" shortName
+                    None
+                elif not info.IsLibrary then 
+                    printfn "skipping project '%s' because it isn't a library" shortName
+                    None
+                elif info.IsTestProject then 
+                    printfn "skipping project '%s' because it has <IsTestProject> true" shortName
+                    None
+                elif not info.GenerateDocumentationFile then 
+                    printfn "skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
+                    None
+                else
+                    Some info)
+          let projectOutputs =
+            projectInfos |> List.map (fun info -> info.TargetPath.Value)
+
+          let tryFindValue f nm tag  =
+            projectInfos
+            |> List.tryPick f
+            |> function
+                | Some url -> url
+                | None ->
+                    printfn "no project defined <%s>, the {{%s}} substitution will not be replaced in any HTML templates" nm tag ;
+                    "{{" + tag + "}}"
+          let packageProjectUrl = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
+          let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
+          //let description = tryFindValue (fun info -> info.Description) "Description" "description"
+          let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
+          let repoUrl = tryFindValue (fun info -> info.RepositoryUrl) "RepositoryUrl" "repository-url"
+          let packageLicenseExpression = tryFindValue (fun info -> info.PackageLicenseExpression) "PackageLicenseExpression" "package-license"
+          let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
+          let packageVersion = tryFindValue (fun info -> info.PackageVersion) "PackageVersion" "package-version"
+          let packageIconUrl = tryFindValue (fun info -> info.PackageIconUrl) "PackageIconUrl" "package-icon-url"
+          //let packageReleaseNotes = tryFindValue (fun info -> info.PackageReleaseNotes) "PackageReleaseNotes" "package-release-notes"
+          let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
+          let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
+          let parameters = 
+            [ "project-name", overallProjectName
+              "root", packageProjectUrl
+              "authors", authors
+              //"description", description
+              "repository-url", repoUrl
+              "package-license", packageLicenseExpression
+              //"package-release-notes", packageReleaseNotes
+              "package-icon-url", packageIconUrl
+              "package-tags", packageTags
+              "package-version", packageVersion
+              "repository-commit", repositoryCommit
+              "copyright", copyright]
+          let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
+
+          overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption
+
 /// Processes and runs Suave server to host them on localhost
 module Serve =
 
@@ -193,12 +305,11 @@ module Serve =
         let withPort = { defaultBinding.socketBinding with port = uint16 localPort }
         let serverConfig =
             { defaultConfig with
-                //logger = Suave.Logging.Log.create "fsx2html"
-                //logger = Logging.Logger.
                 bindings = [ { defaultBinding with socketBinding = withPort } ]
                 homeFolder = Some outputDirectory }
         let app =
             choose [
+              path "/" >=> Redirection.redirect "/index.html"
               path "/websocket" >=> handShake socketHandler
               Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
               >=> Writers.setHeader "Pragma" "no-cache"
@@ -206,9 +317,7 @@ module Serve =
               >=> Files.browseHome ]
         startWebServerAsync serverConfig app |> snd |> Async.Start
 
-type CoreBuildOptions(watch, serve) =
-
-    let mutable useWaitForKey = false 
+type CoreBuildOptions(watch) =
 
     [<Option("input", Required=false, Default="docs", HelpText = "Input directory of documentation content.")>]
     member val input = "" with get, set
@@ -243,130 +352,30 @@ type CoreBuildOptions(watch, serve) =
     [<Option("clean", Required = false, Default=false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
-    [<Option("port", Required = false, Default=8901, HelpText = "Port to serve content for http://localhost serving.")>]
-    member val port = 8901 with get, set
-
-    [<Option("noserver", Required = false, Default=false, HelpText = "Do not serve content when watching.")>]
-    member val noserver = false with get, set
-
     member x.Execute() =
         let mutable res = 0
 
-        let overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption =
+        let (overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption), _key =
           let projects = Seq.toList x.projects
           let cacheFile = ".fsdocs/cache"
-          Utils.cacheBinary cacheFile projects.IsEmpty (fun () ->
+          let key1 = projects, (projects |> List.map (fun p -> try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now) |> List.toArray)
+          Utils.cacheBinary cacheFile
+           (fun (_, key2) -> key1 = key2)
+           (fun () ->
             if x.noApiDocs then
-                "", [], [], [], "", None
+                ("", [], [], [], "", None), key1
             else
-              let slnDir = Path.GetFullPath "."
-                
-              //printfn "x.projects = %A" x.projects
-              let overallProjectName, projectFiles =
-                match projects with
-                | [] ->
-                    match Directory.GetFiles(slnDir, "*.sln") with
-                    | [| sln |] ->
-                        printfn "getting projects from solution file %s" sln
-                        let overallProjectName = Path.GetFileNameWithoutExtension(sln)
-                        overallProjectName, Crack.getProjectsFromSlnFile sln
-                    | _ -> 
-                        let projectFiles =
-                            [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
-                              for d in Directory.EnumerateDirectories(slnDir) do
-                                 yield! Directory.EnumerateFiles(d, "*.fsproj")
-                                 for d2 in Directory.EnumerateDirectories(d) do
-                                    yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
-                        let overallProjectName = Path.GetFileName(slnDir)
-                        overallProjectName, projectFiles
-                            
-                | projectFiles -> 
-                    let overallProjectName = Path.GetFileName(slnDir)
-                    overallProjectName, projectFiles
-            
-              //printfn "projects = %A" projectFiles
-              let projectFiles =
-                projectFiles |> List.choose (fun s ->
-                    if s.Contains(".Tests") || s.Contains("test") then
-                        printfn "skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
-                        None
-                    else
-                        Some s)
-              //printfn "filtered projects = %A" projectFiles
-              if projectFiles.Length = 0 then
-                printfn "no project files found, no API docs will be generated"
-              printfn "cracking projects..." 
-              let projectInfos =
-                projectFiles
-                |> Array.ofList
-                |> Array.Parallel.choose (fun p -> 
-                    try
-                       Some (Crack.getTargetFromProjectFile slnDir p)
-                    with e -> 
-                       printfn "skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
-                       None)
-                |> Array.toList
-              let projectInfos =
-                projectInfos
-                |> List.choose (fun info ->
-                    let shortName = Path.GetFileName info.ProjectFileName
-                    if info.TargetPath.IsNone then
-                        printfn "skipping project '%s' because it doesn't have a target path" shortName
-                        None
-                    elif not info.IsLibrary then 
-                        printfn "skipping project '%s' because it isn't a library" shortName
-                        None
-                    elif info.IsTestProject then 
-                        printfn "skipping project '%s' because it has <IsTestProject> true" shortName
-                        None
-                    elif not info.GenerateDocumentationFile then 
-                        printfn "skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
-                        None
-                    else
-                        Some info)
-              let projectOutputs =
-                projectInfos |> List.map (fun info -> info.TargetPath.Value)
+                Crack.crackProjects projects, key1)
 
-              let tryFindValue f nm tag  =
-                projectInfos
-                |> List.tryPick f
-                |> function
-                    | Some url -> url
-                    | None ->
-                        printfn "no project defined <%s>, the {{%s}} substitution will not be replaced in any HTML templates" nm tag ;
-                        "{{" + tag + "}}"
-              let packageProjectUrl = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
-              let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
-              //let description = tryFindValue (fun info -> info.Description) "Description" "description"
-              let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
-              let repoUrl = tryFindValue (fun info -> info.RepositoryUrl) "RepositoryUrl" "repository-url"
-              let packageLicenseExpression = tryFindValue (fun info -> info.PackageLicenseExpression) "PackageLicenseExpression" "package-license"
-              let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
-              let packageVersion = tryFindValue (fun info -> info.PackageVersion) "PackageVersion" "package-version"
-              let packageIconUrl = tryFindValue (fun info -> info.PackageIconUrl) "PackageIconUrl" "package-icon-url"
-              //let packageReleaseNotes = tryFindValue (fun info -> info.PackageReleaseNotes) "PackageReleaseNotes" "package-release-notes"
-              let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
-              let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
-              let parameters = 
-                [ "project-name", overallProjectName
-                  "root", packageProjectUrl
-                  "authors", authors
-                  //"description", description
-                  "repository-url", repoUrl
-                  "package-license", packageLicenseExpression
-                  //"package-release-notes", packageReleaseNotes
-                  "package-icon-url", packageIconUrl
-                  "package-tags", packageTags
-                  "package-version", packageVersion
-                  "repository-commit", repositoryCommit
-                  "copyright", copyright]
-              let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
-              let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
+        let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
+        let parameters =
+            if watch then
+                ["root", sprintf "http://localhost:%d" x.port_option ] @ parameters
+            else
+                parameters
 
-              for pn, p in parameters do
-                  printfn "parameter %s = %s" pn p
-
-              overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption)
+        for pn, p in parameters do
+            printfn "parameter %s = %s" pn p
 
         let runConvert () =
             try
@@ -453,7 +462,6 @@ type CoreBuildOptions(watch, serve) =
         if watch then
             docsWatcher.IncludeSubdirectories <- true
             docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-            useWaitForKey <- true
             docsWatcher.Changed.Add (fun _ ->
                 if not docsQueued then
                     docsQueued <- true
@@ -501,24 +509,35 @@ type CoreBuildOptions(watch, serve) =
         lock monitor (fun () -> runConvert(); runGenerate())
         generateQueued <- false
         docsQueued <- false
-        if serve && not x.noserver then
-            printfn "starting server on http://localhost:%d for content in %s" x.port fullOut
-            Serve.startWebServer fullOut x.port
+        if watch && not x.noserver_option then
+            printfn "starting server on http://localhost:%d for content in %s" x.port_option fullOut
+            Serve.startWebServer fullOut x.port_option
         if watch then
             printfn "watching content in %s plus any built content DLLs" fullIn
-        waitForKey useWaitForKey
+        waitForKey watch
         res
+
+    abstract noserver_option : bool
+    default x.noserver_option = false
+
+    abstract port_option : int
+    default x.port_option = 0
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
-    inherit CoreBuildOptions(false, false)
+    inherit CoreBuildOptions(false)
 
-
-[<Verb("serve", HelpText = "build the documentation and serve it from the output directory")>]
-type ServeCommand() =
-    inherit CoreBuildOptions(false, true)
-
-[<Verb("watch", HelpText = "build the documentation for a solution based on content and defaults and watch")>]
+[<Verb("watch", HelpText = "build the documentation for a solution based on content and defaults, watch it and serve it")>]
 type WatchCommand() =
-    inherit CoreBuildOptions(true, true)
+    inherit CoreBuildOptions(true)
+
+    override x.noserver_option = x.noserver
+    [<Option("noserver", Required = false, Default=false, HelpText = "Do not serve content when watching.")>]
+    member val noserver = false with get, set
+
+    override x.port_option = x.port
+    [<Option("port", Required = false, Default=8901, HelpText = "Port to serve content for http://localhost serving.")>]
+    member val port = 8901 with get, set
+
+
 
