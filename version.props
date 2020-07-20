@@ -1,11 +1,9 @@
 <Project>
       <PropertyGroup>
-        <Version>6.0.1</Version>
+        <Version>6.0.2</Version>
         <PackageReleaseNotes>
-- build the Lunr `index.json` from every execution of `fsdocs build`
-- Make the search index entries available as part of the ApiDocs model
-- Add `ApiDocs` prefix to all types in `ApiDocsModel`
-- Remove `Details` from `ApiDocsModel`
+- Always inject `fsi.AddPrinter`, `fsi.AddHtmlPrinter` etc. into the programming model for literate scripts
+- Remove the `api` command from the command line tool (`build` generalises it)
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>

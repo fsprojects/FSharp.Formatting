@@ -117,8 +117,13 @@ module internal MarkdownUtils =
             | CodeBlock(code, _, _, _, _) ->
                 yield code
                 yield ""
+            | OutputBlock(output, "text/html", _executionCount) ->
+                yield (output.Trim())
+                yield ""
             | OutputBlock(output, _, _executionCount) ->
-                yield output
+                yield "```"
+                yield output 
+                yield "```"
                 yield ""
             | OtherBlock(lines, _) ->
                 yield! List.map fst lines

@@ -33,6 +33,21 @@ Two inputs are accepted:
  - Documents that are Markdown documents (`*.md`) and contain blocks of 
    F# code (indented by four spaces as usual in Markdown)
 
+If you have multiple script files and Markdown documents (this time, they need to have
+the `*.md` file extension) in a single directory, you can run the tool on a directory.
+It will also automatically check that files are re-generated only when they were changed,
+and also copy over any other files. Processing is recursive, making this call a form of static
+site generation.
+
+- Content that is not `*.fsx` or `*.md` is copied across 
+
+- If a file `_template.html` exists then is used as the template for that directory and all sub-content.
+
+- Any file or directory beginning with `.` is ignored.
+
+- A set of parameter substitutions can be provided operative across all files.
+
+
 ### F# Script files
 
 The following example shows most of the features that can be used in a literate
@@ -76,11 +91,15 @@ The F# script files is processed as follows:
 |   `(*** define: snippet-name ***)`       | Define a named snippet  |
 |   `(*** hide ***)`       | Hide the subsequent snippet  |
 |   `(*** include-output ***)`       | The output of the preceeding snippet   |
-|   `(*** include-otuput: snippet-name ***)`       | The output of the snippet  |
+|   `(*** include-output: snippet-name ***)`       | The output of the named snippet  |
+|   `(*** include-fsi-output ***)`       | The F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-output: snippet-name ***)`       | The F# Interactive output of the named snippet  |
+|   `(*** include-fsi-merged-output ***)`       | The merge of console output and F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-merged-output: snippet-name ***)`       | The merge of console output and F# Interactive output of the named snippet  |
 |   `(*** include-it ***)`       | The formatted result of the preceeding snippet |
-|   `(*** include-it: snippet-name ***)`       | The formatted result of the snippet  |
+|   `(*** include-it: snippet-name ***)`       | The formatted result of the named snippet  |
 |   `(*** include-value: value-name ***)`       | The formatted value  |
-|   `(*** include: snippet-name ***)`       | Include the code of the snippet |
+|   `(*** include: snippet-name ***)`       | Include the code of the named snippet |
 |   `(*** raw ***)`       | The subsequent code is treated as raw text |
 
 The command `define` defines a named snippet (such as `final-sample`) and removes the command together with 
@@ -120,7 +139,7 @@ commands. Some of them are demonstrated in the following example:
 
 When processing the document, all F# snippets are copied to a separate file that
 is type-checked using the F# compiler (to obtain colours and tool tips).
-The commands are written on the first line of the snippet, wrapped in `[...]`:
+The commands are written on the first line of the named snippet, wrapped in `[...]`:
 
  - The `hide` command specifies that the F# snippet should not be included in the
    final document. This can be used to include code that is needed to type-check
@@ -130,23 +149,39 @@ The commands are written on the first line of the snippet, wrapped in `[...]`:
    is placed. Use this command if you need multiple versions of the same snippet
    or if you need to separate code from different snippets.
 
- - The `lang=foo` command specifies the language of the snippet. If the language
+ - The `lang=foo` command specifies the language of the named snippet. If the language
    is other than `fsharp`, the snippet is copied to the output as `<pre>` HTML
    tag without any processing.
 
-Typical literate setup
-----------------------
 *)
 
 (**
-For literate programming support in your project, install the `FSharp.Formatting` nuget package.
 
-Now we can open `FSharp.Formatting.Literate` and use the `Literate` type to process individual
-documents or entire directories.
+### Processing literate docs using the command line tool
 
-### Processing individual files
+The [command-line tool `fsdocs`](commandline.html) is normally used to process 
+documents in a `docs` directory.  See the guide there.
 
-Use the two static methods to turn single documents into HTML
+### The document template
+
+For HTML, you can optionally provide a template `_template.html`. If no template is provided, the result is simply the HTML body
+of the document with HTML for tool tips appended to the end.
+
+The template should include two parameters that will be replaced with the actual
+HTML: `{{document}}` will be replaced with the formatted document;
+`{{tooltips}}` will be replaced with (hidden) `<div>` elements containing code for tool tips that appear
+when you place mouse pointer over an identifier. Optionally, you can also use 
+`{{page-title}}` which will be replaced with the text in a first-level heading.
+The template should also reference `style.css` and `tips.js` that define CSS style
+and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
+and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
+
+For Latex, the the `_template.tex` file needs to contain `{content}` as the key where the body
+of the document is placed. 
+
+### Processing files programatically
+
+To process file Use the two static methods to turn single documents into HTML
 as follows:
 *)
 open System.IO
@@ -159,31 +194,9 @@ let script = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(script, template)
 
 let doc = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(doc, template)
+Literate.ConvertMarkdownFile(doc, template)
 
 (**
-For HTML, you can optionally provide a template. Two sample templates
-are included: for a [single file](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-file.html)
-and for a [project](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-project.html),
-but you can use your own. If no template is provided, the result is simply the HTML body
-of the document with HTML for tool tips appended to the end.
-
-The template should include two parameters that will be replaced with the actual
-HTML: `{{document}}` will be replaced with the formatted document;
-`{{tooltips}}` will be replaced with (hidden) `<div>` elements containing code for tool tips that appear
-when you place mouse pointer over an identifier. Optionally, you can also use 
-`{{page-title}}` which will be replaced with the text in a first-level heading.
-The template should also reference `style.css` and `tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
-and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
-
-### Processing entire directories
-
-If you have multiple script files and Markdown documents (this time, they need to have
-the `*.md` file extension) in a single directory, you can run the tool on a directory.
-It will also automatically check that files are re-generated only when they were changed,
-and also copy over any other files. Processing is recursive, making this call a form of static
-site generation.
 
 The following sample also uses optional parameter `parameters` to specify additional
 keywords that will be replaced in the template file (this matches the `template-project.html`
@@ -200,13 +213,6 @@ let projInfo =
 (**
 You can also convert entire directories of content.
 
-- Content that is not `*.fsx` or `*.md` is copied across 
-
-- If a file `_template.html` exists then is used as the template for that directory and all sub-content.
-
-- Any file or directory beginning with `.` is ignored.
-
-- A set of parameter substitutions can be provided operative across all files.
 *)
 
 // Process all files and save results to 'output' directory
@@ -214,17 +220,10 @@ Literate.ConvertDirectory
   (source, projTemplate, source + "\\output", parameters=projInfo)
 
 (**
-The sample template `template-project.html` has been used to generate this documentation
-and it includes additional parameters for specifying various information about F#
-projects.
-
- * [Sample Markdown file](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/demo.md)
-   produces the following [LaTeX output](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.tex)
-   and [HTML output](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.html)
 
 ## Generating LaTeX output
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:
@@ -235,23 +234,13 @@ let scriptTex = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(scriptTex, templateTex, outputKind=OutputKind.Latex)
 
 let docTex = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docTex, templateTex, outputKind=OutputKind.Latex)
+Literate.ConvertMarkdownFile(docTex, templateTex, outputKind=OutputKind.Latex)
 
 (**
-Note that the `template.tex` file needs to contain `{content}` as the key where the body
-of the document is placed (this differs from `{document}` used in the HTML format to avoid
-collision with standard Latex `{document}` tag). The project comes with two samples (also 
-available as part of the NuGet package). The sample Latex (and HTML) outputs look as follows:
-
- * [Sample F# script file](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/demo.fsx)
-   produces the following [LaTeX output](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-script.tex)
-   and [HTML output](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-script.html)
 
 ## Generating iPython Notebook output
 
-> NOTE: This feature is experimental and not all features of markdown or notebooks is supported
-
-The methods used above (`ConvertScriptFile`, `ConvertMarkdown` as well as `ConvertDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
 can also produce iPython Notebook output. This is done
 by setting the named parameter `format` to `OutputKind.Pynb`:
 *)
@@ -261,7 +250,7 @@ let scriptPynb = Path.Combine(source, "../docs/script.fsx")
 Literate.ConvertScriptFile(scriptPynb, outputKind=OutputKind.Pynb)
 
 let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdown(docPynb, outputKind=OutputKind.Pynb)
+Literate.ConvertMarkdownFile(docPynb, outputKind=OutputKind.Pynb)
 
 (**
 

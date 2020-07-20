@@ -31,9 +31,9 @@ type MarkdownSpan =
   | Strong of body:MarkdownSpans * range:MarkdownRange option
   | Emphasis of body:MarkdownSpans * range:MarkdownRange option
   | AnchorLink of link:string * range:MarkdownRange option
-  | DirectLink of body:MarkdownSpans * link:string * title:option<string> * range:MarkdownRange option
+  | DirectLink of body:MarkdownSpans * link:string * title:string option * range:MarkdownRange option
   | IndirectLink of body:MarkdownSpans * original:string * key:string * range:MarkdownRange option
-  | DirectImage of body:string * link:string * title:option<string> * range:MarkdownRange option
+  | DirectImage of body:string * link:string * title:string option * range:MarkdownRange option
   | IndirectImage of body:string * link:string * key:string * range:MarkdownRange option
   | HardLineBreak of range:MarkdownRange option
   | LatexInlineMath of code:string * range:MarkdownRange option
@@ -41,7 +41,7 @@ type MarkdownSpan =
   | EmbedSpans of customSpans:MarkdownEmbedSpans * range:MarkdownRange option
 
 /// A type alias for a list of `MarkdownSpan` values
-type MarkdownSpans = list<MarkdownSpan>
+type MarkdownSpans = MarkdownSpan list
 
 /// Provides an extensibility point for adding custom kinds of spans into a document
 /// (`MarkdownEmbedSpans` values can be embedded using `MarkdownSpan.EmbedSpans`)

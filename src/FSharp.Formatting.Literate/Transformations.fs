@@ -290,6 +290,8 @@ module internal Transformations =
     match para with 
     | MarkdownPatterns.LiterateParagraph(special) ->
       match special with 
+      | FsiMergedOutputReference (ref, _popts)
+      | FsiOutputReference (ref, _popts)
       | OutputReference (ref, _popts)
       | ItValueReference (ref, _popts)
       | ValueReference (ref, _popts) ->
@@ -298,7 +300,9 @@ module internal Transformations =
         | Some (result, executionCount)  ->
           let kind =
             match special with 
-            | OutputReference _ -> FsiEmbedKind.Output
+            | FsiMergedOutputReference _ -> FsiEmbedKind.FsiMergedOutput
+            | FsiOutputReference _ -> FsiEmbedKind.FsiOutput
+            | OutputReference _ -> FsiEmbedKind.ConsoleOutput
             | ItValueReference _ -> FsiEmbedKind.ItValue
             | ValueReference _ -> FsiEmbedKind.Value
             | _ -> failwith "unreachable"
@@ -376,6 +380,8 @@ module internal Transformations =
         | RawBlock (lines, _) -> Some (InlineBlock(unparse lines, None, None))
         | LiterateCode(lines, _, _) -> Some (formatted.[Choice1Of2 lines])
         | CodeReference (ref, _) -> Some (formatted.[Choice2Of2 ref])
+        | FsiMergedOutputReference _
+        | FsiOutputReference _
         | OutputReference _
         | ItValueReference _
         | ValueReference _ ->

@@ -51,12 +51,20 @@ type LiterateParagraph =
   /// (*** include:foo ***) - Include formatted snippet from other part of the document here 
   | CodeReference of string * LiterateParagraphOptions
 
-  /// (*** include-output ***) - Include output from previous snippet
-  /// (*** include-output:foo ***) - Include output from a snippet here 
+  /// (*** include-fsi-output ***) - Include output from previous snippet
+  /// (*** include-fsi-output:foo ***) - Include output from a named snippet
+  | FsiOutputReference of string * LiterateParagraphOptions
+
+  /// (*** include-fsi-merged-output ***) - Include output from previous snippet
+  /// (*** include-fsi-merged-output:foo ***) - Include output from a named snippet
+  | FsiMergedOutputReference of string * LiterateParagraphOptions
+
+  /// (*** include-fsi-output ***) - Include F# Interactive output from previous snippet
+  /// (*** include-fsi-output:foo ***) - Include F# Interactive from a named snippet
   | OutputReference of string * LiterateParagraphOptions
 
   /// (*** include-it ***) - Include "it" value from the subsequent snippet here 
-  /// (*** include-it:foo ***) - Include "it" value from a snippet here 
+  /// (*** include-it:foo ***) - Include "it" value from a named snippet
   | ItValueReference of string * LiterateParagraphOptions
 
   /// (*** include-value:foo ***) - Include the formatting of a specified value here
@@ -74,6 +82,8 @@ type LiterateParagraph =
   member x.ParagraphOptions =
     match x with
     | CodeReference(_,popts) -> popts
+    | FsiMergedOutputReference(_,popts) -> popts
+    | FsiOutputReference(_,popts) -> popts
     | OutputReference(_,popts) -> popts
     | ItValueReference(_,popts) -> popts
     | ValueReference(_,popts) -> popts

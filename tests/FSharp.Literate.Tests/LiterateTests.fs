@@ -438,7 +438,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using substitut
   let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  Literate.ConvertMarkdown(simpleMd, templateHtml, temp.File)
+  Literate.ConvertMarkdownFile(simpleMd, templateHtml, temp.File)
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
@@ -478,7 +478,7 @@ let ``Can process md file using HTML template``() =
   let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/_template.html"
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
-  Literate.ConvertMarkdown(simpleMd, docPageTemplate, temp.File, parameters=info)
+  Literate.ConvertMarkdownFile(simpleMd, docPageTemplate, temp.File, parameters=info)
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
 

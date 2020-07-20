@@ -23,13 +23,10 @@
   <ItemGroup>
     <!-- NuGet package content -->
     <Content Include="..\..\misc\templates\*.html" PackagePath="templates" />
-    <Content Include="..\..\misc\templates\reference\*.html" PackagePath="templates/reference" />
-    <Content Include="..\..\misc\literate\*" PackagePath="literate" />
-    <Content Include="..\..\misc\literate\templates\*" PackagePath="literate/templates" />
-    <Content Include="..\..\docs\files\content\*" PackagePath="styles" />
-    <Content Include="..\..\docs\files\content\img\*" PackagePath="styles/img" />
+    <Content Include="..\..\docs\content\*" PackagePath="styles" />
+    <Content Include="..\..\docs\content\img\*" PackagePath="styles/img" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
     <ProjectReference Include="..\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />

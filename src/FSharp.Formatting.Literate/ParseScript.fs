@@ -151,16 +151,40 @@ type internal ParseScript(parseOptions, ctx:CompilerContext) =
         let p = EmbedParagraphs(CodeReference(ref, popts), None)
         transformBlocks None count noEval (p::acc) defs blocks
 
-    // Include output of previous block
+    // Include console output (stdout) of previous block
     | BlockCommand(Command "include-output" "" as cmds)::blocks when prevCodeId.IsSome -> 
         let popts = getParaOptions cmds
         let p1 = EmbedParagraphs(OutputReference(prevCodeId.Value, popts), None)
         transformBlocks prevCodeId count noEval (p1::acc) defs blocks
 
-    // Include output of a named block
+    // Include console output (stdout) of a named block
     | BlockCommand(Command "include-output" ref as cmds)::blocks -> 
         let popts = getParaOptions cmds
         let p = EmbedParagraphs(OutputReference(ref, popts), None)
+        transformBlocks prevCodeId count noEval (p::acc) defs blocks
+
+    // Include FSI output (stdout) of previous block
+    | BlockCommand(Command "include-fsi-output" "" as cmds)::blocks when prevCodeId.IsSome -> 
+        let popts = getParaOptions cmds
+        let p1 = EmbedParagraphs(FsiOutputReference(prevCodeId.Value, popts), None)
+        transformBlocks prevCodeId count noEval (p1::acc) defs blocks
+
+    // Include FSI output (stdout) of a named block
+    | BlockCommand(Command "include-fsi-output" ref as cmds)::blocks -> 
+        let popts = getParaOptions cmds
+        let p = EmbedParagraphs(FsiOutputReference(ref, popts), None)
+        transformBlocks prevCodeId count noEval (p::acc) defs blocks
+
+    // Include the merge of the console and FSI output (stdout) of previous block
+    | BlockCommand(Command "include-fsi-merged-output" "" as cmds)::blocks when prevCodeId.IsSome -> 
+        let popts = getParaOptions cmds
+        let p1 = EmbedParagraphs(FsiMergedOutputReference(prevCodeId.Value, popts), None)
+        transformBlocks prevCodeId count noEval (p1::acc) defs blocks
+
+    // Include the merge of the console and FSI output (stdout) of a named block
+    | BlockCommand(Command "include-fsi-merged-output" ref as cmds)::blocks -> 
+        let popts = getParaOptions cmds
+        let p = EmbedParagraphs(FsiMergedOutputReference(ref, popts), None)
         transformBlocks prevCodeId count noEval (p::acc) defs blocks
 
     // Include formatted 'it' of previous block
