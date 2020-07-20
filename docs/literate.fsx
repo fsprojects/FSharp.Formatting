@@ -266,15 +266,13 @@ version of the F# compiler:
 
  - `prefix` - a string that is added to all automatically generated `id` attributes
    in the generated HTML document (to avoid collisions with other HTML elements)
- - `compilerOptions` - this can be used to pass any additional command line 
+ - `fscoptions` - this can be used to pass any additional command line 
    parameters to the F# compiler (you can use any standard parameters of `fsc.exe`)
  - `lineNumbers` - if `true` then the generated F# snippets include line numbers.
  - `references` - if `true` then the script automatically adds a "References" 
    section with all indirect links that are defined and used in the document.
  - `parameters` - a list of key-value pairs containing additional parameters
    that should be replaced in the tempalte HTML file.
- - `includeSource` - when `true`, parameter `{{source}}` will be replaced with a 
-   `<pre>` tag containing the original source code of the F# Script or Markdown document.
  - `errorHandler` - a function that is used to report errors from the F# compiler 
    (if not specified, errors are printed to the standard output)
  - `generateAnchors` - when `true`, the generated HTML will automatically include

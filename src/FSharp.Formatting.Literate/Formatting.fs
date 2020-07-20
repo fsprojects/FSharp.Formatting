@@ -63,13 +63,11 @@ module internal Formatting =
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
     let sourceReplacements =
-      if ctx.IncludeSource then
         let doc =
           getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx
         let content = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []
         [ "source", content ]
-      else []
 
     // Get page title (either heading or file name)
     let pageTitle =

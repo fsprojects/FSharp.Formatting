@@ -133,7 +133,7 @@ Classic XML documentation comments
 ----------------------------------
 
 By default `FSharp.Formatting` will expect Markdown documentation comments, to parse XML comments
-pass the named argument `markDownComments` with value `false`.
+pass the named argument `mdcomments` with value `false`.
 
 An example of an XML documentation comment:
 *)

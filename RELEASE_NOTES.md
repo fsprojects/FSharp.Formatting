@@ -1,3 +1,9 @@
+## 6.0.5
+  - improve display in FSharp.Formatting API docs and add more information
+
+## 6.0.4
+  - Watch defaults to `tmp/watch`
+
 ## 6.0.3
   - Add `(*** include-fsi-output **)`
   - Add `(*** include-fsi-merged-output **)`
@@ -55,7 +61,7 @@
         "--outputDirectory" --> "--output"
         "--output" is optional (defaults to 'output')
         "--inputDirectory" --> "--input"
-        Add --nonPublic
+        Add --nonpublic
         Add --xmlComments
         Automatically populate metadata from project settings.
   - Add `fsdocs build` command to the documentation generator that has lots of sensible defaults.

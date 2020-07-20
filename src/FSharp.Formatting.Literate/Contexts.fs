@@ -59,9 +59,6 @@ type LiterateProcessingContext =
     /// Generate line numbers for F# snippets?
     GenerateLineNumbers : bool
 
-    /// Include the source file in the generated output as '{source}'
-    IncludeSource : bool
-
     /// Auto-generate anchors for headers
     GenerateHeaderAnchors : bool
 

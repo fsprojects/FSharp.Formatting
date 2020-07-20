@@ -12,7 +12,7 @@ let stripMicrosoft (str: string) =
 
 type AssemblyEntities = {
   Modules: ApiDocModule list
-  Types: ApiDocType list
+  Types: ApiDocTypeDefinition list
   GeneratorOutput: ApiDocsModel
 }
 

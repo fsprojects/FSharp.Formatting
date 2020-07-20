@@ -9,8 +9,8 @@ type ApiDocs =
     ///  - `parameters` - provides additional parameters for substitution in the templates
     ///  - `xmlFile` - can be used to override the default name of the assumed XML documentation file
     ///  - `rootUrl` - The root url of the generated documentation within the website
-    ///  - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
-    ///    With `markDownComments` enabled there is no support for `<see cref="">` links, so `false` is
+    ///  - `mdcomments` - specifies if you want to use the Markdown parser for in-code comments.
+    ///    With `mdcomments` enabled there is no support for `<see cref="">` links, so `false` is
     ///    recommended for C# assemblies (if not specified, `true` is used).
     ///  - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
     ///    generates links to GitHub pages for each of the entity.
@@ -20,19 +20,19 @@ type ApiDocs =
     ///    specify references explicitly etc.)
     ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
     ///
-    static member GenerateModel(dllFiles: seq<string>, ?parameters, ?xmlFile, ?rootUrl, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight) =
+    static member GenerateModel(dllFiles: seq<string>, ?parameters, ?xmlFile, ?rootUrl, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?mdcomments, ?urlRangeHighlight) =
         let rootUrl = defaultArg rootUrl "/"
         ApiDocsModel.Generate(dllFiles, parameters=parameters, xmlFile=xmlFile, sourceRepo=sourceRepo, sourceFolder=sourceFolder,
-            publicOnly=publicOnly, libDirs=libDirs, otherFlags=otherFlags, markDownComments=markDownComments,
+            publicOnly=publicOnly, libDirs=libDirs, otherFlags=otherFlags, mdcomments=mdcomments,
             urlRangeHighlight=urlRangeHighlight, rootUrl=rootUrl) 
 
     /// Generates default HTML pages for the given documentation model
     ///
     ///  - `model` - the model for documentation
     ///  - `template` - the template to use for each documentation page
-    ///  - `sigWidth` - the assumed width of the signature panel 
-    static member GenerateHtmlFromModel(model: ApiDocsModel, outDir, ?template, ?sigWidth) =
-        GenerateHtml.Generate(model, outDir, template, sigWidth)
+    static member GenerateHtmlFromModel(model: ApiDocsModel, outDir, ?template, ?mdcomments) =
+        let mdcomments = defaultArg mdcomments false
+        GenerateHtml.HtmlRender(mdcomments).Generate(model, outDir, template)
 
     /// Generates the search index from the given documentation model
     ///
@@ -50,15 +50,15 @@ type ApiDocs =
     ///  - `rootUrl` - The root url of the generated documentation within the website
     ///  - `sourceRepo` - Links to GitHub pages for each of the entity.
     ///  - `sourceFolder` - Links to GitHub pages for each of the entity.
-    ///  - `markDownComments` - specifies if you want to use the Markdown parser for in-code comments.
+    ///  - `mdcomments` - specifies if you want to use the Markdown parser for in-code comments.
     ///  - `publicOnly` - When set to `false`, the tool will also generate documentation for non-public members
     ///  - `libDirs` - Use this to specify additional paths where referenced DLL files can be found when formatting code snippets inside Markdown comments
     ///  - `otherFlags` - Additional flags that are passed to the F# compiler to specify references explicitly etc.
     ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
     ///
-    static member GenerateHtml(dllFiles: seq<string>, outDir, ?parameters, ?template, ?xmlFile, ?rootUrl, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?markDownComments, ?urlRangeHighlight, ?sigWidth) =
-        let model = ApiDocs.GenerateModel(dllFiles, ?parameters=parameters, ?xmlFile=xmlFile, ?sourceRepo=sourceRepo, ?sourceFolder=sourceFolder, ?publicOnly=publicOnly, ?libDirs=libDirs, ?otherFlags=otherFlags, ?markDownComments=markDownComments, ?urlRangeHighlight=urlRangeHighlight, ?rootUrl=rootUrl)
-        ApiDocs.GenerateHtmlFromModel(model, outDir=outDir, ?template=template, ?sigWidth=sigWidth)
+    static member GenerateHtml(dllFiles: seq<string>, outDir, ?parameters, ?template, ?xmlFile, ?rootUrl, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?mdcomments, ?urlRangeHighlight) =
+        let model = ApiDocs.GenerateModel(dllFiles, ?parameters=parameters, ?xmlFile=xmlFile, ?sourceRepo=sourceRepo, ?sourceFolder=sourceFolder, ?publicOnly=publicOnly, ?libDirs=libDirs, ?otherFlags=otherFlags, ?mdcomments=mdcomments, ?urlRangeHighlight=urlRangeHighlight, ?rootUrl=rootUrl)
+        ApiDocs.GenerateHtmlFromModel(model, outDir=outDir, ?template=template, ?mdcomments=mdcomments)
         let index = ApiDocs.GenerateSearchIndexFromModel(model)
         index
 
