@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Provides configuration options for the <a href="fsharp-formatting-literate-evaluation-fsievaluator.html" title="FsiEvaluator"><code>FsiEvaluator</code></a></p>
-
-
+    </br><p class='summary'>
+ Provides configuration options for the `FsiEvaluator`
+</p>
   </div>
   <div></div>
   <div></div>
@@ -75,12 +75,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '318', 318)" onmouseover="showTip(event, '318', 318)">
+              <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
                 <a name="( .ctor )">
                   FsiEvaluatorConfig()
                 </a>
               </code>
-              <div class="tip" id="318">
+              <div class="tip" id="345">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -127,12 +127,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '319', 319)" onmouseover="showTip(event, '319', 319)">
+              <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
                 <a name="CreateNoOpFsiObject">
                   FsiEvaluatorConfig.CreateNoOpFsiObject()
                 </a>
               </code>
-              <div class="tip" id="319">
+              <div class="tip" id="346">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -153,11 +153,11 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Creates a dummy <code>fsi</code> object that does not affect the behaviour of F# Interactive
-(and simply ignores all operations that are done on it). You can use this to
-e.g. disable registered printers that would open new windows etc.</p>
-
-
+            </br><p class='summary'>
+ Creates a dummy `fsi` object that does not affect the behaviour of F# Interactive
+ (and simply ignores all operations that are done on it). You can use this to 
+ e.g. disable registered printers that would open new windows etc.
+</p>
           </td>
         </tr>
       </tbody>
@@ -195,6 +195,7 @@ e.g. disable registered printers that would open new windows etc.</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -203,9 +204,9 @@ e.g. disable registered printers that would open new windows etc.</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

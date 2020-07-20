@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Exposes functionality of the F# code formatter with a nice interface</p>
-
-
+    </br><p class='summary'>
+ Exposes functionality of the F# code formatter with a nice interface
+</p>
   </div>
   <div></div>
   <div></div>
@@ -77,12 +77,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
+              <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
                 <a name="CreateAgent">
                   CodeFormat.CreateAgent()
                 </a>
               </code>
-              <div class="tip" id="187">
+              <div class="tip" id="208">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -103,21 +103,21 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Returns a new instance of the agent that manages code formatting
-using the F# compiler service.</p>
-
-
+            </br><p class='summary'>
+ Returns a new instance of the agent that manages code formatting
+ using the F# compiler service. 
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
+              <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
                 <a name="FormatFsx">
                   CodeFormat.FormatFsx(snippets)
                 </a>
               </code>
-              <div class="tip" id="188">
+              <div class="tip" id="209">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -150,20 +150,20 @@ using the F# compiler service.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Formats the .fsx snippets as iPython notebook using the default settings.</p>
-
-
+            </br><p class='summary'>
+ Formats the .fsx snippets as iPython notebook using the default settings.
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '189', 189)" onmouseover="showTip(event, '189', 189)">
+              <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
                 <a name="FormatHtml">
                   CodeFormat.FormatHtml(...)
                 </a>
               </code>
-              <div class="tip" id="189">
+              <div class="tip" id="210">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -252,21 +252,21 @@ using the F# compiler service.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should
-be added to outputs and whether errors should be printed.</p>
-
-
+            </br><p class='summary'>
+ Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should
+ be added to outputs and whether errors should be printed.
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '190', 190)" onmouseover="showTip(event, '190', 190)">
+              <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
                 <a name="FormatLatex">
                   CodeFormat.FormatLatex(...)
                 </a>
               </code>
-              <div class="tip" id="190">
+              <div class="tip" id="211">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -320,10 +320,10 @@ be added to outputs and whether errors should be printed.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Formats the .fsx snippets as LaTeX. The parameters specify prefix for LaTeX tags, whether lines should
-be added to outputs.</p>
-
-
+            </br><p class='summary'>
+ Formats the .fsx snippets as LaTeX. The parameters specify prefix for LaTeX tags, whether lines should
+ be added to outputs.
+</p>
           </td>
         </tr>
       </tbody>
@@ -361,6 +361,7 @@ be added to outputs.</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -369,9 +370,9 @@ be added to outputs.</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

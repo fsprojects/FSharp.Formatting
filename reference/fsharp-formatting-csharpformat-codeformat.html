@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Provides a base class for formatting most programming languages.</p>
-
-
+    </br><p class='summary'>
+            Provides a base class for formatting most programming languages.
+            </p>
   </div>
   <div></div>
   <div></div>
@@ -75,12 +75,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
+              <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
                 <a name=".ctor">
                   CodeFormat()
                 </a>
               </code>
-              <div class="tip" id="120">
+              <div class="tip" id="141">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -96,8 +96,7 @@
             </div>
           </td>
           <td class="xmldoc">
-            
-
+            </br><p class='summary'></p>
           </td>
         </tr>
       </tbody>
@@ -122,12 +121,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '121', 121)" onmouseover="showTip(event, '121', 121)">
+              <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
                 <a name="CaseSensitive">
                   this.CaseSensitive
                 </a>
               </code>
-              <div class="tip" id="121">
+              <div class="tip" id="142">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -153,20 +152,23 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Determines if the language is case sensitive.</p>
-
-
+            </br><p class='summary'>
+            Determines if the language is case sensitive.
+            </p><h4>Remarks</h4><p class='remarks'>
+            A case-insensitive language formatter must override this 
+            property to return false.
+            </p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
+              <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
                 <a name="CommentRegEx">
                   this.CommentRegEx
                 </a>
               </code>
-              <div class="tip" id="122">
+              <div class="tip" id="143">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -192,21 +194,21 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Must be overridden to provide a regular expression string
-to match comments.</p>
-
-
+            </br><p class='summary'>
+            Must be overridden to provide a regular expression string
+            to match comments. 
+            </p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
+              <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
                 <a name="Keywords">
                   this.Keywords
                 </a>
               </code>
-              <div class="tip" id="123">
+              <div class="tip" id="144">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -232,21 +234,23 @@ to match comments.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Must be overridden to provide a list of keywords defined in
-each language.</p>
-
-
+            </br><p class='summary'>
+            Must be overridden to provide a list of keywords defined in 
+            each language.
+            </p><h4>Remarks</h4><p class='remarks'>
+            Keywords must be separated with spaces.
+            </p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+              <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
                 <a name="NumberRegEx">
                   this.NumberRegEx
                 </a>
               </code>
-              <div class="tip" id="124">
+              <div class="tip" id="145">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -272,20 +276,20 @@ each language.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Can be overridden to provide a list of tokes to be recognized as numbers.</p>
-
-
+            </br><p class='summary'>
+            Can be overridden to provide a list of tokes to be recognized as numbers.
+            </p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
+              <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
                 <a name="Operators">
                   this.Operators
                 </a>
               </code>
-              <div class="tip" id="125">
+              <div class="tip" id="146">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -311,21 +315,23 @@ each language.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Must be overridden to provide a list of operators defined in
-each language.</p>
-
-
+            </br><p class='summary'>
+            Must be overridden to provide a list of operators defined in 
+            each language.
+            </p><h4>Remarks</h4><p class='remarks'>
+            Operators must be separated with spaces.
+            </p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
+              <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
                 <a name="Preprocessors">
                   this.Preprocessors
                 </a>
               </code>
-              <div class="tip" id="126">
+              <div class="tip" id="147">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -351,21 +357,23 @@ each language.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Can be overridden to provide a list of preprocessors defined in
-each language.</p>
-
-
+            </br><p class='summary'>
+            Can be overridden to provide a list of preprocessors defined in 
+            each language.
+            </p><h4>Remarks</h4><p class='remarks'>
+            Preprocessors must be separated with spaces.
+            </p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
+              <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
                 <a name="StringRegEx">
                   this.StringRegEx
                 </a>
               </code>
-              <div class="tip" id="127">
+              <div class="tip" id="148">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -391,10 +399,10 @@ each language.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Must be overridden to provide a regular expression string
-to match strings literals.</p>
-
-
+            </br><p class='summary'>
+            Must be overridden to provide a regular expression string
+            to match strings literals. 
+            </p>
           </td>
         </tr>
       </tbody>
@@ -433,6 +441,7 @@ to match strings literals.</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -441,9 +450,9 @@ to match strings literals.</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

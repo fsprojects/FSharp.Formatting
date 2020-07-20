@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,10 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Specifies visibility of a code snippet. This can be either ordinary
-visible code, hidden snippet or named snippet with captured output.</p>
-
-
+    </br><p class='summary'>
+ Specifies visibility of a code snippet. 
+</p>
   </div>
   <div>
     <h3>
@@ -73,16 +72,16 @@ visible code, hidden snippet or named snippet with captured output.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '268', 268)" onmouseover="showTip(event, '268', 268)">
+              <code onmouseout="hideTip(event, '289', 289)" onmouseover="showTip(event, '289', 289)">
                 <a name="HiddenCode">
-                  HiddenCode
+                  LiterateCodeVisibility.HiddenCode
                 </a>
               </code>
-              <div class="tip" id="268">
+              <div class="tip" id="289">
                 <strong>
                   Full Usage: 
                 </strong>
-                HiddenCode
+                LiterateCodeVisibility.HiddenCode
                 <br/>
                 <br/>
                 <strong>
@@ -94,22 +93,24 @@ visible code, hidden snippet or named snippet with captured output.</p>
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Hidden snippet
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '269', 269)" onmouseover="showTip(event, '269', 269)">
+              <code onmouseout="hideTip(event, '290', 290)" onmouseover="showTip(event, '290', 290)">
                 <a name="NamedCode">
-                  NamedCode(string)
+                  LiterateCodeVisibility.NamedCode(string)
                 </a>
               </code>
-              <div class="tip" id="269">
+              <div class="tip" id="290">
                 <strong>
                   Full Usage: 
                 </strong>
-                NamedCode(string)
+                LiterateCodeVisibility.NamedCode(string)
                 <br/>
                 <strong>
                   Parameters: 
@@ -133,22 +134,24 @@ visible code, hidden snippet or named snippet with captured output.</p>
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Named snippet with captured output
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '270', 270)" onmouseover="showTip(event, '270', 270)">
+              <code onmouseout="hideTip(event, '291', 291)" onmouseover="showTip(event, '291', 291)">
                 <a name="VisibleCode">
-                  VisibleCode
+                  LiterateCodeVisibility.VisibleCode
                 </a>
               </code>
-              <div class="tip" id="270">
+              <div class="tip" id="291">
                 <strong>
                   Full Usage: 
                 </strong>
-                VisibleCode
+                LiterateCodeVisibility.VisibleCode
                 <br/>
                 <br/>
                 <strong>
@@ -160,7 +163,9 @@ visible code, hidden snippet or named snippet with captured output.</p>
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Ordinary visible code
+</p>
           </td>
         </tr>
       </tbody>
@@ -203,6 +208,7 @@ visible code, hidden snippet or named snippet with captured output.</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -211,9 +217,9 @@ visible code, hidden snippet or named snippet with captured output.</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

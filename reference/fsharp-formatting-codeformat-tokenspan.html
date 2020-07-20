@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,12 +49,12 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>A token in a parsed F# code snippet. Aside from standard tokens reported from
-the compiler (<a href="fsharp-formatting-codeformat-commentfilter-token.html" title="Token"><code>Token</code></a>), this also includes <code>Error</code> (wrapping the underlined
-tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <a href="fsharp-formatting-pynbmodel-output.html" title="Output"><code>Output</code></a> for the special
-<code>[output:...]</code> tag</p>
-
-
+    </br><p class='summary'>
+ A token in a parsed F# code snippet. Aside from standard tokens reported from
+ the compiler (`Token`), this also includes `Error` (wrapping the underlined
+ tokens), `Omitted` for the special `[omit:...]` tags and `Output` for the special
+ `[output:...]` tag
+</p>
   </div>
   <div>
     <h3>
@@ -75,12 +75,12 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '230', 230)" onmouseover="showTip(event, '230', 230)">
+              <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
                 <a name="Error">
                   TokenSpan.Error(ErrorKind, string, TokenSpans)
                 </a>
               </code>
-              <div class="tip" id="230">
+              <div class="tip" id="251">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -128,12 +128,12 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '231', 231)" onmouseover="showTip(event, '231', 231)">
+              <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
                 <a name="Omitted">
                   TokenSpan.Omitted(string, string)
                 </a>
               </code>
-              <div class="tip" id="231">
+              <div class="tip" id="252">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -174,12 +174,12 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '232', 232)" onmouseover="showTip(event, '232', 232)">
+              <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
                 <a name="Output">
                   TokenSpan.Output(string)
                 </a>
               </code>
-              <div class="tip" id="232">
+              <div class="tip" id="253">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -213,12 +213,12 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '233', 233)" onmouseover="showTip(event, '233', 233)">
+              <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
                 <a name="Token">
                   TokenSpan.Token(...)
                 </a>
               </code>
-              <div class="tip" id="233">
+              <div class="tip" id="254">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -303,6 +303,7 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -311,9 +312,9 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

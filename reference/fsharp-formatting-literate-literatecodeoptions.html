@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,11 +49,11 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Additional properties of a literate code snippet, embedded in a
-<code>LiterateParagraph.LiterateCode</code>. The properties specify how should
-a snippet be evaluated and formatted.</p>
-
-
+    </br><p class='summary'>
+ Additional properties of a literate code snippet, embedded in a
+ `LiterateParagraph.LiterateCode`. The properties specify how should
+ a snippet be evaluated and formatted.
+</p>
   </div>
   <div></div>
   <div>
@@ -75,12 +75,12 @@ a snippet be evaluated and formatted.</p>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '264', 264)" onmouseover="showTip(event, '264', 264)">
+              <code onmouseout="hideTip(event, '285', 285)" onmouseover="showTip(event, '285', 285)">
                 <a name="Evaluate">
                   Evaluate
                 </a>
               </code>
-              <div class="tip" id="264">
+              <div class="tip" id="285">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -96,21 +96,21 @@ a snippet be evaluated and formatted.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Specifies whether the snippet is evalauted while processing
-Use (<strong><em> do-not-eval </em></strong>) command to set this to <code>false</code></p>
-
-
+            </br><p class='summary'>
+ Specifies whether the snippet is evalauted while processing
+ Use (*** do-not-eval ***) command to set this to `false`
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '265', 265)" onmouseover="showTip(event, '265', 265)">
+              <code onmouseout="hideTip(event, '286', 286)" onmouseover="showTip(event, '286', 286)">
                 <a name="ExecutionCount">
                   ExecutionCount
                 </a>
               </code>
-              <div class="tip" id="265">
+              <div class="tip" id="286">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -126,20 +126,20 @@ Use (<strong><em> do-not-eval </em></strong>) command to set this to <code>false
             </div>
           </td>
           <td class="xmldoc">
-            <p>Indiciates the execution sequence number of the cell if it has been evaluated</p>
-
-
+            </br><p class='summary'>
+ Indiciates the execution sequence number of the cell if it has been evaluated
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '266', 266)" onmouseover="showTip(event, '266', 266)">
+              <code onmouseout="hideTip(event, '287', 287)" onmouseover="showTip(event, '287', 287)">
                 <a name="OutputName">
                   OutputName
                 </a>
               </code>
-              <div class="tip" id="266">
+              <div class="tip" id="287">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -155,22 +155,22 @@ Use (<strong><em> do-not-eval </em></strong>) command to set this to <code>false
             </div>
           </td>
           <td class="xmldoc">
-            <p>Specifies the name of the output produced by this snippet
-Use the (<strong><em> define-output:foo </em></strong>) command to set this value
-Other outputs are named cell1, cell2 etc.</p>
-
-
+            </br><p class='summary'>
+ Specifies the name of the output produced by this snippet
+ Use the (*** define-output:foo ***) command to set this value
+ Other outputs are named cell1, cell2 etc.
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '267', 267)" onmouseover="showTip(event, '267', 267)">
+              <code onmouseout="hideTip(event, '288', 288)" onmouseover="showTip(event, '288', 288)">
                 <a name="Visibility">
                   Visibility
                 </a>
               </code>
-              <div class="tip" id="267">
+              <div class="tip" id="288">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -186,9 +186,9 @@ Other outputs are named cell1, cell2 etc.</p>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Specifies the visibility of the snippet in the generated HTML</p>
-
-
+            </br><p class='summary'>
+ Specifies the visibility of the snippet in the generated HTML
+</p>
           </td>
         </tr>
       </tbody>
@@ -230,6 +230,7 @@ Other outputs are named cell1, cell2 etc.</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -238,9 +239,9 @@ Other outputs are named cell1, cell2 etc.</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

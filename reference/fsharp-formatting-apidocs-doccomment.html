@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -48,151 +48,15 @@
     Assembly: FSharp.Formatting
   </p>
   <br/>
-  <div class="xmldoc">
-    <p>Represents a documentation comment attached to source code</p>
-
-
+  <div class="alert alert-warning">
+    <strong>
+      NOTE:
+    </strong>
+    <p>
+      This API is obsoleteRenamed to ApiDocComment
+    </p>
   </div>
-  <div></div>
-  <div>
-    <h3>
-      Record fields
-    </h3>
-    <table class="table table-bordered member-list">
-      <thead>
-        <tr>
-          <td>
-            Record Field
-          </td>
-          <td>
-            Description
-          </td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
-                <a name="Blurb">
-                  Blurb
-                </a>
-              </code>
-              <div class="tip" id="34">
-                <strong>
-                  Full Usage: 
-                </strong>
-                Blurb
-                <br/>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>The summary for the comment</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
-                <a name="FullText">
-                  FullText
-                </a>
-              </code>
-              <div class="tip" id="35">
-                <strong>
-                  Full Usage: 
-                </strong>
-                FullText
-                <br/>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>The full text of the comment</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
-                <a name="RawData">
-                  RawData
-                </a>
-              </code>
-              <div class="tip" id="36">
-                <strong>
-                  Full Usage: 
-                </strong>
-                RawData
-                <br/>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                KeyValuePair&lt;string, string&gt; list
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>The raw data of the comment</p>
-
-
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '37', 37)" onmouseover="showTip(event, '37', 37)">
-                <a name="Sections">
-                  Sections
-                </a>
-              </code>
-              <div class="tip" id="37">
-                <strong>
-                  Full Usage: 
-                </strong>
-                Sections
-                <br/>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                KeyValuePair&lt;string, string&gt; list
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>The parsed sections of the comment</p>
-
-
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div></div>
-  <div></div>
-  <div></div>
-  <div></div>
+  <div class="xmldoc"></div>
 </div>
                 
             </div>
@@ -225,6 +89,7 @@
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -233,9 +98,9 @@
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

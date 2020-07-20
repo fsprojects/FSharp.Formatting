@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Represents a set of assemblies integrated with their associated documentation</p>
-
-
+    </br><p class='summary'>
+ Represents a set of assemblies integrated with their associated documentation
+</p>
   </div>
   <div></div>
   <div>
@@ -73,12 +73,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '14', 14)" onmouseover="showTip(event, '14', 14)">
+              <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
                 <a name="AssemblyGroup">
                   AssemblyGroup
                 </a>
               </code>
-              <div class="tip" id="14">
+              <div class="tip" id="122">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -88,7 +88,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                AssemblyGroup
+                ApiDocAssemblyGroup
                 <br/>
               </div>
             </div>
@@ -100,12 +100,39 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
+              <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
+                <a name="CollectionRootUrl">
+                  CollectionRootUrl
+                </a>
+              </code>
+              <div class="tip" id="123">
+                <strong>
+                  Full Usage: 
+                </strong>
+                CollectionRootUrl
+                <br/>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                string
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
                 <a name="ModuleInfos">
                   ModuleInfos
                 </a>
               </code>
-              <div class="tip" id="15">
+              <div class="tip" id="124">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -115,7 +142,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                ModuleInfo list
+                ApiDocModuleInfo list
                 <br/>
               </div>
             </div>
@@ -127,12 +154,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
+              <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
                 <a name="Properties">
                   Properties
                 </a>
               </code>
-              <div class="tip" id="16">
+              <div class="tip" id="125">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -154,12 +181,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
+              <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
                 <a name="TypesInfos">
                   TypesInfos
                 </a>
               </code>
-              <div class="tip" id="17">
+              <div class="tip" id="126">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -169,7 +196,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                TypeInfo list
+                ApiDocTypeInfo list
                 <br/>
               </div>
             </div>
@@ -203,16 +230,16 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
+              <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
                 <a name="Generate">
                   ApiDocsModel.Generate(...)
                 </a>
               </code>
-              <div class="tip" id="18">
+              <div class="tip" id="127">
                 <strong>
                   Full Usage: 
                 </strong>
-                ApiDocsModel.Generate(dllFiles, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, markDownComments, urlRangeHighlight)
+                ApiDocsModel.Generate(dllFiles, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, markDownComments, urlRangeHighlight, rootUrl)
                 <br/>
                 <strong>
                   Parameters: 
@@ -288,6 +315,13 @@
                     :
                     (Uri -&gt; int -&gt; int -&gt; string) option
                   </li>
+                  <li>
+                    <b>
+                      rootUrl
+                    </b>
+                    :
+                    string
+                  </li>
                 </ul>
                 <br/>
                 <strong>
@@ -298,7 +332,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                (dllFiles: seq&lt;string&gt; * parameters: (string * string) list option * xmlFile: string option * sourceRepo: string option * sourceFolder: string option * publicOnly: bool option * libDirs: string list option * otherFlags: string list option * markDownComments: bool option * urlRangeHighlight: (Uri -&gt; int -&gt; int -&gt; string) option) -&gt; ApiDocsModel
+                (dllFiles: seq&lt;string&gt; * parameters: (string * string) list option * xmlFile: string option * sourceRepo: string option * sourceFolder: string option * publicOnly: bool option * libDirs: string list option * otherFlags: string list option * markDownComments: bool option * urlRangeHighlight: (Uri -&gt; int -&gt; int -&gt; string) option * rootUrl: string) -&gt; ApiDocsModel
                 <br/>
               </div>
             </div>
@@ -342,6 +376,7 @@
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -350,9 +385,9 @@
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

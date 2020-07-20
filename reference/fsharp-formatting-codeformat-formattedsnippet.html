@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Represents an individual formatted snippet with title as key</p>
-
-
+    </br><p class='summary'>
+ Represents an individual formatted snippet with title as key
+</p>
   </div>
   <div></div>
   <div></div>
@@ -75,12 +75,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '199', 199)" onmouseover="showTip(event, '199', 199)">
+              <code onmouseout="hideTip(event, '220', 220)" onmouseover="showTip(event, '220', 220)">
                 <a name="( .ctor )">
                   FormattedSnippet(key, content)
                 </a>
               </code>
-              <div class="tip" id="199">
+              <div class="tip" id="220">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -145,12 +145,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '200', 200)" onmouseover="showTip(event, '200', 200)">
+              <code onmouseout="hideTip(event, '221', 221)" onmouseover="showTip(event, '221', 221)">
                 <a name="Content">
                   this.Content
                 </a>
               </code>
-              <div class="tip" id="200">
+              <div class="tip" id="221">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -171,20 +171,20 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Returns the formatted content code for the snipet</p>
-
-
+            </br><p class='summary'>
+ Returns the formatted content code for the snipet
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '201', 201)" onmouseover="showTip(event, '201', 201)">
+              <code onmouseout="hideTip(event, '222', 222)" onmouseover="showTip(event, '222', 222)">
                 <a name="Key">
                   this.Key
                 </a>
               </code>
-              <div class="tip" id="201">
+              <div class="tip" id="222">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -205,20 +205,20 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Returns the key of the snippet</p>
-
-
+            </br><p class='summary'>
+ Returns the key of the snippet 
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '202', 202)" onmouseover="showTip(event, '202', 202)">
+              <code onmouseout="hideTip(event, '223', 223)" onmouseover="showTip(event, '223', 223)">
                 <a name="Title">
                   this.Title
                 </a>
               </code>
-              <div class="tip" id="202">
+              <div class="tip" id="223">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -239,9 +239,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Returns the title of the snippet</p>
-
-
+            </br><p class='summary'>
+ Returns the title of the snippet 
+</p>
           </td>
         </tr>
       </tbody>
@@ -280,6 +280,7 @@
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -288,9 +289,9 @@
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>F# Formatting: Documentation tools
+    <title>F# Formatting: Documentation Tools for F# Code
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
@@ -12,7 +12,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -20,7 +21,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -39,48 +39,46 @@
         <div class="row">
             <div class="span9" id="main">
                 <p><a href="https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=index.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Binder" /></a></p>
-<h1><a name="F-Formatting-Documentation-tools" class="anchor" href="#F-Formatting-Documentation-tools">F# Formatting: Documentation tools</a></h1>
+<h1><a name="F-Formatting-Documentation-Tools-for-F-Code" class="anchor" href="#F-Formatting-Documentation-Tools-for-F-Code">F# Formatting: Documentation Tools for F# Code</a></h1>
 <p>The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
-for documentation generation.</p>
-<p>Functionality from the F# Formatting package is used by the <a href="https://github.com/TheAngryByrd/MiniScaffold/">MiniScaffold template</a>
+for documentation generation. Functionality from the F# Formatting package is used by the <a href="https://github.com/TheAngryByrd/MiniScaffold/">MiniScaffold template</a>
 that is used by a large number of open source .NET projects, as well as Waypoint and many other repositories.</p>
 <p>F# Formatting can be used as a .NET tool called <a href="commandline.html"><code>fsdocs</code></a>:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
-<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">build</span> <span class="o">--</span><span class="id">input</span> <span class="id">docs</span> 
+<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">build</span> 
 </code></pre></td>
 </tr>
 </table>
 <p>The F# Formatting package is also <a href="https://nuget.org/packages/FSharp.Formatting">available on NuGet</a> as a set of libraries. The NuGet package comes with a load script <code>FSharp.Formatting.fsx</code> that references all the required DLLs
 and paths.</p>
-<p>The sub-components are:</p>
 <ul>
-<li><p><a href="commandline.html">Command line tool</a> - documents how to use the <code>fsdocs</code> tool.</p></li>
+<li><p><a href="content.html">Content</a> - explains the content expected in the <code>docs</code> directory for the <code>fsdocs</code> tool.</p></li>
+<li><p><a href="commandline.html">Command line tool</a> - explains how to use the <code>fsdocs</code> tool.</p></li>
 <li>
-<p><a href="literate.html">Literate programming</a> - if you want to use the library to generate documentation
-for your projects or if you want to use it to write nicely formatted F# blog posts, then
-start here. This page describes the literate programming sample.</p>
+<p><a href="literate.html">Literate programming</a> - explains how to generate documentation
+for your projects or to write nicely formatted F# blog posts.</p>
 </li>
 <li>
-<p><a href="evaluation.html">Literate output embedding</a> provides more details on literate programming and
+<p><a href="evaluation.html">Literate output embedding</a> - provides more details on literate programming and
 explains how to embed results of a literate script file in the generated output. This way,
 you can easily format the results of running your code!</p>
 </li>
 <li>
-<p><a href="markdown.html">Markdown parser</a> - this page provides more details about the F# Markdown
-processor that is available in this library. It includes some basic examples of
+<p><a href="markdown.html">Markdown parser</a> - explains the F# Markdown
+processor that is available in this library with some basic examples of
 document processing.</p>
 </li>
 <li>
-<p><a href="codeformat.html">F# code formatting</a> - this page provides more details about the F# code
-formatter; it discusses how to call it to obtain information about F# source files.</p>
+<p><a href="codeformat.html">F# code formatting</a> - more details about the F# code
+formatter and how to use it to obtain information about F# source files.</p>
 </li>
 <li>
-<p><a href="apidocs.html">API documentation tool</a> - provides a brief documentation for a tool
-that generates nice HTML documentation from "XML comments" in your .NET libraries.
-The tool handles comments written in Markdown too and generates a search index.</p>
+<p><a href="apidocs.html">API documentation tool</a> - how to generate HTML documentation
+from "XML comments" in your .NET libraries. The tool handles comments written in
+Markdown too and generates a search index.</p>
 </li>
 <li><p><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/CONTRIBUTING.md">Contribute</a> - how do I contribute?</p></li>
 </ul>
@@ -128,6 +126,7 @@ The library is available under Apache 2.0. For more information see the
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -136,9 +135,9 @@ The library is available under Apache 2.0. For more information see the
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

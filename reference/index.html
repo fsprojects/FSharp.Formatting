@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -58,6 +58,147 @@
     <tbody>
       <tr>
         <td class="type-name">
+          <a name="ApiDocAssemblyGroup">
+            <a href="fsharp-formatting-apidocs-apidocassemblygroup.html">
+              ApiDocAssemblyGroup
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents a group of assemblies integrated with its associated documentation
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocAttribute">
+            <a href="fsharp-formatting-apidocs-apidocattribute.html">
+              ApiDocAttribute
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents a custom attribute attached to source code
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocComment">
+            <a href="fsharp-formatting-apidocs-apidoccomment.html">
+              ApiDocComment
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents a documentation comment attached to source code
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocMember">
+            <a href="fsharp-formatting-apidocs-apidocmember.html">
+              ApiDocMember
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents an method, property, constructor, function or value, record field, union case or static parameter
+ integrated with its associated documentation. Includes extension members.
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocMemberKind">
+            <a href="fsharp-formatting-apidocs-apidocmemberkind.html">
+              ApiDocMemberKind
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents the kind of member
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocModule">
+            <a href="fsharp-formatting-apidocs-apidocmodule.html">
+              ApiDocModule
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents an F# module definition integrated with its associated documentation
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocModuleInfo">
+            <a href="fsharp-formatting-apidocs-apidocmoduleinfo.html">
+              ApiDocModuleInfo
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ High-level information about a module definition
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocNamespace">
+            <a href="fsharp-formatting-apidocs-apidocnamespace.html">
+              ApiDocNamespace
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents a namespace integrated with its associated documentation
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocType">
+            <a href="fsharp-formatting-apidocs-apidoctype.html">
+              ApiDocType
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ Represents a type definition integrated with its associated documentation
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
+          <a name="ApiDocTypeInfo">
+            <a href="fsharp-formatting-apidocs-apidoctypeinfo.html">
+              ApiDocTypeInfo
+            </a>
+          </a>
+        </td>
+        <td class="xmldoc">
+          </br><p class='summary'>
+ High-level information about a type definition
+</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="type-name">
           <a name="ApiDocs">
             <a href="fsharp-formatting-apidocs-apidocs.html">
               ApiDocs
@@ -65,10 +206,10 @@
           </a>
         </td>
         <td class="xmldoc">
-          <p>This type exposes the functionality for producing documentation model from <code>dll</code> files with associated <code>xml</code> files
-generated by the F# or C# compiler. To generate documentation model, use one of the overloades of the <code>Generate</code> method.</p>
-
-
+          </br><p class='summary'>
+ This type exposes the functionality for producing documentation model from `dll` files with associated `xml` files
+ generated by the F# or C# compiler. To generate documentation model, use one of the overloades of the `Generate` method.
+</p>
         </td>
       </tr>
       <tr>
@@ -80,23 +221,23 @@ generated by the F# or C# compiler. To generate documentation model, use one of 
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a set of assemblies integrated with their associated documentation</p>
-
-
+          </br><p class='summary'>
+ Represents a set of assemblies integrated with their associated documentation
+</p>
         </td>
       </tr>
       <tr>
         <td class="type-name">
-          <a name="AssemblyGroup">
-            <a href="fsharp-formatting-apidocs-assemblygroup.html">
-              AssemblyGroup
+          <a name="ApiDocsSearchIndexEntry">
+            <a href="fsharp-formatting-apidocs-apidocssearchindexentry.html">
+              ApiDocsSearchIndexEntry
             </a>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a group of assemblies integrated with its associated documentation</p>
-
-
+          </br><p class='summary'>
+ Represents an entry suitable for constructing a Lunr index
+</p>
         </td>
       </tr>
       <tr>
@@ -108,9 +249,15 @@ generated by the F# or C# compiler. To generate documentation model, use one of 
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a custom attribute attached to source code</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocAttribute
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -122,9 +269,15 @@ generated by the F# or C# compiler. To generate documentation model, use one of 
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a documentation comment attached to source code</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocComment
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -136,10 +289,15 @@ generated by the F# or C# compiler. To generate documentation model, use one of 
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents an method, property, constructor, function or value, record field, union case or static parameter
-integrated with its associated documentation. Includes extension members.</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocMember
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -151,24 +309,15 @@ integrated with its associated documentation. Includes extension members.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents the kind of member</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="type-name">
-          <a name="MemberOrValueDetails">
-            <a href="fsharp-formatting-apidocs-memberorvaluedetails.html">
-              MemberOrValueDetails
-            </a>
-          </a>
-        </td>
-        <td class="xmldoc">
-          <p>Represents the details of an method, property, event, function or value, including extension members,
-integrated with its associated documentation.</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocMemberKind
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -180,9 +329,15 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents an F# module definition integrated with its associated documentation</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocModule
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -194,23 +349,15 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>High-level information about a module definition</p>
-
-
-        </td>
-      </tr>
-      <tr>
-        <td class="type-name">
-          <a name="Namespace">
-            <a href="fsharp-formatting-apidocs-namespace.html">
-              Namespace
-            </a>
-          </a>
-        </td>
-        <td class="xmldoc">
-          <p>Represents a namespace integrated with its associated documentation</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocModuleInfo
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -222,9 +369,15 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a type definition integrated with its associated documentation</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocType
+            </p>
+          </div>
+          
         </td>
       </tr>
       <tr>
@@ -236,9 +389,15 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>High-level information about a type definition</p>
-
-
+          <div class="alert alert-warning">
+            <strong>
+              NOTE:
+            </strong>
+            <p>
+              This API is obsoleteRenamed to ApiDocTypeInfo
+            </p>
+          </div>
+          
         </td>
       </tr>
     </tbody>
@@ -267,9 +426,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides a base class for formatting languages similar to C.</p>
-
-
+          </br><p class='summary'>
+            Provides a base class for formatting languages similar to C.
+            </p>
         </td>
       </tr>
       <tr>
@@ -281,9 +440,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from C++ source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from C++ source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -295,9 +454,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from C# source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from C# source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -309,9 +468,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides a base class for formatting most programming languages.</p>
-
-
+          </br><p class='summary'>
+            Provides a base class for formatting most programming languages.
+            </p>
         </td>
       </tr>
       <tr>
@@ -323,9 +482,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from F# source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from F# source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -337,9 +496,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from MSH (code name Monad) source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from MSH (code name Monad) source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -351,9 +510,12 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from HTML/XML/ASPX source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from HTML/XML/ASPX source code.
+            </p><h4>Remarks</h4><p class='remarks'><p class='para'>
+            This implementation assumes that code inside <script> blocks 
+            is JavaScript, and code inside <% %> blocks is C#.</p><p class='para'>
+            The default tab width is set to 2 characters in this class.</p></p>
         </td>
       </tr>
       <tr>
@@ -365,9 +527,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from JavaSctript source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from JavaSctript source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -379,9 +541,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from MSH (code name Monad) source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from MSH (code name Monad) source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -393,9 +555,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded Paket source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded Paket source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -407,9 +569,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from PHP source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from PHP source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -421,9 +583,19 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides a base implementation for all code formatters.</p>
-
-
+          </br><p class='summary'>
+            Provides a base implementation for all code formatters.
+            </p><h4>Remarks</h4><p class='remarks'><p class='para'>
+            To display the formatted code on your web site, the web page must 
+            refer to a stylesheet that defines the formatting for the different 
+            CSS classes generated by CSharpFormat:
+            .csharpcode, pre, .rem, .kwrd, .str, .op, .preproc, .alt, .lnum.
+            </p><p class='para'>
+            Note that if you have multi-line comments in your source code
+            (like /* ... */), the "line numbers" or "alternate line background" 
+            options will generate code that is not strictly HTML 4.01 compliant. 
+            The code will still look good with IE5+ or Mozilla 0.8+. 
+            </p></p>
         </td>
       </tr>
       <tr>
@@ -435,9 +607,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Summary description for SyntaxHighlighter</p>
-
-
+          </br><p class='summary'>
+            Summary description for SyntaxHighlighter
+            </p>
         </td>
       </tr>
       <tr>
@@ -449,9 +621,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded T-SQL source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded T-SQL source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -463,9 +635,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from TypeScript source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from TypeScript source code.
+            </p>
         </td>
       </tr>
       <tr>
@@ -477,9 +649,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Generates color-coded HTML 4.01 from Visual Basic source code.</p>
-
-
+          </br><p class='summary'>
+            Generates color-coded HTML 4.01 from Visual Basic source code.
+            </p>
         </td>
       </tr>
     </tbody>
@@ -508,9 +680,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Exposes functionality of the F# code formatter with a nice interface</p>
-
-
+          </br><p class='summary'>
+ Exposes functionality of the F# code formatter with a nice interface
+</p>
         </td>
       </tr>
       <tr>
@@ -522,9 +694,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Uses agent to handle formatting requests</p>
-
-
+          </br><p class='summary'>
+ Uses agent to handle formatting requests
+</p>
         </td>
       </tr>
       <tr>
@@ -536,9 +708,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a kind of error reported from the F# compiler (warning or error)</p>
-
-
+          </br><p class='summary'>
+ Represents a kind of error reported from the F# compiler (warning or error)
+</p>
         </td>
       </tr>
       <tr>
@@ -550,9 +722,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents formatted snippets</p>
-
-
+          </br><p class='summary'>
+ Represents formatted snippets
+</p>
         </td>
       </tr>
       <tr>
@@ -564,9 +736,9 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents an individual formatted snippet with title as key</p>
-
-
+          </br><p class='summary'>
+ Represents an individual formatted snippet with title as key
+</p>
         </td>
       </tr>
       <tr>
@@ -578,10 +750,10 @@ integrated with its associated documentation.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a line of source code as a list of <a href="fsharp-formatting-codeformat-tokenspan.html" title="TokenSpan"><code>TokenSpan</code></a> values. This is
-a single case discriminated union with <a href="fsharp-formatting-codeformat-line.html" title="Line"><code>Line</code></a> constructor.</p>
-
-
+          </br><p class='summary'>
+ Represents a line of source code as a list of `TokenSpan` values. This is
+ a single case discriminated union with `Line` constructor.
+</p>
         </td>
       </tr>
       <tr>
@@ -593,9 +765,9 @@ a single case discriminated union with <a href="fsharp-formatting-codeformat-lin
           </a>
         </td>
         <td class="xmldoc">
-          <p>An F# snippet consists of a snippet title and a list of lines</p>
-
-
+          </br><p class='summary'>
+ An F# snippet consists of a snippet title and a list of lines
+</p>
         </td>
       </tr>
       <tr>
@@ -607,11 +779,11 @@ a single case discriminated union with <a href="fsharp-formatting-codeformat-lin
           </a>
         </td>
         <td class="xmldoc">
-          <p>Error reported from the F# compiler consists of location (start and end),
-error kind and the message (wrapped in a single case discriminated union
-with constructor <a href="fsharp-formatting-codeformat-sourceerror.html" title="SourceError"><code>SourceError</code></a>)</p>
-
-
+          </br><p class='summary'>
+ Error reported from the F# compiler consists of location (start and end),
+ error kind and the message (wrapped in a single case discriminated union
+ with constructor `SourceError`)
+</p>
         </td>
       </tr>
       <tr>
@@ -623,9 +795,9 @@ with constructor <a href="fsharp-formatting-codeformat-sourceerror.html" title="
           </a>
         </td>
         <td class="xmldoc">
-          <p>Classifies tokens reported by the FCS</p>
-
-
+          </br><p class='summary'>
+ Classifies tokens reported by the FCS
+</p>
         </td>
       </tr>
       <tr>
@@ -637,12 +809,12 @@ with constructor <a href="fsharp-formatting-codeformat-sourceerror.html" title="
           </a>
         </td>
         <td class="xmldoc">
-          <p>A token in a parsed F# code snippet. Aside from standard tokens reported from
-the compiler (<a href="fsharp-formatting-codeformat-commentfilter-token.html" title="Token"><code>Token</code></a>), this also includes <code>Error</code> (wrapping the underlined
-tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <a href="fsharp-formatting-pynbmodel-output.html" title="Output"><code>Output</code></a> for the special
-<code>[output:...]</code> tag</p>
-
-
+          </br><p class='summary'>
+ A token in a parsed F# code snippet. Aside from standard tokens reported from
+ the compiler (`Token`), this also includes `Error` (wrapping the underlined
+ tokens), `Omitted` for the special `[omit:...]` tags and `Output` for the special
+ `[output:...]` tag
+</p>
         </td>
       </tr>
       <tr>
@@ -654,9 +826,9 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
           </a>
         </td>
         <td class="xmldoc">
-          <p>A type alias representing a list of <a href="fsharp-formatting-codeformat-tokenspan.html" title="TokenSpan"><code>TokenSpan</code></a> values</p>
-
-
+          </br><p class='summary'>
+ A type alias representing a list of `TokenSpan` values
+</p>
         </td>
       </tr>
       <tr>
@@ -668,9 +840,9 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
           </a>
         </td>
         <td class="xmldoc">
-          <p>A tool tip span can be emphasized text, plain text <code>Literal</code> or a line brak</p>
-
-
+          </br><p class='summary'>
+ A tool tip span can be emphasized text, plain text `Literal` or a line brak
+</p>
         </td>
       </tr>
       <tr>
@@ -682,9 +854,9 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
           </a>
         </td>
         <td class="xmldoc">
-          <p>A tool tip consists of a list of items reported from the compiler</p>
-
-
+          </br><p class='summary'>
+ A tool tip consists of a list of items reported from the compiler
+</p>
         </td>
       </tr>
     </tbody>
@@ -713,12 +885,12 @@ tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <
           </a>
         </td>
         <td class="xmldoc">
-          <p>This type provides three simple methods for calling the literate programming tool.
-The <code>ConvertMarkdown</code> and <code>ConvertScriptFile</code> methods process a single Markdown document
-and F# script, respectively. The <code>ConvertDirectory</code> method handles an entire directory tree
-(looking for <code>*.fsx</code> and <code>*.md</code> files).</p>
-
-
+          </br><p class='summary'>
+ This type provides three simple methods for calling the literate programming tool.
+ The `ConvertMarkdownFile` and `ConvertScriptFile` methods process a single Markdown document
+ and F# script, respectively. The `ConvertDirectory` method handles an entire directory tree
+ (looking for `*.fsx` and `*.md` files).
+</p>
         </td>
       </tr>
       <tr>
@@ -730,11 +902,11 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
           </a>
         </td>
         <td class="xmldoc">
-          <p>Additional properties of a literate code snippet, embedded in a
-<code>LiterateParagraph.LiterateCode</code>. The properties specify how should
-a snippet be evaluated and formatted.</p>
-
-
+          </br><p class='summary'>
+ Additional properties of a literate code snippet, embedded in a
+ `LiterateParagraph.LiterateCode`. The properties specify how should
+ a snippet be evaluated and formatted.
+</p>
         </td>
       </tr>
       <tr>
@@ -746,10 +918,9 @@ a snippet be evaluated and formatted.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Specifies visibility of a code snippet. This can be either ordinary
-visible code, hidden snippet or named snippet with captured output.</p>
-
-
+          </br><p class='summary'>
+ Specifies visibility of a code snippet. 
+</p>
         </td>
       </tr>
       <tr>
@@ -761,10 +932,10 @@ visible code, hidden snippet or named snippet with captured output.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Representation of a literate document - the representation of Paragraphs
-uses an F# discriminated union type and so is best used from F#.</p>
-
-
+          </br><p class='summary'>
+ Representation of a literate document - the representation of Paragraphs
+ uses an F# discriminated union type and so is best used from F#.
+</p>
         </td>
       </tr>
       <tr>
@@ -776,11 +947,11 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Extends <code>MarkdownParagrap</code> using the <a href="fsharp-formatting-markdown-markdownembedparagraphs.html" title="MarkdownEmbedParagraphs"><code>MarkdownEmbedParagraphs</code></a> case with
-additional kinds of paragraphs that can appear in literate F# scripts
-(such as various special commands to embed output of a snippet etc.)</p>
-
-
+          </br><p class='summary'>
+ Extends `MarkdownParagrap` using the `MarkdownEmbedParagraphs` case with
+ additional kinds of paragraphs that can appear in literate F# scripts
+ (such as various special commands to embed output of a snippet etc.)
+</p>
         </td>
       </tr>
       <tr>
@@ -792,7 +963,9 @@ additional kinds of paragraphs that can appear in literate F# scripts
           </a>
         </td>
         <td class="xmldoc">
-          
+          </br><p class='summary'>
+ Specifies the options for a literate paragraph
+</p>
         </td>
       </tr>
       <tr>
@@ -804,9 +977,9 @@ additional kinds of paragraphs that can appear in literate F# scripts
           </a>
         </td>
         <td class="xmldoc">
-          <p>Specifies a context that is passed to functions that generate the output</p>
-
-
+          </br><p class='summary'>
+ Specifies a context that is passed to functions that generate the output
+</p>
         </td>
       </tr>
       <tr>
@@ -818,10 +991,9 @@ additional kinds of paragraphs that can appear in literate F# scripts
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents the source of a literate document. This is esither Markdown (as a <code>string</code>)
-or parsed F# script file consisting of snippets.</p>
-
-
+          </br><p class='summary'>
+ Represents the source of a literate document. 
+</p>
         </td>
       </tr>
       <tr>
@@ -833,10 +1005,10 @@ or parsed F# script file consisting of snippets.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides active patterns for extracting <a href="fsharp-formatting-literate-literateparagraph.html" title="LiterateParagraph"><code>LiterateParagraph</code></a> values from
-Markdown documents.</p>
-
-
+          </br><p class='summary'>
+ Provides active patterns for extracting `LiterateParagraph` values from
+ Markdown documents.
+</p>
         </td>
       </tr>
       <tr>
@@ -848,9 +1020,9 @@ Markdown documents.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Defines the possible output types from literate script (HTML, Latex, Pynb)</p>
-
-
+          </br><p class='summary'>
+ Defines the possible output types from literate script (HTML, Latex, Pynb)
+</p>
         </td>
       </tr>
     </tbody>
@@ -879,9 +1051,9 @@ Markdown documents.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents a kind of thing that can be embedded</p>
-
-
+          </br><p class='summary'>
+ Represents a kind of thing that can be embedded 
+</p>
         </td>
       </tr>
       <tr>
@@ -893,10 +1065,10 @@ Markdown documents.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Record that is reported by the <code>EvaluationFailed</code> event when something
-goes wrong during evalutaiton of an expression</p>
-
-
+          </br><p class='summary'>
+ Record that is reported by the `EvaluationFailed` event when something
+ goes wrong during evalutaiton of an expression
+</p>
         </td>
       </tr>
       <tr>
@@ -908,10 +1080,10 @@ goes wrong during evalutaiton of an expression</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents the result of evaluating an F# snippet. This contains
-the generated console output together with a result and its static type.</p>
-
-
+          </br><p class='summary'>
+ Represents the result of evaluating an F# snippet. This contains
+ the generated console output together with a result and its static type.
+</p>
         </td>
       </tr>
       <tr>
@@ -923,9 +1095,9 @@ the generated console output together with a result and its static type.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>A wrapper for F# interactive service that is used to evaluate inline snippets</p>
-
-
+          </br><p class='summary'>
+ A wrapper for F# interactive service that is used to evaluate inline snippets
+</p>
         </td>
       </tr>
       <tr>
@@ -937,9 +1109,9 @@ the generated console output together with a result and its static type.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides configuration options for the <a href="fsharp-formatting-literate-evaluation-fsievaluator.html" title="FsiEvaluator"><code>FsiEvaluator</code></a></p>
-
-
+          </br><p class='summary'>
+ Provides configuration options for the `FsiEvaluator`
+</p>
         </td>
       </tr>
       <tr>
@@ -951,10 +1123,10 @@ the generated console output together with a result and its static type.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>An interface that represents FSI evaluation result
-(we make this abstract so that evaluators can store other info)</p>
-
-
+          </br><p class='summary'>
+ An interface that represents FSI evaluation result
+ (we make this abstract so that evaluators can store other info)
+</p>
         </td>
       </tr>
       <tr>
@@ -966,9 +1138,9 @@ the generated console output together with a result and its static type.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents an evaluator for F# snippets embedded in code</p>
-
-
+          </br><p class='summary'>
+ Represents an evaluator for F# snippets embedded in code
+</p>
         </td>
       </tr>
     </tbody>
@@ -997,10 +1169,10 @@ the generated console output together with a result and its static type.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Static class that provides methods for formatting
-and transforming Markdown documents.</p>
-
-
+          </br><p class='summary'>
+ Static class that provides methods for formatting 
+ and transforming Markdown documents.
+</p>
         </td>
       </tr>
       <tr>
@@ -1012,9 +1184,9 @@ and transforming Markdown documents.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Column in a table can be aligned to left, right, center or using the default alignment</p>
-
-
+          </br><p class='summary'>
+ Column in a table can be aligned to left, right, center or using the default alignment
+</p>
         </td>
       </tr>
       <tr>
@@ -1026,10 +1198,10 @@ and transforming Markdown documents.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Representation of a Markdown document - the representation of Paragraphs
-uses an F# discriminated union type and so is best used from F#.</p>
-
-
+          </br><p class='summary'>
+ Representation of a Markdown document - the representation of Paragraphs
+ uses an F# discriminated union type and so is best used from F#.
+</p>
         </td>
       </tr>
       <tr>
@@ -1041,10 +1213,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides an extensibility point for adding custom kinds of paragraphs into a document
-(<a href="fsharp-formatting-markdown-markdownembedparagraphs.html" title="MarkdownEmbedParagraphs"><code>MarkdownEmbedParagraphs</code></a> values can be embedded using <code>MarkdownParagraph.EmbedParagraphs</code>)</p>
-
-
+          </br><p class='summary'>
+ Provides an extensibility point for adding custom kinds of paragraphs into a document
+ (`MarkdownEmbedParagraphs` values can be embedded using `MarkdownParagraph.EmbedParagraphs`)
+</p>
         </td>
       </tr>
       <tr>
@@ -1056,10 +1228,10 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Provides an extensibility point for adding custom kinds of spans into a document
-(<a href="fsharp-formatting-markdown-markdownembedspans.html" title="MarkdownEmbedSpans"><code>MarkdownEmbedSpans</code></a> values can be embedded using <code>MarkdownSpan.EmbedSpans</code>)</p>
-
-
+          </br><p class='summary'>
+ Provides an extensibility point for adding custom kinds of spans into a document
+ (`MarkdownEmbedSpans` values can be embedded using `MarkdownSpan.EmbedSpans`)
+</p>
         </td>
       </tr>
       <tr>
@@ -1071,9 +1243,9 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>A list kind can be <code>Ordered</code> or <code>Unordered</code> corresponding to <code>&lt;ol&gt;</code> and <code>&lt;ul&gt;</code> elements</p>
-
-
+          </br><p class='summary'>
+ A list kind can be `Ordered` or `Unordered` corresponding to `<ol>` and `<ul>` elements
+</p>
         </td>
       </tr>
       <tr>
@@ -1085,11 +1257,11 @@ uses an F# discriminated union type and so is best used from F#.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>A paragraph represents a (possibly) multi-line element of a Markdown document.
-Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
-also embedded LaTeX blocks.</p>
-
-
+          </br><p class='summary'>
+ A paragraph represents a (possibly) multi-line element of a Markdown document.
+ Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
+ also embedded LaTeX blocks.
+</p>
         </td>
       </tr>
       <tr>
@@ -1101,9 +1273,9 @@ also embedded LaTeX blocks.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>A type alias for a list of paragraphs</p>
-
-
+          </br><p class='summary'>
+ A type alias for a list of paragraphs
+</p>
         </td>
       </tr>
       <tr>
@@ -1115,9 +1287,9 @@ also embedded LaTeX blocks.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Controls the parsing of markdown</p>
-
-
+          </br><p class='summary'>
+ Controls the parsing of markdown
+</p>
         </td>
       </tr>
       <tr>
@@ -1129,10 +1301,10 @@ also embedded LaTeX blocks.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>This module provides an easy way of processing Markdown documents.
-It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
-
-
+          </br><p class='summary'>
+ This module provides an easy way of processing Markdown documents.
+ It lets you decompose documents into leafs and nodes with nested paragraphs.
+</p>
         </td>
       </tr>
       <tr>
@@ -1168,10 +1340,10 @@ It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>Represents inline formatting inside a paragraph. This can be literal (with text), various
-formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
-
-
+          </br><p class='summary'>
+ Represents inline formatting inside a paragraph. This can be literal (with text), various
+ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.
+</p>
         </td>
       </tr>
       <tr>
@@ -1183,9 +1355,9 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>A type alias for a list of <a href="fsharp-formatting-markdown-markdownspan.html" title="MarkdownSpan"><code>MarkdownSpan</code></a> values</p>
-
-
+          </br><p class='summary'>
+ A type alias for a list of `MarkdownSpan` values
+</p>
         </td>
       </tr>
       <tr>
@@ -1197,9 +1369,9 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
           </a>
         </td>
         <td class="xmldoc">
-          <p>A type alias representing table row as a list of paragraphs</p>
-
-
+          </br><p class='summary'>
+ A type alias representing table row as a list of paragraphs
+</p>
         </td>
       </tr>
     </tbody>
@@ -1236,6 +1408,7 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -1244,9 +1417,9 @@ formattings (string, emphasis, etc.), hyperlinks, images, inline maths etc.</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>F# Formatting: Literate programming
+    <title>F# Formatting: Literate Scripts and Markdown
 </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
@@ -12,7 +12,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -20,7 +21,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -39,24 +39,9 @@
         <div class="row">
             <div class="span9" id="main">
                 <p><a href="https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb"><img src="https://mybinder.org/badge_logo.svg" alt="Binder" /></a></p>
-<h1><a name="F-Formatting-Literate-programming" class="anchor" href="#F-Formatting-Literate-programming">F# Formatting: Literate programming</a></h1>
-<p>The <a href="commandline.html">command-line tool <code>fsdocs</code></a> or the <code>FSharp.Formatting.Literate</code> namespace implements
-a literate programming model for F# script files (<code>*.fsx</code> files) or Markdown
-documents (<code>*.md</code> files) containing F# snippets.</p>
-<p>Two inputs are accepted:</p>
-<ul>
-<li>
-<p>Documents that are valid F# script files (<code>*.fsx</code>) and contain special
-comments with documentation and commands for generating HTML output</p>
-</li>
-<li>
-<p>Documents that are Markdown documents (<code>*.md</code>) and contain blocks of
-F# code (indented by four spaces as usual in Markdown)</p>
-</li>
-</ul>
-<h3><a name="F-Script-files" class="anchor" href="#F-Script-files">F# Script files</a></h3>
+<h1><a name="F-Formatting-Literate-Scripts-and-Markdown" class="anchor" href="#F-Formatting-Literate-Scripts-and-Markdown">F# Formatting: Literate Scripts and Markdown</a></h1>
 <p>The following example shows most of the features that can be used in a literate
-F# script file. Most of the features should be quite self-explanatory:</p>
+F# script file with <code>.fsx</code> extension. Most of the features should be quite self-explanatory:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
 <span class="l"> 3: </span>
@@ -137,36 +122,28 @@ is treated as a special command. The command can consist of
 <td align="left"><p>Include a code snippet when making HTML output</p></td>
 </tr>
 <tr class="even">
-<td align="left"><p><code>(*** define: snippet-name ***)</code></p></td>
-<td align="left"><p>Define a named snippet</p></td>
-</tr>
-<tr class="odd">
 <td align="left"><p><code>(*** hide ***)</code></p></td>
 <td align="left"><p>Hide the subsequent snippet</p></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><p><code>(*** include-output ***)</code></p></td>
 <td align="left"><p>The output of the preceeding snippet</p></td>
 </tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-fsi-output ***)</code></p></td>
+<td align="left"><p>The F# Interactive output of the preceeding snippet</p></td>
+</tr>
 <tr class="odd">
-<td align="left"><p><code>(*** include-otuput: snippet-name ***)</code></p></td>
-<td align="left"><p>The output of the snippet</p></td>
+<td align="left"><p><code>(*** include-fsi-merged-output ***)</code></p></td>
+<td align="left"><p>The merge of console output and F# Interactive output of the preceeding snippet</p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>(*** include-it ***)</code></p></td>
 <td align="left"><p>The formatted result of the preceeding snippet</p></td>
 </tr>
 <tr class="odd">
-<td align="left"><p><code>(*** include-it: snippet-name ***)</code></p></td>
-<td align="left"><p>The formatted result of the snippet</p></td>
-</tr>
-<tr class="even">
 <td align="left"><p><code>(*** include-value: value-name ***)</code></p></td>
 <td align="left"><p>The formatted value</p></td>
-</tr>
-<tr class="odd">
-<td align="left"><p><code>(*** include: snippet-name ***)</code></p></td>
-<td align="left"><p>Include the code of the snippet</p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>(*** raw ***)</code></p></td>
@@ -175,16 +152,55 @@ is treated as a special command. The command can consist of
 </tbody>
 </table>
 
+<h3><a name="Named-snippets" class="anchor" href="#Named-snippets">Named snippets</a></h3>
 <p>The command <code>define</code> defines a named snippet (such as <code>final-sample</code>) and removes the command together with
 the following F# code block from the main document. The snippet can then
-be inserted elsewhere in the document using <code>include</code>. This makes it
+be referred to using these variations. This makes it
 possible to write documents without the ordering requirements of the
 F# language.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Literate Command</p></th>
+<th align="left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>(*** define: snippet-name ***)</code></p></td>
+<td align="left"><p>Define a named snippet</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-output: snippet-name ***)</code></p></td>
+<td align="left"><p>The output of the named snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-fsi-output: snippet-name ***)</code></p></td>
+<td align="left"><p>The F# Interactive output of the named snippet</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include-fsi-merged-output: snippet-name ***)</code></p></td>
+<td align="left"><p>The merge of console output and F# Interactive output of the named snippet</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>(*** include-it: snippet-name ***)</code></p></td>
+<td align="left"><p>The formatted result of the named snippet</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>(*** include: snippet-name ***)</code></p></td>
+<td align="left"><p>Include the code of the named snippet</p></td>
+</tr>
+</tbody>
+</table>
+
+<h4><a name="Hiding-code-snippets" class="anchor" href="#Hiding-code-snippets">Hiding code snippets</a></h4>
 <p>The command <code>hide</code> specifies that the following F# code block (until the next comment or command) should be
 omitted from the output.</p>
-<p>Other commands are explained in <a href="evaluation.html">evaluation</a>.</p>
-<h3><a name="Markdown-documents" class="anchor" href="#Markdown-documents">Markdown documents</a></h3>
-<p>In the Markdown mode, the entire file is a valid Markdown document, which may
+<h4><a name="Evaluating-and-formatting-results" class="anchor" href="#Evaluating-and-formatting-results">Evaluating and formatting results</a></h4>
+<p>The commands to evaluate and format results are explained in <a href="evaluation.html">evaluation</a>.
+You must build your documentation with evaluation turned on using <code>--eval</code>.</p>
+<h3><a name="Literate-Markdown-Documents" class="anchor" href="#Literate-Markdown-Documents">Literate Markdown Documents</a></h3>
+<p>For files with <code>.md</code> extension, the entire file is a Markdown document, which may
 contain F# code snippets (but also other code snippets). As usual, snippets are
 indented with four spaces. In addition, the snippets can be annotated with special
 commands. Some of them are demonstrated in the following example:</p>
@@ -222,7 +238,7 @@ With some more documentation
 </code></pre></td></tr></table>
 <p>When processing the document, all F# snippets are copied to a separate file that
 is type-checked using the F# compiler (to obtain colours and tool tips).
-The commands are written on the first line of the snippet, wrapped in <code>[...]</code>:</p>
+The commands are written on the first line of the named snippet, wrapped in <code>[...]</code>:</p>
 <ul>
 <li>
 <p>The <code>hide</code> command specifies that the F# snippet should not be included in the
@@ -235,17 +251,77 @@ is placed. Use this command if you need multiple versions of the same snippet
 or if you need to separate code from different snippets.</p>
 </li>
 <li>
-<p>The <code>lang=foo</code> command specifies the language of the snippet. If the language
+<p>The <code>lang=foo</code> command specifies the language of the named snippet. If the language
 is other than <code>fsharp</code>, the snippet is copied to the output as <code>&lt;pre&gt;</code> HTML
 tag without any processing.</p>
 </li>
 </ul>
-<h2><a name="Typical-literate-setup" class="anchor" href="#Typical-literate-setup">Typical literate setup</a></h2>
-<p>For literate programming support in your project, install the <code>FSharp.Formatting</code> nuget package.</p>
-<p>Now we can open <code>FSharp.Formatting.Literate</code> and use the <code>Literate</code> type to process individual
-documents or entire directories.</p>
-<h3><a name="Processing-individual-files" class="anchor" href="#Processing-individual-files">Processing individual files</a></h3>
-<p>Use the two static methods to turn single documents into HTML
+<h3><a name="LaTeX-in-Literate-Scripts-and-Markdown-Documents" class="anchor" href="#LaTeX-in-Literate-Scripts-and-Markdown-Documents">LaTeX in Literate Scripts and Markdown Documents</a></h3>
+<p>Literate Scripts may contain LaTeX sections in Markdown using these forms:</p>
+<ol>
+<li><p>Single line latex starting with <code>$$</code>.</p></li>
+<li><p>A block delimited by <code>\begin{equation}...\end{equation}</code> or <code>\begin{align}...\end{align}</code>.</p></li>
+<li>
+<p>An indented paragraph starting with <code>$$$</code>.  This is F#-literate-specific and corresponds to
+<code>\begin{equation}...\end{equation}</code>.</p>
+</li>
+</ol>
+<p>For example</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="text">$$\frac{x}{y}$$
+
+\begin{equation}
+   \frac{d}{dx} \left. \left( x \left( \left. \frac{d}{dy} x y \; \right|_{y=3} \right) \right) \right|_{x=2}
+\end{equation}
+</code></pre></td></tr></table>
+<p>Becomes</p>
+<p><span class="math">\[\frac{x}{y}\]</span></p>
+<p><span class="math">\[   \frac{d}{dx} \left. \left( x \left( \left. \frac{d}{dy} x y \; \right|_{y=3} \right) \right) \right|_{x=2}\]</span></p>
+<p>The LaTeX will also be used in HTML and iPython notebook outputs.</p>
+<h3><a name="Making-literate-scripts-work-for-different-outputs" class="anchor" href="#Making-literate-scripts-work-for-different-outputs">Making literate scripts work for different outputs</a></h3>
+<p>Literate scripts and markdown can by turned into LaTex, Python Notebooks and F# scripts.</p>
+<p>A header may be needed to get the code to load, a typical example is this:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">(*** condition: prepare ***)</span>
+<span class="pp">#nowarn</span> <span class="s">&quot;211&quot;</span>
+<span class="pp">#I</span> <span class="s">&quot;../src/FSharp.Formatting/bin/Release/netstandard2.0&quot;</span>
+<span class="pp">#r</span> <span class="s">&quot;FSharp.Formatting.Common.dll&quot;</span>
+<span class="pp">#r</span> <span class="s">&quot;FSharp.Formatting.Markdown.dll&quot;</span>
+<span class="pp">#r</span> <span class="s">&quot;FSharp.Formatting.CodeFormat.dll&quot;</span>
+<span class="pp">#r</span> <span class="s">&quot;FSharp.Formatting.Literate.dll&quot;</span>
+<span class="c">(*** condition: fsx ***)</span>
+<span class="pp">#if</span> <span class="id">FSX</span>
+<span class="inactive">#r</span><span class="inactive"> </span><span class="inactive">&quot;nuget:</span><span class="inactive"> </span><span class="inactive">FSharp.Formatting,{{package-version}}&quot;</span>
+<span class="pp">#endif</span> <span class="c">// FSX</span>
+<span class="c">(*** condition: ipynb ***)</span>
+<span class="pp">#if</span> <span class="id">IPYNB</span>
+<span class="inactive">#r</span><span class="inactive"> </span><span class="inactive">&quot;nuget:</span><span class="inactive"> </span><span class="inactive">FSharp.Formatting,{{package-version}}&quot;</span>
+<span class="pp">#endif</span> <span class="c">// IPYNB</span>
+</code></pre></td>
+</tr>
+</table>
+<h3><a name="Processing-literate-files-programatically" class="anchor" href="#Processing-literate-files-programatically">Processing literate files programatically</a></h3>
+<p>To process file Use the two static methods to turn single documents into HTML
 as follows:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -269,29 +345,10 @@ as follows:</p>
 <span onmouseout="hideTip(event, 'fs16', 21)" onmouseover="showTip(event, 'fs16', 21)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs17', 22)" onmouseover="showTip(event, 'fs17', 22)" class="id">ConvertScriptFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs15', 23)" onmouseover="showTip(event, 'fs15', 23)" class="id">script</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs12', 24)" onmouseover="showTip(event, 'fs12', 24)" class="id">template</span><span class="pn">)</span>
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 25)" onmouseover="showTip(event, 'fs18', 25)" class="id">doc</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 26)" onmouseover="showTip(event, 'fs13', 26)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs14', 27)" onmouseover="showTip(event, 'fs14', 27)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs11', 28)" onmouseover="showTip(event, 'fs11', 28)" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/document.md&quot;</span><span class="pn">)</span>
-<span onmouseout="hideTip(event, 'fs16', 29)" onmouseover="showTip(event, 'fs16', 29)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 30)" onmouseover="showTip(event, 'fs19', 30)" class="id">ConvertMarkdown</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs18', 31)" onmouseover="showTip(event, 'fs18', 31)" class="id">doc</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs12', 32)" onmouseover="showTip(event, 'fs12', 32)" class="id">template</span><span class="pn">)</span>
+<span onmouseout="hideTip(event, 'fs16', 29)" onmouseover="showTip(event, 'fs16', 29)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 30)" onmouseover="showTip(event, 'fs19', 30)" class="id">ConvertMarkdownFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs18', 31)" onmouseover="showTip(event, 'fs18', 31)" class="id">doc</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs12', 32)" onmouseover="showTip(event, 'fs12', 32)" class="id">template</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
-<p>For HTML, you can optionally provide a template. Two sample templates
-are included: for a <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-file.html">single file</a>
-and for a <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/templates/template-project.html">project</a>,
-but you can use your own. If no template is provided, the result is simply the HTML body
-of the document with HTML for tool tips appended to the end.</p>
-<p>The template should include two parameters that will be replaced with the actual
-HTML: <code>{{document}}</code> will be replaced with the formatted document;
-<code>{{tooltips}}</code> will be replaced with (hidden) <code>&lt;div&gt;</code> elements containing code for tool tips that appear
-when you place mouse pointer over an identifier. Optionally, you can also use
-<code>{{page-title}}</code> which will be replaced with the text in a first-level heading.
-The template should also reference <code>style.css</code> and <code>tips.js</code> that define CSS style
-and JavaScript functions used by the generated HTML (see sample <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css">stylesheet</a>
-and <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js">script</a> on GitHub).</p>
-<h3><a name="Processing-entire-directories" class="anchor" href="#Processing-entire-directories">Processing entire directories</a></h3>
-<p>If you have multiple script files and Markdown documents (this time, they need to have
-the <code>*.md</code> file extension) in a single directory, you can run the tool on a directory.
-It will also automatically check that files are re-generated only when they were changed,
-and also copy over any other files. Processing is recursive, making this call a form of static
-site generation.</p>
 <p>The following sample also uses optional parameter <code>parameters</code> to specify additional
 keywords that will be replaced in the template file (this matches the <code>template-project.html</code>
 file which is included as a sample in the package):</p>
@@ -312,12 +369,6 @@ file which is included as a sample in the package):</p>
 </tr>
 </table>
 <p>You can also convert entire directories of content.</p>
-<ul>
-<li><p>Content that is not <code>*.fsx</code> or <code>*.md</code> is copied across</p></li>
-<li><p>If a file <code>_template.html</code> exists then is used as the template for that directory and all sub-content.</p></li>
-<li><p>Any file or directory beginning with <code>.</code> is ignored.</p></li>
-<li>A set of parameter substitutions can be provided operative across all files.</li>
-</ul>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
@@ -328,18 +379,7 @@ file which is included as a sample in the package):</p>
 </code></pre></td>
 </tr>
 </table>
-<p>The sample template <code>template-project.html</code> has been used to generate this documentation
-and it includes additional parameters for specifying various information about F#
-projects.</p>
-<ul>
-<li>
-<a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/demo.md">Sample Markdown file</a>
-produces the following <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.tex">LaTeX output</a>
-and <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-doc.html">HTML output</a>
-</li>
-</ul>
-<h2><a name="Generating-LaTeX-output" class="anchor" href="#Generating-LaTeX-output">Generating LaTeX output</a></h2>
-<p>The methods used above (<code>ConvertScriptFile</code>, <code>ConvertMarkdown</code> as well as <code>ConvertDirectory</code>)
+<p>The methods used above (<code>ConvertScriptFile</code>, <code>ConvertMarkdownFile</code> as well as <code>ConvertDirectory</code>)
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:</p>
@@ -357,26 +397,11 @@ example shows how to call the methods to generate LaTeX documents:</p>
 <span onmouseout="hideTip(event, 'fs16', 50)" onmouseover="showTip(event, 'fs16', 50)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs17', 51)" onmouseover="showTip(event, 'fs17', 51)" class="id">ConvertScriptFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs24', 52)" onmouseover="showTip(event, 'fs24', 52)" class="id">scriptTex</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs23', 53)" onmouseover="showTip(event, 'fs23', 53)" class="id">templateTex</span><span class="pn">,</span> <span class="id">outputKind</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs25', 54)" onmouseover="showTip(event, 'fs25', 54)" class="rt">OutputKind</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs26', 55)" onmouseover="showTip(event, 'fs26', 55)" class="id">Latex</span><span class="pn">)</span>
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs27', 56)" onmouseover="showTip(event, 'fs27', 56)" class="id">docTex</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 57)" onmouseover="showTip(event, 'fs13', 57)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs14', 58)" onmouseover="showTip(event, 'fs14', 58)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs11', 59)" onmouseover="showTip(event, 'fs11', 59)" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/document.md&quot;</span><span class="pn">)</span>
-<span onmouseout="hideTip(event, 'fs16', 60)" onmouseover="showTip(event, 'fs16', 60)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 61)" onmouseover="showTip(event, 'fs19', 61)" class="id">ConvertMarkdown</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs27', 62)" onmouseover="showTip(event, 'fs27', 62)" class="id">docTex</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs23', 63)" onmouseover="showTip(event, 'fs23', 63)" class="id">templateTex</span><span class="pn">,</span> <span class="id">outputKind</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs25', 64)" onmouseover="showTip(event, 'fs25', 64)" class="rt">OutputKind</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs26', 65)" onmouseover="showTip(event, 'fs26', 65)" class="id">Latex</span><span class="pn">)</span>
+<span onmouseout="hideTip(event, 'fs16', 60)" onmouseover="showTip(event, 'fs16', 60)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 61)" onmouseover="showTip(event, 'fs19', 61)" class="id">ConvertMarkdownFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs27', 62)" onmouseover="showTip(event, 'fs27', 62)" class="id">docTex</span><span class="pn">,</span> <span onmouseout="hideTip(event, 'fs23', 63)" onmouseover="showTip(event, 'fs23', 63)" class="id">templateTex</span><span class="pn">,</span> <span class="id">outputKind</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs25', 64)" onmouseover="showTip(event, 'fs25', 64)" class="rt">OutputKind</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs26', 65)" onmouseover="showTip(event, 'fs26', 65)" class="id">Latex</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
-<p>Note that the <code>template.tex</code> file needs to contain <code>{content}</code> as the key where the body
-of the document is placed (this differs from <code>{document}</code> used in the HTML format to avoid
-collision with standard Latex <code>{document}</code> tag). The project comes with two samples (also
-available as part of the NuGet package). The sample Latex (and HTML) outputs look as follows:</p>
-<ul>
-<li>
-<a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/demo.fsx">Sample F# script file</a>
-produces the following <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-script.tex">LaTeX output</a>
-and <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/literate/output/demo-script.html">HTML output</a>
-</li>
-</ul>
-<h2><a name="Generating-iPython-Notebook-output" class="anchor" href="#Generating-iPython-Notebook-output">Generating iPython Notebook output</a></h2>
-<blockquote>
-<p>NOTE: This feature is experimental and not all features of markdown or notebooks is supported</p>
-</blockquote>
-<p>The methods used above (<code>ConvertScriptFile</code>, <code>ConvertMarkdown</code> as well as <code>ConvertDirectory</code>)
+<p>The methods used above (<code>ConvertScriptFile</code>, <code>ConvertMarkdownFile</code> as well as <code>ConvertDirectory</code>)
 can also produce iPython Notebook output. This is done
 by setting the named parameter <code>format</code> to <code>OutputKind.Pynb</code>:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
@@ -391,11 +416,10 @@ by setting the named parameter <code>format</code> to <code>OutputKind.Pynb</cod
 <span onmouseout="hideTip(event, 'fs16', 70)" onmouseover="showTip(event, 'fs16', 70)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs17', 71)" onmouseover="showTip(event, 'fs17', 71)" class="id">ConvertScriptFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs28', 72)" onmouseover="showTip(event, 'fs28', 72)" class="id">scriptPynb</span><span class="pn">,</span> <span class="id">outputKind</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs25', 73)" onmouseover="showTip(event, 'fs25', 73)" class="rt">OutputKind</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs29', 74)" onmouseover="showTip(event, 'fs29', 74)" class="id">Pynb</span><span class="pn">)</span>
 
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 75)" onmouseover="showTip(event, 'fs30', 75)" class="id">docPynb</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 76)" onmouseover="showTip(event, 'fs13', 76)" class="rt">Path</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs14', 77)" onmouseover="showTip(event, 'fs14', 77)" class="id">Combine</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs11', 78)" onmouseover="showTip(event, 'fs11', 78)" class="id">source</span><span class="pn">,</span> <span class="s">&quot;../docs/document.md&quot;</span><span class="pn">)</span>
-<span onmouseout="hideTip(event, 'fs16', 79)" onmouseover="showTip(event, 'fs16', 79)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 80)" onmouseover="showTip(event, 'fs19', 80)" class="id">ConvertMarkdown</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs30', 81)" onmouseover="showTip(event, 'fs30', 81)" class="id">docPynb</span><span class="pn">,</span> <span class="id">outputKind</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs25', 82)" onmouseover="showTip(event, 'fs25', 82)" class="rt">OutputKind</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs29', 83)" onmouseover="showTip(event, 'fs29', 83)" class="id">Pynb</span><span class="pn">)</span>
+<span onmouseout="hideTip(event, 'fs16', 79)" onmouseover="showTip(event, 'fs16', 79)" class="rt">Literate</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs19', 80)" onmouseover="showTip(event, 'fs19', 80)" class="id">ConvertMarkdownFile</span><span class="pn">(</span><span onmouseout="hideTip(event, 'fs30', 81)" onmouseover="showTip(event, 'fs30', 81)" class="id">docPynb</span><span class="pn">,</span> <span class="id">outputKind</span><span class="o">=</span><span onmouseout="hideTip(event, 'fs25', 82)" onmouseover="showTip(event, 'fs25', 82)" class="rt">OutputKind</span><span class="pn">.</span><span onmouseout="hideTip(event, 'fs29', 83)" onmouseover="showTip(event, 'fs29', 83)" class="id">Pynb</span><span class="pn">)</span>
 </code></pre></td>
 </tr>
 </table>
-<h2><a name="Optional-parameters" class="anchor" href="#Optional-parameters">Optional parameters</a></h2>
 <p>All of the three methods discussed in the previous two sections take a number of optional
 parameters that can be used to tweak how the formatting works or even to specify a different
 version of the F# compiler:</p>
@@ -452,13 +476,13 @@ code formatting code, for example to support syntax highlighting for another lan
 <div class="tip" id="fs13">type Path =<br />&#160;&#160;static val DirectorySeparatorChar : char<br />&#160;&#160;static val AltDirectorySeparatorChar : char<br />&#160;&#160;static val VolumeSeparatorChar : char<br />&#160;&#160;static val PathSeparator : char<br />&#160;&#160;static val InvalidPathChars : char[]<br />&#160;&#160;static member ChangeExtension : path:string * extension:string -&gt; string<br />&#160;&#160;static member Combine : [&lt;ParamArray&gt;] paths:string[] -&gt; string + 3 overloads<br />&#160;&#160;static member EndsInDirectorySeparator : path:ReadOnlySpan&lt;char&gt; -&gt; bool + 1 overload<br />&#160;&#160;static member GetDirectoryName : path:string -&gt; string + 1 overload<br />&#160;&#160;static member GetExtension : path:string -&gt; string + 1 overload<br />&#160;&#160;...</div>
 <div class="tip" id="fs14">Path.Combine([&lt;System.ParamArray&gt;] paths: string []) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
 <div class="tip" id="fs15">val script : string</div>
-<div class="tip" id="fs16">type Literate =<br />&#160;&#160;private new : unit -&gt; Literate<br />&#160;&#160;static member ConvertDirectory : inputDirectory:string * ?htmlTemplate:string * ?outputDirectory:string * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?recursive:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(TokenKind -&gt; string) -&gt; unit<br />&#160;&#160;static member ConvertDocument : doc:LiterateDocument * output:string * ?template:string * ?outputKind:OutputKind * ?prefix:string * ?lineNumbers:bool * ?includeSource:bool * ?generateAnchors:bool * ?parameters:(string * string) list -&gt; unit<br />&#160;&#160;static member ConvertMarkdown : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) -&gt; unit<br />&#160;&#160;static member ConvertScriptFile : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) -&gt; unit<br />&#160;&#160;static member FormatLiterateNodes : doc:LiterateDocument * ?outputKind:OutputKind * ?prefix:string * ?lineNumbers:bool * ?generateAnchors:bool * ?tokenKindToCss:(TokenKind -&gt; string) -&gt; LiterateDocument<br />&#160;&#160;static member private ParseAndTransformMarkdown : input:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(TokenKind -&gt; string) -&gt; LiterateDocModel<br />&#160;&#160;static member private ParseAndTransformScriptFile : input:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(TokenKind -&gt; string) -&gt; LiterateDocModel<br />&#160;&#160;static member ParseMarkdownFile : path:string * ?formatAgent:CodeFormatAgent * ?compilerOptions:string * ?definedSymbols:string list * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parseOptions:MarkdownParseOptions -&gt; LiterateDocument<br />&#160;&#160;static member ParseMarkdownString : content:string * ?path:string * ?formatAgent:CodeFormatAgent * ?compilerOptions:string * ?definedSymbols:string list * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parseOptions:MarkdownParseOptions -&gt; LiterateDocument<br />&#160;&#160;...</div>
-<div class="tip" id="fs17">static member Literate.ConvertScriptFile : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:FSharp.Formatting.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:Evaluation.IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) -&gt; unit</div>
+<div class="tip" id="fs16">type Literate =<br />&#160;&#160;private new : unit -&gt; Literate<br />&#160;&#160;static member ConvertDirectory : inputDirectory:string * ?htmlTemplate:string * ?outputDirectory:string * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?recursive:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(TokenKind -&gt; string) * ?saveImages:bool -&gt; unit<br />&#160;&#160;static member ConvertMarkdownFile : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?saveImages:bool -&gt; unit<br />&#160;&#160;static member ConvertScriptFile : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?saveImages:bool -&gt; unit<br />&#160;&#160;static member FormatLiterateNodes : doc:LiterateDocument * ?outputKind:OutputKind * ?prefix:string * ?lineNumbers:bool * ?generateAnchors:bool * ?tokenKindToCss:(TokenKind -&gt; string) -&gt; LiterateDocument<br />&#160;&#160;static member private ParseAndTransformMarkdownFile : input:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(TokenKind -&gt; string) * ?imageSaver:(string -&gt; string) -&gt; LiterateDocModel<br />&#160;&#160;static member private ParseAndTransformScriptFile : input:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(TokenKind -&gt; string) * ?imageSaver:(string -&gt; string) -&gt; LiterateDocModel<br />&#160;&#160;static member ParseMarkdownFile : path:string * ?formatAgent:CodeFormatAgent * ?compilerOptions:string * ?definedSymbols:string list * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parseOptions:MarkdownParseOptions -&gt; LiterateDocument<br />&#160;&#160;static member ParseMarkdownString : content:string * ?path:string * ?formatAgent:CodeFormatAgent * ?compilerOptions:string * ?definedSymbols:string list * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parseOptions:MarkdownParseOptions -&gt; LiterateDocument<br />&#160;&#160;static member ParseScriptFile : path:string * ?formatAgent:CodeFormatAgent * ?compilerOptions:string * ?definedSymbols:string list * ?references:bool * ?fsiEvaluator:IFsiEvaluator * ?parseOptions:MarkdownParseOptions -&gt; LiterateDocument<br />&#160;&#160;...</div>
+<div class="tip" id="fs17">static member Literate.ConvertScriptFile : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:FSharp.Formatting.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:Evaluation.IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?saveImages:bool -&gt; unit</div>
 <div class="tip" id="fs18">val doc : string</div>
-<div class="tip" id="fs19">static member Literate.ConvertMarkdown : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:FSharp.Formatting.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) -&gt; unit</div>
+<div class="tip" id="fs19">static member Literate.ConvertMarkdownFile : input:string * ?template:string * ?output:string * ?outputKind:OutputKind * ?formatAgent:FSharp.Formatting.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?saveImages:bool -&gt; unit</div>
 <div class="tip" id="fs20">val projTemplate : string</div>
 <div class="tip" id="fs21">val projInfo : (string * string) list</div>
-<div class="tip" id="fs22">static member Literate.ConvertDirectory : inputDirectory:string * ?htmlTemplate:string * ?outputDirectory:string * ?formatAgent:FSharp.Formatting.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:Evaluation.IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?recursive:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(FSharp.Formatting.CodeFormat.TokenKind -&gt; string) -&gt; unit</div>
+<div class="tip" id="fs22">static member Literate.ConvertDirectory : inputDirectory:string * ?htmlTemplate:string * ?outputDirectory:string * ?formatAgent:FSharp.Formatting.CodeFormat.CodeFormatAgent * ?prefix:string * ?compilerOptions:string * ?lineNumbers:bool * ?references:bool * ?fsiEvaluator:Evaluation.IFsiEvaluator * ?parameters:(string * string) list * ?includeSource:bool * ?generateAnchors:bool * ?recursive:bool * ?customizeDocument:(LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * ?tokenKindToCss:(FSharp.Formatting.CodeFormat.TokenKind -&gt; string) * ?saveImages:bool -&gt; unit</div>
 <div class="tip" id="fs23">val templateTex : string</div>
 <div class="tip" id="fs24">val scriptTex : string</div>
 <div class="tip" id="fs25">type OutputKind =<br />&#160;&#160;| Html<br />&#160;&#160;| Latex<br />&#160;&#160;| Pynb<br />&#160;&#160;| Fsx<br />&#160;&#160;&#160;&#160;member Extension : string</div>
@@ -498,6 +522,7 @@ code formatting code, for example to support syntax highlighting for another lan
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -506,9 +531,9 @@ code formatting code, for example to support syntax highlighting for another lan
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

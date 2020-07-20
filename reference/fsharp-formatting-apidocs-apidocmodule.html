@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>Represents an F# module definition integrated with its associated documentation</p>
-
-
+    </br><p class='summary'>
+ Represents an F# module definition integrated with its associated documentation
+</p>
   </div>
   <div></div>
   <div></div>
@@ -234,9 +234,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Active patterns of the module</p>
-
-
+            </br><p class='summary'>
+ Active patterns of the module
+</p>
           </td>
         </tr>
         <tr>
@@ -268,9 +268,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>All members of the module</p>
-
-
+            </br><p class='summary'>
+ All members of the module
+</p>
           </td>
         </tr>
         <tr>
@@ -302,9 +302,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The name of the module's assembly</p>
-
-
+            </br><p class='summary'>
+ The name of the module's assembly
+</p>
           </td>
         </tr>
         <tr>
@@ -336,9 +336,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The declared attributes of the module</p>
-
-
+            </br><p class='summary'>
+ The declared attributes of the module
+</p>
           </td>
         </tr>
         <tr>
@@ -370,9 +370,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The category of the module</p>
-
-
+            </br><p class='summary'>
+ The category of the module
+</p>
           </td>
         </tr>
         <tr>
@@ -404,9 +404,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The attached comment</p>
-
-
+            </br><p class='summary'>
+ The attached comment
+</p>
           </td>
         </tr>
         <tr>
@@ -438,9 +438,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Gets a value indicating whether this member is obsolete</p>
-
-
+            </br><p class='summary'>
+ Gets a value indicating whether this member is obsolete
+</p>
           </td>
         </tr>
         <tr>
@@ -472,9 +472,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The name of the module</p>
-
-
+            </br><p class='summary'>
+ The name of the module
+</p>
           </td>
         </tr>
         <tr>
@@ -506,9 +506,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>All nested modules</p>
-
-
+            </br><p class='summary'>
+ All nested modules
+</p>
           </td>
         </tr>
         <tr>
@@ -540,9 +540,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>All nested types</p>
-
-
+            </br><p class='summary'>
+ All nested types
+</p>
           </td>
         </tr>
         <tr>
@@ -574,9 +574,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned</p>
-
-
+            </br><p class='summary'>
+ Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
+</p>
           </td>
         </tr>
         <tr>
@@ -608,9 +608,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Type extensions of the module</p>
-
-
+            </br><p class='summary'>
+ Type extensions of the module
+</p>
           </td>
         </tr>
         <tr>
@@ -642,9 +642,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The URL of the best link documentation for the item (without the <a href="http://site.io/reference">http://site.io/reference</a> or .html)</p>
-
-
+            </br><p class='summary'>
+ The URL of the best link documentation for the item (without the http://site.io/reference or .html)
+</p>
           </td>
         </tr>
         <tr>
@@ -676,9 +676,9 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Values and functions of the module</p>
-
-
+            </br><p class='summary'>
+ Values and functions of the module
+</p>
           </td>
         </tr>
       </tbody>
@@ -717,6 +717,7 @@
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -725,9 +726,9 @@
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

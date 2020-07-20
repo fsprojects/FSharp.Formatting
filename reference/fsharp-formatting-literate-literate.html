@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,12 +49,12 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>This type provides three simple methods for calling the literate programming tool.
-The <code>ConvertMarkdown</code> and <code>ConvertScriptFile</code> methods process a single Markdown document
-and F# script, respectively. The <code>ConvertDirectory</code> method handles an entire directory tree
-(looking for <code>*.fsx</code> and <code>*.md</code> files).</p>
-
-
+    </br><p class='summary'>
+ This type provides three simple methods for calling the literate programming tool.
+ The `ConvertMarkdownFile` and `ConvertScriptFile` methods process a single Markdown document
+ and F# script, respectively. The `ConvertDirectory` method handles an entire directory tree
+ (looking for `*.fsx` and `*.md` files).
+</p>
   </div>
   <div></div>
   <div></div>
@@ -80,16 +80,16 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '249', 249)" onmouseover="showTip(event, '249', 249)">
+              <code onmouseout="hideTip(event, '270', 270)" onmouseover="showTip(event, '270', 270)">
                 <a name="ConvertDirectory">
                   Literate.ConvertDirectory(...)
                 </a>
               </code>
-              <div class="tip" id="249">
+              <div class="tip" id="270">
                 <strong>
                   Full Usage: 
                 </strong>
-                Literate.ConvertDirectory(inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?compilerOptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors, ?recursive, ?customizeDocument, ?tokenKindToCss)
+                Literate.ConvertDirectory(inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?compilerOptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors, ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages)
                 <br/>
                 <strong>
                   Parameters: 
@@ -200,128 +200,42 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                     :
                     TokenKind -&gt; string
                   </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                (inputDirectory: string * htmlTemplate: string * outputDirectory: string * formatAgent: CodeFormatAgent * prefix: string * compilerOptions: string * lineNumbers: bool * references: bool * fsiEvaluator: IFsiEvaluator * parameters: (string * string) list * includeSource: bool * generateAnchors: bool * recursive: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * tokenKindToCss: (TokenKind -&gt; string)) -&gt; unit
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '250', 250)" onmouseover="showTip(event, '250', 250)">
-                <a name="ConvertDocument">
-                  Literate.ConvertDocument(...)
-                </a>
-              </code>
-              <div class="tip" id="250">
-                <strong>
-                  Full Usage: 
-                </strong>
-                Literate.ConvertDocument(doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
                   <li>
                     <b>
-                      doc
-                    </b>
-                    :
-                    LiterateDocument
-                  </li>
-                  <li>
-                    <b>
-                      output
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?template
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?outputKind
-                    </b>
-                    :
-                    OutputKind
-                  </li>
-                  <li>
-                    <b>
-                      ?prefix
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?lineNumbers
+                      ?saveImages
                     </b>
                     :
                     bool
-                  </li>
-                  <li>
-                    <b>
-                      ?includeSource
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      ?generateAnchors
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      ?parameters
-                    </b>
-                    :
-                    (string * string) list
                   </li>
                 </ul>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                (doc: LiterateDocument * output: string * template: string * outputKind: OutputKind * prefix: string * lineNumbers: bool * includeSource: bool * generateAnchors: bool * parameters: (string * string) list) -&gt; unit
+                (inputDirectory: string * htmlTemplate: string * outputDirectory: string * formatAgent: CodeFormatAgent * prefix: string * compilerOptions: string * lineNumbers: bool * references: bool * fsiEvaluator: IFsiEvaluator * parameters: (string * string) list * includeSource: bool * generateAnchors: bool * recursive: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * tokenKindToCss: (TokenKind -&gt; string) * saveImages: bool) -&gt; unit
                 <br/>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Convert markdown, script and other content into a static site
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
-                <a name="ConvertMarkdown">
-                  Literate.ConvertMarkdown(...)
+              <code onmouseout="hideTip(event, '271', 271)" onmouseover="showTip(event, '271', 271)">
+                <a name="ConvertMarkdownFile">
+                  Literate.ConvertMarkdownFile(...)
                 </a>
               </code>
-              <div class="tip" id="251">
+              <div class="tip" id="271">
                 <strong>
                   Full Usage: 
                 </strong>
-                Literate.ConvertMarkdown(input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions, ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors, ?customizeDocument)
+                Literate.ConvertMarkdownFile(input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions, ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors, ?customizeDocument, ?saveImages)
                 <br/>
                 <strong>
                   Parameters: 
@@ -418,33 +332,42 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                     :
                     LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument
                   </li>
+                  <li>
+                    <b>
+                      ?saveImages
+                    </b>
+                    :
+                    bool
+                  </li>
                 </ul>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                (input: string * template: string * output: string * outputKind: OutputKind * formatAgent: CodeFormatAgent * prefix: string * compilerOptions: string * lineNumbers: bool * references: bool * parameters: (string * string) list * includeSource: bool * generateAnchors: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument)) -&gt; unit
+                (input: string * template: string * output: string * outputKind: OutputKind * formatAgent: CodeFormatAgent * prefix: string * compilerOptions: string * lineNumbers: bool * references: bool * parameters: (string * string) list * includeSource: bool * generateAnchors: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * saveImages: bool) -&gt; unit
                 <br/>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Convert a markdown file into HTML or another output kind
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
+              <code onmouseout="hideTip(event, '272', 272)" onmouseover="showTip(event, '272', 272)">
                 <a name="ConvertScriptFile">
                   Literate.ConvertScriptFile(...)
                 </a>
               </code>
-              <div class="tip" id="252">
+              <div class="tip" id="272">
                 <strong>
                   Full Usage: 
                 </strong>
-                Literate.ConvertScriptFile(input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors, ?customizeDocument)
+                Literate.ConvertScriptFile(input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors, ?customizeDocument, ?saveImages)
                 <br/>
                 <strong>
                   Parameters: 
@@ -548,29 +471,38 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                     :
                     LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument
                   </li>
+                  <li>
+                    <b>
+                      ?saveImages
+                    </b>
+                    :
+                    bool
+                  </li>
                 </ul>
                 <br/>
                 <strong>
                   Signature: 
                 </strong>
-                (input: string * template: string * output: string * outputKind: OutputKind * formatAgent: CodeFormatAgent * prefix: string * compilerOptions: string * lineNumbers: bool * references: bool * fsiEvaluator: IFsiEvaluator * parameters: (string * string) list * includeSource: bool * generateAnchors: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument)) -&gt; unit
+                (input: string * template: string * output: string * outputKind: OutputKind * formatAgent: CodeFormatAgent * prefix: string * compilerOptions: string * lineNumbers: bool * references: bool * fsiEvaluator: IFsiEvaluator * parameters: (string * string) list * includeSource: bool * generateAnchors: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * saveImages: bool) -&gt; unit
                 <br/>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Convert a script file into HTML or another output kind
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
+              <code onmouseout="hideTip(event, '273', 273)" onmouseover="showTip(event, '273', 273)">
                 <a name="FormatLiterateNodes">
                   Literate.FormatLiterateNodes(...)
                 </a>
               </code>
-              <div class="tip" id="253">
+              <div class="tip" id="273">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -638,18 +570,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            
+            </br><p class='summary'>
+ Replace literate paragraphs with plain paragraphs
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
+              <code onmouseout="hideTip(event, '274', 274)" onmouseover="showTip(event, '274', 274)">
                 <a name="ParseMarkdownFile">
                   Literate.ParseMarkdownFile(...)
                 </a>
               </code>
-              <div class="tip" id="254">
+              <div class="tip" id="274">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -724,20 +658,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Parse Markdown document</p>
-
-
+            </br><p class='summary'>
+ Parse Markdown document
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '255', 255)" onmouseover="showTip(event, '255', 255)">
+              <code onmouseout="hideTip(event, '275', 275)" onmouseover="showTip(event, '275', 275)">
                 <a name="ParseMarkdownString">
                   Literate.ParseMarkdownString(...)
                 </a>
               </code>
-              <div class="tip" id="255">
+              <div class="tip" id="275">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -819,20 +753,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Parse Markdown document</p>
-
-
+            </br><p class='summary'>
+ Parse Markdown document
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '256', 256)" onmouseover="showTip(event, '256', 256)">
+              <code onmouseout="hideTip(event, '276', 276)" onmouseover="showTip(event, '276', 276)">
                 <a name="ParseScriptFile">
                   Literate.ParseScriptFile(...)
                 </a>
               </code>
-              <div class="tip" id="256">
+              <div class="tip" id="276">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -907,20 +841,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Parse F# Script file</p>
-
-
+            </br><p class='summary'>
+ Parse F# Script file
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
+              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
                 <a name="ParseScriptString">
                   Literate.ParseScriptString(...)
                 </a>
               </code>
-              <div class="tip" id="257">
+              <div class="tip" id="277">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1002,20 +936,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Parse F# Script file</p>
-
-
+            </br><p class='summary'>
+ Parse F# Script file
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
+              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
                 <a name="ToFsx">
                   Literate.ToFsx(doc, ?parameters)
                 </a>
               </code>
-              <div class="tip" id="258">
+              <div class="tip" id="278">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1055,20 +989,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Formate the literate document as an .fsx script</p>
-
-
+            </br><p class='summary'>
+ Formate the literate document as an .fsx script 
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '259', 259)" onmouseover="showTip(event, '259', 259)">
+              <code onmouseout="hideTip(event, '279', 279)" onmouseover="showTip(event, '279', 279)">
                 <a name="ToHtml">
                   Literate.ToHtml(...)
                 </a>
               </code>
-              <div class="tip" id="259">
+              <div class="tip" id="279">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1129,20 +1063,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Format the literate document as HTML without using a template</p>
-
-
+            </br><p class='summary'>
+ Format the literate document as HTML without using a template
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '260', 260)" onmouseover="showTip(event, '260', 260)">
+              <code onmouseout="hideTip(event, '280', 280)" onmouseover="showTip(event, '280', 280)">
                 <a name="ToLatex">
                   Literate.ToLatex(...)
                 </a>
               </code>
-              <div class="tip" id="260">
+              <div class="tip" id="280">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1196,20 +1130,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Format the literate document as Latex without using a template</p>
-
-
+            </br><p class='summary'>
+ Format the literate document as Latex without using a template
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '261', 261)" onmouseover="showTip(event, '261', 261)">
+              <code onmouseout="hideTip(event, '281', 281)" onmouseover="showTip(event, '281', 281)">
                 <a name="ToPynb">
                   Literate.ToPynb(doc, ?parameters)
                 </a>
               </code>
-              <div class="tip" id="261">
+              <div class="tip" id="281">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1249,20 +1183,117 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Formate the literate document as an iPython notebook</p>
-
-
+            </br><p class='summary'>
+ Formate the literate document as an iPython notebook 
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '262', 262)" onmouseover="showTip(event, '262', 262)">
+              <code onmouseout="hideTip(event, '282', 282)" onmouseover="showTip(event, '282', 282)">
+                <a name="TransformAndOutputDocument">
+                  Literate.TransformAndOutputDocument(...)
+                </a>
+              </code>
+              <div class="tip" id="282">
+                <strong>
+                  Full Usage: 
+                </strong>
+                Literate.TransformAndOutputDocument(doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters)
+                <br/>
+                <strong>
+                  Parameters: 
+                </strong>
+                <ul>
+                  <li>
+                    <b>
+                      doc
+                    </b>
+                    :
+                    LiterateDocument
+                  </li>
+                  <li>
+                    <b>
+                      output
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      ?template
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      ?outputKind
+                    </b>
+                    :
+                    OutputKind
+                  </li>
+                  <li>
+                    <b>
+                      ?prefix
+                    </b>
+                    :
+                    string
+                  </li>
+                  <li>
+                    <b>
+                      ?lineNumbers
+                    </b>
+                    :
+                    bool
+                  </li>
+                  <li>
+                    <b>
+                      ?includeSource
+                    </b>
+                    :
+                    bool
+                  </li>
+                  <li>
+                    <b>
+                      ?generateAnchors
+                    </b>
+                    :
+                    bool
+                  </li>
+                  <li>
+                    <b>
+                      ?parameters
+                    </b>
+                    :
+                    (string * string) list
+                  </li>
+                </ul>
+                <br/>
+                <strong>
+                  Signature: 
+                </strong>
+                (doc: LiterateDocument * output: string * template: string * outputKind: OutputKind * prefix: string * lineNumbers: bool * includeSource: bool * generateAnchors: bool * parameters: (string * string) list) -&gt; unit
+                <br/>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            </br><p class='summary'>
+ Write a document object into HTML or another output kind
+</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name">
+            <div>
+              <code onmouseout="hideTip(event, '283', 283)" onmouseover="showTip(event, '283', 283)">
                 <a name="WriteHtml">
                   Literate.WriteHtml(...)
                 </a>
               </code>
-              <div class="tip" id="262">
+              <div class="tip" id="283">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1325,20 +1356,20 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Write the literate document as HTML without using a template</p>
-
-
+            </br><p class='summary'>
+ Write the literate document as HTML without using a template
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '263', 263)" onmouseover="showTip(event, '263', 263)">
+              <code onmouseout="hideTip(event, '284', 284)" onmouseover="showTip(event, '284', 284)">
                 <a name="WriteLatex">
                   Literate.WriteLatex(...)
                 </a>
               </code>
-              <div class="tip" id="263">
+              <div class="tip" id="284">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -1394,9 +1425,9 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             </div>
           </td>
           <td class="xmldoc">
-            <p>Write the literate document as Latex without using a template</p>
-
-
+            </br><p class='summary'>
+ Write the literate document as Latex without using a template
+</p>
           </td>
         </tr>
       </tbody>
@@ -1434,6 +1465,7 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -1442,9 +1474,9 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>

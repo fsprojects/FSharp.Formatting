@@ -11,7 +11,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
     <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
     <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
@@ -19,7 +20,6 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
     <!-- END SEARCH BOX: this adds support for the search box -->
@@ -49,9 +49,9 @@
   </p>
   <br/>
   <div class="xmldoc">
-    <p>A wrapper for F# interactive service that is used to evaluate inline snippets</p>
-
-
+    </br><p class='summary'>
+ A wrapper for F# interactive service that is used to evaluate inline snippets
+</p>
   </div>
   <div></div>
   <div></div>
@@ -75,16 +75,16 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '315', 315)" onmouseover="showTip(event, '315', 315)">
+              <code onmouseout="hideTip(event, '342', 342)" onmouseover="showTip(event, '342', 342)">
                 <a name="( .ctor )">
-                  FsiEvaluator(?options, ?fsiObj)
+                  FsiEvaluator(...)
                 </a>
               </code>
-              <div class="tip" id="315">
+              <div class="tip" id="342">
                 <strong>
                   Full Usage: 
                 </strong>
-                FsiEvaluator(?options, ?fsiObj)
+                FsiEvaluator(?options, ?fsiObj, ?addHtmlPrinter, ?discardStdOut, ?disableFsiObj)
                 <br/>
                 <strong>
                   Parameters: 
@@ -104,6 +104,27 @@
                     :
                     obj
                   </li>
+                  <li>
+                    <b>
+                      ?addHtmlPrinter
+                    </b>
+                    :
+                    bool
+                  </li>
+                  <li>
+                    <b>
+                      ?discardStdOut
+                    </b>
+                    :
+                    bool
+                  </li>
+                  <li>
+                    <b>
+                      ?disableFsiObj
+                    </b>
+                    :
+                    bool
+                  </li>
                 </ul>
                 <br/>
                 <strong>
@@ -114,7 +135,7 @@
                 <strong>
                   Signature: 
                 </strong>
-                (options: string [] * fsiObj: obj) -&gt; FsiEvaluator
+                (options: string [] * fsiObj: obj * addHtmlPrinter: bool * discardStdOut: bool * disableFsiObj: bool) -&gt; FsiEvaluator
                 <br/>
               </div>
             </div>
@@ -145,12 +166,12 @@
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '316', 316)" onmouseover="showTip(event, '316', 316)">
+              <code onmouseout="hideTip(event, '343', 343)" onmouseover="showTip(event, '343', 343)">
                 <a name="EvaluationFailed">
                   this.EvaluationFailed
                 </a>
               </code>
-              <div class="tip" id="316">
+              <div class="tip" id="343">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -171,20 +192,20 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>This event is fired whenever an evaluation of an expression fails</p>
-
-
+            </br><p class='summary'>
+ This event is fired whenever an evaluation of an expression fails
+</p>
           </td>
         </tr>
         <tr>
           <td class="member-name">
             <div>
-              <code onmouseout="hideTip(event, '317', 317)" onmouseover="showTip(event, '317', 317)">
+              <code onmouseout="hideTip(event, '344', 344)" onmouseover="showTip(event, '344', 344)">
                 <a name="RegisterTransformation">
                   this.RegisterTransformation(f)
                 </a>
               </code>
-              <div class="tip" id="317">
+              <div class="tip" id="344">
                 <strong>
                   Full Usage: 
                 </strong>
@@ -212,11 +233,11 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Register a function that formats (some) values that are produced by the evaluator.
-The specified function should return 'Some' when it knows how to format a value
-and it should return formatted</p>
-
-
+            </br><p class='summary'>
+ Register a function that formats (some) values that are produced by the evaluator.
+ The specified function should return 'Some' when it knows how to format a value
+ and it should return formatted 
+</p>
           </td>
         </tr>
       </tbody>
@@ -255,6 +276,7 @@ and it should return formatted</p>
                     <li><a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
 
                     <li class="nav-header">Using F# Formatting</li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/content.html">Expected content</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">Using command line tool</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/literate.html">Literate programming</a></li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">Embedding output</a></li>
@@ -263,9 +285,9 @@ and it should return formatted</p>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">API docs generation</a></li>
 
                     <li class="nav-header">Examples</li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidescript.html">Literate F# script</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidemarkdown.html">Literate Markdown file</a></li>
-                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sideextensions.html">Markdown extensions</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">Literate F# script</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">Literate Markdown file</a></li>
+                    <li><a href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">Markdown extensions</a></li>
 
                     <li class="nav-header">Documentation</li>
                     <li><a href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">API Reference</a></li>
