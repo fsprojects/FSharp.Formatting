@@ -19,11 +19,10 @@ open FSharp.Formatting.CodeFormat
 type Literate private () =
 
   /// Build default options context for formatting literate document
-  static let formattingContext (outputKind: OutputKind) prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss =
+  static let formattingContext (outputKind: OutputKind) prefix lineNumbers generateAnchors parameters tokenKindToCss =
     let defines = [ outputKind.Extension ]
     { Replacements = defaultArg parameters []
       GenerateLineNumbers = defaultArg lineNumbers true
-      IncludeSource = defaultArg includeSource false
       Prefix = defaultArg prefix "fs"
       ConditionalDefines = defines
       OutputKind = outputKind
@@ -130,7 +129,7 @@ type Literate private () =
   //          "index.html"
   //      | Some fn -> fn
 
-  static let parsingContext formatAgent evaluator compilerOptions definedSymbols =
+  static let parsingContext formatAgent evaluator fscoptions definedSymbols =
     let definedSymbols = defaultArg definedSymbols []
     let extraDefines =
         [ // When formatting for tooltips or executing snippets we always include the 'prepare' define.
@@ -143,7 +142,7 @@ type Literate private () =
       | Some agent -> agent
       | _ -> CodeFormat.CreateAgent()
     { FormatAgent = agent
-      CompilerOptions = compilerOptions
+      CompilerOptions = fscoptions
       Evaluator = evaluator
       ConditionalDefines = (definedSymbols@extraDefines) }
 
@@ -197,24 +196,24 @@ type Literate private () =
     | _ -> None
 
   /// Parse F# Script file
-  static member ParseScriptFile (path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
+  static member ParseScriptFile (path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
     ParseScript(parseOptions, ctx).ParseScriptFile path (File.ReadAllText path)
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse F# Script file
-  static member ParseScriptString (content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
+  static member ParseScriptString (content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
     ParseScript(parseOptions, ctx).ParseScriptFile (defaultArg path "C:\\Document.fsx") content
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse Markdown document
-  static member ParseMarkdownFile(path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
+  static member ParseMarkdownFile(path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path) parseOptions
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
@@ -222,8 +221,8 @@ type Literate private () =
 
   /// Parse Markdown document
   static member ParseMarkdownString
-    (content, ?path, ?formatAgent, ?compilerOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator compilerOptions definedSymbols
+    (content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content parseOptions
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
@@ -235,7 +234,7 @@ type Literate private () =
 
   /// Format the literate document as HTML without using a template
   static member ToHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
-    let ctx = formattingContext OutputKind.Html prefix lineNumbers None generateAnchors None tokenKindToCss
+    let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
@@ -245,52 +244,52 @@ type Literate private () =
 
   /// Write the literate document as HTML without using a template
   static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
-    let ctx = formattingContext OutputKind.Html prefix lineNumbers None generateAnchors None tokenKindToCss
+    let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     HtmlFormatting.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
 
   /// Format the literate document as Latex without using a template
   static member ToLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext OutputKind.Latex prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext OutputKind.Latex prefix lineNumbers generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
 
   /// Write the literate document as Latex without using a template
   static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
-    let ctx = formattingContext OutputKind.Latex prefix lineNumbers None generateAnchors None None
+    let ctx = formattingContext OutputKind.Latex prefix lineNumbers  generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
 
   /// Formate the literate document as an iPython notebook 
   static member ToPynb(doc:LiterateDocument, ?parameters) =
-    let ctx = formattingContext OutputKind.Pynb None None None None parameters None
+    let ctx = formattingContext OutputKind.Pynb None None None parameters None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.ToPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?parameters=parameters)
 
   /// Formate the literate document as an .fsx script 
   static member ToFsx(doc:LiterateDocument, ?parameters) =
-    let ctx = formattingContext OutputKind.Fsx None None None None parameters None
+    let ctx = formattingContext OutputKind.Fsx None None None parameters None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     Markdown.ToFsx(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?parameters=parameters)
 
   /// Replace literate paragraphs with plain paragraphs
   static member FormatLiterateNodes(doc:LiterateDocument, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
     let outputKind = defaultArg outputKind OutputKind.Html
-    let ctx = formattingContext outputKind prefix lineNumbers None generateAnchors None tokenKindToCss
+    let ctx = formattingContext outputKind prefix lineNumbers generateAnchors None tokenKindToCss
     Transformations.replaceLiterateParagraphs ctx doc
 
   /// Process the given literate document
   static member internal TransformDocument
-    (doc, output, ?outputKind, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters, ?tokenKindToCss) =
+    (doc, output, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?parameters, ?tokenKindToCss) =
     let outputKind = defaultArg outputKind OutputKind.Html
-    let ctx = formattingContext outputKind prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
+    let ctx = formattingContext outputKind prefix lineNumbers generateAnchors parameters tokenKindToCss
     Formatting.transformDocument doc output ctx
 
   /// Parse and transform a markdown document
   static member internal ParseAndTransformMarkdownFile
-    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors,
+    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+      ?lineNumbers, ?references, ?parameters, ?generateAnchors,
       ?customizeDocument, ?tokenKindToCss, ?imageSaver) =
 
     let outputKind = defaultArg outputKind OutputKind.Html
@@ -300,8 +299,8 @@ type Literate private () =
         | OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
         | _ -> MarkdownParseOptions.None
 
-    let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, ?references=references, parseOptions=parseOptions)
-    let ctx = formattingContext outputKind prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
+    let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?fscoptions=fscoptions, ?references=references, parseOptions=parseOptions)
+    let ctx = formattingContext outputKind prefix lineNumbers generateAnchors parameters tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
     
@@ -309,8 +308,8 @@ type Literate private () =
 
   /// Parse and transform an F# script file
   static member internal ParseAndTransformScriptFile
-    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource,
+    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters,
       ?generateAnchors, ?customizeDocument, ?tokenKindToCss, ?imageSaver) =
 
     let parseOptions =
@@ -320,25 +319,25 @@ type Literate private () =
         | _ -> MarkdownParseOptions.None
 
     let outputKind = defaultArg outputKind OutputKind.Html
-    let doc = Literate.ParseScriptFile (input, ?formatAgent=formatAgent, ?compilerOptions=compilerOptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
-    let ctx = formattingContext outputKind prefix lineNumbers includeSource generateAnchors parameters tokenKindToCss
+    let doc = Literate.ParseScriptFile (input, ?formatAgent=formatAgent, ?fscoptions=fscoptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
+    let ctx = formattingContext outputKind prefix lineNumbers generateAnchors parameters tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
     Formatting.transformDocument doc (defaultOutput output input outputKind) ctx
 
   /// Write a document object into HTML or another output kind
   static member TransformAndOutputDocument
-    (doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?includeSource, ?generateAnchors, ?parameters) =
+    (doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?parameters) =
       let res =
           Literate.TransformDocument
               (doc, output, ?outputKind=outputKind, ?prefix=prefix, ?lineNumbers=lineNumbers,
-               ?includeSource=includeSource, ?generateAnchors=generateAnchors, ?parameters=parameters)
+               ?generateAnchors=generateAnchors, ?parameters=parameters)
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   /// Convert a markdown file into HTML or another output kind
   static member ConvertMarkdownFile
-    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?parameters, ?includeSource, ?generateAnchors,
+    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+      ?lineNumbers, ?references, ?parameters, ?generateAnchors,
       ?customizeDocument, ?saveImages) =
 
       let outputKind = defaultArg outputKind OutputKind.Html
@@ -346,16 +345,16 @@ type Literate private () =
       let imageSaverOpt = defaultImageSaver (fun () -> createImageSaver output) outputKind saveImages
       let res =
           Literate.ParseAndTransformMarkdownFile
-              (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
-               ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
+              (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscoptions=fscoptions,
+               ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
                ?parameters=parameters, ?customizeDocument=customizeDocument,
                ?imageSaver=imageSaverOpt)
       HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   /// Convert a script file into HTML or another output kind
   static member ConvertScriptFile
-    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource,
+    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters,
       ?generateAnchors, ?customizeDocument, ?saveImages) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -363,16 +362,16 @@ type Literate private () =
         let imageSaverOpt = defaultImageSaver (fun () -> createImageSaver output) outputKind saveImages
         let res =
             Literate.ParseAndTransformScriptFile
-                (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?compilerOptions=compilerOptions,
-                 ?lineNumbers=lineNumbers, ?references=references, ?includeSource=includeSource, ?generateAnchors=generateAnchors,
+                (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscoptions=fscoptions,
+                 ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
                  ?parameters=parameters, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator,
                  ?imageSaver=imageSaverOpt)
         HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
 
   /// Convert markdown, script and other content into a static site
   static member ConvertDirectory
-    (inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?compilerOptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?includeSource, ?generateAnchors,
+    (inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions,
+      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors,
       ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages) =
         let outputDirectory=defaultArg outputDirectory inputDirectory
         let recursive = defaultArg recursive true
@@ -418,9 +417,9 @@ type Literate private () =
                         let model =
                           Literate.ParseAndTransformScriptFile
                             (inputFile, output = outputFile, outputKind = outputKind,
-                              ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                              ?formatAgent = formatAgent, ?prefix = prefix, ?fscoptions = fscoptions,
                               ?lineNumbers = lineNumbers, ?references=references, ?fsiEvaluator = fsiEvaluator, ?parameters = parameters,
-                              ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                              ?generateAnchors = generateAnchors,
                               ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss,
                               ?imageSaver=imageSaverOpt)
 
@@ -432,9 +431,9 @@ type Literate private () =
                         let model =
                           Literate.ParseAndTransformMarkdownFile
                             (inputFile, output = outputFile, outputKind = outputKind,
-                              ?formatAgent = formatAgent, ?prefix = prefix, ?compilerOptions = compilerOptions,
+                              ?formatAgent = formatAgent, ?prefix = prefix, ?fscoptions = fscoptions,
                               ?lineNumbers = lineNumbers, ?references=references, ?parameters = parameters,
-                              ?includeSource = includeSource, ?generateAnchors = generateAnchors,
+                              ?generateAnchors = generateAnchors,
                               ?customizeDocument=customizeDocument, ?tokenKindToCss = tokenKindToCss,
                               ?imageSaver=imageSaverOpt)
                         HtmlFile.UseFileAsSimpleTemplate(model.ContentTag, model.Parameters, template, outputFile)

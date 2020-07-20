@@ -180,9 +180,11 @@ module internal CompilerServiceExtensions =
               Log.warnf "Parsing and checking warnings: \n\t%s" (System.String.Join("\n\t", warnings))
           let references = results.ProjectContext.GetReferencedAssemblies()
           references
+
       let referenceMap references =
           references
           |> Seq.choose (fun (r:FSharpAssembly) -> r.FileName |> Option.map (fun f -> f, r))
+
       let resolve dllFiles references =
           let referenceMap =
             referenceMap references

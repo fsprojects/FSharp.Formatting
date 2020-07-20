@@ -109,6 +109,8 @@ module Crack =
               "IsTestProject"
               "IsPackable"
               "RepositoryUrl"
+              "RepositoryType"
+              "RepositoryBranch"
               "PackageProjectUrl"
               "Authors"
               "GenerateDocumentationFile"
@@ -152,6 +154,8 @@ module Crack =
                    IsLibrary = props |> Map.tryFind "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
                    RepositoryUrl = props |> Map.tryFind "RepositoryUrl" 
+                   RepositoryType = props |> Map.tryFind "RepositoryType" 
+                   RepositoryBranch = props |> Map.tryFind "RepositoryBranch" 
                    PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
                    Authors = props |> Map.tryFind "Authors" 
                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
@@ -262,7 +266,11 @@ module Crack =
           let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
           //let description = tryFindValue (fun info -> info.Description) "Description" "description"
           let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
+          let repoTypeOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryType) 
+          let repoBranchOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryBranch) 
           let repoUrl = tryFindValue (fun info -> info.RepositoryUrl) "RepositoryUrl" "repository-url"
+          let repoBranch = tryFindValue (fun info -> info.RepositoryBranch) "RepositoryBranch" "repository-branch"
+          let repoType = tryFindValue (fun info -> info.RepositoryType) "RepositoryType" "repository-type"
           let packageLicenseExpression = tryFindValue (fun info -> info.PackageLicenseExpression) "PackageLicenseExpression" "package-license"
           let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
           let packageVersion = tryFindValue (fun info -> info.PackageVersion) "PackageVersion" "package-version"
@@ -276,6 +284,8 @@ module Crack =
               "authors", authors
               //"description", description
               "repository-url", repoUrl
+              "repository-branch", repoBranch
+              "repository-type", repoType
               "package-license", packageLicenseExpression
               //"package-release-notes", packageReleaseNotes
               "package-icon-url", packageIconUrl
@@ -285,7 +295,7 @@ module Crack =
               "copyright", copyright]
           let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
 
-          overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption
+          overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption, repoTypeOption, repoBranchOption
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -325,26 +335,32 @@ type CoreBuildOptions(watch) =
     [<Option("projects", Required=false, HelpText = "Project files to build API docs for outputs, defaults to all packable projects.")>]
     member val projects = Seq.empty<string> with get, set
 
-    [<Option("output", Default= "output", Required = false, HelpText = "Ouput Directory.")>]
+    [<Option("output", Required = false, HelpText = "Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch'.")>]
     member val output = "" with get, set
 
     [<Option("noApiDocs", Default= false, Required = false, HelpText = "Disable generation of API docs.")>]
     member val noApiDocs = false with get, set
 
-    [<Option("eval", Default= true, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
-    member val eval = true with get, set
+    [<Option("eval", Default=false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
+    member val eval = false with get, set
 
     [<Option("saveImages", Default= "some", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
     member val saveImages = "some" with get, set
 
-    [<Option("noLineNumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
-    member val noLineNumbers = false with get, set
+    [<Option("sourceFolder", Required = false, HelpText = "Source folder within the source repo (which is detected from project properties).")>]
+    member val sourceFolder = "" with get, set
 
-    [<Option("nonPublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
-    member val nonPublic = false with get, set
+    [<Option("sourceRepo", Required = false, HelpText = "Source repository for github links.")>]
+    member val sourceRepo = "" with get, set
 
-    [<Option("markdownComments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style.")>]
-    member val markdownComments = false with get, set
+    [<Option("nolinenumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
+    member val nolinenumbers = false with get, set
+
+    [<Option("nonpublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
+    member val nonpublic = false with get, set
+
+    [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style.")>]
+    member val mdcomments = false with get, set
 
     [<Option("parameters", Required = false, HelpText = "Additional substitution parameters for templates.")>]
     member val parameters = Seq.empty<string> with get, set
@@ -355,7 +371,7 @@ type CoreBuildOptions(watch) =
     member x.Execute() =
         let mutable res = 0
 
-        let (overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption), _key =
+        let (overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption, repoTypeOption, repoBranchOption), _key =
           let projects = Seq.toList x.projects
           let cacheFile = ".fsdocs/cache"
           let key1 = projects, (projects |> List.map (fun p -> try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now) |> List.toArray)
@@ -363,19 +379,44 @@ type CoreBuildOptions(watch) =
            (fun (_, key2) -> key1 = key2)
            (fun () ->
             if x.noApiDocs then
-                ("", [], [], [], "", None), key1
+                ("", [], [], [], "", None, None, None), key1
             else
                 Crack.crackProjects projects, key1)
 
         let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
-        let parameters =
+        let packageProjectUrl, parameters =
             if watch then
-                ["root", sprintf "http://localhost:%d" x.port_option ] @ parameters
+                let packageProjectUrl = sprintf "http://localhost:%d" x.port_option
+                let parameters = ["root",  packageProjectUrl] @ (parameters |> List.filter (fun (a,b) -> a <> "root"))
+                packageProjectUrl, parameters
             else
-                parameters
+                packageProjectUrl, parameters
 
         for pn, p in parameters do
             printfn "parameter %s = %s" pn p
+
+        let output =
+           if x.output = "" then
+              if watch then "tmp/watch" else "output"
+           else x.output
+
+        let sourceRepo =
+            match evalString x.sourceRepo with
+            | Some v -> Some v
+            | None ->
+                printfn "repoBranchOption = %A" repoBranchOption
+                match repoUrlOption, repoBranchOption, repoTypeOption with
+                | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
+                    url + "/" + "tree/" +  branch |> Some
+                | Some url, _, Some "git" ->
+                    url + "/" + "tree/" + "master" |> Some
+                | Some url, _, None -> Some url
+                | _ -> None
+
+        let sourceFolder = 
+            match evalString x.sourceFolder with
+            | None -> Environment.CurrentDirectory
+            | Some v -> v
 
         let runConvert () =
             try
@@ -384,15 +425,14 @@ type CoreBuildOptions(watch) =
                 Literate.ConvertDirectory(
                     x.input,
                     generateAnchors = true,
-                    outputDirectory = x.output,
+                    outputDirectory = output,
                     ?formatAgent = None,
-                    ?lineNumbers = Some (not x.noLineNumbers),
+                    ?lineNumbers = Some (not x.nolinenumbers),
                     recursive = true,
                     references = false,
                     ?saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None),
                     ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                    parameters = parameters,
-                    includeSource = true
+                    parameters = parameters
                 )
 
             with
@@ -420,24 +460,25 @@ type CoreBuildOptions(watch) =
                             None
 
                     if not x.noApiDocs then
-                        let outdir = Path.Combine(x.output, "reference")
+                        printfn "sourceFolder = %A, sourceRepo = %A" sourceFolder sourceRepo
+                        let outdir = Path.Combine(output, "reference")
                         let index =
                           ApiDocs.GenerateHtml (
                             dllFiles = projectOutputs,
                             outDir = outdir,
                             parameters = parameters,
                             ?template = initialTemplate2,
-                            ?sourceRepo = repoUrlOption,
+                            ?sourceRepo = sourceRepo,
                             //?sigWidth = sigWidth,
                             rootUrl = packageProjectUrl,
-                            //?sourceFolder = (evalString x.sourceFolder),
+                            sourceFolder = sourceFolder,
                             libDirs = paths,
-                            ?publicOnly = Some (not x.nonPublic),
-                            ?markDownComments = Some x.markdownComments
+                            ?publicOnly = Some (not x.nonpublic),
+                            ?mdcomments = Some x.mdcomments
                             )
                         let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
 
-                        File.WriteAllText(Path.Combine(x.output, "index.json"), indxTxt)
+                        File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
 
             with
                 | :?AggregateException as ex ->
@@ -450,6 +491,7 @@ type CoreBuildOptions(watch) =
                     res <- -1
 
         use docsWatcher = (if watch then new FileSystemWatcher(x.input) else null )
+        use templateWatcher = (if watch then new FileSystemWatcher(x.input) else null )
         let projectOutputWatchers = (if watch then [ for projectOuput in projectOutputs -> (new FileSystemWatcher(x.input), projectOuput) ] else [] )
         use _holder = { new IDisposable with member __.Dispose() = for (p,_) in projectOutputWatchers do p.Dispose() }
 
@@ -459,36 +501,54 @@ type CoreBuildOptions(watch) =
         let mutable docsQueued = true
         let mutable generateQueued = true
 
-        if watch then
-            docsWatcher.IncludeSubdirectories <- true
-            docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-            docsWatcher.Changed.Add (fun _ ->
+        let docsDependenciesChanged = Event<_>()
+        docsDependenciesChanged.Publish.Add(fun () -> 
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..."  x.input
-                    lock monitor (fun () ->
+                    Async.Start(async {
+                      lock monitor (fun () ->
                         docsQueued <- false
-                        runConvert()) ) 
+                        runConvert()) }) ) 
 
+        let apiDocsDependenciesChanged = Event<_>()
+        apiDocsDependenciesChanged.Publish.Add(fun () -> 
+                if not generateQueued then
+                    generateQueued <- true
+                    printfn "Detected change in built outputs, scheduling rebuild of API docs..."  
+                    Async.Start(async {
+                      lock monitor (fun () ->
+                        generateQueued <- false
+                        runGenerate()) }))
+
+        if watch then
+            // Listen to changes in any input under docs
+            docsWatcher.IncludeSubdirectories <- true
+            docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
+            docsWatcher.Changed.Add (fun _ ->docsDependenciesChanged.Trigger())
+
+            // When _template.* change rebuild everything
+            templateWatcher.IncludeSubdirectories <- true
+            templateWatcher.Filter <- "_template.*"
+            templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
+            templateWatcher.Changed.Add (fun _ ->
+                docsDependenciesChanged.Trigger()
+                apiDocsDependenciesChanged.Trigger())
+
+            // Listen to changes in output DLLs
             for (projectOutputWatcher, projectOutput) in projectOutputWatchers do
-                
                projectOutputWatcher.Filter <- Path.GetFileName(projectOutput)
                projectOutputWatcher.Path <- Path.GetDirectoryName(projectOutput)
                projectOutputWatcher.NotifyFilter <- NotifyFilters.LastWrite
-               projectOutputWatcher.Changed.Add (fun _ ->
-                if not generateQueued then
-                    generateQueued <- true
-                    printfn "Detected change in '%s', scheduling rebuild of API docs..." projectOutput
-                    lock monitor (fun () ->
-                        generateQueued <- false
-                        runGenerate()) ) 
+               projectOutputWatcher.Changed.Add (fun _ -> apiDocsDependenciesChanged.Trigger())
 
+            // Start raising events
             docsWatcher.EnableRaisingEvents <- true
+            templateWatcher.EnableRaisingEvents <- true
             for (pathWatcher, _path) in projectOutputWatchers do
                 pathWatcher.EnableRaisingEvents <- true
-            printfn "Building docs first time..." 
 
-        let fullOut = Path.GetFullPath x.output
+        let fullOut = Path.GetFullPath output
         let fullIn = Path.GetFullPath x.input
         if x.clean then
             let rec clean dir =
@@ -497,11 +557,11 @@ type CoreBuildOptions(watch) =
                 for subdir in Directory.EnumerateDirectories dir do
                    if not (Path.GetFileName(subdir).StartsWith ".") then
                        clean subdir
-            if x.output <> "/" && x.output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty x.output) then
+            if output <> "/" && output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty output) then
                 try clean fullOut
                 with e -> printfn "warning: error during cleaning, continuing: %s" e.Message
             else
-                printfn "warning: skipping cleaning due to strange output path: \"%s\"" x.output
+                printfn "warning: skipping cleaning due to strange output path: \"%s\"" output
 
         if watch then
             printfn "Building docs first time..." 

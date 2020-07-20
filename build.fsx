@@ -180,7 +180,7 @@ Target.create "GenerateDocs" (fun _ ->
 
     if not result.OK then failwith "failed to install fsdocs as dotnet tool"
 
-    docTool (sprintf "build docs --clean"))
+    docTool (sprintf "build docs --clean --mdcomments"))
 
 // --------------------------------------------------------------------------------------
 // Release Scripts

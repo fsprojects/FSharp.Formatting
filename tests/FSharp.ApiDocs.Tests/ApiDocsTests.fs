@@ -43,7 +43,7 @@ let parameters =
 let generateApiDocs (libraries:string list) useMarkdown uniq =
     try
         let output = getOutputDir uniq
-        let metadata = ApiDocs.GenerateModel (libraries,parameters=parameters,libDirs = [root],markDownComments = useMarkdown)
+        let metadata = ApiDocs.GenerateModel (libraries,parameters=parameters,libDirs = [root],mdcomments = useMarkdown)
         ApiDocs.GenerateHtmlFromModel (metadata, output, docTemplate)
 
         let fileNames = Directory.GetFiles(output)
@@ -202,7 +202,7 @@ let ``ApiDocs test that cref generation works``() =
       ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
         sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
         sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-        markDownComments = false )
+        mdcomments = false )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -270,7 +270,7 @@ let ``ApiDocs test that csharp (publiconly) support works``() =
         sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
         sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
         publicOnly = true,
-        markDownComments = false )
+        mdcomments = false )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -325,7 +325,7 @@ let ``ApiDocs test that csharp support works``() =
         sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
         sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
         publicOnly = false,
-        markDownComments = false )
+        mdcomments = false )
   let fileNames = Directory.GetFiles(output)
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 

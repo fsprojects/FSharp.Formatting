@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.ApiDocs
+namespace rec FSharp.Formatting.ApiDocs
 
 open System
 open System.Reflection
@@ -254,8 +254,8 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
     ApiDocAttribute.TryGetCustomOperationName(x.Attributes)
 
 /// Represents a type definition integrated with its associated documentation
-type ApiDocType(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat) =
-    /// The name of the type
+type ApiDocType(name, cat, url, comment, assembly: AssemblyName, attributes, cases, fields, statParams, ctors, inst, stat) =
+  /// The name of the type
   member x.Name : string = name
 
     /// The category of the type
@@ -268,7 +268,7 @@ type ApiDocType(name, cat, url, comment, assembly, attributes, cases, fields, st
   member x.Comment : ApiDocComment = comment
 
     /// The name of the type's assembly
-  member x.Assembly : AssemblyName = assembly
+  member x.Assembly = assembly
 
     /// The declared attributes of the type
   member x.Attributes : ApiDocAttribute list = attributes
@@ -305,6 +305,7 @@ type ApiDocType(name, cat, url, comment, assembly, attributes, cases, fields, st
 
 /// Represents an F# module definition integrated with its associated documentation
 type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats) =
+
     /// The name of the module
   member x.Name : string = name
 
@@ -378,7 +379,7 @@ type ApiDocModuleInfo(modul: ApiDocModule, asm: ApiDocAssemblyGroup, ns: ApiDocN
   member x.Module = modul
 
     /// The assembly group the module belongs to
-  member x.Assembly = asm
+  member x.AssemblyGroup = asm
 
     /// The namespace the module belongs to
   member x.Namespace = ns
@@ -386,7 +387,7 @@ type ApiDocModuleInfo(modul: ApiDocModule, asm: ApiDocAssemblyGroup, ns: ApiDocN
     /// The parent module, if any.
   member x.ParentModule = parent
 
-  member this.HasParentModule = this.ParentModule.IsSome
+  member x.HasParentModule = x.ParentModule.IsSome
 
 
 /// High-level information about a type definition
@@ -395,7 +396,7 @@ type ApiDocTypeInfo(typ, asm, ns, modul) =
   member x.Type : ApiDocType = typ
 
     /// The assembly group the type belongs to
-  member x.Assembly : ApiDocAssemblyGroup = asm
+  member x.AssemblyGroup : ApiDocAssemblyGroup = asm
 
     /// The namespace the type belongs to
   member x.Namespace : ApiDocNamespace = ns
@@ -403,7 +404,7 @@ type ApiDocTypeInfo(typ, asm, ns, modul) =
     /// The parent module, if any.
   member x.ParentModule : ApiDocModule option = modul
 
-  member this.HasParentModule = this.ParentModule.IsSome
+  member x.HasParentModule = x.ParentModule.IsSome
 
 
 module internal ValueReader =
@@ -433,18 +434,18 @@ module internal ValueReader =
       | _ -> None
 
     static member internal Create
-        (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap,
-         assemblyPath, compilerOptions, formatAgent ) =
+        (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap,
+         assemblyPath, fscoptions, formatAgent ) =
 
       { PublicOnly=publicOnly
         Assembly = assembly
         XmlMemberMap = map
-        MarkdownComments = markDownComments
+        MarkdownComments = mdcomments
         UrlMap = urlMap
         UrlRangeHighlight = urlRangeHighlight
         SourceFolderRepository = sourceFolderRepo
         AssemblyPath = assemblyPath
-        CompilerOptions = compilerOptions
+        CompilerOptions = fscoptions
         FormatAgent = formatAgent }
 
   let inline private getCompiledName (s : ^a when ^a :> FSharpSymbol) =
@@ -455,18 +456,18 @@ module internal ValueReader =
 
   let formatSourceLocation (urlRangeHighlight : Uri -> int -> int -> string) (sourceFolderRepo : (string * string) option) (location : range option) =
     location |> Option.bind (fun location ->
-        sourceFolderRepo |> Option.map (fun (baseFolder, repo) ->
-            let basePath = Uri(Path.GetFullPath(baseFolder)).ToString()
+        sourceFolderRepo |> Option.map (fun (sourceFolder, sourceRepo) ->
+            let sourceFolderPath = Uri(Path.GetFullPath(sourceFolder)).ToString()
             let docPath = Uri(Path.GetFullPath(location.FileName)).ToString()
 
             // Even though ignoring case might be wrong, we do that because
             // one path might be file:///C:\... and the other file:///c:\...  :-(
-            if not <| docPath.StartsWith(basePath, StringComparison.InvariantCultureIgnoreCase) then
-                Log.errorf "Current source file '%s' doesn't reside in source folder '%s'" docPath basePath
+            if not <| docPath.StartsWith(sourceFolderPath, StringComparison.InvariantCultureIgnoreCase) then
+                Log.verbf "Current source file '%s' doesn't reside in source folder '%s'" docPath sourceFolderPath
                 ""
             else
-                let relativePath = docPath.[basePath.Length..]
-                let uriBuilder = UriBuilder(repo)
+                let relativePath = docPath.[sourceFolderPath.Length..]
+                let uriBuilder = UriBuilder(sourceRepo)
                 uriBuilder.Path <- uriBuilder.Path + relativePath
                 urlRangeHighlight uriBuilder.Uri location.StartLine location.EndLine ) )
 
@@ -689,7 +690,9 @@ module internal ValueReader =
     let retTypeText = defaultArg (retType |> Option.map formatType) "unit"
 
     let returnTooltip =
-       match retType with None -> None | Some retType -> if isUnitType retType then None else Some retTypeText 
+       match retType with
+       | None -> None
+       | Some retType -> if isUnitType retType then None else Some retTypeText 
 
     let signatureTooltip =
       match argInfos with
@@ -1060,7 +1063,7 @@ module internal Reader =
             let doc =
                 Literate.ParseMarkdownString
                   ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
-                    formatAgent=ctx.FormatAgent, compilerOptions=ctx.CompilerOptions )
+                    formatAgent=ctx.FormatAgent, fscoptions=ctx.CompilerOptions )
                   |> (addMissingLinkToTypes ctx)
             cmds :> IDictionary<_, _>, readMarkdownComment doc
           else
@@ -1128,7 +1131,7 @@ module internal Reader =
                 else ""
             sprintf "%s%s%s" name typeargs paramList
           with exn ->
-            Log.errorf "Error while building member-name for %s because: %s" memb.FullName exn.Message
+            printfn "Error while building member-name for %s because: %s" memb.FullName exn.Message
             Log.verbf "Full Exception details of previous message: %O" exn
             memb.CompiledName
         match (memb.DeclaringEntity.Value.TryFullName) with
@@ -1291,7 +1294,7 @@ module internal Reader =
                   | None -> ass.QualifiedName
                 with _ -> "unknown"
               sprintf "unknown, part of %s" part
-        Log.errorf "Could not read comments from entity '%s': %O" name e
+        printfn "Could not read comments from entity '%s': %O" name e
         None
 
   let checkAccess ctx (access: FSharpAccessibility) =
@@ -1455,8 +1458,7 @@ module internal Reader =
 
       ApiDocModule
         ( modul.DisplayName, cat, entityUrl, comment, ctx.Assembly, attrs,
-          modules, types,
-          vals, exts, pats ))
+          modules, types, vals, exts, pats ))
 
   // ----------------------------------------------------------------------------------------------
   // Reading namespace and assembly details
@@ -1466,7 +1468,7 @@ module internal Reader =
     let modules, types = readModulesAndTypes ctx entities
     ApiDocNamespace(ns, modules, types)
 
-  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, markDownComments, urlMap, codeFormatCompilerArgs) =
+  let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs) =
     let assemblyName = AssemblyName(assembly.QualifiedName)
 
     // Read in the supplied XML file, map its name attributes to document text
@@ -1496,7 +1498,7 @@ module internal Reader =
     let ctx =
       ReadingContext.Create
         (publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
-         markDownComments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent)
+         mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent)
 
     //
     let namespaces =
@@ -1519,7 +1521,7 @@ type ApiDocsModel =
     CollectionRootUrl  : string
   }
 
-  static member Generate(dllFiles: seq<string>, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, markDownComments, urlRangeHighlight, rootUrl) =
+  static member Generate(dllFiles: seq<string>, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, mdcomments, urlRangeHighlight, rootUrl) =
     let (@@) a b = Path.Combine(a, b)
     let parameters = defaultArg parameters []
     let props = [ "Properties", dict parameters ]
@@ -1540,7 +1542,7 @@ type ApiDocsModel =
             Log.warnf "Repository url should be specified along with source folder."
             None
         | _, Some repo ->
-            Log.warnf "Source folder should be specified along with repository url."
+            Log.warnf "Repository url should be specified along with source folder."
             None
         | _ -> None
 
@@ -1557,7 +1559,7 @@ type ApiDocsModel =
                 let bytes = File.ReadAllBytes(file)
                 Some(System.Reflection.Assembly.Load(bytes))
             with e ->
-              Log.errorf "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
+              printfn "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
               None
           else None )
       defaultArg asmOpt null
@@ -1611,11 +1613,11 @@ type ApiDocsModel =
           | Some xmlFile ->
             Reader.readAssembly
               (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight,
-               defaultArg markDownComments true, urlMap, codeFormatCompilerArgs )
+               defaultArg mdcomments true, urlMap, codeFormatCompilerArgs )
             |> Some)
 
     // Get the name - either from parameters, or name of the assembly (if there is just one)
-    let name =
+    let groupName =
       let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
       match assemblies, projName with
       | _, Some name -> name
@@ -1635,32 +1637,32 @@ type ApiDocsModel =
           if mods.Length + typs.Length > 0 then
               ApiDocNamespace(name, mods, typs) ]
 
-    let asm = ApiDocAssemblyGroup(name, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
+    let asmGroup = ApiDocAssemblyGroup(groupName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
     let rec nestedModules ns parent (modul:ApiDocModule) =
       seq {
-        yield ApiDocModuleInfo(modul, asm, ns, parent)
+        yield ApiDocModuleInfo(modul, asmGroup, ns, parent)
         for n in modul.NestedModules do yield! nestedModules ns (Some modul) n
       }
 
     let moduleInfos =
-      [ for ns in asm.Namespaces do
+      [ for ns in asmGroup.Namespaces do
           for n in ns.Modules do yield! nestedModules ns None n ]
 
     let createType ns modul typ =
-        ApiDocTypeInfo(typ, asm, ns, modul)
+        ApiDocTypeInfo(typ, asmGroup, ns, modul)
 
     let rec nestedTypes ns (modul:ApiDocModule) = seq {
       yield! (modul.NestedTypes |> List.map (createType ns (Some modul) ))
       for n in modul.NestedModules do yield! nestedTypes ns n }
 
     let typesInfos =
-      [ for ns in asm.Namespaces do
+      [ for ns in asmGroup.Namespaces do
           for n in ns.Modules do yield! nestedTypes ns n
           yield! (ns.Types |> List.map (createType ns None ))  ]
 
     {
-      AssemblyGroup = asm
+      AssemblyGroup = asmGroup
       ModuleInfos = moduleInfos
       TypesInfos = typesInfos
       Properties = props

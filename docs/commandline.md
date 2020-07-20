@@ -24,9 +24,9 @@ The command line options accepted are:
   * `--output` -  Output directory, defaults to `output`
   * `--noApiDocs` -  Do not generate API docs
   * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
-  * `--noLineNumbers` -  Line number option, defaults to `true`.
-  * `--nonPublic` -  Generate docs for non-public members
-  * `--markdownComments` -  Assume `///` comments in F# code are markdown style
+  * `--nolinenumbers` -  Line number option, defaults to `true`.
+  * `--nonpublic` -  Generate docs for non-public members
+  * `--mdcomments` -  Assume `///` comments in F# code are markdown style
   * `--saveImages` -  Save images referenced in docs (some|none|all).
   * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
   * `--clean` -  Clean the output directory before building (except directories starting with ".")

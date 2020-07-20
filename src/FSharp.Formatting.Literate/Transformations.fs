@@ -385,7 +385,9 @@ module internal Transformations =
         | OutputReference _
         | ItValueReference _
         | ValueReference _ ->
-            failwithf "Output, it-value and value references should be replaced by FSI evaluator. Did you forget to provide an fsiEvaluator for the processing? %A" special
+            let msg = "Warning: Output, it-value and value references require --eval" 
+            printfn "%s" msg
+            Some(InlineBlock(msg, None, None))
         | LanguageTaggedCode(lang, code, _) ->
             let inlined =
               match ctx.OutputKind with

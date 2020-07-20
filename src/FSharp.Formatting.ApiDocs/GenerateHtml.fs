@@ -7,17 +7,19 @@ open FSharp.Formatting.Common
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 
-let obsoleteMessage msg =
+type HtmlRender(markDownComments) =
+  let sigWidth = 300
+  let obsoleteMessage msg =
     div [Class "alert alert-warning"] [
         strong [] [!!"NOTE:"]
         p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
     ]
 
-let renderEntities (entities: Choice<ApiDocType, ApiDocModule> list) =
-  [ if entities.Length > 0 then
+  let renderEntities (entities: Choice<ApiDocType, ApiDocModule> list) =
+   [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (function Choice1Of2 _ -> true | _ -> false)
       let hasModules = entities |> List.exists (function Choice2Of2 _ -> true | _ -> false)
-      table [Class "table table-bordered type-list module-list" ] [
+      table [Class "table type-list module-list" ] [
         thead [] [
           tr [] [
             td [] [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
@@ -47,46 +49,48 @@ let renderEntities (entities: Choice<ApiDocType, ApiDocModule> list) =
             ]
         ]
       ]
-  ]
+   ]
 
-let mutable uniqueNumber = 0
-let UniqueID() =
-  uniqueNumber <- uniqueNumber + 1
-  uniqueNumber
+  let mutable uniqueNumber = 0
+  let UniqueID() =
+    uniqueNumber <- uniqueNumber + 1
+    uniqueNumber
 
 
-let renderWithToolTip content tip =
-  div [] [
-    let id = UniqueID().ToString()
-    code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
-           OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
-    div [Class "tip"; Id id ] tip
-  ]
-let renderMembers sigWidth header tableHeader (members: ApiDocMember list) =
+  let renderWithToolTip content tip =
+    div [] [
+      let id = UniqueID().ToString()
+      code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
+             OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
+      div [Class "tip"; Id id ] tip
+    ]
+
+  let renderMembers header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
-       table [Class "table table-bordered member-list"] [
+       table [Class "table member-list"] [
          thead [] [
            tr [] [
-             td [] [ !!tableHeader ]
-             td [] [ !! "Description" ]
+             td [Class "member-list-header"] [ !!tableHeader ]
+             td [Class "member-list-header"] [ !! "Description" ]
            ]
          ]
          tbody [] [
            for m in members do
              tr [] [
-               td [Class "member-name"] [
+               td [Class "member-name"; Id m.Name] [
                   
                   renderWithToolTip [
                       // This adds #MemberName anchor. These may currently be ambiguous
-                      a [Name m.Name] [!! HttpUtility.HtmlEncode(m.FormatUsage(sigWidth)) ]
+                      !! HttpUtility.HtmlEncode(m.FormatUsage(sigWidth)) 
                     ]
                     [
-                        strong [] [!! "Full Usage: "]
-                        !! HttpUtility.HtmlEncode(m.UsageTooltip)
+                      div [Class "member-tooltip"] [
+                        !! "Full Usage: "
                         br []
+                        !! HttpUtility.HtmlEncode(m.UsageTooltip)
                         if not m.ParameterTooltips.IsEmpty then
-                            strong [] [!! "Parameters: "]
+                            !! "Parameter Types: "
                             ul [] [
                               for (pname, ptyp) in m.ParameterTooltips do
                                 li [] [
@@ -99,26 +103,47 @@ let renderMembers sigWidth header tableHeader (members: ApiDocMember list) =
                         match m.ReturnTooltip with
                         | None -> ()
                         | Some t ->
-                            strong [] [!! "Returns: "]
+                            !! "Return Type: "
                             !! HttpUtility.HtmlEncode(t)
                             br []
-                        strong [] [!! "Signature: "]
+                        !! "Signature: "
                         !! HttpUtility.HtmlEncode(m.SignatureTooltip)
                         br []
                         if not m.Modifiers.IsEmpty then
-                          strong [] [!! "Modifiers: "]
+                          !! "Modifiers: "
                           !! HttpUtility.HtmlEncode(m.FormatModifiers)
                           br []
                         if not (m.TypeArguments.IsEmpty) then
-                          strong [] [!!"Type parameters: "]
+                          !!"Type parameters: "
                           !!m.FormatTypeArguments
+                      ]
                     ]
                ]
             
                td [Class "xmldoc"] [
-                  !!m.Comment.FullText
+                  if not (String.IsNullOrWhiteSpace(m.Comment.FullText)) then
+                      !!m.Comment.FullText
+                      br []
+                  if not m.ParameterTooltips.IsEmpty then
+                      !! "Parameter Types: "
+                      ul [] [
+                          for (pname, ptyp) in m.ParameterTooltips do
+                          li [] [
+                              code [] [!! pname]
+                              !! ":"
+                              code [Class "code-type"] [!! HttpUtility.HtmlEncode(ptyp) ]
+                          ]
+                      ]
+                  match m.ReturnTooltip with
+                  | None -> ()
+                  | Some t ->
+                      !! "Return Type: "
+                      code [Class "code-type"] [!! HttpUtility.HtmlEncode(t)]
+                      br []
+
                   if m.IsObsolete then
                       obsoleteMessage m.ObsoleteMessage
+
                   if not (String.IsNullOrEmpty(m.FormatSourceLocation)) then
                     a [Href (m.FormatSourceLocation); Class"github-link" ] [
                       img [Src "../content/img/github.png"; Class "normal"]
@@ -132,91 +157,12 @@ let renderMembers sigWidth header tableHeader (members: ApiDocMember list) =
         ]
     ]
 
-let moduleContent sigWidth (info: ApiDocModuleInfo) =
-  // Get all the members & comment for the type
-  let members = info.Module.AllMembers
-  let comment = info.Module.Comment
-  let entity = info.Module
+  let moduleContent (info: ApiDocModuleInfo) =
+    // Get all the members & comment for the type
+    let members = info.Module.AllMembers
+    let comment = info.Module.Comment
+    let entity = info.Module
 
-  // Group all members by their category which is an inline annotation
-  // that can be added to members using special XML comment:
-  //
-  //     /// [category:Something]
-  //
-  // ...and can be used to categorize members in large modules or types
-  // (but if this is not used, then all members end up in just one category)
-  let byCategory =
-    members 
-    |> List.groupBy(fun m -> m.Category)
-    |> List.sortBy (fun (key, _) -> if String.IsNullOrEmpty(key) then "ZZZ" else key)
-    |> List.mapi (fun n (key, elems) ->
-        let elems= elems |> List.sortBy (fun m -> m.Name)
-        let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
-        (n, key, elems, name))
-
-  [ h1 [] [!! (entity.Name + " Module") ]
-    p [] [!! ("Namespace: " + info.Namespace.Name)]
-    p [] [!! ("Assembly: " + info.Assembly.Name)]
-    br []
-    match info.ParentModule with
-    | None -> ()
-    | Some parentModule ->
-      span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
-
-    if info.Module.IsObsolete then
-        obsoleteMessage entity.ObsoleteMessage
-
-    div [Class "xmldoc" ] [
-      // XML comment for the type has multiple sections that can be labelled
-      // with categories (to give comment for an individual category). Here,
-      // we print only those that belong to the <default>
-      for sec in comment.Sections do
-        if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
-          if (sec.Key <> "<default>") then 
-            h2 [] [!!sec.Key]
-        !! sec.Value 
-      ]
-    if (byCategory.Length > 1) then
-      // If there is more than 1 category in the type, generate TOC 
-      h2 [] [!!"Table of contents"]
-      ul [] [
-        for (index, _, _, name) in byCategory do
-          li [] [ a [Href ("#section" + index.ToString())] [!! name ] ]
-      ]
-
-    //<!-- Render nested types and modules, if there are any -->
-
-    let nestedEntities =
-      [ for t in entity.NestedTypes -> Choice1Of2 t
-        for m in entity.NestedModules -> Choice2Of2 m ]
-
-    if (nestedEntities.Length > 0) then
-      div [] [
-        h2 [] [!!"Types and modules"]
-        yield! renderEntities nestedEntities
-      ]
-
-    for (n, key, ms, name) in byCategory do
-      // Iterate over all the categories and print members. If there are more than one
-      // categories, print the category heading (as <h2>) and add XML comment from the type
-      // that is related to this specific category.
-      if (byCategory.Length > 1) then
-         h2 [] [!! name]
-         //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
-      let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = key)
-      match info with
-      | None -> ()
-      | Some key ->
-         div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers sigWidth "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
-      div [] (renderMembers sigWidth "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
-      div [] (renderMembers sigWidth "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
-  ]
-
-let typeContent sigWidth (info: ApiDocTypeInfo) =
-  let members = info.Type.AllMembers
-  let comment = info.Type.Comment
-  let entity = info.Type
     // Group all members by their category which is an inline annotation
     // that can be added to members using special XML comment:
     //
@@ -224,81 +170,160 @@ let typeContent sigWidth (info: ApiDocTypeInfo) =
     //
     // ...and can be used to categorize members in large modules or types
     // (but if this is not used, then all members end up in just one category)
-  let byCategory =
-    members
-    |> List.groupBy(fun m -> m.Category)
-    |> List.sortBy(fun (g, ms) -> if String.IsNullOrEmpty(g) then "ZZZ" else g)
-    |> List.mapi (fun n (g, ms) -> 
-        let ms = ms |> List.sortBy(fun m -> if (m.Kind = ApiDocMemberKind.StaticParameter) then "" else m.Name)
-        let name = (if String.IsNullOrEmpty(g) then "Other type members" else g)
-        (n, g, ms, name))
-
-  [ h1 [] [!! (entity.Name + " Type")]
-    p [] [!! ("Namespace: " + info.Namespace.Name)]
-    p [] [!! ("Assembly: " + info.Assembly.Name)]
-    br []
-    match info.ParentModule with
-    | None -> ()
-    | Some parentModule ->
-      span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
-
-    if entity.IsObsolete then
-        obsoleteMessage entity.ObsoleteMessage
-
-    div [Class "xmldoc" ] [
-      // XML comment for the type has multiple sections that can be labelled
-      // with categories (to give comment for an individual category). Here,
-      // we print only those that belong to the <default>
-      for sec in comment.Sections do
-        if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
-          if (sec.Key <> "<default>") then 
-            h2 [] [!!sec.Key]
-        !! sec.Value 
-    ]
-    if (byCategory.Length > 1) then
-      // If there is more than 1 category in the type, generate TOC 
-      h2 [] [!!"Table of contents"]
-      ul [] [
-        for (index, _, _, name) in byCategory do
-          li [] [ a [Href ("#section" + index.ToString())] [!! name ] ]
-      ]
-
-    for (n, key, ms, name) in byCategory do
-      // Iterate over all the categories and print members. If there are more than one
-      // categories, print the category heading (as <h2>) and add XML comment from the type
-      // that is related to this specific category.
-      if (byCategory.Length > 1) then
-         h2 [] [!! name]
-         //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
-      let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = key)
-      match info with
+    let byCategory =
+      members 
+      |> List.groupBy(fun m -> m.Category)
+      |> List.sortBy (fun (key, _) -> if String.IsNullOrEmpty(key) then "ZZZ" else key)
+      |> List.mapi (fun n (key, elems) ->
+          let elems= elems |> List.sortBy (fun m -> m.Name)
+          let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
+          (n, key, elems, name))
+  
+    [ h1 [] [!! (entity.Name + " Module") ]
+      p [] [!! ("Namespace: " + info.Namespace.Name)]
+      p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
+      br []
+      match info.ParentModule with
       | None -> ()
-      | Some key ->
-         div [Class "xmldoc"] [ !! key.Value ]
-      div [] (renderMembers sigWidth "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
-      div [] (renderMembers sigWidth "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
-      div [] (renderMembers sigWidth "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
-      div [] (renderMembers sigWidth "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
-      div [] (renderMembers sigWidth "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
-      div [] (renderMembers sigWidth "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
-  ]
+      | Some parentModule ->
+        span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
+  
+      if info.Module.IsObsolete then
+          obsoleteMessage entity.ObsoleteMessage
+  
+      div [Class "xmldoc" ] [
+        // XML comment for the type has multiple sections that can be labelled
+        // with categories (to give comment for an individual category). Here,
+        // we print only those that belong to the <default>
+        for sec in comment.Sections do
+          if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
+            if (sec.Key <> "<default>") then 
+              h2 [] [!!sec.Key]
+          !! sec.Value 
+        ]
+      if (byCategory.Length > 1) then
+        // If there is more than 1 category in the type, generate TOC 
+        h2 [] [!!"Table of contents"]
+        ul [] [
+          for (index, _, _, name) in byCategory do
+            li [] [ a [Href ("#section" + index.ToString())] [!! name ] ]
+        ]
+ 
+      //<!-- Render nested types and modules, if there are any -->
+  
+      let nestedEntities =
+        [ for t in entity.NestedTypes -> Choice1Of2 t
+          for m in entity.NestedModules -> Choice2Of2 m ]
+  
+      if (nestedEntities.Length > 0) then
+        div [] [
+          h2 [] [!!"Types and modules"]
+          yield! renderEntities nestedEntities
+        ]
+ 
+      for (n, key, ms, name) in byCategory do
+        // Iterate over all the categories and print members. If there are more than one
+        // categories, print the category heading (as <h2>) and add XML comment from the type
+        // that is related to this specific category.
+        if (byCategory.Length > 1) then
+           h2 [] [!! name]
+           //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
+        let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = key)
+        match info with
+        | None -> ()
+        | Some key ->
+           div [Class "xmldoc"] [ !! key.Value ]
+        div [] (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
+        div [] (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
+        div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
+    ]
+ 
+  let typeContent (info: ApiDocTypeInfo) =
+    let members = info.Type.AllMembers
+    let comment = info.Type.Comment
+    let entity = info.Type
+      // Group all members by their category which is an inline annotation
+      // that can be added to members using special XML comment:
+      //
+      //     /// [category:Something]
+      //
+      // ...and can be used to categorize members in large modules or types
+      // (but if this is not used, then all members end up in just one category)
+    let byCategory =
+      members
+      |> List.groupBy(fun m -> m.Category)
+      |> List.sortBy(fun (g, ms) -> if String.IsNullOrEmpty(g) then "ZZZ" else g)
+      |> List.mapi (fun n (g, ms) -> 
+          let ms = ms |> List.sortBy(fun m -> if (m.Kind = ApiDocMemberKind.StaticParameter) then "" else m.Name)
+          let name = (if String.IsNullOrEmpty(g) then "Other type members" else g)
+          (n, g, ms, name))
+  
+    [ h1 [] [!! (entity.Name + " Type")]
+      p [] [!! ("Namespace: " + info.Namespace.Name)]
+      p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
+      br []
+      match info.ParentModule with
+      | None -> ()
+      | Some parentModule ->
+        span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
+  
+      if entity.IsObsolete then
+          obsoleteMessage entity.ObsoleteMessage
+  
+      div [Class "xmldoc" ] [
+        // XML comment for the type has multiple sections that can be labelled
+        // with categories (to give comment for an individual category). Here,
+        // we print only those that belong to the <default>
+        for sec in comment.Sections do
+          if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
+            if (sec.Key <> "<default>") then 
+              h2 [] [!!sec.Key]
+          !! sec.Value 
+      ]
+      if (byCategory.Length > 1) then
+        // If there is more than 1 category in the type, generate TOC 
+        h2 [] [!!"Table of contents"]
+        ul [] [
+          for (index, _, _, name) in byCategory do
+            li [] [ a [Href ("#section" + index.ToString())] [!! name ] ]
+        ]
+ 
+      for (n, key, ms, name) in byCategory do
+        // Iterate over all the categories and print members. If there are more than one
+        // categories, print the category heading (as <h2>) and add XML comment from the type
+        // that is related to this specific category.
+        if (byCategory.Length > 1) then
+           h2 [] [!! name]
+           //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
+        let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = key)
+        match info with
+        | None -> ()
+        | Some key ->
+           div [Class "xmldoc"] [ !! key.Value ]
+        div [] (renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
+        div [] (renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
+        div [] (renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
+        div [] (renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
+        div [] (renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
+        div [] (renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
+    ]
     
-let namespacesContent (asm: ApiDocAssemblyGroup) =
-  [ h1 [] [!! asm.Name]
-    for (nsIndex, ns) in Seq.indexed asm.Namespaces do
-      let entities =
-        [ for t in ns.Types -> Choice1Of2 t
-          for m in ns.Modules -> Choice2Of2 m ]
+  let namespacesContent (asm: ApiDocAssemblyGroup) =
+    [ h1 [] [!! asm.Name]
+      for (nsIndex, ns) in Seq.indexed asm.Namespaces do
+        let entities =
+          [ for t in ns.Types -> Choice1Of2 t
+            for m in ns.Modules -> Choice2Of2 m ]
+  
+        let entitiesByCategory =
+          [ for e in entities ->
+               match e with
+               | Choice1Of2 t -> t.Category
+               | Choice2Of2 m -> m.Category ]
+          |> List.distinct
+          |> List.sortBy (fun s -> if String.IsNullOrEmpty(s) then "ZZZ" else s)
 
-      let entitiesByCategory =
-        [ for e in entities ->
-             match e with
-             | Choice1Of2 t -> t.Category
-             | Choice2Of2 m -> m.Category ]
-        |> List.distinct
-        |> List.sortBy (fun s -> if String.IsNullOrEmpty(s) then "ZZZ" else s)
-
-      let allByCategory =
+        let allByCategory =
           [ for (catIndex, c) in Seq.indexed entitiesByCategory do
                 let name = (if String.IsNullOrEmpty(c) then "Other namespace members" else c)
                 let index = String.Format("{0}_{1}", nsIndex, catIndex)
@@ -318,22 +343,21 @@ let namespacesContent (asm: ApiDocAssemblyGroup) =
                 if entities.Length > 0 then
                     yield (name, index, entities) ]
 
-      h2 [] [!! (ns.Name + " Namespace") ]
-      if (allByCategory.Length > 1) then
-          ul [] [
-             for (name, index, entities) in allByCategory do
-                 li [] [a [Href ("#section" + index)] [!!name]]
-          ]
- 
-      for (name, index, entities) in allByCategory do
+        h2 [] [!! (ns.Name + " Namespace") ]
         if (allByCategory.Length > 1) then
-           h3 [] [a [Class "anchor"; Name ("section" + index); Href ("#section" + index)] [!! name]]
-        yield! renderEntities entities
-    ]
+            ul [] [
+               for (name, index, entities) in allByCategory do
+                   li [] [a [Href ("#section" + index)] [!!name]]
+            ]
+ 
+        for (name, index, entities) in allByCategory do
+          if (allByCategory.Length > 1) then
+             h3 [] [a [Class "anchor"; Name ("section" + index); Href ("#section" + index)] [!! name]]
+          yield! renderEntities entities
+      ]  
 
-let Generate(model: ApiDocsModel, outDir: string, templateOpt, sigWidth) =
+  member _.Generate(model: ApiDocsModel, outDir: string, templateOpt) =
     let (@@) a b = Path.Combine(a, b)
-    let sigWidth = defaultArg sigWidth 50
     let props = (dict model.Properties).["Properties"]
     let projectName = if props.ContainsKey "project-name" then " - " + props.["project-name"] else ""
     let contentTag = "document"
@@ -354,7 +378,7 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt, sigWidth) =
 
     for modulInfo in model.ModuleInfos do
         Log.infof "Generating module: %s" modulInfo.Module.UrlBaseName
-        let content = div [] (moduleContent sigWidth modulInfo)
+        let content = div [] (moduleContent modulInfo)
         let outFile = outDir @@ (modulInfo.Module.UrlBaseName + ".html")
         let pageTitle = modulInfo.Module.Name + projectName
         let parameters = getParameters content pageTitle
@@ -364,7 +388,7 @@ let Generate(model: ApiDocsModel, outDir: string, templateOpt, sigWidth) =
 
     for info in model.TypesInfos do
         Log.infof "Generating type: %s" info.Type.UrlBaseName
-        let content = div [] (typeContent sigWidth info)
+        let content = div [] (typeContent info)
         let outFile = outDir @@ (info.Type.UrlBaseName + ".html")
         let pageTitle = info.Type.Name + projectName
         let parameters = getParameters content pageTitle

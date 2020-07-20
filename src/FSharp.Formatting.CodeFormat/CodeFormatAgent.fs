@@ -289,6 +289,7 @@ type CodeFormatAgent() =
         let projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences None [] [] []
         // filter invalid args
         let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
+
         let args =
             args |> Array.filter (fun item ->
                 not <| item.StartsWith "--target" &&
@@ -296,12 +297,16 @@ type CodeFormatAgent() =
                 not <| item.StartsWith "--out" &&
                 not <| item.StartsWith "--nooptimizationdata" &&
                 not <| item.EndsWith "mscorlib.dll")
+
         Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, loadedTimeStamp = DateTime.Now, otherFlags = args, assumeDotNetFramework = false)
+
         let formatError (e:FSharpErrorInfo) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
+
         let formatErrors errors =
             System.String.Join("\n", errors |> Seq.map formatError)
+
         // filter duplicates
         let opts =
             let mutable known = Set.empty
