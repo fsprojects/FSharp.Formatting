@@ -4,16 +4,25 @@ open CommandLine
 
 open System
 open System.IO
+open System.Text
+open System.Runtime.Serialization
+open System.Runtime.Serialization.Formatters.Binary
+
 open FSharp.Formatting.Common
 open FSharp.Formatting.Literate
 open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.CommandTool.Common
-open System.Runtime.Serialization
-open System.Runtime.Serialization.Formatters.Binary
 
 open Dotnet.ProjInfo
 open Dotnet.ProjInfo.Workspace
+
+open Suave
+open Suave.Sockets
+open Suave.Sockets.Control
+open Suave.WebSocket
+open Suave.Operators
+open Suave.Filters
 
 module Utils =
     let saveBinary (object:'T) (fileName:string) =
@@ -166,7 +175,38 @@ module Crack =
         | Error d ->
             failwithf "cannot load the sln: %A" d
 
-type CoreBuildOptions(watch) =
+/// Processes and runs Suave server to host them on localhost
+module Serve =
+
+    let refreshEvent = new Event<_>()
+
+    let socketHandler (webSocket : WebSocket) _ = socket {
+      while true do
+        do!
+          refreshEvent.Publish
+          |> Control.Async.AwaitEvent
+          |> Suave.Sockets.SocketOp.ofAsync
+        do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true }
+
+    let startWebServer outputDirectory localPort =
+        let defaultBinding = defaultConfig.bindings.[0]
+        let withPort = { defaultBinding.socketBinding with port = uint16 localPort }
+        let serverConfig =
+            { defaultConfig with
+                //logger = Suave.Logging.Log.create "fsx2html"
+                //logger = Logging.Logger.
+                bindings = [ { defaultBinding with socketBinding = withPort } ]
+                homeFolder = Some outputDirectory }
+        let app =
+            choose [
+              path "/websocket" >=> handShake socketHandler
+              Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
+              >=> Writers.setHeader "Pragma" "no-cache"
+              >=> Writers.setHeader "Expires" "0"
+              >=> Files.browseHome ]
+        startWebServerAsync serverConfig app |> snd |> Async.Start
+
+type CoreBuildOptions(watch, serve) =
 
     let mutable useWaitForKey = false 
 
@@ -202,6 +242,12 @@ type CoreBuildOptions(watch) =
 
     [<Option("clean", Required = false, Default=false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
+
+    [<Option("port", Required = false, Default=8901, HelpText = "Port to serve content for http://localhost serving.")>]
+    member val port = 8901 with get, set
+
+    [<Option("noserver", Required = false, Default=false, HelpText = "Do not serve content when watching.")>]
+    member val noserver = false with get, set
 
     member x.Execute() =
         let mutable res = 0
@@ -434,6 +480,8 @@ type CoreBuildOptions(watch) =
                 pathWatcher.EnableRaisingEvents <- true
             printfn "Building docs first time..." 
 
+        let fullOut = Path.GetFullPath x.output
+        let fullIn = Path.GetFullPath x.input
         if x.clean then
             let rec clean dir =
                 for file in Directory.EnumerateFiles(dir) do
@@ -441,8 +489,8 @@ type CoreBuildOptions(watch) =
                 for subdir in Directory.EnumerateDirectories dir do
                    if not (Path.GetFileName(subdir).StartsWith ".") then
                        clean subdir
-            if x.output <> "/" && x.output <> "." && Path.GetFullPath x.output <> Path.GetFullPath x.input && not (String.IsNullOrEmpty x.output) then
-                try clean (Path.GetFullPath x.output)
+            if x.output <> "/" && x.output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty x.output) then
+                try clean fullOut
                 with e -> printfn "warning: error during cleaning, continuing: %s" e.Message
             else
                 printfn "warning: skipping cleaning due to strange output path: \"%s\"" x.output
@@ -453,15 +501,24 @@ type CoreBuildOptions(watch) =
         lock monitor (fun () -> runConvert(); runGenerate())
         generateQueued <- false
         docsQueued <- false
-
+        if serve && not x.noserver then
+            printfn "starting server on http://localhost:%d for content in %s" x.port fullOut
+            Serve.startWebServer fullOut x.port
+        if watch then
+            printfn "watching content in %s plus any built content DLLs" fullIn
         waitForKey useWaitForKey
         res
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
-    inherit CoreBuildOptions(false)
+    inherit CoreBuildOptions(false, false)
+
+
+[<Verb("serve", HelpText = "build the documentation and serve it from the output directory")>]
+type ServeCommand() =
+    inherit CoreBuildOptions(false, true)
 
 [<Verb("watch", HelpText = "build the documentation for a solution based on content and defaults and watch")>]
 type WatchCommand() =
-    inherit CoreBuildOptions(true)
+    inherit CoreBuildOptions(true, true)
 

@@ -8,6 +8,7 @@ nuget CommandLineParser ~> 2.8
 nuget Dotnet.ProjInfo
 nuget Dotnet.ProjInfo.Workspace
 nuget Newtonsoft.Json
+nuget Suave 2.1.1
 
 # Used to create notebook docs with mybinder links that work
 # See https://github.com/dotnet/interactive/blob/master/docs/CreateBinder.md
