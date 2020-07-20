@@ -45,20 +45,20 @@
     Namespace: FSharp.Formatting.Markdown
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Markdown.dll
   </p>
   <br/>
   <div class="xmldoc">
-    </br><p class='summary'>
- This module provides an easy way of processing Markdown documents.
- It lets you decompose documents into leafs and nodes with nested paragraphs.
-</p>
+    <p>This module provides an easy way of processing Markdown documents.
+It lets you decompose documents into leafs and nodes with nested paragraphs.</p>
+
+
   </div>
   <div>
-    <h2>
-      Types and modules
-    </h2>
-    <table class="table table-bordered type-list module-list">
+    <h3>
+      Types
+    </h3>
+    <table class="table type-list module-list">
       <thead>
         <tr>
           <td>
@@ -137,257 +137,344 @@
     <h3>
       Functions and values
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Function or value
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ParagraphLeaf">
             <div>
               <code onmouseout="hideTip(event, '2', 2)" onmouseover="showTip(event, '2', 2)">
-                <a name="ParagraphLeaf">
-                  ParagraphLeaf(arg1)
-                </a>
+                ParagraphLeaf arg1
               </code>
               <div class="tip" id="2">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ParagraphLeaf(arg1)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      arg0
-                    </b>
-                    :
-                    ParagraphLeafInfo
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownParagraph
-                <br/>
-                <strong>
+                  <br/>
+                  ParagraphLeaf arg1
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        arg0
+                      </b>
+                      :
+                      ParagraphLeafInfo
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownParagraph
+                  <br/>
                   Signature: 
-                </strong>
-                ParagraphLeafInfo -&gt; MarkdownParagraph
-                <br/>
+                  ParagraphLeafInfo -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  arg0
+                </code>
+                :
+                <code class="code-type">
+                  ParagraphLeafInfo
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownParagraph
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L152-152" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ParagraphNested">
             <div>
               <code onmouseout="hideTip(event, '3', 3)" onmouseover="showTip(event, '3', 3)">
-                <a name="ParagraphNested">
-                  ParagraphNested(arg1, pars)
-                </a>
+                ParagraphNested(arg1, pars)
               </code>
               <div class="tip" id="3">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ParagraphNested(arg1, pars)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      arg0
-                    </b>
-                    :
-                    ParagraphNestedInfo
-                  </li>
-                  <li>
-                    <b>
-                      pars
-                    </b>
-                    :
-                    MarkdownParagraphs list
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownParagraph
-                <br/>
-                <strong>
+                  <br/>
+                  ParagraphNested(arg1, pars)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        arg0
+                      </b>
+                      :
+                      ParagraphNestedInfo
+                    </li>
+                    <li>
+                      <b>
+                        pars
+                      </b>
+                      :
+                      MarkdownParagraphs list
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownParagraph
+                  <br/>
                   Signature: 
-                </strong>
-                (ParagraphNestedInfo * pars: MarkdownParagraphs list) -&gt; MarkdownParagraph
-                <br/>
+                  (ParagraphNestedInfo * pars: MarkdownParagraphs list) -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  arg0
+                </code>
+                :
+                <code class="code-type">
+                  ParagraphNestedInfo
+                </code>
+              </li>
+              <li>
+                <code>
+                  pars
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraphs list
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownParagraph
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L154-154" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ParagraphSpans">
             <div>
               <code onmouseout="hideTip(event, '4', 4)" onmouseover="showTip(event, '4', 4)">
-                <a name="ParagraphSpans">
-                  ParagraphSpans(arg1, spans)
-                </a>
+                ParagraphSpans(arg1, spans)
               </code>
               <div class="tip" id="4">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ParagraphSpans(arg1, spans)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      arg0
-                    </b>
-                    :
-                    ParagraphSpansInfo
-                  </li>
-                  <li>
-                    <b>
-                      spans
-                    </b>
-                    :
-                    MarkdownSpans
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownParagraph
-                <br/>
-                <strong>
+                  <br/>
+                  ParagraphSpans(arg1, spans)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        arg0
+                      </b>
+                      :
+                      ParagraphSpansInfo
+                    </li>
+                    <li>
+                      <b>
+                        spans
+                      </b>
+                      :
+                      MarkdownSpans
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownParagraph
+                  <br/>
                   Signature: 
-                </strong>
-                (ParagraphSpansInfo * spans: MarkdownSpans) -&gt; MarkdownParagraph
-                <br/>
+                  (ParagraphSpansInfo * spans: MarkdownSpans) -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  arg0
+                </code>
+                :
+                <code class="code-type">
+                  ParagraphSpansInfo
+                </code>
+              </li>
+              <li>
+                <code>
+                  spans
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownSpans
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownParagraph
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L145-145" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="SpanLeaf">
             <div>
               <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
-                <a name="SpanLeaf">
-                  SpanLeaf(arg1)
-                </a>
+                SpanLeaf arg1
               </code>
               <div class="tip" id="5">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                SpanLeaf(arg1)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      arg0
-                    </b>
-                    :
-                    SpanLeafInfo
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownSpan
-                <br/>
-                <strong>
+                  <br/>
+                  SpanLeaf arg1
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        arg0
+                      </b>
+                      :
+                      SpanLeafInfo
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownSpan
+                  <br/>
                   Signature: 
-                </strong>
-                SpanLeafInfo -&gt; MarkdownSpan
-                <br/>
+                  SpanLeafInfo -&gt; MarkdownSpan
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  arg0
+                </code>
+                :
+                <code class="code-type">
+                  SpanLeafInfo
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownSpan
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L109-109" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="SpanNode">
             <div>
               <code onmouseout="hideTip(event, '6', 6)" onmouseover="showTip(event, '6', 6)">
-                <a name="SpanNode">
-                  SpanNode(arg1, spans)
-                </a>
+                SpanNode(arg1, spans)
               </code>
               <div class="tip" id="6">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                SpanNode(arg1, spans)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      arg0
-                    </b>
-                    :
-                    SpanNodeInfo
-                  </li>
-                  <li>
-                    <b>
-                      spans
-                    </b>
-                    :
-                    MarkdownSpans
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownSpan
-                <br/>
-                <strong>
+                  <br/>
+                  SpanNode(arg1, spans)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        arg0
+                      </b>
+                      :
+                      SpanNodeInfo
+                    </li>
+                    <li>
+                      <b>
+                        spans
+                      </b>
+                      :
+                      MarkdownSpans
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownSpan
+                  <br/>
                   Signature: 
-                </strong>
-                (SpanNodeInfo * spans: MarkdownSpans) -&gt; MarkdownSpan
-                <br/>
+                  (SpanNodeInfo * spans: MarkdownSpans) -&gt; MarkdownSpan
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  arg0
+                </code>
+                :
+                <code class="code-type">
+                  SpanNodeInfo
+                </code>
+              </li>
+              <li>
+                <code>
+                  spans
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownSpans
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownSpan
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L110-110" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -398,104 +485,128 @@
     <h3>
       Active patterns
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Active pattern
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( |ParagraphLeaf|ParagraphNested|ParagraphSpans| )">
             <div>
               <code onmouseout="hideTip(event, '7', 7)" onmouseover="showTip(event, '7', 7)">
-                <a name="( |ParagraphLeaf|ParagraphNested|ParagraphSpans| )">
-                  ( |ParagraphLeaf|ParagraphNested|ParagraphSpans| )(...)
-                </a>
+                ( |ParagraphLeaf|ParagraphNested|ParagraphSpans| ) par
               </code>
               <div class="tip" id="7">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ( |ParagraphLeaf|ParagraphNested|ParagraphSpans| )(par)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      par
-                    </b>
-                    :
-                    MarkdownParagraph
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                Choice&lt;ParagraphLeafInfo, (ParagraphNestedInfo * MarkdownParagraphs list), (ParagraphSpansInfo * MarkdownSpans)&gt;
-                <br/>
-                <strong>
+                  <br/>
+                  ( |ParagraphLeaf|ParagraphNested|ParagraphSpans| ) par
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        par
+                      </b>
+                      :
+                      MarkdownParagraph
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  Choice&lt;ParagraphLeafInfo, (ParagraphNestedInfo * MarkdownParagraphs list), (ParagraphSpansInfo * MarkdownSpans)&gt;
+                  <br/>
                   Signature: 
-                </strong>
-                par: MarkdownParagraph -&gt; Choice&lt;ParagraphLeafInfo, (ParagraphNestedInfo * MarkdownParagraphs list), (ParagraphSpansInfo * MarkdownSpans)&gt;
-                <br/>
+                  par: MarkdownParagraph -&gt; Choice&lt;ParagraphLeafInfo, (ParagraphNestedInfo * MarkdownParagraphs list), (ParagraphSpansInfo * MarkdownSpans)&gt;
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  par
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraph
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              Choice&lt;ParagraphLeafInfo, (ParagraphNestedInfo * MarkdownParagraphs list), (ParagraphSpansInfo * MarkdownSpans)&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L122-122" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( |SpanLeaf|SpanNode| )">
             <div>
               <code onmouseout="hideTip(event, '8', 8)" onmouseover="showTip(event, '8', 8)">
-                <a name="( |SpanLeaf|SpanNode| )">
-                  ( |SpanLeaf|SpanNode| )(span)
-                </a>
+                ( |SpanLeaf|SpanNode| ) span
               </code>
               <div class="tip" id="8">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ( |SpanLeaf|SpanNode| )(span)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      span
-                    </b>
-                    :
-                    MarkdownSpan
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                Choice&lt;SpanLeafInfo, (SpanNodeInfo * MarkdownSpans)&gt;
-                <br/>
-                <strong>
+                  <br/>
+                  ( |SpanLeaf|SpanNode| ) span
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        span
+                      </b>
+                      :
+                      MarkdownSpan
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  Choice&lt;SpanLeafInfo, (SpanNodeInfo * MarkdownSpans)&gt;
+                  <br/>
                   Signature: 
-                </strong>
-                span: MarkdownSpan -&gt; Choice&lt;SpanLeafInfo, (SpanNodeInfo * MarkdownSpans)&gt;
-                <br/>
+                  span: MarkdownSpan -&gt; Choice&lt;SpanLeafInfo, (SpanNodeInfo * MarkdownSpans)&gt;
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  span
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownSpan
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              Choice&lt;SpanLeafInfo, (SpanNodeInfo * MarkdownSpans)&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L91-91" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

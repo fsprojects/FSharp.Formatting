@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.ApiDocs
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.ApiDocs.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents a custom attribute attached to source code
-</p>
+    <p>Represents a custom attribute attached to source code</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,81 +63,120 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
               <code onmouseout="hideTip(event, '15', 15)" onmouseover="showTip(event, '15', 15)">
-                <a name="( .ctor )">
-                  ApiDocAttribute(...)
-                </a>
+                ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments)
               </code>
               <div class="tip" id="15">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      name
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      fullName
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      constructorArguments
-                    </b>
-                    :
-                    obj list
-                  </li>
-                  <li>
-                    <b>
-                      namedConstructorArguments
-                    </b>
-                    :
-                    (string * obj) list
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocAttribute
-                <br/>
-                <strong>
+                  <br/>
+                  ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        name
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        fullName
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        constructorArguments
+                      </b>
+                      :
+                      obj list
+                    </li>
+                    <li>
+                      <b>
+                        namedConstructorArguments
+                      </b>
+                      :
+                      (string * obj) list
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  ApiDocAttribute
+                  <br/>
                   Signature: 
-                </strong>
-                (name: string * fullName: string * constructorArguments: obj list * namedConstructorArguments: (string * obj) list) -&gt; ApiDocAttribute
-                <br/>
+                  (name: string * fullName: string * constructorArguments: obj list * namedConstructorArguments: (string * obj) list) -&gt; ApiDocAttribute
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  name
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  fullName
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  constructorArguments
+                </code>
+                :
+                <code class="code-type">
+                  obj list
+                </code>
+              </li>
+              <li>
+                <code>
+                  namedConstructorArguments
+                </code>
+                :
+                <code class="code-type">
+                  (string * obj) list
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              ApiDocAttribute
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L35-35" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -144,458 +186,484 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ConstructorArguments">
             <div>
               <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
-                <a name="ConstructorArguments">
-                  this.ConstructorArguments
-                </a>
+                this.ConstructorArguments
               </code>
               <div class="tip" id="16">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.ConstructorArguments
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                obj list
-                <br/>
-                <strong>
+                  <br/>
+                  this.ConstructorArguments
+                  <br/>
+                  Return Type: 
+                  obj list
+                  <br/>
                   Signature: 
-                </strong>
-                obj list
-                <br/>
+                  obj list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The arguments to the constructor for the attribute
-</p>
+            <p>The arguments to the constructor for the attribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              obj list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L43-43" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="CustomOperationName">
             <div>
               <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
-                <a name="CustomOperationName">
-                  this.CustomOperationName
-                </a>
+                this.CustomOperationName
               </code>
               <div class="tip" id="17">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.CustomOperationName
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.CustomOperationName
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned
-</p>
+            <p>Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L70-70" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Format">
             <div>
               <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
-                <a name="Format">
-                  this.Format()
-                </a>
+                this.Format()
               </code>
               <div class="tip" id="18">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Format()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.Format()
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; string
-                <br/>
+                  unit -&gt; string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the attribute using the Name. Removes the "Attribute"-suffix. E.g Obsolete
-</p>
+            <p>Formats the attribute using the Name. Removes the "Attribute"-suffix. E.g Obsolete</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L117-117" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FormatFullName">
             <div>
               <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
-                <a name="FormatFullName">
-                  this.FormatFullName()
-                </a>
+                this.FormatFullName()
               </code>
               <div class="tip" id="19">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.FormatFullName()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.FormatFullName()
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; string
-                <br/>
+                  unit -&gt; string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the attribute using the FullName. Removes the "Attribute"-suffix. E.g System.Obsolete
-</p>
+            <p>Formats the attribute using the FullName. Removes the "Attribute"-suffix. E.g System.Obsolete</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L120-120" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FormatFullNameLongForm">
             <div>
               <code onmouseout="hideTip(event, '20', 20)" onmouseover="showTip(event, '20', 20)">
-                <a name="FormatFullNameLongForm">
-                  this.FormatFullNameLongForm()
-                </a>
+                this.FormatFullNameLongForm()
               </code>
               <div class="tip" id="20">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.FormatFullNameLongForm()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.FormatFullNameLongForm()
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; string
-                <br/>
+                  unit -&gt; string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the attribute using the FullName. Keeps the "Attribute"-suffix. E.g System.ObsoleteAttribute
-</p>
+            <p>Formats the attribute using the FullName. Keeps the "Attribute"-suffix. E.g System.ObsoleteAttribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L126-126" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FormatLongForm">
             <div>
               <code onmouseout="hideTip(event, '21', 21)" onmouseover="showTip(event, '21', 21)">
-                <a name="FormatLongForm">
-                  this.FormatLongForm()
-                </a>
+                this.FormatLongForm()
               </code>
               <div class="tip" id="21">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.FormatLongForm()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.FormatLongForm()
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; string
-                <br/>
+                  unit -&gt; string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the attribute using the Name. Keeps the "Attribute"-suffix. E.g ObsoleteAttribute
-</p>
+            <p>Formats the attribute using the Name. Keeps the "Attribute"-suffix. E.g ObsoleteAttribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L123-123" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FullName">
             <div>
               <code onmouseout="hideTip(event, '22', 22)" onmouseover="showTip(event, '22', 22)">
-                <a name="FullName">
-                  this.FullName
-                </a>
+                this.FullName
               </code>
               <div class="tip" id="22">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.FullName
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.FullName
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The qualified name of the attribute
-</p>
+            <p>The qualified name of the attribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L40-40" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="IsCustomOperationAttribute">
             <div>
               <code onmouseout="hideTip(event, '23', 23)" onmouseover="showTip(event, '23', 23)">
-                <a name="IsCustomOperationAttribute">
-                  this.IsCustomOperationAttribute
-                </a>
+                this.IsCustomOperationAttribute
               </code>
               <div class="tip" id="23">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.IsCustomOperationAttribute
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                bool
-                <br/>
-                <strong>
+                  <br/>
+                  this.IsCustomOperationAttribute
+                  <br/>
+                  Return Type: 
+                  bool
+                  <br/>
                   Signature: 
-                </strong>
-                bool
-                <br/>
+                  bool
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Gets a value indicating whether this attribute the CustomOperationAttribute
-</p>
+            <p>Gets a value indicating whether this attribute the CustomOperationAttribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              bool
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L66-66" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="IsObsoleteAttribute">
             <div>
               <code onmouseout="hideTip(event, '24', 24)" onmouseover="showTip(event, '24', 24)">
-                <a name="IsObsoleteAttribute">
-                  this.IsObsoleteAttribute
-                </a>
+                this.IsObsoleteAttribute
               </code>
               <div class="tip" id="24">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.IsObsoleteAttribute
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                bool
-                <br/>
-                <strong>
+                  <br/>
+                  this.IsObsoleteAttribute
+                  <br/>
+                  Return Type: 
+                  bool
+                  <br/>
                   Signature: 
-                </strong>
-                bool
-                <br/>
+                  bool
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Gets a value indicating whether this attribute is System.ObsoleteAttribute
-</p>
+            <p>Gets a value indicating whether this attribute is System.ObsoleteAttribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              bool
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L49-49" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="IsRequireQualifiedAccessAttribute">
             <div>
               <code onmouseout="hideTip(event, '25', 25)" onmouseover="showTip(event, '25', 25)">
-                <a name="IsRequireQualifiedAccessAttribute">
-                  this.IsRequireQualifiedAccessAttribute
-                </a>
+                this.IsRequireQualifiedAccessAttribute
               </code>
               <div class="tip" id="25">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.IsRequireQualifiedAccessAttribute
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                bool
-                <br/>
-                <strong>
+                  <br/>
+                  this.IsRequireQualifiedAccessAttribute
+                  <br/>
+                  Return Type: 
+                  bool
+                  <br/>
                   Signature: 
-                </strong>
-                bool
-                <br/>
+                  bool
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Gets a value indicating whether this attribute is RequireQualifiedAccessAttribute
-</p>
+            <p>Gets a value indicating whether this attribute is RequireQualifiedAccessAttribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              bool
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L53-53" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Name">
             <div>
               <code onmouseout="hideTip(event, '26', 26)" onmouseover="showTip(event, '26', 26)">
-                <a name="Name">
-                  this.Name
-                </a>
+                this.Name
               </code>
               <div class="tip" id="26">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Name
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.Name
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The name of the attribute
-</p>
+            <p>The name of the attribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L37-37" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="NamedConstructorArguments">
             <div>
               <code onmouseout="hideTip(event, '27', 27)" onmouseover="showTip(event, '27', 27)">
-                <a name="NamedConstructorArguments">
-                  this.NamedConstructorArguments
-                </a>
+                this.NamedConstructorArguments
               </code>
               <div class="tip" id="27">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.NamedConstructorArguments
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                (string * obj) list
-                <br/>
-                <strong>
+                  <br/>
+                  this.NamedConstructorArguments
+                  <br/>
+                  Return Type: 
+                  (string * obj) list
+                  <br/>
                   Signature: 
-                </strong>
-                (string * obj) list
-                <br/>
+                  (string * obj) list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The named arguments for the attribute
-</p>
+            <p>The named arguments for the attribute</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              (string * obj) list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L46-46" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ObsoleteMessage">
             <div>
               <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
-                <a name="ObsoleteMessage">
-                  this.ObsoleteMessage
-                </a>
+                this.ObsoleteMessage
               </code>
               <div class="tip" id="28">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.ObsoleteMessage
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.ObsoleteMessage
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns the obsolete message, when this attribute is the System.ObsoleteAttribute. When its not or no message was specified, an empty string is returned
-</p>
+            <p>Returns the obsolete message, when this attribute is the System.ObsoleteAttribute. When its not or no message was specified, an empty string is returned</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L57-57" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

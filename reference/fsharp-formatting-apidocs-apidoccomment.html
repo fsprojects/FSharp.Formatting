@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.ApiDocs
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.ApiDocs.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents a documentation comment attached to source code
-</p>
+    <p>Represents a documentation comment attached to source code</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,81 +63,120 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
               <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
-                <a name="( .ctor )">
-                  ApiDocComment(blurb, full, sects, rawData)
-                </a>
+                ApiDocComment(blurb, full, sects, rawData)
               </code>
               <div class="tip" id="29">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ApiDocComment(blurb, full, sects, rawData)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      blurb
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      full
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      sects
-                    </b>
-                    :
-                    KeyValuePair&lt;string, string&gt; list
-                  </li>
-                  <li>
-                    <b>
-                      rawData
-                    </b>
-                    :
-                    KeyValuePair&lt;string, string&gt; list
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocComment
-                <br/>
-                <strong>
+                  <br/>
+                  ApiDocComment(blurb, full, sects, rawData)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        blurb
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        full
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        sects
+                      </b>
+                      :
+                      KeyValuePair&lt;string, string&gt; list
+                    </li>
+                    <li>
+                      <b>
+                        rawData
+                      </b>
+                      :
+                      KeyValuePair&lt;string, string&gt; list
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  ApiDocComment
+                  <br/>
                   Signature: 
-                </strong>
-                (blurb: string * full: string * sects: KeyValuePair&lt;string, string&gt; list * rawData: KeyValuePair&lt;string, string&gt; list) -&gt; ApiDocComment
-                <br/>
+                  (blurb: string * full: string * sects: KeyValuePair&lt;string, string&gt; list * rawData: KeyValuePair&lt;string, string&gt; list) -&gt; ApiDocComment
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  blurb
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  full
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  sects
+                </code>
+                :
+                <code class="code-type">
+                  KeyValuePair&lt;string, string&gt; list
+                </code>
+              </li>
+              <li>
+                <code>
+                  rawData
+                </code>
+                :
+                <code class="code-type">
+                  KeyValuePair&lt;string, string&gt; list
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              ApiDocComment
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L19-19" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -144,152 +186,160 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Blurb">
             <div>
               <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
-                <a name="Blurb">
-                  this.Blurb
-                </a>
+                this.Blurb
               </code>
               <div class="tip" id="30">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Blurb
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.Blurb
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The summary for the comment
-</p>
+            <p>The summary for the comment</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L21-21" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FullText">
             <div>
               <code onmouseout="hideTip(event, '31', 31)" onmouseover="showTip(event, '31', 31)">
-                <a name="FullText">
-                  this.FullText
-                </a>
+                this.FullText
               </code>
               <div class="tip" id="31">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.FullText
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.FullText
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The full text of the comment
-</p>
+            <p>The full text of the comment</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L24-24" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="RawData">
             <div>
               <code onmouseout="hideTip(event, '32', 32)" onmouseover="showTip(event, '32', 32)">
-                <a name="RawData">
-                  this.RawData
-                </a>
+                this.RawData
               </code>
               <div class="tip" id="32">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.RawData
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                KeyValuePair&lt;string, string&gt; list
-                <br/>
-                <strong>
+                  <br/>
+                  this.RawData
+                  <br/>
+                  Return Type: 
+                  KeyValuePair&lt;string, string&gt; list
+                  <br/>
                   Signature: 
-                </strong>
-                KeyValuePair&lt;string, string&gt; list
-                <br/>
+                  KeyValuePair&lt;string, string&gt; list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The raw data of the comment
-</p>
+            <p>The raw data of the comment</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              KeyValuePair&lt;string, string&gt; list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L30-30" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Sections">
             <div>
               <code onmouseout="hideTip(event, '33', 33)" onmouseover="showTip(event, '33', 33)">
-                <a name="Sections">
-                  this.Sections
-                </a>
+                this.Sections
               </code>
               <div class="tip" id="33">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Sections
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                KeyValuePair&lt;string, string&gt; list
-                <br/>
-                <strong>
+                  <br/>
+                  this.Sections
+                  <br/>
+                  Return Type: 
+                  KeyValuePair&lt;string, string&gt; list
+                  <br/>
                   Signature: 
-                </strong>
-                KeyValuePair&lt;string, string&gt; list
-                <br/>
+                  KeyValuePair&lt;string, string&gt; list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The parsed sections of the comment
-</p>
+            <p>The parsed sections of the comment</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              KeyValuePair&lt;string, string&gt; list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L27-27" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

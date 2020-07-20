@@ -45,480 +45,686 @@
     Namespace: FSharp.Formatting.Literate
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IEquatable<LiterateParagraph>
+    </li>
+    <li>
+      IStructuralEquatable
+    </li>
+    <li>
+      IComparable<LiterateParagraph>
+    </li>
+    <li>
+      IComparable
+    </li>
+    <li>
+      IStructuralComparable
+    </li>
+    <li>
+      MarkdownEmbedParagraphs
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- Extends `MarkdownParagrap` using the `MarkdownEmbedParagraphs` case with
- additional kinds of paragraphs that can appear in literate F# scripts
- (such as various special commands to embed output of a snippet etc.)
-</p>
+    <p>Extends <code>MarkdownParagrap</code> using the <a href="fsharp-formatting-markdown-markdownembedparagraphs.html" title="MarkdownEmbedParagraphs"><code>MarkdownEmbedParagraphs</code></a> case with
+additional kinds of paragraphs that can appear in literate F# scripts
+(such as various special commands to embed output of a snippet etc.)</p>
+
+
   </div>
   <div>
     <h3>
       Union cases
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Union case
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '301', 301)" onmouseover="showTip(event, '301', 301)">
-                <a name="CodeReference">
-                  CodeReference(string, LiterateParagraphOptions)
-                </a>
-              </code>
-              <div class="tip" id="301">
-                <strong>
-                  Full Usage: 
-                </strong>
-                CodeReference(string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- (*** include:foo ***) - Include formatted snippet from other part of the document here 
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '302', 302)" onmouseover="showTip(event, '302', 302)">
-                <a name="FsiMergedOutputReference">
-                  FsiMergedOutputReference(...)
-                </a>
-              </code>
-              <div class="tip" id="302">
-                <strong>
-                  Full Usage: 
-                </strong>
-                FsiMergedOutputReference(string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- (*** include-fsi-merged-output ***) - Include output from previous snippet
- (*** include-fsi-merged-output:foo ***) - Include output from a named snippet
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '303', 303)" onmouseover="showTip(event, '303', 303)">
-                <a name="FsiOutputReference">
-                  FsiOutputReference(...)
-                </a>
-              </code>
-              <div class="tip" id="303">
-                <strong>
-                  Full Usage: 
-                </strong>
-                FsiOutputReference(string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- (*** include-fsi-output ***) - Include output from previous snippet
- (*** include-fsi-output:foo ***) - Include output from a named snippet
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '304', 304)" onmouseover="showTip(event, '304', 304)">
-                <a name="ItValueReference">
-                  ItValueReference(string, LiterateParagraphOptions)
-                </a>
-              </code>
-              <div class="tip" id="304">
-                <strong>
-                  Full Usage: 
-                </strong>
-                ItValueReference(string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- (*** include-it ***) - Include "it" value from the subsequent snippet here 
- (*** include-it:foo ***) - Include "it" value from a named snippet
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '305', 305)" onmouseover="showTip(event, '305', 305)">
-                <a name="LanguageTaggedCode">
-                  LanguageTaggedCode(...)
-                </a>
-              </code>
-              <div class="tip" id="305">
-                <strong>
-                  Full Usage: 
-                </strong>
-                LanguageTaggedCode(string, string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item3
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Ordinary formatted code snippet in non-F# language (tagged with language code)
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '306', 306)" onmouseover="showTip(event, '306', 306)">
-                <a name="LiterateCode">
-                  LiterateCode(...)
-                </a>
-              </code>
-              <div class="tip" id="306">
-                <strong>
-                  Full Usage: 
-                </strong>
-                LiterateCode(Line list, LiterateCodeOptions, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    Line list
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateCodeOptions
-                  </li>
-                  <li>
-                    <b>
-                      Item3
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                Line list * LiterateCodeOptions * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Emebdded literate code snippet. Consists of source lines and options
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
+          <td class="member-name" id="CodeReference">
             <div>
               <code onmouseout="hideTip(event, '307', 307)" onmouseover="showTip(event, '307', 307)">
-                <a name="OutputReference">
-                  OutputReference(string, LiterateParagraphOptions)
-                </a>
+                CodeReference(string, LiterateParagraphOptions)
               </code>
               <div class="tip" id="307">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                OutputReference(string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  CodeReference(string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
+                  string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- (*** include-fsi-output ***) - Include F# Interactive output from previous snippet
- (*** include-fsi-output:foo ***) - Include F# Interactive from a named snippet
-</p>
+            <p>(<strong><em> include:foo </em></strong>) - Include formatted snippet from other part of the document here</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L52-52" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FsiMergedOutputReference">
             <div>
               <code onmouseout="hideTip(event, '308', 308)" onmouseover="showTip(event, '308', 308)">
-                <a name="RawBlock">
-                  RawBlock(Line list, LiterateParagraphOptions)
-                </a>
+                FsiMergedOutputReference(string, LiterateParagraphOptions)
               </code>
               <div class="tip" id="308">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                RawBlock(Line list, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    Line list
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  FsiMergedOutputReference(string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                Line list * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
+                  string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Block simply emitted without any formatting equivalent to <pre> tag in html
-</p>
+            <p>(<strong><em> include-fsi-merged-output </em></strong>) - Include output from previous snippet
+(<strong><em> include-fsi-merged-output:foo </em></strong>) - Include output from a named snippet</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L60-60" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FsiOutputReference">
             <div>
               <code onmouseout="hideTip(event, '309', 309)" onmouseover="showTip(event, '309', 309)">
-                <a name="ValueReference">
-                  ValueReference(string, LiterateParagraphOptions)
-                </a>
+                FsiOutputReference(string, LiterateParagraphOptions)
               </code>
               <div class="tip" id="309">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ValueReference(string, LiterateParagraphOptions)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    LiterateParagraphOptions
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  FsiOutputReference(string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string * LiterateParagraphOptions -&gt; LiterateParagraph
-                <br/>
+                  string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- (*** include-value:foo ***) - Include the formatting of a specified value here
-</p>
+            <p>(<strong><em> include-fsi-output </em></strong>) - Include output from previous snippet
+(<strong><em> include-fsi-output:foo </em></strong>) - Include output from a named snippet</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L56-56" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="ItValueReference">
+            <div>
+              <code onmouseout="hideTip(event, '310', 310)" onmouseover="showTip(event, '310', 310)">
+                ItValueReference(string, LiterateParagraphOptions)
+              </code>
+              <div class="tip" id="310">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  ItValueReference(string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>(<strong><em> include-it </em></strong>) - Include "it" value from the subsequent snippet here
+(<strong><em> include-it:foo </em></strong>) - Include "it" value from a named snippet</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L68-68" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="LanguageTaggedCode">
+            <div>
+              <code onmouseout="hideTip(event, '311', 311)" onmouseover="showTip(event, '311', 311)">
+                LanguageTaggedCode(string, string, LiterateParagraphOptions)
+              </code>
+              <div class="tip" id="311">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  LanguageTaggedCode(string, string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item3
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  string * string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Ordinary formatted code snippet in non-F# language (tagged with language code)</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item3
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L77-77" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="LiterateCode">
+            <div>
+              <code onmouseout="hideTip(event, '312', 312)" onmouseover="showTip(event, '312', 312)">
+                LiterateCode(Line list, LiterateCodeOptions, LiterateParagraphOptions)
+              </code>
+              <div class="tip" id="312">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  LiterateCode(Line list, LiterateCodeOptions, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      Line list
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateCodeOptions
+                    </li>
+                    <li>
+                      <b>
+                        Item3
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  Line list * LiterateCodeOptions * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Emebdded literate code snippet. Consists of source lines and options</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  Line list
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateCodeOptions
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item3
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L74-74" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="OutputReference">
+            <div>
+              <code onmouseout="hideTip(event, '313', 313)" onmouseover="showTip(event, '313', 313)">
+                OutputReference(string, LiterateParagraphOptions)
+              </code>
+              <div class="tip" id="313">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  OutputReference(string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>(<strong><em> include-fsi-output </em></strong>) - Include F# Interactive output from previous snippet
+(<strong><em> include-fsi-output:foo </em></strong>) - Include F# Interactive from a named snippet</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L64-64" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="RawBlock">
+            <div>
+              <code onmouseout="hideTip(event, '314', 314)" onmouseover="showTip(event, '314', 314)">
+                RawBlock(Line list, LiterateParagraphOptions)
+              </code>
+              <div class="tip" id="314">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  RawBlock(Line list, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      Line list
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  Line list * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Block simply emitted without any formatting equivalent to <pre> tag in html</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  Line list
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L80-80" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="ValueReference">
+            <div>
+              <code onmouseout="hideTip(event, '315', 315)" onmouseover="showTip(event, '315', 315)">
+                ValueReference(string, LiterateParagraphOptions)
+              </code>
+              <div class="tip" id="315">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  ValueReference(string, LiterateParagraphOptions)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      LiterateParagraphOptions
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  string * LiterateParagraphOptions -&gt; LiterateParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>(<strong><em> include-value:foo </em></strong>) - Include the formatting of a specified value here</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  LiterateParagraphOptions
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L71-71" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -531,48 +737,50 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ParagraphOptions">
             <div>
-              <code onmouseout="hideTip(event, '310', 310)" onmouseover="showTip(event, '310', 310)">
-                <a name="ParagraphOptions">
-                  this.ParagraphOptions
-                </a>
-              </code>
-              <div class="tip" id="310">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '316', 316)" onmouseover="showTip(event, '316', 316)">
                 this.ParagraphOptions
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                LiterateParagraphOptions
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="316">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.ParagraphOptions
+                  <br/>
+                  Return Type: 
+                  LiterateParagraphOptions
+                  <br/>
                   Signature: 
-                </strong>
-                LiterateParagraphOptions
-                <br/>
+                  LiterateParagraphOptions
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Return Type: 
+            <code class="code-type">
+              LiterateParagraphOptions
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L82-82" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

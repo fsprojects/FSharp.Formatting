@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.ApiDocs
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.ApiDocs.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents a namespace integrated with its associated documentation
-</p>
+    <p>Represents a namespace integrated with its associated documentation</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,74 +63,104 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '92', 92)" onmouseover="showTip(event, '92', 92)">
-                <a name="( .ctor )">
-                  ApiDocNamespace(name, mods, typs)
-                </a>
-              </code>
-              <div class="tip" id="92">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
                 ApiDocNamespace(name, mods, typs)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      name
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      mods
-                    </b>
-                    :
-                    ApiDocModule list
-                  </li>
-                  <li>
-                    <b>
-                      typs
-                    </b>
-                    :
-                    ApiDocType list
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocNamespace
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="93">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  ApiDocNamespace(name, mods, typs)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        name
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        mods
+                      </b>
+                      :
+                      ApiDocModule list
+                    </li>
+                    <li>
+                      <b>
+                        typs
+                      </b>
+                      :
+                      ApiDocTypeDefinition list
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  ApiDocNamespace
+                  <br/>
                   Signature: 
-                </strong>
-                (name: string * mods: ApiDocModule list * typs: ApiDocType list) -&gt; ApiDocNamespace
-                <br/>
+                  (name: string * mods: ApiDocModule list * typs: ApiDocTypeDefinition list) -&gt; ApiDocNamespace
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  name
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  mods
+                </code>
+                :
+                <code class="code-type">
+                  ApiDocModule list
+                </code>
+              </li>
+              <li>
+                <code>
+                  typs
+                </code>
+                :
+                <code class="code-type">
+                  ApiDocTypeDefinition list
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              ApiDocNamespace
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L378-378" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -137,118 +170,124 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
-                <a name="Modules">
-                  this.Modules
-                </a>
-              </code>
-              <div class="tip" id="93">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Modules
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocModule list
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                ApiDocModule list
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- All modules in the namespace
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
+          <td class="member-name" id="Modules">
             <div>
               <code onmouseout="hideTip(event, '94', 94)" onmouseover="showTip(event, '94', 94)">
-                <a name="Name">
-                  this.Name
-                </a>
+                this.Modules
               </code>
               <div class="tip" id="94">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Name
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.Modules
+                  <br/>
+                  Return Type: 
+                  ApiDocModule list
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  ApiDocModule list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The name of the namespace
-</p>
+            <p>All modules in the namespace</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocModule list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L383-383" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Name">
             <div>
               <code onmouseout="hideTip(event, '95', 95)" onmouseover="showTip(event, '95', 95)">
-                <a name="Types">
-                  this.Types
-                </a>
+                this.Name
               </code>
               <div class="tip" id="95">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Types
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocType list
-                <br/>
-                <strong>
+                  <br/>
+                  this.Name
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                ApiDocType list
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- All types in the namespace
-</p>
+            <p>The name of the namespace</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L380-380" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Types">
+            <div>
+              <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
+                this.Types
+              </code>
+              <div class="tip" id="96">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Types
+                  <br/>
+                  Return Type: 
+                  ApiDocTypeDefinition list
+                  <br/>
+                  Signature: 
+                  ApiDocTypeDefinition list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>All types in the namespace</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocTypeDefinition list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L386-386" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

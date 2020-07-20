@@ -45,173 +45,191 @@
     Namespace: FSharp.Formatting.Literate.Evaluation
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IEquatable<FsiEmbedKind>
+    </li>
+    <li>
+      IStructuralEquatable
+    </li>
+    <li>
+      IComparable<FsiEmbedKind>
+    </li>
+    <li>
+      IComparable
+    </li>
+    <li>
+      IStructuralComparable
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents a kind of thing that can be embedded 
-</p>
+    <p>Represents a kind of thing that can be embedded</p>
+
+
   </div>
   <div>
     <h3>
       Union cases
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Union case
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ConsoleOutput">
             <div>
-              <code onmouseout="hideTip(event, '327', 327)" onmouseover="showTip(event, '327', 327)">
-                <a name="ConsoleOutput">
-                  FsiEmbedKind.ConsoleOutput
-                </a>
-              </code>
-              <div class="tip" id="327">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '332', 332)" onmouseover="showTip(event, '332', 332)">
                 FsiEmbedKind.ConsoleOutput
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="332">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEmbedKind.ConsoleOutput
+                  <br/>
                   Signature: 
-                </strong>
-                FsiEmbedKind
-                <br/>
+                  FsiEmbedKind
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The stdout from this part of the execution (not including FSI output)
-</p>
+            <p>The stdout from this part of the execution (not including FSI output)</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L20-20" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FsiMergedOutput">
             <div>
-              <code onmouseout="hideTip(event, '328', 328)" onmouseover="showTip(event, '328', 328)">
-                <a name="FsiMergedOutput">
-                  FsiEmbedKind.FsiMergedOutput
-                </a>
-              </code>
-              <div class="tip" id="328">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '333', 333)" onmouseover="showTip(event, '333', 333)">
                 FsiEmbedKind.FsiMergedOutput
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="333">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEmbedKind.FsiMergedOutput
+                  <br/>
                   Signature: 
-                </strong>
-                FsiEmbedKind
-                <br/>
+                  FsiEmbedKind
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The combined FSI output and console output
-</p>
+            <p>The combined FSI output and console output</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L18-18" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FsiOutput">
             <div>
-              <code onmouseout="hideTip(event, '329', 329)" onmouseover="showTip(event, '329', 329)">
-                <a name="FsiOutput">
-                  FsiEmbedKind.FsiOutput
-                </a>
-              </code>
-              <div class="tip" id="329">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '334', 334)" onmouseover="showTip(event, '334', 334)">
                 FsiEmbedKind.FsiOutput
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="334">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEmbedKind.FsiOutput
+                  <br/>
                   Signature: 
-                </strong>
-                FsiEmbedKind
-                <br/>
+                  FsiEmbedKind
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The FSI output 
-</p>
+            <p>The FSI output</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L16-16" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ItValue">
             <div>
-              <code onmouseout="hideTip(event, '330', 330)" onmouseover="showTip(event, '330', 330)">
-                <a name="ItValue">
-                  FsiEmbedKind.ItValue
-                </a>
-              </code>
-              <div class="tip" id="330">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '335', 335)" onmouseover="showTip(event, '335', 335)">
                 FsiEmbedKind.ItValue
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="335">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEmbedKind.ItValue
+                  <br/>
                   Signature: 
-                </strong>
-                FsiEmbedKind
-                <br/>
+                  FsiEmbedKind
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- The 'it' value
-</p>
+            <p>The 'it' value</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L22-22" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Value">
             <div>
-              <code onmouseout="hideTip(event, '331', 331)" onmouseover="showTip(event, '331', 331)">
-                <a name="Value">
-                  FsiEmbedKind.Value
-                </a>
-              </code>
-              <div class="tip" id="331">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '336', 336)" onmouseover="showTip(event, '336', 336)">
                 FsiEmbedKind.Value
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="336">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEmbedKind.Value
+                  <br/>
                   Signature: 
-                </strong>
-                FsiEmbedKind
-                <br/>
+                  FsiEmbedKind
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- A specific value
-</p>
+            <p>A specific value</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L24-24" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

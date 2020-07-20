@@ -45,14 +45,17 @@
     Namespace: FSharp.Formatting.Markdown
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Markdown.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Representation of a Markdown document - the representation of Paragraphs
- uses an F# discriminated union type and so is best used from F#.
-</p>
+    <p>Representation of a Markdown document - the representation of Paragraphs
+uses an F# discriminated union type and so is best used from F#.</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -61,67 +64,88 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '364', 364)" onmouseover="showTip(event, '364', 364)">
-                <a name="( .ctor )">
-                  MarkdownDocument(paragraphs, links)
-                </a>
-              </code>
-              <div class="tip" id="364">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '369', 369)" onmouseover="showTip(event, '369', 369)">
                 MarkdownDocument(paragraphs, links)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      paragraphs
-                    </b>
-                    :
-                    MarkdownParagraphs
-                  </li>
-                  <li>
-                    <b>
-                      links
-                    </b>
-                    :
-                    IDictionary&lt;string, (string * string option)&gt;
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownDocument
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="369">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  MarkdownDocument(paragraphs, links)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        paragraphs
+                      </b>
+                      :
+                      MarkdownParagraphs
+                    </li>
+                    <li>
+                      <b>
+                        links
+                      </b>
+                      :
+                      IDictionary&lt;string, (string * string option)&gt;
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownDocument
+                  <br/>
                   Signature: 
-                </strong>
-                (paragraphs: MarkdownParagraphs * links: IDictionary&lt;string, (string * string option)&gt;) -&gt; MarkdownDocument
-                <br/>
+                  (paragraphs: MarkdownParagraphs * links: IDictionary&lt;string, (string * string option)&gt;) -&gt; MarkdownDocument
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  paragraphs
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraphs
+                </code>
+              </li>
+              <li>
+                <code>
+                  links
+                </code>
+                :
+                <code class="code-type">
+                  IDictionary&lt;string, (string * string option)&gt;
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownDocument
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/Markdown.fs#L19-19" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -131,84 +155,88 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="DefinedLinks">
             <div>
-              <code onmouseout="hideTip(event, '365', 365)" onmouseover="showTip(event, '365', 365)">
-                <a name="DefinedLinks">
-                  this.DefinedLinks
-                </a>
-              </code>
-              <div class="tip" id="365">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '370', 370)" onmouseover="showTip(event, '370', 370)">
                 this.DefinedLinks
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                IDictionary&lt;string, (string * string option)&gt;
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="370">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.DefinedLinks
+                  <br/>
+                  Return Type: 
+                  IDictionary&lt;string, (string * string option)&gt;
+                  <br/>
                   Signature: 
-                </strong>
-                IDictionary&lt;string, (string * string option)&gt;
-                <br/>
+                  IDictionary&lt;string, (string * string option)&gt;
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns a dictionary containing explicitly defined links
-</p>
+            <p>Returns a dictionary containing explicitly defined links</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              IDictionary&lt;string, (string * string option)&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/Markdown.fs#L24-24" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Paragraphs">
             <div>
-              <code onmouseout="hideTip(event, '366', 366)" onmouseover="showTip(event, '366', 366)">
-                <a name="Paragraphs">
-                  this.Paragraphs
-                </a>
-              </code>
-              <div class="tip" id="366">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '371', 371)" onmouseover="showTip(event, '371', 371)">
                 this.Paragraphs
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownParagraphs
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="371">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Paragraphs
+                  <br/>
+                  Return Type: 
+                  MarkdownParagraphs
+                  <br/>
                   Signature: 
-                </strong>
-                MarkdownParagraphs
-                <br/>
+                  MarkdownParagraphs
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns a list of paragraphs in the document
-</p>
+            <p>Returns a list of paragraphs in the document</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              MarkdownParagraphs
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/Markdown.fs#L21-21" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

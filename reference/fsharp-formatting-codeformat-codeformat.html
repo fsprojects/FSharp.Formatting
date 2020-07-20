@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CodeFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CodeFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Exposes functionality of the F# code formatter with a nice interface
-</p>
+    <p>Exposes functionality of the F# code formatter with a nice interface</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -62,268 +65,405 @@
     <h3>
       Static members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Static member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="CreateAgent">
             <div>
-              <code onmouseout="hideTip(event, '208', 208)" onmouseover="showTip(event, '208', 208)">
-                <a name="CreateAgent">
-                  CodeFormat.CreateAgent()
-                </a>
-              </code>
-              <div class="tip" id="208">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '214', 214)" onmouseover="showTip(event, '214', 214)">
                 CodeFormat.CreateAgent()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                CodeFormatAgent
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="214">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CodeFormat.CreateAgent()
+                  <br/>
+                  Return Type: 
+                  CodeFormatAgent
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; CodeFormatAgent
-                <br/>
+                  unit -&gt; CodeFormatAgent
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns a new instance of the agent that manages code formatting
- using the F# compiler service. 
-</p>
+            <p>Returns a new instance of the agent that manages code formatting
+using the F# compiler service.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              CodeFormatAgent
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L66-66" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FormatFsx">
             <div>
-              <code onmouseout="hideTip(event, '209', 209)" onmouseover="showTip(event, '209', 209)">
-                <a name="FormatFsx">
-                  CodeFormat.FormatFsx(snippets)
-                </a>
-              </code>
-              <div class="tip" id="209">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '215', 215)" onmouseover="showTip(event, '215', 215)">
                 CodeFormat.FormatFsx(snippets)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      snippets
-                    </b>
-                    :
-                    seq&lt;Snippet&gt;
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FormattedContent
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="215">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CodeFormat.FormatFsx(snippets)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        snippets
+                      </b>
+                      :
+                      seq&lt;Snippet&gt;
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  FormattedContent
+                  <br/>
                   Signature: 
-                </strong>
-                (snippets: seq&lt;Snippet&gt;) -&gt; FormattedContent
-                <br/>
+                  (snippets: seq&lt;Snippet&gt;) -&gt; FormattedContent
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the .fsx snippets as iPython notebook using the default settings.
-</p>
+            <p>Formats the .fsx snippets as iPython notebook using the default settings.</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  snippets
+                </code>
+                :
+                <code class="code-type">
+                  seq&lt;Snippet&gt;
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              FormattedContent
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L93-93" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FormatHtml">
             <div>
-              <code onmouseout="hideTip(event, '210', 210)" onmouseover="showTip(event, '210', 210)">
-                <a name="FormatHtml">
-                  CodeFormat.FormatHtml(...)
-                </a>
-              </code>
-              <div class="tip" id="210">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '216', 216)" onmouseover="showTip(event, '216', 216)">
                 CodeFormat.FormatHtml(snippets, prefix, ?openTag, ?closeTag, ?addLines, ?openLinesTag, ?closeLinesTag, ?addErrors, ?tokenKindToCss)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      snippets
-                    </b>
-                    :
-                    Snippet []
-                  </li>
-                  <li>
-                    <b>
-                      prefix
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?openTag
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?closeTag
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?addLines
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      ?openLinesTag
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?closeLinesTag
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?addErrors
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      ?tokenKindToCss
-                    </b>
-                    :
-                    TokenKind -&gt; string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FormattedContent
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="216">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CodeFormat.FormatHtml(snippets, prefix, ?openTag, ?closeTag, ?addLines, ?openLinesTag, ?closeLinesTag, ?addErrors, ?tokenKindToCss)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        snippets
+                      </b>
+                      :
+                      Snippet []
+                    </li>
+                    <li>
+                      <b>
+                        prefix
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?openTag
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?closeTag
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?addLines
+                      </b>
+                      :
+                      bool
+                    </li>
+                    <li>
+                      <b>
+                        ?openLinesTag
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?closeLinesTag
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?addErrors
+                      </b>
+                      :
+                      bool
+                    </li>
+                    <li>
+                      <b>
+                        ?tokenKindToCss
+                      </b>
+                      :
+                      TokenKind -&gt; string
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  FormattedContent
+                  <br/>
                   Signature: 
-                </strong>
-                (snippets: Snippet [] * prefix: string * openTag: string * closeTag: string * addLines: bool * openLinesTag: string * closeLinesTag: string * addErrors: bool * tokenKindToCss: (TokenKind -&gt; string)) -&gt; FormattedContent
-                <br/>
+                  (snippets: Snippet [] * prefix: string * openTag: string * closeTag: string * addLines: bool * openLinesTag: string * closeLinesTag: string * addErrors: bool * tokenKindToCss: (TokenKind -&gt; string)) -&gt; FormattedContent
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should
- be added to outputs and whether errors should be printed.
-</p>
+            <p>Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should
+be added to outputs and whether errors should be printed.</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  snippets
+                </code>
+                :
+                <code class="code-type">
+                  Snippet []
+                </code>
+              </li>
+              <li>
+                <code>
+                  prefix
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?openTag
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?closeTag
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?addLines
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?openLinesTag
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?closeLinesTag
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?addErrors
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?tokenKindToCss
+                </code>
+                :
+                <code class="code-type">
+                  TokenKind -&gt; string
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              FormattedContent
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L70-70" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="FormatLatex">
             <div>
-              <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
-                <a name="FormatLatex">
-                  CodeFormat.FormatLatex(...)
-                </a>
-              </code>
-              <div class="tip" id="211">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
                 CodeFormat.FormatLatex(snippets, ?openTag, ?closeTag, ?addLines)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      snippets
-                    </b>
-                    :
-                    Snippet []
-                  </li>
-                  <li>
-                    <b>
-                      ?openTag
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?closeTag
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?addLines
-                    </b>
-                    :
-                    bool
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FormattedContent
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="217">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CodeFormat.FormatLatex(snippets, ?openTag, ?closeTag, ?addLines)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        snippets
+                      </b>
+                      :
+                      Snippet []
+                    </li>
+                    <li>
+                      <b>
+                        ?openTag
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?closeTag
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?addLines
+                      </b>
+                      :
+                      bool
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  FormattedContent
+                  <br/>
                   Signature: 
-                </strong>
-                (snippets: Snippet [] * openTag: string * closeTag: string * addLines: bool) -&gt; FormattedContent
-                <br/>
+                  (snippets: Snippet [] * openTag: string * closeTag: string * addLines: bool) -&gt; FormattedContent
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Formats the .fsx snippets as LaTeX. The parameters specify prefix for LaTeX tags, whether lines should
- be added to outputs.
-</p>
+            <p>Formats the .fsx snippets as LaTeX. The parameters specify prefix for LaTeX tags, whether lines should
+be added to outputs.</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  snippets
+                </code>
+                :
+                <code class="code-type">
+                  Snippet []
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?openTag
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?closeTag
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?addLines
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              FormattedContent
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L84-84" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

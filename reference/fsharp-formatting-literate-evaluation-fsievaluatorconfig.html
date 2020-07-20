@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.Literate.Evaluation
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Provides configuration options for the `FsiEvaluator`
-</p>
+    <p>Provides configuration options for the <a href="fsharp-formatting-literate-evaluation-fsievaluator.html" title="FsiEvaluator"><code>FsiEvaluator</code></a></p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,48 +63,50 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '345', 345)" onmouseover="showTip(event, '345', 345)">
-                <a name="( .ctor )">
-                  FsiEvaluatorConfig()
-                </a>
-              </code>
-              <div class="tip" id="345">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '350', 350)" onmouseover="showTip(event, '350', 350)">
                 FsiEvaluatorConfig()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FsiEvaluatorConfig
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="350">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEvaluatorConfig()
+                  <br/>
+                  Return Type: 
+                  FsiEvaluatorConfig
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; FsiEvaluatorConfig
-                <br/>
+                  unit -&gt; FsiEvaluatorConfig
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Return Type: 
+            <code class="code-type">
+              FsiEvaluatorConfig
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L104-104" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -112,52 +117,54 @@
     <h3>
       Static members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Static member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="CreateNoOpFsiObject">
             <div>
-              <code onmouseout="hideTip(event, '346', 346)" onmouseover="showTip(event, '346', 346)">
-                <a name="CreateNoOpFsiObject">
-                  FsiEvaluatorConfig.CreateNoOpFsiObject()
-                </a>
-              </code>
-              <div class="tip" id="346">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '351', 351)" onmouseover="showTip(event, '351', 351)">
                 FsiEvaluatorConfig.CreateNoOpFsiObject()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                obj
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="351">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEvaluatorConfig.CreateNoOpFsiObject()
+                  <br/>
+                  Return Type: 
+                  obj
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; obj
-                <br/>
+                  unit -&gt; obj
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Creates a dummy `fsi` object that does not affect the behaviour of F# Interactive
- (and simply ignores all operations that are done on it). You can use this to 
- e.g. disable registered printers that would open new windows etc.
-</p>
+            <p>Creates a dummy <code>fsi</code> object that does not affect the behaviour of F# Interactive
+(and simply ignores all operations that are done on it). You can use this to
+e.g. disable registered printers that would open new windows etc.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              obj
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L108-108" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

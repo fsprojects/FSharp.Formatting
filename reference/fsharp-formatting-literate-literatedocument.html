@@ -45,14 +45,17 @@
     Namespace: FSharp.Formatting.Literate
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Representation of a literate document - the representation of Paragraphs
- uses an F# discriminated union type and so is best used from F#.
-</p>
+    <p>Representation of a literate document - the representation of Paragraphs
+uses an F# discriminated union type and so is best used from F#.</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -61,95 +64,152 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '292', 292)" onmouseover="showTip(event, '292', 292)">
-                <a name="( .ctor )">
-                  LiterateDocument(...)
-                </a>
-              </code>
-              <div class="tip" id="292">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '298', 298)" onmouseover="showTip(event, '298', 298)">
                 LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, diagnostics)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      paragraphs
-                    </b>
-                    :
-                    MarkdownParagraphs
-                  </li>
-                  <li>
-                    <b>
-                      formattedTips
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      links
-                    </b>
-                    :
-                    IDictionary&lt;string, (string * string option)&gt;
-                  </li>
-                  <li>
-                    <b>
-                      source
-                    </b>
-                    :
-                    LiterateSource
-                  </li>
-                  <li>
-                    <b>
-                      sourceFile
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      diagnostics
-                    </b>
-                    :
-                    SourceError []
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                LiterateDocument
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="298">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, diagnostics)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        paragraphs
+                      </b>
+                      :
+                      MarkdownParagraphs
+                    </li>
+                    <li>
+                      <b>
+                        formattedTips
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        links
+                      </b>
+                      :
+                      IDictionary&lt;string, (string * string option)&gt;
+                    </li>
+                    <li>
+                      <b>
+                        source
+                      </b>
+                      :
+                      LiterateSource
+                    </li>
+                    <li>
+                      <b>
+                        sourceFile
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        diagnostics
+                      </b>
+                      :
+                      SourceError []
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  LiterateDocument
+                  <br/>
                   Signature: 
-                </strong>
-                (paragraphs: MarkdownParagraphs * formattedTips: string * links: IDictionary&lt;string, (string * string option)&gt; * source: LiterateSource * sourceFile: string * diagnostics: SourceError []) -&gt; LiterateDocument
-                <br/>
+                  (paragraphs: MarkdownParagraphs * formattedTips: string * links: IDictionary&lt;string, (string * string option)&gt; * source: LiterateSource * sourceFile: string * diagnostics: SourceError []) -&gt; LiterateDocument
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  paragraphs
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraphs
+                </code>
+              </li>
+              <li>
+                <code>
+                  formattedTips
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  links
+                </code>
+                :
+                <code class="code-type">
+                  IDictionary&lt;string, (string * string option)&gt;
+                </code>
+              </li>
+              <li>
+                <code>
+                  source
+                </code>
+                :
+                <code class="code-type">
+                  LiterateSource
+                </code>
+              </li>
+              <li>
+                <code>
+                  sourceFile
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  diagnostics
+                </code>
+                :
+                <code class="code-type">
+                  SourceError []
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              LiterateDocument
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L109-109" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -159,335 +219,406 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '293', 293)" onmouseover="showTip(event, '293', 293)">
-                <a name="DefinedLinks">
-                  this.DefinedLinks
-                </a>
-              </code>
-              <div class="tip" id="293">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.DefinedLinks
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                IDictionary&lt;string, (string * string option)&gt;
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                IDictionary&lt;string, (string * string option)&gt;
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Returns a dictionary containing explicitly defined links
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '294', 294)" onmouseover="showTip(event, '294', 294)">
-                <a name="Diagnostics">
-                  this.Diagnostics
-                </a>
-              </code>
-              <div class="tip" id="294">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Diagnostics
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                SourceError []
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                SourceError []
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Errors
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '295', 295)" onmouseover="showTip(event, '295', 295)">
-                <a name="FormattedTips">
-                  this.FormattedTips
-                </a>
-              </code>
-              <div class="tip" id="295">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.FormattedTips
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Formatted tool tips
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '296', 296)" onmouseover="showTip(event, '296', 296)">
-                <a name="MarkdownDocument">
-                  this.MarkdownDocument
-                </a>
-              </code>
-              <div class="tip" id="296">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.MarkdownDocument
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownDocument
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                MarkdownDocument
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Return as markdown document, throwing away additional stuff
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '297', 297)" onmouseover="showTip(event, '297', 297)">
-                <a name="Paragraphs">
-                  this.Paragraphs
-                </a>
-              </code>
-              <div class="tip" id="297">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Paragraphs
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownParagraphs
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                MarkdownParagraphs
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Returns a list of paragraphs in the document
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '298', 298)" onmouseover="showTip(event, '298', 298)">
-                <a name="Source">
-                  this.Source
-                </a>
-              </code>
-              <div class="tip" id="298">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Source
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                LiterateSource
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                LiterateSource
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
- Original document source code
-</p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
+          <td class="member-name" id="DefinedLinks">
             <div>
               <code onmouseout="hideTip(event, '299', 299)" onmouseover="showTip(event, '299', 299)">
-                <a name="SourceFile">
-                  this.SourceFile
-                </a>
+                this.DefinedLinks
               </code>
               <div class="tip" id="299">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.SourceFile
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.DefinedLinks
+                  <br/>
+                  Return Type: 
+                  IDictionary&lt;string, (string * string option)&gt;
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  IDictionary&lt;string, (string * string option)&gt;
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Location where the file was loaded from
-</p>
+            <p>Returns a dictionary containing explicitly defined links</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              IDictionary&lt;string, (string * string option)&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L119-119" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Diagnostics">
             <div>
               <code onmouseout="hideTip(event, '300', 300)" onmouseover="showTip(event, '300', 300)">
-                <a name="With">
-                  this.With(...)
-                </a>
+                this.Diagnostics
               </code>
               <div class="tip" id="300">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.With(?paragraphs, ?formattedTips, ?definedLinks, ?source, ?sourceFile, ?diagnostics)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      ?paragraphs
-                    </b>
-                    :
-                    MarkdownParagraphs
-                  </li>
-                  <li>
-                    <b>
-                      ?formattedTips
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?definedLinks
-                    </b>
-                    :
-                    IDictionary&lt;string, (string * string option)&gt;
-                  </li>
-                  <li>
-                    <b>
-                      ?source
-                    </b>
-                    :
-                    LiterateSource
-                  </li>
-                  <li>
-                    <b>
-                      ?sourceFile
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?diagnostics
-                    </b>
-                    :
-                    SourceError []
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                LiterateDocument
-                <br/>
-                <strong>
+                  <br/>
+                  this.Diagnostics
+                  <br/>
+                  Return Type: 
+                  SourceError []
+                  <br/>
                   Signature: 
-                </strong>
-                (paragraphs: MarkdownParagraphs * formattedTips: string * definedLinks: IDictionary&lt;string, (string * string option)&gt; * source: LiterateSource * sourceFile: string * diagnostics: SourceError []) -&gt; LiterateDocument
-                <br/>
+                  SourceError []
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Clone the document and change some of its properties
-</p>
+            <p>Errors</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              SourceError []
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L122-122" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="FormattedTips">
+            <div>
+              <code onmouseout="hideTip(event, '301', 301)" onmouseover="showTip(event, '301', 301)">
+                this.FormattedTips
+              </code>
+              <div class="tip" id="301">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.FormattedTips
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Formatted tool tips</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L131-131" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="MarkdownDocument">
+            <div>
+              <code onmouseout="hideTip(event, '302', 302)" onmouseover="showTip(event, '302', 302)">
+                this.MarkdownDocument
+              </code>
+              <div class="tip" id="302">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.MarkdownDocument
+                  <br/>
+                  Return Type: 
+                  MarkdownDocument
+                  <br/>
+                  Signature: 
+                  MarkdownDocument
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Return as markdown document, throwing away additional stuff</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              MarkdownDocument
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L134-134" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Paragraphs">
+            <div>
+              <code onmouseout="hideTip(event, '303', 303)" onmouseover="showTip(event, '303', 303)">
+                this.Paragraphs
+              </code>
+              <div class="tip" id="303">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Paragraphs
+                  <br/>
+                  Return Type: 
+                  MarkdownParagraphs
+                  <br/>
+                  Signature: 
+                  MarkdownParagraphs
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Returns a list of paragraphs in the document</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              MarkdownParagraphs
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L116-116" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Source">
+            <div>
+              <code onmouseout="hideTip(event, '304', 304)" onmouseover="showTip(event, '304', 304)">
+                this.Source
+              </code>
+              <div class="tip" id="304">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Source
+                  <br/>
+                  Return Type: 
+                  LiterateSource
+                  <br/>
+                  Signature: 
+                  LiterateSource
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Original document source code</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              LiterateSource
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L125-125" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="SourceFile">
+            <div>
+              <code onmouseout="hideTip(event, '305', 305)" onmouseover="showTip(event, '305', 305)">
+                this.SourceFile
+              </code>
+              <div class="tip" id="305">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.SourceFile
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Location where the file was loaded from</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L128-128" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="With">
+            <div>
+              <code onmouseout="hideTip(event, '306', 306)" onmouseover="showTip(event, '306', 306)">
+                this.With(?paragraphs, ?formattedTips, ?definedLinks, ?source, ?sourceFile, ?diagnostics)
+              </code>
+              <div class="tip" id="306">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.With(?paragraphs, ?formattedTips, ?definedLinks, ?source, ?sourceFile, ?diagnostics)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        ?paragraphs
+                      </b>
+                      :
+                      MarkdownParagraphs
+                    </li>
+                    <li>
+                      <b>
+                        ?formattedTips
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?definedLinks
+                      </b>
+                      :
+                      IDictionary&lt;string, (string * string option)&gt;
+                    </li>
+                    <li>
+                      <b>
+                        ?source
+                      </b>
+                      :
+                      LiterateSource
+                    </li>
+                    <li>
+                      <b>
+                        ?sourceFile
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?diagnostics
+                      </b>
+                      :
+                      SourceError []
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  LiterateDocument
+                  <br/>
+                  Signature: 
+                  (paragraphs: MarkdownParagraphs * formattedTips: string * definedLinks: IDictionary&lt;string, (string * string option)&gt; * source: LiterateSource * sourceFile: string * diagnostics: SourceError []) -&gt; LiterateDocument
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Clone the document and change some of its properties</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  ?paragraphs
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraphs
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?formattedTips
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?definedLinks
+                </code>
+                :
+                <code class="code-type">
+                  IDictionary&lt;string, (string * string option)&gt;
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?source
+                </code>
+                :
+                <code class="code-type">
+                  LiterateSource
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?sourceFile
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?diagnostics
+                </code>
+                :
+                <code class="code-type">
+                  SourceError []
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              LiterateDocument
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L144-144" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

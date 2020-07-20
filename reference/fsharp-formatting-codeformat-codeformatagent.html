@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CodeFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CodeFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Uses agent to handle formatting requests
-</p>
+    <p>Uses agent to handle formatting requests</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,48 +63,50 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '212', 212)" onmouseover="showTip(event, '212', 212)">
-                <a name="( .ctor )">
-                  CodeFormatAgent()
-                </a>
-              </code>
-              <div class="tip" id="212">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '218', 218)" onmouseover="showTip(event, '218', 218)">
                 CodeFormatAgent()
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                CodeFormatAgent
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="218">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CodeFormatAgent()
+                  <br/>
+                  Return Type: 
+                  CodeFormatAgent
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; CodeFormatAgent
-                <br/>
+                  unit -&gt; CodeFormatAgent
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Return Type: 
+            <code class="code-type">
+              CodeFormatAgent
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormatAgent.fs#L109-109" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -111,154 +116,232 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="AsyncParseSource">
             <div>
-              <code onmouseout="hideTip(event, '213', 213)" onmouseover="showTip(event, '213', 213)">
-                <a name="AsyncParseSource">
-                  this.AsyncParseSource(...)
-                </a>
-              </code>
-              <div class="tip" id="213">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '219', 219)" onmouseover="showTip(event, '219', 219)">
                 this.AsyncParseSource(file, source, ?options, ?defines)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      file
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      source
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?options
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?defines
-                    </b>
-                    :
-                    string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                Async&lt;Snippet [] * SourceError []&gt;
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="219">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.AsyncParseSource(file, source, ?options, ?defines)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        file
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        source
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?options
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?defines
+                      </b>
+                      :
+                      string
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  Async&lt;Snippet [] * SourceError []&gt;
+                  <br/>
                   Signature: 
-                </strong>
-                (file: string * source: string * options: string * defines: string) -&gt; Async&lt;Snippet [] * SourceError []&gt;
-                <br/>
+                  (file: string * source: string * options: string * defines: string) -&gt; Async&lt;Snippet [] * SourceError []&gt;
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Parse, check and annotate the source code specified by 'source', assuming that it
- is located in a specified 'file'. Optional arguments can be used
- to give compiler command line options and preprocessor definitions
-</p>
+            <p>Parse, check and annotate the source code specified by 'source', assuming that it
+is located in a specified 'file'. Optional arguments can be used
+to give compiler command line options and preprocessor definitions</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  file
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  source
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?options
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?defines
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              Async&lt;Snippet [] * SourceError []&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormatAgent.fs#L453-453" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ParseSource">
             <div>
-              <code onmouseout="hideTip(event, '214', 214)" onmouseover="showTip(event, '214', 214)">
-                <a name="ParseSource">
-                  this.ParseSource(file, source, ?options, ?defines)
-                </a>
-              </code>
-              <div class="tip" id="214">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '220', 220)" onmouseover="showTip(event, '220', 220)">
                 this.ParseSource(file, source, ?options, ?defines)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      file
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      source
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?options
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ?defines
-                    </b>
-                    :
-                    string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                Snippet [] * SourceError []
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="220">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.ParseSource(file, source, ?options, ?defines)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        file
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        source
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?options
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ?defines
+                      </b>
+                      :
+                      string
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  Snippet [] * SourceError []
+                  <br/>
                   Signature: 
-                </strong>
-                (file: string * source: string * options: string * defines: string) -&gt; Snippet [] * SourceError []
-                <br/>
+                  (file: string * source: string * options: string * defines: string) -&gt; Snippet [] * SourceError []
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Parse, check and annotate the source code specified by 'source', assuming that it
- is located in a specified 'file'. Optional arguments can be used
- to give compiler command line options and preprocessor definitions
-</p>
+            <p>Parse, check and annotate the source code specified by 'source', assuming that it
+is located in a specified 'file'. Optional arguments can be used
+to give compiler command line options and preprocessor definitions</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  file
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  source
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?options
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?defines
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              Snippet [] * SourceError []
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormatAgent.fs#L462-462" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

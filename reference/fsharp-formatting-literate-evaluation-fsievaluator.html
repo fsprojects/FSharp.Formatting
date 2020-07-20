@@ -45,13 +45,24 @@
     Namespace: FSharp.Formatting.Literate.Evaluation
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IFsiEvaluator
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- A wrapper for F# interactive service that is used to evaluate inline snippets
-</p>
+    <p>A wrapper for F# interactive service that is used to evaluate inline snippets</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,88 +71,136 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '342', 342)" onmouseover="showTip(event, '342', 342)">
-                <a name="( .ctor )">
-                  FsiEvaluator(...)
-                </a>
-              </code>
-              <div class="tip" id="342">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
                 FsiEvaluator(?options, ?fsiObj, ?addHtmlPrinter, ?discardStdOut, ?disableFsiObj)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      ?options
-                    </b>
-                    :
-                    string []
-                  </li>
-                  <li>
-                    <b>
-                      ?fsiObj
-                    </b>
-                    :
-                    obj
-                  </li>
-                  <li>
-                    <b>
-                      ?addHtmlPrinter
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      ?discardStdOut
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      ?disableFsiObj
-                    </b>
-                    :
-                    bool
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FsiEvaluator
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="347">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FsiEvaluator(?options, ?fsiObj, ?addHtmlPrinter, ?discardStdOut, ?disableFsiObj)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        ?options
+                      </b>
+                      :
+                      string []
+                    </li>
+                    <li>
+                      <b>
+                        ?fsiObj
+                      </b>
+                      :
+                      obj
+                    </li>
+                    <li>
+                      <b>
+                        ?addHtmlPrinter
+                      </b>
+                      :
+                      bool
+                    </li>
+                    <li>
+                      <b>
+                        ?discardStdOut
+                      </b>
+                      :
+                      bool
+                    </li>
+                    <li>
+                      <b>
+                        ?disableFsiObj
+                      </b>
+                      :
+                      bool
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  FsiEvaluator
+                  <br/>
                   Signature: 
-                </strong>
-                (options: string [] * fsiObj: obj * addHtmlPrinter: bool * discardStdOut: bool * disableFsiObj: bool) -&gt; FsiEvaluator
-                <br/>
+                  (options: string [] * fsiObj: obj * addHtmlPrinter: bool * discardStdOut: bool * disableFsiObj: bool) -&gt; FsiEvaluator
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  ?options
+                </code>
+                :
+                <code class="code-type">
+                  string []
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?fsiObj
+                </code>
+                :
+                <code class="code-type">
+                  obj
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?addHtmlPrinter
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?discardStdOut
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+              <li>
+                <code>
+                  ?disableFsiObj
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              FsiEvaluator
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L111-111" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -151,93 +210,104 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="EvaluationFailed">
             <div>
-              <code onmouseout="hideTip(event, '343', 343)" onmouseover="showTip(event, '343', 343)">
-                <a name="EvaluationFailed">
-                  this.EvaluationFailed
-                </a>
-              </code>
-              <div class="tip" id="343">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
                 this.EvaluationFailed
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                IEvent&lt;FsiEvaluationFailedInfo&gt;
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="348">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.EvaluationFailed
+                  <br/>
+                  Return Type: 
+                  IEvent&lt;FsiEvaluationFailedInfo&gt;
+                  <br/>
                   Signature: 
-                </strong>
-                IEvent&lt;FsiEvaluationFailedInfo&gt;
-                <br/>
+                  IEvent&lt;FsiEvaluationFailedInfo&gt;
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- This event is fired whenever an evaluation of an expression fails
-</p>
+            <p>This event is fired whenever an evaluation of an expression fails</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              IEvent&lt;FsiEvaluationFailedInfo&gt;
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L355-355" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="RegisterTransformation">
             <div>
-              <code onmouseout="hideTip(event, '344', 344)" onmouseover="showTip(event, '344', 344)">
-                <a name="RegisterTransformation">
-                  this.RegisterTransformation(f)
-                </a>
-              </code>
-              <div class="tip" id="344">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '349', 349)" onmouseover="showTip(event, '349', 349)">
                 this.RegisterTransformation(f)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      f
-                    </b>
-                    :
-                    obj * Type * int -&gt; MarkdownParagraph list option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="349">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.RegisterTransformation(f)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        f
+                      </b>
+                      :
+                      obj * Type * int -&gt; MarkdownParagraph list option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                (f: (obj * Type * int -&gt; MarkdownParagraph list option)) -&gt; unit
-                <br/>
+                  (f: (obj * Type * int -&gt; MarkdownParagraph list option)) -&gt; unit
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Register a function that formats (some) values that are produced by the evaluator.
- The specified function should return 'Some' when it knows how to format a value
- and it should return formatted 
-</p>
+            <p>Register a function that formats (some) values that are produced by the evaluator.
+The specified function should return 'Some' when it knows how to format a value
+and it should return formatted</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  f
+                </code>
+                :
+                <code class="code-type">
+                  obj * Type * int -&gt; MarkdownParagraph list option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L351-351" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

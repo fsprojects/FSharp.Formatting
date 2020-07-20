@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CSharpFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CSharpFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: FSharpFormat
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
-            Generates color-coded Paket source code.
-            </p>
+    <p>Generates color-coded Paket source code.</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,45 +63,40 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id=".ctor">
             <div>
-              <code onmouseout="hideTip(event, '170', 170)" onmouseover="showTip(event, '170', 170)">
-                <a name=".ctor">
-                  PaketFormat()
-                </a>
-              </code>
-              <div class="tip" id="170">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '176', 176)" onmouseover="showTip(event, '176', 176)">
                 PaketFormat()
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="176">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  PaketFormat()
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; unit
-                <br/>
+                  unit -&gt; unit
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            TBD
-            </p>
+            <p>TBD</p>
+            <br/>
           </td>
         </tr>
       </tbody>
@@ -108,174 +106,158 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="CommentRegEx">
             <div>
-              <code onmouseout="hideTip(event, '171', 171)" onmouseover="showTip(event, '171', 171)">
-                <a name="CommentRegEx">
-                  this.CommentRegEx
-                </a>
-              </code>
-              <div class="tip" id="171">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '177', 177)" onmouseover="showTip(event, '177', 177)">
                 this.CommentRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="177">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.CommentRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-             Regular expression string to match single line and multi-line 
-             comments (// and (* *)). Single line comments should have to have 
-             a space after them to avoid color as comments URLs and paths. For example
-            </p>
+            <p>Regular expression string to match single line and multi-line
+comments (// and (<em> </em>)). Single line comments should have to have
+a space after them to avoid color as comments URLs and paths. For example</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Keywords">
             <div>
-              <code onmouseout="hideTip(event, '172', 172)" onmouseover="showTip(event, '172', 172)">
-                <a name="Keywords">
-                  this.Keywords
-                </a>
-              </code>
-              <div class="tip" id="172">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '178', 178)" onmouseover="showTip(event, '178', 178)">
                 this.Keywords
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="178">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Keywords
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Paket Keywords
-            </p>
+            <p>Paket Keywords</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="NumberRegEx">
             <div>
-              <code onmouseout="hideTip(event, '173', 173)" onmouseover="showTip(event, '173', 173)">
-                <a name="NumberRegEx">
-                  this.NumberRegEx
-                </a>
-              </code>
-              <div class="tip" id="173">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '179', 179)" onmouseover="showTip(event, '179', 179)">
                 this.NumberRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="179">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.NumberRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Matches version numbers
-            </p>
+            <p>Matches version numbers</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Operators">
             <div>
-              <code onmouseout="hideTip(event, '174', 174)" onmouseover="showTip(event, '174', 174)">
-                <a name="Operators">
-                  this.Operators
-                </a>
-              </code>
-              <div class="tip" id="174">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '180', 180)" onmouseover="showTip(event, '180', 180)">
                 this.Operators
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="180">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Operators
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Paket operators
-            </p>
+            <p>Paket operators</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
       </tbody>

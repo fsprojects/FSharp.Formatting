@@ -45,110 +45,151 @@
     Namespace: FSharp.Formatting.Literate
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IEquatable<LiterateSource>
+    </li>
+    <li>
+      IStructuralEquatable
+    </li>
+    <li>
+      IComparable<LiterateSource>
+    </li>
+    <li>
+      IComparable
+    </li>
+    <li>
+      IStructuralComparable
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents the source of a literate document. 
-</p>
+    <p>Represents the source of a literate document.</p>
+
+
   </div>
   <div>
     <h3>
       Union cases
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Union case
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Markdown">
             <div>
-              <code onmouseout="hideTip(event, '320', 320)" onmouseover="showTip(event, '320', 320)">
-                <a name="Markdown">
-                  LiterateSource.Markdown(string)
-                </a>
-              </code>
-              <div class="tip" id="320">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '325', 325)" onmouseover="showTip(event, '325', 325)">
                 LiterateSource.Markdown(string)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item
-                    </b>
-                    :
-                    string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="325">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  LiterateSource.Markdown(string)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item
+                      </b>
+                      :
+                      string
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string -&gt; LiterateSource
-                <br/>
+                  string -&gt; LiterateSource
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- A markdown source
-</p>
+            <p>A markdown source</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L102-102" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Script">
             <div>
-              <code onmouseout="hideTip(event, '321', 321)" onmouseover="showTip(event, '321', 321)">
-                <a name="Script">
-                  LiterateSource.Script(Snippet [])
-                </a>
-              </code>
-              <div class="tip" id="321">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '326', 326)" onmouseover="showTip(event, '326', 326)">
                 LiterateSource.Script(Snippet [])
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item
-                    </b>
-                    :
-                    Snippet []
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="326">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  LiterateSource.Script(Snippet [])
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item
+                      </b>
+                      :
+                      Snippet []
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                Snippet [] -&gt; LiterateSource
-                <br/>
+                  Snippet [] -&gt; LiterateSource
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- A parsed F# script file consisting of snippets.
-</p>
+            <p>A parsed F# script file consisting of snippets.</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item
+                </code>
+                :
+                <code class="code-type">
+                  Snippet []
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L105-105" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

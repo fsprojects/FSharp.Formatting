@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CSharpFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CSharpFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: SourceFormat
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
-            Provides a base class for formatting most programming languages.
-            </p>
+    <p>Provides a base class for formatting most programming languages.</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,44 +63,38 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id=".ctor">
             <div>
-              <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
-                <a name=".ctor">
-                  CodeFormat()
-                </a>
-              </code>
-              <div class="tip" id="141">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
                 CodeFormat()
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="147">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CodeFormat()
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; unit
-                <br/>
+                  unit -&gt; unit
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            </br><p class='summary'></p>
-          </td>
+          <td class="xmldoc"></td>
         </tr>
       </tbody>
     </table>
@@ -106,303 +103,266 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
-                <a name="CaseSensitive">
-                  this.CaseSensitive
-                </a>
-              </code>
-              <div class="tip" id="142">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.CaseSensitive
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                bool
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                bool
-                <br/>
-                <strong>
-                  Modifiers: 
-                </strong>
-                abstract
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
-            Determines if the language is case sensitive.
-            </p><h4>Remarks</h4><p class='remarks'>
-            A case-insensitive language formatter must override this 
-            property to return false.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
-                <a name="CommentRegEx">
-                  this.CommentRegEx
-                </a>
-              </code>
-              <div class="tip" id="143">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.CommentRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Modifiers: 
-                </strong>
-                abstract
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
-            Must be overridden to provide a regular expression string
-            to match comments. 
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
-                <a name="Keywords">
-                  this.Keywords
-                </a>
-              </code>
-              <div class="tip" id="144">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Keywords
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Modifiers: 
-                </strong>
-                abstract
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
-            Must be overridden to provide a list of keywords defined in 
-            each language.
-            </p><h4>Remarks</h4><p class='remarks'>
-            Keywords must be separated with spaces.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
-                <a name="NumberRegEx">
-                  this.NumberRegEx
-                </a>
-              </code>
-              <div class="tip" id="145">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.NumberRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Modifiers: 
-                </strong>
-                abstract
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
-            Can be overridden to provide a list of tokes to be recognized as numbers.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
-                <a name="Operators">
-                  this.Operators
-                </a>
-              </code>
-              <div class="tip" id="146">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Operators
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Modifiers: 
-                </strong>
-                abstract
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
-            Must be overridden to provide a list of operators defined in 
-            each language.
-            </p><h4>Remarks</h4><p class='remarks'>
-            Operators must be separated with spaces.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
-                <a name="Preprocessors">
-                  this.Preprocessors
-                </a>
-              </code>
-              <div class="tip" id="147">
-                <strong>
-                  Full Usage: 
-                </strong>
-                this.Preprocessors
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
-                  Modifiers: 
-                </strong>
-                abstract
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            </br><p class='summary'>
-            Can be overridden to provide a list of preprocessors defined in 
-            each language.
-            </p><h4>Remarks</h4><p class='remarks'>
-            Preprocessors must be separated with spaces.
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
+          <td class="member-name" id="CaseSensitive">
             <div>
               <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
-                <a name="StringRegEx">
-                  this.StringRegEx
-                </a>
+                this.CaseSensitive
               </code>
               <div class="tip" id="148">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.StringRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.CaseSensitive
+                  <br/>
+                  Return Type: 
+                  bool
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  bool
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Must be overridden to provide a regular expression string
-            to match strings literals. 
-            </p>
+            <p>Determines if the language is case sensitive.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              bool
+            </code>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="CommentRegEx">
+            <div>
+              <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+                this.CommentRegEx
+              </code>
+              <div class="tip" id="149">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.CommentRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Must be overridden to provide a regular expression string
+to match comments.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Keywords">
+            <div>
+              <code onmouseout="hideTip(event, '150', 150)" onmouseover="showTip(event, '150', 150)">
+                this.Keywords
+              </code>
+              <div class="tip" id="150">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Keywords
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Must be overridden to provide a list of keywords defined in
+each language.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="NumberRegEx">
+            <div>
+              <code onmouseout="hideTip(event, '151', 151)" onmouseover="showTip(event, '151', 151)">
+                this.NumberRegEx
+              </code>
+              <div class="tip" id="151">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.NumberRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Can be overridden to provide a list of tokes to be recognized as numbers.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Operators">
+            <div>
+              <code onmouseout="hideTip(event, '152', 152)" onmouseover="showTip(event, '152', 152)">
+                this.Operators
+              </code>
+              <div class="tip" id="152">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Operators
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Must be overridden to provide a list of operators defined in
+each language.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Preprocessors">
+            <div>
+              <code onmouseout="hideTip(event, '153', 153)" onmouseover="showTip(event, '153', 153)">
+                this.Preprocessors
+              </code>
+              <div class="tip" id="153">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Preprocessors
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Can be overridden to provide a list of preprocessors defined in
+each language.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="StringRegEx">
+            <div>
+              <code onmouseout="hideTip(event, '154', 154)" onmouseover="showTip(event, '154', 154)">
+                this.StringRegEx
+              </code>
+              <div class="tip" id="154">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.StringRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
+                  Signature: 
+                  string
+                  <br/>
+                  Modifiers: 
+                  abstract
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Must be overridden to provide a regular expression string
+to match strings literals.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
       </tbody>

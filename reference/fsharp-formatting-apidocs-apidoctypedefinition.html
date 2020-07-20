@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>ApiDocModule - FSharp.Formatting</title>
+    <title>ApiDocTypeDefinition - FSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
@@ -39,7 +39,7 @@
             <div class="span9" id="main">
                 <div>
   <h1>
-    ApiDocModule Type
+    ApiDocTypeDefinition Type
   </h1>
   <p>
     Namespace: FSharp.Formatting.ApiDocs
@@ -52,7 +52,7 @@
     Base Type: obj
   </p>
   <div class="xmldoc">
-    <p>Represents an F# module definition integrated with its associated documentation</p>
+    <p>Represents a type definition integrated with its associated documentation</p>
 
 
   </div>
@@ -78,14 +78,14 @@
         <tr>
           <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '71', 71)" onmouseover="showTip(event, '71', 71)">
-                ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats, symbol)
+              <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
+                ApiDocTypeDefinition(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, symbol)
               </code>
-              <div class="tip" id="71">
+              <div class="tip" id="97">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
-                  ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats, symbol)
+                  ApiDocTypeDefinition(name, cat, url, comment, assembly, attributes, cases, fields, statParams, ctors, inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, symbol)
                   Parameter Types: 
                   <ul>
                     <li>
@@ -132,38 +132,73 @@
                     </li>
                     <li>
                       <b>
-                        modules
-                      </b>
-                      :
-                      ApiDocModule list
-                    </li>
-                    <li>
-                      <b>
-                        types
-                      </b>
-                      :
-                      ApiDocTypeDefinition list
-                    </li>
-                    <li>
-                      <b>
-                        vals
+                        cases
                       </b>
                       :
                       ApiDocMember list
                     </li>
                     <li>
                       <b>
-                        exts
+                        fields
                       </b>
                       :
                       ApiDocMember list
                     </li>
                     <li>
                       <b>
-                        pats
+                        statParams
                       </b>
                       :
                       ApiDocMember list
+                    </li>
+                    <li>
+                      <b>
+                        ctors
+                      </b>
+                      :
+                      ApiDocMember list
+                    </li>
+                    <li>
+                      <b>
+                        inst
+                      </b>
+                      :
+                      ApiDocMember list
+                    </li>
+                    <li>
+                      <b>
+                        stat
+                      </b>
+                      :
+                      ApiDocMember list
+                    </li>
+                    <li>
+                      <b>
+                        allInterfaces
+                      </b>
+                      :
+                      string list
+                    </li>
+                    <li>
+                      <b>
+                        baseType
+                      </b>
+                      :
+                      string option
+                    </li>
+                    <li>
+                      <b>
+                        abbreviatedType
+                      </b>
+                      :
+                      string option
+                    </li>
+                    <li>
+                      <b>
+                        delegateSignature
+                      </b>
+                      :
+                      string option
                     </li>
                     <li>
                       <b>
@@ -175,10 +210,10 @@
                   </ul>
                   <br/>
                   Return Type: 
-                  ApiDocModule
+                  ApiDocTypeDefinition
                   <br/>
                   Signature: 
-                  (name: string * cat: string * url: string * comment: ApiDocComment * assembly: AssemblyName * attributes: ApiDocAttribute list * modules: ApiDocModule list * types: ApiDocTypeDefinition list * vals: ApiDocMember list * exts: ApiDocMember list * pats: ApiDocMember list * symbol: FSharpEntity) -&gt; ApiDocModule
+                  (name: string * cat: string * url: string * comment: ApiDocComment * assembly: AssemblyName * attributes: ApiDocAttribute list * cases: ApiDocMember list * fields: ApiDocMember list * statParams: ApiDocMember list * ctors: ApiDocMember list * inst: ApiDocMember list * stat: ApiDocMember list * allInterfaces: string list * baseType: string option * abbreviatedType: string option * delegateSignature: string option * symbol: FSharpEntity) -&gt; ApiDocTypeDefinition
                   <br/>
                 </div>
               </div>
@@ -243,25 +278,7 @@
               </li>
               <li>
                 <code>
-                  modules
-                </code>
-                :
-                <code class="code-type">
-                  ApiDocModule list
-                </code>
-              </li>
-              <li>
-                <code>
-                  types
-                </code>
-                :
-                <code class="code-type">
-                  ApiDocTypeDefinition list
-                </code>
-              </li>
-              <li>
-                <code>
-                  vals
+                  cases
                 </code>
                 :
                 <code class="code-type">
@@ -270,7 +287,7 @@
               </li>
               <li>
                 <code>
-                  exts
+                  fields
                 </code>
                 :
                 <code class="code-type">
@@ -279,11 +296,74 @@
               </li>
               <li>
                 <code>
-                  pats
+                  statParams
                 </code>
                 :
                 <code class="code-type">
                   ApiDocMember list
+                </code>
+              </li>
+              <li>
+                <code>
+                  ctors
+                </code>
+                :
+                <code class="code-type">
+                  ApiDocMember list
+                </code>
+              </li>
+              <li>
+                <code>
+                  inst
+                </code>
+                :
+                <code class="code-type">
+                  ApiDocMember list
+                </code>
+              </li>
+              <li>
+                <code>
+                  stat
+                </code>
+                :
+                <code class="code-type">
+                  ApiDocMember list
+                </code>
+              </li>
+              <li>
+                <code>
+                  allInterfaces
+                </code>
+                :
+                <code class="code-type">
+                  string list
+                </code>
+              </li>
+              <li>
+                <code>
+                  baseType
+                </code>
+                :
+                <code class="code-type">
+                  string option
+                </code>
+              </li>
+              <li>
+                <code>
+                  abbreviatedType
+                </code>
+                :
+                <code class="code-type">
+                  string option
+                </code>
+              </li>
+              <li>
+                <code>
+                  delegateSignature
+                </code>
+                :
+                <code class="code-type">
+                  string option
                 </code>
               </li>
               <li>
@@ -298,10 +378,10 @@
             </ul>
             Return Type: 
             <code class="code-type">
-              ApiDocModule
+              ApiDocTypeDefinition
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L327-327" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L257-257" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -327,36 +407,72 @@
       </thead>
       <tbody>
         <tr>
-          <td class="member-name" id="ActivePatterns">
+          <td class="member-name" id="AbbreviatedType">
             <div>
-              <code onmouseout="hideTip(event, '72', 72)" onmouseover="showTip(event, '72', 72)">
-                this.ActivePatterns
+              <code onmouseout="hideTip(event, '98', 98)" onmouseover="showTip(event, '98', 98)">
+                this.AbbreviatedType
               </code>
-              <div class="tip" id="72">
+              <div class="tip" id="98">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
-                  this.ActivePatterns
+                  this.AbbreviatedType
                   <br/>
                   Return Type: 
-                  ApiDocMember list
+                  string option
                   <br/>
                   Signature: 
-                  ApiDocMember list
+                  string option
                   <br/>
                 </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            <p>Active patterns of the module</p>
+            <p>If this is a type abbreviation, then the abbreviated type</p>
             <br/>
             Return Type: 
             <code class="code-type">
-              ApiDocMember list
+              string option
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L363-363" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L299-299" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="AllInterfaces">
+            <div>
+              <code onmouseout="hideTip(event, '99', 99)" onmouseover="showTip(event, '99', 99)">
+                this.AllInterfaces
+              </code>
+              <div class="tip" id="99">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.AllInterfaces
+                  <br/>
+                  Return Type: 
+                  string list
+                  <br/>
+                  Signature: 
+                  string list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>All interfaces of the type, formatted</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L293-293" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -365,10 +481,10 @@
         <tr>
           <td class="member-name" id="AllMembers">
             <div>
-              <code onmouseout="hideTip(event, '73', 73)" onmouseover="showTip(event, '73', 73)">
+              <code onmouseout="hideTip(event, '100', 100)" onmouseover="showTip(event, '100', 100)">
                 this.AllMembers
               </code>
-              <div class="tip" id="73">
+              <div class="tip" id="100">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -385,14 +501,14 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>All members of the module</p>
+            <p>All members of the type</p>
             <br/>
             Return Type: 
             <code class="code-type">
               ApiDocMember list
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L348-348" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L290-290" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -401,10 +517,10 @@
         <tr>
           <td class="member-name" id="Assembly">
             <div>
-              <code onmouseout="hideTip(event, '74', 74)" onmouseover="showTip(event, '74', 74)">
+              <code onmouseout="hideTip(event, '101', 101)" onmouseover="showTip(event, '101', 101)">
                 this.Assembly
               </code>
-              <div class="tip" id="74">
+              <div class="tip" id="101">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -421,14 +537,14 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The name of the module's assembly</p>
+            <p>The name of the type's assembly</p>
             <br/>
             Return Type: 
             <code class="code-type">
               AssemblyName
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L342-342" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L275-275" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -437,10 +553,10 @@
         <tr>
           <td class="member-name" id="Attributes">
             <div>
-              <code onmouseout="hideTip(event, '75', 75)" onmouseover="showTip(event, '75', 75)">
+              <code onmouseout="hideTip(event, '102', 102)" onmouseover="showTip(event, '102', 102)">
                 this.Attributes
               </code>
-              <div class="tip" id="75">
+              <div class="tip" id="102">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -457,14 +573,50 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The declared attributes of the module</p>
+            <p>The declared attributes of the type</p>
             <br/>
             Return Type: 
             <code class="code-type">
               ApiDocAttribute list
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L345-345" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L278-278" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="BaseType">
+            <div>
+              <code onmouseout="hideTip(event, '103', 103)" onmouseover="showTip(event, '103', 103)">
+                this.BaseType
+              </code>
+              <div class="tip" id="103">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.BaseType
+                  <br/>
+                  Return Type: 
+                  string option
+                  <br/>
+                  Signature: 
+                  string option
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The base type of the type, formatted</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string option
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L296-296" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -473,10 +625,10 @@
         <tr>
           <td class="member-name" id="Category">
             <div>
-              <code onmouseout="hideTip(event, '76', 76)" onmouseover="showTip(event, '76', 76)">
+              <code onmouseout="hideTip(event, '104', 104)" onmouseover="showTip(event, '104', 104)">
                 this.Category
               </code>
-              <div class="tip" id="76">
+              <div class="tip" id="104">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -493,14 +645,14 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The category of the module</p>
+            <p>The category of the type</p>
             <br/>
             Return Type: 
             <code class="code-type">
               string
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L333-333" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L266-266" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -509,10 +661,10 @@
         <tr>
           <td class="member-name" id="Comment">
             <div>
-              <code onmouseout="hideTip(event, '77', 77)" onmouseover="showTip(event, '77', 77)">
+              <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
                 this.Comment
               </code>
-              <div class="tip" id="77">
+              <div class="tip" id="105">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -536,7 +688,115 @@
               ApiDocComment
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L339-339" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L272-272" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Constructors">
+            <div>
+              <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
+                this.Constructors
+              </code>
+              <div class="tip" id="106">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Constructors
+                  <br/>
+                  Return Type: 
+                  ApiDocMember list
+                  <br/>
+                  Signature: 
+                  ApiDocMember list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The constuctorsof the type</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocMember list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L305-305" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="DelegateSignature">
+            <div>
+              <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
+                this.DelegateSignature
+              </code>
+              <div class="tip" id="107">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.DelegateSignature
+                  <br/>
+                  Return Type: 
+                  string option
+                  <br/>
+                  Signature: 
+                  string option
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>If this is a delegate, then e formatted signature</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string option
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L302-302" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="InstanceMembers">
+            <div>
+              <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
+                this.InstanceMembers
+              </code>
+              <div class="tip" id="108">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.InstanceMembers
+                  <br/>
+                  Return Type: 
+                  ApiDocMember list
+                  <br/>
+                  Signature: 
+                  ApiDocMember list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The instance members of the type</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocMember list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L308-308" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -545,10 +805,10 @@
         <tr>
           <td class="member-name" id="IsObsolete">
             <div>
-              <code onmouseout="hideTip(event, '78', 78)" onmouseover="showTip(event, '78', 78)">
+              <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
                 this.IsObsolete
               </code>
-              <div class="tip" id="78">
+              <div class="tip" id="109">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -572,7 +832,7 @@
               bool
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L366-366" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L314-314" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -581,10 +841,10 @@
         <tr>
           <td class="member-name" id="Name">
             <div>
-              <code onmouseout="hideTip(event, '79', 79)" onmouseover="showTip(event, '79', 79)">
+              <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
                 this.Name
               </code>
-              <div class="tip" id="79">
+              <div class="tip" id="110">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -601,86 +861,14 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>The name of the module</p>
+            <p>The name of the type</p>
             <br/>
             Return Type: 
             <code class="code-type">
               string
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L330-330" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name" id="NestedModules">
-            <div>
-              <code onmouseout="hideTip(event, '80', 80)" onmouseover="showTip(event, '80', 80)">
-                this.NestedModules
-              </code>
-              <div class="tip" id="80">
-                <div class="member-tooltip">
-                  Full Usage: 
-                  <br/>
-                  this.NestedModules
-                  <br/>
-                  Return Type: 
-                  ApiDocModule list
-                  <br/>
-                  Signature: 
-                  ApiDocModule list
-                  <br/>
-                </div>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>All nested modules</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              ApiDocModule list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L351-351" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name" id="NestedTypes">
-            <div>
-              <code onmouseout="hideTip(event, '81', 81)" onmouseover="showTip(event, '81', 81)">
-                this.NestedTypes
-              </code>
-              <div class="tip" id="81">
-                <div class="member-tooltip">
-                  Full Usage: 
-                  <br/>
-                  this.NestedTypes
-                  <br/>
-                  Return Type: 
-                  ApiDocTypeDefinition list
-                  <br/>
-                  Signature: 
-                  ApiDocTypeDefinition list
-                  <br/>
-                </div>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>All nested types</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              ApiDocTypeDefinition list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L354-354" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L263-263" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -689,10 +877,10 @@
         <tr>
           <td class="member-name" id="ObsoleteMessage">
             <div>
-              <code onmouseout="hideTip(event, '82', 82)" onmouseover="showTip(event, '82', 82)">
+              <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
                 this.ObsoleteMessage
               </code>
-              <div class="tip" id="82">
+              <div class="tip" id="111">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -716,7 +904,115 @@
               string
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L371-371" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L319-319" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="RecordFields">
+            <div>
+              <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
+                this.RecordFields
+              </code>
+              <div class="tip" id="112">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.RecordFields
+                  <br/>
+                  Return Type: 
+                  ApiDocMember list
+                  <br/>
+                  Signature: 
+                  ApiDocMember list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The fields of a record type</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocMember list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L284-284" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="StaticMembers">
+            <div>
+              <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
+                this.StaticMembers
+              </code>
+              <div class="tip" id="113">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.StaticMembers
+                  <br/>
+                  Return Type: 
+                  ApiDocMember list
+                  <br/>
+                  Signature: 
+                  ApiDocMember list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>The static members of the type</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocMember list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L311-311" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="StaticParameters">
+            <div>
+              <code onmouseout="hideTip(event, '114', 114)" onmouseover="showTip(event, '114', 114)">
+                this.StaticParameters
+              </code>
+              <div class="tip" id="114">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.StaticParameters
+                  <br/>
+                  Return Type: 
+                  ApiDocMember list
+                  <br/>
+                  Signature: 
+                  ApiDocMember list
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            <p>Static parameters</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocMember list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L287-287" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -725,10 +1021,10 @@
         <tr>
           <td class="member-name" id="Symbol">
             <div>
-              <code onmouseout="hideTip(event, '83', 83)" onmouseover="showTip(event, '83', 83)">
+              <code onmouseout="hideTip(event, '115', 115)" onmouseover="showTip(event, '115', 115)">
                 this.Symbol
               </code>
-              <div class="tip" id="83">
+              <div class="tip" id="115">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -752,23 +1048,23 @@
               FSharpEntity
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L375-375" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L323-323" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name" id="TypeExtensions">
+          <td class="member-name" id="UnionCases">
             <div>
-              <code onmouseout="hideTip(event, '84', 84)" onmouseover="showTip(event, '84', 84)">
-                this.TypeExtensions
+              <code onmouseout="hideTip(event, '116', 116)" onmouseover="showTip(event, '116', 116)">
+                this.UnionCases
               </code>
-              <div class="tip" id="84">
+              <div class="tip" id="116">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
-                  this.TypeExtensions
+                  this.UnionCases
                   <br/>
                   Return Type: 
                   ApiDocMember list
@@ -781,14 +1077,14 @@
             </div>
           </td>
           <td class="xmldoc">
-            <p>Type extensions of the module</p>
+            <p>The cases of a union type</p>
             <br/>
             Return Type: 
             <code class="code-type">
               ApiDocMember list
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L360-360" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L281-281" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>
@@ -797,10 +1093,10 @@
         <tr>
           <td class="member-name" id="UrlBaseName">
             <div>
-              <code onmouseout="hideTip(event, '85', 85)" onmouseover="showTip(event, '85', 85)">
+              <code onmouseout="hideTip(event, '117', 117)" onmouseover="showTip(event, '117', 117)">
                 this.UrlBaseName
               </code>
-              <div class="tip" id="85">
+              <div class="tip" id="117">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -824,43 +1120,7 @@
               string
             </code>
             <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L336-336" class="github-link">
-              <img src="../content/img/github.png" class="normal"/>
-              <img src="../content/img/github-blue.png" class="hover"/>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name" id="ValuesAndFuncs">
-            <div>
-              <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
-                this.ValuesAndFuncs
-              </code>
-              <div class="tip" id="86">
-                <div class="member-tooltip">
-                  Full Usage: 
-                  <br/>
-                  this.ValuesAndFuncs
-                  <br/>
-                  Return Type: 
-                  ApiDocMember list
-                  <br/>
-                  Signature: 
-                  ApiDocMember list
-                  <br/>
-                </div>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            <p>Values and functions of the module</p>
-            <br/>
-            Return Type: 
-            <code class="code-type">
-              ApiDocMember list
-            </code>
-            <br/>
-            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L357-357" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L269-269" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
               <img src="../content/img/github-blue.png" class="hover"/>
             </a>

@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CodeFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CodeFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents formatted snippets
-</p>
+    <p>Represents formatted snippets</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,67 +63,88 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
-              <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
-                <a name="( .ctor )">
-                  FormattedContent(snippets, tips)
-                </a>
-              </code>
-              <div class="tip" id="217">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '223', 223)" onmouseover="showTip(event, '223', 223)">
                 FormattedContent(snippets, tips)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      snippets
-                    </b>
-                    :
-                    FormattedSnippet []
-                  </li>
-                  <li>
-                    <b>
-                      tips
-                    </b>
-                    :
-                    string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FormattedContent
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="223">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  FormattedContent(snippets, tips)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        snippets
+                      </b>
+                      :
+                      FormattedSnippet []
+                    </li>
+                    <li>
+                      <b>
+                        tips
+                      </b>
+                      :
+                      string
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  FormattedContent
+                  <br/>
                   Signature: 
-                </strong>
-                (snippets: FormattedSnippet [] * tips: string) -&gt; FormattedContent
-                <br/>
+                  (snippets: FormattedSnippet [] * tips: string) -&gt; FormattedContent
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  snippets
+                </code>
+                :
+                <code class="code-type">
+                  FormattedSnippet []
+                </code>
+              </li>
+              <li>
+                <code>
+                  tips
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              FormattedContent
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L26-26" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -130,84 +154,88 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Snippets">
             <div>
-              <code onmouseout="hideTip(event, '218', 218)" onmouseover="showTip(event, '218', 218)">
-                <a name="Snippets">
-                  this.Snippets
-                </a>
-              </code>
-              <div class="tip" id="218">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '224', 224)" onmouseover="showTip(event, '224', 224)">
                 this.Snippets
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                FormattedSnippet []
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="224">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Snippets
+                  <br/>
+                  Return Type: 
+                  FormattedSnippet []
+                  <br/>
                   Signature: 
-                </strong>
-                FormattedSnippet []
-                <br/>
+                  FormattedSnippet []
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns the processed snippets as an array
-</p>
+            <p>Returns the processed snippets as an array</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              FormattedSnippet []
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L28-28" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ToolTip">
             <div>
-              <code onmouseout="hideTip(event, '219', 219)" onmouseover="showTip(event, '219', 219)">
-                <a name="ToolTip">
-                  this.ToolTip
-                </a>
-              </code>
-              <div class="tip" id="219">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '225', 225)" onmouseover="showTip(event, '225', 225)">
                 this.ToolTip
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="225">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.ToolTip
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Returns string with ToolTip elements for all the snippets
-</p>
+            <p>Returns string with ToolTip elements for all the snippets</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/CodeFormat.fs#L31-31" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

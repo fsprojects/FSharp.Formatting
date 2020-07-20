@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CSharpFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CSharpFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: CodeFormat
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
-            Generates color-coded HTML 4.01 from MSH (code name Monad) source code.
-            </p>
+    <p>Generates color-coded HTML 4.01 from MSH (code name Monad) source code.</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,44 +63,38 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id=".ctor">
             <div>
-              <code onmouseout="hideTip(event, '165', 165)" onmouseover="showTip(event, '165', 165)">
-                <a name=".ctor">
-                  MshFormat()
-                </a>
-              </code>
-              <div class="tip" id="165">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '171', 171)" onmouseover="showTip(event, '171', 171)">
                 MshFormat()
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="171">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  MshFormat()
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; unit
-                <br/>
+                  unit -&gt; unit
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            
-          </td>
+          <td class="xmldoc"></td>
         </tr>
       </tbody>
     </table>
@@ -106,172 +103,156 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="CommentRegEx">
             <div>
-              <code onmouseout="hideTip(event, '166', 166)" onmouseover="showTip(event, '166', 166)">
-                <a name="CommentRegEx">
-                  this.CommentRegEx
-                </a>
-              </code>
-              <div class="tip" id="166">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '172', 172)" onmouseover="showTip(event, '172', 172)">
                 this.CommentRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="172">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.CommentRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Regular expression string to match single line comments (#).
-            </p>
+            <p>Regular expression string to match single line comments (#).</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Keywords">
             <div>
-              <code onmouseout="hideTip(event, '167', 167)" onmouseover="showTip(event, '167', 167)">
-                <a name="Keywords">
-                  this.Keywords
-                </a>
-              </code>
-              <div class="tip" id="167">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '173', 173)" onmouseover="showTip(event, '173', 173)">
                 this.Keywords
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="173">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Keywords
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            The list of MSH keywords.
-            </p>
+            <p>The list of MSH keywords.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Preprocessors">
             <div>
-              <code onmouseout="hideTip(event, '168', 168)" onmouseover="showTip(event, '168', 168)">
-                <a name="Preprocessors">
-                  this.Preprocessors
-                </a>
-              </code>
-              <div class="tip" id="168">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '174', 174)" onmouseover="showTip(event, '174', 174)">
                 this.Preprocessors
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="174">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Preprocessors
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Use preprocessors property to hilight operators.
-            </p>
+            <p>Use preprocessors property to hilight operators.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="StringRegEx">
             <div>
-              <code onmouseout="hideTip(event, '169', 169)" onmouseover="showTip(event, '169', 169)">
-                <a name="StringRegEx">
-                  this.StringRegEx
-                </a>
-              </code>
-              <div class="tip" id="169">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '175', 175)" onmouseover="showTip(event, '175', 175)">
                 this.StringRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="175">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.StringRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Regular expression string to match string and character literals. 
-            </p>
+            <p>Regular expression string to match string and character literals.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
       </tbody>

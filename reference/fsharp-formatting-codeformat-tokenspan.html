@@ -45,222 +45,326 @@
     Namespace: FSharp.Formatting.CodeFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CodeFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IEquatable<TokenSpan>
+    </li>
+    <li>
+      IStructuralEquatable
+    </li>
+    <li>
+      IComparable<TokenSpan>
+    </li>
+    <li>
+      IComparable
+    </li>
+    <li>
+      IStructuralComparable
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- A token in a parsed F# code snippet. Aside from standard tokens reported from
- the compiler (`Token`), this also includes `Error` (wrapping the underlined
- tokens), `Omitted` for the special `[omit:...]` tags and `Output` for the special
- `[output:...]` tag
-</p>
+    <p>A token in a parsed F# code snippet. Aside from standard tokens reported from
+the compiler (<a href="fsharp-formatting-codeformat-commentfilter-token.html" title="Token"><code>Token</code></a>), this also includes <code>Error</code> (wrapping the underlined
+tokens), <code>Omitted</code> for the special <code>[omit:...]</code> tags and <a href="fsharp-formatting-pynbmodel-output.html" title="Output"><code>Output</code></a> for the special
+<code>[output:...]</code> tag</p>
+
+
   </div>
   <div>
     <h3>
       Union cases
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Union case
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Error">
             <div>
-              <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
-                <a name="Error">
-                  TokenSpan.Error(ErrorKind, string, TokenSpans)
-                </a>
-              </code>
-              <div class="tip" id="251">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '257', 257)" onmouseover="showTip(event, '257', 257)">
                 TokenSpan.Error(ErrorKind, string, TokenSpans)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    ErrorKind
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item3
-                    </b>
-                    :
-                    TokenSpans
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="257">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  TokenSpan.Error(ErrorKind, string, TokenSpans)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      ErrorKind
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item3
+                      </b>
+                      :
+                      TokenSpans
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                ErrorKind * string * TokenSpans -&gt; TokenSpan
-                <br/>
+                  ErrorKind * string * TokenSpans -&gt; TokenSpan
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  ErrorKind
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item3
+                </code>
+                :
+                <code class="code-type">
+                  TokenSpans
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L62-62" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Omitted">
             <div>
-              <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
-                <a name="Omitted">
-                  TokenSpan.Omitted(string, string)
-                </a>
-              </code>
-              <div class="tip" id="252">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
                 TokenSpan.Omitted(string, string)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="258">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  TokenSpan.Omitted(string, string)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      string
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string * string -&gt; TokenSpan
-                <br/>
+                  string * string -&gt; TokenSpan
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L63-63" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Output">
             <div>
-              <code onmouseout="hideTip(event, '253', 253)" onmouseover="showTip(event, '253', 253)">
-                <a name="Output">
-                  TokenSpan.Output(string)
-                </a>
-              </code>
-              <div class="tip" id="253">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '259', 259)" onmouseover="showTip(event, '259', 259)">
                 TokenSpan.Output(string)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item
-                    </b>
-                    :
-                    string
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="259">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  TokenSpan.Output(string)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item
+                      </b>
+                      :
+                      string
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string -&gt; TokenSpan
-                <br/>
+                  string -&gt; TokenSpan
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L64-64" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Token">
             <div>
-              <code onmouseout="hideTip(event, '254', 254)" onmouseover="showTip(event, '254', 254)">
-                <a name="Token">
-                  TokenSpan.Token(...)
-                </a>
-              </code>
-              <div class="tip" id="254">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '260', 260)" onmouseover="showTip(event, '260', 260)">
                 TokenSpan.Token(TokenKind, string, ToolTipSpans option)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      Item1
-                    </b>
-                    :
-                    TokenKind
-                  </li>
-                  <li>
-                    <b>
-                      Item2
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      Item3
-                    </b>
-                    :
-                    ToolTipSpans option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="260">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  TokenSpan.Token(TokenKind, string, ToolTipSpans option)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        Item1
+                      </b>
+                      :
+                      TokenKind
+                    </li>
+                    <li>
+                      <b>
+                        Item2
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        Item3
+                      </b>
+                      :
+                      ToolTipSpans option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                TokenKind * string * ToolTipSpans option -&gt; TokenSpan
-                <br/>
+                  TokenKind * string * ToolTipSpans option -&gt; TokenSpan
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  Item1
+                </code>
+                :
+                <code class="code-type">
+                  TokenKind
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item2
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  Item3
+                </code>
+                :
+                <code class="code-type">
+                  ToolTipSpans option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L61-61" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

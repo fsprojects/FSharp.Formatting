@@ -45,13 +45,24 @@
     Namespace: FSharp.Formatting.Literate.Evaluation
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IFsiEvaluator
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents an evaluator for F# snippets embedded in code
-</p>
+    <p>Represents an evaluator for F# snippets embedded in code</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -61,146 +72,202 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Evaluate">
             <div>
-              <code onmouseout="hideTip(event, '347', 347)" onmouseover="showTip(event, '347', 347)">
-                <a name="Evaluate">
-                  this.Evaluate(code, asExpression, file)
-                </a>
-              </code>
-              <div class="tip" id="347">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '352', 352)" onmouseover="showTip(event, '352', 352)">
                 this.Evaluate(code, asExpression, file)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      code
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      asExpression
-                    </b>
-                    :
-                    bool
-                  </li>
-                  <li>
-                    <b>
-                      file
-                    </b>
-                    :
-                    string option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                IFsiEvaluationResult
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="352">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Evaluate(code, asExpression, file)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        code
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        asExpression
+                      </b>
+                      :
+                      bool
+                    </li>
+                    <li>
+                      <b>
+                        file
+                      </b>
+                      :
+                      string option
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  IFsiEvaluationResult
+                  <br/>
                   Signature: 
-                </strong>
-                (code: string * asExpression: bool * file: string option) -&gt; IFsiEvaluationResult
-                <br/>
-                <strong>
+                  (code: string * asExpression: bool * file: string option) -&gt; IFsiEvaluationResult
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Called to evaluate a snippet 
-</p>
+            <p>Called to evaluate a snippet</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  code
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  asExpression
+                </code>
+                :
+                <code class="code-type">
+                  bool
+                </code>
+              </li>
+              <li>
+                <code>
+                  file
+                </code>
+                :
+                <code class="code-type">
+                  string option
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              IFsiEvaluationResult
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L62-62" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Format">
             <div>
-              <code onmouseout="hideTip(event, '348', 348)" onmouseover="showTip(event, '348', 348)">
-                <a name="Format">
-                  this.Format(result, kind, executionCount)
-                </a>
-              </code>
-              <div class="tip" id="348">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '353', 353)" onmouseover="showTip(event, '353', 353)">
                 this.Format(result, kind, executionCount)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      result
-                    </b>
-                    :
-                    IFsiEvaluationResult
-                  </li>
-                  <li>
-                    <b>
-                      kind
-                    </b>
-                    :
-                    FsiEmbedKind
-                  </li>
-                  <li>
-                    <b>
-                      executionCount
-                    </b>
-                    :
-                    int
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                MarkdownParagraphs
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="353">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.Format(result, kind, executionCount)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        result
+                      </b>
+                      :
+                      IFsiEvaluationResult
+                    </li>
+                    <li>
+                      <b>
+                        kind
+                      </b>
+                      :
+                      FsiEmbedKind
+                    </li>
+                    <li>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      int
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  MarkdownParagraphs
+                  <br/>
                   Signature: 
-                </strong>
-                (result: IFsiEvaluationResult * kind: FsiEmbedKind * executionCount: int) -&gt; MarkdownParagraphs
-                <br/>
-                <strong>
+                  (result: IFsiEvaluationResult * kind: FsiEmbedKind * executionCount: int) -&gt; MarkdownParagraphs
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Called to format some part of evaluation result generated by FSI
-</p>
+            <p>Called to format some part of evaluation result generated by FSI</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  result
+                </code>
+                :
+                <code class="code-type">
+                  IFsiEvaluationResult
+                </code>
+              </li>
+              <li>
+                <code>
+                  kind
+                </code>
+                :
+                <code class="code-type">
+                  FsiEmbedKind
+                </code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code class="code-type">
+                  int
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              MarkdownParagraphs
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Evaluator.fs#L59-59" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

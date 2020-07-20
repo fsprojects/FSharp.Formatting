@@ -45,700 +45,1038 @@
     Namespace: FSharp.Formatting.Markdown
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Markdown.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IEquatable<MarkdownParagraph>
+    </li>
+    <li>
+      IStructuralEquatable
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- A paragraph represents a (possibly) multi-line element of a Markdown document.
- Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
- also embedded LaTeX blocks.
-</p>
+    <p>A paragraph represents a (possibly) multi-line element of a Markdown document.
+Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
+also embedded LaTeX blocks.</p>
+
+
   </div>
   <div>
     <h3>
       Union cases
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Union case
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '371', 371)" onmouseover="showTip(event, '371', 371)">
-                <a name="CodeBlock">
-                  CodeBlock(...)
-                </a>
-              </code>
-              <div class="tip" id="371">
-                <strong>
-                  Full Usage: 
-                </strong>
-                CodeBlock(code, executionCount, language, ignoredLine, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      code
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      executionCount
-                    </b>
-                    :
-                    int option
-                  </li>
-                  <li>
-                    <b>
-                      language
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      ignoredLine
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * int option * string * string * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '372', 372)" onmouseover="showTip(event, '372', 372)">
-                <a name="EmbedParagraphs">
-                  EmbedParagraphs(customParagraphs, range)
-                </a>
-              </code>
-              <div class="tip" id="372">
-                <strong>
-                  Full Usage: 
-                </strong>
-                EmbedParagraphs(customParagraphs, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      customParagraphs
-                    </b>
-                    :
-                    MarkdownEmbedParagraphs
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                MarkdownEmbedParagraphs * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '373', 373)" onmouseover="showTip(event, '373', 373)">
-                <a name="Heading">
-                  Heading(size, body, range)
-                </a>
-              </code>
-              <div class="tip" id="373">
-                <strong>
-                  Full Usage: 
-                </strong>
-                Heading(size, body, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      size
-                    </b>
-                    :
-                    int
-                  </li>
-                  <li>
-                    <b>
-                      body
-                    </b>
-                    :
-                    MarkdownSpans
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                int * MarkdownSpans * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '374', 374)" onmouseover="showTip(event, '374', 374)">
-                <a name="HorizontalRule">
-                  HorizontalRule(character, range)
-                </a>
-              </code>
-              <div class="tip" id="374">
-                <strong>
-                  Full Usage: 
-                </strong>
-                HorizontalRule(character, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      character
-                    </b>
-                    :
-                    char
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                char * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
-            <div>
-              <code onmouseout="hideTip(event, '375', 375)" onmouseover="showTip(event, '375', 375)">
-                <a name="InlineBlock">
-                  InlineBlock(code, executionCount, range)
-                </a>
-              </code>
-              <div class="tip" id="375">
-                <strong>
-                  Full Usage: 
-                </strong>
-                InlineBlock(code, executionCount, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      code
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      executionCount
-                    </b>
-                    :
-                    int option
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Signature: 
-                </strong>
-                string * int option * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
-              </div>
-            </div>
-          </td>
-          <td class="xmldoc">
-            
-          </td>
-        </tr>
-        <tr>
-          <td class="member-name">
+          <td class="member-name" id="CodeBlock">
             <div>
               <code onmouseout="hideTip(event, '376', 376)" onmouseover="showTip(event, '376', 376)">
-                <a name="LatexBlock">
-                  LatexBlock(env, body, range)
-                </a>
+                CodeBlock(code, executionCount, language, ignoredLine, range)
               </code>
               <div class="tip" id="376">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                LatexBlock(env, body, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      env
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      body
-                    </b>
-                    :
-                    string list
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  CodeBlock(code, executionCount, language, ignoredLine, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        code
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      int option
+                    </li>
+                    <li>
+                      <b>
+                        language
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        ignoredLine
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string * string list * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  string * int option * string * string * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  code
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code class="code-type">
+                  int option
+                </code>
+              </li>
+              <li>
+                <code>
+                  language
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  ignoredLine
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L57-57" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="EmbedParagraphs">
             <div>
               <code onmouseout="hideTip(event, '377', 377)" onmouseover="showTip(event, '377', 377)">
-                <a name="ListBlock">
-                  ListBlock(kind, items, range)
-                </a>
+                EmbedParagraphs(customParagraphs, range)
               </code>
               <div class="tip" id="377">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ListBlock(kind, items, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      kind
-                    </b>
-                    :
-                    MarkdownListKind
-                  </li>
-                  <li>
-                    <b>
-                      items
-                    </b>
-                    :
-                    MarkdownParagraphs list
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  EmbedParagraphs(customParagraphs, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        customParagraphs
+                      </b>
+                      :
+                      MarkdownEmbedParagraphs
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                MarkdownListKind * MarkdownParagraphs list * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  MarkdownEmbedParagraphs * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  customParagraphs
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownEmbedParagraphs
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L66-66" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Heading">
             <div>
               <code onmouseout="hideTip(event, '378', 378)" onmouseover="showTip(event, '378', 378)">
-                <a name="OtherBlock">
-                  OtherBlock(lines, range)
-                </a>
+                Heading(size, body, range)
               </code>
               <div class="tip" id="378">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                OtherBlock(lines, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      lines
-                    </b>
-                    :
-                    (string * MarkdownRange) list
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  Heading(size, body, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        size
+                      </b>
+                      :
+                      int
+                    </li>
+                    <li>
+                      <b>
+                        body
+                      </b>
+                      :
+                      MarkdownSpans
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                (string * MarkdownRange) list * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  int * MarkdownSpans * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Reprsents a block of markdown produced when parsing of tables or quoted blocks is suppressed
-</p>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  size
+                </code>
+                :
+                <code class="code-type">
+                  int
+                </code>
+              </li>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownSpans
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L55-55" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="HorizontalRule">
             <div>
               <code onmouseout="hideTip(event, '379', 379)" onmouseover="showTip(event, '379', 379)">
-                <a name="OutputBlock">
-                  OutputBlock(output, kind, executionCount)
-                </a>
+                HorizontalRule(character, range)
               </code>
               <div class="tip" id="379">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                OutputBlock(output, kind, executionCount)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      output
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      kind
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      executionCount
-                    </b>
-                    :
-                    int option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  HorizontalRule(character, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        character
+                      </b>
+                      :
+                      char
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                string * string * int option -&gt; MarkdownParagraph
-                <br/>
+                  char * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  character
+                </code>
+                :
+                <code class="code-type">
+                  char
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L64-64" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="InlineBlock">
             <div>
               <code onmouseout="hideTip(event, '380', 380)" onmouseover="showTip(event, '380', 380)">
-                <a name="Paragraph">
-                  Paragraph(body, range)
-                </a>
+                InlineBlock(code, executionCount, range)
               </code>
               <div class="tip" id="380">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                Paragraph(body, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      body
-                    </b>
-                    :
-                    MarkdownSpans
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  InlineBlock(code, executionCount, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        code
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      int option
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                MarkdownSpans * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  string * int option * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  code
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code class="code-type">
+                  int option
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L59-59" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="LatexBlock">
             <div>
               <code onmouseout="hideTip(event, '381', 381)" onmouseover="showTip(event, '381', 381)">
-                <a name="QuotedBlock">
-                  QuotedBlock(paragraphs, range)
-                </a>
+                LatexBlock(env, body, range)
               </code>
               <div class="tip" id="381">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                QuotedBlock(paragraphs, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      paragraphs
-                    </b>
-                    :
-                    MarkdownParagraphs
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  LatexBlock(env, body, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        env
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        body
+                      </b>
+                      :
+                      string list
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                MarkdownParagraphs * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  string * string list * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  env
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code class="code-type">
+                  string list
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L63-63" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ListBlock">
             <div>
               <code onmouseout="hideTip(event, '382', 382)" onmouseover="showTip(event, '382', 382)">
-                <a name="Span">
-                  Span(body, range)
-                </a>
+                ListBlock(kind, items, range)
               </code>
               <div class="tip" id="382">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                Span(body, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      body
-                    </b>
-                    :
-                    MarkdownSpans
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  ListBlock(kind, items, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        kind
+                      </b>
+                      :
+                      MarkdownListKind
+                    </li>
+                    <li>
+                      <b>
+                        items
+                      </b>
+                      :
+                      MarkdownParagraphs list
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                MarkdownSpans * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  MarkdownListKind * MarkdownParagraphs list * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  kind
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownListKind
+                </code>
+              </li>
+              <li>
+                <code>
+                  items
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraphs list
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L60-60" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="OtherBlock">
             <div>
               <code onmouseout="hideTip(event, '383', 383)" onmouseover="showTip(event, '383', 383)">
-                <a name="TableBlock">
-                  TableBlock(headers, alignments, rows, range)
-                </a>
+                OtherBlock(lines, range)
               </code>
               <div class="tip" id="383">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                TableBlock(headers, alignments, rows, range)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      headers
-                    </b>
-                    :
-                    MarkdownTableRow option
-                  </li>
-                  <li>
-                    <b>
-                      alignments
-                    </b>
-                    :
-                    MarkdownColumnAlignment list
-                  </li>
-                  <li>
-                    <b>
-                      rows
-                    </b>
-                    :
-                    MarkdownTableRow list
-                  </li>
-                  <li>
-                    <b>
-                      range
-                    </b>
-                    :
-                    MarkdownRange option
-                  </li>
-                </ul>
-                <br/>
-                <strong>
+                  <br/>
+                  OtherBlock(lines, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        lines
+                      </b>
+                      :
+                      (string * MarkdownRange) list
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
                   Signature: 
-                </strong>
-                MarkdownTableRow option * MarkdownColumnAlignment list * MarkdownTableRow list * MarkdownRange option -&gt; MarkdownParagraph
-                <br/>
+                  (string * MarkdownRange) list * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            <p>Reprsents a block of markdown produced when parsing of tables or quoted blocks is suppressed</p>
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  lines
+                </code>
+                :
+                <code class="code-type">
+                  (string * MarkdownRange) list
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L68-68" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="OutputBlock">
+            <div>
+              <code onmouseout="hideTip(event, '384', 384)" onmouseover="showTip(event, '384', 384)">
+                OutputBlock(output, kind, executionCount)
+              </code>
+              <div class="tip" id="384">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  OutputBlock(output, kind, executionCount)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        output
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        kind
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      int option
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  string * string * int option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  output
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  kind
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code class="code-type">
+                  int option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L58-58" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Paragraph">
+            <div>
+              <code onmouseout="hideTip(event, '385', 385)" onmouseover="showTip(event, '385', 385)">
+                Paragraph(body, range)
+              </code>
+              <div class="tip" id="385">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  Paragraph(body, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        body
+                      </b>
+                      :
+                      MarkdownSpans
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  MarkdownSpans * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownSpans
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L56-56" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="QuotedBlock">
+            <div>
+              <code onmouseout="hideTip(event, '386', 386)" onmouseover="showTip(event, '386', 386)">
+                QuotedBlock(paragraphs, range)
+              </code>
+              <div class="tip" id="386">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  QuotedBlock(paragraphs, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        paragraphs
+                      </b>
+                      :
+                      MarkdownParagraphs
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  MarkdownParagraphs * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  paragraphs
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownParagraphs
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L61-61" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="Span">
+            <div>
+              <code onmouseout="hideTip(event, '387', 387)" onmouseover="showTip(event, '387', 387)">
+                Span(body, range)
+              </code>
+              <div class="tip" id="387">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  Span(body, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        body
+                      </b>
+                      :
+                      MarkdownSpans
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  MarkdownSpans * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownSpans
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L62-62" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="member-name" id="TableBlock">
+            <div>
+              <code onmouseout="hideTip(event, '388', 388)" onmouseover="showTip(event, '388', 388)">
+                TableBlock(headers, alignments, rows, range)
+              </code>
+              <div class="tip" id="388">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  TableBlock(headers, alignments, rows, range)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        headers
+                      </b>
+                      :
+                      MarkdownTableRow option
+                    </li>
+                    <li>
+                      <b>
+                        alignments
+                      </b>
+                      :
+                      MarkdownColumnAlignment list
+                    </li>
+                    <li>
+                      <b>
+                        rows
+                      </b>
+                      :
+                      MarkdownTableRow list
+                    </li>
+                    <li>
+                      <b>
+                        range
+                      </b>
+                      :
+                      MarkdownRange option
+                    </li>
+                  </ul>
+                  <br/>
+                  Signature: 
+                  MarkdownTableRow option * MarkdownColumnAlignment list * MarkdownTableRow list * MarkdownRange option -&gt; MarkdownParagraph
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  headers
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownTableRow option
+                </code>
+              </li>
+              <li>
+                <code>
+                  alignments
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownColumnAlignment list
+                </code>
+              </li>
+              <li>
+                <code>
+                  rows
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownTableRow list
+                </code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code class="code-type">
+                  MarkdownRange option
+                </code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L65-65" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

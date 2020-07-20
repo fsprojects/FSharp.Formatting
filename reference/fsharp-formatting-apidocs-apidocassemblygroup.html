@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.ApiDocs
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.ApiDocs.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
- Represents a group of assemblies integrated with its associated documentation
-</p>
+    <p>Represents a group of assemblies integrated with its associated documentation</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,74 +63,104 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="( .ctor )">
             <div>
               <code onmouseout="hideTip(event, '11', 11)" onmouseover="showTip(event, '11', 11)">
-                <a name="( .ctor )">
-                  ApiDocAssemblyGroup(name, asms, nss)
-                </a>
+                ApiDocAssemblyGroup(name, asms, nss)
               </code>
               <div class="tip" id="11">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                ApiDocAssemblyGroup(name, asms, nss)
-                <br/>
-                <strong>
-                  Parameters: 
-                </strong>
-                <ul>
-                  <li>
-                    <b>
-                      name
-                    </b>
-                    :
-                    string
-                  </li>
-                  <li>
-                    <b>
-                      asms
-                    </b>
-                    :
-                    AssemblyName list
-                  </li>
-                  <li>
-                    <b>
-                      nss
-                    </b>
-                    :
-                    ApiDocNamespace list
-                  </li>
-                </ul>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocAssemblyGroup
-                <br/>
-                <strong>
+                  <br/>
+                  ApiDocAssemblyGroup(name, asms, nss)
+                  Parameter Types: 
+                  <ul>
+                    <li>
+                      <b>
+                        name
+                      </b>
+                      :
+                      string
+                    </li>
+                    <li>
+                      <b>
+                        asms
+                      </b>
+                      :
+                      AssemblyName list
+                    </li>
+                    <li>
+                      <b>
+                        nss
+                      </b>
+                      :
+                      ApiDocNamespace list
+                    </li>
+                  </ul>
+                  <br/>
+                  Return Type: 
+                  ApiDocAssemblyGroup
+                  <br/>
                   Signature: 
-                </strong>
-                (name: string * asms: AssemblyName list * nss: ApiDocNamespace list) -&gt; ApiDocAssemblyGroup
-                <br/>
+                  (name: string * asms: AssemblyName list * nss: ApiDocNamespace list) -&gt; ApiDocAssemblyGroup
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  name
+                </code>
+                :
+                <code class="code-type">
+                  string
+                </code>
+              </li>
+              <li>
+                <code>
+                  asms
+                </code>
+                :
+                <code class="code-type">
+                  AssemblyName list
+                </code>
+              </li>
+              <li>
+                <code>
+                  nss
+                </code>
+                :
+                <code class="code-type">
+                  ApiDocNamespace list
+                </code>
+              </li>
+            </ul>
+            Return Type: 
+            <code class="code-type">
+              ApiDocAssemblyGroup
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L389-389" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>
@@ -137,118 +170,124 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Assemblies">
             <div>
               <code onmouseout="hideTip(event, '12', 12)" onmouseover="showTip(event, '12', 12)">
-                <a name="Assemblies">
-                  this.Assemblies
-                </a>
+                this.Assemblies
               </code>
               <div class="tip" id="12">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Assemblies
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                AssemblyName list
-                <br/>
-                <strong>
+                  <br/>
+                  this.Assemblies
+                  <br/>
+                  Return Type: 
+                  AssemblyName list
+                  <br/>
                   Signature: 
-                </strong>
-                AssemblyName list
-                <br/>
+                  AssemblyName list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- All assemblies in the group
-</p>
+            <p>All assemblies in the group</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              AssemblyName list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L394-394" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Name">
             <div>
               <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
-                <a name="Name">
-                  this.Name
-                </a>
+                this.Name
               </code>
               <div class="tip" id="13">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Name
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  <br/>
+                  this.Name
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Name of the group
-</p>
+            <p>Name of the group</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L391-391" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Namespaces">
             <div>
               <code onmouseout="hideTip(event, '14', 14)" onmouseover="showTip(event, '14', 14)">
-                <a name="Namespaces">
-                  this.Namespaces
-                </a>
+                this.Namespaces
               </code>
               <div class="tip" id="14">
-                <strong>
+                <div class="member-tooltip">
                   Full Usage: 
-                </strong>
-                this.Namespaces
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                ApiDocNamespace list
-                <br/>
-                <strong>
+                  <br/>
+                  this.Namespaces
+                  <br/>
+                  Return Type: 
+                  ApiDocNamespace list
+                  <br/>
                   Signature: 
-                </strong>
-                ApiDocNamespace list
-                <br/>
+                  ApiDocNamespace list
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- All namespaces in the group
-</p>
+            <p>All namespaces in the group</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              ApiDocNamespace list
+            </code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L397-397" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

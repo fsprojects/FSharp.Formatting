@@ -45,150 +45,169 @@
     Namespace: FSharp.Formatting.Literate
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.Literate.dll
   </p>
   <br/>
+  <p>
+    Base Type: obj
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      IEquatable<LiterateCodeOptions>
+    </li>
+    <li>
+      IStructuralEquatable
+    </li>
+    <li>
+      IComparable<LiterateCodeOptions>
+    </li>
+    <li>
+      IComparable
+    </li>
+    <li>
+      IStructuralComparable
+    </li>
+  </ul>
   <div class="xmldoc">
-    </br><p class='summary'>
- Additional properties of a literate code snippet, embedded in a
- `LiterateParagraph.LiterateCode`. The properties specify how should
- a snippet be evaluated and formatted.
-</p>
+    <p>Additional properties of a literate code snippet, embedded in a
+<code>LiterateParagraph.LiterateCode</code>. The properties specify how should
+a snippet be evaluated and formatted.</p>
+
+
   </div>
   <div></div>
   <div>
     <h3>
       Record fields
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Record Field
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Evaluate">
             <div>
-              <code onmouseout="hideTip(event, '285', 285)" onmouseover="showTip(event, '285', 285)">
-                <a name="Evaluate">
-                  Evaluate
-                </a>
-              </code>
-              <div class="tip" id="285">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '291', 291)" onmouseover="showTip(event, '291', 291)">
                 Evaluate
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="291">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  Evaluate
+                  <br/>
                   Signature: 
-                </strong>
-                bool
-                <br/>
+                  bool
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Specifies whether the snippet is evalauted while processing
- Use (*** do-not-eval ***) command to set this to `false`
-</p>
+            <p>Specifies whether the snippet is evalauted while processing
+Use (<strong><em> do-not-eval </em></strong>) command to set this to <code>false</code></p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L33-33" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="ExecutionCount">
             <div>
-              <code onmouseout="hideTip(event, '286', 286)" onmouseover="showTip(event, '286', 286)">
-                <a name="ExecutionCount">
-                  ExecutionCount
-                </a>
-              </code>
-              <div class="tip" id="286">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '292', 292)" onmouseover="showTip(event, '292', 292)">
                 ExecutionCount
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="292">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  ExecutionCount
+                  <br/>
                   Signature: 
-                </strong>
-                int option
-                <br/>
+                  int option
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Indiciates the execution sequence number of the cell if it has been evaluated
-</p>
+            <p>Indiciates the execution sequence number of the cell if it has been evaluated</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L41-41" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="OutputName">
             <div>
-              <code onmouseout="hideTip(event, '287', 287)" onmouseover="showTip(event, '287', 287)">
-                <a name="OutputName">
-                  OutputName
-                </a>
-              </code>
-              <div class="tip" id="287">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '293', 293)" onmouseover="showTip(event, '293', 293)">
                 OutputName
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="293">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  OutputName
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
+                  string
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Specifies the name of the output produced by this snippet
- Use the (*** define-output:foo ***) command to set this value
- Other outputs are named cell1, cell2 etc.
-</p>
+            <p>Specifies the name of the output produced by this snippet
+Use the (<strong><em> define-output:foo </em></strong>) command to set this value
+Other outputs are named cell1, cell2 etc.</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L38-38" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="Visibility">
             <div>
-              <code onmouseout="hideTip(event, '288', 288)" onmouseover="showTip(event, '288', 288)">
-                <a name="Visibility">
-                  Visibility
-                </a>
-              </code>
-              <div class="tip" id="288">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '294', 294)" onmouseover="showTip(event, '294', 294)">
                 Visibility
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="294">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  Visibility
+                  <br/>
                   Signature: 
-                </strong>
-                LiterateCodeVisibility
-                <br/>
+                  LiterateCodeVisibility
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
- Specifies the visibility of the snippet in the generated HTML
-</p>
+            <p>Specifies the visibility of the snippet in the generated HTML</p>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L44-44" class="github-link">
+              <img src="../content/img/github.png" class="normal"/>
+              <img src="../content/img/github-blue.png" class="hover"/>
+            </a>
           </td>
         </tr>
       </tbody>

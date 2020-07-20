@@ -45,13 +45,16 @@
     Namespace: FSharp.Formatting.CSharpFormat
   </p>
   <p>
-    Assembly: FSharp.Formatting
+    Assembly: FSharp.Formatting.CSharpFormat.dll
   </p>
   <br/>
+  <p>
+    Base Type: CodeFormat
+  </p>
   <div class="xmldoc">
-    </br><p class='summary'>
-            Provides a base class for formatting languages similar to C.
-            </p>
+    <p>Provides a base class for formatting languages similar to C.</p>
+
+
   </div>
   <div></div>
   <div></div>
@@ -60,44 +63,38 @@
     <h3>
       Constructors
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Constructor
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id=".ctor">
             <div>
-              <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
-                <a name=".ctor">
-                  CLikeFormat()
-                </a>
-              </code>
-              <div class="tip" id="131">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
                 CLikeFormat()
-                <br/>
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="137">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  CLikeFormat()
+                  <br/>
                   Signature: 
-                </strong>
-                unit -&gt; unit
-                <br/>
+                  unit -&gt; unit
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
-          <td class="xmldoc">
-            
-          </td>
+          <td class="xmldoc"></td>
         </tr>
       </tbody>
     </table>
@@ -106,95 +103,87 @@
     <h3>
       Instance members
     </h3>
-    <table class="table table-bordered member-list">
+    <table class="table member-list">
       <thead>
         <tr>
-          <td>
+          <td class="member-list-header">
             Instance member
           </td>
-          <td>
+          <td class="member-list-header">
             Description
           </td>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="CommentRegEx">
             <div>
-              <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
-                <a name="CommentRegEx">
-                  this.CommentRegEx
-                </a>
-              </code>
-              <div class="tip" id="132">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
                 this.CommentRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="138">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.CommentRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Regular expression string to match single line and multi-line 
-            comments (// and /* */). 
-            </p>
+            <p>Regular expression string to match single line and multi-line
+comments (// and /<em> </em>/).</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
         <tr>
-          <td class="member-name">
+          <td class="member-name" id="StringRegEx">
             <div>
-              <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
-                <a name="StringRegEx">
-                  this.StringRegEx
-                </a>
-              </code>
-              <div class="tip" id="133">
-                <strong>
-                  Full Usage: 
-                </strong>
+              <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
                 this.StringRegEx
-                <br/>
-                <br/>
-                <strong>
-                  Returns: 
-                </strong>
-                string
-                <br/>
-                <strong>
+              </code>
+              <div class="tip" id="139">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <br/>
+                  this.StringRegEx
+                  <br/>
+                  Return Type: 
+                  string
+                  <br/>
                   Signature: 
-                </strong>
-                string
-                <br/>
-                <strong>
+                  string
+                  <br/>
                   Modifiers: 
-                </strong>
-                abstract
-                <br/>
+                  abstract
+                  <br/>
+                </div>
               </div>
             </div>
           </td>
           <td class="xmldoc">
-            </br><p class='summary'>
-            Regular expression string to match string and character literals. 
-            </p>
+            <p>Regular expression string to match string and character literals.</p>
+            <br/>
+            Return Type: 
+            <code class="code-type">
+              string
+            </code>
+            <br/>
           </td>
         </tr>
       </tbody>
