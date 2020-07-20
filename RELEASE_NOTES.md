@@ -1,3 +1,6 @@
+## 6.0.6
+  - fix default styling
+
 ## 6.0.5
   - improve display in FSharp.Formatting API docs and add more information
 
