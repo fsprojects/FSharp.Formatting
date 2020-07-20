@@ -15,7 +15,7 @@ type HtmlRender(markDownComments) =
         p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
     ]
 
-  let renderEntities (entities: Choice<ApiDocType, ApiDocModule> list) =
+  let renderEntities (entities: Choice<ApiDocTypeDefinition, ApiDocModule> list) =
    [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (function Choice1Of2 _ -> true | _ -> false)
       let hasModules = entities |> List.exists (function Choice2Of2 _ -> true | _ -> false)
@@ -122,7 +122,7 @@ type HtmlRender(markDownComments) =
             
                td [Class "xmldoc"] [
                   if not (String.IsNullOrWhiteSpace(m.Comment.FullText)) then
-                      !!m.Comment.FullText
+                      !!m.Comment.FullText.Trim()
                       br []
                   if not m.ParameterTooltips.IsEmpty then
                       !! "Parameter Types: "
@@ -198,12 +198,12 @@ type HtmlRender(markDownComments) =
         for sec in comment.Sections do
           if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
             if (sec.Key <> "<default>") then 
-              h2 [] [!!sec.Key]
+              h3 [] [!!sec.Key]
           !! sec.Value 
         ]
       if (byCategory.Length > 1) then
         // If there is more than 1 category in the type, generate TOC 
-        h2 [] [!!"Table of contents"]
+        h3 [] [!!"Table of contents"]
         ul [] [
           for (index, _, _, name) in byCategory do
             li [] [ a [Href ("#section" + index.ToString())] [!! name ] ]
@@ -217,7 +217,9 @@ type HtmlRender(markDownComments) =
   
       if (nestedEntities.Length > 0) then
         div [] [
-          h2 [] [!!"Types and modules"]
+          h3 [] [!!  (if entity.NestedTypes.Length = 0 then "Nested modules"
+                      elif entity.NestedModules.Length = 0 then "Types"
+                      else "Types and nested modules")]
           yield! renderEntities nestedEntities
         ]
  
@@ -242,6 +244,7 @@ type HtmlRender(markDownComments) =
     let members = info.Type.AllMembers
     let comment = info.Type.Comment
     let entity = info.Type
+
       // Group all members by their category which is an inline annotation
       // that can be added to members using special XML comment:
       //
@@ -267,6 +270,39 @@ type HtmlRender(markDownComments) =
       | Some parentModule ->
         span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
   
+      match entity.AbbreviatedType with
+      | Some abbreviatedTyp ->
+         p [] [!! ("Abbreviation For: " + abbreviatedTyp)]
+          
+      | None ->  ()
+      match entity.BaseType with
+      | Some baseType ->
+         p [] [!! ("Base Type: " + baseType)]
+      | None -> ()
+      match entity.AllInterfaces with
+      | [] -> ()
+      | l ->
+         p [] [!! ("All Interfaces: ")]
+         ul [] [ for i in l -> li [] [!! i] ]
+               
+      if entity.Symbol.IsValueType then
+         p [] [!! ("Kind: Struct")]
+
+      match entity.DelegateSignature with
+      | Some d ->
+          p [] [!! ("Kind: Delegate")]
+          code  [] [!! d]
+      | None -> ()
+
+      if entity.Symbol.IsProvided then
+         p [] [!! ("This is a provided type definition")]
+
+      if entity.Symbol.IsAttributeType then
+         p [] [!! ("This is an attribute type definition")]
+
+      if entity.Symbol.IsEnum then
+         p [] [!! ("This is an enum type definition")]
+
       if entity.IsObsolete then
           obsoleteMessage entity.ObsoleteMessage
   

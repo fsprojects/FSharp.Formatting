@@ -156,7 +156,7 @@ pre.fssnip code {
 	.table th {
 		display: table-cell;
 		word-wrap: break-word;
-		padding: 0.75rem 1rem;
+		padding: 0.75rem 1rem 0.75rem 0rem;
 		line-height: 1.5;
 		vertical-align: top;
 		border-top: 1px solid #e3e3e3;

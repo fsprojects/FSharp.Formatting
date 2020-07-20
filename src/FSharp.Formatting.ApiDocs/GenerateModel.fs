@@ -254,7 +254,11 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
     ApiDocAttribute.TryGetCustomOperationName(x.Attributes)
 
 /// Represents a type definition integrated with its associated documentation
-type ApiDocType(name, cat, url, comment, assembly: AssemblyName, attributes, cases, fields, statParams, ctors, inst, stat) =
+type ApiDocTypeDefinition
+       (name, cat, url, comment, assembly: AssemblyName, attributes,
+        cases, fields, statParams, ctors, inst, stat, allInterfaces, baseType, abbreviatedType,
+        delegateSignature, symbol: FSharpEntity) =
+
   /// The name of the type
   member x.Name : string = name
 
@@ -285,6 +289,18 @@ type ApiDocType(name, cat, url, comment, assembly: AssemblyName, attributes, cas
     /// All members of the type
   member x.AllMembers : ApiDocMember list = List.concat [ ctors; inst; stat; cases; fields; statParams ]
 
+    /// All interfaces of the type, formatted
+  member x.AllInterfaces : string list = allInterfaces
+
+    /// The base type of the type, formatted
+  member x.BaseType : string option = baseType
+
+    /// If this is a type abbreviation, then the abbreviated type
+  member x.AbbreviatedType : string option = abbreviatedType
+
+    /// If this is a delegate, then e formatted signature
+  member x.DelegateSignature : string option = delegateSignature
+
     /// The constuctorsof the type
   member x.Constructors : ApiDocMember list = ctors
 
@@ -303,8 +319,12 @@ type ApiDocType(name, cat, url, comment, assembly: AssemblyName, attributes, cas
   member x.ObsoleteMessage =
     ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
 
+  /// The F# compiler symbol for the type definition
+  member x.Symbol = symbol
+
+
 /// Represents an F# module definition integrated with its associated documentation
-type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats) =
+type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats, symbol) =
 
     /// The name of the module
   member x.Name : string = name
@@ -331,7 +351,7 @@ type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types,
   member x.NestedModules : ApiDocModule list = modules
 
     /// All nested types
-  member x.NestedTypes : ApiDocType list = types
+  member x.NestedTypes : ApiDocTypeDefinition list = types
 
     /// Values and functions of the module
   member x.ValuesAndFuncs : ApiDocMember list = vals
@@ -351,6 +371,9 @@ type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types,
   member x.ObsoleteMessage =
     ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
 
+  /// The F# compiler symbol for the type definition
+  member x.Symbol = symbol
+
 /// Represents a namespace integrated with its associated documentation
 type ApiDocNamespace(name, mods, typs) =
     /// The name of the namespace
@@ -360,7 +383,7 @@ type ApiDocNamespace(name, mods, typs) =
   member x.Modules : ApiDocModule list = mods
 
     /// All types in the namespace
-  member x.Types : ApiDocType list = typs
+  member x.Types : ApiDocTypeDefinition list = typs
 
 /// Represents a group of assemblies integrated with its associated documentation
 type ApiDocAssemblyGroup(name: string, asms: AssemblyName list, nss: ApiDocNamespace list) =
@@ -393,7 +416,7 @@ type ApiDocModuleInfo(modul: ApiDocModule, asm: ApiDocAssemblyGroup, ns: ApiDocN
 /// High-level information about a type definition
 type ApiDocTypeInfo(typ, asm, ns, modul) =
     /// The actual type
-  member x.Type : ApiDocType = typ
+  member x.Type : ApiDocTypeDefinition = typ
 
     /// The assembly group the type belongs to
   member x.AssemblyGroup : ApiDocAssemblyGroup = asm
@@ -559,22 +582,25 @@ module internal ValueReader =
         formatTypeArgument typ.GenericParameter
     | _ -> "(type)"
 
-  let formatType typ =
-    formatTypeWithPrec 5 typ
+  let formatType (typ: FSharpType) =
+    formatTypeWithPrec 5 (FSharpType.Prettify typ)
 
   let isUnitType (ty: FSharpType) =
       ty.HasTypeDefinition && ty.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" 
 
-  let formatArgNameAndType i (arg:FSharpParameter) =
-    let nm =
-      match arg.Name with
+  let formatArgNameAndTypePair i (argName, argType) =
+    let argName =
+      match argName with
       | None ->
-          if isUnitType arg.Type then "()"
+          if isUnitType argType then "()"
           else "arg" + string i
       | Some nm -> nm
+    argName, argType
+
+  let formatArgNameAndType i (arg:FSharpParameter) =
+    let argName, argType  =  formatArgNameAndTypePair i (arg.Name, arg.Type)
     let isOptionalArg = arg.IsOptionalArg || hasAttrib<OptionalArgumentAttribute> arg.Attributes
-    let argName = if isOptionalArg then "?" + nm else nm
-    let argType = arg.Type
+    let argName = if isOptionalArg then "?" + argName else argName
     let argType =
         // Strip off the 'option' type for optional arguments
         if isOptionalArg && argType.HasTypeDefinition && argType.GenericArguments.Count = 1 then
@@ -588,6 +614,13 @@ module internal ValueReader =
     let argName, argType = formatArgNameAndType i arg
     if generateTypes then
       (match arg.Name with None -> "" | Some argName -> argName + ": ") +
+      formatTypeWithPrec 2 argType
+    else argName
+
+  let formatArgNameAndTypePairUsage generateTypes i (argName0, argType) =
+    let argName, argType = formatArgNameAndTypePair i (argName0, argType)
+    if generateTypes then
+      (match argName0 with None -> "" | Some argName -> argName + ": ") +
       formatTypeWithPrec 2 argType
     else argName
 
@@ -612,6 +645,9 @@ module internal ValueReader =
     | Some loc -> Some loc
     | None -> symbol.DeclarationLocation
 
+  let formatDelegateSignature (typ: FSharpDelegateSignature) =
+    (typ.DelegateArguments |> List.ofSeq |> List.mapi (formatArgNameAndTypePairUsage true) |> String.concat " * ") + " -> " + formatType typ.DelegateReturnType 
+
   let readAttribute (attribute: FSharpAttribute) =
     let name = attribute.AttributeType.DisplayName
     let fullName = attribute.AttributeType.FullName
@@ -625,7 +661,6 @@ module internal ValueReader =
     |> Seq.toList
 
   let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) =
-    // we calculate this early just in case this fails with an FCS error.
     let requireQualifiedAccess =
         hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
 
@@ -638,8 +673,13 @@ module internal ValueReader =
           if String.IsNullOrWhiteSpace(s) then ""
           elif s.StartsWith("(") then s
           // curried arguments should not have brackets, see https://github.com/fsprojects/FSharp.Formatting/issues/472
-          elif argInfos.Length > 1 then " " + s
-          else sprintf "(%s)" s)
+          // single argument F# function values should not have brackets if they are not tuples 
+          // single argument F# members should not have brackets if they are lower case
+          elif argInfos.Length > 1 ||
+               (s <> "()" && not (s.Contains(",")) && (v.IsModuleValueOrMember || (Char.IsLower(v.DisplayName.[0])))) then
+              " " + s
+          else
+              sprintf "(%s)" s)
 
       match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
       // Constructors 
@@ -882,7 +922,7 @@ module internal Reader =
           ()
        ) (e.Nodes())
    readElement doc
-   full.Append("</br>") |> ignore
+   //full.Append("</br>") |> ignore
 
    let summaries = doc.Descendants(XName.Get "summary")
    summaries |> Seq.iteri (fun id e ->
@@ -1117,8 +1157,7 @@ module internal Reader =
                 else ""
 
             let paramList =
-                if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0
-                then
+                if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0 then
                     let head = memb.CurriedParameterGroups.[0]
                     let paramTypeList =
                         head
@@ -1419,17 +1458,10 @@ module internal Reader =
           |> List.partition (fun v -> v.IsInstanceMember)
       let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
 
-      (*
-      // Base types?
-      let iimpls =
-        if ( not typ.IsAbbreviation && not typ.HasAssemblyCodeRepresentation &&
-             typ.ReflectionType.IsInterface) then [] else typ.Implements |> List.ofSeq
-      // TODO: layout base type in some way
-      if not iimpls.IsEmpty then
-        newTable1 hFile "Interfaces" 40 "Type"  (fun () ->
-          iimpls |> List.iter (fun i ->
-              newEntry1 hFile ("<pre>"+outputL widthVal (layoutType denv i)+"</pre>")))
-      *)
+      let baseType = typ.BaseType |> Option.map formatType
+      let allInterfaces = [ for i in typ.AllInterfaces -> formatType i ]
+      let abbreviatedType = if typ.IsFSharpAbbreviation then Some (formatType typ.AbbreviatedType) else None 
+      let delegateSignature = if typ.IsDelegate then Some (typ.DisplayName + formatDelegateSignature typ.FSharpDelegateSignature) else None 
 
       let name = readTypeName typ
       let cases = readUnionCases ctx entityUrl typ
@@ -1442,7 +1474,8 @@ module internal Reader =
       let inst = readAllMembers ctx entityUrl ApiDocMemberKind.InstanceMember ivals
       let stat = readAllMembers ctx entityUrl ApiDocMemberKind.StaticMember svals
 
-      ApiDocType (name, cat, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors, inst, stat ))
+      ApiDocTypeDefinition (name, cat, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors,
+         inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, typ))
 
   and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
     readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
@@ -1458,7 +1491,7 @@ module internal Reader =
 
       ApiDocModule
         ( modul.DisplayName, cat, entityUrl, comment, ctx.Assembly, attrs,
-          modules, types, vals, exts, pats ))
+          modules, types, vals, exts, pats, modul ))
 
   // ----------------------------------------------------------------------------------------------
   // Reading namespace and assembly details
@@ -1688,8 +1721,10 @@ type DocComment = class end
 type Module = class end
 [<Obsolete("Renamed to ApiDocModuleInfo", true)>]
 type ModuleInfo = class end
-[<Obsolete("Renamed to ApiDocType", true)>]
+[<Obsolete("Renamed to ApiDocTypeDefinition", true)>]
 type Type = class end
+[<Obsolete("Renamed to ApiDocTypeDefinition", true)>]
+type ApiDocType = class end
 [<Obsolete("Renamed to ApiDocTypeInfo", true)>]
 type TypeInfo = class end
 
