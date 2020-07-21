@@ -114,10 +114,10 @@ Target.create "NuGet" (fun _ ->
 
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
-    File.WriteAllText("tmp-tools.json", """{ "version": 1, "isRoot": true, "tools": { } }""")
-    DotNet.exec id "tool" "uninstall --tool-manifest tmp-tools.json --local FSharp.Formatting.CommandTool" |> ignore
-    DotNet.exec id "tool" ("install --tool-manifest tmp-tools.json --local --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
+    DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
+    DotNet.exec id "tool" ("install --local --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
     DotNet.exec id "fsdocs" "build --clean --mdcomments" |> ignore
+    DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
 )
 
 // --------------------------------------------------------------------------------------
@@ -125,8 +125,7 @@ Target.create "GenerateDocs" (fun _ ->
 
 Target.create "ReleaseDocs" (fun _ ->
     Shell.cleanDir "temp"
-    Git.Repository.clone "" projectRepo "temp/gh-pages"
-    Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
+    Git.CommandHelper.runSimpleGitCommand "." (sprintf "clone %s temp/gh-pages --depth 1 -b gh-pages" projectRepo) |> ignore
     Shell.copyRecursive "output" "temp/gh-pages" true |> printfn "%A"
     Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
     let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
@@ -157,18 +156,9 @@ Target.create "Release" ignore
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "Tests"
-  ==> "All"
-
-"Build"
   ==> "NuGet"
   ==> "GenerateDocs"
-  ==> "All"
-
-"GenerateDocs"
   ==> "ReleaseDocs"
-  ==> "Release"
-
-"All"
   ==> "CreateTag"
   ==> "PublishNuget"
   ==> "Release"
