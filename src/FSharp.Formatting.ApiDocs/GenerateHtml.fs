@@ -113,9 +113,14 @@ type HtmlRender(markDownComments) =
                           !! "Modifiers: "
                           !! HttpUtility.HtmlEncode(m.FormatModifiers)
                           br []
-                        if not (m.TypeArguments.IsEmpty) then
-                          !!"Type parameters: "
-                          !!m.FormatTypeArguments
+
+                          // We suppress the display of ill-formatted type parameters for places
+                          // where these have not been explicitly declared
+                          match m.FormatTypeArguments with
+                          | None -> ()
+                          | Some v -> 
+                              !!"Type parameters: "
+                              !!v
                       ]
                     ]
                ]

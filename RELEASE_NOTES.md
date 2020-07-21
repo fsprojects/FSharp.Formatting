@@ -1,3 +1,6 @@
+## 6.0.7
+  - fix formatting of generic parameters so they don't show inference variables for members
+
 ## 6.0.6
   - fix default styling
 

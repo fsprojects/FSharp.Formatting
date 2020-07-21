@@ -196,7 +196,12 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
   member x.FormatUsage(maxLength) = usage(maxLength)
 
   /// Formats type arguments
-  member x.FormatTypeArguments = String.concat ", " x.TypeArguments
+  member x.FormatTypeArguments =
+      // We suppress the display of ill-formatted type parameters for places
+      // where these have not been explicitly declared.  This could likely be done
+      // in a better way
+      let res = String.concat ", " x.TypeArguments
+      if x.TypeArguments.IsEmpty || res.Contains("?") then None else Some res
 
   /// Formats modifiers
   member x.FormatModifiers = String.concat " " x.Modifiers
@@ -583,7 +588,7 @@ module internal ValueReader =
     | _ -> "(type)"
 
   let formatType (typ: FSharpType) =
-    formatTypeWithPrec 5 (FSharpType.Prettify typ)
+    formatTypeWithPrec 5 typ
 
   let isUnitType (ty: FSharpType) =
       ty.HasTypeDefinition && ty.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" 
@@ -664,7 +669,8 @@ module internal ValueReader =
     let requireQualifiedAccess =
         hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
 
-    let argInfos = v.CurriedParameterGroups |> Seq.map Seq.toList |> Seq.toList
+    let argInfos, retInfo = FSharpType.Prettify(v.CurriedParameterGroups, v.ReturnParameter)
+    let argInfos = argInfos |> Seq.map Seq.toList |> Seq.toList
 
     let buildUsage (args:string option) =
 
@@ -698,7 +704,7 @@ module internal ValueReader =
         if v.InlineAnnotation = FSharpInlineAnnotation.AlwaysInline then yield "inline"
         if v.IsDispatchSlot then yield "abstract" ]
 
-    let retType = v.ReturnParameter.Type
+    let retType = retInfo.Type
     let argInfos, retType =
         match argInfos, v.IsPropertyGetterMethod || v.HasGetterMethod, v.IsPropertySetterMethod || v.HasSetterMethod with
         | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
