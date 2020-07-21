@@ -35,8 +35,7 @@ let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
-let gitHome = "https://github.com/fsprojects"
-let projectRepo = gitHome + "/FSharp.Formatting"
+let projectRepo = "https://github.com/fsprojects/FSharp.Formatting"
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
@@ -110,82 +109,21 @@ Target.create "NuGet" (fun _ ->
         }) solutionFile
 )
 
-
-// Generate the documentation
+// Generate the documentation by dogfooding the tools pacakge
 // --------------------------------------------------------------------------------------
 
-let toolPath = "temp"
-
-let docsToolPath = toolPath </> "fsdocs" + (if Environment.isWindows then ".exe" else "")
-let docsToolStartInfo workingDirectory args =
-    (fun (info:ProcStartInfo) ->
-        { info with
-            FileName = Path.GetFullPath docsToolPath
-            Arguments = args
-            WorkingDirectory = workingDirectory
-        }
-        |> Process.withFramework
-        // |> Process.setEnvironmentVariable "MSBuild" MSBuild.msBuildExe
-        |> Process.setEnvironmentVariable "GIT" Git.CommandHelper.gitPath
-    )
-
-
-/// Run the given buildscript with FAKE.exe
-let executeWithOutput configStartInfo =
-    let exitCode =
-        Process.execRaw
-            configStartInfo
-            TimeSpan.MaxValue false ignore ignore
-    Threading.Thread.Sleep 1000
-    exitCode
-
-let executeWithRedirect errorF messageF configStartInfo =
-    let exitCode =
-        Process.execRaw
-            configStartInfo
-            TimeSpan.MaxValue true errorF messageF
-    Threading.Thread.Sleep 1000
-    exitCode
-
-let executeHelper executer traceMsg failMessage configStartInfo =
-    Trace.trace traceMsg
-    let exit = executer configStartInfo
-    if exit <> 0 then
-        failwith failMessage
-    ()
-
-let execute traceMsg failMessage configStartInfo = executeHelper executeWithOutput traceMsg failMessage configStartInfo
-
-// Documentation
-let docTool args =
-  execute
-    "Building documentation (CommandTool), this could take some time, please wait..."
-    "generating documentation failed"
-    (docsToolStartInfo __SOURCE_DIRECTORY__ args)
-
-
-let createArg argName arguments =
-    (arguments : string seq)
-    |> String.concat "\" \""
-    |> fun e -> if String.IsNullOrWhiteSpace e then ""
-                else sprintf "--%s \"%s\"" argName e
-
 Target.create "GenerateDocs" (fun _ ->
-    Shell.cleanDir "temp"
-    Shell.cleanDir ".fsdocs"
-    let result =
-        DotNet.exec
-            (fun p -> { p with WorkingDirectory = __SOURCE_DIRECTORY__ })
-            "tool" ("install --add-source " + artifactsDir + " --tool-path " + toolPath + " --version " + release.NugetVersion + " FSharp.Formatting.CommandTool")
-
-    if not result.OK then failwith "failed to install fsdocs as dotnet tool"
-
-    docTool (sprintf "build docs --clean --mdcomments"))
+    File.WriteAllText("tmp-tools.json", """{ "version": 1, "isRoot": true, "tools": { } }""")
+    DotNet.exec id "tool" "uninstall --tool-manifest tmp-tools.json --local FSharp.Formatting.CommandTool" |> ignore
+    DotNet.exec id "tool" ("install --tool-manifest tmp-tools.json --local --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
+    DotNet.exec id "fsdocs" "build --clean --mdcomments" |> ignore
+)
 
 // --------------------------------------------------------------------------------------
 // Release Scripts
 
 Target.create "ReleaseDocs" (fun _ ->
+    Shell.cleanDir "temp"
     Git.Repository.clone "" projectRepo "temp/gh-pages"
     Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
     Shell.copyRecursive "output" "temp/gh-pages" true |> printfn "%A"
@@ -196,21 +134,12 @@ Target.create "ReleaseDocs" (fun _ ->
 )
 
 
-Target.create "PushPackagesToNugetOrg" (fun _ ->
+Target.create "PublishNuget" (fun _ ->
     let source = "https://api.nuget.org/v3/index.json"
     let apikey =  Environment.environVar "NUGET_KEY"
     for artifact in !! (artifactsDir + "/*nupkg") do
         let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
         if not result.OK then failwith "failed to push packages"  
-)
-
-Target.create "PushReleaseToGithub" (fun _ ->
-    Git.Repository.clone "" projectRepo "temp/release"
-    Git.Branches.checkoutBranch "temp/release" "release"
-    Shell.copyRecursive "bin" "temp/release" true |> printfn "%A"
-    let cmd = sprintf """commit -a -m "Update binaries for version %s""" release.NugetVersion
-    Git.CommandHelper.runSimpleGitCommand "temp/release" cmd |> printfn "%s"
-    Git.Branches.push "temp/release"
 )
 
 Target.create "CreateTag" (fun _ ->
@@ -219,61 +148,8 @@ Target.create "CreateTag" (fun _ ->
 )
 
 Target.create "Root" ignore
-Target.create "Release" ignore
-
-// --------------------------------------------------------------------------------------
-// Run all targets by default. Invoke 'build <Target>' to override
-
 Target.create "All" ignore
-
-#r "System.IO.Compression.FileSystem"
-Target.create "DownloadPython" (fun _ ->
-  if not Environment.isUnix then
-    let w = new Net.WebClient()
-    let zipFile = "temp"</>"cpython.zip"
-    if File.Exists zipFile then File.Delete zipFile
-    w.DownloadFile("https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip", zipFile)
-    let cpython = "temp"</>"CPython"
-    Shell.cleanDir cpython
-    Compression.ZipFile.ExtractToDirectory(zipFile, cpython)
-    let cpythonStdLib = cpython</>"stdlib"
-    Shell.cleanDir cpythonStdLib
-    Compression.ZipFile.ExtractToDirectory(cpython</>"python35.zip", cpythonStdLib)
-)
-
-Target.create "CreateTestJson" (fun _ ->
-    let targetPath = "temp/CommonMark"
-    Shell.cleanDir targetPath
-    Git.Repository.clone targetPath "https://github.com/jgm/CommonMark.git" "."
-
-    let pythonExe, stdLib =
-      if not Environment.isUnix then
-        Path.GetFullPath ("temp"</>"CPython"</>"python.exe"),
-        Path.GetFullPath ("temp"</>"CPython"</>"stdlib")
-      else "python", ""
-
-    let resultFile = "temp"</>"commonmark-tests.json"
-    if File.Exists resultFile then File.Delete resultFile
-    ( use fileStream = new StreamWriter(File.Open(resultFile, FileMode.Create))
-      executeHelper
-        (executeWithRedirect Trace.traceError fileStream.WriteLine)
-        "Creating test json file, this could take some time, please wait..."
-        "generating documentation failed"
-        (fun info ->
-            { info with
-                FileName = pythonExe
-                Arguments = "test/spec_tests.py --dump-tests"
-                WorkingDirectory = targetPath
-            }.WithEnvironmentVariables [
-               "GIT", Git.CommandHelper.gitPath
-            ] |> fun info ->
-                if not Environment.isUnix then
-                    info.WithEnvironmentVariable ("PYTHONPATH", stdLib)
-                else info
-        )
-    )
-    File.Copy(resultFile, "tests"</>"commonmark_spec.json")
-)
+Target.create "Release" ignore
 
 "Root"
   ==> "Clean"
@@ -293,10 +169,7 @@ Target.create "CreateTestJson" (fun _ ->
 
 "All"
   ==> "CreateTag"
-  ==> "PushPackagesToNugetOrg"
-  ==> "PushReleaseToGithub"
+  ==> "PublishNuget"
   ==> "Release"
-
-"DownloadPython" ==> "CreateTestJson"
 
 Target.runOrDefault "All"
