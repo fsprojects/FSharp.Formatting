@@ -1,3 +1,6 @@
+## 6.1.0
+  - fix mistake in laying down `extras` directory 
+
 ## 6.0.9
   - put extra content in `extras` directory in nuget package and include Dockerfile and NuGet.config
 
