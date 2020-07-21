@@ -443,22 +443,22 @@ type CoreBuildOptions(watch) =
               else None
 
         let extraInputs =
-           if x.nodefaultcontent then
-              None
-           else
+           [ if not x.nodefaultcontent then
+              // The "content" content goes in "content"
               // This is in-package
-              let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "styles", "content"))
-              // This is in-repo only
-              let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+              let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
               if (try Directory.Exists(attempt1) with _ -> false) then
                   printfn "using extra content from %s" attempt1
-                  Some [(attempt1, "content")]
-              elif (try Directory.Exists(attempt2) with _ -> false) then
-                  printfn "using extra content from %s" attempt2
-                  Some [(attempt2, "content")]
-              else
-                  printfn "no extra content found at %s or %s" attempt1 attempt2
-                  None
+                  (attempt1, "content")
+              else 
+                  // This is for in-repo use only
+                  let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+                  if (try Directory.Exists(attempt2) with _ -> false) then
+                      printfn "using extra content from %s" attempt2
+                      (attempt2, "content")
+                  else
+                      printfn "no extra content found at %s or %s" attempt1 attempt2
+            ]
 
         let runConvert () =
             try
@@ -467,7 +467,7 @@ type CoreBuildOptions(watch) =
                 Literate.ConvertDirectory(
                     x.input,
                     ?htmlTemplate=defaultTemplate,
-                    ?extraInputs = extraInputs,
+                    extraInputs = extraInputs,
                     generateAnchors = true,
                     outputDirectory = output,
                     ?formatAgent = None,
