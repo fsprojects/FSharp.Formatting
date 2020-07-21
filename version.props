@@ -1,8 +1,10 @@
 <Project>
       <PropertyGroup>
-        <Version>6.0.7</Version>
+        <Version>6.0.8</Version>
         <PackageReleaseNotes>
-- fix formatting of generic parameters so they don&#39;t show inference variables for members
+- show extended type in generated docs for extension members
+- include fsdocs-styles.css, fsdocs-search.js, fsdocs-tips.js in built site &#39;content&#39; directory by default
+- use default template from nuget package by default
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>
