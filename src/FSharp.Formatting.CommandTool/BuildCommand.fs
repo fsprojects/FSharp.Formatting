@@ -444,14 +444,15 @@ type CoreBuildOptions(watch) =
 
         let extraInputs =
            [ if not x.nodefaultcontent then
-              // The "content" content goes in "content"
-              // This is in-package
+              // The "extras" content goes in "."
               let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
               if (try Directory.Exists(attempt1) with _ -> false) then
                   printfn "using extra content from %s" attempt1
-                  (attempt1, "content")
+                  (attempt1, ".")
               else 
-                  // This is for in-repo use only
+                  // This is for in-repo use only, assuming we are executing directly from
+                  //   src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe 
+                  //   src\FSharp.Formatting.CommandTool\bin\Release\netcoreapp3.1\fsdocs.exe 
                   let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
                   if (try Directory.Exists(attempt2) with _ -> false) then
                       printfn "using extra content from %s" attempt2
