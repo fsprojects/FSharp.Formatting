@@ -1,3 +1,6 @@
+## 6.0.9
+  - put extra content in `extras` directory in nuget package and include Dockerfile and NuGet.config
+
 ## 6.0.8
   - show extended type in generated docs for extension members
   - include fsdocs-styles.css, fsdocs-search.js, fsdocs-tips.js in built site 'content' directory by default
