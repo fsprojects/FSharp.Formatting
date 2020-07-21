@@ -370,10 +370,15 @@ type Literate private () =
 
   /// Convert markdown, script and other content into a static site
   static member ConvertDirectory
-    (inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions,
+    (input, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors,
-      ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages) =
-        let outputDirectory=defaultArg outputDirectory inputDirectory
+      ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages, ?extraInputs) =
+
+      let inputDirectories = (input, ".") :: (defaultArg extraInputs [])
+      for (inputDirectory, outputPrefix) in inputDirectories do
+        let outputDirectory=defaultArg outputDirectory "output"
+        let outputDirectory= Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix))
+        
         let recursive = defaultArg recursive true
 
         let imageSaver = createImageSaver outputDirectory

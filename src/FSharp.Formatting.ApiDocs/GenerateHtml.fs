@@ -120,15 +120,21 @@ type HtmlRender(markDownComments) =
                           | None -> ()
                           | Some v -> 
                               !!"Type parameters: "
-                              !!v
+                              !! HttpUtility.HtmlEncode(v)
                       ]
                     ]
                ]
             
                td [Class "xmldoc"] [
                   if not (String.IsNullOrWhiteSpace(m.Comment.FullText)) then
-                      !!m.Comment.FullText.Trim()
+                      !! m.Comment.FullText.Trim()
                       br []
+                  match m.ExtendedType with
+                  | Some s ->
+                      !! "Extended Type: "
+                      code [Class "code-type"] [!! HttpUtility.HtmlEncode(s)]
+                      br []
+                  | _ -> ()
                   if not m.ParameterTooltips.IsEmpty then
                       !! "Parameter Types: "
                       ul [] [
@@ -203,7 +209,7 @@ type HtmlRender(markDownComments) =
         for sec in comment.Sections do
           if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
             if (sec.Key <> "<default>") then 
-              h3 [] [!!sec.Key]
+              h3 [] [!! HttpUtility.HtmlEncode(sec.Key)]
           !! sec.Value 
         ]
       if (byCategory.Length > 1) then
@@ -277,18 +283,18 @@ type HtmlRender(markDownComments) =
   
       match entity.AbbreviatedType with
       | Some abbreviatedTyp ->
-         p [] [!! ("Abbreviation For: " + abbreviatedTyp)]
+         p [] [!! HttpUtility.HtmlEncode("Abbreviation For: " + abbreviatedTyp)]
           
       | None ->  ()
       match entity.BaseType with
       | Some baseType ->
-         p [] [!! ("Base Type: " + baseType)]
+         p [] [!! HttpUtility.HtmlEncode("Base Type: " + baseType)]
       | None -> ()
       match entity.AllInterfaces with
       | [] -> ()
       | l ->
          p [] [!! ("All Interfaces: ")]
-         ul [] [ for i in l -> li [] [!! i] ]
+         ul [] [ for i in l -> li [] [!! HttpUtility.HtmlEncode(i)] ]
                
       if entity.Symbol.IsValueType then
          p [] [!! ("Kind: Struct")]
@@ -296,7 +302,7 @@ type HtmlRender(markDownComments) =
       match entity.DelegateSignature with
       | Some d ->
           p [] [!! ("Kind: Delegate")]
-          code  [] [!! d]
+          code  [] [!! HttpUtility.HtmlEncode(d)]
       | None -> ()
 
       if entity.Symbol.IsProvided then
@@ -318,7 +324,7 @@ type HtmlRender(markDownComments) =
         for sec in comment.Sections do
           if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
             if (sec.Key <> "<default>") then 
-              h2 [] [!!sec.Key]
+              h2 [] [!! HttpUtility.HtmlEncode(sec.Key)]
           !! sec.Value 
       ]
       if (byCategory.Length > 1) then

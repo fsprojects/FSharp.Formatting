@@ -6,12 +6,12 @@ function endsWith(str, suffix) {
 
 // Initialize lunrjs using our generated index file
 function initLunr() {
-    if (!endsWith(baseurl,"/")){
-        baseurl = baseurl+'/'
+    if (!endsWith(fsdocs_search_baseurl,"/")){
+        fsdocs_search_baseurl = fsdocs_search_baseurl+'/'
     };
 
     // First retrieve the index file
-    $.getJSON(baseurl +"index.json")
+    $.getJSON(fsdocs_search_baseurl +"index.json")
         .done(function(index) {
             pagesIndex = index;
             // Set up lunrjs by declaring the fields we use
@@ -42,7 +42,6 @@ function initLunr() {
             console.error("Error getting Hugo index file:", err);
         });
 }
-console.warn("Loading search.js");
 
 /**
  * Trigger a search in lunr and transform the result
@@ -52,28 +51,23 @@ console.warn("Loading search.js");
  */
 function search(queryTerm) {
     // Find the item in our index corresponding to the lunr one to have more info
-    console.warn("search.js: searching for: ", queryTerm);
     return lunrIndex.search(queryTerm+"^100"+" "+queryTerm+"*^10"+" "+"*"+queryTerm+"^10"+" "+queryTerm+"~2^1").map(function(result) {
             return pagesIndex.filter(function(page) {
                 return page.uri === result.ref;
             })[0];
         });
 }
-console.warn("search.js: initLunr");
 
 // Let's get started
 initLunr();
 
-console.warn("search.js: after initLunr");
 $( document ).ready(function() {
-    console.warn("search.js: document ready");
     var searchList = new autoComplete({
         /* selector for the search box element */
         minChars: 1,
         selector: $("#search-by").get(0),
         /* source is the callback to perform the search */
         source: function(term, response) {
-            console.warn("search.js: source callback, term = ", term);
             response(search(term));
         },
         /* renderItem displays individual search results */
@@ -84,33 +78,7 @@ $( document ).ready(function() {
         },
         /* onSelect callback fires when a search suggestion is chosen */
         onSelect: function(e, term, item) {
-            console.warn("search.js: onSelect, location.href = ", item.getAttribute('data-uri'));
             location.href = item.getAttribute('data-uri');
         }
     });
-    // var ajax;
-    // jQuery('[data-search-input]').on('input', function() {
-    //     var input = jQuery(this),
-    //         value = input.val(),
-    //         items = jQuery('[data-nav-id]');
-    //     items.removeClass('search-match');
-    //     if (!value.length) {
-    //         $('ul.topics').removeClass('searched');
-    //         items.css('display', 'block');
-    //         sessionStorage.removeItem('search-value');
-    //         $(".highlightable").unhighlight({ element: 'mark' })
-    //         return;
-    //     }
-
-    //     sessionStorage.setItem('search-value', value);
-    //     $(".highlightable").unhighlight({ element: 'mark' }).highlight(value, { element: 'mark' });
-
-    //     if (ajax && ajax.abort) ajax.abort();
-
-    //     jQuery('[data-search-clear]').on('click', function() {
-    //         jQuery('[data-search-input]').val('').trigger('input');
-    //         sessionStorage.removeItem('search-input');
-    //         $(".highlightable").unhighlight({ element: 'mark' })
-    //     });
-    // });
 });

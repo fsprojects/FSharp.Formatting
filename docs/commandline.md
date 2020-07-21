@@ -19,18 +19,23 @@ The input accepted is described in [content](content.html).
 
 The command line options accepted are:
 
-  * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
-  * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
-  * `--output` -  Output directory, defaults to `output`
-  * `--noApiDocs` -  Do not generate API docs
-  * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
-  * `--nolinenumbers` -  Line number option, defaults to `true`.
-  * `--nonpublic` -  Generate docs for non-public members
-  * `--mdcomments` -  Assume `///` comments in F# code are markdown style
-  * `--saveImages` -  Save images referenced in docs (some|none|all).
-  * `--parameters` -  A whitespace separated list of string pairs as extra text replacement patterns for the format template file.
-  * `--clean` -  Clean the output directory before building (except directories starting with ".")
-  * `--help` -  Display the specific help message for `convert`.
+  * `--input` - (Default: docs) Input directory of documentation content.
+  * --projects - Project files to build API docs for outputs, defaults to all packable projects.
+  * --output     -         Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch'.
+  * --noapidocs   -        (Default: false) Disable generation of API docs.
+  * --eval         -       (Default: false) Evaluate F# fragments in scripts.
+  * --saveimages    -      (Default: none) Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.
+  * --sourcefolder   -     Source folder within the source repo (which is detected from project properties).
+  * --sourcerepo     -     Source repository for github links.
+  * --nolinenumbers   -    Don't add line numbers, default is to add line numbers.
+  * --nonpublic       -    (Default: false) The tool will also generate documentation for non-public members
+  * --mdcomments       -   (Default: false) Assume /// comments in F# code are markdown style.
+  * --parameters        -  Additional substitution parameters for templates.
+  * --nodefaultcontent  -  Do not copy default content styles, javascript or use default templates.
+  * --clean             -  (Default: false) Clean the output directory.
+  * --help              -  Display this help screen.
+  * --version           -  Display version information.
+  
 
 The watch command
 ----------------------------
@@ -43,8 +48,10 @@ directory (e.g. `docs`) are watched.
 
  Restarting may be necesssary on changes to project files. The same parameters are accepted, plus these:
 
-  * `--noserver` -  Do not serve content on http://localhost:<port>.
-  * `--port` -  Port to serve content for http://localhost serving.
+  * `--noserver` - (Default: false) Do not serve content when watching.
+  * `--nolaunch` - (Default: false) Do not launch a browser window.
+  * `--open` - (Default: ) URL extension to launch http://localhost:<port>/%s.
+  * `--port` - (Default: 8901) Port to serve content for http://localhost serving.
 
 
 
