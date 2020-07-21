@@ -14,8 +14,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/style.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-style.css" />
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -83,19 +83,19 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ConvertDirectory">
             <div>
-              <code onmouseout="hideTip(event, '276', 276)" onmouseover="showTip(event, '276', 276)">
-                Literate.ConvertDirectory(inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors, ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages)
+              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
+                Literate.ConvertDirectory(input, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors, ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages, ?extraInputs)
               </code>
-              <div class="tip" id="276">
+              <div class="tip" id="277">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
-                  Literate.ConvertDirectory(inputDirectory, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors, ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages)
+                  Literate.ConvertDirectory(input, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors, ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages, ?extraInputs)
                   Parameter Types: 
                   <ul>
                     <li>
                       <b>
-                        inputDirectory
+                        input
                       </b>
                       :
                       string
@@ -198,10 +198,17 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                       :
                       bool
                     </li>
+                    <li>
+                      <b>
+                        ?extraInputs
+                      </b>
+                      :
+                      (string * string) list
+                    </li>
                   </ul>
                   <br/>
                   Signature: 
-                  (inputDirectory: string * htmlTemplate: string * outputDirectory: string * formatAgent: CodeFormatAgent * prefix: string * fscoptions: string * lineNumbers: bool * references: bool * fsiEvaluator: IFsiEvaluator * parameters: (string * string) list * generateAnchors: bool * recursive: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * tokenKindToCss: (TokenKind -&gt; string) * saveImages: bool) -&gt; unit
+                  (input: string * htmlTemplate: string * outputDirectory: string * formatAgent: CodeFormatAgent * prefix: string * fscoptions: string * lineNumbers: bool * references: bool * fsiEvaluator: IFsiEvaluator * parameters: (string * string) list * generateAnchors: bool * recursive: bool * customizeDocument: (LiterateProcessingContext -&gt; LiterateDocument -&gt; LiterateDocument) * tokenKindToCss: (TokenKind -&gt; string) * saveImages: bool * extraInputs: (string * string) list) -&gt; unit
                   <br/>
                 </div>
               </div>
@@ -214,7 +221,7 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
             <ul>
               <li>
                 <code>
-                  inputDirectory
+                  input
                 </code>
                 :
                 <code class="code-type">
@@ -347,6 +354,15 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                   bool
                 </code>
               </li>
+              <li>
+                <code>
+                  ?extraInputs
+                </code>
+                :
+                <code class="code-type">
+                  (string * string) list
+                </code>
+              </li>
             </ul>
             <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Literate.fs#L372-372" class="github-link">
               <img src="../content/img/github.png" class="normal"/>
@@ -357,10 +373,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ConvertMarkdownFile">
             <div>
-              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
+              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
                 Literate.ConvertMarkdownFile(input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions, ?lineNumbers, ?references, ?parameters, ?generateAnchors, ?customizeDocument, ?saveImages)
               </code>
-              <div class="tip" id="277">
+              <div class="tip" id="278">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -599,10 +615,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ConvertScriptFile">
             <div>
-              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
+              <code onmouseout="hideTip(event, '279', 279)" onmouseover="showTip(event, '279', 279)">
                 Literate.ConvertScriptFile(input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions, ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors, ?customizeDocument, ?saveImages)
               </code>
-              <div class="tip" id="278">
+              <div class="tip" id="279">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -857,10 +873,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="FormatLiterateNodes">
             <div>
-              <code onmouseout="hideTip(event, '279', 279)" onmouseover="showTip(event, '279', 279)">
+              <code onmouseout="hideTip(event, '280', 280)" onmouseover="showTip(event, '280', 280)">
                 Literate.FormatLiterateNodes(doc, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss)
               </code>
-              <div class="tip" id="279">
+              <div class="tip" id="280">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -995,10 +1011,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ParseMarkdownFile">
             <div>
-              <code onmouseout="hideTip(event, '280', 280)" onmouseover="showTip(event, '280', 280)">
+              <code onmouseout="hideTip(event, '281', 281)" onmouseover="showTip(event, '281', 281)">
                 Literate.ParseMarkdownFile(path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions)
               </code>
-              <div class="tip" id="280">
+              <div class="tip" id="281">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1149,10 +1165,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ParseMarkdownString">
             <div>
-              <code onmouseout="hideTip(event, '281', 281)" onmouseover="showTip(event, '281', 281)">
+              <code onmouseout="hideTip(event, '282', 282)" onmouseover="showTip(event, '282', 282)">
                 Literate.ParseMarkdownString(content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions)
               </code>
-              <div class="tip" id="281">
+              <div class="tip" id="282">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1319,10 +1335,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ParseScriptFile">
             <div>
-              <code onmouseout="hideTip(event, '282', 282)" onmouseover="showTip(event, '282', 282)">
+              <code onmouseout="hideTip(event, '283', 283)" onmouseover="showTip(event, '283', 283)">
                 Literate.ParseScriptFile(path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions)
               </code>
-              <div class="tip" id="282">
+              <div class="tip" id="283">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1473,10 +1489,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ParseScriptString">
             <div>
-              <code onmouseout="hideTip(event, '283', 283)" onmouseover="showTip(event, '283', 283)">
+              <code onmouseout="hideTip(event, '284', 284)" onmouseover="showTip(event, '284', 284)">
                 Literate.ParseScriptString(content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions)
               </code>
-              <div class="tip" id="283">
+              <div class="tip" id="284">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1643,10 +1659,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ToFsx">
             <div>
-              <code onmouseout="hideTip(event, '284', 284)" onmouseover="showTip(event, '284', 284)">
+              <code onmouseout="hideTip(event, '285', 285)" onmouseover="showTip(event, '285', 285)">
                 Literate.ToFsx(doc, ?parameters)
               </code>
-              <div class="tip" id="284">
+              <div class="tip" id="285">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1717,10 +1733,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ToHtml">
             <div>
-              <code onmouseout="hideTip(event, '285', 285)" onmouseover="showTip(event, '285', 285)">
+              <code onmouseout="hideTip(event, '286', 286)" onmouseover="showTip(event, '286', 286)">
                 Literate.ToHtml(doc, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss)
               </code>
-              <div class="tip" id="285">
+              <div class="tip" id="286">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1839,10 +1855,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ToLatex">
             <div>
-              <code onmouseout="hideTip(event, '286', 286)" onmouseover="showTip(event, '286', 286)">
+              <code onmouseout="hideTip(event, '287', 287)" onmouseover="showTip(event, '287', 287)">
                 Literate.ToLatex(doc, ?prefix, ?lineNumbers, ?generateAnchors)
               </code>
-              <div class="tip" id="286">
+              <div class="tip" id="287">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -1945,10 +1961,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="ToPynb">
             <div>
-              <code onmouseout="hideTip(event, '287', 287)" onmouseover="showTip(event, '287', 287)">
+              <code onmouseout="hideTip(event, '288', 288)" onmouseover="showTip(event, '288', 288)">
                 Literate.ToPynb(doc, ?parameters)
               </code>
-              <div class="tip" id="287">
+              <div class="tip" id="288">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -2019,10 +2035,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="TransformAndOutputDocument">
             <div>
-              <code onmouseout="hideTip(event, '288', 288)" onmouseover="showTip(event, '288', 288)">
+              <code onmouseout="hideTip(event, '289', 289)" onmouseover="showTip(event, '289', 289)">
                 Literate.TransformAndOutputDocument(doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?parameters)
               </code>
-              <div class="tip" id="288">
+              <div class="tip" id="289">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -2181,10 +2197,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="WriteHtml">
             <div>
-              <code onmouseout="hideTip(event, '289', 289)" onmouseover="showTip(event, '289', 289)">
+              <code onmouseout="hideTip(event, '290', 290)" onmouseover="showTip(event, '290', 290)">
                 Literate.WriteHtml(doc, writer, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss)
               </code>
-              <div class="tip" id="289">
+              <div class="tip" id="290">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -2311,10 +2327,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
         <tr>
           <td class="member-name" id="WriteLatex">
             <div>
-              <code onmouseout="hideTip(event, '290', 290)" onmouseover="showTip(event, '290', 290)">
+              <code onmouseout="hideTip(event, '291', 291)" onmouseover="showTip(event, '291', 291)">
                 Literate.WriteLatex(doc, writer, ?prefix, ?lineNumbers, ?generateAnchors)
               </code>
-              <div class="tip" id="290">
+              <div class="tip" id="291">
                 <div class="member-tooltip">
                   Full Usage: 
                   <br/>
@@ -2429,10 +2445,7 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
                 
             </div>
             <div class="span3">
-                <a href="https://fsprojects.github.io/FSharp.Formatting/index.html">
-                    <img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png"
-                         style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" />
-                </a>
+                <a href="https://fsprojects.github.io/FSharp.Formatting/index.html"><img src="https://fsprojects.github.io/FSharp.Formatting/misc/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /></a>
 
                 <!-- BEGIN SEARCH BOX: this adds support for the search box -->
                 <div id="header">
@@ -2489,10 +2502,10 @@ and F# script, respectively. The <code>ConvertDirectory</code> method handles an
 
     <!-- BEGIN SEARCH BOX: this adds support for the search box -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-    <script type="text/javascript">var baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+    <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/search.js"></script>
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
     <!-- END SEARCH BOX: this adds support for the search box -->
 </body>
 
