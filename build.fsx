@@ -151,17 +151,17 @@ Target.create "Root" ignore
 Target.create "All" ignore
 Target.create "Release" ignore
 
-// "Root"
-//   ==> "Clean"
-//   ==> "AssemblyInfo"
-//   ==> "Build"
-//   ==> "Tests"
-//   ==> "All"
+"Root"
+  ==> "Clean"
+  ==> "AssemblyInfo"
+  ==> "Build"
+  ==> "Tests"
+  ==> "All"
 
-// "Build"
-//   ==> "NuGet"
-//   ==> "GenerateDocs"
-//   ==> "All"
+"Build"
+  ==> "NuGet"
+  ==> "GenerateDocs"
+  ==> "All"
 
 "GenerateDocs"
   ==> "ReleaseDocs"
