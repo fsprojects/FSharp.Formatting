@@ -162,7 +162,7 @@ type ApiDocMemberKind =
 type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityUrl, kind, cat, details, comment, symbol) =
   // The URL for a member is currently the #DisplayName on the enclosing entity
   let url = sprintf "%s.html#%s" entityUrl displayName
-  let (usage, usageTooltip, parameterTooltips, returnTooltip, mods, typars, signatureTooltip, location, compiledName) = details
+  let (usage, usageTooltip, parameterTooltips, returnTooltip, mods, typars, signatureTooltip, extendedType, location, compiledName) = details
 
     /// The member's modifiers
   member x.Modifiers : string list = mods
@@ -185,7 +185,10 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
     /// The member's source location, if any
   member x.SourceLocation : string option = location
 
-/// The member's compiled name, if any
+    /// The type extended by an extension member, if any
+  member x.ExtendedType : string option =  extendedType
+
+  /// The member's compiled name, if any
   [<Obsolete("Remove '.Details'. 'ApiDocsMemberDetails' has been merged with 'ApiDocsMember'", true)>]
   member x.Details : int = 0
 
@@ -746,6 +749,12 @@ module internal ValueReader =
       | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && isUnitType x.Type -> retTypeText
       | _  -> (formatArgsUsage true v argInfos) + " -> " + retTypeText
 
+    let extendedType =
+        if v.IsExtensionMember then
+            try Some (formatTyconRef v.ApparentEnclosingEntity) with _ -> None
+        else
+            None
+
     let fullArgUsage =
       match argInfos with
       | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && isUnitType x.Type -> ""
@@ -760,7 +769,7 @@ module internal ValueReader =
     // If there is a signature file, we should go for implementation file
     let loc = tryGetLocation v
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    (buildShortUsage, usageTooltip, paramTooltips, returnTooltip, modifiers, typars, signatureTooltip, location, getCompiledName v)
+    (buildShortUsage, usageTooltip, paramTooltips, returnTooltip, modifiers, typars, signatureTooltip, extendedType, location, getCompiledName v)
 
   let readUnionCase (ctx:ReadingContext) (typ: FSharpEntity) (case:FSharpUnionCase) =
 
@@ -803,7 +812,7 @@ module internal ValueReader =
        | _ -> (fields |> List.map (fun field -> formatType field.FieldType) |> String.concat " * ") + " -> " + retTypeText
     let loc = tryGetLocation case
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, location, getCompiledName case)
+    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, None, location, getCompiledName case)
 
   let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
     let usage (maxLength:int) = field.Name
@@ -819,7 +828,7 @@ module internal ValueReader =
     let loc = tryGetLocation field
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
     let usageTooltip = usage Int32.MaxValue
-    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, location, if field.Name <> field.DisplayName then Some field.Name else None)
+    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, None, location, if field.Name <> field.DisplayName then Some field.Name else None)
 
   let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName =
     "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
@@ -834,7 +843,7 @@ module internal ValueReader =
     let loc = tryGetLocation staticParam
     let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
     let usageTooltip = usage Int32.MaxValue
-    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
+    (usage, usageTooltip, paramTooltips, returnTooltip, modifiers, typeparams, signatureTooltip, None, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
 
 module internal Reader =
   open FSharp.Formatting.Markdown

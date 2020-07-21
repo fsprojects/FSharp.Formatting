@@ -22,7 +22,7 @@ The command line options accepted are:
   * `--input` - Input directory containing `*.fsx` and `*.md` files and other content, defaults to `docs`.
   * `--projects` - The project files to process. Defaults to the packable projects in the solution in the current directory, else all packable projects.
   * `--output` -  Output directory, defaults to `output`
-  * `--noApiDocs` -  Do not generate API docs
+  * `--noapidocs` -  Do not generate API docs
   * `--eval` - Use the default FsiEvaluator to actually evaluate code in documentation, defaults to `false`.
   * `--nolinenumbers` -  Line number option, defaults to `true`.
   * `--nonpublic` -  Generate docs for non-public members

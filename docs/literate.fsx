@@ -231,7 +231,7 @@ Literate.ConvertDirectory
 
 (**
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:
@@ -246,7 +246,7 @@ Literate.ConvertMarkdownFile(docTex, templateTex, outputKind=OutputKind.Latex)
 
 (**
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile` as well as `ConvertDirectory`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile`) 
 can also produce iPython Notebook output. This is done
 by setting the named parameter `format` to `OutputKind.Pynb`:
 *)

@@ -38,3 +38,4 @@ _NCrunch_*
 .ionide/
 artifacts/
 tests/FSharp.ApiDocs.Tests/output/
+tmp

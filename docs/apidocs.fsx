@@ -42,7 +42,7 @@ Searchable API docs
 
 When using the command-line tool a Lunr search index is automatically generated in `index.json`.
 
-To add a search box to your `_template.html`, load the small `search.js` found in this repo
+To add a search box to your `_template.html`, load `fsdocs-search.js` found in this repo
 (see the relevant sections of [`_template.html` used here](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html),
 for example this HTML code:
 

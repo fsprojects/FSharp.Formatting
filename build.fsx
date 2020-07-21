@@ -113,6 +113,7 @@ Target.create "NuGet" (fun _ ->
 // --------------------------------------------------------------------------------------
 
 Target.create "GenerateDocs" (fun _ ->
+    Shell.cleanDir ".fsdocs"
     File.WriteAllText("tmp-tools.json", """{ "version": 1, "isRoot": true, "tools": { } }""")
     DotNet.exec id "tool" "uninstall --tool-manifest tmp-tools.json --local FSharp.Formatting.CommandTool" |> ignore
     DotNet.exec id "tool" ("install --tool-manifest tmp-tools.json --local --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore

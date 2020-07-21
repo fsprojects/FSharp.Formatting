@@ -69,9 +69,9 @@ HTML: `{{document}}` will be replaced with the formatted document;
 `{{tooltips}}` will be replaced with (hidden) `<div>` elements containing code for tool tips that appear
 when you place mouse pointer over an identifier. Optionally, you can also use 
 `{{page-title}}` which will be replaced with the text in a first-level heading.
-The template should also reference `style.css` and `tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/style.css)
-and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/tips.js) on GitHub).
+The template should also reference `fsdocs-style.css` and `fsdocs-tips.js` that define CSS style
+and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/fsdocs-style.css)
+and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/fsdocs-tips.js) on GitHub).
 
 For Latex, the the `_template.tex` file is either empty of contains `{content}` as the key where the body
 of the document is placed. 

@@ -1,3 +1,8 @@
+## 6.0.8
+  - show extended type in generated docs for extension members
+  - include fsdocs-styles.css, fsdocs-search.js, fsdocs-tips.js in built site 'content' directory by default
+  - use default template from nuget package by default
+
 ## 6.0.7
   - fix formatting of generic parameters so they don't show inference variables for members
 

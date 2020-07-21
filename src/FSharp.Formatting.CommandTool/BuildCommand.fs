@@ -3,6 +3,8 @@ namespace FSharp.Formatting.CommandTool
 open CommandLine
 
 open System
+open System.Diagnostics
+open System.Runtime.InteropServices
 open System.IO
 open System.Text
 open System.Runtime.Serialization.Formatters.Binary
@@ -141,6 +143,7 @@ module Crack =
         let result = file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
+        printfn "msgs = %A" msgs
         match result with
         | Ok [gpResult] ->
             match gpResult with
@@ -219,7 +222,7 @@ module Crack =
                     None
                 else
                     Some s)
-          //printfn "filtered projects = %A" projectFiles
+          printfn "filtered projects = %A" projectFiles
           if projectFiles.Length = 0 then
             printfn "no project files found, no API docs will be generated"
           printfn "cracking projects..." 
@@ -233,6 +236,7 @@ module Crack =
                    printfn "skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
                    None)
             |> Array.toList
+          printfn "projectInfos = %A" projectInfos
           let projectInfos =
             projectInfos
             |> List.choose (fun info ->
@@ -251,6 +255,7 @@ module Crack =
                     None
                 else
                     Some info)
+          printfn "projectInfos = %A" projectInfos
           let projectOutputs =
             projectInfos |> List.map (fun info -> info.TargetPath.Value)
 
@@ -293,6 +298,7 @@ module Crack =
               "package-version", packageVersion
               "repository-commit", repositoryCommit
               "copyright", copyright]
+          printfn "projectOutputs = %A" projectOutputs
           let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
 
           overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption, repoTypeOption, repoBranchOption
@@ -338,8 +344,8 @@ type CoreBuildOptions(watch) =
     [<Option("output", Required = false, HelpText = "Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch'.")>]
     member val output = "" with get, set
 
-    [<Option("noApiDocs", Default= false, Required = false, HelpText = "Disable generation of API docs.")>]
-    member val noApiDocs = false with get, set
+    [<Option("noapidocs", Default= false, Required = false, HelpText = "Disable generation of API docs.")>]
+    member val noapidocs = false with get, set
 
     [<Option("eval", Default=false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = false with get, set
@@ -365,6 +371,9 @@ type CoreBuildOptions(watch) =
     [<Option("parameters", Required = false, HelpText = "Additional substitution parameters for templates.")>]
     member val parameters = Seq.empty<string> with get, set
 
+    [<Option("nodefaultcontent", Required = false, HelpText = "Do not copy default content styles, javascript or use default templates.")>]
+    member val nodefaultcontent = false with get, set
+
     [<Option("clean", Required = false, Default=false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
@@ -378,7 +387,7 @@ type CoreBuildOptions(watch) =
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
            (fun () ->
-            if x.noApiDocs then
+            if x.noapidocs then
                 ("", [], [], [], "", None, None, None), key1
             else
                 Crack.crackProjects projects, key1)
@@ -418,12 +427,46 @@ type CoreBuildOptions(watch) =
             | None -> Environment.CurrentDirectory
             | Some v -> v
 
+        // This is in-package
+        let defaultTemplateAttempt1 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, "..", "..", "..", "templates", "_template.html"))
+        // This is in-repo only
+        let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, "..", "..", "..", "..", "..", "misc", "templates", "_template.html"))
+        let defaultTemplate =
+           if x.nodefaultcontent then
+              None
+           else
+              if (try File.Exists(defaultTemplateAttempt1) with _ -> false) then
+                  Some defaultTemplateAttempt1
+              elif (try File.Exists(defaultTemplateAttempt2) with _ -> false) then
+                  Some defaultTemplateAttempt2
+              else None
+
+        let extraInputs =
+           if x.nodefaultcontent then
+              None
+           else
+              // This is in-package
+              let attempt1 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, "..", "..", "..", "styles", "content"))
+              // This is in-repo only
+              let attempt2 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, __SOURCE_DIRECTORY__, "..", "..", "..", "..", "..", "docs", "content"))
+              if (try Directory.Exists(attempt1) with _ -> false) then
+                  printfn "using extra content from %s" attempt1
+                  Some [(attempt1, "content")]
+              elif (try Directory.Exists(attempt2) with _ -> false) then
+                  printfn "using extra content from %s" attempt2
+                  Some [(attempt2, "content")]
+              else
+                  printfn "no extra content found at %s or %s" attempt1 attempt2
+                  None
+
         let runConvert () =
             try
                 //printfn "projectInfos = %A" projectInfos
 
                 Literate.ConvertDirectory(
                     x.input,
+                    ?htmlTemplate=defaultTemplate,
+                    ?extraInputs = extraInputs,
                     generateAnchors = true,
                     outputDirectory = output,
                     ?formatAgent = None,
@@ -456,11 +499,17 @@ type CoreBuildOptions(watch) =
                         elif File.Exists(t2) then
                             Some t2
                         else
-                            printfn "note, expected template file '%s' or '%s' to exist, proceeding without template" t1 t2
-                            None
+                            match defaultTemplate with
+                            | Some d ->
+                                printfn "note, no template file '%s' or '%s', using default template %s" t1 t2 d
+                                Some d
+                            | None -> 
+                                printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
+                                None
 
-                    if not x.noApiDocs then
-                        printfn "sourceFolder = %A, sourceRepo = %A" sourceFolder sourceRepo
+                    if not x.noapidocs then
+                        printfn "sourceFolder = %s" sourceFolder
+                        printfn "sourceRepo = %A" sourceRepo
                         let outdir = Path.Combine(output, "reference")
                         let index =
                           ApiDocs.GenerateHtml (
@@ -572,13 +621,29 @@ type CoreBuildOptions(watch) =
         if watch && not x.noserver_option then
             printfn "starting server on http://localhost:%d for content in %s" x.port_option fullOut
             Serve.startWebServer fullOut x.port_option
-        if watch then
-            printfn "watching content in %s plus any built content DLLs" fullIn
+        if watch && not x.nolaunch_option then
+            let url = sprintf "http://localhost:%d/%s" x.port_option x.open_option
+            printfn "launching browser window to open %s" url
+            let OpenBrowser(url: string) =
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) then
+                    Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
+                elif (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) then
+                    Process.Start("xdg-open", url)  |> ignore
+                elif (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) then
+                    Process.Start("open", url) |> ignore
+            
+            OpenBrowser (url)
         waitForKey watch
         res
 
     abstract noserver_option : bool
     default x.noserver_option = false
+
+    abstract nolaunch_option : bool
+    default x.nolaunch_option = false
+
+    abstract open_option : string
+    default x.open_option = ""
 
     abstract port_option : int
     default x.port_option = 0
@@ -594,6 +659,14 @@ type WatchCommand() =
     override x.noserver_option = x.noserver
     [<Option("noserver", Required = false, Default=false, HelpText = "Do not serve content when watching.")>]
     member val noserver = false with get, set
+
+    override x.nolaunch_option = x.nolaunch
+    [<Option("nolaunch", Required = false, Default=false, HelpText = "Do not launch a browser window.")>]
+    member val nolaunch = false with get, set
+
+    override x.open_option = x.openv
+    [<Option("open", Required = false, Default="", HelpText = "URL extension to launch http://localhost:<port>/%s.")>]
+    member val openv = "" with get, set
 
     override x.port_option = x.port
     [<Option("port", Required = false, Default=8901, HelpText = "Port to serve content for http://localhost serving.")>]
