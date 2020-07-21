@@ -428,9 +428,10 @@ type CoreBuildOptions(watch) =
             | Some v -> v
 
         // This is in-package
-        let defaultTemplateAttempt1 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, "..", "..", "..", "templates", "_template.html"))
+        let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
+        let defaultTemplateAttempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.html"))
         // This is in-repo only
-        let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, "..", "..", "..", "..", "..", "misc", "templates", "_template.html"))
+        let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "misc", "templates", "_template.html"))
         let defaultTemplate =
            if x.nodefaultcontent then
               None
@@ -446,9 +447,9 @@ type CoreBuildOptions(watch) =
               None
            else
               // This is in-package
-              let attempt1 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, "..", "..", "..", "styles", "content"))
+              let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "styles", "content"))
               // This is in-repo only
-              let attempt2 = Path.GetFullPath(Path.Combine(typeof<CoreBuildOptions>.Assembly.Location, __SOURCE_DIRECTORY__, "..", "..", "..", "..", "..", "docs", "content"))
+              let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
               if (try Directory.Exists(attempt1) with _ -> false) then
                   printfn "using extra content from %s" attempt1
                   Some [(attempt1, "content")]
