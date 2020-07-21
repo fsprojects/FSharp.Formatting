@@ -27,10 +27,10 @@ from content in a `docs` directory. The expected structure for a `docs` director
     docs/**/*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
     docs/**/*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
     docs/**/*                     -- other content, copied over
-    docs/**/_template.html        -- specifies the default HTML template for this directory and its contents
-    docs/**/_template.tex         -- specifies Latex files should also be generated
-    docs/**/_template.ipynb       -- specifies F# ipynb files should also be generated
-    docs/**/_template.fsx         -- specifies F# fsx files should also be generated (even from markdown)
+    docs/**/_template.html        -- optional template, specifies the HTML template for this directory and its contents
+    docs/**/_template.tex         -- optionally indicates Latex files should also be generated
+    docs/**/_template.ipynb       -- optionally indicates F# ipynb files should also be generated
+    docs/**/_template.fsx         -- optionally indicates F# fsx files should also be generated (even from markdown)
     docs/reference/_template.html -- optionally specifies the default template for reference docs
 
 Processing is by these two commands:
@@ -44,10 +44,14 @@ Processing is recursive, making this call a form of static site generation.
 - Content that is not `*.fsx` or `*.md` is copied across 
 
 - If a file `_template.html` exists then is used as the template for that directory and all sub-content.
+  Otherwise the default template from the nuget package is used.
 
 - Any file or directory beginning with `.` is ignored.
 
 - A set of parameter substitutions can be provided operative across all files.
+
+- By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-styles.css` are included in the con
+  in the `content` directory of the output.  THis can be suppressed with `--nodefaultcontent`
 
 ## Literate Scripts and Markdown
 

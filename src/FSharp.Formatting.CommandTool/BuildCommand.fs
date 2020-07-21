@@ -350,13 +350,13 @@ type CoreBuildOptions(watch) =
     [<Option("eval", Default=false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = false with get, set
 
-    [<Option("saveImages", Default= "some", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
-    member val saveImages = "some" with get, set
+    [<Option("saveimages", Default= "none", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
+    member val saveImages = "none" with get, set
 
-    [<Option("sourceFolder", Required = false, HelpText = "Source folder within the source repo (which is detected from project properties).")>]
+    [<Option("sourcefolder", Required = false, HelpText = "Source folder within the source repo (which is detected from project properties).")>]
     member val sourceFolder = "" with get, set
 
-    [<Option("sourceRepo", Required = false, HelpText = "Source repository for github links.")>]
+    [<Option("sourcerepo", Required = false, HelpText = "Source repository for github links.")>]
     member val sourceRepo = "" with get, set
 
     [<Option("nolinenumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
