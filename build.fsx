@@ -156,11 +156,17 @@ Target.create "Release" ignore
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "Tests"
+  ==> "All"
+
+"All"
   ==> "NuGet"
-  ==> "GenerateDocs"
-  ==> "ReleaseDocs"
   ==> "CreateTag"
   ==> "PublishNuget"
+  ==> "Release"
+
+"All"
+  ==> "GenerateDocs"
+  ==> "ReleaseDocs"
   ==> "Release"
 
 Target.runOrDefault "All"
