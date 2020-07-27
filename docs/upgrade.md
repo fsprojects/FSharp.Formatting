@@ -7,8 +7,8 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
 1. Run
 
-       dotnet tool install FSharp.Formatting.CommandTool --local
-       git add dotnet-tools.json   
+       dotnet new tool
+       dotnet tool install FSharp.Formatting.CommandTool
 
 2. Delete all of `docs\tools` particularly `docs\tool\generate.fsx`.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.
 
