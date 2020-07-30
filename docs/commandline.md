@@ -25,7 +25,7 @@ The command line options accepted are:
   * --noapidocs   -        (Default: false) Disable generation of API docs.
   * --eval         -       (Default: false) Evaluate F# fragments in scripts.
   * --saveimages    -      (Default: none) Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.
-  * --sourcefolder   -     Source folder within the source repo (which is detected from project properties).
+  * --sourcefolder   -     Source folder at time of component build (defaults to current directory).
   * --sourcerepo     -     Source repository for github links.
   * --nolinenumbers   -    Don't add line numbers, default is to add line numbers.
   * --nonpublic       -    (Default: false) The tool will also generate documentation for non-public members

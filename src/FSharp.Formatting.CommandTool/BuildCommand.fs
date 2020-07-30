@@ -207,7 +207,12 @@ module Crack =
                              yield! Directory.EnumerateFiles(d, "*.fsproj")
                              for d2 in Directory.EnumerateDirectories(d) do
                                 yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
-                    let overallProjectName = Path.GetFileName(slnDir)
+
+                    let overallProjectName = 
+                        match projectFiles with
+                        | [ file1 ] -> Path.GetFileNameWithoutExtension(file1)
+                        | _ -> Path.GetFileName(slnDir)
+
                     overallProjectName, projectFiles
                     
             | projectFiles -> 
@@ -353,7 +358,7 @@ type CoreBuildOptions(watch) =
     [<Option("saveimages", Default= "none", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
     member val saveImages = "none" with get, set
 
-    [<Option("sourcefolder", Required = false, HelpText = "Source folder within the source repo (which is detected from project properties).")>]
+    [<Option("sourcefolder", Required = false, HelpText = "Source folder at time of component build (defaults to current directory).")>]
     member val sourceFolder = "" with get, set
 
     [<Option("sourcerepo", Required = false, HelpText = "Source repository for github links.")>]

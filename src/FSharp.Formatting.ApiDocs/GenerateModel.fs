@@ -332,10 +332,13 @@ type ApiDocTypeDefinition
 
 
 /// Represents an F# module definition integrated with its associated documentation
-type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats, symbol) =
+type ApiDocModule(name, cat, url, comment, assembly, attributes, modules, types, vals, exts, pats, symbol, rqa) =
 
     /// The name of the module
   member x.Name : string = name
+
+    /// Does the module have the RequiresQualifiedAccess attribute
+  member x.RequiresQualifiedAccess : bool = rqa
 
     /// The category of the module
   member x.Category : string = cat
@@ -418,9 +421,6 @@ type ApiDocModuleInfo(modul: ApiDocModule, asm: ApiDocAssemblyGroup, ns: ApiDocN
     /// The parent module, if any.
   member x.ParentModule = parent
 
-  member x.HasParentModule = x.ParentModule.IsSome
-
-
 /// High-level information about a type definition
 type ApiDocTypeInfo(typ, asm, ns, modul) =
     /// The actual type
@@ -435,23 +435,196 @@ type ApiDocTypeInfo(typ, asm, ns, modul) =
     /// The parent module, if any.
   member x.ParentModule : ApiDocModule option = modul
 
-  member x.HasParentModule = x.ParentModule.IsSome
+[<AutoOpen>]
+module internal CrossReferences =
+  let getXmlDocSigForType (typ:FSharpEntity) =
+    match typ.XmlDocSig with
+    | "" ->
+        try
+            defaultArg
+                (Option.map (sprintf "T:%s") typ.TryFullName)
+                ""
+        with _ -> ""
+    | n -> n
 
+  let getMemberXmlDocsSigPrefix (memb:FSharpMemberOrFunctionOrValue) =
+    if memb.IsEvent then "E"
+    elif memb.IsProperty then "P"
+    else "M"
 
-module internal ValueReader =
+  let getXmlDocSigForMember (memb:FSharpMemberOrFunctionOrValue) =
+    match memb.XmlDocSig with
+    | "" ->
+        let memberName =
+          try
+            let name = memb.CompiledName.Replace(".ctor", "#ctor")
+            let typeGenericParameters =
+                memb.DeclaringEntity.Value.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
+            let methodGenericParameters =
+                memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
+            let typeArgsMap =
+                Seq.append methodGenericParameters typeGenericParameters
+                |> Seq.groupBy fst
+                |> Seq.map (fun (name, grp) -> grp |> Seq.head)
+                |> dict
+            let typeargs =
+                if memb.GenericParameters.Count > 0
+                then sprintf "``%d" memb.GenericParameters.Count
+                else ""
+
+            let paramList =
+                if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0 then
+                    let head = memb.CurriedParameterGroups.[0]
+                    let paramTypeList =
+                        head
+                        |> Seq.map (fun param ->
+                            if param.Type.IsGenericParameter then
+                                typeArgsMap.[param.Type.GenericParameter.Name]
+                            else
+                                param.Type.TypeDefinition.FullName)
+                    "(" + System.String.Join(", ", paramTypeList) + ")"
+                else ""
+            sprintf "%s%s%s" name typeargs paramList
+          with exn ->
+            printfn "Error while building member-name for %s because: %s" memb.FullName exn.Message
+            Log.verbf "Full Exception details of previous message: %O" exn
+            memb.CompiledName
+        match (memb.DeclaringEntity.Value.TryFullName) with
+        | None    -> ""
+        | Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
+    | n -> n
+
+  let getTypeProviderXmlSig (typ:FSharpEntity) =
+    "T:" + typ.AccessPath + "." + typ.LogicalName
+
   type CrefReference =
     { IsInternal : bool; ReferenceLink : string; NiceName : string }
 
-  type IUrlHolder =
-    abstract RegisterEntity : FSharpEntity -> unit
-    abstract GetUrl : FSharpEntity -> string
-    abstract ResolveCref : string -> CrefReference option
+  type CrossReferencesResolver () =
+    let toReplace =
+        ([("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
+            (Path.GetInvalidPathChars()
+            |> Seq.append (Path.GetInvalidFileNameChars())
+            |> Seq.map (fun inv -> (inv.ToString(), "_")) |> Seq.toList))
+        |> Seq.distinctBy fst
+        |> Seq.toList
+    let usedNames = Dictionary<_, _>()
+    let registeredEntities = Dictionary<_, _>()
+    let entityLookup = Dictionary<_, _>()
+    let niceNameEntityLookup = Dictionary<_, _>()
+
+    let nameGen (name:string) =
+      let nice = (toReplace
+                  |> Seq.fold (fun (s:string) (inv, repl) -> s.Replace(inv, repl)) name)
+                  .ToLower()
+      let found =
+        seq { yield nice
+              for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
+        |> Seq.find (usedNames.ContainsKey >> not)
+      usedNames.Add(found, true)
+      found
+
+    let rec registerEntity (entity: FSharpEntity) =
+        let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
+        registeredEntities.[entity] <- newName
+        let xmlsig = getXmlDocSigForType entity
+        if (not (System.String.IsNullOrEmpty xmlsig)) then
+            assert (xmlsig.StartsWith("T:"))
+            entityLookup.[xmlsig.Substring(2)] <- entity
+            if (not(niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
+                niceNameEntityLookup.[entity.LogicalName] <- List<_>()
+            niceNameEntityLookup.[entity.LogicalName].Add(entity)
+        for nested in entity.NestedEntities do registerEntity nested
+
+    let getUrl (entity:FSharpEntity) =
+        match registeredEntities.TryGetValue (entity) with
+        | true, v -> v
+        | _ -> failwithf "The entity %s was not registered before!" (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
+
+    let removeParen (memberName:string) =
+        let firstParen = memberName.IndexOf("(")
+        if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
+
+    let tryGetTypeFromMemberName (memberName : string) =
+        let sub = removeParen memberName
+        let lastPeriod = sub.LastIndexOf(".")
+        if lastPeriod > 0 then
+            Some (memberName.Substring(0, lastPeriod))
+        else None
+
+    let getNoNamespaceMemberName keepParts (memberNameNoParen:string) =
+        let splits = memberNameNoParen.Split([|'.'|])
+        let noNamespaceParts =
+            if splits.Length > keepParts then
+                Array.sub splits (splits.Length - keepParts) keepParts
+            else splits
+        System.String.Join(".", noNamespaceParts)
+
+    let lookupTypeCref typeName =
+        match entityLookup.TryGetValue(typeName) with
+        | true, entity ->
+            Some { IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entity); NiceName = entity.LogicalName }
+        | _ ->
+            match niceNameEntityLookup.TryGetValue(typeName) with
+            | true, entityList ->
+                if entityList.Count = 1 then
+                    Some{ IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entityList.[0]); NiceName = entityList.[0].LogicalName }
+                else
+                    if entityList.Count > 1 then
+                        do Log.warnf "Duplicate types found for the simple name: %s" typeName
+                    None
+            | _ -> None
+
+    member _.ResolveCref (cref:string) =
+        if (cref.Length < 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
+        let memberName = cref.Substring(2)
+        let noParen = removeParen memberName
+        match cref with
+        // Type
+        | _ when cref.StartsWith("T:") ->
+            match lookupTypeCref (memberName) with
+            | Some ref -> Some ref
+            | None ->
+                let simple = getNoNamespaceMemberName 1 noParen
+                let docs = noParen.Replace(".","-").Replace("``", "").Replace("`", "-").ToLower()
+                Some { IsInternal = false
+                       ReferenceLink = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
+                       NiceName = simple }
+        // Compiler was unable to resolve!
+        | _ when cref.StartsWith("!:")  ->
+            Log.warnf "Compiler was unable to resolve %s" cref
+            None
+        // ApiDocMember
+        | _ when cref.[1] = ':' ->
+            let simple = getNoNamespaceMemberName 2 noParen
+            match tryGetTypeFromMemberName memberName with
+            | Some typeName ->
+                match lookupTypeCref typeName with
+                | Some reference -> Some { reference with NiceName = simple }
+                | None ->
+                    let docs = noParen.Replace(".","-").Replace("``", "").Replace("`", "-").ToLower()
+                    Some { IsInternal = false;
+                           ReferenceLink = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
+                           NiceName = simple }
+            | None ->
+                Log.warnf "Assumed '%s' was a member but we cannot extract a type!" cref
+                None
+        // No idea
+        | _ ->
+            Log.warnf "Unresolved reference '%s'!" cref
+            None
+
+    member x.RegisterEntity entity = registerEntity entity
+    member x.GetUrl entity = getUrl entity
+
+
+module internal ValueReader =
 
   type ReadingContext =
     { PublicOnly : bool
       Assembly : AssemblyName
       XmlMemberMap : IDictionary<string, XElement>
-      UrlMap : IUrlHolder
+      UrlMap : CrossReferencesResolver
       MarkdownComments : bool
       UrlRangeHighlight : Uri -> int -> int -> string
       SourceFolderRepository : (string * string) option
@@ -672,6 +845,11 @@ module internal ValueReader =
     let requireQualifiedAccess =
         hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
 
+    // This module doesn't have RequireQualifiedAccessAttribute and anyway we want the name to show as
+    // Array.Parallel.map
+    let specialCase1 =
+        v.ApparentEnclosingEntity.TryFullName = Some "Microsoft.FSharp.Collections.ArrayModule.Parallel"
+
     let argInfos, retInfo = FSharpType.Prettify(v.CurriedParameterGroups, v.ReturnParameter)
     let argInfos = argInfos |> Seq.map Seq.toList |> Seq.toList
 
@@ -697,6 +875,8 @@ module internal ValueReader =
       | _, true, _, "Item" -> "this.[" + (defaultArg args "...") + "]"
       // Ordinary instance members
       | _, true, _, name -> "this." + name + (defaultArg parArgs "(...)")
+      // A hack for Array.Parallel.map in FSharp.Core
+      | _, false, _, name when specialCase1 -> "Array.Parallel." + name + (defaultArg parArgs "(...)")
       // Ordinary functions or values
       | false, _, _, name when not requireQualifiedAccess -> name + (defaultArg parArgs "(...)")
       // Ordinary static members or things (?) that require fully qualified access
@@ -850,10 +1030,6 @@ module internal Reader =
   open FSharp.Formatting.Literate
   open ValueReader
 
-  // ----------------------------------------------------------------------------------------------
-  // Helper functions
-  // ----------------------------------------------------------------------------------------------
-
   let removeSpaces (comment:string) =
     use reader = new StringReader(comment)
     let lines =
@@ -862,7 +1038,7 @@ module internal Reader =
           yield line.Value ]
     String.removeSpaces lines
 
-  let readMarkdownComment (doc:LiterateDocument) =
+  let readMarkdownCommentAsHtml (doc:LiterateDocument) =
     let groups = System.Collections.Generic.Dictionary<_, _>()
     let mutable current = "<default>"
     groups.Add(current, [])
@@ -893,138 +1069,146 @@ module internal Reader =
         Some (k, v)
     | _ -> None)
 
-  let readXmlComment (urlMap : IUrlHolder) (doc : XElement) (cmds: IDictionary<_, _>)=
-   let rawData = new Dictionary<string, string>()
-   let full = new StringBuilder()
-   let rec readElement (e : XElement) =
-     Seq.iter (fun (x : XNode) ->
-      if x.NodeType = XmlNodeType.Text then
-       let text = (x :?> XText).Value
-       match findCommand (text, MarkdownRange.zero) with
-       | Some (k,v) -> cmds.Add(k,v)
-       | None -> full.Append(text) |> ignore
-      elif x.NodeType = XmlNodeType.Element then
-        let elem = x :?> XElement
-        match elem.Name.LocalName with
-        | "list" ->
-          full.Append("<ul>") |> ignore
-          readElement elem
-          full.Append("</ul>") |> ignore
-        | "item" ->
-          full.Append("<li>") |> ignore
-          full.Append(elem.Value) |> ignore
-          full.Append("</li>") |> ignore
-        | "para" ->
-          full.Append("<p class='para'>") |> ignore
-          full.Append(elem.Value) |> ignore
-          full.Append("</p>") |> ignore
-        | "see"
-        | "seealso" ->
-           let cref = elem.Attribute(XName.Get "cref")
+  let readXmlCommentAsHtml (urlMap : CrossReferencesResolver) (doc : XElement) (cmds: IDictionary<_, _>)=
+      let rawData = new Dictionary<string, string>()
+      let html = new StringBuilder()
+      let rec readElement (e : XElement) =
+         for x in e.Nodes() do
+          if x.NodeType = XmlNodeType.Text then
+           let text = (x :?> XText).Value
+           match findCommand (text, MarkdownRange.zero) with
+           | Some (k,v) -> cmds.Add(k,v)
+           | None -> html.Append(text) |> ignore
+          elif x.NodeType = XmlNodeType.Element then
+            let elem = x :?> XElement
+            match elem.Name.LocalName with
+            | "list" ->
+              html.Append("<ul>") |> ignore
+              readElement elem
+              html.Append("</ul>") |> ignore
+            | "item" ->
+              html.Append("<li>") |> ignore
+              html.Append(elem.Value) |> ignore
+              html.Append("</li>") |> ignore
+            | "para" ->
+              html.Append("<p class='para'>") |> ignore
+              html.Append(elem.Value) |> ignore
+              html.Append("</p>") |> ignore
+            | "see"
+            | "seealso" ->
+               let cref = elem.Attribute(XName.Get "cref")
+               if cref <> null then
+                if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+                  failwithf "Invalid cref specified in: %A" doc
+
+                // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
+                let cname = cref.Value
+                let cname = if cname.Contains(":") then cname else "T:"+cname 
+
+                match urlMap.ResolveCref cname with
+                | Some reference ->
+                  html.AppendFormat("<a href=\"{0}\">{1}</a>", reference.ReferenceLink, reference.NiceName) |> ignore
+                | _ ->
+                  urlMap.ResolveCref cname |> ignore
+                  html.AppendFormat("{0}", cref.Value) |> ignore
+            | "c" ->
+               html.Append("<code>") |> ignore
+               html.Append(elem.Value) |> ignore
+               html.Append("</code>") |> ignore
+            | _ ->
+              ()
+      readElement doc
+   //full.Append("</br>") |> ignore
+
+      let summaries = doc.Descendants(XName.Get "summary")
+      summaries |> Seq.iteri (fun id e ->
+         let n = if id = 0 then "summary" else "summary-" + string id
+         rawData.[n] <- e.Value
+         html.Append("<p class='summary'>") |> ignore
+         readElement e
+         html.Append("</p>") |> ignore
+      )
+
+      let parameters = doc.Descendants(XName.Get "param")
+      if Seq.length parameters > 0 then
+         //full.Append("<h4>Parameters</h4>") |> ignore
+         html.Append("<dl>") |> ignore
+         for e in parameters do
+           let name = e.Attribute(XName.Get "name").Value
+           let description = e.Value
+           rawData.["param-" + name] <- description
+           html.AppendFormat("<dt><span class='parameter'>{0}</span></dt><dd><p>{1}</p></dd>", name, description) |> ignore
+         html.Append("</dl>") |> ignore
+
+      let returns = doc.Descendants(XName.Get "returns")
+      returns |> Seq.iteri (fun id e ->
+         let n = if id = 0 then "returns" else "returns-" + string id
+
+         html.Append("<p class='returns'>") |> ignore
+         let description = e.Value
+         rawData.[n] <- description
+         html.AppendFormat("Returns: {0}",description) |> ignore
+         html.Append("</p>") |> ignore
+       )
+
+      let exceptions = doc.Descendants(XName.Get "exception")
+      if Seq.length exceptions > 0 then
+         html.Append("<p>Exceptions:</p>") |> ignore
+         html.Append("<table class='inner-list exception-list'>") |> ignore
+         for e in exceptions do
+           let cref = e.Attribute(XName.Get "cref")
            if cref <> null then
             if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
               failwithf "Invalid cref specified in: %A" doc
-            match urlMap.ResolveCref cref.Value with
-            | Some (reference) ->
-              full.AppendFormat("<a href=\"{0}\">{1}</a>", reference.ReferenceLink, reference.NiceName) |> ignore
+
+            // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
+            let cname = cref.Value
+            let cname = if cname.StartsWith("T:") then cname else "T:"+cname // FSharp.Core exception listings don't start with "T:"
+
+            match urlMap.ResolveCref cname with
+            | Some reference ->
+              rawData.["exception-" + reference.NiceName] <- reference.ReferenceLink
+              html.AppendFormat("<tr><td><a href=\"{0}\">{1}</a></td><td>{2}</td></tr>", reference.ReferenceLink, reference.NiceName,e.Value) |> ignore
             | _ ->
-              full.AppendFormat("UNRESOLVED({0})", cref.Value) |> ignore
-        | "c" ->
-           full.Append("<code>") |> ignore
-           full.Append(elem.Value) |> ignore
-           full.Append("</code>") |> ignore
-        | _ ->
-          ()
-       ) (e.Nodes())
-   readElement doc
-   //full.Append("</br>") |> ignore
+              html.AppendFormat("<tr><td>UNRESOLVED({0})</td><td></td></tr>", cref.Value) |> ignore
+         html.Append("</table>") |> ignore
 
-   let summaries = doc.Descendants(XName.Get "summary")
-   summaries |> Seq.iteri (fun id e ->
-     let n = if id = 0 then "summary" else "summary-" + string id
-     rawData.[n] <- e.Value
-     full.Append("<p class='summary'>") |> ignore
-     readElement e
-     full.Append("</p>") |> ignore
-   )
-
-   let parameters = doc.Descendants(XName.Get "param")
-   if Seq.length parameters > 0 then
-     full.Append("<h4>Parameters</h4>") |> ignore
-     full.Append("<dl>") |> ignore
-     for e in parameters do
-       let name = e.Attribute(XName.Get "name").Value
-       let description = e.Value
-       rawData.["param-" + name] <- description
-       full.AppendFormat("<dt><span class='parameter'>{0}</span></dt><dd><p>{1}</p></dd>", name, description) |> ignore
-     full.Append("</dl>") |> ignore
-
-   let returns = doc.Descendants(XName.Get "returns")
-   returns |> Seq.iteri (fun id e ->
-     let n = if id = 0 then "returns" else "returns-" + string id
-
-     full.Append("<p class='returns'>") |> ignore
-     let description = e.Value
-     rawData.[n] <- description
-     full.AppendFormat("Returns: {0}",description) |> ignore
-     full.Append("</p>") |> ignore
-   )
-
-   let exceptions = doc.Descendants(XName.Get "exception")
-   if Seq.length exceptions > 0 then
-     full.Append("<h4>Exceptions</h4>") |> ignore
-     full.Append("<table>") |> ignore
-     for e in exceptions do
-       let cref = e.Attribute(XName.Get "cref")
-       if cref <> null then
-        if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-          failwithf "Invalid cref specified in: %A" doc
-        match urlMap.ResolveCref cref.Value with
-        | Some (reference) ->
-          rawData.["exception-" + reference.NiceName] <- reference.ReferenceLink
-          full.AppendFormat("<tr><td><a href=\"{0}\">{1}</a></td><td>{2}</td></tr>", reference.ReferenceLink, reference.NiceName,e.Value) |> ignore
-        | _ ->
-          full.AppendFormat("<tr><td>UNRESOLVED({0})</td><td></td></tr>", cref.Value) |> ignore
-     full.Append("</table>") |> ignore
-
-   let remarks = doc.Descendants(XName.Get "remarks")
-   if Seq.length remarks > 0 then
-     full.Append("<h4>Remarks</h4>") |> ignore
-     remarks |> Seq.iteri (fun id e ->
-       let n = if id = 0 then "remarks" else "remarks-" + string id
-       rawData.[n] <- e.Value
-       full.Append("<p class='remarks'>") |> ignore
-       readElement e
-       full.Append("</p>") |> ignore
-     )
+      let remarks = doc.Descendants(XName.Get "remarks")
+      if Seq.length remarks > 0 then
+         //html.Append("<h4>Remarks</h4>") |> ignore
+         remarks |> Seq.iteri (fun id e ->
+           let n = if id = 0 then "remarks" else "remarks-" + string id
+           rawData.[n] <- e.Value
+           html.Append("<p class='remarks'>") |> ignore
+           readElement e
+           html.Append("</p>") |> ignore
+         )
 
 
-   doc.Descendants ()
-   |> Seq.filter (fun n ->
-        let ln = n.Name.LocalName
-        ln <> "summary" &&
-        ln <> "param" &&
-        ln <> "exceptions" &&
-        ln <> "returns" &&
-        ln <> "remarks" )
-   |> Seq.groupBy (fun n -> n.Name.LocalName)
-   |> Seq.iter (fun (n, lst) ->
-        let lst = Seq.toList lst
-        match lst with
-        | [x] -> rawData.[n] <- x.Value
-        | lst ->
-            lst |> Seq.iteri (fun id el ->
-                rawData.[n + "-" + string id] <- el.Value)
-        ()
-   )
+      doc.Descendants ()
+       |> Seq.filter (fun n ->
+            let ln = n.Name.LocalName
+            ln <> "summary" &&
+            ln <> "param" &&
+            ln <> "exceptions" &&
+            ln <> "returns" &&
+            ln <> "remarks" )
+       |> Seq.groupBy (fun n -> n.Name.LocalName)
+       |> Seq.iter (fun (n, lst) ->
+            let lst = Seq.toList lst
+            match lst with
+            | [x] -> rawData.[n] <- x.Value
+            | lst ->
+                lst |> Seq.iteri (fun id el ->
+                    rawData.[n + "-" + string id] <- el.Value)
+            ()
+       )
 
-   // TODO: process param, returns tags, note that given that FSharp.Formatting infers the signature
-   // via reflection this tags are not so important in F#
-   let str = full.ToString()
-   let raw = rawData |> Seq.toList
-   ApiDocComment(str, str, [KeyValuePair("<default>", str)], raw)
+      let str = html.ToString()
+      let raw = rawData |> Seq.toList
+      ApiDocComment(str, str, [KeyValuePair("<default>", str)], raw)
 
-  /// Returns all indirect links in a specified span node
+    /// Returns all indirect links in a specified span node
   let rec collectSpanIndirectLinks span = seq {
     match span with
     | IndirectLink (_, _, key, _) -> yield key
@@ -1105,219 +1289,38 @@ module internal Reader =
         | null ->
           dict[], (ApiDocComment("", el.Value, [], []))
         | sum ->
-          let lines = removeSpaces sum.Value |> Seq.map (fun s -> (s, MarkdownRange.zero))
-          let cmds = new System.Collections.Generic.Dictionary<_, _>()
+          let lines = removeSpaces sum.Value |> List.map (fun s -> (s, MarkdownRange.zero))
+          let cmds = Dictionary<string, string>()
 
           if ctx.MarkdownComments then
             let text =
-              lines |> Seq.filter (findCommand >> (function
+              lines
+              |> List.filter (findCommand >> (function
                   | Some (k, v) ->
                       cmds.Add(k, v)
                       false
-                  | _ -> true)) |> Seq.map fst |> String.concat "\n"
+                  | _ -> true))
+              |> List.map fst
+              |> String.concat "\n"
+
             let doc =
                 Literate.ParseMarkdownString
                   ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
                     formatAgent=ctx.FormatAgent, fscoptions=ctx.CompilerOptions )
-                  |> (addMissingLinkToTypes ctx)
-            cmds :> IDictionary<_, _>, readMarkdownComment doc
+
+            let doc = doc |> addMissingLinkToTypes ctx
+            let html = readMarkdownCommentAsHtml doc
+            cmds :> IDictionary<_, _>, html
+
           else
+            let html = readXmlCommentAsHtml ctx.UrlMap el cmds
             lines
               |> Seq.choose findCommand
               |> Seq.iter (fun (k, v) -> cmds.Add(k,v))
-            cmds :> IDictionary<_, _>, readXmlComment ctx.UrlMap el cmds
+            cmds :> IDictionary<_, _>, html
 
   let readComment ctx xmlSig = readCommentAndCommands ctx xmlSig |> snd
 
-
-  // -----------------------------------------------------------------------
-  // Hack for getting the xmldoc signature from C# assemblies
-  // FSC consistently returns emtpy strings in .XmlDocSig properties
-  // and as such Fsharp.formatting is unable to look up the correct
-  // comment.
-
-  let getXmlDocSigForType (typ:FSharpEntity) =
-    match typ.XmlDocSig with
-    | "" ->
-        try
-            defaultArg
-                (Option.map (sprintf "T:%s") typ.TryFullName)
-                ""
-        with _ -> ""
-    | n -> n
-
-  let getMemberXmlDocsSigPrefix (memb:FSharpMemberOrFunctionOrValue) =
-    if memb.IsEvent then "E"
-    elif memb.IsProperty then "P"
-    else "M"
-
-  let getXmlDocSigForMember (memb:FSharpMemberOrFunctionOrValue) =
-    match memb.XmlDocSig with
-    | "" ->
-        let memberName =
-          try
-            let name = memb.CompiledName.Replace(".ctor", "#ctor")
-            let typeGenericParameters =
-                memb.DeclaringEntity.Value.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "`%d" num)
-            let methodGenericParameters =
-                memb.GenericParameters |> Seq.mapi (fun num par -> par.Name, sprintf "``%d" num)
-            let typeArgsMap =
-                Seq.append methodGenericParameters typeGenericParameters
-                |> Seq.groupBy fst
-                |> Seq.map (fun (name, grp) -> grp |> Seq.head)
-                |> dict
-            let typeargs =
-                if memb.GenericParameters.Count > 0
-                then sprintf "``%d" memb.GenericParameters.Count
-                else ""
-
-            let paramList =
-                if memb.CurriedParameterGroups.Count > 0 && memb.CurriedParameterGroups.[0].Count > 0 then
-                    let head = memb.CurriedParameterGroups.[0]
-                    let paramTypeList =
-                        head
-                        |> Seq.map (fun param ->
-                            if param.Type.IsGenericParameter then
-                                typeArgsMap.[param.Type.GenericParameter.Name]
-                            else
-                                param.Type.TypeDefinition.FullName)
-                    "(" + System.String.Join(", ", paramTypeList) + ")"
-                else ""
-            sprintf "%s%s%s" name typeargs paramList
-          with exn ->
-            printfn "Error while building member-name for %s because: %s" memb.FullName exn.Message
-            Log.verbf "Full Exception details of previous message: %O" exn
-            memb.CompiledName
-        match (memb.DeclaringEntity.Value.TryFullName) with
-        | None    -> ""
-        | Some(n)  -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb)  n memberName
-    | n -> n
-
-  //
-  // ---------------------------------------------------------------------
-
-
-
-  let getTypeProviderXmlSig (typ:FSharpEntity) =
-    "T:" + typ.AccessPath + "." + typ.LogicalName
-
-  let createUrlHolder () =
-    let toReplace =
-        ([("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
-            (Path.GetInvalidPathChars()
-            |> Seq.append (Path.GetInvalidFileNameChars())
-            |> Seq.map (fun inv -> (inv.ToString(), "_")) |> Seq.toList))
-        |> Seq.distinctBy fst
-        |> Seq.toList
-    let usedNames = Dictionary<_, _>()
-    let registeredEntities = Dictionary<_, _>()
-    let entityLookup = Dictionary<_, _>()
-    let niceNameEntityLookup = Dictionary<_, _>()
-
-    let nameGen (name:string) =
-      let nice = (toReplace
-                  |> Seq.fold (fun (s:string) (inv, repl) -> s.Replace(inv, repl)) name)
-                  .ToLower()
-      let found =
-        seq { yield nice
-              for i in Seq.initInfinite id do yield sprintf "%s-%d" nice i }
-        |> Seq.find (usedNames.ContainsKey >> not)
-      usedNames.Add(found, true)
-      found
-
-    let rec registerEntity (entity: FSharpEntity) =
-        let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
-        registeredEntities.[entity] <- newName
-        let xmlsig = getXmlDocSigForType entity
-        if (not (System.String.IsNullOrEmpty xmlsig)) then
-            assert (xmlsig.StartsWith("T:"))
-            entityLookup.[xmlsig.Substring(2)] <- entity
-            if (not(niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
-                niceNameEntityLookup.[entity.LogicalName] <- List<_>()
-            niceNameEntityLookup.[entity.LogicalName].Add(entity)
-        for nested in entity.NestedEntities do registerEntity nested
-
-    let getUrl (entity:FSharpEntity) =
-        match registeredEntities.TryGetValue (entity) with
-        | true, v -> v
-        | _ -> failwithf "The entity %s was not registered before!" (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
-
-    let removeParen (memberName:string) =
-        let firstParen = memberName.IndexOf("(")
-        if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
-
-    let tryGetTypeFromMemberName (memberName : string) =
-        let sub = removeParen memberName
-        let lastPeriod = sub.LastIndexOf(".")
-        if lastPeriod > 0 then
-            Some (memberName.Substring(0, lastPeriod))
-        else None
-
-    let getNoNamespaceMemberName keepParts (memberNameNoParen:string) =
-        let splits = memberNameNoParen.Split([|'.'|])
-        let noNamespaceParts =
-            if splits.Length > keepParts then
-                Array.sub splits (splits.Length - keepParts) keepParts
-            else splits
-        System.String.Join(".", noNamespaceParts)
-
-    let lookupTypeCref typeName =
-        match entityLookup.TryGetValue(typeName) with
-        | true, entity ->
-            Some { IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entity); NiceName = entity.LogicalName }
-        | _ ->
-            match niceNameEntityLookup.TryGetValue(typeName) with
-            | true, entityList ->
-                if entityList.Count = 1 then
-                    Some{ IsInternal = true; ReferenceLink = sprintf "%s.html" (getUrl entityList.[0]); NiceName = entityList.[0].LogicalName }
-                else
-                    if entityList.Count > 1 then
-                        do Log.warnf "Duplicate types found for the simple name: %s" typeName
-                    None
-            | _ -> None
-
-    let resolveCref (cref:string) =
-        if (cref.Length < 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
-        let memberName = cref.Substring(2)
-        let noParen = removeParen memberName
-        match cref with
-        // Type
-        | _ when cref.StartsWith("T:") ->
-            match lookupTypeCref (memberName) with
-            | Some ref -> Some ref
-            | None ->
-                let simple = getNoNamespaceMemberName 1 noParen
-                Some { IsInternal = false;
-                       ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen;
-                       NiceName = simple }
-        // Compiler was unable to resolve!
-        | _ when cref.StartsWith("!:")  ->
-            Log.warnf "Compiler was unable to resolve %s" cref
-            None
-        // ApiDocMember
-        | _ when cref.[1] = ':' ->
-            let simple = getNoNamespaceMemberName 2 noParen
-            match tryGetTypeFromMemberName memberName with
-            | Some typeName ->
-                match lookupTypeCref typeName with
-                | Some reference -> Some { reference with NiceName = simple }
-                | None ->
-                    Some { IsInternal = false;
-                           ReferenceLink = sprintf "http://msdn.microsoft.com/en-us/library/%s" noParen;
-                           NiceName = simple }
-            | None ->
-                Log.warnf "Assumed '%s' was a member but we cannot extract a type!" cref
-                None
-        // No idea
-        | _ ->
-            Log.warnf "Unresolved reference '%s'!" cref
-            None
-    { new IUrlHolder with
-        member x.RegisterEntity entity =
-            registerEntity entity
-        member x.GetUrl entity = getUrl entity
-        member x.ResolveCref cref = resolveCref cref
-    }
 
   // ----------------------------------------------------------------------------------------------
   // Reading entities
@@ -1503,18 +1506,27 @@ module internal Reader =
       let attrs = readAttributes modul.Attributes
       // Nested modules and types
       let modules, types = readModulesAndTypes ctx modul.NestedEntities
+      let rqa = hasAttrib<RequireQualifiedAccessAttribute> modul.Attributes
 
       ApiDocModule
         ( modul.DisplayName, cat, entityUrl, comment, ctx.Assembly, attrs,
-          modules, types, vals, exts, pats, modul ))
+          modules, types, vals, exts, pats, modul, rqa ))
 
   // ----------------------------------------------------------------------------------------------
   // Reading namespace and assembly details
   // ----------------------------------------------------------------------------------------------
 
+  let stripMicrosoft (str: string) =
+      if str.StartsWith("Microsoft.") then
+          str.["Microsoft.".Length ..]
+      elif str.StartsWith("microsoft-") then
+          str.["microsoft-".Length ..]
+      else
+          str
+  
   let readNamespace ctx (ns, entities:seq<FSharpEntity>) =
     let modules, types = readModulesAndTypes ctx entities
-    ApiDocNamespace(ns, modules, types)
+    ApiDocNamespace(stripMicrosoft ns, modules, types)
 
   let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs) =
     let assemblyName = AssemblyName(assembly.QualifiedName)
@@ -1627,7 +1639,7 @@ type ApiDocsModel =
         |> Seq.toList
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
-      let urlMap = Reader.createUrlHolder()
+      let urlMap = CrossReferencesResolver()
 
       resolvedList |> Seq.iter (function
         | _, Some asm ->

@@ -2,14 +2,6 @@ module internal FSharp.Formatting.ApiDocs.GenerateSearchIndex
 
 open FSharp.Formatting.ApiDocs
 
-let stripMicrosoft (str: string) =
-    if str.StartsWith("Microsoft.") then
-        str.["Microsoft.".Length ..]
-    elif str.StartsWith("microsoft-") then
-        str.["microsoft-".Length ..]
-    else
-        str
-
 type AssemblyEntities = {
   Modules: ApiDocModule list
   Types: ApiDocTypeDefinition list

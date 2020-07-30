@@ -19,7 +19,7 @@ type HtmlRender(markDownComments) =
    [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (function Choice1Of2 _ -> true | _ -> false)
       let hasModules = entities |> List.exists (function Choice2Of2 _ -> true | _ -> false)
-      table [Class "table type-list module-list" ] [
+      table [Class "table outer-list entity-list" ] [
         thead [] [
           tr [] [
             td [] [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
@@ -68,7 +68,7 @@ type HtmlRender(markDownComments) =
   let renderMembers header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
-       table [Class "table member-list"] [
+       table [Class "table outer-list member-list"] [
          thead [] [
            tr [] [
              td [Class "member-list-header"] [ !!tableHeader ]
@@ -190,7 +190,12 @@ type HtmlRender(markDownComments) =
           let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
           (n, key, elems, name))
   
-    [ h1 [] [!! (entity.Name + " Module") ]
+    let usageName =
+        match info.ParentModule with
+        | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
+        | _ -> entity.Name
+
+    [ h1 [] [!! (usageName + " Module") ]
       p [] [!! ("Namespace: " + info.Namespace.Name)]
       p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
       br []
@@ -272,7 +277,12 @@ type HtmlRender(markDownComments) =
           let name = (if String.IsNullOrEmpty(g) then "Other type members" else g)
           (n, g, ms, name))
   
-    [ h1 [] [!! (entity.Name + " Type")]
+    let usageName =
+        match info.ParentModule with
+        | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
+        | _ -> entity.Name
+
+    [ h1 [] [!! (usageName + " Type")]
       p [] [!! ("Namespace: " + info.Namespace.Name)]
       p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
       br []
@@ -382,10 +392,14 @@ type HtmlRender(markDownComments) =
                             | Choice1Of2 t -> t.Category
                             | Choice2Of2 m -> m.Category
                         cat = c)
+                    |> List.filter (fun e ->
+                        match e with
+                        | Choice1Of2 t -> not t.Symbol.IsArrayType
+                        | Choice2Of2 m -> true)
                     |> List.sortBy (fun e ->
                         match e with
-                        | Choice1Of2 t -> (t.Name, t.UrlBaseName)
-                        | Choice2Of2 m -> (m.Name, "ZZZ")
+                        | Choice1Of2 t -> (t.Symbol.DisplayName.ToLowerInvariant(), t.Symbol.GenericParameters.Count, t.Name, t.UrlBaseName)
+                        | Choice2Of2 m -> (m.Symbol.DisplayName.ToLowerInvariant(), -1, m.Name, "ZZZ")
                     )
                 if entities.Length > 0 then
                     yield (name, index, entities) ]

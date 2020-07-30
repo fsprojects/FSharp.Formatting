@@ -23,7 +23,6 @@ do()
 
 module internal Env =
   let inline isNull o = obj.ReferenceEquals(null, o)
-  let isMono = try System.Type.GetType("Mono.Runtime") |> isNull |> not with _ -> false
   let (++) a b = System.IO.Path.Combine(a,b)
   let (=?) s1 s2 = System.String.Equals(s1, s2, System.StringComparison.OrdinalIgnoreCase)
   let (<>?) s1 s2 = not (s1 =? s2)
@@ -46,6 +45,7 @@ module internal Log =
   let formatArgs (args:_ seq) =
     System.String.Join("\n  ", args)
     |> sprintf "\n  %s"
+
   let formatPaths paths =
     System.String.Join("\n  ", paths |> Seq.map (sprintf "\"%s\""))
     |> sprintf "\n[ %s ]"
@@ -64,10 +64,11 @@ module internal CompilerServiceExtensions =
         let options, _ = checker.GetProjectOptionsFromScript("foo.fsx", SourceText.ofString "module Foo", assumeDotNetFramework = false) |> Async.RunSynchronously
 
         options.OtherOptions
-        |> Seq.filter (fun path -> path.StartsWith "-r:")
+        |> Array.filter (fun path -> path.StartsWith "-r:")
+        |> Array.filter (fun path -> path.StartsWith "-r:")
         //|> Seq.choose (fun path -> if path.StartsWith "-r:" then path.Substring 3 |> Some else None)
         //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
-        |> Seq.toList)
+        |> Array.toList)
 
       let fscoreResolveDirs libDirs =
         [ 
@@ -87,20 +88,18 @@ module internal CompilerServiceExtensions =
         let tried =
           dllFiles @ (fscoreResolveDirs libDirs
                       |> List.map (fun (l:string) -> getLib l "FSharp.Core"))
-        match tried |> Seq.tryPick tryCheckFsCore with
+
+        match tried |> List.tryPick tryCheckFsCore with
         | Some s -> s
         | None ->
             let paths = Log.formatPaths tried
-            Log.critf "Could not find a FSharp.Core.dll in %s" paths
+            printfn "Could not find a FSharp.Core.dll in %s" paths
             failwithf "Could not find a FSharp.Core.dll in %s" paths
+
       let hasAssembly asm l =
         l |> Seq.exists (fun a -> Path.GetFileNameWithoutExtension a =? asm)
-      let sysLibBlackList =
-        [ "FSharp.Core"
-          "System.EnterpriseServices.Thunk" // See #4
-          "System.EnterpriseServices.Wrapper" ] // See #4
 
-      let getCheckerArguments frameworkVersion defaultReferences (fsCoreLib: _ option) dllFiles libDirs otherFlags =
+      let getCheckerArguments frameworkVersion defaultReferences hasFsCoreLib (fsCoreLib: _ option) dllFiles libDirs otherFlags =
           ignore frameworkVersion
           ignore defaultReferences
           let base1 = Path.GetTempFileName()
@@ -120,10 +119,14 @@ module internal CompilerServiceExtensions =
 
                if isNetCoreApp then yield "--targetprofile:netcore"
 
-               yield! getNetCoreAppFrameworkDependencies.Value
+               for r in getNetCoreAppFrameworkDependencies.Value do
+                  let suppressFSharpCore = ((hasFsCoreLib || fsCoreLib.IsSome) && Path.GetFileNameWithoutExtension r = "FSharp.Core")
+                  if not suppressFSharpCore then
+                     yield r
 
                if fsCoreLib.IsSome then
                  yield sprintf "-r:%s" fsCoreLib.Value
+
                yield "--out:" + dllName
                yield "--doc:" + xmlName
                yield "--warn:3"
@@ -155,13 +158,14 @@ module internal CompilerServiceExtensions =
                   // If we find a FSharp.Core in a lib path, we check if is suited for us...
                   Path.GetFileNameWithoutExtension file <>? "FSharp.Core" || (tryCheckFsCore file |> Option.isSome))
               |> hasAssembly asm)
+
           let hasFsCoreLib = hasAssembly "FSharp.Core"
           let fsCoreLib =
             if not hasFsCoreLib then
               Some (findFSCore dllFiles libDirs)
             else None
             
-          let projFileName, args = getCheckerArguments frameworkVersion ignore (fsCoreLib: _ option) dllFiles libDirs otherFlags
+          let projFileName, args = getCheckerArguments frameworkVersion ignore hasFsCoreLib (fsCoreLib: _ option) dllFiles libDirs otherFlags
           Log.verbf "Checker Arguments: %O" (Log.formatArgs args)
 
           let options = checker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
@@ -237,8 +241,9 @@ module internal CompilerServiceExtensions =
             Seq.empty
           else dllFiles |> List.toSeq, libDirs |> Seq.map (fun l -> Path.GetFullPath (l))
         let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
-        FSharpAssemblyHelper.getProjectReferences frameworkVersion otherFlags (Some _libDirs) _dllFiles
-        |> FSharpAssemblyHelper.resolve dllFiles
+        let refs = FSharpAssemblyHelper.getProjectReferences frameworkVersion otherFlags (Some _libDirs) _dllFiles
+        let result = FSharpAssemblyHelper.resolve dllFiles refs
+        result
 
       static member FromAssembly (assembly:Assembly) =
           let loc =
