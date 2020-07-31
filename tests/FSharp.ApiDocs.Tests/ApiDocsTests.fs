@@ -221,7 +221,7 @@ let ``ApiDocs test that cref generation works``() =
 
   /// reference to a corelib class works.
   files.["creflib4-class4.html"] |> shouldContainText "Assembly"
-  files.["creflib4-class4.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  files.["creflib4-class4.html"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
 
   // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
