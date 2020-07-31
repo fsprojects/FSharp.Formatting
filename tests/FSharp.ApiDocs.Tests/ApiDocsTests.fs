@@ -236,7 +236,7 @@ let ``ApiDocs test that cref generation works``() =
 
   /// reference to a corelib class works.
   files.["creflib2-class4.html"] |> shouldContainText "Assembly"
-  //files.["creflib2-class4.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  //files.["creflib2-class4.html"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
   // F# tests (fully quallified)
   // reference class in same assembly
@@ -253,7 +253,7 @@ let ``ApiDocs test that cref generation works``() =
 
   /// reference to a corelib class works.
   files.["creflib2-class8.html"] |> shouldContainText "Assembly"
-  files.["creflib2-class8.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  files.["creflib2-class8.html"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
 [<Test>]
 let ``ApiDocs test that csharp (publiconly) support works``() =
