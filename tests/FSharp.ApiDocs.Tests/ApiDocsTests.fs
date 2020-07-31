@@ -163,8 +163,8 @@ let ``ApiDocs model generation works on two sample F# assemblies``() =
   model.AssemblyGroup.Assemblies.[1].Name |> shouldEqual "FsLib2"
   model.AssemblyGroup.Namespaces.Length |> shouldEqual 1
   model.AssemblyGroup.Namespaces.[0].Name |> shouldEqual "FsLib"
-  model.AssemblyGroup.Namespaces.[0].Types.Length |> shouldEqual 9
-  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Types -> t.Assembly.Name ]
+  model.AssemblyGroup.Namespaces.[0].Entities |> List.filter (fun c -> c.IsTypeDefinition) |> function x -> x.Length |> shouldEqual 9
+  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Entities -> t.Assembly.Name ]
   assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
 [<Test>]
