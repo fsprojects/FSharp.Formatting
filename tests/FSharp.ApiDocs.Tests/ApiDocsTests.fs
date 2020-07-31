@@ -163,8 +163,8 @@ let ``ApiDocs model generation works on two sample F# assemblies``() =
   model.AssemblyGroup.Assemblies.[1].Name |> shouldEqual "FsLib2"
   model.AssemblyGroup.Namespaces.Length |> shouldEqual 1
   model.AssemblyGroup.Namespaces.[0].Name |> shouldEqual "FsLib"
-  model.AssemblyGroup.Namespaces.[0].Types.Length |> shouldEqual 9
-  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Types -> t.Assembly.Name ]
+  model.AssemblyGroup.Namespaces.[0].Entities |> List.filter (fun c -> c.IsTypeDefinition) |> function x -> x.Length |> shouldEqual 9
+  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Entities -> t.Assembly.Name ]
   assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
 [<Test>]
@@ -221,7 +221,7 @@ let ``ApiDocs test that cref generation works``() =
 
   /// reference to a corelib class works.
   files.["creflib4-class4.html"] |> shouldContainText "Assembly"
-  files.["creflib4-class4.html"] |> shouldContainText "http://msdn.microsoft.com/en-us/library/System.Reflection.Assembly"
+  files.["creflib4-class4.html"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
 
   // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
@@ -233,9 +233,6 @@ let ``ApiDocs test that cref generation works``() =
   //files.["creflib2-class2.html"] |> shouldContainText "creflib1-class1.html"
   /// + no crash on unresolved reference.
   files.["creflib2-class2.html"] |> shouldContainText "Unknown__Reference"
-  /// reference to a member works.
-  files.["creflib2-class3.html"] |> shouldContainText "Class2.Other"
-  //files.["creflib2-class3.html"] |> shouldContainText "creflib2-class2.html"
 
   /// reference to a corelib class works.
   files.["creflib2-class4.html"] |> shouldContainText "Assembly"

@@ -24,7 +24,7 @@
     <PackageTags>F# fsharp formatting markdown code fssnip literate programming</PackageTags>
     <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting</RepositoryUrl>
     <PackageProjectUrl>https://fsprojects.github.io/FSharp.Formatting</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/FSharp.Formatting/master/docs/files/misc/logo.png</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/FSharp.Formatting/master/docs/files/img/logo.png</PackageIconUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>

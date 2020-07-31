@@ -59,6 +59,7 @@ module internal Transformations =
                 let startIdx = lines |> Seq.findIndex (fun l -> l.Contains startTag)
                 let endIdx = lines |> Seq.findIndex (fun l -> l.Contains endTag)
                 lines.[startIdx + 1 .. endIdx - 1]
+                |> Array.toList
                 |> String.removeSpaces
                 |> String.concat "\n"
               else code

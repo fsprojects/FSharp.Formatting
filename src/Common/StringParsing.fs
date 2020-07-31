@@ -80,14 +80,14 @@ module String =
   /// Given a list of lines indented with certan number of whitespace 
   /// characters (spaces), remove the spaces from the beginning of each line 
   /// and return the string as a list of lines
-  let removeSpaces lines =
+  let removeSpaces (lines: string list) =
     let spaces =
       lines 
       |> Seq.filter (String.IsNullOrWhiteSpace >> not)
       |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
       |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
     lines 
-    |> Seq.map (fun line -> 
+    |> List.map (fun line -> 
         if String.IsNullOrWhiteSpace(line) then ""
         else line.Substring(spaces))
 

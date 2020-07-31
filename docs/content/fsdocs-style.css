@@ -166,6 +166,12 @@ pre.fssnip code {
         border-style: solid;
     }
 
+    /* suppress the top line on inner lists such as tables of exceptions */
+    .table .inner-list td,
+    .table .inner-list th {
+        border-top: 0
+    }
+
         .table td p:first-child,
         .table th p:first-child {
             margin-top: 0;
