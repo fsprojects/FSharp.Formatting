@@ -24,7 +24,7 @@ type Class2() =
 /// </summary>
 type Class3() = 
     /// <summary>
-    /// <see cref="Class2.Other" />
+    /// <see cref="P:crefLib2.Class2.Other" />
     /// </summary>
     member this.X = "F#"
 

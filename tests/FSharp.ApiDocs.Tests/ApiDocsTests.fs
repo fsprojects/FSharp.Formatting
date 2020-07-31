@@ -233,9 +233,6 @@ let ``ApiDocs test that cref generation works``() =
   //files.["creflib2-class2.html"] |> shouldContainText "creflib1-class1.html"
   /// + no crash on unresolved reference.
   files.["creflib2-class2.html"] |> shouldContainText "Unknown__Reference"
-  /// reference to a member works.
-  files.["creflib2-class3.html"] |> shouldContainText "Class2.Other"
-  //files.["creflib2-class3.html"] |> shouldContainText "creflib2-class2.html"
 
   /// reference to a corelib class works.
   files.["creflib2-class4.html"] |> shouldContainText "Assembly"
