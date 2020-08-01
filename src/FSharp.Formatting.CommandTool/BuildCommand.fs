@@ -436,7 +436,7 @@ type CoreBuildOptions(watch) =
         let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
         let defaultTemplateAttempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.html"))
         // This is in-repo only
-        let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "misc", "templates", "_template.html"))
+        let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.html"))
         let defaultTemplate =
            if x.nodefaultcontent then
               None

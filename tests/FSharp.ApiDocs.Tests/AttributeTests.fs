@@ -152,16 +152,6 @@ let ``ApiDocs extracts Attribute on instance member in class``() =
   attribute.FullName |> shouldEqual "AttributeTestNamespace.TestAttribute"
 
 [<Test>]
-let ``ApiDocs extracts Attribute on class constructor``() =
-  let typeInfos = ApiDocs.GenerateModel([library], info, libDirs = [testBin]).EntityInfos
-  let class' = typeInfos |> findType "AttributeClass"
-  let ctor = class'.Constructors |> Seq.find (fun v -> v.SignatureTooltip ="(i: int) -> AttributeClass")
-  let attribute = ctor.Attributes.Head
-  attribute.Name |> shouldEqual "TestAttribute"
-  attribute.FullName |> shouldEqual "AttributeTestNamespace.TestAttribute"
-  attribute.NamedConstructorArguments |>  shouldContain ("String", box "ctor")
-
-[<Test>]
 let ``ApiDocs extracts Attribute on static member in class``() =
   let typeInfos = ApiDocs.GenerateModel([library], info, libDirs = [testBin]).EntityInfos
   let class' = typeInfos |> findType "AttributeClass"
