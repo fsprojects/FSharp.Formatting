@@ -981,6 +981,7 @@ type internal HtmlElement =
     | Text of props: HtmlProperties list * children: HtmlElement list
     | Tspan of props: HtmlProperties list * children: HtmlElement list
     | String of string
+    | EncodeString of string
 
     override tag.ToString() =
         let rec format tag (props : HtmlProperties list) (children : HtmlElement list) level =
@@ -1137,6 +1138,7 @@ type internal HtmlElement =
             | Text (props, children) -> format "text" props children level
             | Tspan (props, children) -> format "tspan" props children level
             | String str -> str
+            | EncodeString str -> System.Web.HttpUtility.HtmlEncode str
 
         helper 1 tag
 
@@ -1272,8 +1274,9 @@ module internal Html =
     let stop (props : HtmlProperties list) (children: HtmlElement list) = HtmlElement.Stop(props,children)
     let text (props : HtmlProperties list) (children: HtmlElement list) = HtmlElement.Text(props,children)
     let tspan (props : HtmlProperties list) (children: HtmlElement list) = HtmlElement.Tspan(props,children)
-    let string str = HtmlElement.String str
+    //let string str = HtmlElement.String str
     let (!!) str = HtmlElement.String str
+    let encode str = HtmlElement.EncodeString str
 
 module internal HtmlFile =
 

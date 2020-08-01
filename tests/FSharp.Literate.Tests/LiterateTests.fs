@@ -466,7 +466,7 @@ let info =
 
 [<Test>]
 let ``Can process fsx file using HTML template``() =
-  let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/_template.html"
+  let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../docs/_template.html"
   let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
   use temp = new TempFile()
   Literate.ConvertScriptFile(simpleFsx, docPageTemplate, temp.File, parameters=info)
@@ -475,7 +475,7 @@ let ``Can process fsx file using HTML template``() =
 
 [<Test>]
 let ``Can process md file using HTML template``() =
-  let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../misc/templates/_template.html"
+  let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../docs/_template.html"
   let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
   use temp = new TempFile()
   Literate.ConvertMarkdownFile(simpleMd, docPageTemplate, temp.File, parameters=info)

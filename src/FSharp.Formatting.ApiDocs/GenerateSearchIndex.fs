@@ -30,7 +30,7 @@ let generateSearchIndex (model: ApiDocsModel) =
         let cnt =
             [ enclName + "." + memb.Name
               memb.Name
-              memb.Comment.FullText
+              memb.Comment.DescriptionHtml.HtmlText 
             ] |> String.concat " \n"
 
         { uri = sprintf "%s/%s" model.CollectionRootUrl memb.UrlFileNameAndHash
@@ -53,7 +53,7 @@ let generateSearchIndex (model: ApiDocsModel) =
             for e in entities.Entities do
                 let cnt =
                     [ e.Name
-                      e.Comment.FullText
+                      e.Comment.DescriptionHtml.HtmlText
                       for ne in e.NestedEntities do  
                         e.Name + "." + ne.Name
                         ne.Name

@@ -30,9 +30,8 @@ type ApiDocs =
     ///
     ///  - `model` - the model for documentation
     ///  - `template` - the template to use for each documentation page
-    static member GenerateHtmlFromModel(model: ApiDocsModel, outDir, ?template, ?mdcomments) =
-        let mdcomments = defaultArg mdcomments false
-        GenerateHtml.HtmlRender(mdcomments).Generate(model, outDir, template)
+    static member GenerateHtmlFromModel(model: ApiDocsModel, outDir, ?template) =
+        GenerateHtml.HtmlRender().Generate(model, outDir, template)
 
     /// Generates the search index from the given documentation model
     ///
@@ -58,7 +57,7 @@ type ApiDocs =
     ///
     static member GenerateHtml(dllFiles: seq<string>, outDir, ?parameters, ?template, ?xmlFile, ?rootUrl, ?sourceRepo, ?sourceFolder, ?publicOnly, ?libDirs, ?otherFlags, ?mdcomments, ?urlRangeHighlight) =
         let model = ApiDocs.GenerateModel(dllFiles, ?parameters=parameters, ?xmlFile=xmlFile, ?sourceRepo=sourceRepo, ?sourceFolder=sourceFolder, ?publicOnly=publicOnly, ?libDirs=libDirs, ?otherFlags=otherFlags, ?mdcomments=mdcomments, ?urlRangeHighlight=urlRangeHighlight, ?rootUrl=rootUrl)
-        ApiDocs.GenerateHtmlFromModel(model, outDir=outDir, ?template=template, ?mdcomments=mdcomments)
+        ApiDocs.GenerateHtmlFromModel(model, outDir=outDir, ?template=template)
         let index = ApiDocs.GenerateSearchIndexFromModel(model)
         index
 

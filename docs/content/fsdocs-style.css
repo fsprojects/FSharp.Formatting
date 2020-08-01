@@ -129,8 +129,12 @@ div.tip {
     color: #d1d1d1;
     pointer-events: none;
 }
+    div.tip code {
+        color: #d1d1d1;
+        font: 11pt 'Droid Sans', arial, sans-serif;
+    }
 
-pre.fssnip code {
+pre .fssnip code {
     font: 9pt 'Droid Sans Mono',consolas,monospace;
 }
 
@@ -245,37 +249,15 @@ pre.fssnip code {
 
 body {
     font-family: 'Open Sans', serif;
-    padding-top: 0px;
+/*    padding-top: 0px;
     padding-bottom: 40px;
+*/
+
 }
 
 pre {
     word-wrap: inherit;
 }
-
-/* Format the heading - nicer spacing etc. */
-.masthead {
-    overflow: hidden;
-}
-
-    .masthead .muted a {
-        text-decoration: none;
-        color: #999999;
-    }
-
-    .masthead ul, .masthead li {
-        margin-bottom: 0px;
-    }
-
-    .masthead .nav li {
-        margin-top: 15px;
-        font-size: 110%;
-    }
-
-    .masthead h3 {
-        margin-bottom: 5px;
-        font-size: 170%;
-    }
 
 hr {
     margin: 0px 0px 20px 0px;
@@ -283,6 +265,7 @@ hr {
 
 
 /* Format the right-side menu */
+/*
 #menu {
     margin-top: 50px;
     font-size: 11pt;
@@ -298,27 +281,28 @@ hr {
     #menu li {
         line-height: 25px;
     }
-
+*/
 /* Change font sizes for headings etc. */
 #main h1 {
-    font-size: 26pt;
+    font-size: 2.0rem;
     margin: 10px 0px 15px 0px;
     font-weight: 400;
 }
 
 #main h2 {
-    font-size: 20pt;
+    font-size: 1.6rem;
     margin: 20px 0px 0px 0px;
     font-weight: 400;
 }
 
 #main h3 {
-    font-size: 14pt;
+    font-size: 1.2rem;
     margin: 15px 0px 0px 0px;
-    font-weight: 600;
+    font-weight: 400;
 }
+
 /* #main p  { font-size: 11pt; margin:5px 0px 15px 0px; } */
-#main ul {
+/*#main ul {
     font-size: 11pt;
     margin-top: 10px;
 }
@@ -326,32 +310,42 @@ hr {
 #main li {
     font-size: 11pt;
     margin: 5px 0px 5px 0px;
-}
-
+}*/
+/*
 #main strong {
     font-weight: 700;
 }
+*/
 
-/*--------------------------------------------------------------------------
-  Formatting for API reference
-/*--------------------------------------------------------------------------*/
-
-.type-list .type-name, .module-list .module-name {
+#main .type-list .type-name, .module-list .module-name {
     width: 25%;
     font-weight: bold;
 }
 
-.member-list .member-name {
+#main .member-list .member-name {
     width: 35%;
 }
 
+#main code {
+    font-size: 0.95rem;
+}
+
+/*--------------------------------------------------------------------------
+  Formatting for use markdown converted to HTML and placed in 'xmldoc' descriptions
+/*--------------------------------------------------------------------------*/
+
+#main .xmldoc h1 {
+    font-size: 1.2rem;
+    margin: 10px 0px 0px 0px;
+}
+
 #main .xmldoc h2 {
-    font-size: 14pt;
+    font-size: 1.2rem;
     margin: 10px 0px 0px 0px;
 }
 
 #main .xmldoc h3 {
-    font-size: 12pt;
+    font-size: 1.1rem;
     margin: 10px 0px 0px 0px;
 }
 
@@ -452,12 +446,12 @@ h6 a, h6 a:hover, h6 a:focus {
 
 #nuget {
     margin-top: 20px;
-    font-size: 11pt;
+    font-size: 1.0rem;
     padding: 20px;
 }
 
     #nuget pre {
-        font-size: 11pt;
+        font-size: 1.0rem;
         -moz-border-radius: 0px;
         -webkit-border-radius: 0px;
         border-radius: 0px;
