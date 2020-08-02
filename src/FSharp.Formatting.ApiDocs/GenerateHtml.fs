@@ -355,7 +355,7 @@ type HtmlRender() =
       for (nsIndex, ns) in Seq.indexed asm.Namespaces do
           yield! namespaceContent (nsIndex, ns) ]
 
-  let tableOfContents (asm: ApiDocsModel) (nsOpt: ApiDocNamespace option) =
+  let listOfNamespaces (asm: ApiDocsModel) (nsOpt: ApiDocNamespace option) =
     [  for (nsIndex, ns) in Seq.indexed asm.AssemblyGroup.Namespaces do
          let allByCategory = categoriseEntities (nsIndex, ns)
          if allByCategory.Length > 0 then
@@ -382,15 +382,22 @@ type HtmlRender() =
      ]
      |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
+  member _.GetGlobalParameters(model: ApiDocsModel) =
+    let tocTag = "list-of-namespaces"
+    let toc = listOfNamespaces model None
+
+    [ yield (tocTag, toc ) ]
+
+
   member _.Generate(model: ApiDocsModel, outDir: string, templateOpt) =
     let (@@) a b = Path.Combine(a, b)
     let props = (dict model.Properties).["Properties"]
     let projectName = if props.ContainsKey "project-name" then " - " + props.["project-name"] else ""
     let contentTag = "document"
-    let tocTag = "table-of-contents"
+    let tocTag = "list-of-namespaces"
     let pageTitleTag = "page-title"
 
-    let getParameters (content: HtmlElement) (toc: string) pageTitle =
+    let getParameters toc (content: HtmlElement) pageTitle =
         [| for KeyValue(k,v) in props -> (k, v)
            yield (contentTag, content.ToString() )
            yield (tocTag, toc )
@@ -402,8 +409,8 @@ type HtmlRender() =
         let content = div [] (namespacesContent asm)
         let outFile = outDir @@ "index.html"
         let pageTitle = "API Reference" + projectName
-        let toc = tableOfContents model None
-        let parameters = getParameters content toc pageTitle
+        let toc = listOfNamespaces model None
+        let parameters = getParameters toc content pageTitle
         printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
     end
@@ -412,8 +419,8 @@ type HtmlRender() =
         let content = div [] (namespaceContent (nsIndex, ns))
         let outFile = outDir @@ ns.UrlBaseName + ".html"
         let pageTitle = ns.Name
-        let toc = tableOfContents model (Some ns)
-        let parameters = getParameters content toc pageTitle
+        let toc = listOfNamespaces model (Some ns)
+        let parameters = getParameters toc content pageTitle
         printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
 
@@ -422,8 +429,8 @@ type HtmlRender() =
         let content = div [] (entityContent info)
         let outFile = outDir @@ (info.Entity.UrlBaseName + ".html")
         let pageTitle = info.Entity.Name + projectName
-        let toc = tableOfContents model (Some info.Namespace)
-        let parameters = getParameters content toc pageTitle
+        let toc = listOfNamespaces model (Some info.Namespace)
+        let parameters = getParameters toc content pageTitle
         printfn "Generating %s" outFile
         HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
         Log.infof "Finished %s" info.Entity.UrlBaseName

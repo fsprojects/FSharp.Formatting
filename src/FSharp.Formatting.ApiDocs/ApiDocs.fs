@@ -59,5 +59,7 @@ type ApiDocs =
         let model = ApiDocs.GenerateModel(dllFiles, ?parameters=parameters, ?xmlFile=xmlFile, ?sourceRepo=sourceRepo, ?sourceFolder=sourceFolder, ?publicOnly=publicOnly, ?libDirs=libDirs, ?otherFlags=otherFlags, ?mdcomments=mdcomments, ?urlRangeHighlight=urlRangeHighlight, ?rootUrl=rootUrl)
         ApiDocs.GenerateHtmlFromModel(model, outDir=outDir, ?template=template)
         let index = ApiDocs.GenerateSearchIndexFromModel(model)
-        index
+        model, index
 
+    static member GetGlobalParameters(model: ApiDocsModel) =
+        GenerateHtml.HtmlRender().GetGlobalParameters(model)

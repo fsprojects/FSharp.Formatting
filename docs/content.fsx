@@ -86,22 +86,26 @@ The following substitutions are defined based on metadata that may be present in
 The first metadata value detected across project files is used, it is assumed these values will
 be the same across all projects.
 
-|  Substitution name     | Source               |
+|  Substitution name     | Source               |  Default template  | 
 |:-----------------------|:----------------------------|
-|   {{page-title}}       | First h1 heading in literate file, generated for API docs  |
-|   {{project-name}}     | Name of .sln or containing directory |
-|   {{root}}             | `<PackageProjectUrl>`         |
-|   {{authors}}          | `<Authors>`                   |
-|   {{repository-url}}   | `<RepositoryUrl>`             |
-|   {{package-project-url}}  | `<PackageProjectUrl>`  |
-|   {{package-license}}  | `<PackageLicenseExpression>`  |
-|   {{package-tags}}     | `<PackageTags>`               |
-|   {{copyright}}        | `<Copyright>`                 |
-|   {{document}}         | generated html contents       |
-|   {contents}           | generated latex contents       |
-|   {{cells}}            | generated ipynb contents       |
-|   {{tooltips}}         | generated html tooltips contents       |
-|   {{source}}           | original script source           |
+|   `{{page-title}}`       | First h1 heading in literate file, generated for API docs  |  The HTML title of the page |
+|   `{{project-name}}`     | Name of .sln or containing directory |   Name at top of each pach | 
+|   `{{root}}`             | `<PackageProjectUrl>`         |    The sub-root within the website | 
+|   `{{logo-link}}`             | `<PackageProjectUrl>`         |   The link on the logo (expected in `{{root}}/img/logo.png`)
+|   `{{project-name-link}}`             | `<PackageProjectUrl>`         |  The link on the project name |
+|   `{{authors}}`          | `<Authors>`                   |  |
+|   `{{repository-url}}`   | `<RepositoryUrl>`             |  |
+|   `{{package-project-url}}`  | `<PackageProjectUrl>`  |  |
+|   `{{package-license}}`  | `<PackageLicenseExpression>`  |  |
+|   `{{package-tags}}`     | `<PackageTags>`               |  |
+|   `{{copyright}}`        | `<Copyright>`                 |  |
+|   `{{document}}`         | generated html contents       |  |
+|   `{{list-of-namespaces}}`  | HTML `<li>` list of namespaces with links |   |
+|   `{{list-of-documents}}`   | HTML `<li>` list of documents with  titles and links |  |
+|   `{contents}`           | generated latex contents (note: single braces)      |  |
+|   `{{cells}}`            | generated ipynb contents       |   |
+|   `{{tooltips}}`         | generated html tooltips contents       |   |
+|   `{{source}}`           | original script source           |   | 
 
 ## Generating LaTeX output
 
