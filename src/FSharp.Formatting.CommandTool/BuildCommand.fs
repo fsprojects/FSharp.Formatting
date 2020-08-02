@@ -291,6 +291,8 @@ module Crack =
           let parameters = 
             [ "project-name", overallProjectName
               "root", packageProjectUrl
+              "logo-link", packageProjectUrl
+              "project-name-link", packageProjectUrl
               "authors", authors
               //"description", description
               "repository-url", repoUrl
@@ -466,6 +468,7 @@ type CoreBuildOptions(watch) =
                       printfn "no extra content found at %s or %s" attempt1 attempt2
             ]
 
+        let mutable latestGlobalParameters = [ ]
         let runConvert () =
             try
                 //printfn "projectInfos = %A" projectInfos
@@ -482,7 +485,7 @@ type CoreBuildOptions(watch) =
                     references = false,
                     ?saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None),
                     ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                    parameters = parameters
+                    parameters = latestGlobalParameters @ parameters
                 )
 
             with
@@ -518,7 +521,7 @@ type CoreBuildOptions(watch) =
                         printfn "sourceFolder = %s" sourceFolder
                         printfn "sourceRepo = %A" sourceRepo
                         let outdir = Path.Combine(output, "reference")
-                        let index =
+                        let model, index =
                           ApiDocs.GenerateHtml (
                             dllFiles = projectOutputs,
                             outDir = outdir,
@@ -533,6 +536,7 @@ type CoreBuildOptions(watch) =
                             ?mdcomments = Some x.mdcomments
                             )
                         let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
+                        latestGlobalParameters <- ApiDocs.GetGlobalParameters(model)
 
                         File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
 
@@ -622,7 +626,7 @@ type CoreBuildOptions(watch) =
         if watch then
             printfn "Building docs first time..." 
 
-        lock monitor (fun () -> runConvert(); runGenerate())
+        lock monitor (fun () -> runGenerate(); runConvert())
         generateQueued <- false
         docsQueued <- false
         if watch && not x.noserver_option then
