@@ -383,12 +383,10 @@ type HtmlRender() =
      |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
   member _.GetGlobalParameters(model: ApiDocsModel) =
-    let props = (dict model.Properties).["Properties"]
     let tocTag = "list-of-namespaces"
     let toc = listOfNamespaces model None
 
-    [ for KeyValue(k,v) in props -> (k, v)
-      yield (tocTag, toc ) ]
+    [ yield (tocTag, toc ) ]
 
 
   member _.Generate(model: ApiDocsModel, outDir: string, templateOpt) =

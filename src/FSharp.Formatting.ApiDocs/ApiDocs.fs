@@ -62,4 +62,4 @@ type ApiDocs =
         model, index
 
     static member GetGlobalParameters(model: ApiDocsModel) =
-        ApiDocs.GetGlobalParameters(model)
+        GenerateHtml.HtmlRender().GetGlobalParameters(model)
