@@ -460,8 +460,9 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
                       yield (Some (inputFile, model),
                               (fun p ->
-                                 let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix))
+                                 let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix, relativeOutputFile))
                                  printfn "writing %s --> %s" inputFile outputFile
+                                 ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, relativeOutputFile)))
 
                   elif isMd then
@@ -480,15 +481,17 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
                       yield (Some (inputFile, model),
                               (fun p ->
-                                 let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix))
-                                 printfn "writing %s --> %s" inputFile outputFile
-                                 SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, relativeOutputFile)))
+                                  let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix, relativeOutputFile))
+                                  printfn "writing %s --> %s" inputFile outputFile
+                                  ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
+                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, relativeOutputFile)))
 
                   else 
                       yield (None, 
                               (fun _p ->
-                                  let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix))
+                                  let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix, relativeOutputFile))
                                   printfn "copying %s --> %s" inputFile relativeOutputFile
+                                  ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
                                   File.Copy(inputFile, outputFile, true)))
               else
                  printfn "skipping unchanged file %s" inputFile
