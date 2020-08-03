@@ -74,7 +74,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
          sourceFolder = "c:/dev/FSharp.DataFrame") 
   let _model, _index =
       ApiDocs.GenerateHtml( [input], output, collectionName="Deedle", template=docTemplate, parameters=parameters, libDirs = [testBin])
-  let files = Directory.GetFiles(output)
+  let files = Directory.GetFiles(output </> "reference")
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
   optIndex.IsSome |> shouldEqual true
@@ -88,7 +88,7 @@ let ``ApiDocs works on sample FAKE assembly``() =
   let output = getOutputDir "FakeLib"
   let input = ApiDocInput.FromFile(library, mdcomments = true) 
   let _model, _index = ApiDocs.GenerateHtml( [input], output, collectionName="FAKE", template=docTemplate, parameters=parameters)
-  let files = Directory.GetFiles(output)
+  let files = Directory.GetFiles(output </> "reference")
   files |> Seq.length |> shouldEqual 166
 
 
@@ -101,7 +101,7 @@ let ``ApiDocs works on two sample F# assemblies``() =
   let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true, parameters=parameters) ]
   let _model, searchIndex =
       ApiDocs.GenerateHtml(inputs, output, collectionName="FsLib", template=docTemplate,
-          root="http://root.io/root", parameters=parameters, libDirs = [testBin])
+          root="http://root.io/root/", parameters=parameters, libDirs = [testBin])
 
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
