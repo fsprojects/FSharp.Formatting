@@ -166,7 +166,7 @@ module internal CompilerServiceExtensions =
             else None
             
           let projFileName, args = getCheckerArguments frameworkVersion ignore hasFsCoreLib (fsCoreLib: _ option) dllFiles libDirs otherFlags
-          Log.verbf "Checker Arguments: %O" (Log.formatArgs args)
+          //Log.verbf "Checker Arguments: %O" (Log.formatArgs args)
 
           let options = checker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
 

@@ -23,7 +23,7 @@ module internal Transformations =
     match par with
     | CodeBlock (code, _executionCount, language, _, _) ->
         match code with
-        | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)
+        | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine _code)
                 when (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp")
                     || (cmds.ContainsKey("lang") && cmds.["lang"] <> "fsharp") -> ()
         | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)
@@ -36,7 +36,7 @@ module internal Transformations =
     | MarkdownPatterns.ParagraphNested(_, pars) ->
         for ps in pars do
           for p in ps do yield! collectCodeSnippets p
-    | MarkdownPatterns.ParagraphSpans(_, spans) -> () }
+    | MarkdownPatterns.ParagraphSpans(_, _spans) -> () }
 
 
   /// Replace CodeBlock elements with referenced code snippets.
@@ -193,7 +193,7 @@ module internal Transformations =
 
     // Generate Markdown blocks paragraphs representing Reference <li> items
     let refList =
-      [ for i, (ref, link, title) in refs do
+      [ for i, (_ref, link, title) in refs do
           let colon = title.IndexOf(":")
           if colon > 0 then
             let auth = title.Substring(0, colon)
@@ -276,7 +276,7 @@ module internal Transformations =
           let acc = (ValueRef ref, (result, executionCount))::acc
           evalBlocks ctx fsi executionCountRef file acc paras
       | _ -> evalBlocks ctx fsi executionCountRef file acc paras
-    | para::paras -> evalBlocks ctx fsi executionCountRef file acc paras
+    | _para::paras -> evalBlocks ctx fsi executionCountRef file acc paras
     | [] -> acc
 
   /// Given an evaluator and document, evaluate all code snippets and return a map with
@@ -354,7 +354,7 @@ module internal Transformations =
             | LiterateCode(lines, opts, _popts) ->
                 yield Choice1Of2(lines), (lines, opts.ExecutionCount)
             | _ -> ()
-        | MarkdownPatterns.ParagraphNested(pn, nested) ->
+        | MarkdownPatterns.ParagraphNested(_pn, nested) ->
             for ps in nested do
                 for p in ps do
                     yield! collectLiterateCode p

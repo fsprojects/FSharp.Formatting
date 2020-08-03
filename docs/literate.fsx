@@ -216,18 +216,9 @@ file which is included as a sample in the package):
 // Load the template & specify project information
 let projTemplate = source + "template-project.html"
 let projInfo =
-  [ "authors", "Tomas Petricek"
+  [ "fsdocs-authors", "Tomas Petricek"
     "github-link", "https://github.com/fsprojects/FSharp.Formatting"
-    "project-name", "F# Formatting" ]
-
-(**
-You can also convert entire directories of content.
-
-*)
-
-// Process all files and save results to 'output' directory
-Literate.ConvertDirectory
-  (source, projTemplate, source + "\\output", parameters=projInfo)
+    "fsdocs-collection-name", "F# Formatting" ]
 
 (**
 

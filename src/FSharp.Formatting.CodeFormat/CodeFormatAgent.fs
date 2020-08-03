@@ -223,7 +223,7 @@ type CodeFormatAgent() =
               | spans ->
                   let data =
                     spans
-                    |> Array.fold (fun points struct(range,category) ->
+                    |> Array.fold (fun points struct(range, _category) ->
                         points
                         |> Set.add range.StartColumn
                         |> Set.add (range.EndColumn - 1)) Set.empty
@@ -233,7 +233,7 @@ type CodeFormatAgent() =
                     |> Seq.pairwise
                     |> Seq.map (fun (leftPoint, rightPoint) ->
                         printfOrEscapedSpans
-                        |> Array.tryFind (fun struct(range,category) -> range.StartColumn = leftPoint)
+                        |> Array.tryFind (fun struct(range,_category) -> range.StartColumn = leftPoint)
                         |> Option.bind (fun struct(range,category)->
                              categoryToTokenKind category
                              |> Option.map (fun kind -> range.StartColumn, range.EndColumn, kind))
@@ -286,7 +286,7 @@ type CodeFormatAgent() =
         let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
         let defaultReferences = Seq.empty
 
-        let projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences false None [] [] []
+        let _projFileName, args = FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences false None [] [] []
         // filter invalid args
         let refCorLib = args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
 
@@ -298,7 +298,7 @@ type CodeFormatAgent() =
                 not <| item.StartsWith "--nooptimizationdata" &&
                 not <| item.EndsWith "mscorlib.dll")
 
-        Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
+        //Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, loadedTimeStamp = DateTime.Now, otherFlags = args, assumeDotNetFramework = false)
 
         let formatError (e:FSharpErrorInfo) =
@@ -348,7 +348,7 @@ type CodeFormatAgent() =
         //        //UnresolvedReferences = Some ( UnresolvedReferencesSet.UnresolvedAssemblyReference [])
         //        ProjectFileNames = [| filePath |] }
 
-        Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
+        //Log.verbf "project options '%A', OtherOptions: \n\t%s" { opts with OtherOptions = [||] } (System.String.Join("\n\t", opts.OtherOptions))
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
         
@@ -366,11 +366,11 @@ type CodeFormatAgent() =
         match res with
         | Some (_parseResults, parsedInput, checkResults) ->
             Log.verbf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
-            let! symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile ()
+            let! _symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile ()
             let errors = checkResults.Errors
             let classifications =
                 checkResults.GetSemanticClassification (Some parsedInput.Range)
-                |> Seq.groupBy (fun struct(r,c) -> r.StartLine)
+                |> Seq.groupBy (fun struct(r,_c) -> r.StartLine)
                 |> Map.ofSeq
 
 

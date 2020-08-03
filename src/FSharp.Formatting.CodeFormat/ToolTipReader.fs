@@ -63,7 +63,7 @@ let private formatElement = function
   //      yield ToolTipSpan.HardLineBreak
   //      yield! formatComment _doc     
   //  ]
-  | FSharpToolTipElement.CompositionError(err) -> []
+  | FSharpToolTipElement.CompositionError(_err) -> []
 
 /// Format entire tool tip as a value of type ToolTipSpans      
 let private formatTip tip = 

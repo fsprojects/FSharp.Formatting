@@ -6,6 +6,7 @@
     <!-- Copy all project dependencies to bin folder -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OtherFlags>/warnon:1182</OtherFlags>
   </PropertyGroup>
 
   <!-- NuGet Metadata -->

@@ -96,9 +96,9 @@ type private NoOpFsiObject()  =
   member self.ShowIDictionary with get() = showIDictionary and set v = showIDictionary <- v
   member self.AddedPrinters with get() = addedPrinters and set v = addedPrinters <- v
   member self.CommandLineArgs with get() = args  and set v  = args <- v
-  member self.AddPrinter(printer : 'T -> string) = ()
-  member self.EventLoop with get () = evLoop and set (x:NoOpFsiEventLoop)  = ()
-  member self.AddPrintTransformer(printer : 'T -> obj) = ()
+  member self.AddPrinter(_printer : 'T -> string) = ()
+  member self.EventLoop with get () = evLoop and set (_x:NoOpFsiEventLoop)  = ()
+  member self.AddPrintTransformer(_printer : 'T -> obj) = ()
 
 /// Provides configuration options for the `FsiEvaluator`
 type FsiEvaluatorConfig() =
@@ -278,7 +278,7 @@ module __FsiSettings =
         let outputs, res = fsiSession.EvalInteraction(sprintf "#load @\"%s\"" path)
         File.Delete(path)
         match res with
-        | Ok v -> ()
+        | Ok _v -> ()
         | Error exn ->
            printfn "Error establishing FSI:"
            printfn "%s" outputs.Output.FsiOutput
@@ -329,11 +329,11 @@ module __FsiSettings =
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
   let mutable valueTransformations = 
-    [ (fun (o:obj, t:Type, executionCount: int) ->
+    [ (fun (o:obj, _t:Type, executionCount: int) ->
         tryHtmlPrint 0 o |> Option.map (fun (_tags, html) -> 
            [OutputBlock(html, "text/html", Some executionCount)]) )
 
-      (fun (o:obj, t:Type, executionCount: int) ->
+      (fun (o:obj, _t:Type, executionCount: int) ->
         Some([OutputBlock(plainTextPrint 0 o, "text/plain", Some executionCount)]) ) ]
 
   /// Temporarily holds the function value injected into the F# evaluation session

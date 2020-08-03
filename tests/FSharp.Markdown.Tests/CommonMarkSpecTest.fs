@@ -40,7 +40,7 @@ let getTests () =
 
 [<Test>]
 [<TestCaseSource("getTests")>]
-let ``Commonmark specification`` (section:string) (markdown : string) (html : string) =
+let ``Commonmark specification`` (_section:string) (markdown : string) (html : string) =
   printfn "Markdown: '%s'" markdown
   (Markdown.ToHtml(markdown, "\n"))
   |> should equal html

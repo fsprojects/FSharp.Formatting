@@ -6,6 +6,7 @@ open System.Globalization
 open FSharp.Formatting.Literate
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
+open FSharp.Formatting.Templating
 
 module internal Formatting =
 
@@ -58,6 +59,16 @@ module internal Formatting =
               yield EmbedParagraphs(LiterateCode(lines, opts, popts), None) ]
         doc.With(paragraphs = paragraphs)
 
+  /// Given literate document, get the text for indexing for search
+  let getIndexText(doc:LiterateDocument) =
+    match doc.Source with
+    | LiterateSource.Markdown text -> text
+    | LiterateSource.Script snippets ->
+        [ for Snippet(_name, lines) in snippets do
+            for (Line(line, _)) in lines do
+               yield line ]
+        |> String.concat "\n"
+
   let transformDocument (doc: LiterateDocument) output ctx =
 
     // If we want to include the source code of the script, then process
@@ -66,39 +77,35 @@ module internal Formatting =
         let doc =
           getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx
-        let content = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []
-        [ "source", content ]
+        let source = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []
+        [ ParamKey "fsdocs-source", source ]
 
     // Get page title (either heading or file name)
     let pageTitle =
       let name = Path.GetFileNameWithoutExtension(output)
       defaultArg (findHeadings doc.Paragraphs ctx.GenerateHeaderAnchors ctx.OutputKind) name
 
-    // To avoid clashes in templating use {contents} for Latex and older {document} for HTML
-    let contentTag =
-      match ctx.OutputKind with
-      | OutputKind.Fsx -> "code"
-      | OutputKind.Html -> "document"
-      | OutputKind.Latex -> "contents"
-      | OutputKind.Pynb -> "cells"
-
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let parameters0 =
-      [ "page-title", pageTitle
-        "page-source", doc.SourceFile ]
-      @ ctx.Replacements
-      @ sourceReplacements
+        [ ParamKey.``fsdocs-page-title``, pageTitle
+          ParamKey.``fsdocs-page-source``, doc.SourceFile ]
+        @ ctx.Replacements
+        @ sourceReplacements
     let formattedDocument = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind parameters0
     let tipsHtml = doc.FormattedTips
 
     // Construct new Markdown document and write it
     let parameters =
       parameters0 @
-      [ contentTag, formattedDocument
-        "tooltips", tipsHtml ]
+      [ ParamKey.``fsdocs-content``, formattedDocument
+        ParamKey.``fsdocs-tooltips``, tipsHtml ]
 
+    let indexText = (match ctx.OutputKind with OutputKind.Html -> Some (getIndexText doc) | _ -> None )
     {
-      ContentTag   = contentTag
-      Parameters   = parameters
+      OutputPath = output
+      OutputKind = ctx.OutputKind
+      Title = pageTitle
+      IndexText = indexText
+      Parameters = parameters
     }

@@ -17,6 +17,7 @@ open FSharp.Formatting.Literate
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
+open FSharp.Formatting.Templating
 open FSharp.Patterns
 
 [<AutoOpen>]
@@ -275,8 +276,9 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
     /// The URL base name of the best link documentation for the item (without the http://site.io/reference)
   member x.UrlBaseName = entityUrlBaseName
 
-    /// The URL of the best link documentation for the item (without the http://site.io/reference)
-  member x.UrlFileNameAndHash = sprintf "%s.html#%s" entityUrlBaseName displayName
+    /// The URL of the best link documentation for the item relative to "reference" directory (without the http://site.io/reference)
+  member x.Url(root, collectionName, qualify) =
+      sprintf "%sreference/%s%s.html#%s" root (if qualify then collectionName else "") entityUrlBaseName displayName
 
     /// The declared attributes of the member
   member x.Attributes = attributes
@@ -317,137 +319,157 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
 
 /// Represents a type definition integrated with its associated documentation
 type ApiDocEntity
-       (tdef, name, cat, url, comment, assembly: AssemblyName, attributes,
+       (tdef, name, cat, urlBaseName, comment, assembly: AssemblyName, attributes,
         cases, fields, statParams, ctors, inst, stat, allInterfaces, baseType, abbreviatedType,
         delegateSignature, symbol: FSharpEntity,
-        nested, vals, exts, pats, rqa) =
+        nested, vals, exts, pats, rqa, parameters: Parameters) =
 
     /// Indicates if the entity is a type definition
-  member x.IsTypeDefinition : bool = tdef
+    member x.IsTypeDefinition : bool = tdef
 
-  /// The name of the entity
-  member x.Name : string = name
+    /// The name of the entity
+    member x.Name : string = name
 
     /// The category of the type
-  member x.Category : string = cat
+    member x.Category : string = cat
 
-    /// The URL of the best link documentation for the item (without the http://site.io/reference or .html)
-  member x.UrlBaseName : string = url
+    /// The URL base name of the primary documentation for the entity  (without the http://site.io/reference)
+    member x.UrlBaseName : string = urlBaseName
+
+    /// The URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
+    member x.Url(root, collectionName, qualify) =
+        sprintf "%sreference/%s%s.html" root (if qualify then collectionName else "") urlBaseName
+
+    /// The name of the file generated for this entity
+    member x.OutputFile(collectionName, qualify) =
+        sprintf "reference/%s%s.html" (if qualify then collectionName else "") urlBaseName
 
     /// The attached comment
-  member x.Comment : ApiDocComment = comment
+    member x.Comment : ApiDocComment = comment
 
     /// The name of the type's assembly
-  member x.Assembly = assembly
+    member x.Assembly = assembly
 
     /// The declared attributes of the type
-  member x.Attributes : ApiDocAttribute list = attributes
+    member x.Attributes : ApiDocAttribute list = attributes
 
     /// The cases of a union type
-  member x.UnionCases : ApiDocMember list = cases
+    member x.UnionCases : ApiDocMember list = cases
 
     /// The fields of a record type
-  member x.RecordFields : ApiDocMember list = fields
+    member x.RecordFields : ApiDocMember list = fields
 
     /// Static parameters
-  member x.StaticParameters : ApiDocMember list = statParams
+    member x.StaticParameters : ApiDocMember list = statParams
 
     /// All members of the type
-  member x.AllMembers : ApiDocMember list = List.concat [ ctors; inst; stat; cases; fields; statParams; vals; exts; pats  ]
+    member x.AllMembers : ApiDocMember list = List.concat [ ctors; inst; stat; cases; fields; statParams; vals; exts; pats  ]
 
     /// All interfaces of the type, formatted
-  member x.AllInterfaces : ApiDocHtml list = allInterfaces
+    member x.AllInterfaces : ApiDocHtml list = allInterfaces
 
     /// The base type of the type, formatted
-  member x.BaseType : ApiDocHtml option = baseType
+    member x.BaseType : ApiDocHtml option = baseType
 
     /// If this is a type abbreviation, then the abbreviated type
-  member x.AbbreviatedType : ApiDocHtml option = abbreviatedType
+    member x.AbbreviatedType : ApiDocHtml option = abbreviatedType
 
     /// If this is a delegate, then e formatted signature
-  member x.DelegateSignature : ApiDocHtml option = delegateSignature
+    member x.DelegateSignature : ApiDocHtml option = delegateSignature
 
     /// The constuctorsof the type
-  member x.Constructors : ApiDocMember list = ctors
+    member x.Constructors : ApiDocMember list = ctors
 
     /// The instance members of the type
-  member x.InstanceMembers : ApiDocMember list = inst
+    member x.InstanceMembers : ApiDocMember list = inst
 
     /// The static members of the type
-  member x.StaticMembers : ApiDocMember list = stat
+    member x.StaticMembers : ApiDocMember list = stat
 
-  /// Gets a value indicating whether this member is obsolete
-  member x.IsObsolete =
-    x.Attributes
-    |> Seq.exists (fun a -> a.IsObsoleteAttribute)
+    /// Gets a value indicating whether this member is obsolete
+    member x.IsObsolete =
+        x.Attributes
+        |> Seq.exists (fun a -> a.IsObsoleteAttribute)
 
-  /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
-  member x.ObsoleteMessage =
-    ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
+    /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
+    member x.ObsoleteMessage =
+        ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
 
-  /// The F# compiler symbol for the type definition
-  member x.Symbol = symbol
+    /// The F# compiler symbol for the type definition
+    member x.Symbol = symbol
 
     /// Does the module have the RequiresQualifiedAccess attribute
-  member x.RequiresQualifiedAccess : bool = rqa
+    member x.RequiresQualifiedAccess : bool = rqa
 
     /// All nested modules and types
-  member x.NestedEntities : ApiDocEntity list = nested
+    member x.NestedEntities : ApiDocEntity list = nested
 
     /// Values and functions of the module
-  member x.ValuesAndFuncs : ApiDocMember list = vals
+    member x.ValuesAndFuncs : ApiDocMember list = vals
 
     /// Type extensions of the module
-  member x.TypeExtensions : ApiDocMember list = exts
+    member x.TypeExtensions : ApiDocMember list = exts
 
     /// Active patterns of the module
-  member x.ActivePatterns : ApiDocMember list = pats
+    member x.ActivePatterns : ApiDocMember list = pats
+
+    /// The substitution parameters active for generating thist content
+    member x.Parameters  = parameters
+
 
 /// Represents a namespace integrated with its associated documentation
-type ApiDocNamespace(name: string, mods) =
+type ApiDocNamespace(name: string, mods, parameters: Parameters) =
 
-  let urlBaseName = name.Replace(".", "-").ToLower()
+    let urlBaseName = name.Replace(".", "-").ToLower()
 
     /// The name of the namespace
-  member x.Name : string = name
+    member x.Name : string = name
 
-  /// The hash label for the URL of the best link documentation for the item 
-  member x.UrlHash = name.Replace(".", "-").ToLower()
+    /// The hash label for the URL with the overall namespaces file
+    member x.UrlHash = name.Replace(".", "-").ToLower()
 
-  /// The base name for the generated file
-  member x.UrlBaseName = urlBaseName
+    /// The base name for the generated file
+    member x.UrlBaseName = urlBaseName
 
-  /// The URL of the best link documentation for the item (without the http://site.io/reference but with #)
-  member x.UrlFileNameAndHash = sprintf "%s.html#%s" urlBaseName x.UrlHash
+    /// The URL of the best link documentation for the item (without the http://site.io/reference)
+    member x.Url(root, collectionName, qualify) =
+        sprintf "%sreference/%s%s.html" root (if qualify then collectionName else "") urlBaseName
+
+    /// The name of the file generated for this entity
+    member x.OutputFile(collectionName, qualify) =
+        sprintf "reference/%s%s.html" (if qualify then collectionName else "") urlBaseName
 
     /// All modules in the namespace
-  member x.Entities : ApiDocEntity list = mods
+    member x.Entities : ApiDocEntity list = mods
 
+    /// The substitution parameters active for generating thist content
+    member x.Parameters  = parameters
 
 /// Represents a group of assemblies integrated with its associated documentation
-type ApiDocAssemblyGroup(name: string, asms: AssemblyName list, nss: ApiDocNamespace list) =
-    /// Name of the group
-  member x.Name = name
+type ApiDocCollection(name: string, asms: AssemblyName list, nss: ApiDocNamespace list) =
 
-    /// All assemblies in the group
-  member x.Assemblies = asms
+    /// Name of the collection
+    member x.CollectionName = name
 
-    /// All namespaces in the group
-  member x.Namespaces = nss
+    /// All assemblies in the collection
+    member x.Assemblies = asms
+
+    /// All namespaces in the collection
+    member x.Namespaces = nss
 
 /// High-level information about a module definition
-type ApiDocEntityInfo(entity: ApiDocEntity, asm: ApiDocAssemblyGroup, ns: ApiDocNamespace, parent: ApiDocEntity option) =
+type ApiDocEntityInfo(entity: ApiDocEntity, collection: ApiDocCollection, ns: ApiDocNamespace, parent: ApiDocEntity option) =
     /// The actual entity
-  member x.Entity = entity
+    member x.Entity = entity
 
-    /// The assembly group the module belongs to
-  member x.AssemblyGroup = asm
+    /// The collection of assemblies the entity belongs to
+    member x.Collection = collection
 
-    /// The namespace the module belongs to
-  member x.Namespace = ns
+    /// The namespace the entity belongs to
+    member x.Namespace = ns
 
     /// The parent module, if any.
-  member x.ParentModule = parent
+    member x.ParentModule = parent
 
 [<AutoOpen>]
 module internal CrossReferences =
@@ -481,7 +503,7 @@ module internal CrossReferences =
                 let typeArgsMap =
                     Seq.append methodGenericParameters typeGenericParameters
                     |> Seq.groupBy fst
-                    |> Seq.map (fun (name, grp) -> grp |> Seq.head)
+                    |> Seq.map (fun (_name, grp) -> grp |> Seq.head)
                     |> dict
 
                 let typeArgs =
@@ -514,7 +536,7 @@ module internal CrossReferences =
 type internal CrefReference =
     { IsInternal : bool; ReferenceLink : string; NiceName : string; HasModuleSuffix: bool }
 
-type internal CrossReferenceResolver () =
+type internal CrossReferenceResolver (root) =
     let toReplace =
         ([("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
             (Path.GetInvalidPathChars()
@@ -597,11 +619,11 @@ type internal CrossReferenceResolver () =
 
     let tryResolveCrossReferenceForEntity entity =
         match registeredEntitiesToUrlBaseName.TryGetValue (entity) with
-        | true, v -> 
+        | true, _v -> 
             let urlBaseName = getUrlBaseNameForRegisteredEntity entity
             Some
               { IsInternal = true
-                ReferenceLink = sprintf "%s.html" urlBaseName  
+                ReferenceLink = sprintf "%sreference/%s.html" root urlBaseName  
                 NiceName = entity.LogicalName
                 HasModuleSuffix=entity.HasFSharpModuleSuffix }
         | _ -> 
@@ -626,7 +648,7 @@ type internal CrossReferenceResolver () =
             match niceNameEntityLookup.TryGetValue(typeName) with
             | true, entities ->
                 match Seq.toList entities with
-                | entity :: rest -> 
+                | entity :: _rest -> 
                     { IsInternal = true
                       ReferenceLink = sprintf "%s.html" (getUrlBaseNameForRegisteredEntity entity)
                       NiceName = entity.LogicalName
@@ -814,7 +836,7 @@ module internal TypeFormatter =
         argName, argType
 
     // Format each argument, including its name and type
-    let formatArgUsageAsHtml ctx i (arg:FSharpParameter) =
+    let formatArgUsageAsHtml _ctx i (arg:FSharpParameter) =
         let argName, _argType = formatArgNameAndType i arg
         !! argName
 
@@ -859,7 +881,8 @@ module internal SymbolReader =
           SourceFolderRepository : (string * string) option
           AssemblyPath : string
           CompilerOptions : string
-          FormatAgent : CodeFormatAgent }
+          FormatAgent : CodeFormatAgent
+          Parameters : Parameters }
 
         member x.XmlMemberLookup(key) =
             match x.XmlMemberMap.TryGetValue(key) with
@@ -868,7 +891,7 @@ module internal SymbolReader =
 
         static member internal Create
             (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap,
-             assemblyPath, fscoptions, formatAgent ) =
+             assemblyPath, fscoptions, formatAgent, parameters ) =
 
           { PublicOnly=publicOnly
             Assembly = assembly
@@ -879,7 +902,8 @@ module internal SymbolReader =
             SourceFolderRepository = sourceFolderRepo
             AssemblyPath = assemblyPath
             CompilerOptions = fscoptions
-            FormatAgent = formatAgent }
+            FormatAgent = formatAgent
+            Parameters = parameters}
 
     let inline private getCompiledName (s : ^a when ^a :> FSharpSymbol) =
         let compiledName = (^a : (member CompiledName : string) (s))
@@ -995,7 +1019,7 @@ module internal SymbolReader =
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
         (usageHtml, paramHtmls, returnHtml, modifiers, typars, baseType, location, getCompiledName v)
 
-    let readUnionCase (ctx:ReadingContext) (typ: FSharpEntity) (case:FSharpUnionCase) =
+    let readUnionCase (ctx:ReadingContext) (_typ: FSharpEntity) (case:FSharpUnionCase) =
 
         let formatFieldUsage (field:FSharpField) =
             if field.Name.StartsWith("Item") then
@@ -1105,7 +1129,7 @@ module internal SymbolReader =
         ApiDocComment(summary, full, sections, raw)
 
     let findCommand = (function
-        | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), rest) ->
+        | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), _rest) ->
             Some (k, v)
         | _ -> None)
 
@@ -1174,10 +1198,10 @@ module internal SymbolReader =
       )
 
       if all then
-          let remarks = doc.Descendants(XName.Get "remarks")
-          if Seq.length remarks > 0 then
+          let remarkNodes = doc.Descendants(XName.Get "remarks")
+          if Seq.length remarkNodes > 0 then
              //html.Append("<h4>Remarks</h4>") |> ignore
-             remarks |> Seq.iteri (fun id e ->
+             remarkNodes |> Seq.iteri (fun id e ->
                let n = if id = 0 then "remarks" else "remarks-" + string id
                rawData.[n] <- e.Value
                html.Append("<p class='remarks'>") |> ignore
@@ -1185,11 +1209,11 @@ module internal SymbolReader =
                html.Append("</p>") |> ignore
              )
 
-          let parameters = doc.Descendants(XName.Get "param")
-          if Seq.length parameters > 0 then
+          let paramNodes = doc.Descendants(XName.Get "param")
+          if Seq.length paramNodes > 0 then
              //full.Append("<h4>Parameters</h4>") |> ignore
              html.Append("<dl>") |> ignore
-             for e in parameters do
+             for e in paramNodes do
                let name = e.Attribute(XName.Get "name").Value
                rawData.["param-" + name] <- e.Value
                html.AppendFormat("<dt><span class='parameter'>{0}</span></dt><dd><p>", name) |> ignore
@@ -1343,7 +1367,7 @@ module internal SymbolReader =
               dict[], ApiDocComment.Empty
             | null ->
               let summary, _raw = readXmlCommentAsHtmlAux false ctx.UrlMap el (dict [])
-              let all, raw = readXmlCommentAsHtmlAux true ctx.UrlMap el (dict [])
+              let all, _raw = readXmlCommentAsHtmlAux true ctx.UrlMap el (dict [])
               dict[], (ApiDocComment(summary, all, [KeyValuePair("<default>", summary)], []))
             | sum ->
               let lines = removeSpaces sum.Value |> List.map (fun s -> (s, MarkdownRange.zero))
@@ -1506,7 +1530,7 @@ module internal SymbolReader =
 
       let xmlDocSig = getXmlDocSigForType typ
 
-      readCommentsInto typ ctx xmlDocSig (fun cat cmds comment ->
+      readCommentsInto typ ctx xmlDocSig (fun cat _cmds comment ->
         let entityUrl = ctx.UrlMap.TryResolveUrlBaseNameForEntity typ
 
         let rec getMembers (typ:FSharpEntity) = [
@@ -1514,7 +1538,7 @@ module internal SymbolReader =
           match typ.BaseType with
           | Some baseType ->
               //TODO: would be better to reuse instead of reparsing the base type xml docs
-              let cmds, comment = readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition)
+              let cmds, _comment = readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition)
               match cmds with
               | Command "omit" _ -> yield! getMembers baseType.TypeDefinition
               | _ -> ()
@@ -1551,10 +1575,10 @@ module internal SymbolReader =
 
         let rqa = hasAttrib<RequireQualifiedAccessAttribute> typ.Attributes
         ApiDocEntity (true, name, cat, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors,
-           inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, typ, [], [], [], [], rqa))
+           inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, typ, [], [], [], [], rqa, ctx.Parameters))
 
     and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
-      readCommentsInto modul ctx modul.XmlDocSig (fun cat cmd comment ->
+      readCommentsInto modul ctx modul.XmlDocSig (fun cat _cmd comment ->
 
         // Properties & value bindings in the module
         let entityUrl = ctx.UrlMap.TryResolveUrlBaseNameForEntity modul
@@ -1568,7 +1592,8 @@ module internal SymbolReader =
  
         ApiDocEntity
           ( false, modul.DisplayName, cat, entityUrl, comment, ctx.Assembly, attrs,
-            [], [], [], [], [], [], [], None, None, None, modul, entities, vals, exts, pats, rqa ))
+            [], [], [], [], [], [], [], None, None, None, modul, entities, vals,
+            exts, pats, rqa, ctx.Parameters ))
 
     // ----------------------------------------------------------------------------------------------
     // Reading namespace and assembly details
@@ -1584,9 +1609,9 @@ module internal SymbolReader =
   
     let readNamespace ctx (ns, entities:seq<FSharpEntity>) =
       let entities = readEntities ctx entities
-      ApiDocNamespace(stripMicrosoft ns, entities)
+      ApiDocNamespace(stripMicrosoft ns, entities, ctx.Parameters)
 
-    let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs) =
+    let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs) =
       let assemblyName = AssemblyName(assembly.QualifiedName)
 
       // Read in the supplied XML file, map its name attributes to document text
@@ -1616,7 +1641,7 @@ module internal SymbolReader =
       let ctx =
         ReadingContext.Create
           (publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
-           mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent)
+           mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent, parameters)
              
       //
       let namespaces =
@@ -1629,39 +1654,80 @@ module internal SymbolReader =
 
       assemblyName, namespaces
 
+/// Represents an input assembly for API doc generation
+type ApiDocInput =
+   {
+      /// The path to the assembly
+      Path: string
+
+      /// Override the default XML file (normally assumed to live alongside)
+      XmlFile: string option
+
+      /// The compile-time source folder
+      SourceFolder: string option
+
+      /// The URL the the source repo where the source code lives
+      SourceRepo: string option
+
+      /// The substitution parameters active for this input. If specified these
+      /// are used instead of the overall parameters.  This allows different parameters (e.g.
+      /// different authors) for each assembly in a collection.
+      Parameters: Parameters option
+
+      /// Whether the input uses markdown comments
+      MarkdownComments: bool
+
+      /// Whether to generate only public things
+      PublicOnly: bool 
+    }
+    static member FromFile(assemblyPath: string, ?mdcomments, ?parameters, ?sourceRepo, ?sourceFolder, ?publicOnly) =
+       { Path=assemblyPath;
+         XmlFile = None;
+         SourceFolder = sourceFolder;
+         SourceRepo=sourceRepo;
+         Parameters = parameters;
+         PublicOnly=defaultArg publicOnly true;
+         MarkdownComments = defaultArg mdcomments false }
+
 /// Represents a set of assemblies integrated with their associated documentation
-type ApiDocsModel =
+type ApiDocModel =
   {
-    AssemblyGroup      : ApiDocAssemblyGroup
-    EntityInfos        : ApiDocEntityInfo list
-    Properties         : (string * IDictionary<string, string>) list
-    CollectionRootUrl  : string
+    /// The parameters.  Different parameters can also be used for each specific input
+    Parameters: Parameters
+
+    /// The full list of all entities
+    Collection: ApiDocCollection
+
+    /// The full list of all entities
+    EntityInfos: ApiDocEntityInfo list
+
+    /// The root URL for the entire generation, normally '/'
+    Root: string
+
+    /// Indicates if each collection is being qualified by its collection name, e.g. 'reference/FSharp.Core'
+    Qualify: bool
+
   }
 
-  static member Generate(dllFiles: seq<string>, parameters, xmlFile, sourceRepo, sourceFolder, publicOnly, libDirs, otherFlags, mdcomments, urlRangeHighlight, rootUrl) =
+  /// URL of the 'index.html' for the reference documentation for the model
+  member x.IndexUrl(root, collectionName, qualify) =
+        sprintf "%sreference/%sindex.html" root (if qualify then collectionName else "") 
+
+  /// URL of the 'index.html' for the reference documentation for the model
+  member x.IndexOutputFile(collectionName, qualify) =
+        sprintf "reference/%sindex.html" (if qualify then collectionName else "") 
+
+  static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
+         qualify, urlRangeHighlight, root, parameters) =
+
     let (@@) a b = Path.Combine(a, b)
-    let parameters = defaultArg parameters []
-    let props = [ "Properties", dict parameters ]
 
     // Default template file names
 
     let otherFlags = defaultArg otherFlags []
-    let publicOnly = defaultArg publicOnly true
     let libDirs = defaultArg libDirs [] |> List.map Path.GetFullPath
-    let dllFiles = dllFiles |> List.ofSeq |>  List.map Path.GetFullPath
-    let urlRangeHighlight =
-      defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
-
-    let sourceFolderRepo =
-        match sourceFolder, sourceRepo with
-        | Some folder, Some repo -> Some(folder, repo)
-        | Some folder, _ ->
-            Log.warnf "Repository url should be specified along with source folder."
-            None
-        | _, Some repo ->
-            Log.warnf "Repository url should be specified along with source folder."
-            None
-        | _ -> None
+    let dllFiles = projects |> List.map (fun p -> Path.GetFullPath p.Path)
+    let urlRangeHighlight =defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
 
     // When resolving assemblies, look in folders where all DLLs live
     AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
@@ -1691,24 +1757,38 @@ type ApiDocsModel =
     // Read and process assemblies and the corresponding XML files
     let assemblies =
       let resolvedList =
-        //FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
+        //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
         FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
         |> Seq.toList
+        |> List.zip projects
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
-      let urlMap = CrossReferenceResolver()
+      let urlMap = CrossReferenceResolver(root)
 
-      resolvedList |> Seq.iter (function
-        | _, Some asm ->
+      for (_, asmOpt) in resolvedList do
+        match asmOpt with
+        | (_, Some asm) ->
           asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
-        | _ -> ())
+        | _ -> ()
 
-      resolvedList |> List.choose (function
-        | dllFile, None ->
+      resolvedList |> List.choose (fun (project, (dllFile, asmOpt)) ->
+        let sourceFolderRepo =
+            match project.SourceFolder, project.SourceRepo with
+            | Some folder, Some repo -> Some(folder, repo)
+            | Some _folder, _ ->
+                Log.warnf "Repository url should be specified along with source folder."
+                None
+            | _, Some _repo ->
+                Log.warnf "Repository url should be specified along with source folder."
+                None
+            | _ -> None
+
+        match asmOpt with
+        | None ->
           Log.warnf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
           None
-        | dllFile, Some asm ->
-          let xmlFile = defaultArg xmlFile (Path.ChangeExtension(dllFile, ".xml"))
+        | Some asm ->
+          let xmlFile = defaultArg project.XmlFile (Path.ChangeExtension(dllFile, ".xml"))
           let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
           let xmlFileOpt =
             //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
@@ -1725,53 +1805,46 @@ type ApiDocsModel =
             //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
             //      then Some(f) else None)
 
+          let publicOnly = project.PublicOnly
+          let mdcomments = project.MarkdownComments
+          let parameters = defaultArg project.Parameters parameters 
           match xmlFileOpt with
-          | None -> raise <| FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile)
+          | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
           | Some xmlFile ->
-            SymbolReader.readAssembly
-              (asm, publicOnly, xmlFile, sourceFolderRepo, urlRangeHighlight,
-               defaultArg mdcomments true, urlMap, codeFormatCompilerArgs )
+            SymbolReader.readAssembly (asm, publicOnly, xmlFile, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs )
             |> Some)
-
-    // Get the name - either from parameters, or name of the assembly (if there is just one)
-    let groupName =
-      let projName = parameters |> List.tryFind (fun (k, v) -> k = "project-name") |> Option.map snd
-      match assemblies, projName with
-      | _, Some name -> name
-      | [ asm, _ ], _ -> asm.Name
-      | _ -> failwith "Unknown project name. Provide 'properties' parameter with 'project-name' key."
 
     // Union namespaces from multiple libraries
     let namespaces = Dictionary<_, _>()
     for _, nss in assemblies do
       for ns in nss do
         match namespaces.TryGetValue(ns.Name) with
-        | true, entities -> namespaces.[ns.Name] <- entities @ ns.Entities
-        | false, _ -> namespaces.Add(ns.Name, ns.Entities)
+        | true, (entities, parameters) -> namespaces.[ns.Name] <- (entities @ ns.Entities, parameters)
+        | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.Parameters))
 
     let namespaces =
-      [ for (KeyValue(name, entities)) in namespaces do
+      [ for (KeyValue(name, (entities, parameters))) in namespaces do
           if entities.Length > 0 then
-              ApiDocNamespace(name, entities) ]
+              ApiDocNamespace(name, entities, parameters) ]
 
-    let asmGroup = ApiDocAssemblyGroup(groupName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
+    let collection = ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
     let rec nestedModules ns parent (modul:ApiDocEntity) =
       [
-        yield ApiDocEntityInfo(modul, asmGroup, ns, parent)
+        yield ApiDocEntityInfo(modul, collection, ns, parent)
         for n in modul.NestedEntities do
             if not n.IsTypeDefinition then
                yield! nestedModules ns (Some modul) n
       ]
 
     let moduleInfos =
-      [ for ns in asmGroup.Namespaces do
+      [ for ns in collection.Namespaces do
           for n in ns.Entities do
             if not n.IsTypeDefinition then
                yield! nestedModules ns None n ]
 
     let createType ns parent typ =
-        ApiDocEntityInfo(typ, asmGroup, ns, parent)
+        ApiDocEntityInfo(typ, collection, ns, parent)
 
     let rec nestedTypes ns (modul:ApiDocEntity) =
       [ for n in modul.NestedEntities do
@@ -1782,7 +1855,7 @@ type ApiDocsModel =
           yield! nestedTypes ns n ]
 
     let typesInfos =
-      [ for ns in asmGroup.Namespaces do
+      [ for ns in collection.Namespaces do
           for n in ns.Entities do
               if not n.IsTypeDefinition then
                   yield! nestedTypes ns n
@@ -1791,10 +1864,11 @@ type ApiDocsModel =
                  yield createType ns None n  ]
 
     {
-      AssemblyGroup = asmGroup
+      Parameters = parameters
+      Collection = collection
       EntityInfos = moduleInfos @ typesInfos
-      Properties = props
-      CollectionRootUrl = sprintf "%s/reference" rootUrl
+      Root = root
+      Qualify = qualify
     }
 
 /// Represents an entry suitable for constructing a Lunr index

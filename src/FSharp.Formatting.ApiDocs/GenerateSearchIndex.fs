@@ -4,7 +4,7 @@ open FSharp.Formatting.ApiDocs
 
 type AssemblyEntities = {
   Entities: ApiDocEntity list
-  GeneratorOutput: ApiDocsModel
+  GeneratorOutput: ApiDocModel
 }
 
 
@@ -14,9 +14,9 @@ let rec collectEntities (m: ApiDocEntity) =
         yield! m.NestedEntities |> List.collect collectEntities
     ]
 
-let generateSearchIndex (model: ApiDocsModel) =
+let searchIndexEntriesForModel (model: ApiDocModel) =
     let allEntities =
-        [ for n in model.AssemblyGroup.Namespaces do
+        [ for n in model.Collection.Namespaces do
             for m in n.Entities do
                yield! collectEntities m
         ]
@@ -33,23 +33,24 @@ let generateSearchIndex (model: ApiDocsModel) =
               memb.Comment.DescriptionHtml.HtmlText 
             ] |> String.concat " \n"
 
-        { uri = sprintf "%s/%s" model.CollectionRootUrl memb.UrlFileNameAndHash
+        { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify)
           title = enclName + "." + memb.Name
           content = cnt }
 
     let refs =
         [|      
-            // the entry is found when searching for types and modules
-            let ctn =
-                [ for e in entities.Entities do
-                    e.Name
-                ] |> String.concat " \n"
+            for nsp in model.Collection.Namespaces do
+                // the entry is found when searching for types and modules
+                let ctn =
+                    [ for e in nsp.Entities do
+                        e.Name
+                    ] |> String.concat " \n"
 
-            { uri = (sprintf "%s/index.html" model.CollectionRootUrl )
-              title = "API Reference"
-              content = ctn }
+                { uri = nsp.Url(model.Root, model.Collection.CollectionName, model.Qualify)
+                  title = nsp.Name
+                  content = ctn }
 
-            // generate a search index entry for each module in the assembly
+            // generate a search index entry for each entity in the assembly
             for e in entities.Entities do
                 let cnt =
                     [ e.Name
@@ -65,13 +66,15 @@ let generateSearchIndex (model: ApiDocsModel) =
                     ] |> String.concat " \n"
 
 
-                let url = sprintf "%s/%s.html" model.CollectionRootUrl e.UrlBaseName
+                let url = e.Url(model.Root, model.Collection.CollectionName, model.Qualify)
                 { uri = url
                   title = e.Name
                   content = cnt }
 
                 for memb in e.AllMembers do
                     doMember e.Name memb
+
+
         |]
 
     refs

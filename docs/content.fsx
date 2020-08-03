@@ -86,31 +86,33 @@ The following substitutions are defined based on metadata that may be present in
 The first metadata value detected across project files is used, it is assumed these values will
 be the same across all projects.
 
-|  Substitution name     | Source               |  Default template  | 
-|:-----------------------|:----------------------------|
-|   `{{page-title}}`       | First h1 heading in literate file, generated for API docs  |  The HTML title of the page |
-|   `{{project-name}}`     | Name of .sln or containing directory |   Name at top of each pach | 
-|   `{{root}}`             | `<PackageProjectUrl>`         |    The sub-root within the website | 
-|   `{{logo-link}}`             | `<PackageProjectUrl>`         |   The link on the logo (expected in `{{root}}/img/logo.png`)
-|   `{{project-name-link}}`             | `<PackageProjectUrl>`         |  The link on the project name |
-|   `{{authors}}`          | `<Authors>`                   |  |
-|   `{{repository-url}}`   | `<RepositoryUrl>`             |  |
-|   `{{package-project-url}}`  | `<PackageProjectUrl>`  |  |
-|   `{{package-license}}`  | `<PackageLicenseExpression>`  |  |
-|   `{{package-tags}}`     | `<PackageTags>`               |  |
-|   `{{copyright}}`        | `<Copyright>`                 |  |
-|   `{{document}}`         | generated html contents       |  |
-|   `{{list-of-namespaces}}`  | HTML `<li>` list of namespaces with links |   |
-|   `{{list-of-documents}}`   | HTML `<li>` list of documents with  titles and links |  |
-|   `{contents}`           | generated latex contents (note: single braces)      |  |
-|   `{{cells}}`            | generated ipynb contents       |   |
-|   `{{tooltips}}`         | generated html tooltips contents       |   |
-|   `{{source}}`           | original script source           |   | 
+|  Substitution name                  | Value (if not overriden by --parameters)                      |  Default template  | 
+|:------------------------------------|:--------------------------------------------------------------|--------------------|
+|   `{{root}}`                        | `/`                                                           | The root to the generated website. Need not be relative  | 
+|   `{{fsdocs-authors}}`              | `<Authors>`                                                   | Metadata in HTML  |
+|   `{{fsdocs-collection-name}}`      | Name of .sln, single .fsproj or containing directory          | Name at top of each page | 
+|   `{{fsdocs-collection-name-link}}` | `<FsDocsCollectionNameLink>` else `<PackageProjectUrl>`       | The link on the project name |
+|   `{{fsdocs-copyright}}`            | `<Copyright>`                                                 |  |
+|   `{{fsdocs-content}}`              | generated html contents                                       | In main content section |
+|   `{{fsdocs-list-of-namespaces}}`   | HTML `<li>` list of namespaces with links                     | In navigation panel |
+|   `{{fsdocs-list-of-documents}}`    | HTML `<li>` list of documents with  titles and links          | In navigation panel |
+|   `{{fsdocs-logo-src}}`             | `<FsDocsLogoSource>` else `{{root}}/img/logo.png`             | The logo image source |
+|   `{{fsdocs-logo-link}}`            | `<FsDocsLogoLink>` else `<PackageProjectUrl>`                 | The link on the logo image |
+|   `{{fsdocs-license-link}}`         | `<FsDocsLicenseLink>` else `<PackageProjectUrl>/blob/master/LICENSE.md`          | The 'license' link in the navigation panel |
+|   `{{fsdocs-package-project-url}}`  | `<PackageProjectUrl>`                                         | (unused) | 
+|   `{{fsdocs-package-license-expression}}`  | `<PackageLicenseExpression>`                           | (unused) |
+|   `{{fsdocs-package-tags}}`         | `<PackageTags>`                                               |  |
+|   `{{fsdocs-package-version}}`      | `<Version>`                                                   |  |
+|   `{{fsdocs-page-title}}`           | First h1 heading in literate file, generated for API docs     | The HTML title of the page |
+|   `{{fsdocs-release-notes-link}}`   | `<FsDocsReleaseNotesLink>` else `<PackageProjectUrl>/blob/master/RELEASE_NOTES.md`  | The 'release notes' link in the navigation panel |
+|   `{{fsdocs-source}}`               | original script source                                        | (unused by default) | 
+|   `{{fsdocs-tooltips}}`             | generated html tooltips contents                              | Under main content |
+|   `{{fsdocs-repository-link}}`      | `<RepositoryUrl>`                                             | Link on 'Source on GitHub' |
 
 ## Generating LaTeX output
 
 To generate .tex output for each script and markdown file, add a `_template.tex`.
-
+It may contain `{{fsdocs-content}}`. 
 
 ## Generating iPython Notebook output
 
@@ -124,5 +126,6 @@ in your `docs` directory and use text like this:
 ### Generating Script outputs
 
 To generate .fsx output for each script and markdown file, add a `_template.fsx`, usually empty.
+It may contain `{{fsdocs-content}}`.
 
 *)

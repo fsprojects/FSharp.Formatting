@@ -1,16 +1,21 @@
 module internal FSharp.Formatting.ApiDocs.GenerateHtml
 
 open System
+open System.Collections.Generic
 open System.IO
 open System.Web
 open FSharp.Formatting.Common
+open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 
 /// Embed some HTML generateed in GenerateModel
 let embed (x: ApiDocHtml) = !! x.HtmlText
 
-type HtmlRender() =
+type HtmlRender(model: ApiDocModel) =
+  let root = model.Root
+  let collectionName = model.Collection.CollectionName
+  let qualify = model.Qualify
   let obsoleteMessage msg =
     div [Class "alert alert-warning"] [
         strong [] [!!"NOTE:"]
@@ -149,7 +154,7 @@ type HtmlRender() =
                  let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
 
                  // This adds #EntityName anchor. These may currently be ambiguous
-                 a [Name nm] [a [Href (e.UrlBaseName + ".html")] [!!nmWithSiffix]]
+                 a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]
                ]
                td [Class "xmldoc" ] [
                    let isObsolete = e.IsObsolete 
@@ -197,7 +202,7 @@ type HtmlRender() =
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
-        span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
+        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify))] [!! parentModule.Name ]]
   
 
       match entity.AbbreviatedType with
@@ -350,13 +355,13 @@ type HtmlRender() =
           yield! renderEntities category.CategoryEntites
     ]  
 
-  let namespacesContent (asm: ApiDocAssemblyGroup) =
-    [ h1 [] [!! asm.Name]
+  let namespacesContent (asm: ApiDocCollection) =
+    [ h1 [] [!! asm.CollectionName]
       for (nsIndex, ns) in Seq.indexed asm.Namespaces do
           yield! namespaceContent (nsIndex, ns) ]
 
-  let listOfNamespaces (asm: ApiDocsModel) (nsOpt: ApiDocNamespace option) =
-    [  for (nsIndex, ns) in Seq.indexed asm.AssemblyGroup.Namespaces do
+  let listOfNamespaces (asm: ApiDocModel) (nsOpt: ApiDocNamespace option) =
+    [  for (nsIndex, ns) in Seq.indexed asm.Collection.Namespaces do
          let allByCategory = categoriseEntities (nsIndex, ns)
          if allByCategory.Length > 0 then
 
@@ -368,7 +373,7 @@ type HtmlRender() =
                      match nsOpt with
                      | Some ns2 when ns.Name = ns2.Name -> Class "active"
                      | _ -> ()
-                     Href ns.UrlFileNameAndHash] [!!ns.Name]]
+                     Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]]
              match nsOpt with
              | Some ns2 when ns.Name = ns2.Name ->
                  ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
@@ -376,62 +381,58 @@ type HtmlRender() =
                          //if (allByCategory.Length > 1) then
                          //    dt [] [dd [] [a [Href ("#section" + index)] [!! name]]]
                          for e in category.CategoryEntites do
-                             li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.UrlBaseName + ".html")] [!! e.Name] ]
+                             li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
                  ]
              | _ -> ()
      ]
      |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
-  member _.GetGlobalParameters(model: ApiDocsModel) =
-    let tocTag = "list-of-namespaces"
+  /// Get the substitutions relevant to all
+  member _.GlobalParameters =
     let toc = listOfNamespaces model None
 
-    [ yield (tocTag, toc ) ]
+    [ yield (ParamKey.``fsdocs-list-of-namespaces``, toc ) ]
 
 
-  member _.Generate(model: ApiDocsModel, outDir: string, templateOpt) =
-    let (@@) a b = Path.Combine(a, b)
-    let props = (dict model.Properties).["Properties"]
-    let projectName = if props.ContainsKey "project-name" then " - " + props.["project-name"] else ""
-    let contentTag = "document"
-    let tocTag = "list-of-namespaces"
-    let pageTitleTag = "page-title"
+  member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
-    let getParameters toc (content: HtmlElement) pageTitle =
-        [| for KeyValue(k,v) in props -> (k, v)
-           yield (contentTag, content.ToString() )
-           yield (tocTag, toc )
-           yield ("tooltips", "" )
-           yield (pageTitleTag, pageTitle ) |]
+    let getParameters parameters toc (content: HtmlElement) pageTitle =
+        [| yield! parameters
+           yield (ParamKey.``fsdocs-list-of-namespaces``, toc )
+           yield (ParamKey.``fsdocs-content``, content.ToString() )
+           yield (ParamKey.``fsdocs-tooltips``, "" )
+           yield (ParamKey.``fsdocs-page-title``, pageTitle )
+           yield! globalParameters
+           |]
 
-    let asm = model.AssemblyGroup
+    let collection = model.Collection
     begin
-        let content = div [] (namespacesContent asm)
-        let outFile = outDir @@ "index.html"
-        let pageTitle = "API Reference" + projectName
+        let content = div [] (namespacesContent collection)
+        let pageTitle = "API Reference" + collectionName
         let toc = listOfNamespaces model None
-        let parameters = getParameters toc content pageTitle
+        let parameters = getParameters model.Parameters toc content pageTitle
+        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
         printfn "Generating %s" outFile
-        HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
     end
 
-    for (nsIndex, ns) in Seq.indexed asm.Namespaces do
+    for (nsIndex, ns) in Seq.indexed collection.Namespaces do
         let content = div [] (namespaceContent (nsIndex, ns))
-        let outFile = outDir @@ ns.UrlBaseName + ".html"
         let pageTitle = ns.Name
         let toc = listOfNamespaces model (Some ns)
-        let parameters = getParameters toc content pageTitle
+        let parameters = getParameters model.Parameters toc content pageTitle
+        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify) )
         printfn "Generating %s" outFile
-        HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
 
     for info in model.EntityInfos do
         Log.infof "Generating type/module: %s" info.Entity.UrlBaseName
         let content = div [] (entityContent info)
-        let outFile = outDir @@ (info.Entity.UrlBaseName + ".html")
-        let pageTitle = info.Entity.Name + projectName
+        let pageTitle = info.Entity.Name + collectionName
         let toc = listOfNamespaces model (Some info.Namespace)
-        let parameters = getParameters toc content pageTitle
+        let parameters = getParameters info.Entity.Parameters toc content pageTitle
+        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
         printfn "Generating %s" outFile
-        HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
         Log.infof "Finished %s" info.Entity.UrlBaseName
 

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
+    <UsesMarkdownComments>true</UsesMarkdownComments>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
@@ -12,6 +13,7 @@
     <Compile Include="Range.fs" />
     <Compile Include="PynbModel.fs" />
     <Compile Include="HtmlModel.fs" />
+    <Compile Include="Templating.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

@@ -137,7 +137,7 @@ module MarkdownPatterns =
         ParagraphNested(PN par, pars)
     | QuotedBlock(nested, _) ->
         ParagraphNested(PN par, [nested])
-    | TableBlock(headers, alignments, rows, _) ->
+    | TableBlock(headers, _alignments, rows, _) ->
       match headers with
       | None -> ParagraphNested(PN par, rows |> List.concat)
       | Some columns -> ParagraphNested(PN par, columns::rows |> List.concat)

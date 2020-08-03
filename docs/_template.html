@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{page-title}}</title>
+    <title>{{fsdocs-page-title}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{authors}}">
+    <meta name="author" content="{{fsdocs-authors}}">
 
     <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>    
@@ -33,8 +33,8 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <a class="navbar-brand" href="{{project-link}}">{{project-name}}</a>
-            <a href="{{logo-link}}"><img src="{{root}}/img/logo.png" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /></a>
+            <a class="navbar-brand" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</a>
+            <a href="{{fsdocs-logo-link}}"><img src="{{fsdocs-logo-src}}" style="width:140px;height:140px;margin:10px 0px 0px 35px;border-style:none;" /></a>
             <!-- BEGIN SEARCH BOX: this adds support for the search box -->
             <div id="header">
                 <div class="searchbox">
@@ -50,8 +50,13 @@
 
             <!-- END SEARCH BOX: this adds support for the search box -->
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="{{repository-url}}">Source on GitHub</a></li>
-                {{list-of-namespaces}}
+                <li><a href="{{fsdocs-license-link}}">License (Apache 2.0)</a></li>
+                <li><a href="{{fsdocs-release-notes-link}}">Release Notes</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{fsdocs-source-link}}">Source on GitHub</a></li>
+                <li class="divider"></li>
+                {{fsdocs-list-of-documents}}
+                <li class="divider"></li>
+                {{fsdocs-list-of-namespaces}}
             </ul>
         </div>
     </nav>
@@ -59,13 +64,9 @@
     <nav class="span3">
 
         <ul class="nav nav-list" id="menu">
-            <li class="nav-header">{{project-name}}</li>
-            <li><a href="{{root}}">Home page</a></li>
+            <li class="nav-header">{{fsdocs-collection-name}}</li>
             <li class="divider"></li>
-            <li><a href="{{repository-url}}">Source Code on GitHub</a></li>
 
-                    <li><a href="{{repository-url}}/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-                    <li><a href="{{repository-url}}/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
                     <li class="nav-header">Using F# Formatting</li>
                     <li><a href="{{root}}/content.html">Expected content</a></li>
                     <li><a href="{{root}}/commandline.html">Using command line tool</a></li>
@@ -91,15 +92,15 @@
     </nav>
     -->
     <div class="container" id="main">
-        {{document}}
-        {{tooltips}}
+        {{fsdocs-content}}
+        {{fsdocs-tooltips}}
         <!--        <div class="row">
                     <div class="span9" id="main">
                     </div>
                 </div>
             -->
     </div>
-    <a href="{{repository-url}}">
+    <a href="{{fsdocs-repository-link}}">
         <img style="position: absolute; top: 0; right: 0; border: 0;"
              src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub">
     </a>

@@ -2,6 +2,7 @@ namespace FSharp.Formatting.Literate
 
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Literate.Evaluation
+open FSharp.Formatting.Templating
 
 /// Specifies a context that is passed to functions
 /// that need to use the F# compiler
@@ -41,20 +42,33 @@ type OutputKind =
       | Pynb -> "ipynb"
 
 
-/// Defines input type for output generator
+/// Defines the output of processing a literate doc
 type internal LiterateDocModel =
   {
-     ContentTag   : string
-     Parameters   : (string * string) list
+     /// The extracted title of the document (first h1 header)
+     Title: string
+
+     /// The replacement paramaters
+     Parameters: Parameters
+
+     /// The text for search index generation (empty for notebooks and latex)
+     IndexText: string option
+
+     /// The relative output path 
+     OutputPath: string
+
+     /// The kind of output generated
+     OutputKind : OutputKind
   }
+  member x.Uri(root) = sprintf "%s%s" root x.OutputPath
 
 /// Specifies a context that is passed to functions that generate the output
-type LiterateProcessingContext =
+type internal LiterateProcessingContext =
   { /// Short prefix code added to all HTML 'id' elements
     Prefix : string
 
     /// Additional parameters to be made in the template file
-    Replacements : (string * string) list
+    Replacements : Parameters
 
     /// Generate line numbers for F# snippets?
     GenerateLineNumbers : bool

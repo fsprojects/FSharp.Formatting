@@ -52,7 +52,7 @@ type Markdown =
           ParseOptions=parseOptions }
     let paragraphs =
       lines
-      |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
+      |> List.skipWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s)
       |> parseParagraphs ctx
       |> List.ofSeq
     MarkdownDocument(paragraphs, links)

@@ -90,7 +90,7 @@ let rec shrinkOmittedCode (text:StringBuilder) line content (source:Snippet) =
   | (String.StartsAndEndsWithTrim ("(*", "*)") "[/omit]", tok)::rest, source 
         when tok.TokenName = "COMMENT" ->
       line, rest, source, text
-  | (str, tok)::rest, _ -> 
+  | (str, _tok)::rest, _ -> 
       shrinkOmittedCode (text.Append(str)) line rest source
   | [], [] -> line, [], [], text
 

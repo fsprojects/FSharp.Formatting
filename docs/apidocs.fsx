@@ -166,6 +166,7 @@ Assuming `root` is the root directory for your project, you can write:
 *)
 
 ApiDocs.GenerateHtml
-  ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
-    outDir=Path.Combine(root, "output"),
-    template=Path.Combine(root, "templates", "template.html") )
+    ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
+      outDir=Path.Combine(root, "output"),
+      template=Path.Combine(root, "templates", "template.html") )
+

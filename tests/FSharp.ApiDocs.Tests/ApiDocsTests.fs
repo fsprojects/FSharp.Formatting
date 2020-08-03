@@ -5,6 +5,7 @@ open FsUnit
 open System.IO
 open NUnit.Framework
 open FSharp.Formatting.ApiDocs
+open FSharp.Formatting.Templating
 open FsUnitTyped
 
 // --------------------------------------------------------------------------------------
@@ -35,18 +36,18 @@ let docTemplate =
   root </> "../../docs/_template.html"
 
 let parameters =
-  [ "project-name", "F# TestProject"
-    "authors", "Your Name"
-    "repository-url", "http://github.com/fsprojects/fsharp-test-project"
-    "root", "http://fsprojects.github.io/fsharp-test-project" ]
+  [ ParamKey.``fsdocs-collection-name``, "F# TestProject"
+    ParamKey.``fsdocs-authors``, "Your Name"
+    ParamKey.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
+    ParamKey.``root``, "/root/" ]
 
 let generateApiDocs (libraries:string list) useMarkdown uniq =
     try
         let output = getOutputDir uniq
-        let metadata = ApiDocs.GenerateModel (libraries,parameters=parameters,libDirs = [root],mdcomments = useMarkdown)
-        ApiDocs.GenerateHtmlFromModel (metadata, output, docTemplate)
+        let inputs = [ for x in libraries -> ApiDocInput.FromFile(x, mdcomments = useMarkdown) ]
+        let _metadata = ApiDocs.GenerateHtml (inputs, libDirs = [root], output=output, collectionName="Collection", template=docTemplate, parameters=parameters)
 
-        let fileNames = Directory.GetFiles(output)
+        let fileNames = Directory.GetFiles(output </> "reference")
         let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
         files
 
@@ -67,11 +68,12 @@ let ``ApiDocs works on sample Deedle assembly``() =
   let library = root </> "files" </> "Deedle.dll"
   let output = getOutputDir "Deedle"
 
-  let index =
-      ApiDocs.GenerateHtml
-        ( [library], output, template=docTemplate, parameters=parameters, libDirs = [testBin],
-          sourceRepo = "https://github.com/fslaborg/Deedle/",
-          sourceFolder = "c:/dev/FSharp.DataFrame")
+  let input =
+      ApiDocInput.FromFile(library, mdcomments = true, 
+         sourceRepo = "https://github.com/fslaborg/Deedle/",
+         sourceFolder = "c:/dev/FSharp.DataFrame") 
+  let _model, _index =
+      ApiDocs.GenerateHtml( [input], output, collectionName="Deedle", template=docTemplate, parameters=parameters, libDirs = [testBin])
   let files = Directory.GetFiles(output)
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -84,7 +86,8 @@ let ``ApiDocs works on sample Deedle assembly``() =
 let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir "FakeLib"
-  let searchIndex = ApiDocs.GenerateHtml([library], output, template=docTemplate, parameters=parameters)
+  let input = ApiDocInput.FromFile(library, mdcomments = true) 
+  let _model, _index = ApiDocs.GenerateHtml( [input], output, collectionName="FAKE", template=docTemplate, parameters=parameters)
   let files = Directory.GetFiles(output)
   files |> Seq.length |> shouldEqual 166
 
@@ -95,9 +98,12 @@ let ``ApiDocs works on two sample F# assemblies``() =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
   let output = getOutputDir "FsLib12"
-  let searchIndex = ApiDocs.GenerateHtml(libraries, output, template=docTemplate, rootUrl="http://root.io/root", parameters=parameters, libDirs = [testBin])
+  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true, parameters=parameters) ]
+  let _model, searchIndex =
+      ApiDocs.GenerateHtml(inputs, output, collectionName="FsLib", template=docTemplate,
+          root="http://root.io/root", parameters=parameters, libDirs = [testBin])
 
-  let fileNames = Directory.GetFiles(output)
+  let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // Check that all comments appear in the output
@@ -142,6 +148,7 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultArgTupled(arg)"
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultPartial arg1 arg2"
 
+*)
   let indxTxt = searchIndex |> Newtonsoft.Json.JsonConvert.SerializeObject
 
   // Test a few entries in the search index
@@ -151,22 +158,21 @@ let ``ApiDocs works on two sample F# assemblies``() =
   indxTxt |> shouldContainText "http://root.io/root/reference/fslib-nested-submodule-verynestedtype.html#Member"
   indxTxt |> shouldContainText "http://root.io/root/reference/fslib-test_issue472_t.html#MultArg"
   indxTxt |> shouldContainText """ITest_Issue229.Name \nName \n"""
-  indxTxt |> shouldContainText """DuplicatedTypeName \n<p>This type name will be duplicated in"""
-  *)
 
 [<Test>]
 let ``ApiDocs model generation works on two sample F# assemblies``() =
   let libraries =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
-  let model = ApiDocs.GenerateModel(libraries, parameters=parameters, libDirs = [testBin])
-  model.AssemblyGroup.Assemblies.Length |> shouldEqual 2
-  model.AssemblyGroup.Assemblies.[0].Name |> shouldEqual "FsLib1"
-  model.AssemblyGroup.Assemblies.[1].Name |> shouldEqual "FsLib2"
-  model.AssemblyGroup.Namespaces.Length |> shouldEqual 1
-  model.AssemblyGroup.Namespaces.[0].Name |> shouldEqual "FsLib"
-  model.AssemblyGroup.Namespaces.[0].Entities |> List.filter (fun c -> c.IsTypeDefinition) |> function x -> x.Length |> shouldEqual 9
-  let assemblies = [ for t in model.AssemblyGroup.Namespaces.[0].Entities -> t.Assembly.Name ]
+  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true) ]
+  let model = ApiDocs.GenerateModel(inputs, collectionName="FsLib", parameters=parameters, libDirs = [testBin])
+  model.Collection.Assemblies.Length |> shouldEqual 2
+  model.Collection.Assemblies.[0].Name |> shouldEqual "FsLib1"
+  model.Collection.Assemblies.[1].Name |> shouldEqual "FsLib2"
+  model.Collection.Namespaces.Length |> shouldEqual 1
+  model.Collection.Namespaces.[0].Name |> shouldEqual "FsLib"
+  model.Collection.Namespaces.[0].Entities |> List.filter (fun c -> c.IsTypeDefinition) |> function x -> x.Length |> shouldEqual 9
+  let assemblies = [ for t in model.Collection.Namespaces.[0].Entities -> t.Assembly.Name ]
   assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
 [<Test>]
@@ -174,14 +180,18 @@ let ``ApiDocs generates Go to GitHub source links``() =
   let libraries =
     [ testBin  </> "FsLib1.dll"
       testBin  </> "FsLib2.dll" ] |> fullpaths
+  let inputs =
+     [ for lib in libraries ->
+         ApiDocInput.FromFile(lib, mdcomments = true,
+           sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+           sourceFolder = (root </> "../..")) ]
   let output = getOutputDir "FsLib12_SourceLinks"
   printfn "Output: %s" output
-  let searchIndex =
+  let _model, _searchIndex =
     ApiDocs.GenerateHtml
-      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
-        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-        sourceFolder = (root </> "../..") )
-  let fileNames = Directory.GetFiles(output)
+      ( inputs, output, collectionName="FsLib", template=docTemplate,
+        parameters=parameters, libDirs = ([testBin] |> fullpaths))
+  let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "github-link"
   files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib2/Library2.fs#L"
@@ -199,13 +209,17 @@ let ``ApiDocs test that cref generation works``() =
       testBin  </> "crefLib4.dll" ] |> fullpaths
   let output = getOutputDir "crefLibs"
   printfn "Output: %s" output
-  let searchIndex =
+  let inputs =
+     [ for lib in libraries ->
+         ApiDocInput.FromFile(lib, 
+           sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+           sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+           mdcomments = false) ]
+  let _model, _searchIndex =
     ApiDocs.GenerateHtml
-      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
-        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-        sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-        mdcomments = false )
-  let fileNames = Directory.GetFiles(output)
+      ( inputs, output, collectionName="CrefLibs", template=docTemplate,
+      parameters=parameters, libDirs = ([testBin]  |> fullpaths))
+  let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // C# tests
@@ -263,14 +277,18 @@ let ``ApiDocs test that csharp (publiconly) support works``() =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir "csharpSupport"
   printfn "Output: %s" output
-  let searchIndex =
+  let inputs =
+     [ for lib in libraries ->
+         ApiDocInput.FromFile(lib,
+            sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+            sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+            publicOnly = true,
+            mdcomments = false) ]
+  let _model, _searchIndex =
     ApiDocs.GenerateHtml
-      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths),
-        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-        sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-        publicOnly = true,
-        mdcomments = false )
-  let fileNames = Directory.GetFiles(output)
+      ( inputs, output, collectionName="CSharpSupport",
+        template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths) )
+  let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // C# tests
@@ -318,14 +336,18 @@ let ``ApiDocs test that csharp support works``() =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
   let output = getOutputDir "csharpSupport_private"
   printfn "Output: %s" output
-  let searchIndex =
+  let inputs =
+     [ for lib in libraries ->
+         ApiDocInput.FromFile(lib,
+            sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+            sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+            publicOnly = false,
+            mdcomments = false) ]
+  let _model, _searchIndex =
     ApiDocs.GenerateHtml
-      ( libraries, output, template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths),
-        sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
-        sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
-        publicOnly = false,
-        mdcomments = false )
-  let fileNames = Directory.GetFiles(output)
+      ( inputs, output, collectionName="CSharpSupport",
+        template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths))
+  let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // C# tests
@@ -432,18 +454,18 @@ let ``ApiDocs generates module link in nested types``() =
 
   // Check that the link to the module is correctly generated
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"fslib-nested.html\">"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"
 
   // Only for nested types
   files.["fslib-class.html"] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
   files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"fslib-nested-submodule.html\">"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib-nested-submodule.html\">"
 
   // Check that nested submodules have links to its module
   files.["fslib-nested-submodule.html"] |> shouldContainText "Parent Module:"
-  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"fslib-nested.html\">"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"
 
 open System.Diagnostics
 open FSharp.Formatting.Common
@@ -472,20 +494,20 @@ let ``ApiDocs generates cross-type links for Indirect Links``() =
   let files = generateApiDocs [library]  true "FsLib2_indirect"
 
   // Check that a link to MyType exists when using Full Name of the type
-  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"/reference/fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
 
   // Check that a link to OtherType exists when using Logical Name of the type only
-  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"/reference/fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
 
   // Check that a link to a module is created when using Logical Name only
-  files.["fslib-duplicatedtypename.html"] |> shouldContainText "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\">Nested</a>"
+  files.["fslib-duplicatedtypename.html"] |> shouldContainText "This type name will be duplicated in <a href=\"/reference/fslib-nested.html\" title=\"Nested\">Nested</a>"
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
+  files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
 
 (*
   // Check that a link to a type with a duplicated name is created even when using Logical name only
-  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">DuplicatedTypeName</a> multiplied by 4."
+  files.["fslib-nested.html"] |> shouldContainText "This function returns a <a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">DuplicatedTypeName</a> multiplied by 4."
   // Check that a link to a type with a duplicated name is not created when using Logical name only
   files.["fslib-nested.html"] |> shouldContainText "This function returns a [InexistentTypeName] multiplied by 5."
 *)
@@ -498,22 +520,22 @@ let ``Metadata generates cross-type links for Inline Code``() =
   let files = generateApiDocs [library] true "FsLib2_inline"
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
+  files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"/reference/fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
 
     // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
+  files.["fslib-nested.html"] |> shouldContainText "You will notice that <a href=\"/reference/fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.["fslib-nested.html"] |> shouldContainText "<a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>DuplicatedTypeName</code></a> is duplicated"
+  files.["fslib-nested.html"] |> shouldContainText "<a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>DuplicatedTypeName</code></a> is duplicated"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
   files.["fslib-nested.html"] |> shouldContainText "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
 
   // Check that a link to a module is created when using Logical Name only
-  files.["fslib-duplicatedtypename.html"] |> shouldContainText "This type name will be duplicated in <a href=\"fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
+  files.["fslib-duplicatedtypename.html"] |> shouldContainText "This type name will be duplicated in <a href=\"/reference/fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
+  files.["fslib-nested-duplicatedtypename.html"] |> shouldContainText "This type has the same name as <a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
 
 
 let runtest testfn =

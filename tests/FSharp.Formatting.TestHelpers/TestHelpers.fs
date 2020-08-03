@@ -7,13 +7,8 @@ module Logging = FSharp.Formatting.Common.Log
 // This controlls logging within the test suite ...
 let enableLogging() =
     let logToConsole = true
-    let logToFile = false
     try
-      let allTraceOptions =
-        TraceOptions.Callstack ||| TraceOptions.DateTime ||| TraceOptions.LogicalOperationStack |||
-        TraceOptions.ProcessId ||| TraceOptions.ThreadId ||| TraceOptions.Timestamp
       let noTraceOptions = TraceOptions.None
-      let svclogFile = "FSharp.Formatting.svclog"
       System.Diagnostics.Trace.AutoFlush <- true
 
       let setupListener listener =

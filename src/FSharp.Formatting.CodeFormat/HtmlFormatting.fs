@@ -95,7 +95,7 @@ let formatToolTipSpans spans =
 
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx:FormattingContext) = List.iter (function
-  | TokenSpan.Error(kind, message, body) when ctx.GenerateErrors ->
+  | TokenSpan.Error(_kind, message, body) when ctx.GenerateErrors ->
       let tip = ToolTipReader.formatMultilineString (message.Trim())
       let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
       ctx.Writer.Write("<span ")
