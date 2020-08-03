@@ -15,10 +15,11 @@ See http://fsprojects.github.io/FSharp.Formatting/
     ./build.sh
 
 
-One built you can run the command-line tool using 
+One built you can run the command-line tool to self-build the docs for this directory using 
 
+    src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe watch
     src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe build
-    src\FSharp.Formatting.CommandTool\bin\Release\netcoreapp3.1\fsdocs.exe build
+
 
 ## Maintainer(s)
 

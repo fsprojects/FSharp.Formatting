@@ -25,17 +25,19 @@ The command line options accepted are:
   * --noapidocs   -        (Default: false) Disable generation of API docs.
   * --eval         -       (Default: false) Evaluate F# fragments in scripts.
   * --saveimages    -      (Default: none) Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.
-  * --sourcefolder   -     Source folder at time of component build (defaults to current directory).
-  * --sourcerepo     -     Source repository for github links.
   * --nolinenumbers   -    Don't add line numbers, default is to add line numbers.
-  * --nonpublic       -    (Default: false) The tool will also generate documentation for non-public members
-  * --mdcomments       -   (Default: false) Assume /// comments in F# code are markdown style.
   * --parameters        -  Additional substitution parameters for templates.
+  * --nonpublic       -    (Default: false) The tool will also generate documentation for non-public members
   * --nodefaultcontent  -  Do not copy default content styles, javascript or use default templates.
   * --clean             -  (Default: false) Clean the output directory.
   * --help              -  Display this help screen.
   * --version           -  Display version information.
-  
+
+The following command line options are also accepted but it is instead recommended you use
+settings in your .fsproj project files:
+  * --sourcefolder   -     Source folder at time of component build (defaults to value of `<FsDocsSourceFolder>` from project file, else current directory)
+  * --sourcerepo     -     Source repository for github links (defaults to value of `<FsDocsSourceRepository>` from project file, else `<RepositoryUrl>/tree/<RepositoryBranch>` for Git repositories)
+  * --mdcomments       -   Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)
 
 The watch command
 ----------------------------

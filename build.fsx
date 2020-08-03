@@ -116,7 +116,7 @@ Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
     DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
     DotNet.exec id "tool" ("install --local --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
-    DotNet.exec id "fsdocs" "build --clean --mdcomments" |> ignore
+    DotNet.exec id "fsdocs" "build --clean" |> ignore
     DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
 )
 

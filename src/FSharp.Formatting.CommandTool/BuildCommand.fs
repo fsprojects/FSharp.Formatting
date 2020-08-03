@@ -108,6 +108,8 @@ module Crack =
           IsTestProject : bool
           IsLibrary : bool
           IsPackable : bool
+          FsDocsSourceFolder : string option
+          FsDocsSourceRepository : string option
           RepositoryUrl : string option
           RepositoryType : string option
           RepositoryBranch : string option
@@ -147,6 +149,8 @@ module Crack =
               "FsDocsLogoSource"
               "FsDocsLogoLink"
               "FsDocsLicenseLink"
+              "FsDocsSourceFolder"
+              "FsDocsSourceRepository"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -179,36 +183,39 @@ module Crack =
         let result = file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
-        printfn "msgs = %A" msgs
+        //printfn "msgs = %A" msgs
         match result with
         | Ok [gpResult] ->
             match gpResult with
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
-                let msbuildPropBool prop = props |> Map.tryFind prop |> Option.bind msbuildPropBool
+                let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
+                let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
                 {  ProjectFileName = file
-                   TargetPath = props |> Map.tryFind "TargetPath"
+                   TargetPath = msbuildPropString "TargetPath"
                    IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                   IsLibrary = props |> Map.tryFind "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
+                   IsLibrary = msbuildPropString "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                   RepositoryUrl = props |> Map.tryFind "RepositoryUrl" 
-                   RepositoryType = props |> Map.tryFind "RepositoryType" 
-                   RepositoryBranch = props |> Map.tryFind "RepositoryBranch" 
-                   FsDocsCollectionNameLink = props |> Map.tryFind "FsDocsCollectioNameLink" 
-                   FsDocsLicenseLink = props |> Map.tryFind "FsDocsLicenseLink" 
-                   FsDocsLogoLink = props |> Map.tryFind "FsDocsLogoLink" 
-                   FsDocsLogoSource = props |> Map.tryFind "FsDocsLogoSource" 
+                   RepositoryUrl = msbuildPropString "RepositoryUrl" 
+                   RepositoryType = msbuildPropString "RepositoryType" 
+                   RepositoryBranch = msbuildPropString "RepositoryBranch" 
+                   FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink" 
+                   FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder" 
+                   FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository" 
+                   FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink" 
+                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink" 
+                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource" 
                    UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
-                   PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
-                   Authors = props |> Map.tryFind "Authors" 
+                   PackageProjectUrl = msbuildPropString "PackageProjectUrl" 
+                   Authors = msbuildPropString "Authors" 
                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
-                   PackageLicenseExpression = props |> Map.tryFind "PackageLicenseExpression" 
-                   PackageTags = props |> Map.tryFind "PackageTags" 
-                   Copyright = props |> Map.tryFind "Copyright"
-                   PackageVersion = props |> Map.tryFind "PackageVersion"
-                   PackageIconUrl = props |> Map.tryFind "PackageIconUrl"
-                   RepositoryCommit = props |> Map.tryFind "RepositoryCommit" }
+                   PackageLicenseExpression = msbuildPropString "PackageLicenseExpression" 
+                   PackageTags = msbuildPropString "PackageTags" 
+                   Copyright = msbuildPropString "Copyright"
+                   PackageVersion = msbuildPropString "PackageVersion"
+                   PackageIconUrl = msbuildPropString "PackageIconUrl"
+                   RepositoryCommit = msbuildPropString "RepositoryCommit" }
                 
             | Ok ok -> failwithf "huh? ok = %A" ok
             | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
@@ -326,6 +333,8 @@ module Crack =
                   FsDocsLicenseLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsLicenseLink)
                   FsDocsLogoLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsLogoLink)
                   FsDocsLogoSource = projectInfos |> List.tryPick  (fun info -> info.FsDocsLogoSource)
+                  FsDocsSourceFolder = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceFolder)
+                  FsDocsSourceRepository = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceRepository)
                   PackageProjectUrl = projectInfos |> List.tryPick  (fun info -> info.PackageProjectUrl)
                   Authors = projectInfos |> List.tryPick  (fun info -> info.Authors)
                   GenerateDocumentationFile = true
@@ -362,7 +371,8 @@ module Crack =
         let projects =  
             [ for info in projectInfos do
                  let parameters = parametersForProjectInfo info
-                 (info.TargetPath.Value, info.RepositoryUrl, info.RepositoryBranch, info.RepositoryType, info.UsesMarkdownComments, parameters) ]
+                 (info.TargetPath.Value, info.RepositoryUrl, info.RepositoryBranch, info.RepositoryType,
+                  info.UsesMarkdownComments, info.FsDocsSourceFolder, info.FsDocsSourceRepository, parameters) ]
               
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
@@ -435,7 +445,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
               let generateTime = File.GetLastWriteTime(relativeOutputFile)
               if changeTime > generateTime then
                   if isFsx then
-                      printfn "preparing %s" inputFile 
+                      printfn "preparing %s --> %s" inputFile relativeOutputFile
                       let inputFile = Path.GetFullPath(inputFile)
                       let model =
                         Literate.ParseAndTransformScriptFile
@@ -455,7 +465,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, relativeOutputFile)))
 
                   elif isMd then
-                      printfn "preparing %s" inputFile 
+                      printfn "preparing %s --> %s" inputFile relativeOutputFile
                       let inputFile = Path.GetFullPath(inputFile)
                       let model =
                         Literate.ParseAndTransformMarkdownFile
@@ -585,10 +595,10 @@ type CoreBuildOptions(watch) =
     [<Option("saveimages", Default= "none", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
     member val saveImages = "none" with get, set
 
-    [<Option("sourcefolder", Required = false, HelpText = "Source folder at time of component build (defaults to current directory).")>]
+    [<Option("sourcefolder", Required = false, HelpText = "Source folder at time of component build (defaults to value of `<FsDocsSourceFolder>` from project file, else current directory)")>]
     member val sourceFolder = "" with get, set
 
-    [<Option("sourcerepo", Required = false, HelpText = "Source repository for github links.")>]
+    [<Option("sourcerepo", Required = false, HelpText = "Source repository for github links (defaults to value of `<FsDocsSourceRepository>` from project file, else `<RepositoryUrl>/tree/<RepositoryBranch>` for Git repositories)")>]
     member val sourceRepo = "" with get, set
 
     [<Option("nolinenumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
@@ -597,7 +607,7 @@ type CoreBuildOptions(watch) =
     [<Option("nonpublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
     member val nonpublic = false with get, set
 
-    [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style.")>]
+    [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)")>]
     member val mdcomments = false with get, set
 
     [<Option("parameters", Required = false, HelpText = "Additional substitution parameters for templates.")>]
@@ -669,12 +679,15 @@ type CoreBuildOptions(watch) =
                 ("", [], [], userParameters), key1)
 
         let apiDocInputs =
-            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, mdcomments, projectParameters) in crackedProjects -> 
+            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
                 let sourceRepo =
+                    match projectSourceRepo with
+                    | Some s -> Some s
+                    | None -> 
                     match evalString x.sourceRepo with
                     | Some v -> Some v
                     | None ->
-                        printfn "repoBranchOption = %A" repoBranchOption
+                        //printfn "repoBranchOption = %A" repoBranchOption
                         match repoUrlOption, repoBranchOption, repoTypeOption with
                         | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
                             url + "/" + "tree/" +  branch |> Some
@@ -683,19 +696,22 @@ type CoreBuildOptions(watch) =
                         | Some url, _, None -> Some url
                         | _ -> None
 
-                let sourceFolder = 
+                let sourceFolder =
+                    match projectSourceFolder with
+                    | Some s -> s
+                    | None -> 
                     match evalString x.sourceFolder with
                     | None -> Environment.CurrentDirectory
                     | Some v -> v
 
-                printfn "sourceFolder = %s" sourceFolder
-                printfn "sourceRepo = %A" sourceRepo
+                printfn "sourceFolder = '%s'" sourceFolder
+                printfn "sourceRepo = '%A'" sourceRepo
                 { Path = dllFile;
                   XmlFile = None;
                   SourceRepo = sourceRepo;
                   SourceFolder = Some sourceFolder;
                   Parameters = Some projectParameters;
-                  MarkdownComments = mdcomments;
+                  MarkdownComments = x.mdcomments || projectMarkdownComments;
                   PublicOnly = not x.nonpublic } ]
 
         let output =
