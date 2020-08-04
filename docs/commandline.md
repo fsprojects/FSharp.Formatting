@@ -2,45 +2,44 @@
 
 To use F# Formatting tools via the command line, you can use the `fsdocs` dotnet tool.
 
+    [lang=text]
     dotnet tool install FSharp.Formatting.CommandTool
     dotnet fsdocs [command] [options]
 
 ## The build command
 
 This command processes a `docs` directory and generates API docs for projects in the solution according to the
-rules of [API doc generation](apidocs.html)
+rules of [API doc generation](apidocs.html). The input accepted is described in [content](content.html).
 
     [lang=text]
     fsdocs build
 
-The input accepted is described in [content](content.html).
-
 The command line options accepted are:
 
-| Option                 |  Description    |
-|:-----------------------|:-----------------------------------------:|
-| --input     |   Input directory of documentation content (default: `docs`) |
-| --projects     |   Project files to build API docs for outputs, defaults to all packable projects. |
-| --output         |           Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch'. |
-| --noapidocs       |          (Default: false) Disable generation of API docs. |
-| --eval             |         (Default: false) Evaluate F# fragments in scripts. |
-| --saveimages        |        (Default: none) Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs. |
-| --nolinenumbers       |      Don't add line numbers, default is to add line numbers. |
-| --parameters            |    Additional substitution parameters for templates. |
-| --nonpublic           |      (Default: false) The tool will also generate documentation for non-public members |
-| --nodefaultcontent      |    Do not copy default content styles, javascript or use default templates. |
-| --clean                 |    (Default: false) Clean the output directory. |
-| --help                  |    Display this help screen. |
-| --version               |    Display version information. |
+| Command Line Option                 |  Description    |
+|:-----------------------|:-----------------------------------------|
+| `--input`     |   Input directory of content (default: `docs`) |
+| `--projects`     |   Project files to build API docs for outputs, defaults to all packable projects |
+| `--output`         |           Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch') |
+| `--noapidocs`       |           Disable generation of API docs |
+| `--eval`             |         Evaluate F# fragments in scripts |
+| `--saveimages`        |        Save images referenced in docs |
+| `--nolinenumbers`       |      Don't add line numbers, default is to add line number. |
+| `--parameters`            |    Additional substitution parameters for templates |
+| `--nonpublic`           |      The tool will also generate documentation for non-public members |
+| `--nodefaultcontent`      |    Do not copy default content styles, javascript or use default templates |
+| `--clean`                 |    Clean the output directory |
+| `--help`                  |    Display this help screen |
+| `--version`               |    Display version information |
 
 The following command line options are also accepted but it is instead recommended you use
 settings in your .fsproj project files:
 
-| Option                 |  Description    |
-|:-----------------------|:-----------------------------------------:|
-| --sourcefolder       |       Source folder at time of component build (defaults to value of `<FsDocsSourceFolder>` from project file, else current directory) |
-| --sourcerepo         |       Source repository for github links (defaults to value of `<FsDocsSourceRepository>` from project file, else `<RepositoryUrl>/tree/<RepositoryBranch>` for Git repositories) |
-| --mdcomments           |     Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file) |
+| Command Line Option                 |  Description    |
+|:-----------------------|:-----------------------------------------|
+| `--sourcefolder`       |       Source folder at time of component build (`<FsDocsSourceFolder>`) |
+| `--sourcerepo`         |       Source repository for github links (`<FsDocsSourceRepository>`) |
+| `--mdcomments`           |     Assume comments in F# code are markdown (`<UsesMarkdownComments>`) |
 
 ## The watch command
 
@@ -52,12 +51,12 @@ directory (e.g. `docs`) are watched.
 
  Restarting may be necesssary on changes to project files. The same parameters are accepted, plus these:
 
-| Option                 |  Description    |
-|:-----------------------|:-----------------------------------------:|
-| `--noserver`     |   (Default: false) Do not serve content when watching. |
-| `--nolaunch`     |   (Default: false) Do not launch a browser window. |
-| `--open`     |   (Default: ) URL extension to launch http://localhost:<port>/%s. |
-| `--port`     |   (Default: 8901) Port to serve content for http://localhost serving. |
+| Command Line Option                 |  Description    |
+|:-----------------------|:-----------------------------------------|
+| `--noserver`     |   Do not serve content when watching.  |
+| `--nolaunch`     |   Do not launch a browser window. |
+| `--open`     |   URL extension to launch http://localhost:<port>/%s. |
+| `--port`     |   Port to serve content for http://localhost serving. |
 
 
 
@@ -69,6 +68,7 @@ A search box is included in the default template.  To add a search box
 to your own `_template.html`, include `fsdocs-search.js`, which is added to the `content`
 by default.
 
+    [lang=text]
     ...
     <div id="header">
       <div class="searchbox">

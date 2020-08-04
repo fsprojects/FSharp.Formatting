@@ -32,6 +32,10 @@ open Suave.Filters
 
 [<AutoOpen>]
 module Utils =
+    let ensureDirectory path =
+        let dir = DirectoryInfo(path)
+        if not dir.Exists then dir.Create()
+
     let saveBinary (object:'T) (fileName:string) =
         try Directory.CreateDirectory (Path.GetDirectoryName(fileName)) |> ignore with _ -> ()
         let formatter = BinaryFormatter()
@@ -409,10 +413,6 @@ module Crack =
 /// Convert markdown, script and other content into a static site
 type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch) =
 
-  let ensureDirectory path =
-    let dir = DirectoryInfo(path)
-    if not dir.Exists then dir.Create()
-
   let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
         let wc = new System.Net.WebClient()
@@ -552,11 +552,12 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         let possibleNewLatexTemplate = Path.Combine(indir, "_template.tex")
         let texTemplate = if (try File.Exists(possibleNewLatexTemplate) with _ -> false) then Some possibleNewLatexTemplate else texTemplate
 
-        ensureDirectory outputPrefix
+        ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
 
         let inputs = Directory.GetFiles(indir, "*") 
-        let imageSaver = createImageSaver outputPrefix
+        let imageSaver = createImageSaver (Path.Combine(outputDirectory, outputPrefix))
 
+        // Look for the four different kinds of content
         for input in inputs do
             yield! processFile input OutputKind.Html htmlTemplate outputPrefix imageSaver
             yield! processFile input OutputKind.Latex texTemplate outputPrefix imageSaver

@@ -68,7 +68,7 @@ body {
 /*--------------------------------------------------------------------------*/
 
 #fsdocs-content code {
-    font-size: 0.95rem;
+    font-size: 0.83rem;
     background-color: #f7f7f900;
     border: 0px;
     padding: 0px;
@@ -130,13 +130,13 @@ body {
   Formatting tables in fsdocs-content, using docs.microsoft.com tables
 /*--------------------------------------------------------------------------*/
 
-#fsdocs-content .table {
+#fsdocs-content table {
     table-layout: auto;
     width: 100%;
     font-size: 0.875rem;
 }
 
-    #fsdocs-content .table caption {
+    #fsdocs-content table caption {
         font-size: 0.8rem;
         font-weight: 600;
         letter-spacing: 2px;
@@ -148,8 +148,8 @@ body {
         text-align: right;
     }
 
-    #fsdocs-content .table td,
-    #fsdocs-content .table th {
+    #fsdocs-content table td,
+    #fsdocs-content table th {
         display: table-cell;
         word-wrap: break-word;
         padding: 0.75rem 1rem 0.75rem 0rem;
@@ -163,76 +163,76 @@ body {
     }
 
     /* suppress the top line on inner lists such as tables of exceptions */
-    #fsdocs-content .table .inner-list td,
-    #fsdocs-content .table .inner-list th {
+    #fsdocs-content table .inner-list td,
+    #fsdocs-content table .inner-list th {
         border-top: 0
     }
 
-    #fsdocs-content .table td p:first-child,
-    #fsdocs-content .table th p:first-child {
+    #fsdocs-content table td p:first-child,
+    #fsdocs-content table th p:first-child {
         margin-top: 0;
     }
 
-    #fsdocs-content .table td.nowrap,
-    #fsdocs-content .table th.nowrap {
+    #fsdocs-content table td.nowrap,
+    #fsdocs-content table th.nowrap {
         white-space: nowrap;
     }
 
-    #fsdocs-content .table td.is-narrow,
-    #fsdocs-content .table th.is-narrow {
+    #fsdocs-content table td.is-narrow,
+    #fsdocs-content table th.is-narrow {
         width: 15%;
     }
 
-    #fsdocs-content .table th:not([scope='row']) {
+    #fsdocs-content table th:not([scope='row']) {
         border-top: 0;
         border-bottom: 1px;
     }
 
-    #fsdocs-content .table > caption + thead > tr:first-child > td,
-    #fsdocs-content .table > colgroup + thead > tr:first-child > td,
-    #fsdocs-content .table > thead:first-child > tr:first-child > td {
+    #fsdocs-content table > caption + thead > tr:first-child > td,
+    #fsdocs-content table > colgroup + thead > tr:first-child > td,
+    #fsdocs-content table > thead:first-child > tr:first-child > td {
         border-top: 0;
     }
 
-    #fsdocs-content .table .table-striped > tbody > tr:nth-of-type(odd) {
+    #fsdocs-content table table-striped > tbody > tr:nth-of-type(odd) {
         background-color: var(--box-shadow-light);
     }
 
-    #fsdocs-content .table.min {
+    #fsdocs-content table.min {
         width: unset;
     }
 
-    #fsdocs-content .table.is-left-aligned td:first-child,
-    #fsdocs-content .table.is-left-aligned th:first-child {
+    #fsdocs-content table.is-left-aligned td:first-child,
+    #fsdocs-content table.is-left-aligned th:first-child {
         padding-left: 0;
     }
 
-        #fsdocs-content .table.is-left-aligned td:first-child a,
-        #fsdocs-content .table.is-left-aligned th:first-child a {
+        #fsdocs-content table.is-left-aligned td:first-child a,
+        #fsdocs-content table.is-left-aligned th:first-child a {
             outline-offset: -0.125rem;
         }
 
 @media screen and (max-width: 767px), screen and (min-resolution: 120dpi) and (max-width: 767.9px) {
-    #fsdocs-content .table.is-stacked-mobile td:nth-child(1) {
+    #fsdocs-content table.is-stacked-mobile td:nth-child(1) {
         display: block;
         width: 100%;
         padding: 1rem 0;
     }
 
-    #fsdocs-content .table.is-stacked-mobile td:not(:nth-child(1)) {
+    #fsdocs-content table.is-stacked-mobile td:not(:nth-child(1)) {
         display: block;
         border-width: 0;
         padding: 0 0 1rem;
     }
 }
 
-#fsdocs-content .table.has-inner-borders th,
-#fsdocs-content .table.has-inner-borders td {
+#fsdocs-content table.has-inner-borders th,
+#fsdocs-content table.has-inner-borders td {
     border-right: 1px solid #e3e3e3;
 }
 
-    #fsdocs-content .table.has-inner-borders th:last-child,
-    #fsdocs-content .table.has-inner-borders td:last-child {
+    #fsdocs-content table.has-inner-borders th:last-child,
+    #fsdocs-content table.has-inner-borders td:last-child {
         border-right: none;
     }
 

@@ -54,7 +54,7 @@ type ToolTipFormatter(prefix) =
     /// Returns all generated tool tip elements
     member x.WriteTipElements (writer:TextWriter) =
         for (KeyValue(_, (index, html))) in tips do
-            writer.WriteLine(sprintf "<div class=\"tip\" id=\"%s%d\">%s</div>" prefix index html)
+            writer.WriteLine(sprintf "<div class=\"fsdocs-tip\" id=\"%s%d\">%s</div>" prefix index html)
 
 
 /// Represents context used by the formatter
