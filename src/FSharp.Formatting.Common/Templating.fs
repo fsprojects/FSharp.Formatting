@@ -8,12 +8,15 @@ module ParamKey =
 #if DEBUG
     /// An abbreviation for 'string'
     type ParamKey = ParamKey of string
-    type Parameters = (ParamKey * string) list
 #else
     type ParamKey = string
     let ParamKey (c: string) : ParamKey = c
     let (|ParamKey|) (c: ParamKey) : string = c
 #endif
+
+    /// A list of parameters indexed by parameter keys
+    type Parameters = (ParamKey * string) list
+
     /// A parameter key known to FSharp.Formatting
     let ``root`` = ParamKey "root"
 
