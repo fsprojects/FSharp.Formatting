@@ -1,4 +1,4 @@
-F# Formatting [![Build Status](https://travis-ci.org/fsprojects/FSharp.Formatting.svg?branch=master)](https://travis-ci.org/fsprojects/FSharp.Formatting)
+F# Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/workflows/Build%20and%20Test/badge.svg?branch=master)
 =================================
 
 [![Join the chat at https://gitter.im/fsprojects/FSharp.Formatting](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fsprojects/FSharp.Formatting?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
