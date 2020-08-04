@@ -1,8 +1,8 @@
 <Project>
       <PropertyGroup>
-        <Version>7.1.4</Version>
+        <Version>7.1.5</Version>
         <PackageReleaseNotes>
-- fixed property computation
+- fix navbar position option fixed-left
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>
