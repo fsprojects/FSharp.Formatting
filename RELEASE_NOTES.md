@@ -1,3 +1,7 @@
+## 7.1.5
+
+- fix navbar position option fixed-left
+
 ## 7.1.4
 
 - fixed property computation 
