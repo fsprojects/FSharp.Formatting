@@ -1,3 +1,7 @@
+## 7.1.1
+
+  - fixed root
+
 ## 7.1.0
 
   - add text content of markdown and scripts to generated search index

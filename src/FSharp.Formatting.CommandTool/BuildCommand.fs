@@ -285,7 +285,7 @@ module Crack =
                 else
                     Some s)
 
-        printfn "filtered projects = %A" projectFiles
+        //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 then
             printfn "no project files found, no API docs will be generated"
 
@@ -370,15 +370,14 @@ module Crack =
 
         let parametersForProjectInfo (info: CrackedProjectInfo) =
               let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash
-              let projectRoot = defaultArg userRoot (defaultArg projectUrl ("/" + collectionName) |> ensureTrailingSlash)
               userParameters @
-              [ param ParamKeys.``root`` (Some projectRoot)
+              [ param ParamKeys.``root`` (Some root)
                 param ParamKeys.``fsdocs-authors`` info.Authors
                 param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
                 param ParamKeys.``fsdocs-collection-name-link`` (Option.orElse info.FsDocsCollectionNameLink info.PackageProjectUrl)
                 param ParamKeys.``fsdocs-copyright`` info.Copyright
                 param ParamKeys.``fsdocs-navbar-position`` (Some "fixed-right")
-                param ParamKeys.``fsdocs-logo-src`` (Option.orElse info.FsDocsLogoSource (Option.map (sprintf "%simg/logo.png")  info.PackageProjectUrl))
+                param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png"  root)))
                 param ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
                 param ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
                 param ParamKeys.``fsdocs-logo-link`` (Option.orElse info.FsDocsLogoLink info.RepositoryUrl)
