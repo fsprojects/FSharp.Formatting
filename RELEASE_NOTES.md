@@ -1,118 +1,134 @@
+## 7.1.3
+
+- fixed typo for `LICENCE.md`
+
+- all classes to have `fsdocs-` prefix
+
+## 7.1.2
+
+- fixed all classes to have `fsdocs-` prefix
+
+- added documentation on styling
+
+## 7.1.1
+
+- fixed root
+
 ## 7.1.0
 
-  - add text content of markdown and scripts to generated search index
+- add text content of markdown and scripts to generated search index
 
-  - overhaul the substitution names used by FSharp.Formatting and expected in the template. The table is in the docs and below
+- overhaul the substitution names used by FSharp.Formatting and expected in the template. The table is in the docs and below
 
-  - generate {{fsdocs-list-of-documents}} substitution and use it in both API docs and content
+- generate {{fsdocs-list-of-documents}} substitution and use it in both API docs and content
 
-  - generate {{fsdocs-list-of-namespaces}} substitution and use it in both API docs and content
+- generate {{fsdocs-list-of-namespaces}} substitution and use it in both API docs and content
 
-  - fix link model so {{root}} is always respected
+- fix link model so {{root}} is always respected
 
-  - Add `qualify` parameter that asks to qualify all names by the collection name e.g. FSharp.Core
+- Add `qualify` parameter that asks to qualify all names by the collection name e.g. FSharp.Core
 
-  - Respect per-project settings, e.g. if one nuget package has a different set of authors or home page to another
+- Respect per-project settings, e.g. if one nuget package has a different set of authors or home page to another
 
-  - Add documentation about styling
+- Add documentation about styling
 
-  - Allow fixed-left and fixed-right positions for the navbar
+- Allow fixed-left and fixed-right positions for the navbar
 
-  - Add `{{fsdocs-logo-link}}` parameter to default template
+- Add `{{fsdocs-logo-link}}` parameter to default template
 
-  - Add `{{fsdocs-logo-link}}` parameter to default template
+- Add `{{fsdocs-logo-link}}` parameter to default template
 
-  - generate HTML giving hyperlinks for types with cross-links
+- generate HTML giving hyperlinks for types with cross-links
 
-  - switch to left bootstrap nav bar in template for a table of contents
+- switch to left bootstrap nav bar in template for a table of contents
 
-  - improve sizings
+- improve sizings
 
-  - move to one copy of template in docs/_template.html 
+- move to one copy of template in docs/_template.html 
 
-  - ApiDocsTypeDefinition and ApiDocsModule merged to ApiDocsEntity
+- ApiDocsTypeDefinition and ApiDocsModule merged to ApiDocsEntity
 
-  - Default template now expects logo in img/logo.png
+- Default template now expects logo in img/logo.png
 
-  - Improvements in default HTML generation
+- Improvements in default HTML generation
 
-  - ApiDocComment.Blurb renamed to ApiDocComment.Summary and only populated with summary text for things read from XML
+- ApiDocComment.Blurb renamed to ApiDocComment.Summary and only populated with summary text for things read from XML
 
-  - simplify tool instructions
+- simplify tool instructions
 
-  - add info about upgrading
+- add info about upgrading
 
 ## 6.1.0
-  - fix mistake in laying down `extras` directory 
+- fix mistake in laying down `extras` directory 
 
 ## 6.0.9
-  - put extra content in `extras` directory in nuget package and include Dockerfile and NuGet.config
+- put extra content in `extras` directory in nuget package and include Dockerfile and NuGet.config
 
 ## 6.0.8
-  - show extended type in generated docs for extension members
-  - include fsdocs-styles.css, fsdocs-search.js, fsdocs-tips.js in built site 'content' directory by default
-  - use default template from nuget package by default
+- show extended type in generated docs for extension members
+- include fsdocs-styles.css, fsdocs-search.js, fsdocs-tips.js in built site 'content' directory by default
+- use default template from nuget package by default
 
 ## 6.0.7
-  - fix formatting of generic parameters so they don't show inference variables for members
+- fix formatting of generic parameters so they don't show inference variables for members
 
 ## 6.0.6
-  - fix default styling
+- fix default styling
 
 ## 6.0.5
-  - improve display in FSharp.Formatting API docs and add more information
+- improve display in FSharp.Formatting API docs and add more information
 
 ## 6.0.4
-  - Watch defaults to `tmp/watch`
+- Watch defaults to `tmp/watch`
 
 ## 6.0.3
-  - Add `(*** include-fsi-output **)`
-  - Add `(*** include-fsi-merged-output **)`
-  - Add server to `dotnet watch` and by default switch to local host
-  - Always inject `fsi.AddPrinter`, `fsi.AddHtmlPrinter` etc. into the programming model for literate scripts
+- Add `(*** include-fsi-output **)`
+- Add `(*** include-fsi-merged-output **)`
+- Add server to `dotnet watch` and by default switch to local host
+- Always inject `fsi.AddPrinter`, `fsi.AddHtmlPrinter` etc. into the programming model for literate scripts
 
 ## 6.0.2
 
-  - Remove the `api` command from the command line tool (`build` generalises it)
-  - Add missing search.js
+- Remove the `api` command from the command line tool (`build` generalises it)
+- Add missing search.js
 
 ## 6.0.1
 
-  - build the Lunr `index.json` from every execution of `fsdocs build`
-  - Make the search index entries available as part of the ApiDocs model
-  - Add search box to generated docs
-  - Add `ApiDocs` prefix to all types in `ApiDocsModel`
-  - Remove `Details` from `ApiDocsModel`
+- build the Lunr `index.json` from every execution of `fsdocs build`
+- Make the search index entries available as part of the ApiDocs model
+- Add search box to generated docs
+- Add `ApiDocs` prefix to all types in `ApiDocsModel`
+- Remove `Details` from `ApiDocsModel`
 
 ## 5.0.5
 
-  - Correct behaviour of '--clean'
+- Correct behaviour of '--clean'
 
 ## 5.0.4
 
-  - Fix emit of odd character in latex output
+- Fix emit of odd character in latex output
 
 ## 5.0.3
 
-  - Paket update and remove workaround code
-  - add '--clean' to fsdocs 
+- Paket update and remove workaround code
+- add '--clean' to fsdocs 
 
 ## 5.0.2
-  - Update to FCS v36.0
-  - Add .ipynb output option for documents
-  - Add .fsx output option for documents
-  - Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
-  - MetadataFormat.Generate --> ApiDocs.GenerateHtml/ApiDocs.GenerateModel overloads
-  - Fix Literate.* to do approximate (non-razor) templating/  
-  - Remove Razor support
-  - HTML templates now use `{{prop-name}}`
-  - FSharp.CodeFormat --> FSharp.Formatting.CodeFormat
-  - FSharp.Markdown --> FSharp.Formatting.Markdown
-  - FSharp.Literate --> FSharp.Formatting.Literate and FSharp.Formatting.Literate.Evaluation
-  - FSharp.MetadataFormat --> FSharp.Formatting.ApiDocs
-  - FSharp.ApiDocs uses HTML substitution for templating, no Razor
-  - Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
-  - For command line tool
+- Update to FCS v36.0
+- Add .ipynb output option for documents
+- Add .fsx output option for documents
+- Literate.WriteHtml --> Literate.ToHtml/Literate.WriteHtml overloads
+- MetadataFormat.Generate --> ApiDocs.GenerateHtml/ApiDocs.GenerateModel overloads
+- Fix Literate.* to do approximate (non-razor) templating/  
+- Remove Razor support
+- HTML templates now use `{{prop-name}}`
+- FSharp.CodeFormat --> FSharp.Formatting.CodeFormat
+- FSharp.Markdown --> FSharp.Formatting.Markdown
+- FSharp.Literate --> FSharp.Formatting.Literate and FSharp.Formatting.Literate.Evaluation
+- FSharp.MetadataFormat --> FSharp.Formatting.ApiDocs
+- FSharp.ApiDocs uses HTML substitution for templating, no Razor
+- Add "include-it" and "include-output" with implied reference to the immediately preceding snippet
+- For command line tool
         Rename fsformatting to fsdocs
         Update command line parser
         "fsformatting literate process-directory" --> "fsdocs convert"
@@ -125,32 +141,32 @@
         Add --nonpublic
         Add --xmlComments
         Automatically populate metadata from project settings.
-  - Add `fsdocs build` command to the documentation generator that has lots of sensible defaults.
+- Add `fsdocs build` command to the documentation generator that has lots of sensible defaults.
 
 ## 4.1.0
-  - Support preview F# language features.
-  - Add support for customizing assigned CSS class.
+- Support preview F# language features.
+- Add support for customizing assigned CSS class.
 
 ## 4.0.1
-  - Add .NET Core support for all libraries.
-  - Update to FSCS v35.0.
-  - Add helpers for CustomOperationAttribute.
+- Add .NET Core support for all libraries.
+- Update to FSCS v35.0.
+- Add helpers for CustomOperationAttribute.
 
 ## 4.0.0-alpha04
-  - Update to FSCS v34.1.
+- Update to FSCS v34.1.
 
 ## 4.0.0-alpha03
-  - Update to FSCS v34.
+- Update to FSCS v34.
 
 ## 4.0.0-alpha02
-  - Fix packaging issues.
+- Fix packaging issues.
 
 ## 4.0.0-alpha01
-  - Add .NET Core support for all libraries.
-  - Update to latest FSharp.Compiler.Service
+- Add .NET Core support for all libraries.
+- Update to latest FSharp.Compiler.Service
 
 ## 3.1.0
-  - remove beta tag since it is already widely used
+- remove beta tag since it is already widely used
 
 ## 3.0.0-beta14 
  - Update to latest FSharp.Compiler.Service

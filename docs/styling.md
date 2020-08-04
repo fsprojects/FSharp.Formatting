@@ -4,9 +4,9 @@ By default `fsdocs` uses the following (which are the settings used to build thi
 
 * the default template in [docs/_template.html](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html)
 
-* the default styles in [docs/content/fsdocs-style.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-style.css).
+* the default styles in [docs/content/fsdocs-default.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css).
 
-* no custom styles in [docs/content/fsdocs-custom.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-style.css).
+* no custom styles in [docs/content/fsdocs-custom.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css).
 
 * no styling parameters for the default template (see below)
 
@@ -17,18 +17,47 @@ you adjsut them there is no guarantee that your template will continue to work w
 
 The following [content parameters](content.html) are particularly related to visual styling:
 
-|  Substitution name                  | Value (if not overriden by --parameters)                      |  
+|  Substitution name                  | Value (if not overriden by --parameters)                      | 
 |:------------------------------------|:--------------------------------------------------------------|
-| {{fsdocs-logo-src}}             | `<FsDocsLogoSource>` else {{root}}/img/logo.png             | 
-| {{fsdocs-logo-link}}            | `<FsDocsLogoLink>` else `<PackageProjectUrl>`                 | 
-| {{fsdocs-navbar-position}}      | `fixed-left` or `fixed-right` (default ``fixed-right``)       | 
+| `fsdocs-authors`              | `<Authors>`                                                   |  
+| `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |  
+| `fsdocs-collection-name-link` | `<FsDocsCollectionNameLink>`        |  
+| `fsdocs-license-link`         | `<FsDocsLicenseLink>`  | 
+| `fsdocs-logo-src`             | `<FsDocsLogoSource>` |  
+| `fsdocs-logo-link`            | `<FsDocsLogoLink>`   |                
+| `fsdocs-navbar-position`      | `<FsDocsNavbarPosition>` (`fixed-left` or `fixed-right`)     |  
+| `fsdocs-release-notes-link`   | `<FsDocsReleaseNotesLink>` else `<PackageProjectUrl>/blob/master/RELEASE_NOTES.md`  | 
+| `fsdocs-repository-link`      | `<RepositoryUrl>`                                             | 
+| `fsdocs-theme`                | `<FsDocsTheme>`, must currently be `default`    | 
+
 
 As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-left`](templates/leftside/styling.html).
 
 ## Customizing via CSS
 
 You can start styling by creating a file `docs/fsdocs-custom.css` and adding entries to it.  It is loaded by
-the standard template.
+the standard template.  The CSS classes of generated content are:
+
+|  CSS class   | Corresponding Content|  
+|:------------------------------------|:--------------------------------------------------------------|
+| `.fsdocs-tip`              |   generated tooltips                                                  |  
+| `.fsdocs-member-list `      |  generated member lists  |
+| `.fsdocs-member-name `      |  generated member names |
+| `.fsdocs-member-tooltip `      |  generated tooltips for members |
+| `.fsdocs-xmldoc `      |  generated xmldoc sections  |
+| `.fsdocs-entity-list `      |  generated entity lists |
+| `.fsdocs-member-list `      |  generated member lists |
+
+Some generated elements are given specific HTML ids:
+
+|  HTML Element Id    | Content|  
+|:------------------------------------|:--------------------------------------------------------------|
+| `#fsdocs-content`              |    The generated content |  
+| `#fsdocs-searchbox `      |   The search box |
+| `#fsdocs-logo `      |  The logo |
+| `#fsdocs-menu `      |  The navigation-bar |
+
+If you write a new theme by CSS styling please contribute it back to FSharp.Formatting.
 
 ## Customizing via a new template
 

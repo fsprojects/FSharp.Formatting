@@ -152,19 +152,17 @@ Target.create "All" ignore
 Target.create "Release" ignore
 
 "Root"
-  ==> "Clean"
+  //==> "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
+  ==> "NuGet"
   ==> "Tests"
   ==> "All"
-
-"All"
-  ==> "NuGet"
   ==> "CreateTag"
   ==> "PublishNuget"
   ==> "Release"
 
-"All"
+"NuGet"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "Release"

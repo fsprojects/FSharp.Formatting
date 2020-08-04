@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 		docs\index.md = docs\index.md
 		docs\literate.fsx = docs\literate.fsx
 		docs\markdown.fsx = docs\markdown.fsx
+		docs\styling.md = docs\styling.md
+		docs\upgrade.md = docs\upgrade.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{D0550510-0DCE-4B40-B4FB-091668E1C5FD}"
@@ -112,6 +114,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting", "src\FS
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sidebyside", "sidebyside", "{C3E359B5-DB2D-4AA4-A08C-77BAA0E94D21}"
 	ProjectSection(SolutionItems) = preProject
+		docs\templates\leftside\_template.html = docs\templates\leftside\_template.html
 		docs\sidebyside\sideextensions.md = docs\sidebyside\sideextensions.md
 		docs\sidebyside\sidemarkdown.md = docs\sidebyside\sidemarkdown.md
 		docs\sidebyside\sidescript.fsx = docs\sidebyside\sidescript.fsx
@@ -123,6 +126,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "leftside", "leftside", "{18
 	ProjectSection(SolutionItems) = preProject
 		docs\templates\leftside\_template.html = docs\templates\leftside\_template.html
 		docs\templates\leftside\styling.md = docs\templates\leftside\styling.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{FAD5C374-4748-4A3D-A435-FFA425916F3A}"
+	ProjectSection(SolutionItems) = preProject
+		docs\content\fsdocs-custom.css = docs\content\fsdocs-custom.css
+		docs\content\fsdocs-default.css = docs\content\fsdocs-default.css
+		docs\content\fsdocs-search.js = docs\content\fsdocs-search.js
+		docs\content\fsdocs-tips.js = docs\content\fsdocs-tips.js
+		docs\content\navbar-fixed-left.css = docs\content\navbar-fixed-left.css
+		docs\content\navbar-fixed-right.css = docs\content\navbar-fixed-right.css
 	EndProjectSection
 EndProject
 Global
@@ -256,6 +269,7 @@ Global
 		{C3E359B5-DB2D-4AA4-A08C-77BAA0E94D21} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 		{C7804F57-7FC6-4CF6-BDF6-127D6F9EBEA6} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 		{188DC91F-2202-4495-ACD2-542D7C30364E} = {C7804F57-7FC6-4CF6-BDF6-127D6F9EBEA6}
+		{FAD5C374-4748-4A3D-A435-FFA425916F3A} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}

@@ -14,8 +14,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="{{root}}content/navbar-fixed-left.css" />
-    <link type="text/css" rel="stylesheet" href="{{root}}content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="{{root}}content/navbar-{{fsdocs-navbar-position}}.css" />
+    <link type="text/css" rel="stylesheet" href="{{root}}content/fsdocs-{{fsdocs-theme}}.css" />
     <link type="text/css" rel="stylesheet" href="{{root}}content/fsdocs-custom.css" />
     <script type="text/javascript" src="{{root}}content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -29,7 +29,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-left" id="fsdocs-menu">
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary {{fsdocs-navbar-position}}" id="fsdocs-menu">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -65,8 +65,15 @@
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
-            {{fsdocs-content}}
-            {{fsdocs-tooltips}}
+            <div class="row">
+                <div class="col-xs-4">
+                    {{fsdocs-source}}
+                </div>
+                <div class="col-xs-4">
+                    {{fsdocs-content}}
+                    {{fsdocs-tooltips}}
+                </div>
+            </div>
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
