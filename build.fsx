@@ -151,6 +151,9 @@ Target.create "Root" ignore
 Target.create "All" ignore
 Target.create "Release" ignore
 
+"Clean"
+  ==> "Release"
+
 "Root"
   //==> "Clean"
   ==> "AssemblyInfo"
