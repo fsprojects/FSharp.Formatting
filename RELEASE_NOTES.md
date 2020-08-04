@@ -1,6 +1,7 @@
 ## 7.1.0
-  - fix mistake in laying down `extras` directory 
-  
+
+  - add text content of markdown and scripts to generated search index
+
   - overhaul the substitution names used by FSharp.Formatting and expected in the template. The table is in the docs and below
 
   - generate {{fsdocs-list-of-documents}} substitution and use it in both API docs and content
