@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{fsdocs-page-title}}</title>
+    <title>TokenKindFSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{fsdocs-authors}}">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -14,10 +14,10 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/navbar-{{fsdocs-navbar-position}}.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-style.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-custom.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,12 +29,12 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-secondary {{fsdocs-navbar-position}}" id="fsdocs-menu">
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <a href="{{fsdocs-logo-link}}"><img id="fsdocs-logo" src="{{fsdocs-logo-src}}" /></a>
+            <a href="https://github.com/fsprojects/FSharp.Formatting"><img id="fsdocs-logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png" /></a>
             <!-- BEGIN SEARCH BOX: this adds support for the search box -->
             <div id="header">
                 <div class="searchbox" id="fsdocs-searchbox">
@@ -51,30 +51,832 @@
             <!-- END SEARCH BOX: this adds support for the search box -->
             <ul class="navbar-nav">
                 <li class="nav-header">Links</li>
-                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="{{fsdocs-license-link}}">License (Apache 2.0)</a></li>
-                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="{{fsdocs-release-notes-link}}">Release Notes</a></li>
-                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="{{fsdocs-repository-link}}">Source Repository</a></li>
-                {{fsdocs-list-of-documents}}
-                {{fsdocs-list-of-namespaces}}
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formattingblob/master/LICENSE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formattingblob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\apidocs.html">
+    API Documentation generation
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\commandline.html">
+    Command line tool
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\evaluation.html">
+    Embedding literate script output
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\literate.html">
+    Literate Scripts and Markdown
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\markdown.html">
+    Markdown parser
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\styling.html">
+    Styling
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\sidebyside\sideextensions.html">
+    Markdown extensions side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\sidebyside\sidemarkdown.html">
+    Literate Markdown side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\sidebyside\sidescript.html">
+    Literate script side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/.\templates\leftside\styling.html">
+    Styling: Left-Side Example
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-apidocs.html">
+    FSharp.Formatting.ApiDocs
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-csharpformat.html">
+    FSharp.Formatting.CSharpFormat
+  </a>
+</li>             
+<li class="nav-item" class="active">
+  <a class="nav-link" class="active" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat.html">
+    FSharp.Formatting.CodeFormat
+  </a>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformat.html">
+      CodeFormat
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-codeformatagent.html">
+      CodeFormatAgent
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-errorkind.html">
+      ErrorKind
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-formattedcontent.html">
+      FormattedContent
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-formattedsnippet.html">
+      FormattedSnippet
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-line.html">
+      Line
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-snippet.html">
+      Snippet
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-sourceerror.html">
+      SourceError
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenkind.html">
+      TokenKind
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenspan.html">
+      TokenSpan
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenspans.html">
+      TokenSpans
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tooltipspan.html">
+      ToolTipSpan
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tooltipspans.html">
+      ToolTipSpans
+    </a>
+  </li>
+</ul>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate.html">
+    FSharp.Formatting.Literate
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-literate-evaluation.html">
+    FSharp.Formatting.Literate.Evaluation
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-markdown.html">
+    FSharp.Formatting.Markdown
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-templating.html">
+    FSharp.Formatting.Templating
+  </a>
+</li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</h3>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting">FSharp.Formatting</a></h3>
         </div>
         <hr />
-        <div class="container" id="fsdocs-main">
-            {{fsdocs-content}}
-            {{fsdocs-tooltips}}
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h1>
+    TokenKind Type
+  </h1>
+  <p>
+    Namespace: FSharp.Formatting.CodeFormat
+  </p>
+  <p>
+    Assembly: FSharp.Formatting.CodeFormat.dll
+  </p>
+  <p>
+    Base Type: 
+    <code>obj</code>
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenkind.html">TokenKind</a>&gt;</span></code>
+    </li>
+    <li>
+      <code><a href="https://docs.microsoft.com/dotnet/api/system.collections.istructuralequatable">IStructuralEquatable</a></code>
+    </li>
+    <li>
+      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenkind.html">TokenKind</a>&gt;</span></code>
+    </li>
+    <li>
+      <code><a href="https://docs.microsoft.com/dotnet/api/system.icomparable">IComparable</a></code>
+    </li>
+    <li>
+      <code><a href="https://docs.microsoft.com/dotnet/api/system.collections.istructuralcomparable">IStructuralComparable</a></code>
+    </li>
+  </ul>
+  <div class="fsdocs-xmldoc">
+    <p>Classifies tokens reported by the FCS</p>
+
+
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Union cases
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Union case
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-name" id="Comment">
+            <div>
+              <code onmouseout="hideTip(event, '258', 258)" onmouseover="showTip(event, '258', 258)">
+                <code><span>Comment(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="258">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Comment(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L25-25" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Default">
+            <div>
+              <code onmouseout="hideTip(event, '259', 259)" onmouseover="showTip(event, '259', 259)">
+                <code><span>Default(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="259">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Default(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L46-46" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Disposable">
+            <div>
+              <code onmouseout="hideTip(event, '260', 260)" onmouseover="showTip(event, '260', 260)">
+                <code><span>Disposable(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="260">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Disposable(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L43-43" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Enumeration">
+            <div>
+              <code onmouseout="hideTip(event, '261', 261)" onmouseover="showTip(event, '261', 261)">
+                <code><span>Enumeration(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="261">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Enumeration(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L38-38" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Escaped">
+            <div>
+              <code onmouseout="hideTip(event, '262', 262)" onmouseover="showTip(event, '262', 262)">
+                <code><span>Escaped(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="262">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Escaped(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L45-45" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Function">
+            <div>
+              <code onmouseout="hideTip(event, '263', 263)" onmouseover="showTip(event, '263', 263)">
+                <code><span>Function(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="263">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Function(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L40-40" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Identifier">
+            <div>
+              <code onmouseout="hideTip(event, '264', 264)" onmouseover="showTip(event, '264', 264)">
+                <code><span>Identifier(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="264">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Identifier(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L26-26" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Inactive">
+            <div>
+              <code onmouseout="hideTip(event, '265', 265)" onmouseover="showTip(event, '265', 265)">
+                <code><span>Inactive(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="265">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Inactive(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L27-27" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Interface">
+            <div>
+              <code onmouseout="hideTip(event, '266', 266)" onmouseover="showTip(event, '266', 266)">
+                <code><span>Interface(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="266">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Interface(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L35-35" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Keyword">
+            <div>
+              <code onmouseout="hideTip(event, '267', 267)" onmouseover="showTip(event, '267', 267)">
+                <code><span>Keyword(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="267">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Keyword(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L23-23" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Module">
+            <div>
+              <code onmouseout="hideTip(event, '268', 268)" onmouseover="showTip(event, '268', 268)">
+                <code><span>Module(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="268">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Module(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L32-32" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="MutableVar">
+            <div>
+              <code onmouseout="hideTip(event, '269', 269)" onmouseover="showTip(event, '269', 269)">
+                <code><span>MutableVar(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="269">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>MutableVar(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L42-42" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Number">
+            <div>
+              <code onmouseout="hideTip(event, '270', 270)" onmouseover="showTip(event, '270', 270)">
+                <code><span>Number(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="270">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Number(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L28-28" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Operator">
+            <div>
+              <code onmouseout="hideTip(event, '271', 271)" onmouseover="showTip(event, '271', 271)">
+                <code><span>Operator(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="271">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Operator(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L29-29" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Pattern">
+            <div>
+              <code onmouseout="hideTip(event, '272', 272)" onmouseover="showTip(event, '272', 272)">
+                <code><span>Pattern(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="272">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Pattern(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L41-41" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Preprocessor">
+            <div>
+              <code onmouseout="hideTip(event, '273', 273)" onmouseover="showTip(event, '273', 273)">
+                <code><span>Preprocessor(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="273">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Preprocessor(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L31-31" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Printf">
+            <div>
+              <code onmouseout="hideTip(event, '274', 274)" onmouseover="showTip(event, '274', 274)">
+                <code><span>Printf(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="274">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Printf(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L44-44" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Property">
+            <div>
+              <code onmouseout="hideTip(event, '275', 275)" onmouseover="showTip(event, '275', 275)">
+                <code><span>Property(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="275">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Property(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L37-37" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Punctuation">
+            <div>
+              <code onmouseout="hideTip(event, '276', 276)" onmouseover="showTip(event, '276', 276)">
+                <code><span>Punctuation(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="276">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Punctuation(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L30-30" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ReferenceType">
+            <div>
+              <code onmouseout="hideTip(event, '277', 277)" onmouseover="showTip(event, '277', 277)">
+                <code><span>ReferenceType(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="277">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ReferenceType(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L33-33" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="String">
+            <div>
+              <code onmouseout="hideTip(event, '278', 278)" onmouseover="showTip(event, '278', 278)">
+                <code><span>String(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="278">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>String(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L24-24" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="TypeArgument">
+            <div>
+              <code onmouseout="hideTip(event, '279', 279)" onmouseover="showTip(event, '279', 279)">
+                <code><span>TypeArgument(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="279">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>TypeArgument(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L36-36" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="UnionCase">
+            <div>
+              <code onmouseout="hideTip(event, '280', 280)" onmouseover="showTip(event, '280', 280)">
+                <code><span>UnionCase(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="280">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>UnionCase(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L39-39" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ValueType">
+            <div>
+              <code onmouseout="hideTip(event, '281', 281)" onmouseover="showTip(event, '281', 281)">
+                <code><span>ValueType(<span></span>)</span></code>
+              </code>
+              <div class="fsdocs-tip" id="281">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ValueType(<span></span>)</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L34-34" class="fsdocs-source-link">
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github.png" class="normal"/>
+              <img src="https://fsprojects.github.io/FSharp.Formatting/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+            
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-        <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+        <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting/'</script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-        <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-search.js"></script>
+        <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
         <!-- END SEARCH BOX: this adds support for the search box -->
     </div>
 </body>

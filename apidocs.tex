@@ -36,14 +36,200 @@
   columns=fullflexible
 }
 
-\title{API Documentation generation
-}
+\title{{page-title}}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-{{fsdocs-content}}
+\section*{API Documentation generation}
+
+
+
+The \href{commandline.html}{command-line tool \texttt{fsdocs}} can be used to generate documentation
+for F\# libraries with XML comments.  The documentation is normally built using \texttt{fsdocs build} and developed using \texttt{fsdocs watch}. For
+the former the output will be placed in \texttt{output{\textbackslash}reference} by default.
+\subsection*{Templates}
+
+
+
+The HTML is built by instantiating a template. The template used is the first of:
+\begin{itemize}
+\item 
+
+\texttt{docs/reference/\_template.html}
+
+\item 
+
+\texttt{docs/\_template.html}
+
+\item 
+
+The default template
+
+\end{itemize}
+
+
+
+Usually the same template can be used as for \href{content.html}{other content}.
+\subsection*{Classic XML Comments}
+
+
+
+XML Comments may use \href{https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/}{the normal F\# and C\# XML doc standards}.
+
+
+An example of an XML documentation comment:
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{/// <summary>}
+\com{/// Some actual comment}
+\com{/// <para>Another paragraph</para>}
+\com{/// </summary>}
+\kwd{module} \ltyp{Foo2} \ops{=} 
+   \kwd{let} \id{a} \ops{=} \num{42}
+\end{Verbatim}
+
+\subsection*{Go to Source links}
+
+
+
+'fsdocs' normally automatically adds GitHub links to each functions, values and class members for further reference.
+
+
+This is normally done automatically based on the following settings:
+\begin{Verbatim}[commandchars=\\\{\}]
+{<}\id{RepositoryUrl}{>}\id{https}{:}\com{//github.com/...</RepositoryUrl>}
+{<}\id{RepositoryBranch}{>}\id{RepositoryBranch}{>}
+{<}\id{RepositoryType}{>}\id{git}\ops{</}\id{RepositoryType}{>}
+
+\end{Verbatim}
+
+
+
+If your source is not built from the same project where you are building documentation then
+you may need these settings:
+\begin{Verbatim}[commandchars=\\\{\}]
+{<}\id{FsDocsSourceRepository}{>}\id{FsDocsSourceRepository}{>} \ops{--} \id{the} \id{URL} \kwd{for} \id{the} \id{root} \kwd{of} \id{the} \id{source} 
+{<}\id{FsDocsSourceFolder}{>}\id{FsDocsSourceFolder}{>}         \ops{--} \id{the} \id{root} \id{soure} \id{folder} \id{at} \id{time} \kwd{of} \id{build}
+
+\end{Verbatim}
+
+
+
+It is assumed that \texttt{sourceRepo} and \texttt{sourceFolder} have synchronized contents.
+\subsection*{Markdown Comments}
+
+
+
+You can use Markdown instead of XML in \texttt{///} comments. If you do, you should set \texttt{<UsesMarkdownComments>} in
+your F\# project file.
+\begin{quote}
+
+
+Note: Markdown Comments are not supported in all F\# IDE tooling.
+\end{quote}
+
+\subsubsection*{Adding cross-type links to modules and types in the same assembly}
+
+
+
+You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
+You can do this in two different ways:
+\begin{itemize}
+\item 
+
+Add a \href{https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet\#links}{markdown inline link} were the link
+title is the name of the type you want to link.
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{/// this will generate a link to [Foo.Bar] documentation}
+
+\end{Verbatim}
+
+
+\item 
+
+Add a \href{https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet\#code}{Markdown inline code} (using
+back-ticks) where the code is the name of the type you want to link.
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{/// This will also generate a link to `Foo.Bar` documentation}
+
+\end{Verbatim}
+
+
+\end{itemize}
+
+
+
+You can use either the full name (including namespace and module) or the simple name of a type.
+If more than one type is found with the same name the link will not be generated.
+If a type with the given name is not found in the same assembly the link will not be generated.
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{/// Contains two types [Bar] and [Foo.Baz]}
+\kwd{module} \ltyp{Foo} \ops{=} 
+    
+    \com{/// Bar is just an `int` and belongs to module [Foo]}
+    \kwd{type} \ltyp{Bar} \ops{=} \ltyp{int}
+    
+    \com{/// Baz contains a `Foo.Bar` as its `id`}
+    \kwd{type} \ltyp{Baz} \ops{=} {\{} \id{id}{:} \ltyp{Bar} {\}}
+
+    \com{/// This function operates on `Baz` types.}
+    \kwd{let} \lfun{f} {(}\id{b}{:}\ltyp{Baz}{)} \ops{=} 
+        \id{b}{.}\id{id} \ops{*} \num{42}
+
+\com{/// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`}
+\kwd{module} \ltyp{Foo3} \ops{=}
+    
+    \com{/// This is not the same type as `Foo.Bar`}
+    \kwd{type} \ltyp{Bar} \ops{=} \ltyp{double}
+
+    \com{/// Using the simple name for [Bar] will fail to create a link because the name is duplicated in }
+    \com{/// [Foo.Bar] and in [Foo3.Bar]. In this case, using the full name works.}
+    \kwd{let} \lfun{f2} \id{b} \ops{=}
+         \id{b} \ops{*} \num{50}
+\end{Verbatim}
+
+\subsubsection*{Markdown Comments: Excluding APIs from the docs}
+
+
+
+If you want to exclude modules or functions from the API docs you can use the \texttt{[omit]} tag.
+It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{/// [omit]}
+\com{/// Some actual comment}
+\kwd{module} \ltyp{Bar} \ops{=} 
+   \kwd{let} \id{a} \ops{=} \num{42}
+\end{Verbatim}
+
+\subsection*{Building library documentation programmatically}
+
+
+
+You can build library documentation programatically. To do this, load the assembly and open necessary namespaces:
+\begin{Verbatim}[commandchars=\\\{\}]
+\prep{\#r} \str{"FSharp.Formatting.ApiDocs.dll"}
+\kwd{open} \id{FSharp}{.}\id{Formatting}{.}\id{ApiDocs}
+\kwd{open} \id{System}{.}\id{IO}
+\end{Verbatim}
+
+
+
+Building the library documentation is easy - you just need to call
+\texttt{ApiDocs.Generate} from your FAKE script or from F\# Interactive.
+Assuming \texttt{root} is the root directory for your project, you can write:
+\begin{Verbatim}[commandchars=\\\{\}]
+\kwd{let} \id{file} \ops{=} \ltyp{Path}{.}\id{Combine}{(}\id{root}{,} \str{"bin/YourLibrary.dll"}{)}
+\kwd{let} \id{input} \ops{=} \ltyp{ApiDocInput}{.}\id{FromFile}{(}\id{file}{)} 
+\ltyp{ApiDocs}{.}\id{GenerateHtml}
+    {(} {[} \id{input} {]}{,} 
+      \id{output}\ops{=}\ltyp{Path}{.}\id{Combine}{(}\id{root}{,} \str{"output"}{)}{,}
+      \id{collectionName}\ops{=}\str{"YourLibrary"}{,}
+      \id{template}\ops{=}\ltyp{Path}{.}\id{Combine}{(}\id{root}{,} \str{"templates"}{,} \str{"template.html"}{)}{,}
+      \id{parameters}\ops{=}{[}{]}{)}
+\end{Verbatim}
+
+
 
 \end{document}

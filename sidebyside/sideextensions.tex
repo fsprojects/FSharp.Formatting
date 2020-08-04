@@ -36,14 +36,57 @@
   columns=fullflexible
 }
 
-\title{Markdown extensions side-by-side example
-}
+\title{{page-title}}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-{{fsdocs-content}}
+\section*{Markdown extensions side-by-side example}
+
+
+
+To use LaTex extension, you need add javascript
+link to \href{http://www.mathjax.org/}{MathJax} in
+your template.
+
+
+To use inline LaTex, eclose LaTex code with \texttt{\$}:
+$k_{n+1} = n^2 + k_n^2 - k_{n-1}$. Alternatively,
+you can also use \texttt{\$\$}.
+
+
+To use block LaTex, start a new parapgraph, with
+the first line marked as \texttt{\$\$\$} (no close \texttt{\$\$\$}):
+
+
+\begin{equation}
+A_{m,n} =
+ \begin{pmatrix}
+  a_{1,1} & a_{1,2} & \cdots & a_{1,n} \\
+  a_{2,1} & a_{2,2} & \cdots & a_{2,n} \\
+  \vdots  & \vdots  & \ddots & \vdots  \\
+  a_{m,1} & a_{m,2} & \cdots & a_{m,n}
+ \end{pmatrix}
+\end{equation}
+
+
+
+
+Use LaTex escape rule:
+\begin{itemize}
+\item Escape \$ in inline mode: $\$$, $\$var$
+
+\item Other escapes: $\& \% \$ \# \_ \{ \}$
+
+\item Using < or >: $x > 1$, $y < 1$, $x >= 1$,
+$y <= 1$, $x = 1$
+
+\item $<p>something</p>$
+
+\end{itemize}
+
+
 
 \end{document}

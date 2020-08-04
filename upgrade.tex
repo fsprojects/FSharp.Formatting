@@ -36,14 +36,98 @@
   columns=fullflexible
 }
 
-\title{Upgrading to fsdocs
-}
+\title{{page-title}}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-{{fsdocs-content}}
+\section*{Upgrading to fsdocs}
+
+
+
+Here are the typical steps to upgrade a repo based on \texttt{ProjectScaffold} to use \texttt{fsdocs}
+\begin{enumerate}
+\item 
+
+Run
+\begin{lstlisting}
+dotnet new tool
+dotnet tool install FSharp.Formatting.CommandTool
+
+\end{lstlisting}
+
+\item 
+
+Delete all of \texttt{docs{\textbackslash}tools} particularly \texttt{docs{\textbackslash}tool{\textbackslash}generate.fsx}.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.
+
+\item 
+
+Put your docs directory so it refelcts the final shape of the site. For example move the content of \texttt{docs{\textbackslash}input{\textbackslash}*} and \texttt{docs{\textbackslash}files{\textbackslash}*} directly to \texttt{docs{\textbackslash}*}
+
+\item 
+
+Create \texttt{docs{\textbackslash}\_template.html}, starting with \href{https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/templates/\_template.html}{this file} and
+copying across any snippets from old templates.
+
+\item 
+
+Run
+\begin{lstlisting}
+dotnet fsdocs watch
+
+\end{lstlisting}
+
+
+and edit and test your docs.
+
+\item 
+
+If using FAKE adjust \texttt{build.fsx} e.g.
+\begin{lstlisting}
+Target.create "GenerateDocs" (fun _ ->
+   Shell.cleanDir ".fsdocs"
+   DotNet.exec id "fsdocs" "build --clean" |> ignore
+)
+
+\end{lstlisting}
+
+\item 
+
+Consider creating \texttt{docs{\textbackslash}\_template.fsx} and \texttt{docs{\textbackslash}\_template.ipynb} to enable co-generation of F\# scripts and F\# notebooks.
+
+
+If you add support for notebooks and scripts, consider adding mybinder links to each of your literate executable content pages. \href{https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx\#L19}{For example like this}.
+
+
+Also add load sections to make sure your notebooks and scripts contain the right content to load packages out of repo.  \href{https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx\#L1}{For example like this}
+
+\end{enumerate}
+
+
+
+Sample commands:
+\begin{lstlisting}
+dotnet tool install FSharp.Formatting.CommandTool --local
+git add dotnet-tools.json   
+git rm -fr docs/tools
+git mv docs/input/* docs
+git mv docs/files/* docs
+
+<manually download and fixup the _template.html>
+
+dotnet fsdocs watch
+
+touch docs/_template.fsx
+touch docs/_template.ipynb
+git add docs/_template.fsx
+git add docs/_template.ipynb
+
+\end{lstlisting}
+
+
+Here is an example PR: \href{https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116}{https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116}
+
 
 \end{document}

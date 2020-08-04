@@ -36,14 +36,143 @@
   columns=fullflexible
 }
 
-\title{Creating Content
-}
+\title{{page-title}}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-{{fsdocs-content}}
+
+
+\href{https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb}{\begin{figure}[htbp]\centering
+\includegraphics[width=1.0\textwidth]{https://mybinder.org/badge\_logo.svg}
+\caption{Binder}
+\end{figure}
+}
+\section*{Creating Content}
+
+
+
+The \href{commandline.html}{"fsdocs" tool} allows documentation for a site to be built
+from content in a \texttt{docs} directory. The expected structure for a \texttt{docs} directory is
+\begin{lstlisting}
+docs/**/*.md                  -- markdown with embedded code, converted to html and optionally tex/ipynb
+docs/**/*.fsx                 -- fsx scripts converted to html and optionally tex/ipynb
+docs/**/*                     -- other content, copied over
+docs/**/_template.html        -- optional template, specifies the HTML template for this directory and its contents
+docs/**/_template.tex         -- optionally indicates Latex files should be generated
+docs/**/_template.ipynb       -- optionally indicates F# ipynb files should be generated
+docs/**/_template.fsx         -- optionally indicates F# fsx files should be generated (even from markdown)
+docs/reference/_template.html -- optionally specifies the default template for reference docs
+
+\end{lstlisting}
+
+
+Processing is by these two commands:
+\begin{Verbatim}[commandchars=\\\{\}]
+\id{dotnet} \id{fsdocs} \id{build}
+\id{dotnet} \id{fsdocs} \id{watch}
+
+\end{Verbatim}
+
+
+
+The output goes in \texttt{output/} by default.  Processing is recursive, making this a form of static site generation.
+\subsection*{Literate Scripts and Markdown}
+
+
+
+The input directory may contain \href{literate.html}{literate scripts and markdown}.
+\subsection*{Other Content}
+
+
+
+Content that is not \texttt{*.fsx} or \texttt{*.md} is copied across.
+\subsection*{Default Styling Content}
+
+
+
+By default additional content such as \texttt{fsdocs-search.js}, \texttt{fsdocs-tips.js} and \texttt{fsdocs-styles.css} are included in the
+the \texttt{content} directory of the output.  This can be suppressed with \texttt{--nodefaultcontent} or by having your own
+copy of this content in your \texttt{content} directory.
+\subsection*{Ignored Content}
+
+
+
+Any file or directory beginning with \texttt{.} is ignored.
+\subsection*{HTML Templates}
+
+
+
+Template files are named \texttt{\_template.html} and should contain \texttt{\{\{fsdocs-content\}\}},  \texttt{\{\{fsdocs-tooltips\}\}}
+and other placeholders.
+If a file \texttt{\_template.html} exists then is used as the template for HTML generation for that directory and all sub-content.
+Otherwise the default template is used.
+
+
+The following substitutions determine the primary (non-styling) content of your site.
+For example \texttt{\{\{fsdocs-content\}\}} is replaced with the generated content.
+
+
+See \href{styling.html}{Styling} for information about template parameters and styling beyond the default template.
+\begin{tabular}{|l|l|}\hline
+\textbf{Substitution name} & \textbf{Generated content}\\ \hline\hline
+\texttt{root} & \texttt{<PackageProjectUrl>} else \texttt{/} followed by \texttt{fsdocs-collection-name}\\ \hline
+\texttt{fsdocs-collection-name} & Name of .sln, single .fsproj or containing directory\\ \hline
+\texttt{fsdocs-content} & Main page content\\ \hline
+\texttt{fsdocs-list-of-namespaces} & HTML \texttt{<li>} list of namespaces with links\\ \hline
+\texttt{fsdocs-list-of-documents} & HTML \texttt{<li>} list of documents with  titles and links\\ \hline
+\texttt{fsdocs-page-title} & First h1 heading in literate file. Generated for API docs\\ \hline
+\texttt{fsdocs-source} & Original script source\\ \hline
+\texttt{fsdocs-tooltips} & Generated hidden div elements for tooltips\\ \hline
+\end{tabular}
+
+
+
+The following substitutions are extracted from your project files and may or may not be used by the default
+template:
+
+
+|  Substitution name                   | Value                          |
+|:------------------- -----------------|:-------------------------------|
+| \texttt{fsdocs-copyright}                   | \texttt{<Copyright>}                  |
+
+| \texttt{fsdocs-package-project-url}         | \texttt{<PackageProjectUrl>}          |
+| \texttt{fsdocs-package-license-expression}  | \texttt{<PackageLicenseExpression>}   |
+| \texttt{fsdocs-package-tags}                | \texttt{<PackageTags>}                |
+
+| \texttt{fsdocs-package-version}             | \texttt{<Version>}                    |
+\subsection*{Generating LaTeX output}
+
+
+
+For Latex, the the \texttt{\_template.tex} file is either empty of contains \texttt{\{content\}} as the key where the body
+of the document is placed.
+
+
+To generate .tex output for each script and markdown file, add a \texttt{\_template.tex}.
+It may contain \texttt{\{\{fsdocs-content\}\}}.
+\subsection*{Generating iPython Notebook output}
+
+
+
+To generate .ipynb output for each script and markdown file, add a \texttt{\_template.ipynb}, usually empty.
+
+
+To add a \texttt{mybinder} badge to your generated notebook, ensure you have a \texttt{Dockerfile} and \texttt{NuGet.config}
+in your \texttt{docs} directory and use text like this:
+\begin{Verbatim}[commandchars=\\\{\}]
+{[}\ops{!}{[}\id{Binder}{]}{(}\id{https}{:}\com{//mybinder.org/badge\_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)}
+
+\end{Verbatim}
+
+\subsection*{Generating Script outputs}
+
+
+
+To generate .fsx output for each script and markdown file, add a \texttt{\_template.fsx}, usually empty.
+It may contain \texttt{\{\{fsdocs-content\}\}}.
+
 
 \end{document}
