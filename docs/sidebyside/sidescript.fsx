@@ -1,6 +1,5 @@
 (**
-Literate script
-===============
+# Literate script side-by-side example
 
 This file demonstrates how to write literate F# script
 files (`*.fsx`) that can be transformed into nice HTML
@@ -18,8 +17,8 @@ And numerous other [Markdown][md] features.
 
  [md]: http://daringfireball.net/projects/markdown
 
-Writing F# code
----------------
+## Writing F# code
+
 Code that is not inside comment will be formatted as
 a sample snippet.
 *)
@@ -53,8 +52,7 @@ tool tips:
 let answer = hidden
 
 (** 
-Moving code around
-------------------
+## Moving code around
 
 Sometimes, it is useful to first explain some code that
 has to be located at the end of the snippet (perhaps 

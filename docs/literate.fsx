@@ -18,7 +18,7 @@
 (**
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
 
-F# Formatting: Literate Scripts and Markdown
+Literate Scripts and Markdown
 ===================================
 
 The following example shows most of the features that can be used in a literate
@@ -216,18 +216,9 @@ file which is included as a sample in the package):
 // Load the template & specify project information
 let projTemplate = source + "template-project.html"
 let projInfo =
-  [ "authors", "Tomas Petricek"
-    "github-link", "https://github.com/fsprojects/FSharp.Formatting"
-    "project-name", "F# Formatting" ]
-
-(**
-You can also convert entire directories of content.
-
-*)
-
-// Process all files and save results to 'output' directory
-Literate.ConvertDirectory
-  (source, projTemplate, source + "\\output", parameters=projInfo)
+  [ "fsdocs-authors", "Tomas Petricek"
+    "fsdocs-source-link", "https://github.com/fsprojects/FSharp.Formatting"
+    "fsdocs-collection-name", "F# Formatting" ]
 
 (**
 

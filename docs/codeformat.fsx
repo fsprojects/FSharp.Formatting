@@ -15,7 +15,7 @@
 #endif // IPYNB
 
 (**
-F# Formatting: Code formatting
+Code formatting
 ==============================
 
 This page demonstrates how to use `FSharp.Formatting.CodeFormat.dll` to tokenize 

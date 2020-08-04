@@ -4,16 +4,21 @@ open CommandLine
 
 open System
 open System.Diagnostics
-open System.Runtime.InteropServices
 open System.IO
-open System.Text
+open System.Globalization
+open System.Reflection
+open System.Runtime.InteropServices
 open System.Runtime.Serialization.Formatters.Binary
+open System.Text
 
 open FSharp.Formatting.Common
+open FSharp.Formatting.HtmlModel
+open FSharp.Formatting.HtmlModel.Html
 open FSharp.Formatting.Literate
 open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.CommandTool.Common
+open FSharp.Formatting.Templating
 
 open Dotnet.ProjInfo
 open Dotnet.ProjInfo.Workspace
@@ -98,8 +103,38 @@ module Crack =
 
         exitCode, (workingDir, exePath, args)
 
+    type CrackedProjectInfo =
+        { ProjectFileName : string
+          TargetPath : string option
+          IsTestProject : bool
+          IsLibrary : bool
+          IsPackable : bool
+          FsDocsSourceFolder : string option
+          FsDocsSourceRepository : string option
+          RepositoryUrl : string option
+          RepositoryType : string option
+          RepositoryBranch : string option
+          UsesMarkdownComments: bool
+          FsDocsCollectionNameLink : string option
+          FsDocsLicenseLink : string option
+          FsDocsReleaseNotesLink : string option
+          FsDocsLogoLink : string option
+          FsDocsLogoSource : string option
+          PackageProjectUrl : string option
+          Authors : string option
+          GenerateDocumentationFile : bool
+          //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+          //Description : string option
+          PackageLicenseExpression : string option
+          PackageTags : string option
+          Copyright : string option
+          PackageVersion : string option
+          PackageIconUrl : string option
+          //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
+          //PackageReleaseNotes : string option
+          RepositoryCommit : string option }
 
-    let getTargetFromProjectFile slnDir (file : string) =
+    let crackProjectFile slnDir (file : string) : CrackedProjectInfo =
 
         let projDir = Path.GetDirectoryName(file)
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
@@ -111,6 +146,14 @@ module Crack =
               "IsTestProject"
               "IsPackable"
               "RepositoryUrl"
+              "UsesMarkdownComments"
+              "FsDocsCollectionNameLink"
+              "FsDocsLogoSource"
+              "FsDocsLogoLink"
+              "FsDocsLicenseLink"
+              "FsDocsReleaseNotesLink"
+              "FsDocsSourceFolder"
+              "FsDocsSourceRepository"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -143,35 +186,40 @@ module Crack =
         let result = file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
-        printfn "msgs = %A" msgs
+        //printfn "msgs = %A" msgs
         match result with
         | Ok [gpResult] ->
             match gpResult with
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
-                let msbuildPropBool prop = props |> Map.tryFind prop |> Option.bind msbuildPropBool
+                let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
+                let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
-                {| ProjectFileName = file
-                   TargetPath = props |> Map.tryFind "TargetPath"
+                {  ProjectFileName = file
+                   TargetPath = msbuildPropString "TargetPath"
                    IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                   IsLibrary = props |> Map.tryFind "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
+                   IsLibrary = msbuildPropString "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                   RepositoryUrl = props |> Map.tryFind "RepositoryUrl" 
-                   RepositoryType = props |> Map.tryFind "RepositoryType" 
-                   RepositoryBranch = props |> Map.tryFind "RepositoryBranch" 
-                   PackageProjectUrl = props |> Map.tryFind "PackageProjectUrl" 
-                   Authors = props |> Map.tryFind "Authors" 
+                   RepositoryUrl = msbuildPropString "RepositoryUrl" 
+                   RepositoryType = msbuildPropString "RepositoryType" 
+                   RepositoryBranch = msbuildPropString "RepositoryBranch" 
+                   FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink" 
+                   FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder" 
+                   FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository" 
+                   FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink" 
+                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink" 
+                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink" 
+                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource" 
+                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
+                   PackageProjectUrl = msbuildPropString "PackageProjectUrl" 
+                   Authors = msbuildPropString "Authors" 
                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
-                   //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-                   //Description = props |> Map.tryFind "Description" 
-                   PackageLicenseExpression = props |> Map.tryFind "PackageLicenseExpression" 
-                   PackageTags = props |> Map.tryFind "PackageTags" 
-                   Copyright = props |> Map.tryFind "Copyright"
-                   PackageVersion = props |> Map.tryFind "PackageVersion"
-                   PackageIconUrl = props |> Map.tryFind "PackageIconUrl"
-                   //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
-                   //PackageReleaseNotes = props |> Map.tryFind "PackageReleaseNotes"
-                   RepositoryCommit = props |> Map.tryFind "RepositoryCommit" |}
+                   PackageLicenseExpression = msbuildPropString "PackageLicenseExpression" 
+                   PackageTags = msbuildPropString "PackageTags" 
+                   Copyright = msbuildPropString "Copyright"
+                   PackageVersion = msbuildPropString "PackageVersion"
+                   PackageIconUrl = msbuildPropString "PackageIconUrl"
+                   RepositoryCommit = msbuildPropString "RepositoryCommit" }
                 
             | Ok ok -> failwithf "huh? ok = %A" ok
             | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
@@ -187,19 +235,18 @@ module Crack =
         | Error d ->
             failwithf "cannot load the sln: %A" d
 
-
-    let crackProjects projects =
-          let slnDir = Path.GetFullPath "."
+    let crackProjects (userRoot, userCollectionName, userParameters, projects) =
+        let slnDir = Path.GetFullPath "."
         
-          //printfn "x.projects = %A" x.projects
-          let overallProjectName, projectFiles =
+        //printfn "x.projects = %A" x.projects
+        let collectionName, projectFiles =
             match projects with
             | [] ->
                 match Directory.GetFiles(slnDir, "*.sln") with
                 | [| sln |] ->
                     printfn "getting projects from solution file %s" sln
-                    let overallProjectName = Path.GetFileNameWithoutExtension(sln)
-                    overallProjectName, getProjectsFromSlnFile sln
+                    let collectionName = defaultArg userCollectionName (Path.GetFileNameWithoutExtension(sln))
+                    collectionName, getProjectsFromSlnFile sln
                 | _ -> 
                     let projectFiles =
                         [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
@@ -208,43 +255,47 @@ module Crack =
                              for d2 in Directory.EnumerateDirectories(d) do
                                 yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
 
-                    let overallProjectName = 
-                        match projectFiles with
-                        | [ file1 ] -> Path.GetFileNameWithoutExtension(file1)
-                        | _ -> Path.GetFileName(slnDir)
+                    let collectionName = 
+                        defaultArg userCollectionName 
+                           (match projectFiles with
+                            | [ file1 ] -> Path.GetFileNameWithoutExtension(file1)
+                            | _ -> Path.GetFileName(slnDir))
 
-                    overallProjectName, projectFiles
+                    collectionName, projectFiles
                     
             | projectFiles -> 
-                let overallProjectName = Path.GetFileName(slnDir)
-                overallProjectName, projectFiles
+                let collectionName = Path.GetFileName(slnDir)
+                collectionName, projectFiles
     
           //printfn "projects = %A" projectFiles
-          let projectFiles =
+        let projectFiles =
             projectFiles |> List.choose (fun s ->
                 if s.Contains(".Tests") || s.Contains("test") then
                     printfn "skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
                     None
                 else
                     Some s)
-          printfn "filtered projects = %A" projectFiles
-          if projectFiles.Length = 0 then
+
+        printfn "filtered projects = %A" projectFiles
+        if projectFiles.Length = 0 then
             printfn "no project files found, no API docs will be generated"
-          printfn "cracking projects..." 
-          let projectInfos =
+
+        printfn "cracking projects..." 
+        let projectInfos =
             projectFiles
             |> Array.ofList
             |> Array.Parallel.choose (fun p -> 
                 try
-                   Some (getTargetFromProjectFile slnDir p)
+                   Some (crackProjectFile slnDir p)
                 with e -> 
                    printfn "skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
                    None)
             |> Array.toList
-          printfn "projectInfos = %A" projectInfos
-          let projectInfos =
-            projectInfos
-            |> List.choose (fun info ->
+
+        //printfn "projectInfos = %A" projectInfos
+        let projectInfos =
+              projectInfos
+              |> List.choose (fun info ->
                 let shortName = Path.GetFileName info.ProjectFileName
                 if info.TargetPath.IsNone then
                     printfn "skipping project '%s' because it doesn't have a target path" shortName
@@ -260,55 +311,255 @@ module Crack =
                     None
                 else
                     Some info)
-          printfn "projectInfos = %A" projectInfos
-          let projectOutputs =
-            projectInfos |> List.map (fun info -> info.TargetPath.Value)
 
-          let tryFindValue f nm tag  =
-            projectInfos
-            |> List.tryPick f
-            |> function
-                | Some url -> url
-                | None ->
-                    printfn "no project defined <%s>, the {{%s}} substitution will not be replaced in any HTML templates" nm tag ;
-                    "{{" + tag + "}}"
-          let packageProjectUrl = tryFindValue (fun info -> info.PackageProjectUrl) "PackageProjectUrl" "root" 
-          let authors = tryFindValue (fun info -> info.Authors) "Authors" "authors"
-          //let description = tryFindValue (fun info -> info.Description) "Description" "description"
-          let repoUrlOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) 
-          let repoTypeOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryType) 
-          let repoBranchOption = projectInfos |> List.tryPick  (fun info -> info.RepositoryBranch) 
-          let repoUrl = tryFindValue (fun info -> info.RepositoryUrl) "RepositoryUrl" "repository-url"
-          let repoBranch = tryFindValue (fun info -> info.RepositoryBranch) "RepositoryBranch" "repository-branch"
-          let repoType = tryFindValue (fun info -> info.RepositoryType) "RepositoryType" "repository-type"
-          let packageLicenseExpression = tryFindValue (fun info -> info.PackageLicenseExpression) "PackageLicenseExpression" "package-license"
-          let packageTags = tryFindValue (fun info -> info.PackageTags) "PackageTags" "package-tags"
-          let packageVersion = tryFindValue (fun info -> info.PackageVersion) "PackageVersion" "package-version"
-          let packageIconUrl = tryFindValue (fun info -> info.PackageIconUrl) "PackageIconUrl" "package-icon-url"
-          //let packageReleaseNotes = tryFindValue (fun info -> info.PackageReleaseNotes) "PackageReleaseNotes" "package-release-notes"
-          let repositoryCommit = tryFindValue (fun info -> info.RepositoryCommit) "RepositoryCommit" "repository-commit"
-          let copyright = tryFindValue (fun info -> info.Copyright) "Copyright" "copyright"
-          let parameters = 
-            [ "project-name", overallProjectName
-              "root", packageProjectUrl
-              "logo-link", packageProjectUrl
-              "project-name-link", packageProjectUrl
-              "authors", authors
-              //"description", description
-              "repository-url", repoUrl
-              "repository-branch", repoBranch
-              "repository-type", repoType
-              "package-license", packageLicenseExpression
-              //"package-release-notes", packageReleaseNotes
-              "package-icon-url", packageIconUrl
-              "package-tags", packageTags
-              "package-version", packageVersion
-              "repository-commit", repositoryCommit
-              "copyright", copyright]
-          printfn "projectOutputs = %A" projectOutputs
-          let paths = [ for tp in projectOutputs -> Path.GetDirectoryName tp ]
+        //printfn "projectInfos = %A" projectInfos
 
-          overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption, repoTypeOption, repoBranchOption
+        if projectInfos.Length = 0 && projectFiles.Length > 0 then
+            printfn "Error while cracking project files, no project files succeeded, exiting."
+            exit 1
+
+        let param (ParamKey tag as key) v =
+            match v with
+            | Some v -> (key, v)
+            | None -> (key, "{{" + tag + "}}")
+
+        // For the 'docs' directory we use the best info we can find from across all projects
+        let projectInfoForDocs =
+              {
+                  ProjectFileName = ""
+                  TargetPath = None
+                  IsTestProject = false
+                  IsLibrary = true
+                  IsPackable = true
+                  RepositoryUrl =  projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl)  
+                  RepositoryType =  projectInfos |> List.tryPick  (fun info -> info.RepositoryType)
+                  RepositoryBranch = projectInfos |> List.tryPick  (fun info -> info.RepositoryBranch)
+                  FsDocsCollectionNameLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsCollectionNameLink)
+                  FsDocsLicenseLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsLicenseLink)
+                  FsDocsReleaseNotesLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsReleaseNotesLink)
+                  FsDocsLogoLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsLogoLink)
+                  FsDocsLogoSource = projectInfos |> List.tryPick  (fun info -> info.FsDocsLogoSource)
+                  FsDocsSourceFolder = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceFolder)
+                  FsDocsSourceRepository = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceRepository)
+                  PackageProjectUrl = projectInfos |> List.tryPick  (fun info -> info.PackageProjectUrl)
+                  Authors = projectInfos |> List.tryPick  (fun info -> info.Authors)
+                  GenerateDocumentationFile = true
+                  PackageLicenseExpression = projectInfos |> List.tryPick  (fun info -> info.PackageLicenseExpression)
+                  PackageTags = projectInfos |> List.tryPick  (fun info -> info.PackageTags)
+                  UsesMarkdownComments = false
+                  Copyright = projectInfos |> List.tryPick  (fun info -> info.Copyright)
+                  PackageVersion = projectInfos |> List.tryPick  (fun info -> info.PackageVersion)
+                  PackageIconUrl = projectInfos |> List.tryPick  (fun info -> info.PackageIconUrl)
+                  RepositoryCommit = projectInfos |> List.tryPick  (fun info -> info.RepositoryCommit)
+              }
+
+        let parametersForProjectInfo (info: CrackedProjectInfo) =
+              userParameters @
+              [ param ParamKeys.``root`` (Some userRoot)
+                param ParamKeys.``fsdocs-authors`` info.Authors
+                param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
+                param ParamKeys.``fsdocs-collection-name-link`` (Some (defaultArg info.FsDocsCollectionNameLink userRoot))
+                param ParamKeys.``fsdocs-copyright`` info.Copyright
+                param ParamKeys.``fsdocs-navbar-position`` (Some "fixed-right")
+                param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" userRoot)))
+                param ParamKeys.``fsdocs-logo-link`` (Some (defaultArg info.FsDocsLogoLink userRoot))
+                param ParamKeys.``fsdocs-license-link`` (Option.orElse info.FsDocsLicenseLink (Option.map (sprintf "%s/blob/master/LICENCE.md") info.RepositoryUrl))
+                param ParamKeys.``fsdocs-release-notes-link`` (Option.orElse info.FsDocsReleaseNotesLink (Option.map (sprintf "%s/blob/master/RELEASE_NOTES.md") info.RepositoryUrl))
+                param ParamKeys.``fsdocs-package-project-url`` info.PackageProjectUrl
+                param ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
+                param ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
+                param ParamKeys.``fsdocs-package-tags`` info.PackageTags
+                param ParamKeys.``fsdocs-package-version`` info.PackageVersion
+                param ParamKeys.``fsdocs-repository-link`` info.RepositoryUrl
+                param ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
+                param ParamKeys.``fsdocs-repository-type`` info.RepositoryType
+                param ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
+              ]
+
+        let projects =  
+            [ for info in projectInfos do
+                 let parameters = parametersForProjectInfo info
+                 (info.TargetPath.Value, info.RepositoryUrl, info.RepositoryBranch, info.RepositoryType,
+                  info.UsesMarkdownComments, info.FsDocsSourceFolder, info.FsDocsSourceRepository, parameters) ]
+              
+        let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
+
+        let docsParameters = parametersForProjectInfo projectInfoForDocs
+
+        collectionName, projects, paths, docsParameters
+
+/// Convert markdown, script and other content into a static site
+type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch) =
+
+  let ensureDirectory path =
+    let dir = DirectoryInfo(path)
+    if not dir.Exists then dir.Create()
+
+  let createImageSaver (outputDirectory) =
+        // Download images so that they can be embedded
+        let wc = new System.Net.WebClient()
+        let mutable counter = 0
+        fun (url:string) ->
+            if url.StartsWith("http") || url.StartsWith("https") then
+                counter <- counter + 1
+                let ext = Path.GetExtension(url)
+                let url2 = sprintf "savedimages/saved%d%s" counter ext
+                let fn = sprintf "%s/%s" outputDirectory url2
+
+                ensureDirectory (sprintf "%s/savedimages" outputDirectory)
+                printfn "downloading %s --> %s" url fn
+                wc.DownloadFile(url, fn)
+                url2
+            else url
+
+  let processFile (inputFile: string) outputKind template outputPrefix imageSaver =
+        [
+          let name = Path.GetFileName(inputFile)
+          if name.StartsWith(".") then 
+              printfn "skipping file %s" inputFile
+          elif name.StartsWith "_template" then 
+              ()
+          else
+              let isFsx = inputFile.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
+              let isMd = inputFile.EndsWith(".md", true, CultureInfo.InvariantCulture)
+
+              // A _template.tex or _template.pynb is needed to generate those files
+              match outputKind, template with
+              | OutputKind.Pynb, None -> ()
+              | OutputKind.Latex, None -> ()
+              | OutputKind.Fsx, None -> ()
+              | _ ->
+
+              let imageSaverOpt = 
+                match outputKind with
+                | OutputKind.Pynb when saveImages <> Some false -> Some imageSaver
+                | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
+                | OutputKind.Fsx when saveImages = Some true -> Some imageSaver
+                | OutputKind.Html when saveImages = Some true -> Some imageSaver
+                | _ -> None
+
+              let ext = outputKind.Extension
+              let relativeOutputFile =
+                  if isFsx || isMd then
+                      let basename = Path.GetFileNameWithoutExtension(inputFile)
+                      Path.Combine(outputPrefix, sprintf "%s.%s" basename ext)
+                  else
+                      Path.Combine(outputPrefix, name)
+
+              // Update only when needed - template or file or tool has changed
+              let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, relativeOutputFile))
+              let changed =
+                  let fileChangeTime = try File.GetLastWriteTime(inputFile) with _ -> DateTime.MaxValue
+                  let templateChangeTime =
+                      match template with
+                      | Some t when isFsx || isMd -> try File.GetLastWriteTime(t) with _ -> DateTime.MaxValue
+                      | _ -> DateTime.MinValue
+                  let toolChangeTime =
+                      try File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location) with _ -> DateTime.MaxValue
+                  let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
+                  let generateTime = try File.GetLastWriteTime(outputFile) with _ -> System.DateTime.MinValue
+                  changeTime > generateTime
+
+              // If it's changed or we don't know anything about it
+              // we have to compute the model to get the global parameters right
+              let mainRun = (outputKind = OutputKind.Html)
+              let haveModel = previous.TryFind inputFile
+              if changed || (watch && mainRun && haveModel.IsNone) then
+                  if isFsx then
+                      printfn "preparing %s --> %s" inputFile relativeOutputFile
+                      let model =
+                        Literate.ParseAndTransformScriptFile
+                          (inputFile, output = relativeOutputFile, outputKind = outputKind,
+                            ?formatAgent = None, ?prefix = None, ?fscoptions = None,
+                            ?lineNumbers = lineNumbers, references=false, ?fsiEvaluator = fsiEvaluator,
+                            parameters = parameters,
+                            generateAnchors = true,
+                            //?customizeDocument = customizeDocument,
+                            //?tokenKindToCss = tokenKindToCss,
+                            ?imageSaver=imageSaverOpt)
+
+                      yield ((if mainRun then Some (inputFile, model) else None),
+                              (fun p ->
+                                 printfn "writing %s --> %s" inputFile relativeOutputFile
+                                 ensureDirectory (Path.GetDirectoryName(outputFile))
+                                 SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, outputFile)))
+
+                  elif isMd then
+                      printfn "preparing %s --> %s" inputFile relativeOutputFile
+                      let model =
+                        Literate.ParseAndTransformMarkdownFile
+                          (inputFile, output = relativeOutputFile, outputKind = outputKind,
+                            ?formatAgent = None, ?prefix = None, ?fscoptions = None,
+                            ?lineNumbers = lineNumbers, references=false,
+                            parameters = parameters,
+                            generateAnchors = true,
+                            //?customizeDocument=customizeDocument,
+                            //?tokenKindToCss = tokenKindToCss,
+                            ?imageSaver=imageSaverOpt)
+
+                      yield ( (if mainRun then Some (inputFile, model) else None),
+                              (fun p ->
+                                  printfn "writing %s --> %s" inputFile relativeOutputFile
+                                  ensureDirectory (Path.GetDirectoryName(outputFile))
+                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, outputFile)))
+
+                  else 
+                    if mainRun then
+                      yield (None, 
+                              (fun _p ->
+                                  printfn "copying %s --> %s" inputFile relativeOutputFile
+                                  ensureDirectory (Path.GetDirectoryName(outputFile))
+                                  // check the file still exists for the incremental case
+                                  if (File.Exists inputFile) then
+                                     // ignore errors in watch mode
+                                     try
+                                       File.Copy(inputFile, outputFile, true)
+                                       File.SetLastWriteTime(outputFile,DateTime.Now)
+                                     with _ when watch -> () ))
+              else
+                 if mainRun then
+                     //printfn "skipping unchanged file %s" inputFile
+                     yield (Some (inputFile, haveModel.Value), (fun _ -> ()))
+          ]
+  let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) indir outputPrefix =
+       [
+        // Look for the presence of the _template.* files to activate the
+        // generation of the content.
+        let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
+        let htmlTemplate = if (try File.Exists(possibleNewHtmlTemplate) with _ -> false) then Some possibleNewHtmlTemplate else htmlTemplate
+        let possibleNewPynbTemplate = Path.Combine(indir, "_template.ipynb")
+        let pynbTemplate = if (try File.Exists(possibleNewPynbTemplate) with _ -> false) then Some possibleNewPynbTemplate else pynbTemplate
+        let possibleNewFsxTemplate = Path.Combine(indir, "_template.fsx")
+        let fsxTemplate = if (try File.Exists(possibleNewFsxTemplate) with _ -> false) then Some possibleNewFsxTemplate else fsxTemplate
+        let possibleNewLatexTemplate = Path.Combine(indir, "_template.tex")
+        let texTemplate = if (try File.Exists(possibleNewLatexTemplate) with _ -> false) then Some possibleNewLatexTemplate else texTemplate
+
+        ensureDirectory outputPrefix
+
+        let inputs = Directory.GetFiles(indir, "*") 
+        let imageSaver = createImageSaver outputPrefix
+
+        for input in inputs do
+            yield! processFile input OutputKind.Html htmlTemplate outputPrefix imageSaver
+            yield! processFile input OutputKind.Latex texTemplate outputPrefix imageSaver
+            yield! processFile input OutputKind.Pynb pynbTemplate outputPrefix imageSaver
+            yield! processFile input OutputKind.Fsx fsxTemplate outputPrefix imageSaver
+
+        for subdir in Directory.EnumerateDirectories(indir) do
+            let name = Path.GetFileName(subdir)
+            if name.StartsWith "." then
+                printfn "skipping directory %s" subdir
+            else
+                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
+       ]
+
+  member _.Convert(input, htmlTemplate, extraInputs) =
+
+    let inputDirectories = extraInputs @ [(input, ".") ]
+    [
+      for (inputDirectory, outputPrefix) in inputDirectories do
+        yield! processDirectory (htmlTemplate, None, None, None) inputDirectory outputPrefix
+    ]
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -357,22 +608,25 @@ type CoreBuildOptions(watch) =
     [<Option("eval", Default=false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = false with get, set
 
+    [<Option("qualify", Default= false, Required = false, HelpText = "In API doc generation qualify the output by the collection name, e.g. 'reference/FSharp.Core/...' instead of 'reference/...' .")>]
+    member val qualify = false with get, set
+
     [<Option("saveimages", Default= "none", Required = false, HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
     member val saveImages = "none" with get, set
 
-    [<Option("sourcefolder", Required = false, HelpText = "Source folder at time of component build (defaults to current directory).")>]
+    [<Option("sourcefolder", Required = false, HelpText = "Source folder at time of component build (defaults to value of `<FsDocsSourceFolder>` from project file, else current directory)")>]
     member val sourceFolder = "" with get, set
 
-    [<Option("sourcerepo", Required = false, HelpText = "Source repository for github links.")>]
+    [<Option("sourcerepo", Required = false, HelpText = "Source repository for github links (defaults to value of `<FsDocsSourceRepository>` from project file, else `<RepositoryUrl>/tree/<RepositoryBranch>` for Git repositories)")>]
     member val sourceRepo = "" with get, set
 
-    [<Option("nolinenumbers", Required = false, HelpText = "Don't add line numbers, default is to add line numbers.")>]
-    member val nolinenumbers = false with get, set
+    [<Option("linenumbers", Default=false, Required = false, HelpText = "Add line numbers.")>]
+    member val linenumbers = false with get, set
 
     [<Option("nonpublic", Default=false, Required = false, HelpText = "The tool will also generate documentation for non-public members")>]
     member val nonpublic = false with get, set
 
-    [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style.")>]
+    [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)")>]
     member val mdcomments = false with get, set
 
     [<Option("parameters", Required = false, HelpText = "Additional substitution parameters for templates.")>]
@@ -381,58 +635,104 @@ type CoreBuildOptions(watch) =
     [<Option("nodefaultcontent", Required = false, HelpText = "Do not copy default content styles, javascript or use default templates.")>]
     member val nodefaultcontent = false with get, set
 
+    [<Option("fscoptions", Required=false, HelpText = "Extra flags for F# compiler analysis, e.g. dependency resolution.")>]
+    member val fscoptions = Seq.empty<string> with get, set
+
     [<Option("clean", Required = false, Default=false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
     member x.Execute() =
-        let mutable res = 0
+        let protect f = 
+            try
+                f()
+                true
+            with
+                | :?AggregateException as ex ->
+                    Log.errorf "received exception :\n %A" ex
+                    printfn "Error : \n%O" ex
+                    false
+                | _ as ex ->
+                    Log.errorf "received exception :\n %A" ex
+                    printfn "Error : \n%O" ex
+                    false
 
-        let (overallProjectName, projectOutputs, paths, parameters, packageProjectUrl, repoUrlOption, repoTypeOption, repoBranchOption), _key =
+
+        /// The parameters as given by the user
+        let userParameters =
+            (evalPairwiseStringsNoOption x.parameters 
+                |> List.map (fun (a,b) -> (ParamKey a, b)))
+
+        // Adjust the user parameters for 'watch' mode root
+        let root, userParameters =
+            if watch then
+                let r = sprintf "http://localhost:%d/" x.port_option
+                if (dict userParameters).ContainsKey(ParamKeys.root) then
+                   printfn "ignoring user-specified root since in watch mode, root = %s" r
+                let userParameters =
+                    [ ParamKeys.``root``,  r] @
+                    (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.``root``))
+                r, userParameters
+            else
+                let r =
+                    match (dict userParameters).TryGetValue(ParamKeys.root) with
+                    | true, v -> v
+                    | _ -> "/"
+                r, userParameters
+
+        let userCollectionName = match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with true, v -> Some v | _ -> None
+
+        let (collectionName, crackedProjects, paths, docsParameters), _key =
           let projects = Seq.toList x.projects
           let cacheFile = ".fsdocs/cache"
-          let key1 = projects, (projects |> List.map (fun p -> try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now) |> List.toArray)
+          let getTime p = try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now
+          let key1 =
+             (root, x.parameters, projects,
+              getTime (typeof<CoreBuildOptions>.Assembly.Location),
+              (projects |> List.map getTime |> List.toArray))
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
-           (fun () ->
-            if x.noapidocs then
-                ("", [], [], [], "", None, None, None), key1
-            else
-                Crack.crackProjects projects, key1)
+           (fun () -> Crack.crackProjects (root, userCollectionName, userParameters, projects), key1)
 
-        let parameters = evalPairwiseStringsNoOption x.parameters @ parameters
-        let packageProjectUrl, parameters =
-            if watch then
-                let packageProjectUrl = sprintf "http://localhost:%d" x.port_option
-                let parameters = ["root",  packageProjectUrl] @ (parameters |> List.filter (fun (a,b) -> a <> "root"))
-                packageProjectUrl, parameters
-            else
-                packageProjectUrl, parameters
+        let apiDocInputs =
+            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
+                let sourceRepo =
+                    match projectSourceRepo with
+                    | Some s -> Some s
+                    | None -> 
+                    match evalString x.sourceRepo with
+                    | Some v -> Some v
+                    | None ->
+                        //printfn "repoBranchOption = %A" repoBranchOption
+                        match repoUrlOption, repoBranchOption, repoTypeOption with
+                        | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
+                            url + "/" + "tree/" +  branch |> Some
+                        | Some url, _, Some "git" ->
+                            url + "/" + "tree/" + "master" |> Some
+                        | Some url, _, None -> Some url
+                        | _ -> None
 
-        for pn, p in parameters do
-            printfn "parameter %s = %s" pn p
+                let sourceFolder =
+                    match projectSourceFolder with
+                    | Some s -> s
+                    | None -> 
+                    match evalString x.sourceFolder with
+                    | None -> Environment.CurrentDirectory
+                    | Some v -> v
+
+                //printfn "sourceFolder = '%s'" sourceFolder
+                //printfn "sourceRepo = '%A'" sourceRepo
+                { Path = dllFile;
+                  XmlFile = None;
+                  SourceRepo = sourceRepo;
+                  SourceFolder = Some sourceFolder;
+                  Parameters = Some projectParameters;
+                  MarkdownComments = x.mdcomments || projectMarkdownComments;
+                  PublicOnly = not x.nonpublic } ]
 
         let output =
            if x.output = "" then
               if watch then "tmp/watch" else "output"
            else x.output
-
-        let sourceRepo =
-            match evalString x.sourceRepo with
-            | Some v -> Some v
-            | None ->
-                printfn "repoBranchOption = %A" repoBranchOption
-                match repoUrlOption, repoBranchOption, repoTypeOption with
-                | Some url, Some branch, Some "git" when not (String.IsNullOrWhiteSpace branch) ->
-                    url + "/" + "tree/" +  branch |> Some
-                | Some url, _, Some "git" ->
-                    url + "/" + "tree/" + "master" |> Some
-                | Some url, _, None -> Some url
-                | _ -> None
-
-        let sourceFolder = 
-            match evalString x.sourceFolder with
-            | None -> Environment.CurrentDirectory
-            | Some v -> v
 
         // This is in-package
         let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
@@ -468,39 +768,90 @@ type CoreBuildOptions(watch) =
                       printfn "no extra content found at %s or %s" attempt1 attempt2
             ]
 
-        let mutable latestGlobalParameters = [ ]
-        let runConvert () =
-            try
+        // The incremental state (as well as the files written to disk)
+        let mutable latestApiDocGlobalParameters = [ ]
+        let mutable latestApiDocPhase2 = (fun _ -> ())
+        let mutable latestApiDocSearchIndexEntries = [| |]
+        let mutable latestDocContentPhase2 = (fun _ -> ())
+        let mutable latestDocContentResults = Map.empty
+        let mutable latestDocContentSearchIndexEntries = [| |]
+        let mutable latestDocContentGlobalParameters = []
+
+        // Actions to read out the incremental state
+        let getLatestGlobalParameters() =
+            latestApiDocGlobalParameters @
+            latestDocContentGlobalParameters
+
+        let regenerateSearchIndex() =
+            let index = Array.append latestApiDocSearchIndexEntries  latestDocContentSearchIndexEntries
+            let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
+            File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
+
+        // Incrementally convert content
+        let runDocContentPhase1 () =
+            protect (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
-                Literate.ConvertDirectory(
-                    x.input,
-                    ?htmlTemplate=defaultTemplate,
-                    extraInputs = extraInputs,
-                    generateAnchors = true,
-                    outputDirectory = output,
-                    ?formatAgent = None,
-                    ?lineNumbers = Some (not x.nolinenumbers),
-                    recursive = true,
-                    references = false,
-                    ?saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None),
-                    ?fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> _) else None),
-                    parameters = latestGlobalParameters @ parameters
+                let saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
+                let fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> IFsiEvaluator) else None)
+                let models =
+                    DocContent(output, latestDocContentResults,
+                        Some x.linenumbers, fsiEvaluator, docsParameters,
+                        saveImages, watch).Convert(x.input, defaultTemplate, extraInputs)
+
+                let extrasForSearchIndex =
+                    [| for (thing, _action) in models do
+                         match thing with
+                         | Some (_inputFile, model) ->
+                            match model.IndexText with
+                            | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
+                            | _ -> ()
+                         | _ -> () |]
+
+                let results =
+                    Map.ofList [
+                       for (thing, _action) in models do
+                          match thing with
+                          | Some res -> res
+                          | None -> () ]
+
+                let listOfDocs =
+                    let items =
+                        [ for (thing, _action) in models do
+                             match thing with
+                             | Some (inputFile, model) when model.OutputKind = OutputKind.Html && not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
+                             | _ -> () ]
+
+                    [ if models.Length > 0 then
+                         li [Class "nav-header"] [!! "Documentation"]
+                      for model in items do
+                         let link = sprintf "%s%s" root model.OutputPath
+                         li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
+                    ]
+                    |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
+
+                latestDocContentResults <- results
+                latestDocContentSearchIndexEntries <- extrasForSearchIndex
+                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` ,listOfDocs ]
+                latestDocContentPhase2 <- (fun globals ->
+
+                    for (_thing, action) in models do
+                        action globals
+
                 )
+            )
 
-            with
-                | :?AggregateException as ex ->
-                    Log.errorf "received exception :\n %A" ex
-                    printfn "Error : \n%O" ex
-                    res <- -1
-                | _ as ex ->
-                    Log.errorf "received exception :\n %A" ex
-                    printfn "Error : \n%O" ex
-                    res <- -1
+        let runDocContentPhase2 () =
+            protect (fun () ->
+                let globals = getLatestGlobalParameters()
+                latestDocContentPhase2 globals
+            )
 
-        let runGenerate () =
-            try
-                if projectOutputs.Length > 0 then
+        // Incrementally generate API docs (actually regenerates everything)
+        let runGeneratePhase1 () =
+            protect (fun () ->
+                if crackedProjects.Length > 0 then
+
                     let initialTemplate2 =
                         let t1 = Path.Combine(x.input, "reference", "_template.html")
                         let t2 = Path.Combine(x.input, "_template.html")
@@ -518,70 +869,110 @@ type CoreBuildOptions(watch) =
                                 None
 
                     if not x.noapidocs then
-                        printfn "sourceFolder = %s" sourceFolder
-                        printfn "sourceRepo = %A" sourceRepo
-                        let outdir = Path.Combine(output, "reference")
-                        let model, index =
-                          ApiDocs.GenerateHtml (
-                            dllFiles = projectOutputs,
-                            outDir = outdir,
-                            parameters = parameters,
+
+                        let globals, index, phase2 =
+                          ApiDocs.GenerateHtmlPhased (
+                            inputs = apiDocInputs,
+                            output = output,
+                            collectionName = collectionName,
+                            parameters = docsParameters,
+                            qualify = x.qualify,
                             ?template = initialTemplate2,
-                            ?sourceRepo = sourceRepo,
-                            //?sigWidth = sigWidth,
-                            rootUrl = packageProjectUrl,
-                            sourceFolder = sourceFolder,
-                            libDirs = paths,
-                            ?publicOnly = Some (not x.nonpublic),
-                            ?mdcomments = Some x.mdcomments
+                            otherFlags = Seq.toList x.fscoptions,
+                            root = root,
+                            libDirs = paths
                             )
-                        let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
-                        latestGlobalParameters <- ApiDocs.GetGlobalParameters(model)
 
-                        File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
+                        latestApiDocSearchIndexEntries <- index
+                        latestApiDocGlobalParameters <- globals
+                        latestApiDocPhase2 <- phase2 
+            )
 
-            with
-                | :?AggregateException as ex ->
-                    Log.errorf "received exception :\n %A" ex
-                    printfn "Error : \n%O" ex
-                    res <- -1
-                | _ as ex ->
-                    Log.errorf "received exception :\n %A" ex
-                    printfn "Error : \n%O" ex
-                    res <- -1
+        let runGeneratePhase2 () =
+            protect (fun () ->
+                let globals = getLatestGlobalParameters()
+                latestApiDocPhase2 globals 
+                regenerateSearchIndex()
+            )
 
-        use docsWatcher = (if watch then new FileSystemWatcher(x.input) else null )
-        use templateWatcher = (if watch then new FileSystemWatcher(x.input) else null )
-        let projectOutputWatchers = (if watch then [ for projectOuput in projectOutputs -> (new FileSystemWatcher(x.input), projectOuput) ] else [] )
-        use _holder = { new IDisposable with member __.Dispose() = for (p,_) in projectOutputWatchers do p.Dispose() }
+        //-----------------------------------------
+        // Clean
 
-        // Only one update at a time
-        let monitor = obj()
-        // One of each kind of request at a time
-        let mutable docsQueued = true
-        let mutable generateQueued = true
+        let fullOut = Path.GetFullPath output
+        let fullIn = Path.GetFullPath x.input
 
-        let docsDependenciesChanged = Event<_>()
-        docsDependenciesChanged.Publish.Add(fun () -> 
+        if x.clean then
+            let rec clean dir =
+                for file in Directory.EnumerateFiles(dir) do
+                    File.Delete file |> ignore
+                for subdir in Directory.EnumerateDirectories dir do
+                   if not (Path.GetFileName(subdir).StartsWith ".") then
+                       clean subdir
+            if output <> "/" && output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty output) then
+                try clean fullOut
+                with e -> printfn "warning: error during cleaning, continuing: %s" e.Message
+            else
+                printfn "warning: skipping cleaning due to strange output path: \"%s\"" output
+
+        if watch then
+            printfn "Building docs first time..." 
+
+        //-----------------------------------------
+        // Build
+
+        let ok =
+            let ok1 = runDocContentPhase1() 
+            let ok2 = runGeneratePhase1() 
+            let ok1 = ok1 && runDocContentPhase2() 
+            let ok2 = ok2 && runGeneratePhase2()
+            regenerateSearchIndex()
+            ok1 && ok2
+
+        //-----------------------------------------
+        // Watch
+
+        if watch then
+
+            use docsWatcher = new FileSystemWatcher(x.input)
+            use templateWatcher = new FileSystemWatcher(x.input)
+
+            let projectOutputWatchers = [ for input in apiDocInputs -> (new FileSystemWatcher(x.input), input.Path) ]
+            use _holder = { new IDisposable with member __.Dispose() = for (p,_) in projectOutputWatchers do p.Dispose() }
+
+            // Only one update at a time
+            let monitor = obj()
+            // One of each kind of request at a time
+            let mutable docsQueued = true
+            let mutable generateQueued = true
+
+            let docsDependenciesChanged = Event<_>()
+            docsDependenciesChanged.Publish.Add(fun () -> 
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..."  x.input
                     Async.Start(async {
-                      lock monitor (fun () ->
+                        do! Async.Sleep(300)
+                        lock monitor (fun () ->
                         docsQueued <- false
-                        runConvert()) }) ) 
+                        if runDocContentPhase1() then
+                            if runDocContentPhase2() then
+                                regenerateSearchIndex()
+                        ) }) ) 
 
-        let apiDocsDependenciesChanged = Event<_>()
-        apiDocsDependenciesChanged.Publish.Add(fun () -> 
+            let apiDocsDependenciesChanged = Event<_>()
+            apiDocsDependenciesChanged.Publish.Add(fun () -> 
                 if not generateQueued then
                     generateQueued <- true
                     printfn "Detected change in built outputs, scheduling rebuild of API docs..."  
                     Async.Start(async {
-                      lock monitor (fun () ->
+                        do! Async.Sleep(300)
+                        lock monitor (fun () ->
                         generateQueued <- false
-                        runGenerate()) }))
+                        if runGeneratePhase1() then
+                            if runGeneratePhase2() then
+                                regenerateSearchIndex()) }))
 
-        if watch then
+
             // Listen to changes in any input under docs
             docsWatcher.IncludeSubdirectories <- true
             docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
@@ -589,7 +980,7 @@ type CoreBuildOptions(watch) =
 
             // When _template.* change rebuild everything
             templateWatcher.IncludeSubdirectories <- true
-            templateWatcher.Filter <- "_template.*"
+            templateWatcher.Filter <- "_template.html"
             templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
             templateWatcher.Changed.Add (fun _ ->
                 docsDependenciesChanged.Trigger()
@@ -608,44 +999,26 @@ type CoreBuildOptions(watch) =
             for (pathWatcher, _path) in projectOutputWatchers do
                 pathWatcher.EnableRaisingEvents <- true
 
-        let fullOut = Path.GetFullPath output
-        let fullIn = Path.GetFullPath x.input
-        if x.clean then
-            let rec clean dir =
-                for file in Directory.EnumerateFiles(dir) do
-                    File.Delete file |> ignore
-                for subdir in Directory.EnumerateDirectories dir do
-                   if not (Path.GetFileName(subdir).StartsWith ".") then
-                       clean subdir
-            if output <> "/" && output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty output) then
-                try clean fullOut
-                with e -> printfn "warning: error during cleaning, continuing: %s" e.Message
-            else
-                printfn "warning: skipping cleaning due to strange output path: \"%s\"" output
-
-        if watch then
-            printfn "Building docs first time..." 
-
-        lock monitor (fun () -> runGenerate(); runConvert())
-        generateQueued <- false
-        docsQueued <- false
-        if watch && not x.noserver_option then
-            printfn "starting server on http://localhost:%d for content in %s" x.port_option fullOut
-            Serve.startWebServer fullOut x.port_option
-        if watch && not x.nolaunch_option then
-            let url = sprintf "http://localhost:%d/%s" x.port_option x.open_option
-            printfn "launching browser window to open %s" url
-            let OpenBrowser(url: string) =
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) then
-                    Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
-                elif (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) then
-                    Process.Start("xdg-open", url)  |> ignore
-                elif (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) then
-                    Process.Start("open", url) |> ignore
+            generateQueued <- false
+            docsQueued <- false
+            if not x.noserver_option then
+                printfn "starting server on http://localhost:%d for content in %s" x.port_option fullOut
+                Serve.startWebServer fullOut x.port_option
+            if not x.nolaunch_option then
+                let url = sprintf "http://localhost:%d/%s" x.port_option x.open_option
+                printfn "launching browser window to open %s" url
+                let OpenBrowser(url: string) =
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) then
+                        Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
+                    elif (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) then
+                        Process.Start("xdg-open", url)  |> ignore
+                    elif (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) then
+                        Process.Start("open", url) |> ignore
             
-            OpenBrowser (url)
-        waitForKey watch
-        res
+                OpenBrowser (url)
+            waitForKey watch
+
+        if ok then 0 else -1 
 
     abstract noserver_option : bool
     default x.noserver_option = false

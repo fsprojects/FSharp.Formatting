@@ -51,7 +51,7 @@ type FormattingContext =
 
 let smallBreak (ctx:FormattingContext) () =
   ctx.Writer.Write(ctx.Newline)
-let noBreak (ctx:FormattingContext) () = ()
+let noBreak (_ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec formatSpan (ctx:FormattingContext) = function 
@@ -222,7 +222,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
 and formatParagraphs ctx paragraphs = 
   let length = List.length paragraphs
   let ctx = { ctx with LineBreak = smallBreak ctx }
-  for last, paragraph in paragraphs |> Seq.mapi (fun i v -> (i = length - 1), v) do
+  for _last, paragraph in paragraphs |> Seq.mapi (fun i v -> (i = length - 1), v) do
     formatParagraph ctx paragraph
 
 /// Format Markdown document and write the result to 

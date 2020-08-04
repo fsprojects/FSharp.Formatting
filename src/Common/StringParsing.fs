@@ -93,11 +93,11 @@ module String =
 
 module StringPosition =
   /// Matches when a string is a whitespace or null
-  let (|WhiteSpace|_|) (s, n: MarkdownRange) = 
+  let (|WhiteSpace|_|) (s, _n: MarkdownRange) = 
     if String.IsNullOrWhiteSpace(s) then Some() else None
 
   /// Matches when a string does starts with non-whitespace
-  let (|Unindented|_|) (s:string, n:MarkdownRange) = 
+  let (|Unindented|_|) (s:string, _n:MarkdownRange) = 
     if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then Some() else None
       
   /// Returns a string trimmed from both start and end
@@ -127,7 +127,7 @@ module StringPosition =
     len, text.Substring(0, len).Replace("\t", "    ").Length, (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
   /// Matches when a string starts with any of the specified sub-strings
-  let (|StartsWithAny|_|) (starts:seq<string>) (text:string, n:MarkdownRange) = 
+  let (|StartsWithAny|_|) (starts:seq<string>) (text:string, _n:MarkdownRange) = 
     if starts |> Seq.exists (text.StartsWith) then Some() else None
 
   /// Matches when a string starts with the specified sub-string
@@ -141,7 +141,7 @@ module StringPosition =
 
   /// Matches when a string starts with the specified sub-string (ignoring whitespace at the start)
   /// The matched string is trimmed from all whitespace.
-  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string, n:MarkdownRange) =
+  let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start:string) (text:string, _n:MarkdownRange) =
     if text.Contains(start) then
       let beforeStart = text.Substring(0, text.IndexOf(start))
       if String.IsNullOrWhiteSpace (beforeStart) then
@@ -201,8 +201,8 @@ module StringPosition =
 
   /// Matches when a string consists of some number of 
   /// complete repetitions of a specified sub-string.
-  let (|EqualsRepeated|_|) (repeated, n:MarkdownRange) = function
-    | StartsWithRepeated repeated (n, ("", _)) -> Some()
+  let (|EqualsRepeated|_|) (repeated, _n:MarkdownRange) = function
+    | StartsWithRepeated repeated (_n, ("", _)) -> Some()
     | _ -> None 
 
 module List =
@@ -224,9 +224,9 @@ module List =
   let inline (|Delimited|_|) str = (|DelimitedWith|_|) str str
 
   let inline (|DelimitedNTimes|_|) str input =
-    let strs, items = List.partitionWhile (fun i -> i = str) input
+    let strs, _items = List.partitionWhile (fun i -> i = str) input
     match strs with
-    | h :: _ ->
+    | _h :: _ ->
       (|Delimited|_|) (List.init strs.Length (fun _ -> str)) input
     | _ -> None
 
@@ -252,8 +252,8 @@ module Lines =
   /// Removes blank lines from the start and the end of a list
   let (|TrimBlank|) lines = 
     lines
-    |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s) |> List.rev
-    |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s) |> List.rev
+    |> List.skipWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s) |> List.rev
+    |> List.skipWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s) |> List.rev
 
   /// Matches when there are some lines at the beginning that are 
   /// either empty (or whitespace) or start with the specified string.
@@ -279,7 +279,7 @@ module Lines =
       let normalized = s.Replace("\t", "    ")
       normalized.Length >= spaceNum &&
         normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
-    match List.partitionWhile (fun (s, n) ->
+    match List.partitionWhile (fun (s, _n) ->
             String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
     | matching, rest when matching <> [] && spaceNum >= 4 ->
       Some(spaceNum, matching, rest)
@@ -287,8 +287,8 @@ module Lines =
 
   /// Removes whitespace lines from the beginning of the list
   let (|TrimBlankStart|) (lines: (string * MarkdownRange) list) =
-      let takenLines = lines |> List.takeWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
-      let rest = lines |> List.skipWhile (fun (s, n) -> String.IsNullOrWhiteSpace s)
+      let takenLines = lines |> List.takeWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s)
+      let rest = lines |> List.skipWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s)
       takenLines, rest
 
   /// Trims all lines of the current paragraph

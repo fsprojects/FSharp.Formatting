@@ -1,7 +1,6 @@
 
 
-## Upgrading to `fsdocs`
-
+# Upgrading to fsdocs
 
 Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `fsdocs`
 

@@ -7,6 +7,7 @@
     <PackageId>FSharp.Formatting.CommandTool</PackageId>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
+    <UsesMarkdownComments>true</UsesMarkdownComments>
   </PropertyGroup>
     
   <ItemGroup>
@@ -15,7 +16,6 @@
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
     <Compile Include="Options.fs" />
-    <Compile Include="ConvertCommand.fs" />
     <Compile Include="BuildCommand.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

@@ -15,57 +15,80 @@
 #endif // IPYNB
 
 (**
-F# Formatting: Output embedding
-===============================
+# Embedding literate script output
 
-A nice feature of the literate programming package (`FSharp.Formatting.Literate.dll` in F# Formatting)
-is that it lets you embed the result of running the script as part of the literate output.
+
+For literate F# scripts, you may embed the result of running the script as part of the literate output.
 This is a feature of the functions discussed in [literate programming](literate.html) and
 it is implemented using the [F# Compiler service](http://fsharp.github.io/FSharp.Compiler.Service/).
 
-Embedding literate script output
---------------------------------
+## Including Console Output
 
-The functionality is currently available (and tested) for F# script files (`*.fsx`) that
-contain special comments to embed the Markdown text. To embed output of a script file, 
-a couple of additional special comments are added.
-
-The following snippet (F# Script file) demonstates the functionality:
+To include the Console output use ``include-output``:
 
     let test = 40 + 2
 
     printf "A result is: %d" test
     (*** include-output ***)
 
-You can also use `(*** include-fsi-output ***)` to include the F# interactive output instead,
-such as type signatures.
+The script defines a variable `test` and then prints it. The console output is included
+in the output.
+
+To include the a formatted value use ``include-it``:
+
+    [ 0 .. 99 ]
+
+    (*** include-it ***)
+
+
+To include the meta output of F# Interactive processing such as type signatures use `(*** include-fsi-output ***)`:
 
     let test = 40 + 3
 
     (*** include-fsi-output ***)
 
-To include both console otuput and F# Interactive output use `(*** include-fsi-merged-output ***)`.
+To include both console otuput and F# Interactive output blended use `(*** include-fsi-merged-output ***)`.
 
     let test = 40 + 4
-
     (*** include-fsi-merged-output ***)
 
-The script defines a variable `test` and then prints it. The console output is included
-in the output.
-
-In addition to the commands demonstrated in the above sample, you can also use
-the following variations to include the output and `it` values produced by a named snippet.
+You can use the same commands with a named snippet:
 
     (*** include-it: test ***)
     (*** include-fsi-output: test ***)
     (*** include-output: test ***)
 
-Specifying the evaluator and formatting 
----------------------------------------
-*)
+You can use the `include-value` command to format a specific value:
 
-(**
-The embedding of F# output requires specifying an additional parameter to the 
+    let value1 = [ 0 .. 50 ]
+    let value2 = [ 51 .. 100 ]
+    (*** include-value: value1 ***)
+
+## Using AddPrinter and AddHtmlPrinter
+
+You can use `fsi.AddPrinter`, `fsi.AddPrintTransformer` and `fsi.AddHtmlPrinter` to extend the formatting of objects.
+
+## Emitting Raw Text
+
+To emit raw text in F# literate scripts use the following:
+
+	(**
+		(*** raw ***)
+		Some raw text.
+	*)
+
+which would emit
+
+<pre>
+Some raw text.
+</pre>
+
+directly into the document.
+
+F# Formatting as a Library:  Specifying the Evaluator and Formatting 
+---------------------------------------
+
+If using F# Formatting as a library the embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).
 Assuming you have all the references in place, you can now create an instance of
 `FsiEvaluator` that represents a wrapper for F# interactive and pass it to all the
@@ -102,28 +125,7 @@ You can also subscribe to the `EvaluationFailed` event which is fired whenever t
 of an expression fails. You can use that to do tests that verify that all off the code in your
 documentation executes without errors.
 
-Emitting Raw Text
------------------
-
-When writing documents, it is sometimes required to emit completely unaltered text. Up to this point all
-of the `commands` have decorated the code or text with some formatting, for example a `pre` element. When working 
-with layout or content generation engines such as Jeykll, we sometimes need to emit plain text as declarations to
-said engines. This is where the `raw` command is useful.
-
-	(**
-		(*** raw ***)
-		Some raw text.
-	*)
-
-which would emit
-
-<pre>
-Some raw text.
-</pre>
-
-directly into the document.
-
-Custom formatting functions
+F# Formatting as a Library: Custom formatting functions
 ---------------------------
 
 As mentioned earlier, values are formatted using a simple `"%A"` formatter by default.

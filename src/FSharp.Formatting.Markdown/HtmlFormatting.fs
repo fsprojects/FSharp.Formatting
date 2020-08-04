@@ -65,7 +65,7 @@ let internal bigBreak (ctx:FormattingContext) () =
 let internal smallBreak (ctx:FormattingContext) () =
   ctx.Writer.Write(ctx.Newline)
 
-let internal noBreak (ctx:FormattingContext) () = ()
+let internal noBreak (_ctx:FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
 let rec internal formatSpan (ctx:FormattingContext) span =

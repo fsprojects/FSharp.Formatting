@@ -14,7 +14,8 @@
 
 (**
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=markdown.ipynb)
-F# Formatting: Markdown parser
+
+Markdown parser
 ==============================
 
 This page demonstrates how to use `FSharp.Formatting.Markdown.dll` to parse a Markdown

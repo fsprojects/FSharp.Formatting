@@ -3,10 +3,10 @@ namespace FSharp.Formatting.Literate
 open System
 open System.Collections.Generic
 open System.IO
-open System.Globalization
-open FSharp.Formatting.HtmlModel
+open System.Runtime.CompilerServices
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.CodeFormat
+open FSharp.Formatting.Templating
 
 // --------------------------------------------------------------------------------------
 // Public API
@@ -167,34 +167,6 @@ type Literate private () =
 
         doc.With(paragraphs = pars)
 
-  static let ensureDirectory path =
-    let dir = DirectoryInfo(path)
-    if not dir.Exists then dir.Create()
-
-  static let createImageSaver (outputDirectory) =
-        // Download images so that they can be embedded
-        let wc = new System.Net.WebClient()
-        let mutable counter = 0
-        fun (url:string) ->
-            if url.StartsWith("http") || url.StartsWith("https") then
-                counter <- counter + 1
-                let ext = Path.GetExtension(url)
-                let fn = sprintf "%s/savedimages/saved%d%s" outputDirectory counter ext
-
-                ensureDirectory (sprintf "%s/savedimages" outputDirectory)
-                printfn "downloading %s --> %s" url fn
-                wc.DownloadFile(url, fn)
-                fn
-            else url
-
-  static let defaultImageSaver imageSaver outputKind saveImages =
-    match outputKind with
-    | OutputKind.Pynb when saveImages <> Some false -> Some (imageSaver())
-    | OutputKind.Latex when saveImages <> Some false -> Some (imageSaver())
-    | OutputKind.Fsx when saveImages = Some true -> Some (imageSaver())
-    | OutputKind.Html when saveImages = Some true -> Some (imageSaver())
-    | _ -> None
-
   /// Parse F# Script file
   static member ParseScriptFile (path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
     let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
@@ -332,154 +304,39 @@ type Literate private () =
           Literate.TransformDocument
               (doc, output, ?outputKind=outputKind, ?prefix=prefix, ?lineNumbers=lineNumbers,
                ?generateAnchors=generateAnchors, ?parameters=parameters)
-      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
+      SimpleTemplating.UseFileAsSimpleTemplate(res.Parameters, template, output)
 
   /// Convert a markdown file into HTML or another output kind
   static member ConvertMarkdownFile
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
-      ?lineNumbers, ?references, ?parameters, ?generateAnchors,
-      ?customizeDocument, ?saveImages) =
+      ?lineNumbers, ?references, ?parameters, ?generateAnchors
+      (* ?customizeDocument, *) ) =
 
       let outputKind = defaultArg outputKind OutputKind.Html
-      let output=defaultOutput output input outputKind
-      let imageSaverOpt = defaultImageSaver (fun () -> createImageSaver output) outputKind saveImages
+      let output = defaultOutput output input outputKind
       let res =
           Literate.ParseAndTransformMarkdownFile
               (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscoptions=fscoptions,
                ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
-               ?parameters=parameters, ?customizeDocument=customizeDocument,
-               ?imageSaver=imageSaverOpt)
-      HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
+               ?parameters=parameters (* ?customizeDocument=customizeDocument, *))
+      SimpleTemplating.UseFileAsSimpleTemplate(res.Parameters, template, output)
 
   /// Convert a script file into HTML or another output kind
   static member ConvertScriptFile
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?parameters,
-      ?generateAnchors, ?customizeDocument, ?saveImages) =
+      ?generateAnchors (* ?customizeDocument, *)) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
         let output=defaultOutput output input outputKind
-        let imageSaverOpt = defaultImageSaver (fun () -> createImageSaver output) outputKind saveImages
         let res =
             Literate.ParseAndTransformScriptFile
                 (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscoptions=fscoptions,
                  ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
-                 ?parameters=parameters, ?customizeDocument=customizeDocument, ?fsiEvaluator=fsiEvaluator,
-                 ?imageSaver=imageSaverOpt)
-        HtmlFile.UseFileAsSimpleTemplate(res.ContentTag, res.Parameters, template, output)
+                 ?parameters=parameters, (* ?customizeDocument=customizeDocument, *) ?fsiEvaluator=fsiEvaluator)
+        SimpleTemplating.UseFileAsSimpleTemplate(res.Parameters, template, output)
 
-  /// Convert markdown, script and other content into a static site
-  static member ConvertDirectory
-    (input, ?htmlTemplate, ?outputDirectory, ?formatAgent, ?prefix, ?fscoptions,
-      ?lineNumbers, ?references, ?fsiEvaluator, ?parameters, ?generateAnchors,
-      ?recursive, ?customizeDocument, ?tokenKindToCss, ?saveImages, ?extraInputs) =
 
-      let inputDirectories = (input, ".") :: (defaultArg extraInputs [])
-      for (inputDirectory, outputPrefix) in inputDirectories do
-        let outputDirectory=defaultArg outputDirectory "output"
-        let outputDirectory= Path.GetFullPath(Path.Combine(outputDirectory, outputPrefix))
-        
-        let recursive = defaultArg recursive true
-
-        let imageSaver = createImageSaver outputDirectory
-
-        let processFile (inputFile: string) outputKind template outputDirectory =
-            let name = Path.GetFileName(inputFile)
-            if name.StartsWith(".") then 
-                printfn "skipping file %s" inputFile
-            elif name.StartsWith "_template." then 
-                ()
-            else
-                let isFsx = inputFile.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
-                let isMd = inputFile.EndsWith(".md", true, CultureInfo.InvariantCulture)
-
-                // A _template.tex or _template.pynb is needed to generate those files
-                match outputKind, template with
-                | OutputKind.Pynb, None -> ()
-                | OutputKind.Latex, None -> ()
-                | OutputKind.Fsx, None -> ()
-                | _ ->
-
-                let imageSaverOpt = defaultImageSaver (fun () -> imageSaver) outputKind saveImages
-
-                let ext = outputKind.Extension
-                let outputFile =
-                    if isFsx || isMd then
-                        let basename = Path.GetFileNameWithoutExtension(inputFile)
-                        Path.Combine(outputDirectory, sprintf "%s.%s" basename ext)
-                    else
-                        Path.Combine(outputDirectory, name)
-
-                // Update only when needed - template or file has changed
-                let fileChangeTime = File.GetLastWriteTime(inputFile)
-                let templateChangeTime = match template with None -> new DateTime(1,1,1) | Some t -> File.GetLastWriteTime(t)
-                let changeTime = max fileChangeTime templateChangeTime
-                let generateTime = File.GetLastWriteTime(outputFile)
-                if changeTime > generateTime then
-                    if isFsx then
-                        printfn "converting %s --> %s" inputFile outputFile
-                        let inputFile = Path.GetFullPath(inputFile)
-                        let model =
-                          Literate.ParseAndTransformScriptFile
-                            (inputFile, output = outputFile, outputKind = outputKind,
-                              ?formatAgent = formatAgent, ?prefix = prefix, ?fscoptions = fscoptions,
-                              ?lineNumbers = lineNumbers, ?references=references, ?fsiEvaluator = fsiEvaluator, ?parameters = parameters,
-                              ?generateAnchors = generateAnchors,
-                              ?customizeDocument = customizeDocument, ?tokenKindToCss = tokenKindToCss,
-                              ?imageSaver=imageSaverOpt)
-
-                        HtmlFile.UseFileAsSimpleTemplate(model.ContentTag, model.Parameters, template, outputFile)
-
-                    elif isMd then
-                        printfn "converting %s --> %s" inputFile outputFile
-                        let inputFile = Path.GetFullPath(inputFile)
-                        let model =
-                          Literate.ParseAndTransformMarkdownFile
-                            (inputFile, output = outputFile, outputKind = outputKind,
-                              ?formatAgent = formatAgent, ?prefix = prefix, ?fscoptions = fscoptions,
-                              ?lineNumbers = lineNumbers, ?references=references, ?parameters = parameters,
-                              ?generateAnchors = generateAnchors,
-                              ?customizeDocument=customizeDocument, ?tokenKindToCss = tokenKindToCss,
-                              ?imageSaver=imageSaverOpt)
-                        HtmlFile.UseFileAsSimpleTemplate(model.ContentTag, model.Parameters, template, outputFile)
-
-                    else 
-                        printfn "copying %s --> %s" inputFile outputFile
-                        File.Copy(inputFile, outputFile, true)
-
-                /// Recursively process all files in the directory tree
-        let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) indir outdir =
-
-          // Look for the presence of the _template.* files to activate the
-          // generation of the content.
-          let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
-          let htmlTemplate = if (try File.Exists(possibleNewHtmlTemplate) with _ -> false) then Some possibleNewHtmlTemplate else htmlTemplate
-          let possibleNewPynbTemplate = Path.Combine(indir, "_template.ipynb")
-          let pynbTemplate = if (try File.Exists(possibleNewPynbTemplate) with _ -> false) then Some possibleNewPynbTemplate else pynbTemplate
-          let possibleNewFsxTemplate = Path.Combine(indir, "_template.fsx")
-          let fsxTemplate = if (try File.Exists(possibleNewFsxTemplate) with _ -> false) then Some possibleNewFsxTemplate else fsxTemplate
-          let possibleNewLatexTemplate = Path.Combine(indir, "_template.tex")
-          let texTemplate = if (try File.Exists(possibleNewLatexTemplate) with _ -> false) then Some possibleNewLatexTemplate else texTemplate
-
-          // Create output directory if it does not exist
-          if Directory.Exists(outdir) |> not then
-            try Directory.CreateDirectory(outdir) |> ignore
-            with _ -> failwithf "Cannot create directory '%s'" outdir
-
-          let inputs = Directory.GetFiles(indir, "*") 
-          for input in inputs do
-            processFile input OutputKind.Html htmlTemplate outdir
-            processFile input OutputKind.Latex texTemplate outdir
-            processFile input OutputKind.Pynb pynbTemplate outdir
-            processFile input OutputKind.Fsx fsxTemplate outdir
-
-          if recursive then
-            for subdir in Directory.EnumerateDirectories(indir) do
-                let name = Path.GetFileName(subdir)
-                if name.StartsWith "." then
-                    printfn "skipping directory %s" subdir
-                else
-                    processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) (Path.Combine(indir, name)) (Path.Combine(outdir, name))
-
-        processDirectory (htmlTemplate, None, None, None) inputDirectory outputDirectory
-
+[<assembly: InternalsVisibleTo("fsdocs");
+  assembly: InternalsVisibleTo("FSharp.Formatting.TestHelpers")>]
+do()

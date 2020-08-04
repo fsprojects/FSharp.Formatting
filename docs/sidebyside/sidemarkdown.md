@@ -1,5 +1,4 @@
-﻿Literate Markdown
-=================
+﻿# Literate Markdown side-by-side example
 
 This file demonstrates how to write Markdown document with 
 embedded F# snippets that can be transformed into nice HTML 
@@ -17,8 +16,8 @@ For more information, see the [Markdown][md] reference.
  [md]: http://daringfireball.net/projects/markdown
 
 
-Writing F# code
----------------
+## Writing F# code
+
 In standard Markdown, you can include code snippets by 
 writing a block indented by four spaces and the code 
 snippet will be turned into a `<pre>` element. If you do 
@@ -33,8 +32,7 @@ a nicely formatted F# snippet:
     let f10 = factorial 10
 
 
-Hiding code
------------
+## Hiding code
 
 If you want to include some code in the source code, 
 but omit it from the output, you can use the `hide` 
@@ -53,8 +51,7 @@ code and get correct tool tips:
     let answer = Hidden.answer
 
 
-Including other snippets
-------------------------
+## Including other snippets
 
 When writing literate programs as Markdown documents, 
 you can also include snippets in other languages. 

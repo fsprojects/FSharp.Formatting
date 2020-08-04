@@ -5,21 +5,7 @@
 namespace rec FSharp.Formatting.Markdown
 
 open System.Collections.Generic
-
-module internal Templating =
-    // Replace '{{xyz}}' in text
-    let ReplaceParametersInText (parameters:seq<string * string>) (text: string) =
-        let id = System.Guid.NewGuid().ToString("d")
-        let temp =
-            (text, parameters) ||> Seq.fold (fun text (key, value) ->
-                let key2 = "{{" + key + "}}"
-                let rkey = "{" + key + id + "}"
-                let text = text.Replace(key2, rkey)
-                text)
-        let result =
-            (temp, parameters) ||> Seq.fold (fun text (key, value) ->
-                text.Replace("{" + key + id + "}", value)) 
-        result
+open FSharp.Formatting.Templating
 
 module internal MarkdownUtils =
     let isCode = (function CodeBlock(_, _, _, _, _) | InlineBlock (_, _, _) -> true | _ -> false)
@@ -60,7 +46,7 @@ module internal MarkdownUtils =
       { Links : IDictionary<string, string * option<string>>
         Newline: string
         /// Additional replacements to be made in the code snippets
-        Replacements : (string * string) list
+        Replacements : Parameters
         DefineSymbol: string
       }
 
@@ -79,9 +65,9 @@ module internal MarkdownUtils =
       | IndirectLink(body, link, _, _) ->
           "[" + formatSpans ctx body + "](" + link + ")"
 
-      | IndirectImage(body, _, LookupKey ctx.Links (link, _), _) 
-      | DirectImage(body, link, _, _) 
-      | IndirectImage(body, link, _, _) ->
+      | IndirectImage(_body, _, LookupKey ctx.Links (_link, _), _) 
+      | DirectImage(_body, _link, _, _) 
+      | IndirectImage(_body, _link, _, _) ->
           failwith "tbd - IndirectImage"
 
       | Strong(body, _) -> 
@@ -145,6 +131,6 @@ module internal MarkdownUtils =
         let lines = lines |> List.filter (fun line -> line.Trim() <> sym1 && line.Trim() <> sym2 )
 
         // Inside literate code blocks (not raw blocks) we make replacements for {{xyz}} parameters
-        let lines = lines |> List.map (Templating.ReplaceParametersInText ctx.Replacements)
+        let lines = lines |> List.map (SimpleTemplating.ReplaceParametersInText ctx.Replacements)
         let code2 = String.concat ctx.Newline lines
         code2

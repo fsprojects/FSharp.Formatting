@@ -1,21 +1,26 @@
 module internal FSharp.Formatting.ApiDocs.GenerateHtml
 
 open System
+open System.Collections.Generic
 open System.IO
 open System.Web
 open FSharp.Formatting.Common
+open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 
 /// Embed some HTML generateed in GenerateModel
 let embed (x: ApiDocHtml) = !! x.HtmlText
 
-type HtmlRender() =
-  let obsoleteMessage msg =
-    div [Class "alert alert-warning"] [
-        strong [] [!!"NOTE:"]
-        p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
-    ]
+type HtmlRender(model: ApiDocModel) =
+  let root = model.Root
+  let collectionName = model.Collection.CollectionName
+  let qualify = model.Qualify
+  //let obsoleteMessage msg =
+  //  div [Class "alert alert-warning"] [
+  //      strong [] [!!"NOTE:"]
+  //      p [] [!! ("This API is obsolete" + HttpUtility.HtmlEncode(msg))]
+  //  ]
 
   let mutable uniqueNumber = 0
   let UniqueID() =
@@ -33,17 +38,17 @@ type HtmlRender() =
   let renderMembers header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
-       table [Class "table outer-list member-list"] [
+       table [Class "table outer-list fsdocs-member-list"] [
          thead [] [
            tr [] [
-             td [Class "member-list-header"] [ !!tableHeader ]
-             td [Class "member-list-header"] [ !! "Description" ]
+             td [Class "fsdocs-member-list-header"] [ !!tableHeader ]
+             td [Class "fsdocs-member-list-header"] [ !! "Description" ]
            ]
          ]
          tbody [] [
            for m in members do
              tr [] [
-               td [Class "member-name"; Id m.Name] [
+               td [Class "fsdocs-member-name"; Id m.Name] [
                   
                   codeWithToolTip [
                       // This adds #MemberName anchor. These may currently be ambiguous
@@ -86,7 +91,7 @@ type HtmlRender() =
                     ]
                ]
             
-               td [Class "xmldoc"] [
+               td [Class "fsdocs-xmldoc"] [
                   if not (String.IsNullOrWhiteSpace(m.Comment.DescriptionHtml.HtmlText)) then
                       embed m.Comment.DescriptionHtml
                       br []
@@ -113,13 +118,13 @@ type HtmlRender() =
                       embed t
                       br []
 
-                  if m.IsObsolete then
-                      obsoleteMessage m.ObsoleteMessage
+                  //if m.IsObsolete then
+                  //    obsoleteMessage m.ObsoleteMessage
 
                   if not (String.IsNullOrEmpty(m.FormatSourceLocation)) then
-                    a [Href (m.FormatSourceLocation); Class"github-link" ] [
-                      img [Src "../content/img/github.png"; Class "normal"]
-                      img [Src "../content/img/github-blue.png"; Class "hover"]
+                    a [Href (m.FormatSourceLocation); Class"fsdocs-source-link" ] [
+                      img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
+                      img [Src (sprintf "%scontent/img/github-blue.png" root); Class "hover"]
                     ]
                   //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
                   //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
@@ -133,7 +138,7 @@ type HtmlRender() =
    [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (fun e -> e.IsTypeDefinition)
       let hasModules = entities |> List.exists (fun e -> not e.IsTypeDefinition)
-      table [Class "table outer-list entity-list" ] [
+      table [Class "table outer-list fsdocs-entity-list" ] [
         thead [] [
           tr [] [
             td [] [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
@@ -143,19 +148,19 @@ type HtmlRender() =
         tbody [] [
           for e in entities do 
             tr [] [
-               td [Class "type-name"] [
+               td [Class "fsdocs-entity-name"] [
                  let nm = e.Name 
                  let multi = (entities |> List.filter (fun e -> e.Name = nm) |> List.length) > 1
                  let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
 
                  // This adds #EntityName anchor. These may currently be ambiguous
-                 a [Name nm] [a [Href (e.UrlBaseName + ".html")] [!!nmWithSiffix]]
+                 a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]
                ]
-               td [Class "xmldoc" ] [
-                   let isObsolete = e.IsObsolete 
-                   let obs = e.ObsoleteMessage 
-                   if isObsolete then
-                     obsoleteMessage obs
+               td [Class "fsdocs-xmldoc" ] [
+                   //let isObsolete = e.IsObsolete 
+                   //let obs = e.ObsoleteMessage 
+                   //if isObsolete then
+                   //  obsoleteMessage obs
                    embed e.Comment.SummaryHtml
                ]
             ]
@@ -165,9 +170,9 @@ type HtmlRender() =
 
   let entityContent (info: ApiDocEntityInfo) =
     // Get all the members & comment for the type
-    let members = info.Entity.AllMembers
-    let comment = info.Entity.Comment
     let entity = info.Entity
+    let members = entity.AllMembers |> List.filter (fun e -> not e.IsObsolete)
+    let comment = entity.Comment
 
     // Group all members by their category which is an inline annotation
     // that can be added to members using special XML comment:
@@ -197,7 +202,7 @@ type HtmlRender() =
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
-        span [] [!! ("Parent Module: "); a [Href (parentModule.UrlBaseName + ".html")] [!! parentModule.Name ]]
+        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify))] [!! parentModule.Name ]]
   
 
       match entity.AbbreviatedType with
@@ -234,10 +239,10 @@ type HtmlRender() =
       if entity.Symbol.IsEnum then
          p [] [!! ("This is an enum type definition")]
 
-      if info.Entity.IsObsolete then
-          obsoleteMessage entity.ObsoleteMessage
+      //if info.Entity.IsObsolete then
+      //    obsoleteMessage entity.ObsoleteMessage
   
-      div [Class "xmldoc" ] [
+      div [Class "fsdocs-xmldoc" ] [
         // XML comment for the type has multiple sections that can be labelled
         // with categories (to give comment for an individual category). Here,
         // we print only those that belong to the <default>
@@ -257,7 +262,9 @@ type HtmlRender() =
  
       //<!-- Render nested types and modules, if there are any -->
   
-      let nestedEntities = entity.NestedEntities
+      let nestedEntities =
+         entity.NestedEntities
+         |> List.filter (fun e -> not e.IsObsolete)
   
       if (nestedEntities.Length > 0) then
         div [] [
@@ -278,7 +285,7 @@ type HtmlRender() =
         match info with
         | None -> ()
         | Some key ->
-           div [Class "xmldoc"] [ embed key.Value ]
+           div [Class "fsdocs-xmldoc"] [ embed key.Value ]
         div [] (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
         div [] (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
         div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
@@ -314,8 +321,6 @@ type HtmlRender() =
                 //
                 // Remove the funky array type definitions in FSharp.Core from display
                 |> List.filter (fun e -> not e.Symbol.IsArrayType)
-                // Remove the obsolete lazy<t> type definition in FSharp.Core from display
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Control" && e.Symbol.DisplayName = "lazy"))
                 // Remove the List<t> type definition in FSharp.Core from display, the type 't list is canonical
                 |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Collections" && e.Symbol.DisplayName = "List"))
                 // Remove FSharp.Data.UnitSystems.SI from display, it's just so rarely used, has long names and dominates the docs.
@@ -326,6 +331,7 @@ type HtmlRender() =
                 |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.RuntimeHelpers" && e.Symbol.DisplayName = "AnonymousObject"))
                 |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions" && e.Symbol.DisplayName = "LowPriority"))
                 |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions" && e.Symbol.DisplayName = "HighPriority"))
+                |> List.filter (fun e -> not e.IsObsolete)
                 
                 |> List.sortBy (fun e ->
                     (e.Symbol.DisplayName.ToLowerInvariant(), e.Symbol.GenericParameters.Count,
@@ -350,13 +356,32 @@ type HtmlRender() =
           yield! renderEntities category.CategoryEntites
     ]  
 
-  let namespacesContent (asm: ApiDocAssemblyGroup) =
-    [ h1 [] [!! asm.Name]
-      for (nsIndex, ns) in Seq.indexed asm.Namespaces do
-          yield! namespaceContent (nsIndex, ns) ]
+  //let namespacesContent (asm: ApiDocCollection) =
+  //  [ h1 [] [!! asm.CollectionName]
+  //    for (nsIndex, ns) in Seq.indexed asm.Namespaces do
+  //        yield! namespaceContent (nsIndex, ns) ]
 
-  let listOfNamespaces (asm: ApiDocsModel) (nsOpt: ApiDocNamespace option) =
-    [  for (nsIndex, ns) in Seq.indexed asm.AssemblyGroup.Namespaces do
+  let listOfNamespacesAux otherDocs nav (nsOpt: ApiDocNamespace option) =
+    [
+        // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
+        //
+        // For nonFSharp.Core we only show one link "API Reference"
+      if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+          li [Class "nav-header"] [!! "API Reference"]
+          li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify))] [!! "All Namespaces" ] ] 
+      else
+
+      let categorise =
+        [ for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
+             let allByCategory = categoriseEntities (nsIndex, ns)
+             allByCategory, ns ]
+
+      let someExist = categorise |> List.exists (fun (allByCategory, _) -> allByCategory.Length > 0)
+
+      if someExist && nav then
+        li [Class "nav-header"] [!! "Namespaces"]
+
+      for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
          let allByCategory = categoriseEntities (nsIndex, ns)
          if allByCategory.Length > 0 then
 
@@ -368,70 +393,68 @@ type HtmlRender() =
                      match nsOpt with
                      | Some ns2 when ns.Name = ns2.Name -> Class "active"
                      | _ -> ()
-                     Href ns.UrlFileNameAndHash] [!!ns.Name]]
+                     Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]]
              match nsOpt with
              | Some ns2 when ns.Name = ns2.Name ->
                  ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
                      for category in allByCategory do
-                         //if (allByCategory.Length > 1) then
-                         //    dt [] [dd [] [a [Href ("#section" + index)] [!! name]]]
                          for e in category.CategoryEntites do
-                             li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.UrlBaseName + ".html")] [!! e.Name] ]
+                             li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
                  ]
              | _ -> ()
      ]
+
+  let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
+     listOfNamespacesAux otherDocs nav nsOpt
      |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
-  member _.GetGlobalParameters(model: ApiDocsModel) =
-    let tocTag = "list-of-namespaces"
-    let toc = listOfNamespaces model None
+  /// Get the substitutions relevant to all
+  member _.GlobalParameters : Parameters =
+    let toc = listOfNamespaces true true None
+    [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )  ]
 
-    [ yield (tocTag, toc ) ]
+  member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
+    let getParameters parameters toc (content: HtmlElement) pageTitle =
+        [| yield! parameters
+           yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )
+           yield (ParamKeys.``fsdocs-content``, content.ToString() )
+           yield (ParamKeys.``fsdocs-tooltips``, "" )
+           yield (ParamKeys.``fsdocs-page-title``, pageTitle )
+           yield! globalParameters
+           |]
 
-  member _.Generate(model: ApiDocsModel, outDir: string, templateOpt) =
-    let (@@) a b = Path.Combine(a, b)
-    let props = (dict model.Properties).["Properties"]
-    let projectName = if props.ContainsKey "project-name" then " - " + props.["project-name"] else ""
-    let contentTag = "document"
-    let tocTag = "list-of-namespaces"
-    let pageTitleTag = "page-title"
-
-    let getParameters toc (content: HtmlElement) pageTitle =
-        [| for KeyValue(k,v) in props -> (k, v)
-           yield (contentTag, content.ToString() )
-           yield (tocTag, toc )
-           yield ("tooltips", "" )
-           yield (pageTitleTag, pageTitle ) |]
-
-    let asm = model.AssemblyGroup
+    let collection = model.Collection
     begin
-        let content = div [] (namespacesContent asm)
-        let outFile = outDir @@ "index.html"
-        let pageTitle = "API Reference" + projectName
-        let toc = listOfNamespaces model None
-        let parameters = getParameters toc content pageTitle
+        let content =
+           div [] [h1 [] [!! "API Reference"];
+                   h2 [] [!! "Available Namespaces:"];
+                   ul [] (listOfNamespacesAux false false None) ]
+        let pageTitle = "API Reference" + collectionName
+        let toc = listOfNamespaces false true None 
+        let parameters = getParameters model.Parameters toc content pageTitle
+        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
         printfn "Generating %s" outFile
-        HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
     end
 
-    for (nsIndex, ns) in Seq.indexed asm.Namespaces do
+    for (nsIndex, ns) in Seq.indexed collection.Namespaces do
         let content = div [] (namespaceContent (nsIndex, ns))
-        let outFile = outDir @@ ns.UrlBaseName + ".html"
         let pageTitle = ns.Name
-        let toc = listOfNamespaces model (Some ns)
-        let parameters = getParameters toc content pageTitle
+        let toc = listOfNamespaces false true (Some ns)
+        let parameters = getParameters model.Parameters toc content pageTitle
+        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify) )
         printfn "Generating %s" outFile
-        HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
 
     for info in model.EntityInfos do
         Log.infof "Generating type/module: %s" info.Entity.UrlBaseName
         let content = div [] (entityContent info)
-        let outFile = outDir @@ (info.Entity.UrlBaseName + ".html")
-        let pageTitle = info.Entity.Name + projectName
-        let toc = listOfNamespaces model (Some info.Namespace)
-        let parameters = getParameters toc content pageTitle
+        let pageTitle = info.Entity.Name + collectionName
+        let toc = listOfNamespaces false true (Some info.Namespace)
+        let parameters = getParameters info.Entity.Parameters toc content pageTitle
+        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
         printfn "Generating %s" outFile
-        HtmlFile.UseFileAsSimpleTemplate (contentTag, parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
         Log.infof "Finished %s" info.Entity.UrlBaseName
 

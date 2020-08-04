@@ -42,7 +42,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 		docs\index.md = docs\index.md
 		docs\literate.fsx = docs\literate.fsx
 		docs\markdown.fsx = docs\markdown.fsx
-		docs\upgrade_from_v2_to_v3.md = docs\upgrade_from_v2_to_v3.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{D0550510-0DCE-4B40-B4FB-091668E1C5FD}"
@@ -110,6 +109,21 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4089E333-3857-4771-B209-5673EF4EEDA3}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting", "src\FSharp.Formatting\FSharp.Formatting.fsproj", "{CB78F0EA-8005-4735-A02C-B86CEDC29D85}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sidebyside", "sidebyside", "{C3E359B5-DB2D-4AA4-A08C-77BAA0E94D21}"
+	ProjectSection(SolutionItems) = preProject
+		docs\sidebyside\sideextensions.md = docs\sidebyside\sideextensions.md
+		docs\sidebyside\sidemarkdown.md = docs\sidebyside\sidemarkdown.md
+		docs\sidebyside\sidescript.fsx = docs\sidebyside\sidescript.fsx
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{C7804F57-7FC6-4CF6-BDF6-127D6F9EBEA6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "leftside", "leftside", "{188DC91F-2202-4495-ACD2-542D7C30364E}"
+	ProjectSection(SolutionItems) = preProject
+		docs\templates\leftside\_template.html = docs\templates\leftside\_template.html
+		docs\templates\leftside\styling.md = docs\templates\leftside\styling.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -239,6 +253,9 @@ Global
 		{0B552F94-33FE-4037-9C17-1EB2A885F263} = {8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}
 		{B266D118-15AE-4BE6-809E-E9E30CE5C62F} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
 		{CB78F0EA-8005-4735-A02C-B86CEDC29D85} = {4089E333-3857-4771-B209-5673EF4EEDA3}
+		{C3E359B5-DB2D-4AA4-A08C-77BAA0E94D21} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
+		{C7804F57-7FC6-4CF6-BDF6-127D6F9EBEA6} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
+		{188DC91F-2202-4495-ACD2-542D7C30364E} = {C7804F57-7FC6-4CF6-BDF6-127D6F9EBEA6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}

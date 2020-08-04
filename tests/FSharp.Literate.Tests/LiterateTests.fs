@@ -17,6 +17,7 @@ open FsUnit
 open FSharp.Formatting.Literate
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Unit
+open FSharp.Formatting.Templating
 open NUnit.Framework
 open FSharp.Literate.Tests.Setup
 open FsUnitTyped
@@ -458,10 +459,10 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using substitu
 // --------------------------------------------------------------------------------------
 
 let info =
-  [ "project-name", "FSharp.ProjectScaffold"
-    "authors", "Your Name"
-    "repository-url", "http://github.com/pblasucci/fsharp-project-scaffold"
-    "root", "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
+  [ ParamKeys.``fsdocs-collection-name``, "FSharp.ProjectScaffold"
+    ParamKeys.``fsdocs-authors``, "Your Name"
+    ParamKeys.``fsdocs-repository-link``, "http://github.com/pblasucci/fsharp-project-scaffold"
+    ParamKeys.``root``, "http://fsprojects.github.io/FSharp.FSharp.ProjectScaffold" ]
 
 
 [<Test>]
