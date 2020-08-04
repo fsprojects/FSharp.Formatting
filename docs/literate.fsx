@@ -217,7 +217,7 @@ file which is included as a sample in the package):
 let projTemplate = source + "template-project.html"
 let projInfo =
   [ "fsdocs-authors", "Tomas Petricek"
-    "github-link", "https://github.com/fsprojects/FSharp.Formatting"
+    "fsdocs-source-link", "https://github.com/fsprojects/FSharp.Formatting"
     "fsdocs-collection-name", "F# Formatting" ]
 
 (**

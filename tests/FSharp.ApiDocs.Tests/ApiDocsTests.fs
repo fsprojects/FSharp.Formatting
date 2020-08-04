@@ -111,9 +111,9 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-record.html"] |> shouldContainText "This is name"
   files.["fslib-record.html"] |> shouldContainText "Additional member"
   files.["fslib-union.html"] |> shouldContainText "Hello of int"
-  files.["index.html"] |> shouldContainText "Sample class"
-  files.["index.html"] |> shouldContainText "Union sample"
-  files.["index.html"] |> shouldContainText "Record sample"
+  files.["fslib.html"] |> shouldContainText "Sample class"
+  files.["fslib.html"] |> shouldContainText "Union sample"
+  files.["fslib.html"] |> shouldContainText "Record sample"
   files.["fslib-nested.html"] |> shouldContainText "Somewhat nested type"
   files.["fslib-nested.html"] |> shouldContainText "Somewhat nested module"
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Very nested member"
@@ -193,11 +193,11 @@ let ``ApiDocs generates Go to GitHub source links``() =
         parameters=parameters, libDirs = ([testBin] |> fullpaths))
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.["fslib-class.html"] |> shouldContainText "github-link"
+  files.["fslib-class.html"] |> shouldContainText "fsdocs-source-link"
   files.["fslib-class.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib2/Library2.fs#L"
-  files.["fslib-record.html"] |> shouldContainText "github-link"
+  files.["fslib-record.html"] |> shouldContainText "fsdocs-source-link"
   files.["fslib-record.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
-  files.["fslib-union.html"] |> shouldContainText "github-link"
+  files.["fslib-union.html"] |> shouldContainText "fsdocs-source-link"
   files.["fslib-union.html"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
 
 [<Test>]
@@ -393,9 +393,9 @@ let ``ApiDocs process XML comments in two sample F# assemblies``() =
   files.["fslib-record.html"] |> shouldContainText "This is name"
   files.["fslib-record.html"] |> shouldContainText "Additional member"
   files.["fslib-union.html"] |> shouldContainText "Hello of int"
-  files.["index.html"] |> shouldContainText "Sample class"
-  files.["index.html"] |> shouldContainText "Union sample"
-  files.["index.html"] |> shouldContainText "Record sample"
+  files.["fslib.html"] |> shouldContainText "Sample class"
+  files.["fslib.html"] |> shouldContainText "Union sample"
+  files.["fslib.html"] |> shouldContainText "Record sample"
   files.["fslib-nested.html"] |> shouldContainText "Somewhat nested type"
   files.["fslib-nested.html"] |> shouldContainText "Somewhat nested module"
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Very nested member"
@@ -426,8 +426,8 @@ let ``ApiDocs processes C# types and includes xml comments in docs`` () =
 
     let files = generateApiDocs [library]  false "CSharpFormat2"
 
-    files.["index.html"] |> shouldContainText "CLikeFormat"
-    files.["index.html"] |> shouldContainText "Provides a base class for formatting languages similar to C."
+    files.["manoli-utils-csharpformat.html"] |> shouldContainText "CLikeFormat"
+    files.["manoli-utils-csharpformat.html"] |> shouldContainText "Provides a base class for formatting languages similar to C."
 
 [<Test>]
 let ``ApiDocs processes C# properties on types and includes xml comments in docs`` () =
