@@ -118,7 +118,8 @@ For example \texttt{\{\{fsdocs-content\}\}} is replaced with the generated conte
 See \href{styling.html}{Styling} for information about template parameters and styling beyond the default template.
 \begin{tabular}{|l|l|}\hline
 \textbf{Substitution name} & \textbf{Generated content}\\ \hline\hline
-\texttt{root} & \texttt{<RepositoryUrl>} else \texttt{/}\\ \hline
+\texttt{root} & \texttt{<PackageProjectUrl>} else \texttt{/} followed by \texttt{fsdocs-collection-name}\\ \hline
+\texttt{fsdocs-collection-name} & Name of .sln, single .fsproj or containing directory\\ \hline
 \texttt{fsdocs-content} & Main page content\\ \hline
 \texttt{fsdocs-list-of-namespaces} & HTML \texttt{<li>} list of namespaces with links\\ \hline
 \texttt{fsdocs-list-of-documents} & HTML \texttt{<li>} list of documents with  titles and links\\ \hline
@@ -131,15 +132,17 @@ See \href{styling.html}{Styling} for information about template parameters and s
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:
-\begin{tabular}{|l|l|}\hline
-\textbf{Substitution name} & \textbf{Value}\\ \hline\hline
-\texttt{fsdocs-copyright} & \texttt{<Copyright>}\\ \hline
-\texttt{fsdocs-package-project-url} & \texttt{<PackageProjectUrl>}\\ \hline
-\texttt{fsdocs-package-license-expression} & \texttt{<PackageLicenseExpression>}\\ \hline
-\texttt{fsdocs-package-tags} & \texttt{<PackageTags>}\\ \hline
-\texttt{fsdocs-package-version} & \texttt{<Version>}\\ \hline
-\end{tabular}
 
+
+|  Substitution name                   | Value                          |
+|:------------------- -----------------|:-------------------------------|
+| \texttt{fsdocs-copyright}                   | \texttt{<Copyright>}                  |
+
+| \texttt{fsdocs-package-project-url}         | \texttt{<PackageProjectUrl>}          |
+| \texttt{fsdocs-package-license-expression}  | \texttt{<PackageLicenseExpression>}   |
+| \texttt{fsdocs-package-tags}                | \texttt{<PackageTags>}                |
+
+| \texttt{fsdocs-package-version}             | \texttt{<Version>}                    |
 \subsection*{Generating LaTeX output}
 
 

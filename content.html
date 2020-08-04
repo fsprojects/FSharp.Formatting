@@ -53,7 +53,7 @@
             <ul class="navbar-nav">
                 <li class="nav-header">Links</li>
                 <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License (Apache 2.0)</a></li>
-                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting//blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
                 <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source Repository</a></li>
                 <li class="nav-header">
   Documentation
@@ -199,29 +199,33 @@ For example <code>{{fsdocs-content}}</code> is replaced with the generated conte
 <tbody>
 <tr class="odd">
 <td align="left"><p><code>root</code></p></td>
-<td align="left"><p><code>&lt;RepositoryUrl&gt;</code> else <code>/</code></p></td>
+<td align="left"><p><code>&lt;PackageProjectUrl&gt;</code> else <code>/</code> followed by <code>fsdocs-collection-name</code></p></td>
 </tr>
 <tr class="even">
+<td align="left"><p><code>fsdocs-collection-name</code></p></td>
+<td align="left"><p>Name of .sln, single .fsproj or containing directory</p></td>
+</tr>
+<tr class="odd">
 <td align="left"><p><code>fsdocs-content</code></p></td>
 <td align="left"><p>Main page content</p></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><p><code>fsdocs-list-of-namespaces</code></p></td>
 <td align="left"><p>HTML <code>&lt;li&gt;</code> list of namespaces with links</p></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><p><code>fsdocs-list-of-documents</code></p></td>
 <td align="left"><p>HTML <code>&lt;li&gt;</code> list of documents with  titles and links</p></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><p><code>fsdocs-page-title</code></p></td>
 <td align="left"><p>First h1 heading in literate file. Generated for API docs</p></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><p><code>fsdocs-source</code></p></td>
 <td align="left"><p>Original script source</p></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><p><code>fsdocs-tooltips</code></p></td>
 <td align="left"><p>Generated hidden div elements for tooltips</p></td>
 </tr>
@@ -230,37 +234,13 @@ For example <code>{{fsdocs-content}}</code> is replaced with the generated conte
 
 <p>The following substitutions are extracted from your project files and may or may not be used by the default
 template:</p>
-<table>
-<thead>
-<tr class="header">
-<th align="left"><p>Substitution name</p></th>
-<th align="left"><p>Value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><p><code>fsdocs-copyright</code></p></td>
-<td align="left"><p><code>&lt;Copyright&gt;</code></p></td>
-</tr>
-<tr class="even">
-<td align="left"><p><code>fsdocs-package-project-url</code></p></td>
-<td align="left"><p><code>&lt;PackageProjectUrl&gt;</code></p></td>
-</tr>
-<tr class="odd">
-<td align="left"><p><code>fsdocs-package-license-expression</code></p></td>
-<td align="left"><p><code>&lt;PackageLicenseExpression&gt;</code></p></td>
-</tr>
-<tr class="even">
-<td align="left"><p><code>fsdocs-package-tags</code></p></td>
-<td align="left"><p><code>&lt;PackageTags&gt;</code></p></td>
-</tr>
-<tr class="odd">
-<td align="left"><p><code>fsdocs-package-version</code></p></td>
-<td align="left"><p><code>&lt;Version&gt;</code></p></td>
-</tr>
-</tbody>
-</table>
-
+<p>|  Substitution name                   | Value                          |
+|:------------------- -----------------|:-------------------------------|
+| <code>fsdocs-copyright</code>                   | <code>&lt;Copyright&gt;</code>                  |<br />
+| <code>fsdocs-package-project-url</code>         | <code>&lt;PackageProjectUrl&gt;</code>          |
+| <code>fsdocs-package-license-expression</code>  | <code>&lt;PackageLicenseExpression&gt;</code>   |
+| <code>fsdocs-package-tags</code>                | <code>&lt;PackageTags&gt;</code>                |<br />
+| <code>fsdocs-package-version</code>             | <code>&lt;Version&gt;</code>                    |</p>
 <h2><a name="Generating-LaTeX-output" class="anchor" href="#Generating-LaTeX-output">Generating LaTeX output</a></h2>
 <p>For Latex, the the <code>_template.tex</code> file is either empty of contains <code>{content}</code> as the key where the body
 of the document is placed.</p>
