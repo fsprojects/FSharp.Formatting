@@ -4,16 +4,16 @@ open System.Reflection
 
 [<assembly: AssemblyProductAttribute("FSharp.Formatting")>]
 [<assembly: AssemblyDescriptionAttribute("A package of libraries for building great F# documentation, samples and blogs")>]
-[<assembly: AssemblyVersionAttribute("7.1.1")>]
-[<assembly: AssemblyFileVersionAttribute("7.1.1")>]
-[<assembly: AssemblyInformationalVersionAttribute("7.1.1")>]
+[<assembly: AssemblyVersionAttribute("7.1.3")>]
+[<assembly: AssemblyFileVersionAttribute("7.1.3")>]
+[<assembly: AssemblyInformationalVersionAttribute("7.1.3")>]
 [<assembly: AssemblyCopyrightAttribute("Apache 2.0 License")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyProduct = "FSharp.Formatting"
     let [<Literal>] AssemblyDescription = "A package of libraries for building great F# documentation, samples and blogs"
-    let [<Literal>] AssemblyVersion = "7.1.1"
-    let [<Literal>] AssemblyFileVersion = "7.1.1"
-    let [<Literal>] AssemblyInformationalVersion = "7.1.1"
+    let [<Literal>] AssemblyVersion = "7.1.3"
+    let [<Literal>] AssemblyFileVersion = "7.1.3"
+    let [<Literal>] AssemblyInformationalVersion = "7.1.3"
     let [<Literal>] AssemblyCopyright = "Apache 2.0 License"

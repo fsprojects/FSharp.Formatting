@@ -1,8 +1,9 @@
 <Project>
       <PropertyGroup>
-        <Version>7.1.1</Version>
+        <Version>7.1.3</Version>
         <PackageReleaseNotes>
-- fixed root
+- fixed typo for `LICENCE.md`
+- all classes to have `fsdocs-` prefix
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>
