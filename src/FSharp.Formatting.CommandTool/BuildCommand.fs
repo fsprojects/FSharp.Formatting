@@ -30,6 +30,7 @@ open Suave.WebSocket
 open Suave.Operators
 open Suave.Filters
 
+[<AutoOpen>]
 module Utils =
     let saveBinary (object:'T) (fileName:string) =
         try Directory.CreateDirectory (Path.GetDirectoryName(fileName)) |> ignore with _ -> ()
@@ -66,6 +67,8 @@ module Utils =
             let res = f()
             saveBinary res cacheFile
             res
+    let ensureTrailingSlash (s:string) =
+        if s.EndsWith("/") || s.EndsWith(".html") then s else s + "/"
 
 module Crack =
 
@@ -109,17 +112,19 @@ module Crack =
           IsTestProject : bool
           IsLibrary : bool
           IsPackable : bool
-          FsDocsSourceFolder : string option
-          FsDocsSourceRepository : string option
           RepositoryUrl : string option
           RepositoryType : string option
           RepositoryBranch : string option
           UsesMarkdownComments: bool
           FsDocsCollectionNameLink : string option
           FsDocsLicenseLink : string option
-          FsDocsReleaseNotesLink : string option
           FsDocsLogoLink : string option
           FsDocsLogoSource : string option
+          FsDocsNavbarPosition: string option
+          FsDocsReleaseNotesLink : string option
+          FsDocsSourceFolder : string option
+          FsDocsSourceRepository : string option
+          FsDocsTheme: string option
           PackageProjectUrl : string option
           Authors : string option
           GenerateDocumentationFile : bool
@@ -149,6 +154,8 @@ module Crack =
               "UsesMarkdownComments"
               "FsDocsCollectionNameLink"
               "FsDocsLogoSource"
+              "FsDocsNavbarPosition"
+              "FsDocsTheme"
               "FsDocsLogoLink"
               "FsDocsLicenseLink"
               "FsDocsReleaseNotesLink"
@@ -210,6 +217,8 @@ module Crack =
                    FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink" 
                    FsDocsLogoLink = msbuildPropString "FsDocsLogoLink" 
                    FsDocsLogoSource = msbuildPropString "FsDocsLogoSource" 
+                   FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition" 
+                   FsDocsTheme = msbuildPropString "FsDocsTheme" 
                    UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                    PackageProjectUrl = msbuildPropString "PackageProjectUrl" 
                    Authors = msbuildPropString "Authors" 
@@ -331,7 +340,7 @@ module Crack =
                   IsTestProject = false
                   IsLibrary = true
                   IsPackable = true
-                  RepositoryUrl =  projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl)  
+                  RepositoryUrl =  projectInfos |> List.tryPick  (fun info -> info.RepositoryUrl) |> Option.map ensureTrailingSlash
                   RepositoryType =  projectInfos |> List.tryPick  (fun info -> info.RepositoryType)
                   RepositoryBranch = projectInfos |> List.tryPick  (fun info -> info.RepositoryBranch)
                   FsDocsCollectionNameLink = projectInfos |> List.tryPick  (fun info -> info.FsDocsCollectionNameLink)
@@ -341,7 +350,9 @@ module Crack =
                   FsDocsLogoSource = projectInfos |> List.tryPick  (fun info -> info.FsDocsLogoSource)
                   FsDocsSourceFolder = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceFolder)
                   FsDocsSourceRepository = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceRepository)
-                  PackageProjectUrl = projectInfos |> List.tryPick  (fun info -> info.PackageProjectUrl)
+                  FsDocsNavbarPosition = projectInfos |> List.tryPick  (fun info -> info.FsDocsNavbarPosition)
+                  FsDocsTheme = projectInfos |> List.tryPick  (fun info -> info.FsDocsTheme)
+                  PackageProjectUrl = projectInfos |> List.tryPick  (fun info -> info.PackageProjectUrl) |> Option.map ensureTrailingSlash
                   Authors = projectInfos |> List.tryPick  (fun info -> info.Authors)
                   GenerateDocumentationFile = true
                   PackageLicenseExpression = projectInfos |> List.tryPick  (fun info -> info.PackageLicenseExpression)
@@ -349,23 +360,31 @@ module Crack =
                   UsesMarkdownComments = false
                   Copyright = projectInfos |> List.tryPick  (fun info -> info.Copyright)
                   PackageVersion = projectInfos |> List.tryPick  (fun info -> info.PackageVersion)
-                  PackageIconUrl = projectInfos |> List.tryPick  (fun info -> info.PackageIconUrl)
+                  PackageIconUrl = projectInfos |> List.tryPick  (fun info -> info.PackageIconUrl) 
                   RepositoryCommit = projectInfos |> List.tryPick  (fun info -> info.RepositoryCommit)
               }
 
+        let root =
+            let projectUrl = projectInfoForDocs.PackageProjectUrl |> Option.map ensureTrailingSlash
+            defaultArg userRoot (defaultArg projectUrl ("/" + collectionName) |> ensureTrailingSlash)
+
         let parametersForProjectInfo (info: CrackedProjectInfo) =
+              let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash
+              let projectRoot = defaultArg userRoot (defaultArg projectUrl ("/" + collectionName) |> ensureTrailingSlash)
               userParameters @
-              [ param ParamKeys.``root`` (Some userRoot)
+              [ param ParamKeys.``root`` (Some projectRoot)
                 param ParamKeys.``fsdocs-authors`` info.Authors
                 param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
-                param ParamKeys.``fsdocs-collection-name-link`` (Some (defaultArg info.FsDocsCollectionNameLink userRoot))
+                param ParamKeys.``fsdocs-collection-name-link`` (Option.orElse info.FsDocsCollectionNameLink info.PackageProjectUrl)
                 param ParamKeys.``fsdocs-copyright`` info.Copyright
                 param ParamKeys.``fsdocs-navbar-position`` (Some "fixed-right")
-                param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" userRoot)))
-                param ParamKeys.``fsdocs-logo-link`` (Some (defaultArg info.FsDocsLogoLink userRoot))
+                param ParamKeys.``fsdocs-logo-src`` (Option.orElse info.FsDocsLogoSource (Option.map (sprintf "%simg/logo.png")  info.PackageProjectUrl))
+                param ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
+                param ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
+                param ParamKeys.``fsdocs-logo-link`` (Option.orElse info.FsDocsLogoLink info.RepositoryUrl)
                 param ParamKeys.``fsdocs-license-link`` (Option.orElse info.FsDocsLicenseLink (Option.map (sprintf "%s/blob/master/LICENCE.md") info.RepositoryUrl))
                 param ParamKeys.``fsdocs-release-notes-link`` (Option.orElse info.FsDocsReleaseNotesLink (Option.map (sprintf "%s/blob/master/RELEASE_NOTES.md") info.RepositoryUrl))
-                param ParamKeys.``fsdocs-package-project-url`` info.PackageProjectUrl
+                param ParamKeys.``fsdocs-package-project-url`` projectUrl
                 param ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
                 param ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
                 param ParamKeys.``fsdocs-package-tags`` info.PackageTags
@@ -386,7 +405,7 @@ module Crack =
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
 
-        collectionName, projects, paths, docsParameters
+        root, collectionName, projects, paths, docsParameters
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch) =
@@ -656,42 +675,44 @@ type CoreBuildOptions(watch) =
                     printfn "Error : \n%O" ex
                     false
 
-
         /// The parameters as given by the user
         let userParameters =
             (evalPairwiseStringsNoOption x.parameters 
                 |> List.map (fun (a,b) -> (ParamKey a, b)))
 
         // Adjust the user parameters for 'watch' mode root
-        let root, userParameters =
+        let userRoot, userParameters =
             if watch then
-                let r = sprintf "http://localhost:%d/" x.port_option
+                let userRoot = sprintf "http://localhost:%d/" x.port_option
                 if (dict userParameters).ContainsKey(ParamKeys.root) then
-                   printfn "ignoring user-specified root since in watch mode, root = %s" r
+                   printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
                 let userParameters =
-                    [ ParamKeys.``root``,  r] @
+                    [ ParamKeys.``root``,  userRoot] @
                     (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.``root``))
-                r, userParameters
+                Some userRoot, userParameters
             else
                 let r =
                     match (dict userParameters).TryGetValue(ParamKeys.root) with
-                    | true, v -> v
-                    | _ -> "/"
+                    | true, v -> Some v
+                    | _ -> None
                 r, userParameters
 
-        let userCollectionName = match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with true, v -> Some v | _ -> None
+        let userCollectionName =
+            match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
+            | true, v -> Some v
+            | _ -> None
 
-        let (collectionName, crackedProjects, paths, docsParameters), _key =
+        let (root, collectionName, crackedProjects, paths, docsParameters), _key =
           let projects = Seq.toList x.projects
           let cacheFile = ".fsdocs/cache"
           let getTime p = try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now
           let key1 =
-             (root, x.parameters, projects,
+             (userRoot, x.parameters, projects,
               getTime (typeof<CoreBuildOptions>.Assembly.Location),
               (projects |> List.map getTime |> List.toArray))
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
-           (fun () -> Crack.crackProjects (root, userCollectionName, userParameters, projects), key1)
+           (fun () -> Crack.crackProjects (userRoot, userCollectionName, userParameters, projects), key1)
 
         let apiDocInputs =
             [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
@@ -825,7 +846,7 @@ type CoreBuildOptions(watch) =
                     [ if models.Length > 0 then
                          li [Class "nav-header"] [!! "Documentation"]
                       for model in items do
-                         let link = sprintf "%s%s" root model.OutputPath
+                         let link = model.Uri(root)
                          li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
                     ]
                     |> List.map (fun html -> html.ToString()) |> String.concat "             \n"

@@ -31,37 +31,25 @@ module ParamKeys =
     let ``fsdocs-authors`` = ParamKey "fsdocs-authors"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-repository-link`` = ParamKey "fsdocs-repository-link"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-list-of-namespaces`` = ParamKey "fsdocs-list-of-namespaces"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-list-of-documents`` = ParamKey "fsdocs-list-of-documents"
-
-    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-collection-name`` = ParamKey "fsdocs-collection-name"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-content`` = ParamKey "fsdocs-content"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-tooltips`` = ParamKey "fsdocs-tooltips"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-page-title`` = ParamKey "fsdocs-page-title"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-page-source`` = ParamKey "fsdocs-page-source"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-repository-commit`` = ParamKey "fsdocs-repository-commit"
+    let ``fsdocs-collection-name-link`` = ParamKey "fsdocs-collection-name-link"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-copyright`` = ParamKey "fsdocs-copyright"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-license-link`` = ParamKey "fsdocs-license-link"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-list-of-namespaces`` = ParamKey "fsdocs-list-of-namespaces"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-list-of-documents`` = ParamKey "fsdocs-list-of-documents"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-logo-link`` = ParamKey "fsdocs-logo-link"
@@ -73,22 +61,10 @@ module ParamKeys =
     let ``fsdocs-navbar-position`` = ParamKey "fsdocs-navbar-position"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-collection-name-link`` = ParamKey "fsdocs-collection-name-link"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-repository-branch`` = ParamKey "fsdocs-repository-branch"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-repository-type`` = ParamKey "fsdocs-repository-type"
-
-    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-license-expression`` = ParamKey "fsdocs-package-license-expression"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-project-url`` = ParamKey "fsdocs-package-project-url"
-
-    /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-release-notes-link`` = ParamKey "fsdocs-release-notes-link"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-tags`` = ParamKey "fsdocs-package-tags"
@@ -98,6 +74,33 @@ module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-icon-url`` = ParamKey "fsdocs-package-icon-url"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-page-title`` = ParamKey "fsdocs-page-title"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-page-source`` = ParamKey "fsdocs-page-source"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-release-notes-link`` = ParamKey "fsdocs-release-notes-link"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-repository-branch`` = ParamKey "fsdocs-repository-branch"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-repository-commit`` = ParamKey "fsdocs-repository-commit"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-repository-link`` = ParamKey "fsdocs-repository-link"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-repository-type`` = ParamKey "fsdocs-repository-type"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-theme`` = ParamKey "fsdocs-theme"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-tooltips`` = ParamKey "fsdocs-tooltips"
 
 module internal SimpleTemplating =
 

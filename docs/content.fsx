@@ -59,58 +59,39 @@ copy of this content in your `content` directory.
 
 Any file or directory beginning with `.` is ignored.
 
-## Templates
+## HTML Templates
 
-Template files are as follows:
+Template files are named `_template.html` and should contain `{{fsdocs-content}}`,  `{{fsdocs-tooltips}}`
+and other placeholders.
+If a file `_template.html` exists then is used as the template for HTML generation for that directory and all sub-content.
+Otherwise the default template is used.
 
-- `_template.html` - absent, empty or contain `{{fsdocs-content}}` and `{{fsdocs-tooltips}}` placeholders.
-- `_template.tex` - absent, empty or contain `{fsdocs-content}` placeholder.
-- `_template.ipynb` - absent, empty or contain `{{fsdocs-content}}` placeholder.
-- `_template.fsx` - absent, empty or contain `{{fsdocs-content}}` placeholder.
+The following substitutions determine the primary (non-styling) content of your site.
+For example `{{fsdocs-content}}` is replaced with the generated content.
 
-For example. if a file `_template.html` exists then is used as the template for HTML generation for that directory and all sub-content.
-Otherwise the default template from the nuget package is used.
+See [Styling](styling.html) for information about template parameters and styling beyond the default template.
 
-For HTML, if no template is provided, the result is the HTML body
-of the document with HTML for tool tips appended to the end.
-The template should include two parameters that will be replaced with the actual
-HTML: `{{fsdocs-content}}` will be replaced with the formatted document;
-`{{fsdocs-tooltips}}` will be replaced with (hidden) `<div>` elements containing code for tool tips that appear
-when you place mouse pointer over an identifier. Optionally, you can also use 
-`{{fsdocs-page-title}}` which will be replaced with the text in a first-level heading.
-The template should also reference `fsdocs-style.css` and `fsdocs-tips.js` that define CSS style
-and JavaScript functions used by the generated HTML (see sample [stylesheet](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/fsdocs-style.css)
-and [script](https://github.com/fsprojects/FSharp.Formatting/blob/master/src/FSharp.Formatting.CodeFormat/files/fsdocs-tips.js) on GitHub).
-
-You can experiment with the [template file of this project](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html). 
-
-The following substitutions are defined based on metadata that may be present in project files.
-The first metadata value detected across project files is used, it is assumed these values will
-be the same across all projects.
-
-|  Substitution name                  | Value (if not overriden by --parameters)                      |  
+|  Substitution name                  | Generated content |  
 |:------------------------------------|:--------------------------------------------------------------|
-| {{root}}                        | /                                                           | 
-| {{fsdocs-authors}}              | `<Authors>`                                                   | 
-| {{fsdocs-collection-name}}      | Name of .sln, single .fsproj or containing directory          | 
-| {{fsdocs-collection-name-link}} | `<FsDocsCollectionNameLink>` else `<PackageProjectUrl>`       | 
-| {{fsdocs-copyright}}            | `<Copyright>`                                                 | 
-| {{fsdocs-content}}              | generated html contents                                       | 
-| {{fsdocs-list-of-namespaces}}   | HTML `<li>` list of namespaces with links                     | 
-| {{fsdocs-list-of-documents}}    | HTML `<li>` list of documents with  titles and links          | 
-| {{fsdocs-logo-src}}             | `<FsDocsLogoSource>` else {{root}}/img/logo.png             | 
-| {{fsdocs-logo-link}}            | `<FsDocsLogoLink>` else `<PackageProjectUrl>`                 | 
-| {{fsdocs-license-link}}         | `<FsDocsLicenseLink>` else `<PackageProjectUrl>`/blob/master/LICENSE.md          | 
-| {{fsdocs-navbar-position}}      | `fixed-left` or `fixed-right` (default ``fixed-right``)       | 
-| {{fsdocs-package-project-url}}  | `<PackageProjectUrl>`                                         | 
-| {{fsdocs-package-license-expression}}  | `<PackageLicenseExpression>`                           | 
-| {{fsdocs-package-tags}}         | `<PackageTags>`                                               | 
-| {{fsdocs-package-version}}      | `<Version>`                                                   | 
-| {{fsdocs-page-title}}           | First h1 heading in literate file, generated for API docs     | 
-| {{fsdocs-release-notes-link}}   | `<FsDocsReleaseNotesLink>` else `<PackageProjectUrl>`/blob/master/RELEASE_NOTES.md  | 
-| {{fsdocs-source}}               | original script source                                        | 
-| {{fsdocs-tooltips}}             | generated html tooltips contents                              | 
-| {{fsdocs-repository-link}}      | `<RepositoryUrl>`                                             | 
+| `root`                        | `<RepositoryUrl>` else `/`                                    |  
+| `fsdocs-content`              | Main page content                                             |   
+| `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |  
+| `fsdocs-list-of-documents`    | HTML `<li>` list of documents with  titles and links          |  
+| `fsdocs-page-title`           | First h1 heading in literate file. Generated for API docs     | 
+| `fsdocs-source`               | Original script source                                        | 
+| `fsdocs-tooltips`             | Generated hidden div elements for tooltips                    | 
+
+
+The following substitutions are extracted from your project files and may or may not be used by the default
+template:
+
+|  Substitution name                  | Value   | 
+|:------------------------------------|:--------------------------------------------------------------| 
+| `fsdocs-copyright`            | `<Copyright>`                                                 |  
+| `fsdocs-package-project-url`  | `<PackageProjectUrl>`                                         | 
+| `fsdocs-package-license-expression`  | `<PackageLicenseExpression>`                           |
+| `fsdocs-package-tags`         | `<PackageTags>`                                               |  
+| `fsdocs-package-version`      | `<Version>`                                                   |  
 
 ## Generating LaTeX output
 

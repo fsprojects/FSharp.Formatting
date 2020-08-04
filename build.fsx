@@ -157,14 +157,12 @@ Target.create "Release" ignore
   ==> "Build"
   ==> "Tests"
   ==> "All"
-
-"All"
   ==> "NuGet"
   ==> "CreateTag"
   ==> "PublishNuget"
   ==> "Release"
 
-"All"
+"Build"
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "Release"

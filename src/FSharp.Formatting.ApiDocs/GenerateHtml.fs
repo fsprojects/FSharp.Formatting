@@ -32,7 +32,7 @@ type HtmlRender(model: ApiDocModel) =
       let id = UniqueID().ToString()
       code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
              OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
-      div [Class "tip"; Id id ] tip
+      div [Class "fsdocs-tip"; Id id ] tip
     ]
 
   let renderMembers header tableHeader (members: ApiDocMember list) =
