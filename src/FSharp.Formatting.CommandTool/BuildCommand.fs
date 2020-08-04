@@ -381,7 +381,6 @@ module Crack =
                 param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
                 param ParamKeys.``fsdocs-collection-name-link`` (info.FsDocsCollectionNameLink |> Option.orElse info.PackageProjectUrl)
                 param ParamKeys.``fsdocs-copyright`` info.Copyright
-                param ParamKeys.``fsdocs-navbar-position`` (Some "fixed-right")
                 param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png"  root)))
                 param ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
                 param ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
