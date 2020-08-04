@@ -88,8 +88,8 @@ module internal Formatting =
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc
     let parameters0 =
-        [ ParamKey.``fsdocs-page-title``, pageTitle
-          ParamKey.``fsdocs-page-source``, doc.SourceFile ]
+        [ ParamKeys.``fsdocs-page-title``, pageTitle
+          ParamKeys.``fsdocs-page-source``, doc.SourceFile ]
         @ ctx.Replacements
         @ sourceReplacements
     let formattedDocument = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind parameters0
@@ -98,8 +98,8 @@ module internal Formatting =
     // Construct new Markdown document and write it
     let parameters =
       parameters0 @
-      [ ParamKey.``fsdocs-content``, formattedDocument
-        ParamKey.``fsdocs-tooltips``, tipsHtml ]
+      [ ParamKeys.``fsdocs-content``, formattedDocument
+        ParamKeys.``fsdocs-tooltips``, tipsHtml ]
 
     let indexText = (match ctx.OutputKind with OutputKind.Html -> Some (getIndexText doc) | _ -> None )
     {

@@ -36,10 +36,10 @@ let docTemplate =
   root </> "../../docs/_template.html"
 
 let parameters =
-  [ ParamKey.``fsdocs-collection-name``, "F# TestProject"
-    ParamKey.``fsdocs-authors``, "Your Name"
-    ParamKey.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
-    ParamKey.``root``, "/root/" ]
+  [ ParamKeys.``fsdocs-collection-name``, "F# TestProject"
+    ParamKeys.``fsdocs-authors``, "Your Name"
+    ParamKeys.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
+    ParamKeys.``root``, "/root/" ]
 
 let generateApiDocs (libraries:string list) useMarkdown uniq =
     try

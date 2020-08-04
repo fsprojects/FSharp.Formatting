@@ -411,16 +411,16 @@ type HtmlRender(model: ApiDocModel) =
   /// Get the substitutions relevant to all
   member _.GlobalParameters : Parameters =
     let toc = listOfNamespaces true true None
-    [ yield (ParamKey.``fsdocs-list-of-namespaces``, toc )  ]
+    [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )  ]
 
   member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
     let getParameters parameters toc (content: HtmlElement) pageTitle =
         [| yield! parameters
-           yield (ParamKey.``fsdocs-list-of-namespaces``, toc )
-           yield (ParamKey.``fsdocs-content``, content.ToString() )
-           yield (ParamKey.``fsdocs-tooltips``, "" )
-           yield (ParamKey.``fsdocs-page-title``, pageTitle )
+           yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )
+           yield (ParamKeys.``fsdocs-content``, content.ToString() )
+           yield (ParamKeys.``fsdocs-tooltips``, "" )
+           yield (ParamKeys.``fsdocs-page-title``, pageTitle )
            yield! globalParameters
            |]
 

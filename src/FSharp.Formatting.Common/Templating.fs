@@ -2,20 +2,27 @@ namespace FSharp.Formatting.Templating
 
 open System.IO
 
+#if DEBUG
+type ParamKey = ParamKey of string
+#else
+/// An abbreviation for 'string' representing a strong name for a parameter key
+type ParamKey = string
+#endif
+
+/// A list of parameters indexed by parameter keys
+type Parameters = (ParamKey * string) list
+
+#if !DEBUG
 [<AutoOpen>]
 /// Defines the parameter keys known to FSharp.Formatting processing code
-module ParamKey =
-#if DEBUG
-    /// An abbreviation for 'string'
-    type ParamKey = ParamKey of string
-#else
-    type ParamKey = string
+module internal ParamKeyUtils =
     let ParamKey (c: string) : ParamKey = c
     let (|ParamKey|) (c: ParamKey) : string = c
 #endif
 
-    /// A list of parameters indexed by parameter keys
-    type Parameters = (ParamKey * string) list
+/// Defines the parameter keys known to FSharp.Formatting processing code
+module ParamKeys =
+
 
     /// A parameter key known to FSharp.Formatting
     let ``root`` = ParamKey "root"
@@ -100,8 +107,8 @@ module internal SimpleTemplating =
       | None | Some "" ->
           // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
           let lookup = parameters |> dict
-          (if lookup.ContainsKey ``fsdocs-content`` then lookup.[``fsdocs-content``] else "") +
-          (if lookup.ContainsKey ``fsdocs-tooltips`` then "\n\n" + lookup.[``fsdocs-tooltips``] else "")
+          (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then lookup.[ParamKeys.``fsdocs-content``] else "") +
+          (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``] else "")
       | Some templateText ->
           // First replace {{key}} or {key} with some uglier keys and then replace them with values
           // (in case one of the keys appears in some other value)

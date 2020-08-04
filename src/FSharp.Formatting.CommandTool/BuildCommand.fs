@@ -355,25 +355,25 @@ module Crack =
 
         let parametersForProjectInfo (info: CrackedProjectInfo) =
               userParameters @
-              [ param ParamKey.``root`` (Some userRoot)
-                param ParamKey.``fsdocs-authors`` info.Authors
-                param ParamKey.``fsdocs-collection-name`` (Some collectionName)
-                param ParamKey.``fsdocs-collection-name-link`` (Some (defaultArg info.FsDocsCollectionNameLink userRoot))
-                param ParamKey.``fsdocs-copyright`` info.Copyright
-                param ParamKey.``fsdocs-navbar-position`` (Some "fixed-right")
-                param ParamKey.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" userRoot)))
-                param ParamKey.``fsdocs-logo-link`` (Some (defaultArg info.FsDocsLogoLink userRoot))
-                param ParamKey.``fsdocs-license-link`` (Option.orElse info.FsDocsLicenseLink (Option.map (sprintf "%s/blob/master/LICENCE.md") info.RepositoryUrl))
-                param ParamKey.``fsdocs-release-notes-link`` (Option.orElse info.FsDocsReleaseNotesLink (Option.map (sprintf "%s/blob/master/RELEASE_NOTES.md") info.RepositoryUrl))
-                param ParamKey.``fsdocs-package-project-url`` info.PackageProjectUrl
-                param ParamKey.``fsdocs-package-license-expression`` info.PackageLicenseExpression
-                param ParamKey.``fsdocs-package-icon-url`` info.PackageIconUrl
-                param ParamKey.``fsdocs-package-tags`` info.PackageTags
-                param ParamKey.``fsdocs-package-version`` info.PackageVersion
-                param ParamKey.``fsdocs-repository-link`` info.RepositoryUrl
-                param ParamKey.``fsdocs-repository-branch`` info.RepositoryBranch
-                param ParamKey.``fsdocs-repository-type`` info.RepositoryType
-                param ParamKey.``fsdocs-repository-commit`` info.RepositoryCommit
+              [ param ParamKeys.``root`` (Some userRoot)
+                param ParamKeys.``fsdocs-authors`` info.Authors
+                param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
+                param ParamKeys.``fsdocs-collection-name-link`` (Some (defaultArg info.FsDocsCollectionNameLink userRoot))
+                param ParamKeys.``fsdocs-copyright`` info.Copyright
+                param ParamKeys.``fsdocs-navbar-position`` (Some "fixed-right")
+                param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" userRoot)))
+                param ParamKeys.``fsdocs-logo-link`` (Some (defaultArg info.FsDocsLogoLink userRoot))
+                param ParamKeys.``fsdocs-license-link`` (Option.orElse info.FsDocsLicenseLink (Option.map (sprintf "%s/blob/master/LICENCE.md") info.RepositoryUrl))
+                param ParamKeys.``fsdocs-release-notes-link`` (Option.orElse info.FsDocsReleaseNotesLink (Option.map (sprintf "%s/blob/master/RELEASE_NOTES.md") info.RepositoryUrl))
+                param ParamKeys.``fsdocs-package-project-url`` info.PackageProjectUrl
+                param ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
+                param ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
+                param ParamKeys.``fsdocs-package-tags`` info.PackageTags
+                param ParamKeys.``fsdocs-package-version`` info.PackageVersion
+                param ParamKeys.``fsdocs-repository-link`` info.RepositoryUrl
+                param ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
+                param ParamKeys.``fsdocs-repository-type`` info.RepositoryType
+                param ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
               ]
 
         let projects =  
@@ -666,20 +666,20 @@ type CoreBuildOptions(watch) =
         let root, userParameters =
             if watch then
                 let r = sprintf "http://localhost:%d/" x.port_option
-                if (dict userParameters).ContainsKey(ParamKey.root) then
+                if (dict userParameters).ContainsKey(ParamKeys.root) then
                    printfn "ignoring user-specified root since in watch mode, root = %s" r
                 let userParameters =
-                    [ ParamKey.``root``,  r] @
-                    (userParameters |> List.filter (fun (a, _) -> a <> ParamKey.``root``))
+                    [ ParamKeys.``root``,  r] @
+                    (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.``root``))
                 r, userParameters
             else
                 let r =
-                    match (dict userParameters).TryGetValue(ParamKey.root) with
+                    match (dict userParameters).TryGetValue(ParamKeys.root) with
                     | true, v -> v
                     | _ -> "/"
                 r, userParameters
 
-        let userCollectionName = match (dict userParameters).TryGetValue(ParamKey.``fsdocs-collection-name``) with true, v -> Some v | _ -> None
+        let userCollectionName = match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with true, v -> Some v | _ -> None
 
         let (collectionName, crackedProjects, paths, docsParameters), _key =
           let projects = Seq.toList x.projects
@@ -832,7 +832,7 @@ type CoreBuildOptions(watch) =
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
-                latestDocContentGlobalParameters <- [ ParamKey.``fsdocs-list-of-documents`` ,listOfDocs ]
+                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` ,listOfDocs ]
                 latestDocContentPhase2 <- (fun globals ->
 
                     for (_thing, action) in models do
