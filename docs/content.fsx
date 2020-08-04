@@ -71,9 +71,10 @@ For example `{{fsdocs-content}}` is replaced with the generated content.
 
 See [Styling](styling.html) for information about template parameters and styling beyond the default template.
 
-|  Substitution name                  | Generated content |  
-|:------------------------------------|:--------------------------------------------------------------|
-| `root`                        | `<RepositoryUrl>` else `/`                                    |  
+|  Substitution name            | Generated content |  
+|:------------------------------|:--------------------------------------------------------------|
+| `root`                        | `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`    |  
+| `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |  
 | `fsdocs-content`              | Main page content                                             |   
 | `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |  
 | `fsdocs-list-of-documents`    | HTML `<li>` list of documents with  titles and links          |  
@@ -85,13 +86,13 @@ See [Styling](styling.html) for information about template parameters and stylin
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:
 
-|  Substitution name                  | Value   | 
-|:------------------------------------|:--------------------------------------------------------------| 
-| `fsdocs-copyright`            | `<Copyright>`                                                 |  
-| `fsdocs-package-project-url`  | `<PackageProjectUrl>`                                         | 
-| `fsdocs-package-license-expression`  | `<PackageLicenseExpression>`                           |
-| `fsdocs-package-tags`         | `<PackageTags>`                                               |  
-| `fsdocs-package-version`      | `<Version>`                                                   |  
+|  Substitution name                   | Value                          | 
+|:------------------- -----------------|:-------------------------------| 
+| `fsdocs-copyright`                   | `<Copyright>`                  |  
+| `fsdocs-package-project-url`         | `<PackageProjectUrl>`          | 
+| `fsdocs-package-license-expression`  | `<PackageLicenseExpression>`   |
+| `fsdocs-package-tags`                | `<PackageTags>`                |  
+| `fsdocs-package-version`             | `<Version>`                    |  
 
 ## Generating LaTeX output
 

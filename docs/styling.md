@@ -20,7 +20,6 @@ The following [content parameters](content.html) are particularly related to vis
 |  Substitution name                  | Value (if not overriden by --parameters)                      | 
 |:------------------------------------|:--------------------------------------------------------------|
 | `fsdocs-authors`              | `<Authors>`                                                   |  
-| `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |  
 | `fsdocs-collection-name-link` | `<FsDocsCollectionNameLink>`        |  
 | `fsdocs-license-link`         | `<FsDocsLicenseLink>`  | 
 | `fsdocs-logo-src`             | `<FsDocsLogoSource>` |  
