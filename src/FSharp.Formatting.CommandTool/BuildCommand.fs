@@ -839,7 +839,10 @@ type CoreBuildOptions(watch) =
                     let items =
                         [ for (thing, _action) in models do
                              match thing with
-                             | Some (inputFile, model) when model.OutputKind = OutputKind.Html && not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
+                             | Some (inputFile, model)
+                                when model.OutputKind = OutputKind.Html &&
+                                     // Don't put the index in the list
+                                     not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
                              | _ -> () ]
 
                     [ if models.Length > 0 then
