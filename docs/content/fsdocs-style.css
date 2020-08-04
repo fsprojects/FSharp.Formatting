@@ -5,115 +5,115 @@
 /*--------------------------------------------------------------------------*/
 
 /* strings --- and stlyes for other string related formats */
-span.s {
+#fsdocs-main span.s {
     color: #E0E268;
 }
 /* printf formatters */
-span.pf {
+#fsdocs-main span.pf {
     color: #E0C57F;
 }
 /* escaped chars */
-span.e {
+#fsdocs-main span.e {
     color: #EA8675;
 }
 
 /* identifiers --- and styles for more specific identifier types */
-span.id {
+#fsdocs-main span.id {
     color: #d1d1d1;
 }
 /* module */
-span.m {
+#fsdocs-main span.m {
     color: #43AEC6;
 }
 /* reference type */
-span.rt {
+#fsdocs-main span.rt {
     color: #43AEC6;
 }
 /* value type */
-span.vt {
+#fsdocs-main span.vt {
     color: #43AEC6;
 }
 /* interface */
-span.if {
+#fsdocs-main span.if {
     color: #43AEC6;
 }
 /* type argument */
-span.ta {
+#fsdocs-main span.ta {
     color: #43AEC6;
 }
 /* disposable */
-span.d {
+#fsdocs-main span.d {
     color: #43AEC6;
 }
 /* property */
-span.prop {
+#fsdocs-main span.prop {
     color: #43AEC6;
 }
 /* punctuation */
-span.p {
+#fsdocs-main span.p {
     color: #43AEC6;
 }
 /* function */
-span.f {
+#fsdocs-main span.f {
     color: #e1e1e1;
 }
 /* active pattern */
-span.pat {
+#fsdocs-main span.pat {
     color: #4ec9b0;
 }
 /* union case */
-span.u {
+#fsdocs-main span.u {
     color: #4ec9b0;
 }
 /* enumeration */
-span.e {
+#fsdocs-main span.e {
     color: #4ec9b0;
 }
 /* keywords */
-span.k {
+#fsdocs-main span.k {
     color: #FAB11D;
 }
 /* comment */
-span.c {
+#fsdocs-main span.c {
     color: #808080;
 }
 /* operators */
-span.o {
+#fsdocs-main span.o {
     color: #af75c1;
 }
 /* numbers */
-span.n {
+#fsdocs-main span.n {
     color: #96C71D;
 }
 /* line number */
-span.l {
+#fsdocs-main span.l {
     color: #80b0b0;
 }
 /* mutable var or ref cell */
-span.v {
+#fsdocs-main span.v {
     color: #d1d1d1;
     font-weight: bold;
 }
 /* inactive code */
-span.inactive {
+#fsdocs-main span.inactive {
     color: #808080;
 }
 /* preprocessor */
-span.prep {
+#fsdocs-main span.prep {
     color: #af75c1;
 }
 /* fsi output */
-span.fsi {
+#fsdocs-main span.fsi {
     color: #808080;
 }
 
-code {
+#fsdocs-main code {
     background-color: #f7f7f900;
     border: 0px;
     padding: 0px;
 }
 /* omitted */
-span.omitted {
+#fsdocs-main span.omitted {
     background: #3c4e52;
     border-radius: 5px;
     color: #808080;
@@ -134,17 +134,17 @@ div.tip {
         font: 11pt 'Droid Sans', arial, sans-serif;
     }
 
-pre .fssnip code {
+#fsdocs-main pre .fssnip code {
     font: 9pt 'Droid Sans Mono',consolas,monospace;
 }
 
-.table {
+#fsdocs-main .table {
     table-layout: auto;
     width: 100%;
     font-size: 0.875rem;
 }
 
-    .table caption {
+    #fsdocs-main .table caption {
         font-size: 0.8rem;
         font-weight: 600;
         letter-spacing: 2px;
@@ -156,8 +156,8 @@ pre .fssnip code {
         text-align: right;
     }
 
-    .table td,
-    .table th {
+    #fsdocs-main .table td,
+    #fsdocs-main .table th {
         display: table-cell;
         word-wrap: break-word;
         padding: 0.75rem 1rem 0.75rem 0rem;
@@ -171,76 +171,76 @@ pre .fssnip code {
     }
 
     /* suppress the top line on inner lists such as tables of exceptions */
-    .table .inner-list td,
-    .table .inner-list th {
+    #fsdocs-main .table .inner-list td,
+    #fsdocs-main .table .inner-list th {
         border-top: 0
     }
 
-        .table td p:first-child,
-        .table th p:first-child {
-            margin-top: 0;
-        }
+    #fsdocs-main .table td p:first-child,
+    #fsdocs-main .table th p:first-child {
+        margin-top: 0;
+    }
 
-        .table td.nowrap,
-        .table th.nowrap {
-            white-space: nowrap;
-        }
+    #fsdocs-main .table td.nowrap,
+    #fsdocs-main .table th.nowrap {
+        white-space: nowrap;
+    }
 
-        .table td.is-narrow,
-        .table th.is-narrow {
-            width: 15%;
-        }
+    #fsdocs-main .table td.is-narrow,
+    #fsdocs-main .table th.is-narrow {
+        width: 15%;
+    }
 
-        .table th:not([scope='row']) {
-            border-top: 0;
-            border-bottom: 1px;
-        }
+    #fsdocs-main .table th:not([scope='row']) {
+        border-top: 0;
+        border-bottom: 1px;
+    }
 
-    .table > caption + thead > tr:first-child > td,
-    .table > colgroup + thead > tr:first-child > td,
-    .table > thead:first-child > tr:first-child > td {
+    #fsdocs-main .table > caption + thead > tr:first-child > td,
+    #fsdocs-main .table > colgroup + thead > tr:first-child > td,
+    #fsdocs-main .table > thead:first-child > tr:first-child > td {
         border-top: 0;
     }
 
-    .table .table-striped > tbody > tr:nth-of-type(odd) {
+    #fsdocs-main .table .table-striped > tbody > tr:nth-of-type(odd) {
         background-color: var(--box-shadow-light);
     }
 
-    .table.min {
+    #fsdocs-main .table.min {
         width: unset;
     }
 
-    .table.is-left-aligned td:first-child,
-    .table.is-left-aligned th:first-child {
+    #fsdocs-main .table.is-left-aligned td:first-child,
+    #fsdocs-main .table.is-left-aligned th:first-child {
         padding-left: 0;
     }
 
-        .table.is-left-aligned td:first-child a,
-        .table.is-left-aligned th:first-child a {
+        #fsdocs-main .table.is-left-aligned td:first-child a,
+        #fsdocs-main .table.is-left-aligned th:first-child a {
             outline-offset: -0.125rem;
         }
 
 @media screen and (max-width: 767px), screen and (min-resolution: 120dpi) and (max-width: 767.9px) {
-    .table.is-stacked-mobile td:nth-child(1) {
+    #fsdocs-main .table.is-stacked-mobile td:nth-child(1) {
         display: block;
         width: 100%;
         padding: 1rem 0;
     }
 
-    .table.is-stacked-mobile td:not(:nth-child(1)) {
+    #fsdocs-main .table.is-stacked-mobile td:not(:nth-child(1)) {
         display: block;
         border-width: 0;
         padding: 0 0 1rem;
     }
 }
 
-.table.has-inner-borders th,
-.table.has-inner-borders td {
+#fsdocs-main .table.has-inner-borders th,
+#fsdocs-main .table.has-inner-borders td {
     border-right: 1px solid #e3e3e3;
 }
 
-    .table.has-inner-borders th:last-child,
-    .table.has-inner-borders td:last-child {
+    #fsdocs-main .table.has-inner-borders th:last-child,
+    #fsdocs-main .table.has-inner-borders td:last-child {
         border-right: none;
     }
 /*--------------------------------------------------------------------------
@@ -255,7 +255,31 @@ body {
 
 }
 
-pre {
+/* Format the heading - nicer spacing etc. */
+.masthead {
+    overflow: hidden;
+}
+
+    .masthead .muted a {
+        text-decoration: none;
+        color: #999999;
+    }
+
+    .masthead ul, .masthead li {
+        margin-bottom: 0px;
+    }
+
+    .masthead .nav li {
+        margin-top: 15px;
+        font-size: 110%;
+    }
+
+    .masthead h3 {
+        margin-bottom: 5px;
+        font-size: 170%;
+    }
+
+#fsdocs-main pre {
     word-wrap: inherit;
 }
 
@@ -283,108 +307,101 @@ hr {
     }
 */
 /* Change font sizes for headings etc. */
-#main h1 {
+#fsdocs-main h1 {
     font-size: 2.0rem;
     margin: 10px 0px 15px 0px;
     font-weight: 400;
 }
 
-#main h2 {
+#fsdocs-main h2 {
     font-size: 1.6rem;
-    margin: 20px 0px 0px 0px;
+    margin: 20px 0px 10px 0px;
     font-weight: 400;
 }
 
-#main h3 {
+#fsdocs-main h3 {
     font-size: 1.2rem;
-    margin: 15px 0px 0px 0px;
+    margin: 15px 0px 10px 0px;
     font-weight: 400;
 }
 
-/* #main p  { font-size: 11pt; margin:5px 0px 15px 0px; } */
-/*#main ul {
-    font-size: 11pt;
-    margin-top: 10px;
-}
-
-#main li {
-    font-size: 11pt;
-    margin: 5px 0px 5px 0px;
-}*/
-/*
-#main strong {
-    font-weight: 700;
-}
-*/
-
-#main .type-list .type-name, .module-list .module-name {
+#fsdocs-main .fsdocs-entity-list .fsdocs-entity-name {
     width: 25%;
     font-weight: bold;
 }
 
-#main .member-list .member-name {
+#fsdocs-main .fsdocs-member-list .fsdocs-member-name {
     width: 35%;
 }
 
-#main code {
+#fsdocs-main code {
     font-size: 0.95rem;
 }
 
-/*--------------------------------------------------------------------------
-  Formatting for use markdown converted to HTML and placed in 'xmldoc' descriptions
-/*--------------------------------------------------------------------------*/
-
-#main .xmldoc h1 {
+#fsdocs-main .fsdocs-xmldoc h1 {
     font-size: 1.2rem;
     margin: 10px 0px 0px 0px;
 }
 
-#main .xmldoc h2 {
+#fsdocs-main .fsdocs-xmldoc h2 {
     font-size: 1.2rem;
     margin: 10px 0px 0px 0px;
 }
 
-#main .xmldoc h3 {
+#fsdocs-main .fsdocs-xmldoc h3 {
     font-size: 1.1rem;
     margin: 10px 0px 0px 0px;
 }
 
-.github-link {
+#fsdocs-searchbox {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+
+#fsdocs-main .fsdocs-source-link {
     float: right;
     text-decoration: none;
 }
 
-    .github-link img {
+    #fsdocs-main .fsdocs-source-link img {
         border-style: none;
         margin-left: 10px;
     }
 
-    .github-link .hover {
+    #fsdocs-main .fsdocs-source-link .hover {
         display: none;
     }
 
-    .github-link:hover .hover {
+    #fsdocs-main .fsdocs-source-link:hover .hover {
         display: block;
     }
 
-    .github-link .normal {
+    #fsdocs-main .fsdocs-source-link .normal {
         display: block;
     }
 
-    .github-link:hover .normal {
+    #fsdocs-main .fsdocs-source-link:hover .normal {
         display: none;
     }
+
+#fsdocs-logo {
+    width:140px;
+    height:140px;
+    margin:10px 0px 0px 0px;
+    border-style:none;
+}
 
 /*--------------------------------------------------------------------------
   Links
 /*--------------------------------------------------------------------------*/
-table.pre pre {
+#fsdocs-main table.pre pre {
     padding: 0px;
     margin: 0px;
     border: none;
 }
 
-table.pre, pre.fssnip, pre {
+#fsdocs-main table.pre, pre.fssnip, pre {
     line-height: 13pt;
     border: 1px solid #d8d8d8;
     border-collapse: separate;
@@ -399,64 +416,52 @@ table.pre, pre.fssnip, pre {
     max-width: none;
 }
 
-    pre.fssnip code {
-        font: 9pt 'Droid Sans Mono',consolas,monospace;
-    }
+#fsdocs-main pre.fssnip code {
+    font: 9pt 'Droid Sans Mono',consolas,monospace;
+}
 
-    table.pre pre {
-        padding: 0px;
-        margin: 0px;
-        border-radius: 0px;
-        width: 100%;
-    }
+#fsdocs-main table.pre pre {
+    padding: 0px;
+    margin: 0px;
+    border-radius: 0px;
+    width: 100%;
+}
 
-    table.pre td {
-        padding: 0px;
-        white-space: normal;
-        margin: 0px;
-    }
+#fsdocs-main table.pre td {
+    padding: 0px;
+    white-space: normal;
+    margin: 0px;
+}
 
-        table.pre td.lines {
-            width: 30px;
-        }
+#fsdocs-main table.pre td.lines {
+    width: 30px;
+}
 
 
-pre {
+#fsdocs-main pre {
     word-wrap: inherit;
 }
 
-/*--------------------------------------------------------------------------
-  Links
-/*--------------------------------------------------------------------------*/
-
-h1 a, h1 a:hover, h1 a:focus,
-h2 a, h2 a:hover, h2 a:focus,
-h3 a, h3 a:hover, h3 a:focus,
-h4 a, h4 a:hover, h4 a:focus,
-h5 a, h5 a:hover, h5 a:focus,
-h6 a, h6 a:hover, h6 a:focus {
+#fsdocs-main h1 a,
+#fsdocs-main h1 a:hover,
+#fsdocs-main h1 a:focus,
+#fsdocs-main h2 a,
+#fsdocs-main h2 a:hover,
+#fsdocs-main h2 a:focus,
+#fsdocs-main h3 a,
+#fsdocs-main h3 a:hover,
+#fsdocs-main h3 a:focus,
+#fsdocs-main h4 a,
+#fsdocs-main h4 a:hover, #fsdocs-main
+#fsdocs-main h4 a:focus,
+#fsdocs-main h5 a,
+#fsdocs-main h5 a:hover,
+#fsdocs-main h5 a:focus,
+#fsdocs-main h6 a,
+#fsdocs-main h6 a:hover,
+#fsdocs-main h6 a:focus {
     color: inherit;
     text-decoration: inherit;
     outline: none
 }
 
-/*--------------------------------------------------------------------------
-  Additional formatting for the homepage
-/*--------------------------------------------------------------------------*/
-
-#nuget {
-    margin-top: 20px;
-    font-size: 1.0rem;
-    padding: 20px;
-}
-
-    #nuget pre {
-        font-size: 1.0rem;
-        -moz-border-radius: 0px;
-        -webkit-border-radius: 0px;
-        border-radius: 0px;
-        background: #404040;
-        border-style: none;
-        color: #e0e0e0;
-        margin-top: 15px;
-    }

@@ -10,11 +10,11 @@ body {
 
 @media (min-width: 768px) {
     body {
-        margin-left: 232px;
+        margin-left: 252px;
     }
 }
 .navbar {
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     box-shadow: none;
 }
@@ -33,7 +33,7 @@ body {
 @media (min-width: 768px) {
     .navbar.fixed-left {
         bottom: 0;
-        width: 232px;
+        width: 252px;
         flex-flow: column nowrap;
         align-items: flex-start;
     }

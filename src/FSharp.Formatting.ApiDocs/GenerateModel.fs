@@ -525,7 +525,7 @@ module internal CrossReferences =
                     else ""
                 sprintf "%s%s%s" name typeArgs paramList
               with exn ->
-                printfn "Error while building member-name for %s because: %s" memb.FullName exn.Message
+                printfn "Error while building fsdocs-member-name for %s because: %s" memb.FullName exn.Message
                 Log.verbf "Full Exception details of previous message: %O" exn
                 memb.CompiledName
             match (memb.DeclaringEntity.Value.TryFullName) with

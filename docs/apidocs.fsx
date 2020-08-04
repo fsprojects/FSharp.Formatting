@@ -18,74 +18,80 @@
 let root = "C:\\"
 
 (**
-F# Formatting: API Documentation generation 
+API Documentation generation 
 ====================================
 
-The [command-line tool `fsdocs`](commandline.html) or the namespace `FSharp.Formatting.ApiDocs` can be used to generate documentation 
-for F# libraries with XML comments. 
+The [command-line tool `fsdocs`](commandline.html) can be used to generate documentation 
+for F# libraries with XML comments.  The documentation is normally built using `fsdocs build` and developed using `fsdocs watch`. For
+the former the output will be placed in `output\reference` by default.
 
- - You can use Markdown instead of XML in `///` comments
- - The HTML is built by instantiating a template
- - An ApiDocs model is available if you want to integrate with your own approach to templating.
+## Templates
 
-The documentation is normally built using
+The HTML is built by instantiating a template. The template used is the first of:
 
-    [lang=text]
-    fsdocs build
+* `docs/reference/_template.html` 
 
-The output will be placed in `output\reference` by default, and the template used is
-`docs\_template.html`.
+* `docs/_template.html`
+
+* The default template
+
+Usually the same template can be used as for [other content](content.html).
+
+## Classic XML Comments
+
+XML Comments may use [the normal F# and C# XML doc standards](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/).
+
+An example of an XML documentation comment:
+*)
+/// <summary>
+/// Some actual comment
+/// <para>Another paragraph</para>
+/// </summary>
+module Foo2 = 
+   let a = 42
+
+(**
 
 
-Searchable API docs
------------------
+## Go to Source links
 
-When using the command-line tool a Lunr search index is automatically generated in `index.json`.
+'fsdocs' normally automatically adds GitHub links to each functions, values and class members for further reference.
 
-To add a search box to your `_template.html`, load `fsdocs-search.js` found in this repo
-(see the relevant sections of [`_template.html` used here](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html),
-for example this HTML code:
+This is normally done automatically based on the following settings:
 
-    ...
-    <div id="header">
-      <div class="searchbox">
-        <label for="search-by">
-          <i class="fas fa-search"></i>
-        </label>
-        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-        <span data-search-clear="">
-          <i class="fas fa-times"></i>
-        </span>
-      </div>
-    </div>
-    ...
+    <RepositoryUrl>https://github.com/...</RepositoryUrl>
+    <RepositoryBranch>...</RepositoryBranch>
+    <RepositoryType>git</RepositoryType>
 
-Adding Go to GitHub source links
------------------
-You can automatically add GitHub links to each functions, values and class members for further reference.
-You need to specify two more arguments: `sourceRepo` to the GitHub repository 
-and `sourceFolder` to the folder where your DLLs are built.
+If your source is not built from the same project where you are building documentation then
+you may need these settings:
+
+    <FsDocsSourceRepository>...</FsDocsSourceRepository> -- the URL for the root of the source 
+    <FsDocsSourceFolder>...</FsDocsSourceFolder>         -- the root soure folder at time of build
 
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 
-Adding cross-type links to modules and types in the same assembly
------------------
+## Markdown Comments
+
+You can use Markdown instead of XML in `///` comments. If you do, you should set `<UsesMarkdownComments>` in
+your F# project file.
+
+> Note: Markdown Comments are not supported in all F# IDE tooling.
+
+### Adding cross-type links to modules and types in the same assembly
+
 You can automatically add cross-type links to the documentation pages of other modules and types in the same assembly.
 You can do this in two different ways:
 
 * Add a [markdown inline link](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links) were the link
 title is the name of the type you want to link.
 
-
-     /// this will generate a link to [Foo.Bar] documentation
-
+      /// this will generate a link to [Foo.Bar] documentation
 
 * Add a [Markdown inline code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code) (using
 back-ticks) where the code is the name of the type you want to link.
 
-
-     /// This will also generate a link to `Foo.Bar` documentation
-
+      /// This will also generate a link to `Foo.Bar` documentation
 
 You can use either the full name (including namespace and module) or the simple name of a type.
 If more than one type is found with the same name the link will not be generated.
@@ -117,8 +123,7 @@ module Foo3 =
          b * 50
 
 (**
-Excluding APIs from the docs
------------------
+### Markdown Comments: Excluding APIs from the docs
 
 If you want to exclude modules or functions from the API docs you can use the `[omit]` tag.
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:
@@ -129,30 +134,11 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 module Bar = 
    let a = 42
 (**
-Classic XML documentation comments
-----------------------------------
-
-By default `FSharp.Formatting` will expect Markdown documentation comments, to parse XML comments
-pass the named argument `mdcomments` with value `false`.
-
-An example of an XML documentation comment:
-*)
-/// <summary>
-/// Some actual comment
-/// <para>Another paragraph</para>
-/// </summary>
-module Foo2 = 
-   let a = 42
-(**
-Note that currently our code is not handling `<parameter>` and `<result> tags, this is 
-not so much of a problem given that FSharp.Formatting infers the signature via reflection.
 
 
+## Building library documentation programmatically
 
-Building library documentation programmatically
-------------------------------
-
-First, we need to load the assembly and open necessary namespaces:
+You can build library documentation programatically. To do this, load the assembly and open necessary namespaces:
 *)
 
 #r "FSharp.Formatting.ApiDocs.dll"
@@ -165,8 +151,12 @@ Building the library documentation is easy - you just need to call
 Assuming `root` is the root directory for your project, you can write:
 *)
 
+let file = Path.Combine(root, "bin/YourLibrary.dll")
+let input = ApiDocInput.FromFile(file) 
 ApiDocs.GenerateHtml
-    ( [ Path.Combine(root, "bin/YourLibrary.dll") ], 
-      outDir=Path.Combine(root, "output"),
-      template=Path.Combine(root, "templates", "template.html") )
+    ( [ input ], 
+      output=Path.Combine(root, "output"),
+      collectionName="YourLibrary",
+      template=Path.Combine(root, "templates", "template.html"),
+      parameters=[])
 

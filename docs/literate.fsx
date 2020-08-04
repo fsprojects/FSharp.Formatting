@@ -18,7 +18,7 @@
 (**
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
 
-F# Formatting: Literate Scripts and Markdown
+Literate Scripts and Markdown
 ===================================
 
 The following example shows most of the features that can be used in a literate
