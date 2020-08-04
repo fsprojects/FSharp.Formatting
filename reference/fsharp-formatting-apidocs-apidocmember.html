@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{fsdocs-page-title}}</title>
+    <title>ApiDocMemberFSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{fsdocs-authors}}">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -14,10 +14,10 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/navbar-{{fsdocs-navbar-position}}.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-style.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-custom.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-{{fsdocs-default}}.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,12 +29,12 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-secondary {{fsdocs-navbar-position}}" id="fsdocs-menu">
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <a href="{{fsdocs-logo-link}}"><img id="fsdocs-logo" src="{{fsdocs-logo-src}}" /></a>
+            <a href="/"><img id="fsdocs-logo" src="/img/logo.png" /></a>
             <!-- BEGIN SEARCH BOX: this adds support for the search box -->
             <div id="header">
                 <div class="searchbox" id="fsdocs-searchbox">
@@ -51,30 +51,1360 @@
             <!-- END SEARCH BOX: this adds support for the search box -->
             <ul class="navbar-nav">
                 <li class="nav-header">Links</li>
-                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="{{fsdocs-license-link}}">License (Apache 2.0)</a></li>
-                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="{{fsdocs-release-notes-link}}">Release Notes</a></li>
-                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="{{fsdocs-repository-link}}">Source Repository</a></li>
-                {{fsdocs-list-of-documents}}
-                {{fsdocs-list-of-namespaces}}
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENCE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\apidocs.html">
+    API Documentation generation
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\commandline.html">
+    Command line tool
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\evaluation.html">
+    Embedding literate script output
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\literate.html">
+    Literate Scripts and Markdown
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\markdown.html">
+    Markdown parser
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\styling.html">
+    Styling
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sideextensions.html">
+    Markdown extensions side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidemarkdown.html">
+    Literate Markdown side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidescript.html">
+    Literate script side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\templates\leftside\styling.html">
+    Styling: Left-Side Example
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item" class="active">
+  <a class="nav-link" class="active" href="/reference/fsharp-formatting-apidocs.html">
+    FSharp.Formatting.ApiDocs
+  </a>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocattribute.html">
+      ApiDocAttribute
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidoccollection.html">
+      ApiDocCollection
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidoccomment.html">
+      ApiDocComment
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocentity.html">
+      ApiDocEntity
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocentityinfo.html">
+      ApiDocEntityInfo
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidochtml.html">
+      ApiDocHtml
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocinput.html">
+      ApiDocInput
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocmember.html">
+      ApiDocMember
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocmemberkind.html">
+      ApiDocMemberKind
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocmodel.html">
+      ApiDocModel
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocnamespace.html">
+      ApiDocNamespace
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocs.html">
+      ApiDocs
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-apidocs-apidocssearchindexentry.html">
+      ApiDocsSearchIndexEntry
+    </a>
+  </li>
+</ul>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-csharpformat.html">
+    FSharp.Formatting.CSharpFormat
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-codeformat.html">
+    FSharp.Formatting.CodeFormat
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-literate.html">
+    FSharp.Formatting.Literate
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-literate-evaluation.html">
+    FSharp.Formatting.Literate.Evaluation
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-markdown.html">
+    FSharp.Formatting.Markdown
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-templating.html">
+    FSharp.Formatting.Templating
+  </a>
+</li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</h3>
+            <h3 class="muted" href="/">FSharp.Formatting</h3>
         </div>
         <hr />
-        <div class="container" id="fsdocs-main">
-            {{fsdocs-content}}
-            {{fsdocs-tooltips}}
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h1>
+    ApiDocMember Type
+  </h1>
+  <p>
+    Namespace: FSharp.Formatting.ApiDocs
+  </p>
+  <p>
+    Assembly: FSharp.Formatting.ApiDocs.dll
+  </p>
+  <p>
+    Base Type: 
+    <code>obj</code>
+  </p>
+  <div class="fsdocs-xmldoc">
+    <p>Represents an method, property, constructor, function or value, record field, union case or static parameter
+integrated with its associated documentation. Includes extension members.</p>
+
+
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Constructors
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Constructor
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-name" id="( .ctor )">
+            <div>
+              <code onmouseout="hideTip(event, '105', 105)" onmouseover="showTip(event, '105', 105)">
+                <code><span>ApiDocMember<span><span>(<span>displayName,&#32;attributes,&#32;entityUrlBaseName,&#32;kind,&#32;cat,&#32;details,&#32;comment,&#32;symbol</span>)</span></span></span></code>
+              </code>
+              <div class="tip" id="105">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ApiDocMember<span><span>(<span>displayName,&#32;attributes,&#32;entityUrlBaseName,&#32;kind,&#32;cat,&#32;details,&#32;comment,&#32;symbol</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        displayName
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        attributes
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-apidocs-apidocattribute.html">ApiDocAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        entityUrlBaseName
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        kind
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-apidocs-apidocmemberkind.html">ApiDocMemberKind</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        cat
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        details
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;*&#32;<span><span>(<span>string&#32;*&#32;<a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a></span>)</span>&#32;list</span>&#32;*&#32;<span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span>&#32;*&#32;<span>string&#32;list</span>&#32;*&#32;<span>string&#32;list</span>&#32;*&#32;<span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span>&#32;*&#32;<span>string&#32;option</span>&#32;*&#32;<span>string&#32;option</span></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        comment
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-apidocs-apidoccomment.html">ApiDocComment</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        symbol
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/fsharp.compiler.sourcecodeservices.fsharpsymbol">FSharpSymbol</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-apidocs-apidocmember.html">ApiDocMember</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  displayName
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  attributes
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-apidocs-apidocattribute.html">ApiDocAttribute</a>&#32;list</span></code>
+              </li>
+              <li>
+                <code>
+                  entityUrlBaseName
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  kind
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-apidocs-apidocmemberkind.html">ApiDocMemberKind</a></code>
+              </li>
+              <li>
+                <code>
+                  cat
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  details
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;*&#32;<span><span>(<span>string&#32;*&#32;<a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a></span>)</span>&#32;list</span>&#32;*&#32;<span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span>&#32;*&#32;<span>string&#32;list</span>&#32;*&#32;<span>string&#32;list</span>&#32;*&#32;<span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span>&#32;*&#32;<span>string&#32;option</span>&#32;*&#32;<span>string&#32;option</span></span></code>
+              </li>
+              <li>
+                <code>
+                  comment
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-apidocs-apidoccomment.html">ApiDocComment</a></code>
+              </li>
+              <li>
+                <code>
+                  symbol
+                </code>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/fsharp.compiler.sourcecodeservices.fsharpsymbol">FSharpSymbol</a></code>
+              </li>
+            </ul>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-apidocs-apidocmember.html">ApiDocMember</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L219-219" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>
+      Instance members
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Instance member
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-name" id="Attributes">
+            <div>
+              <code onmouseout="hideTip(event, '106', 106)" onmouseover="showTip(event, '106', 106)">
+                <code><span>this.Attributes</span></code>
+              </code>
+              <div class="tip" id="106">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Attributes</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span><a href="/reference/fsharp-formatting-apidocs-apidocattribute.html">ApiDocAttribute</a>&#32;list</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The declared attributes of the member</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span><a href="/reference/fsharp-formatting-apidocs-apidocattribute.html">ApiDocAttribute</a>&#32;list</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L284-284" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Category">
+            <div>
+              <code onmouseout="hideTip(event, '107', 107)" onmouseover="showTip(event, '107', 107)">
+                <code><span>this.Category</span></code>
+              </code>
+              <div class="tip" id="107">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Category</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The category</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L287-287" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Comment">
+            <div>
+              <code onmouseout="hideTip(event, '108', 108)" onmouseover="showTip(event, '108', 108)">
+                <code><span>this.Comment</span></code>
+              </code>
+              <div class="tip" id="108">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Comment</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-apidocs-apidoccomment.html">ApiDocComment</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The attached comment</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-apidocs-apidoccomment.html">ApiDocComment</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L293-293" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="CompiledName">
+            <div>
+              <code onmouseout="hideTip(event, '109', 109)" onmouseover="showTip(event, '109', 109)">
+                <code><span>this.CompiledName</span></code>
+              </code>
+              <div class="tip" id="109">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.CompiledName</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span>string&#32;option</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The member's compiled name, if any</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span>string&#32;option</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L254-254" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="CustomOperationName">
+            <div>
+              <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
+                <code><span>this.CustomOperationName</span></code>
+              </code>
+              <div class="tip" id="110">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.CustomOperationName</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L317-317" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ExtendedType">
+            <div>
+              <code onmouseout="hideTip(event, '111', 111)" onmouseover="showTip(event, '111', 111)">
+                <code><span>this.ExtendedType</span></code>
+              </code>
+              <div class="tip" id="111">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.ExtendedType</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The type extended by an extension member, if any</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L247-247" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="FormatCompiledName">
+            <div>
+              <code onmouseout="hideTip(event, '112', 112)" onmouseover="showTip(event, '112', 112)">
+                <code><span>this.FormatCompiledName</span></code>
+              </code>
+              <div class="tip" id="112">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.FormatCompiledName</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Formats the compiled name</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L271-271" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="FormatModifiers">
+            <div>
+              <code onmouseout="hideTip(event, '113', 113)" onmouseover="showTip(event, '113', 113)">
+                <code><span>this.FormatModifiers</span></code>
+              </code>
+              <div class="tip" id="113">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.FormatModifiers</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Formats modifiers</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L265-265" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="FormatSourceLocation">
+            <div>
+              <code onmouseout="hideTip(event, '114', 114)" onmouseover="showTip(event, '114', 114)">
+                <code><span>this.FormatSourceLocation</span></code>
+              </code>
+              <div class="tip" id="114">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.FormatSourceLocation</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Formats source location</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L268-268" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="FormatTypeArguments">
+            <div>
+              <code onmouseout="hideTip(event, '115', 115)" onmouseover="showTip(event, '115', 115)">
+                <code><span>this.FormatTypeArguments</span></code>
+              </code>
+              <div class="tip" id="115">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.FormatTypeArguments</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span>string&#32;option</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Formats type arguments</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span>string&#32;option</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L257-257" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="IsCustomOperation">
+            <div>
+              <code onmouseout="hideTip(event, '116', 116)" onmouseover="showTip(event, '116', 116)">
+                <code><span>this.IsCustomOperation</span></code>
+              </code>
+              <div class="tip" id="116">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsCustomOperation</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Gets a value indicating whether this member has CustomOperationAttribute</p>
+
+
+            <br/>
+            Return Type: 
+            <code>bool</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L312-312" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="IsObsolete">
+            <div>
+              <code onmouseout="hideTip(event, '117', 117)" onmouseover="showTip(event, '117', 117)">
+                <code><span>this.IsObsolete</span></code>
+              </code>
+              <div class="tip" id="117">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsObsolete</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Gets a value indicating whether this member is obsolete</p>
+
+
+            <br/>
+            Return Type: 
+            <code>bool</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L299-299" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="IsRequireQualifiedAccessAttribute">
+            <div>
+              <code onmouseout="hideTip(event, '118', 118)" onmouseover="showTip(event, '118', 118)">
+                <code><span>this.IsRequireQualifiedAccessAttribute</span></code>
+              </code>
+              <div class="tip" id="118">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.IsRequireQualifiedAccessAttribute</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Return Type: 
+            <code>bool</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L307-307" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Kind">
+            <div>
+              <code onmouseout="hideTip(event, '119', 119)" onmouseover="showTip(event, '119', 119)">
+                <code><span>this.Kind</span></code>
+              </code>
+              <div class="tip" id="119">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Kind</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-apidocs-apidocmemberkind.html">ApiDocMemberKind</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The kind of the member</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-apidocs-apidocmemberkind.html">ApiDocMemberKind</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L290-290" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Modifiers">
+            <div>
+              <code onmouseout="hideTip(event, '120', 120)" onmouseover="showTip(event, '120', 120)">
+                <code><span>this.Modifiers</span></code>
+              </code>
+              <div class="tip" id="120">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Modifiers</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span>string&#32;list</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The member's modifiers</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span>string&#32;list</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L226-226" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Name">
+            <div>
+              <code onmouseout="hideTip(event, '121', 121)" onmouseover="showTip(event, '121', 121)">
+                <code><span>this.Name</span></code>
+              </code>
+              <div class="tip" id="121">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Name</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Name of the member</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L274-274" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ObsoleteMessage">
+            <div>
+              <code onmouseout="hideTip(event, '122', 122)" onmouseover="showTip(event, '122', 122)">
+                <code><span>this.ObsoleteMessage</span></code>
+              </code>
+              <div class="tip" id="122">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.ObsoleteMessage</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L304-304" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ParameterTooltips">
+            <div>
+              <code onmouseout="hideTip(event, '123', 123)" onmouseover="showTip(event, '123', 123)">
+                <code><span>this.ParameterTooltips</span></code>
+              </code>
+              <div class="tip" id="123">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.ParameterTooltips</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span><span>(<span>string&#32;*&#32;<a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a></span>)</span>&#32;list</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The member's parameter sections in a typical tooltip</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span><span>(<span>string&#32;*&#32;<a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a></span>)</span>&#32;list</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L241-241" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ReturnTooltip">
+            <div>
+              <code onmouseout="hideTip(event, '124', 124)" onmouseover="showTip(event, '124', 124)">
+                <code><span>this.ReturnTooltip</span></code>
+              </code>
+              <div class="tip" id="124">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.ReturnTooltip</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The return section in a typical tooltip</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a>&#32;option</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L235-235" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="SourceLocation">
+            <div>
+              <code onmouseout="hideTip(event, '125', 125)" onmouseover="showTip(event, '125', 125)">
+                <code><span>this.SourceLocation</span></code>
+              </code>
+              <div class="tip" id="125">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.SourceLocation</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span>string&#32;option</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The member's source location, if any</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span>string&#32;option</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L244-244" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Symbol">
+            <div>
+              <code onmouseout="hideTip(event, '126', 126)" onmouseover="showTip(event, '126', 126)">
+                <code><span>this.Symbol</span></code>
+              </code>
+              <div class="tip" id="126">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Symbol</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="https://docs.microsoft.com/dotnet/api/fsharp.compiler.sourcecodeservices.fsharpsymbol">FSharpSymbol</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The symbol this member is related to</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="https://docs.microsoft.com/dotnet/api/fsharp.compiler.sourcecodeservices.fsharpsymbol">FSharpSymbol</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L296-296" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="TypeArguments">
+            <div>
+              <code onmouseout="hideTip(event, '127', 127)" onmouseover="showTip(event, '127', 127)">
+                <code><span>this.TypeArguments</span></code>
+              </code>
+              <div class="tip" id="127">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.TypeArguments</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span>string&#32;list</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The member's type arguments</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span>string&#32;list</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L229-229" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Url">
+            <div>
+              <code onmouseout="hideTip(event, '128', 128)" onmouseover="showTip(event, '128', 128)">
+                <code><span>this.Url<span><span>(<span>root,&#32;collectionName,&#32;qualify</span>)</span></span></span></code>
+              </code>
+              <div class="tip" id="128">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Url<span><span>(<span>root,&#32;collectionName,&#32;qualify</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        root
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        collectionName
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        qualify
+                      </b>
+                      :
+                      <code>bool</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The URL of the best link documentation for the item relative to "reference" directory (without the <a href="http://site.io/reference)">http://site.io/reference)</a></p>
+
+
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  root
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  collectionName
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  qualify
+                </code>
+                :
+                <code>bool</code>
+              </li>
+            </ul>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L280-280" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="UrlBaseName">
+            <div>
+              <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
+                <code><span>this.UrlBaseName</span></code>
+              </code>
+              <div class="tip" id="129">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.UrlBaseName</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The URL base name of the best link documentation for the item (without the <a href="http://site.io/reference)">http://site.io/reference)</a></p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L277-277" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="UsageTooltip">
+            <div>
+              <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
+                <code><span>this.UsageTooltip</span></code>
+              </code>
+              <div class="tip" id="130">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.UsageTooltip</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>The usage section in a typical tooltip</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-apidocs-apidochtml.html">ApiDocHtml</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.ApiDocs/GenerateModel.fs#L232-232" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+</div>
+            
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-        <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+        <script type="text/javascript">var fsdocs_search_baseurl = '/'</script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-        <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-search.js"></script>
+        <script type="text/javascript" src="/content/fsdocs-search.js"></script>
         <!-- END SEARCH BOX: this adds support for the search box -->
     </div>
 </body>

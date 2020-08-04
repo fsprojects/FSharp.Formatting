@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{fsdocs-page-title}}</title>
+    <title>MarkdownParagraphFSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{fsdocs-authors}}">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -14,10 +14,10 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/navbar-{{fsdocs-navbar-position}}.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-style.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-custom.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-{{fsdocs-default}}.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,12 +29,12 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-secondary {{fsdocs-navbar-position}}" id="fsdocs-menu">
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <a href="{{fsdocs-logo-link}}"><img id="fsdocs-logo" src="{{fsdocs-logo-src}}" /></a>
+            <a href="/"><img id="fsdocs-logo" src="/img/logo.png" /></a>
             <!-- BEGIN SEARCH BOX: this adds support for the search box -->
             <div id="header">
                 <div class="searchbox" id="fsdocs-searchbox">
@@ -51,30 +51,1217 @@
             <!-- END SEARCH BOX: this adds support for the search box -->
             <ul class="navbar-nav">
                 <li class="nav-header">Links</li>
-                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="{{fsdocs-license-link}}">License (Apache 2.0)</a></li>
-                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="{{fsdocs-release-notes-link}}">Release Notes</a></li>
-                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="{{fsdocs-repository-link}}">Source Repository</a></li>
-                {{fsdocs-list-of-documents}}
-                {{fsdocs-list-of-namespaces}}
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENCE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\apidocs.html">
+    API Documentation generation
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\commandline.html">
+    Command line tool
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\evaluation.html">
+    Embedding literate script output
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\literate.html">
+    Literate Scripts and Markdown
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\markdown.html">
+    Markdown parser
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\styling.html">
+    Styling
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sideextensions.html">
+    Markdown extensions side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidemarkdown.html">
+    Literate Markdown side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidescript.html">
+    Literate script side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\templates\leftside\styling.html">
+    Styling: Left-Side Example
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-apidocs.html">
+    FSharp.Formatting.ApiDocs
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-csharpformat.html">
+    FSharp.Formatting.CSharpFormat
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-codeformat.html">
+    FSharp.Formatting.CodeFormat
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-literate.html">
+    FSharp.Formatting.Literate
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-literate-evaluation.html">
+    FSharp.Formatting.Literate.Evaluation
+  </a>
+</li>             
+<li class="nav-item" class="active">
+  <a class="nav-link" class="active" href="/reference/fsharp-formatting-markdown.html">
+    FSharp.Formatting.Markdown
+  </a>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdown.html">
+      Markdown
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdowncolumnalignment.html">
+      MarkdownColumnAlignment
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdowndocument.html">
+      MarkdownDocument
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownembedparagraphs.html">
+      MarkdownEmbedParagraphs
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownembedspans.html">
+      MarkdownEmbedSpans
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownlistkind.html">
+      MarkdownListKind
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownparagraph.html">
+      MarkdownParagraph
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">
+      MarkdownParagraphs
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownparseoptions.html">
+      MarkdownParseOptions
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownpatterns.html">
+      MarkdownPatterns
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownrangemodule.html">
+      MarkdownRange
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownrange.html">
+      MarkdownRange
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownspan.html">
+      MarkdownSpan
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdownspans.html">
+      MarkdownSpans
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-markdown-markdowntablerow.html">
+      MarkdownTableRow
+    </a>
+  </li>
+</ul>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-templating.html">
+    FSharp.Formatting.Templating
+  </a>
+</li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</h3>
+            <h3 class="muted" href="/">FSharp.Formatting</h3>
         </div>
         <hr />
-        <div class="container" id="fsdocs-main">
-            {{fsdocs-content}}
-            {{fsdocs-tooltips}}
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h1>
+    MarkdownParagraph Type
+  </h1>
+  <p>
+    Namespace: FSharp.Formatting.Markdown
+  </p>
+  <p>
+    Assembly: FSharp.Formatting.Markdown.dll
+  </p>
+  <p>
+    Base Type: 
+    <code>obj</code>
+  </p>
+  <p>
+    All Interfaces: 
+  </p>
+  <ul>
+    <li>
+      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a href="/reference/fsharp-formatting-markdown-markdownparagraph.html">MarkdownParagraph</a>&gt;</span></code>
+    </li>
+    <li>
+      <code><a href="https://docs.microsoft.com/dotnet/api/system.collections.istructuralequatable">IStructuralEquatable</a></code>
+    </li>
+  </ul>
+  <div class="fsdocs-xmldoc">
+    <p>A paragraph represents a (possibly) multi-line element of a Markdown document.
+Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
+also embedded LaTeX blocks.</p>
+
+
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Union cases
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Union case
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-name" id="CodeBlock">
+            <div>
+              <code onmouseout="hideTip(event, '393', 393)" onmouseover="showTip(event, '393', 393)">
+                <code><span>CodeBlock(<span>code,&#32;executionCount,&#32;language,&#32;ignoredLine,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="393">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>CodeBlock(<span>code,&#32;executionCount,&#32;language,&#32;ignoredLine,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        code
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      <code><span>int&#32;option</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        language
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        ignoredLine
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  code
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code><span>int&#32;option</span></code>
+              </li>
+              <li>
+                <code>
+                  language
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  ignoredLine
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L57-57" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="EmbedParagraphs">
+            <div>
+              <code onmouseout="hideTip(event, '394', 394)" onmouseover="showTip(event, '394', 394)">
+                <code><span>EmbedParagraphs(<span>customParagraphs,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="394">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>EmbedParagraphs(<span>customParagraphs,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        customParagraphs
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownembedparagraphs.html">MarkdownEmbedParagraphs</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  customParagraphs
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownembedparagraphs.html">MarkdownEmbedParagraphs</a></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L66-66" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Heading">
+            <div>
+              <code onmouseout="hideTip(event, '395', 395)" onmouseover="showTip(event, '395', 395)">
+                <code><span>Heading(<span>size,&#32;body,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="395">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Heading(<span>size,&#32;body,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        size
+                      </b>
+                      :
+                      <code>int</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        body
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownspans.html">MarkdownSpans</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  size
+                </code>
+                :
+                <code>int</code>
+              </li>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownspans.html">MarkdownSpans</a></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L55-55" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="HorizontalRule">
+            <div>
+              <code onmouseout="hideTip(event, '396', 396)" onmouseover="showTip(event, '396', 396)">
+                <code><span>HorizontalRule(<span>character,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="396">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>HorizontalRule(<span>character,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        character
+                      </b>
+                      :
+                      <code>char</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  character
+                </code>
+                :
+                <code>char</code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L64-64" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="InlineBlock">
+            <div>
+              <code onmouseout="hideTip(event, '397', 397)" onmouseover="showTip(event, '397', 397)">
+                <code><span>InlineBlock(<span>code,&#32;executionCount,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="397">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>InlineBlock(<span>code,&#32;executionCount,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        code
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      <code><span>int&#32;option</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  code
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code><span>int&#32;option</span></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L59-59" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="LatexBlock">
+            <div>
+              <code onmouseout="hideTip(event, '398', 398)" onmouseover="showTip(event, '398', 398)">
+                <code><span>LatexBlock(<span>env,&#32;body,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="398">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>LatexBlock(<span>env,&#32;body,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        env
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        body
+                      </b>
+                      :
+                      <code><span>string&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  env
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code><span>string&#32;list</span></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L63-63" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="ListBlock">
+            <div>
+              <code onmouseout="hideTip(event, '399', 399)" onmouseover="showTip(event, '399', 399)">
+                <code><span>ListBlock(<span>kind,&#32;items,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="399">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ListBlock(<span>kind,&#32;items,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        kind
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownlistkind.html">MarkdownListKind</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  kind
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownlistkind.html">MarkdownListKind</a></code>
+              </li>
+              <li>
+                <code>
+                  items
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a>&#32;list</span></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L60-60" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="OtherBlock">
+            <div>
+              <code onmouseout="hideTip(event, '400', 400)" onmouseover="showTip(event, '400', 400)">
+                <code><span>OtherBlock(<span>lines,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="400">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>OtherBlock(<span>lines,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        lines
+                      </b>
+                      :
+                      <code><span><span>(<span>string&#32;*&#32;<a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a></span>)</span>&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Reprsents a block of markdown produced when parsing of tables or quoted blocks is suppressed</p>
+
+
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  lines
+                </code>
+                :
+                <code><span><span>(<span>string&#32;*&#32;<a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a></span>)</span>&#32;list</span></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L68-68" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="OutputBlock">
+            <div>
+              <code onmouseout="hideTip(event, '401', 401)" onmouseover="showTip(event, '401', 401)">
+                <code><span>OutputBlock(<span>output,&#32;kind,&#32;executionCount</span>)</span></code>
+              </code>
+              <div class="tip" id="401">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>OutputBlock(<span>output,&#32;kind,&#32;executionCount</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        output
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        kind
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        executionCount
+                      </b>
+                      :
+                      <code><span>int&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  output
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  kind
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  executionCount
+                </code>
+                :
+                <code><span>int&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L58-58" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Paragraph">
+            <div>
+              <code onmouseout="hideTip(event, '402', 402)" onmouseover="showTip(event, '402', 402)">
+                <code><span>Paragraph(<span>body,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="402">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Paragraph(<span>body,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        body
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownspans.html">MarkdownSpans</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownspans.html">MarkdownSpans</a></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L56-56" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="QuotedBlock">
+            <div>
+              <code onmouseout="hideTip(event, '403', 403)" onmouseover="showTip(event, '403', 403)">
+                <code><span>QuotedBlock(<span>paragraphs,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="403">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>QuotedBlock(<span>paragraphs,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        paragraphs
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  paragraphs
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L61-61" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Span">
+            <div>
+              <code onmouseout="hideTip(event, '404', 404)" onmouseover="showTip(event, '404', 404)">
+                <code><span>Span(<span>body,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="404">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Span(<span>body,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        body
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownspans.html">MarkdownSpans</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  body
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownspans.html">MarkdownSpans</a></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L62-62" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="TableBlock">
+            <div>
+              <code onmouseout="hideTip(event, '405', 405)" onmouseover="showTip(event, '405', 405)">
+                <code><span>TableBlock(<span>headers,&#32;alignments,&#32;rows,&#32;range</span>)</span></code>
+              </code>
+              <div class="tip" id="405">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>TableBlock(<span>headers,&#32;alignments,&#32;rows,&#32;range</span>)</span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        headers
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdowntablerow.html">MarkdownTableRow</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        alignments
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdowncolumnalignment.html">MarkdownColumnAlignment</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        rows
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdowntablerow.html">MarkdownTableRow</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        range
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  headers
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdowntablerow.html">MarkdownTableRow</a>&#32;option</span></code>
+              </li>
+              <li>
+                <code>
+                  alignments
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdowncolumnalignment.html">MarkdownColumnAlignment</a>&#32;list</span></code>
+              </li>
+              <li>
+                <code>
+                  rows
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdowntablerow.html">MarkdownTableRow</a>&#32;list</span></code>
+              </li>
+              <li>
+                <code>
+                  range
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-markdown-markdownrange.html">MarkdownRange</a>&#32;option</span></code>
+              </li>
+            </ul>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Markdown/MarkdownModel.fs#L65-65" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+            
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-        <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+        <script type="text/javascript">var fsdocs_search_baseurl = '/'</script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-        <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-search.js"></script>
+        <script type="text/javascript" src="/content/fsdocs-search.js"></script>
         <!-- END SEARCH BOX: this adds support for the search box -->
     </div>
 </body>

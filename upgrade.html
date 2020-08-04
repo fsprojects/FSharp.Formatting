@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{fsdocs-page-title}}</title>
+    <title>Upgrading to fsdocs
+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{fsdocs-authors}}">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -14,10 +15,10 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/navbar-{{fsdocs-navbar-position}}.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-style.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-custom.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-{{fsdocs-default}}.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,12 +30,12 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-secondary {{fsdocs-navbar-position}}" id="fsdocs-menu">
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <a href="{{fsdocs-logo-link}}"><img id="fsdocs-logo" src="{{fsdocs-logo-src}}" /></a>
+            <a href="/"><img id="fsdocs-logo" src="/img/logo.png" /></a>
             <!-- BEGIN SEARCH BOX: this adds support for the search box -->
             <div id="header">
                 <div class="searchbox" id="fsdocs-searchbox">
@@ -51,30 +52,172 @@
             <!-- END SEARCH BOX: this adds support for the search box -->
             <ul class="navbar-nav">
                 <li class="nav-header">Links</li>
-                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="{{fsdocs-license-link}}">License (Apache 2.0)</a></li>
-                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="{{fsdocs-release-notes-link}}">Release Notes</a></li>
-                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="{{fsdocs-repository-link}}">Source Repository</a></li>
-                {{fsdocs-list-of-documents}}
-                {{fsdocs-list-of-namespaces}}
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENCE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\apidocs.html">
+    API Documentation generation
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\commandline.html">
+    Command line tool
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\evaluation.html">
+    Embedding literate script output
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\literate.html">
+    Literate Scripts and Markdown
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\markdown.html">
+    Markdown parser
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\styling.html">
+    Styling
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sideextensions.html">
+    Markdown extensions side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidemarkdown.html">
+    Literate Markdown side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidescript.html">
+    Literate script side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\templates\leftside\styling.html">
+    Styling: Left-Side Example
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/index.html">
+    All Namespaces
+  </a>
+</li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</h3>
+            <h3 class="muted" href="/">FSharp.Formatting</h3>
         </div>
         <hr />
-        <div class="container" id="fsdocs-main">
-            {{fsdocs-content}}
-            {{fsdocs-tooltips}}
+        <div class="container" id="fsdocs-content">
+            <h1><a name="Upgrading-to-fsdocs" class="anchor" href="#Upgrading-to-fsdocs">Upgrading to fsdocs</a></h1>
+<p>Here are the typical steps to upgrade a repo based on <code>ProjectScaffold</code> to use <code>fsdocs</code></p>
+<ol>
+<li>
+<p>Run</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="k">new</span> <span class="id">tool</span>
+<span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
+</code></pre>
+</li>
+<li><p>Delete all of <code>docs\tools</code> particularly <code>docs\tool\generate.fsx</code>.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.</p></li>
+<li><p>Put your docs directory so it refelcts the final shape of the site. For example move the content of <code>docs\input\*</code> and <code>docs\files\*</code> directly to <code>docs\*</code></p></li>
+<li>
+<p>Create <code>docs\_template.html</code>, starting with <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/templates/_template.html">this file</a> and
+copying across any snippets from old templates.</p>
+</li>
+<li>
+<p>Run</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">watch</span>
+</code></pre>
+<p>and edit and test your docs.</p>
+</li>
+<li>
+<p>If using FAKE adjust <code>build.fsx</code> e.g.</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">Target</span><span class="pn">.</span><span class="id">create</span> <span class="s">&quot;GenerateDocs&quot;</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">_</span> <span class="k">-&gt;</span>
+   <span class="id">Shell</span><span class="pn">.</span><span class="id">cleanDir</span> <span class="s">&quot;.fsdocs&quot;</span>
+   <span class="id">DotNet</span><span class="pn">.</span><span class="id">exec</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">id</span> <span class="s">&quot;fsdocs&quot;</span> <span class="s">&quot;build --clean&quot;</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="id">ignore</span>
+<span class="pn">)</span>
+</code></pre>
+</li>
+<li>
+<p>Consider creating <code>docs\_template.fsx</code> and <code>docs\_template.ipynb</code> to enable co-generation of F# scripts and F# notebooks.</p>
+<p>If you add support for notebooks and scripts, consider adding mybinder links to each of your literate executable content pages. <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L19">For example like this</a>.</p>
+<p>Also add load sections to make sure your notebooks and scripts contain the right content to load packages out of repo.  <a href="https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L1">For example like this</a></p>
+</li>
+</ol>
+<p>Sample commands:</p>
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 4)" onmouseover="showTip(event, 'fs1', 4)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span> <span class="o">--</span><span class="id">local</span>
+<span class="id">git</span> <span class="id">add</span> <span class="id">dotnet</span><span class="o">-</span><span class="id">tools</span><span class="pn">.</span><span class="id">json</span>   
+<span class="id">git</span> <span class="id">rm</span> <span class="o">-</span><span class="id">fr</span> <span class="id">docs</span>
+<span class="id">git</span> <span class="id">mv</span> <span class="id">docs</span>
+<span class="id">git</span> <span class="id">mv</span> <span class="id">docs</span>
+
+<span class="pn">&lt;</span><span class="id">manually</span> <span class="id">download</span> <span class="k">and</span> <span class="id">fixup</span> <span class="id">the</span> <span class="id">_template</span><span class="pn">.</span><span class="id">html</span><span class="pn">&gt;</span>
+
+<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">watch</span>
+
+<span class="id">touch</span> <span class="id">docs</span>
+<span class="id">touch</span> <span class="id">docs</span>
+<span class="id">git</span> <span class="id">add</span> <span class="id">docs</span>
+<span class="id">git</span> <span class="id">add</span> <span class="id">docs</span>
+</code></pre>
+<p>Here is an example PR: <a href="https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116">https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116</a></p>
+
+            <div class="tip" id="fs1">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs2">val id : x:&#39;T -&gt; &#39;T</div>
+<div class="tip" id="fs3">val ignore : value:&#39;T -&gt; unit</div>
+
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-        <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+        <script type="text/javascript">var fsdocs_search_baseurl = '/'</script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-        <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-search.js"></script>
+        <script type="text/javascript" src="/content/fsdocs-search.js"></script>
         <!-- END SEARCH BOX: this adds support for the search box -->
     </div>
 </body>

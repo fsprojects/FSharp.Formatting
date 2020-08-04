@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{fsdocs-page-title}}</title>
+    <title>LiterateDocumentFSharp.Formatting</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="{{fsdocs-authors}}">
+    <meta name="author" content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich">
 
     <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.3.1/materia/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -14,10 +14,10 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script> -->
 
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/navbar-{{fsdocs-navbar-position}}.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-style.css" />
-    <link type="text/css" rel="stylesheet" href="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-custom.css" />
-    <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/content/navbar-fixed-right.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-{{fsdocs-default}}.css" />
+    <link type="text/css" rel="stylesheet" href="/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="/content/fsdocs-tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -29,12 +29,12 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-secondary {{fsdocs-navbar-position}}" id="fsdocs-menu">
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-right" id="fsdocs-menu">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-            <a href="{{fsdocs-logo-link}}"><img id="fsdocs-logo" src="{{fsdocs-logo-src}}" /></a>
+            <a href="/"><img id="fsdocs-logo" src="/img/logo.png" /></a>
             <!-- BEGIN SEARCH BOX: this adds support for the search box -->
             <div id="header">
                 <div class="searchbox" id="fsdocs-searchbox">
@@ -51,30 +51,764 @@
             <!-- END SEARCH BOX: this adds support for the search box -->
             <ul class="navbar-nav">
                 <li class="nav-header">Links</li>
-                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="{{fsdocs-license-link}}">License (Apache 2.0)</a></li>
-                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="{{fsdocs-release-notes-link}}">Release Notes</a></li>
-                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="{{fsdocs-repository-link}}">Source Repository</a></li>
-                {{fsdocs-list-of-documents}}
-                {{fsdocs-list-of-namespaces}}
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENCE.md">License (Apache 2.0)</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting">Source Repository</a></li>
+                <li class="nav-header">
+  Documentation
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\apidocs.html">
+    API Documentation generation
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\commandline.html">
+    Command line tool
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\evaluation.html">
+    Embedding literate script output
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\literate.html">
+    Literate Scripts and Markdown
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\markdown.html">
+    Markdown parser
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\styling.html">
+    Styling
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sideextensions.html">
+    Markdown extensions side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidemarkdown.html">
+    Literate Markdown side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\sidebyside\sidescript.html">
+    Literate script side-by-side example
+
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/.\templates\leftside\styling.html">
+    Styling: Left-Side Example
+
+  </a>
+</li>
+                <li class="nav-header">
+  Namespaces
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-apidocs.html">
+    FSharp.Formatting.ApiDocs
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-csharpformat.html">
+    FSharp.Formatting.CSharpFormat
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-codeformat.html">
+    FSharp.Formatting.CodeFormat
+  </a>
+</li>             
+<li class="nav-item" class="active">
+  <a class="nav-link" class="active" href="/reference/fsharp-formatting-literate.html">
+    FSharp.Formatting.Literate
+  </a>
+</li>             
+<ul list-style-type="none">
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literate.html">
+      Literate
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literatecodeoptions.html">
+      LiterateCodeOptions
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literatecodevisibility.html">
+      LiterateCodeVisibility
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literatedocument.html">
+      LiterateDocument
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literateparagraph.html">
+      LiterateParagraph
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literateparagraphoptions.html">
+      LiterateParagraphOptions
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-literatesource.html">
+      LiterateSource
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-markdownpatterns.html">
+      MarkdownPatterns
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/reference/fsharp-formatting-literate-outputkind.html">
+      OutputKind
+    </a>
+  </li>
+</ul>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-literate-evaluation.html">
+    FSharp.Formatting.Literate.Evaluation
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-markdown.html">
+    FSharp.Formatting.Markdown
+  </a>
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="/reference/fsharp-formatting-templating.html">
+    FSharp.Formatting.Templating
+  </a>
+</li>
             </ul>
         </div>
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</h3>
+            <h3 class="muted" href="/">FSharp.Formatting</h3>
         </div>
         <hr />
-        <div class="container" id="fsdocs-main">
-            {{fsdocs-content}}
-            {{fsdocs-tooltips}}
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h1>
+    LiterateDocument Type
+  </h1>
+  <p>
+    Namespace: FSharp.Formatting.Literate
+  </p>
+  <p>
+    Assembly: FSharp.Formatting.Literate.dll
+  </p>
+  <p>
+    Base Type: 
+    <code>obj</code>
+  </p>
+  <div class="fsdocs-xmldoc">
+    <p>Representation of a literate document - the representation of Paragraphs
+uses an F# discriminated union type and so is best used from F#.</p>
+
+
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Constructors
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Constructor
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-name" id="( .ctor )">
+            <div>
+              <code onmouseout="hideTip(event, '322', 322)" onmouseover="showTip(event, '322', 322)">
+                <code><span>LiterateDocument<span><span>(<span>paragraphs,&#32;formattedTips,&#32;links,&#32;source,&#32;sourceFile,&#32;diagnostics</span>)</span></span></span></code>
+              </code>
+              <div class="tip" id="322">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>LiterateDocument<span><span>(<span>paragraphs,&#32;formattedTips,&#32;links,&#32;source,&#32;sourceFile,&#32;diagnostics</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        paragraphs
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        formattedTips
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        links
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<span>string,&#32;<span>(<span>string&#32;*&#32;<span>string&#32;option</span></span>)</span></span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        source
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-literate-literatesource.html">LiterateSource</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        sourceFile
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        diagnostics
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-codeformat-sourceerror.html">SourceError</a>[]</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-literate-literatedocument.html">LiterateDocument</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  paragraphs
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+              </li>
+              <li>
+                <code>
+                  formattedTips
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  links
+                </code>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<span>string,&#32;<span>(<span>string&#32;*&#32;<span>string&#32;option</span></span>)</span></span>&gt;</span></code>
+              </li>
+              <li>
+                <code>
+                  source
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-literate-literatesource.html">LiterateSource</a></code>
+              </li>
+              <li>
+                <code>
+                  sourceFile
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  diagnostics
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-codeformat-sourceerror.html">SourceError</a>[]</span></code>
+              </li>
+            </ul>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-literate-literatedocument.html">LiterateDocument</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L109-109" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>
+      Instance members
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Instance member
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-name" id="DefinedLinks">
+            <div>
+              <code onmouseout="hideTip(event, '323', 323)" onmouseover="showTip(event, '323', 323)">
+                <code><span>this.DefinedLinks</span></code>
+              </code>
+              <div class="tip" id="323">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.DefinedLinks</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span><a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<span>string,&#32;<span>(<span>string&#32;*&#32;<span>string&#32;option</span></span>)</span></span>&gt;</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Returns a dictionary containing explicitly defined links</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span><a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<span>string,&#32;<span>(<span>string&#32;*&#32;<span>string&#32;option</span></span>)</span></span>&gt;</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L119-119" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Diagnostics">
+            <div>
+              <code onmouseout="hideTip(event, '324', 324)" onmouseover="showTip(event, '324', 324)">
+                <code><span>this.Diagnostics</span></code>
+              </code>
+              <div class="tip" id="324">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Diagnostics</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><span><a href="/reference/fsharp-formatting-codeformat-sourceerror.html">SourceError</a>[]</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Errors</p>
+
+
+            <br/>
+            Return Type: 
+            <code><span><a href="/reference/fsharp-formatting-codeformat-sourceerror.html">SourceError</a>[]</span></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L122-122" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="FormattedTips">
+            <div>
+              <code onmouseout="hideTip(event, '325', 325)" onmouseover="showTip(event, '325', 325)">
+                <code><span>this.FormattedTips</span></code>
+              </code>
+              <div class="tip" id="325">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.FormattedTips</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Formatted tool tips</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L131-131" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="MarkdownDocument">
+            <div>
+              <code onmouseout="hideTip(event, '326', 326)" onmouseover="showTip(event, '326', 326)">
+                <code><span>this.MarkdownDocument</span></code>
+              </code>
+              <div class="tip" id="326">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.MarkdownDocument</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-markdown-markdowndocument.html">MarkdownDocument</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Return as markdown document, throwing away additional stuff</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-markdown-markdowndocument.html">MarkdownDocument</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L134-134" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Paragraphs">
+            <div>
+              <code onmouseout="hideTip(event, '327', 327)" onmouseover="showTip(event, '327', 327)">
+                <code><span>this.Paragraphs</span></code>
+              </code>
+              <div class="tip" id="327">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Paragraphs</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Returns a list of paragraphs in the document</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L116-116" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="Source">
+            <div>
+              <code onmouseout="hideTip(event, '328', 328)" onmouseover="showTip(event, '328', 328)">
+                <code><span>this.Source</span></code>
+              </code>
+              <div class="tip" id="328">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.Source</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-literate-literatesource.html">LiterateSource</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Original document source code</p>
+
+
+            <br/>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-literate-literatesource.html">LiterateSource</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L125-125" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="SourceFile">
+            <div>
+              <code onmouseout="hideTip(event, '329', 329)" onmouseover="showTip(event, '329', 329)">
+                <code><span>this.SourceFile</span></code>
+              </code>
+              <div class="tip" id="329">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.SourceFile</span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Location where the file was loaded from</p>
+
+
+            <br/>
+            Return Type: 
+            <code>string</code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L128-128" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-name" id="With">
+            <div>
+              <code onmouseout="hideTip(event, '330', 330)" onmouseover="showTip(event, '330', 330)">
+                <code><span>this.With<span><span>(<span>?paragraphs,&#32;?formattedTips,&#32;?definedLinks,&#32;?source,&#32;?sourceFile,&#32;?diagnostics</span>)</span></span></span></code>
+              </code>
+              <div class="tip" id="330">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.With<span><span>(<span>?paragraphs,&#32;?formattedTips,&#32;?definedLinks,&#32;?source,&#32;?sourceFile,&#32;?diagnostics</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameter Types: 
+                  <ul>
+                    <span>
+                      <b>
+                        ?paragraphs
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        ?formattedTips
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        ?definedLinks
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<span>string,&#32;<span>(<span>string&#32;*&#32;<span>string&#32;option</span></span>)</span></span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        ?source
+                      </b>
+                      :
+                      <code><a href="/reference/fsharp-formatting-literate-literatesource.html">LiterateSource</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        ?sourceFile
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        ?diagnostics
+                      </b>
+                      :
+                      <code><span><a href="/reference/fsharp-formatting-codeformat-sourceerror.html">SourceError</a>[]</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Return Type: 
+                    <code><a href="/reference/fsharp-formatting-literate-literatedocument.html">LiterateDocument</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-xmldoc">
+            <p>Clone the document and change some of its properties</p>
+
+
+            <br/>
+            Parameter Types: 
+            <ul>
+              <li>
+                <code>
+                  ?paragraphs
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-markdown-markdownparagraphs.html">MarkdownParagraphs</a></code>
+              </li>
+              <li>
+                <code>
+                  ?formattedTips
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  ?definedLinks
+                </code>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.collections.generic.idictionary-2">IDictionary</a>&lt;<span>string,&#32;<span>(<span>string&#32;*&#32;<span>string&#32;option</span></span>)</span></span>&gt;</span></code>
+              </li>
+              <li>
+                <code>
+                  ?source
+                </code>
+                :
+                <code><a href="/reference/fsharp-formatting-literate-literatesource.html">LiterateSource</a></code>
+              </li>
+              <li>
+                <code>
+                  ?sourceFile
+                </code>
+                :
+                <code>string</code>
+              </li>
+              <li>
+                <code>
+                  ?diagnostics
+                </code>
+                :
+                <code><span><a href="/reference/fsharp-formatting-codeformat-sourceerror.html">SourceError</a>[]</span></code>
+              </li>
+            </ul>
+            Return Type: 
+            <code><a href="/reference/fsharp-formatting-literate-literatedocument.html">LiterateDocument</a></code>
+            <br/>
+            <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.Literate/Document.fs#L144-144" class="fsdocs-source-link">
+              <img src="/content/img/github.png" class="normal"/>
+              <img src="/content/img/github-blue.png" class="hover"/>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+</div>
+            
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
-        <script type="text/javascript">var fsdocs_search_baseurl = 'https://fsprojects.github.io/FSharp.Formatting'</script>
+        <script type="text/javascript">var fsdocs_search_baseurl = '/'</script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
-        <script type="text/javascript" src="https://fsprojects.github.io/FSharp.Formattingcontent/fsdocs-search.js"></script>
+        <script type="text/javascript" src="/content/fsdocs-search.js"></script>
         <!-- END SEARCH BOX: this adds support for the search box -->
     </div>
 </body>

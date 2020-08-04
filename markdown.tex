@@ -36,14 +36,176 @@
   columns=fullflexible
 }
 
-\title{Markdown parser
-}
+\title{{page-title}}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-{{fsdocs-content}}
+
+
+\href{https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=markdown.ipynb}{\begin{figure}[htbp]\centering
+\includegraphics[width=1.0\textwidth]{https://mybinder.org/badge\_logo.svg}
+\caption{Binder}
+\end{figure}
+}
+\section*{Markdown parser}
+
+
+
+This page demonstrates how to use \texttt{FSharp.Formatting.Markdown.dll} to parse a Markdown
+document, process the obtained document representation and
+how to turn the code into a nicely formatted HTML.
+
+
+First, we need to load the assembly and open necessary namespaces:
+\begin{Verbatim}[commandchars=\\\{\}]
+\kwd{open} \id{FSharp}{.}\id{Formatting}{.}\id{Markdown}
+\kwd{open} \id{FSharp}{.}\id{Formatting}{.}\id{Common}
+\end{Verbatim}
+
+\subsection*{Parsing documents}
+
+
+
+The F\# Markdown parser recognizes the standard \href{http://daringfireball.net/projects/markdown/}{Markdown syntax}
+and it is not the aim of this tutorial to fully document it.
+The following snippet creates a simple string containing a document
+with several elements and then parses it using the \texttt{Markdown.Parse} method:
+\begin{Verbatim}[commandchars=\\\{\}]
+\kwd{let} \id{document} \ops{=} \str{"""}
+\str{\# F\# Hello world}
+\str{Hello world in [F\#](http://fsharp.net) looks like this:}
+
+\str{    printfn "Hello world!"}
+
+\str{For more see [fsharp.org][fsorg].}
+
+\str{  [fsorg]: http://fsharp.org "The F\# organization." """}
+
+\kwd{let} \id{parsed} \ops{=} \ltyp{Markdown}{.}\id{Parse}{(}\id{document}{)}
+\end{Verbatim}
+
+
+
+The sample document consists of a first-level heading (written using
+one of the two alternative styles) followed by a paragraph with a
+\emph{direct} link, code snippet and one more paragraph that includes an
+\emph{indirect} link. The URLs of indirect links are defined by a separate
+block as demonstrated on the last line (and they can then be easily used repeatedly
+from multiple places in the document).
+\subsection*{Working with parsed documents}
+
+
+
+The F\# Markdown processor does not turn the document directly into HTML.
+Instead, it builds a nice F\# data structure that we can use to analyze,
+transform and process the document. First of all the \texttt{DefinedLinks} property
+returns all indirect link definitions:
+\begin{Verbatim}[commandchars=\\\{\}]
+\id{parsed}{.}\id{DefinedLinks}
+\fsi{val it : IDictionary<string,(string * string option)> =}
+\fsi{  dict [("fsorg", ("http://fsharp.org", Some "The F\# organization."))]}
+\end{Verbatim}
+
+
+
+The document content can be accessed using the \texttt{Paragraphs} property that returns
+a sequence of paragraphs or other first-level elements (headings, quotes, code snippets, etc.).
+The following snippet prints the heading of the document:
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{// Iterate over all the paragraph elements}
+\kwd{for} \id{par} \kwd{in} \id{parsed}{.}\id{Paragraphs} \kwd{do}
+  \kwd{match} \id{par} \kwd{with}
+  {|} {Heading}{(}\id{size}\ops{=}\num{1}{;} \id{body}\ops{=}{[}{Literal}{(}\id{text}\ops{=}\id{text}{)}{]}{)} \kwd{->} 
+      \com{// Recognize heading that has a simple content}
+      \com{// containing just a literal (no other formatting)}
+      \lfun{printfn} \str{"}\lprf{\%s}\str{"} \id{text}
+  {|} \id{\_} \kwd{->} {(}{)}
+\end{Verbatim}
+
+
+
+You can find more detailed information about the document structure and how to process it
+in the book \href{http://manning.com/petricek2/}{F\# Deep Dives}.
+\subsection*{Processing the document recursively}
+
+
+
+The library provides active patterns that can be used to easily process the Markdown
+document recursively. The example in this section shows how to extract all links from the
+document. To do that, we need to write two recursive functions. One that will process
+all paragraph-style elements and one that will process all inline formattings (inside
+paragraphs, headings etc.).
+
+
+To avoid pattern matching on every single kind of span and every single kind of
+paragraph, we can use active patterns from the \texttt{MarkdownPatterns} module. These can be use
+to recognize any paragraph or span that can contain child elements:
+\begin{Verbatim}[commandchars=\\\{\}]
+\com{/// Returns all links in a specified span node}
+\kwd{let} \kwd{rec} \lfun{collectSpanLinks} \id{span} \ops{=} \kwd{seq} {\{}
+  \kwd{match} \id{span} \kwd{with}
+  {|} {DirectLink}{(}\id{link}\ops{=}\id{url}{)} \kwd{->} \kwd{yield} \id{url}
+  {|} {IndirectLink}{(}\id{key}\ops{=}\id{key}{)} \kwd{->} \kwd{yield} \lfun{fst} {(}\id{parsed}{.}\id{DefinedLinks}{.}{[}\id{key}{]}{)}
+  {|} \ltyp{MarkdownPatterns}{.}\id{SpanLeaf} \id{\_} \kwd{->} {(}{)}
+  {|} \ltyp{MarkdownPatterns}{.}\id{SpanNode}{(}\id{\_}{,} \id{spans}{)} \kwd{->}
+      \kwd{for} \id{s} \kwd{in} \id{spans} \kwd{do} \kwd{yield!} \lfun{collectSpanLinks} \id{s} {\}}
+      
+\com{/// Returns all links in the specified paragraph node}
+\kwd{let} \kwd{rec} \lfun{collectParLinks} \id{par} \ops{=} \kwd{seq} {\{}
+  \kwd{match} \id{par} \kwd{with}
+  {|} \ltyp{MarkdownPatterns}{.}\id{ParagraphLeaf} \id{\_} \kwd{->} {(}{)}
+  {|} \ltyp{MarkdownPatterns}{.}\id{ParagraphNested}{(}\id{\_}{,} \id{pars}{)} \kwd{->} 
+      \kwd{for} \id{ps} \kwd{in} \id{pars} \kwd{do} 
+        \kwd{for} \id{p} \kwd{in} \id{ps} \kwd{do} \kwd{yield!} \lfun{collectParLinks} \id{p} 
+  {|} \ltyp{MarkdownPatterns}{.}\id{ParagraphSpans}{(}\id{\_}{,} \id{spans}{)} \kwd{->}
+      \kwd{for} \id{s} \kwd{in} \id{spans} \kwd{do} \kwd{yield!} \lfun{collectSpanLinks} \id{s} {\}}
+
+\com{/// Collect links in the entire document}
+\ltyp{Seq}{.}\id{collect} \lfun{collectParLinks} \id{parsed}{.}\id{Paragraphs}
+\fsi{val it : seq<string> =}
+\fsi{  seq ["http://fsharp.net"; "http://fsharp.org"]}
+\end{Verbatim}
+
+
+
+The \texttt{collectSpanLinks} function works on individual span elements that contain inline
+formatting (emphasis, strong) and also links. The \texttt{DirectLink} node represents an inline
+link like the one pointing to \href{http://fsharp.net}{http://fsharp.net} while \texttt{IndirectLink} represents a
+link that uses one of the link definitions. The function simply returns the URL associated
+with the link.
+
+
+Some span nodes (like emphasis) can contain other formatting, so we need to recursively
+process children. This is done by matching against \texttt{MarkdownPatterns.SpanNodes} which is an active
+pattern that recognizes any node with children. The library also provides a \emph{function}
+named \texttt{MarkdownPatterns.SpanNode} that can be used to reconstruct the same node (when you want
+to transform document). This is similar to how the \texttt{ExprShape} module for working with
+F\# quotations works.
+
+
+The function \texttt{collectParLinks} processes paragraphs - a paragraph cannot directly be a
+link so we just need to process all spans. This time, there are three options.
+\texttt{ParagraphLeaf} represents a case where the paragraph does not contain any spans
+(a code block or, for example, a \texttt{<hr>} line); the \texttt{ParagraphNested} case is used for paragraphs
+that contain other paragraphs (quotation) and \texttt{ParagraphSpans} is used for all other
+paragraphs that contain normal text - here we call \texttt{collectSpanLinks} on all nested spans.
+\subsection*{Generating HTML output}
+
+
+
+Finally, the \texttt{Markdown} type also includes a method \texttt{ToHtml} that can be used
+to generate an HTML document from the Markdown input. The following example shows how to call it:
+\begin{Verbatim}[commandchars=\\\{\}]
+\kwd{let} \id{html} \ops{=} \ltyp{Markdown}{.}\id{ToHtml}{(}\id{parsed}{)}
+\end{Verbatim}
+
+
+
+In addition, you can also use \texttt{Markdown.TransformHtml} to directly turn an input document
+in the Markdown format into an HTML document (without the intermediate step).
+
 
 \end{document}

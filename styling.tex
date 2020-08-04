@@ -36,14 +36,106 @@
   columns=fullflexible
 }
 
-\title{Styling
-}
+\title{{page-title}}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-{{fsdocs-content}}
+\section*{Styling}
+
+
+
+By default \texttt{fsdocs} uses the following (which are the settings used to build this site):
+\begin{itemize}
+\item 
+
+the default template in \href{https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/\_template.html}{docs/\_template.html}
+
+\item 
+
+the default styles in \href{https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css}{docs/content/fsdocs-default.css}.
+
+\item 
+
+no custom styles in \href{https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css}{docs/content/fsdocs-custom.css}.
+
+\item 
+
+no styling parameters for the default template (see below)
+
+\end{itemize}
+
+
+
+For your project, you don't need any of these files. However you can add them if you wish, though if
+you adjsut them there is no guarantee that your template will continue to work with future versions of F\# Formatting.
+\subsection*{Customizing via Styling Parameters}
+
+
+
+The following \href{content.html}{content parameters} are particularly related to visual styling:
+\begin{tabular}{|l|l|}\hline
+\textbf{Substitution name} & \textbf{Value (if not overriden by --parameters)}\\ \hline\hline
+\end{tabular}
+
+
+
+| \texttt{fsdocs-authors}              | \texttt{<Authors>}                                                   |  |
+| \texttt{fsdocs-collection-name}      | Name of .sln, single .fsproj or containing directory          |  |
+| \texttt{fsdocs-collection-name-link} | \texttt{<FsDocsCollectionNameLink>}        |  |
+| \texttt{fsdocs-license-link}         | \texttt{<FsDocsLicenseLink>}  | |
+| \texttt{fsdocs-logo-src}             | \texttt{<FsDocsLogoSource>} |  |
+| \texttt{fsdocs-logo-link}            | \texttt{<FsDocsLogoLink>}   |    |            |
+| \texttt{fsdocs-navbar-position}      | \texttt{<FsDocsNavbarPosition>}  |   \texttt{fixed-left} or \texttt{fixed-right}     |  |
+| \texttt{fsdocs-release-notes-link}   | \texttt{<FsDocsReleaseNotesLink>} else \texttt{<PackageProjectUrl>}/blob/master/RELEASE\_NOTES.md  | |
+| \texttt{fsdocs-repository-link}      | \texttt{<RepositoryUrl>}                                             |
+| \texttt{fsdocs-theme}                | \texttt{<FsDocsTheme>}  |  Must currently be \texttt{default}    |
+
+
+As an example, here is \href{templates/leftside/styling.html}{a page with \texttt{fsdocs-navbar-position} set to \texttt{fixed-left}}.
+\subsection*{Customizing via CSS}
+
+
+
+You can start styling by creating a file \texttt{docs/fsdocs-custom.css} and adding entries to it.  It is loaded by
+the standard template.  The CSS classes of generated content are:
+\begin{tabular}{|l|l|}\hline
+\textbf{CSS class} & \textbf{Generated Content}\\ \hline\hline
+\texttt{.fsdocs-tip} & \\ \hline
+\texttt{.fsdocs-member-list} & \\ \hline
+\texttt{.fsdocs-member-name} & \\ \hline
+\texttt{.fsdocs-member-tooltip} & \\ \hline
+\texttt{.fsdocs-xmldoc} & \\ \hline
+\texttt{.fsdocs-entity-list} & \\ \hline
+\texttt{.fsdocs-member-list} & \\ \hline
+\end{tabular}
+
+\begin{tabular}{|l|l|}\hline
+\textbf{HTML Element Id} & \textbf{Content}\\ \hline\hline
+\texttt{\#fsdocs-content} & The generated content\\ \hline
+\texttt{\#fsdocs-searchbox} & The search box\\ \hline
+\texttt{\#fsdocs-logo} & The logo\\ \hline
+\texttt{\#fsdocs-menu} & The navigation-bar\\ \hline
+\end{tabular}
+
+
+
+If you write a new theme by CSS styling please contribute it back to FSharp.Formatting.
+\subsection*{Customizing via a new template}
+
+
+
+You can do advanced styling by creating a new template.  Add a file \texttt{docs/\_template.html}, likely starting
+with the existing default template.
+\begin{quote}
+
+
+NOTE: There is no guarantee that your template will continue to work with future versions of F\# Formatting.
+If you do develop a good template please consider contributing it back to F\# Formatting.
+\end{quote}
+
+
 
 \end{document}
