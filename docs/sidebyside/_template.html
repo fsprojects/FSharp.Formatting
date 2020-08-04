@@ -61,17 +61,17 @@
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</h3>
+            <h3 class="muted"><a href="{{fsdocs-collection-name-link}}">{{fsdocs-collection-name}}</a></h3>
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
             <div class="row">
-                <div class="col-xs-6">
+                <div class="col-xs-4">
+                    {{fsdocs-source}}
+                </div>
+                <div class="col-xs-4">
                     {{fsdocs-content}}
                     {{fsdocs-tooltips}}
-                </div>
-                <div class="col-xs-6">
-                    {{fsdocs-source}}
                 </div>
             </div>
         </div>

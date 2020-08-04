@@ -6,6 +6,7 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
 1. Run
 
+       [lang=text]
        dotnet new tool
        dotnet tool install FSharp.Formatting.CommandTool
 
@@ -18,12 +19,14 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
 5. Run
 
+       [lang=text]
        dotnet fsdocs watch
 
    and edit and test your docs.
 
 6. If using FAKE adjust `build.fsx` e.g.
 
+       [lang=text]
        Target.create "GenerateDocs" (fun _ ->
           Shell.cleanDir ".fsdocs"
           DotNet.exec id "fsdocs" "build --clean" |> ignore
@@ -37,20 +40,21 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
 Sample commands: 
 
+    [lang=text]
     dotnet tool install FSharp.Formatting.CommandTool --local
     git add dotnet-tools.json   
-    git rm -fr docs\tools
-    git mv docs\input\* docs
-    git mv docs\files\* docs
+    git rm -fr docs/tools
+    git mv docs/input/* docs
+    git mv docs/files/* docs
     
     <manually download and fixup the _template.html>
 
     dotnet fsdocs watch
 
-    touch docs\_template.fsx
-    touch docs\_template.ipynb
-    git add docs\_template.fsx
-    git add docs\_template.ipynb
+    touch docs/_template.fsx
+    touch docs/_template.ipynb
+    git add docs/_template.fsx
+    git add docs/_template.ipynb
 
 Here is an example PR: https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116
 
