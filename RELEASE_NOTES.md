@@ -1,3 +1,7 @@
+## 7.1.4
+
+- fixed property computation 
+
 ## 7.1.3
 
 - fixed typo for `LICENCE.md`

@@ -203,6 +203,7 @@ module Crack =
             match gpResult with
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
+                printfn "props = %A" (Map.toList props)
                 let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
                 let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
@@ -378,15 +379,15 @@ module Crack =
               [ param ParamKeys.``root`` (Some root)
                 param ParamKeys.``fsdocs-authors`` info.Authors
                 param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
-                param ParamKeys.``fsdocs-collection-name-link`` (Option.orElse info.FsDocsCollectionNameLink info.PackageProjectUrl)
+                param ParamKeys.``fsdocs-collection-name-link`` (info.FsDocsCollectionNameLink |> Option.orElse info.PackageProjectUrl)
                 param ParamKeys.``fsdocs-copyright`` info.Copyright
                 param ParamKeys.``fsdocs-navbar-position`` (Some "fixed-right")
                 param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png"  root)))
                 param ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
                 param ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
-                param ParamKeys.``fsdocs-logo-link`` (Option.orElse info.FsDocsLogoLink info.RepositoryUrl)
-                param ParamKeys.``fsdocs-license-link`` (Option.orElse info.FsDocsLicenseLink (Option.map (sprintf "%sblob/master/LICENSE.md") info.RepositoryUrl))
-                param ParamKeys.``fsdocs-release-notes-link`` (Option.orElse info.FsDocsReleaseNotesLink (Option.map (sprintf "%s/blob/master/RELEASE_NOTES.md") info.RepositoryUrl))
+                param ParamKeys.``fsdocs-logo-link`` (info.FsDocsLogoLink |> Option.orElse info.RepositoryUrl)
+                param ParamKeys.``fsdocs-license-link`` (info.FsDocsLicenseLink |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") info.RepositoryUrl))
+                param ParamKeys.``fsdocs-release-notes-link`` (info.FsDocsReleaseNotesLink |> Option.orElse (Option.map (sprintf "%sblob/master/RELEASE_NOTES.md") info.RepositoryUrl))
                 param ParamKeys.``fsdocs-package-project-url`` projectUrl
                 param ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
                 param ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
@@ -714,6 +715,7 @@ type CoreBuildOptions(watch) =
            (fun (_, key2) -> key1 = key2)
            (fun () -> Crack.crackProjects (userRoot, userCollectionName, userParameters, projects), key1)
 
+        printfn "general parameters: '%A" docsParameters
         let apiDocInputs =
             [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
                 let sourceRepo =
