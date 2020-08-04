@@ -149,7 +149,7 @@
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</h3>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</a></h3>
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
@@ -173,19 +173,49 @@ you adjsut them there is no guarantee that your template will continue to work w
 </tr>
 </thead>
 <tbody>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-authors</code></p></td>
+<td align="left"><p><code>&lt;Authors&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-collection-name</code></p></td>
+<td align="left"><p>Name of .sln, single .fsproj or containing directory</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-collection-name-link</code></p></td>
+<td align="left"><p><code>&lt;FsDocsCollectionNameLink&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-license-link</code></p></td>
+<td align="left"><p><code>&lt;FsDocsLicenseLink&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-logo-src</code></p></td>
+<td align="left"><p><code>&lt;FsDocsLogoSource&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-logo-link</code></p></td>
+<td align="left"><p><code>&lt;FsDocsLogoLink&gt;</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-navbar-position</code></p></td>
+<td align="left"><p><code>&lt;FsDocsNavbarPosition&gt;</code> (<code>fixed-left</code> or <code>fixed-right</code>)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-release-notes-link</code></p></td>
+<td align="left"><p><code>&lt;FsDocsReleaseNotesLink&gt;</code> else <code>&lt;PackageProjectUrl&gt;/blob/master/RELEASE_NOTES.md</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fsdocs-repository-link</code></p></td>
+<td align="left"><p><code>&lt;RepositoryUrl&gt;</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fsdocs-theme</code></p></td>
+<td align="left"><p><code>&lt;FsDocsTheme&gt;</code>, must currently be <code>default</code></p></td>
+</tr>
 </tbody>
 </table>
 
-<p>| <code>fsdocs-authors</code>              | <code>&lt;Authors&gt;</code>                                                   |  |
-| <code>fsdocs-collection-name</code>      | Name of .sln, single .fsproj or containing directory          |  |
-| <code>fsdocs-collection-name-link</code> | <code>&lt;FsDocsCollectionNameLink&gt;</code>        |  |
-| <code>fsdocs-license-link</code>         | <code>&lt;FsDocsLicenseLink&gt;</code>  | |
-| <code>fsdocs-logo-src</code>             | <code>&lt;FsDocsLogoSource&gt;</code> |  |
-| <code>fsdocs-logo-link</code>            | <code>&lt;FsDocsLogoLink&gt;</code>   |    |            |
-| <code>fsdocs-navbar-position</code>      | <code>&lt;FsDocsNavbarPosition&gt;</code>  |   <code>fixed-left</code> or <code>fixed-right</code>     |  |
-| <code>fsdocs-release-notes-link</code>   | <code>&lt;FsDocsReleaseNotesLink&gt;</code> else <code>&lt;PackageProjectUrl&gt;</code>/blob/master/RELEASE_NOTES.md  | |
-| <code>fsdocs-repository-link</code>      | <code>&lt;RepositoryUrl&gt;</code>                                             |
-| <code>fsdocs-theme</code>                | <code>&lt;FsDocsTheme&gt;</code>  |  Must currently be <code>default</code>    |</p>
 <p>As an example, here is <a href="templates/leftside/styling.html">a page with <code>fsdocs-navbar-position</code> set to <code>fixed-left</code></a>.</p>
 <h2><a name="Customizing-via-CSS" class="anchor" href="#Customizing-via-CSS">Customizing via CSS</a></h2>
 <p>You can start styling by creating a file <code>docs/fsdocs-custom.css</code> and adding entries to it.  It is loaded by
@@ -194,41 +224,42 @@ the standard template.  The CSS classes of generated content are:</p>
 <thead>
 <tr class="header">
 <th align="left"><p>CSS class</p></th>
-<th align="left"><p>Generated Content</p></th>
+<th align="left"><p>Corresponding Content</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left"><p><code>.fsdocs-tip</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated tooltips</p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>.fsdocs-member-list</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated member lists</p></td>
 </tr>
 <tr class="odd">
 <td align="left"><p><code>.fsdocs-member-name</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated member names</p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>.fsdocs-member-tooltip</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated tooltips for members</p></td>
 </tr>
 <tr class="odd">
 <td align="left"><p><code>.fsdocs-xmldoc</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated xmldoc sections</p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>.fsdocs-entity-list</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated entity lists</p></td>
 </tr>
 <tr class="odd">
 <td align="left"><p><code>.fsdocs-member-list</code></p></td>
-<td align="left"></td>
+<td align="left"><p>generated member lists</p></td>
 </tr>
 </tbody>
 </table>
 
+<p>Some generated elements are given specific HTML ids:</p>
 <table>
 <thead>
 <tr class="header">

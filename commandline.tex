@@ -48,56 +48,50 @@
 
 
 To use F\# Formatting tools via the command line, you can use the \texttt{fsdocs} dotnet tool.
-\begin{Verbatim}[commandchars=\\\{\}]
-\id{dotnet} \id{tool} \id{install} \id{FSharp}{.}\id{Formatting}{.}\id{CommandTool}
-\id{dotnet} \id{fsdocs} {[}\id{command}{]} {[}\id{options}{]}
+\begin{lstlisting}
+dotnet tool install FSharp.Formatting.CommandTool
+dotnet fsdocs [command] [options]
 
-\end{Verbatim}
-
+\end{lstlisting}
 \subsection*{The build command}
 
 
 
 This command processes a \texttt{docs} directory and generates API docs for projects in the solution according to the
-rules of \href{apidocs.html}{API doc generation}
+rules of \href{apidocs.html}{API doc generation}. The input accepted is described in \href{content.html}{content}.
 \begin{lstlisting}
 fsdocs build
 
 \end{lstlisting}
 
 
-The input accepted is described in \href{content.html}{content}.
-
-
 The command line options accepted are:
-\begin{tabular}{|l|c|}\hline
-\textbf{Option} & \textbf{Description}\\ \hline\hline
---input & Input directory of documentation content (default: \texttt{docs})\\ \hline
---projects & Project files to build API docs for outputs, defaults to all packable projects.\\ \hline
---output & Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch'.\\ \hline
---noapidocs & (Default: false) Disable generation of API docs.\\ \hline
---eval & (Default: false) Evaluate F\# fragments in scripts.\\ \hline
+\begin{tabular}{|l|l|}\hline
+\textbf{Command Line Option} & \textbf{Description}\\ \hline\hline
+\texttt{--input} & Input directory of content (default: \texttt{docs})\\ \hline
+\texttt{--projects} & Project files to build API docs for outputs, defaults to all packable projects\\ \hline
+\texttt{--output} & Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch')\\ \hline
+\texttt{--noapidocs} & Disable generation of API docs\\ \hline
+\texttt{--eval} & Evaluate F\# fragments in scripts\\ \hline
+\texttt{--saveimages} & Save images referenced in docs\\ \hline
+\texttt{--nolinenumbers} & Don't add line numbers, default is to add line number.\\ \hline
+\texttt{--parameters} & Additional substitution parameters for templates\\ \hline
+\texttt{--nonpublic} & The tool will also generate documentation for non-public members\\ \hline
+\texttt{--nodefaultcontent} & Do not copy default content styles, javascript or use default templates\\ \hline
+\texttt{--clean} & Clean the output directory\\ \hline
+\texttt{--help} & Display this help screen\\ \hline
+\texttt{--version} & Display version information\\ \hline
 \end{tabular}
 
 
 
-| --saveimages        |        (Default: none) Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs. |
-| --nolinenumbers       |      Don't add line numbers, default is to add line numbers. |
-| --parameters            |    Additional substitution parameters for templates. |
-| --nonpublic           |      (Default: false) The tool will also generate documentation for non-public members |
-| --nodefaultcontent      |    Do not copy default content styles, javascript or use default templates. |
-| --clean                 |    (Default: false) Clean the output directory. |
-| --help                  |    Display this help screen. |
-| --version               |    Display version information. |
-
-
 The following command line options are also accepted but it is instead recommended you use
 settings in your .fsproj project files:
-\begin{tabular}{|l|c|}\hline
-\textbf{Option} & \textbf{Description}\\ \hline\hline
---sourcefolder & Source folder at time of component build (defaults to value of \texttt{<FsDocsSourceFolder>} from project file, else current directory)\\ \hline
---sourcerepo & Source repository for github links (defaults to value of \texttt{<FsDocsSourceRepository>} from project file, else \texttt{<RepositoryUrl>/tree/<RepositoryBranch>} for Git repositories)\\ \hline
---mdcomments & Assume /// comments in F\# code are markdown style (defaults to value of \texttt{<UsesMarkdownComments>} from project file)\\ \hline
+\begin{tabular}{|l|l|}\hline
+\textbf{Command Line Option} & \textbf{Description}\\ \hline\hline
+\texttt{--sourcefolder} & Source folder at time of component build (\texttt{<FsDocsSourceFolder>})\\ \hline
+\texttt{--sourcerepo} & Source repository for github links (\texttt{<FsDocsSourceRepository>})\\ \hline
+\texttt{--mdcomments} & Assume comments in F\# code are markdown (\texttt{<UsesMarkdownComments>})\\ \hline
 \end{tabular}
 
 \subsection*{The watch command}
@@ -113,12 +107,12 @@ fsdocs watch
 
 
 Restarting may be necesssary on changes to project files. The same parameters are accepted, plus these:
-\begin{tabular}{|l|c|}\hline
-\textbf{Option} & \textbf{Description}\\ \hline\hline
-\texttt{--noserver} & (Default: false) Do not serve content when watching.\\ \hline
-\texttt{--nolaunch} & (Default: false) Do not launch a browser window.\\ \hline
-\texttt{--open} & (Default: ) URL extension to launch \href{http://localhost:<port>/\%s.}{http://localhost:<port>/\%s.}\\ \hline
-\texttt{--port} & (Default: 8901) Port to serve content for \href{http://localhost}{http://localhost} serving.\\ \hline
+\begin{tabular}{|l|l|}\hline
+\textbf{Command Line Option} & \textbf{Description}\\ \hline\hline
+\texttt{--noserver} & Do not serve content when watching.\\ \hline
+\texttt{--nolaunch} & Do not launch a browser window.\\ \hline
+\texttt{--open} & URL extension to launch \href{http://localhost:<port>/\%s.}{http://localhost:<port>/\%s.}\\ \hline
+\texttt{--port} & Port to serve content for \href{http://localhost}{http://localhost} serving.\\ \hline
 \end{tabular}
 
 \subsection*{Searchable docs}
@@ -131,23 +125,22 @@ When using the command-line tool a Lunr search index is automatically generated 
 A search box is included in the default template.  To add a search box
 to your own \texttt{\_template.html}, include \texttt{fsdocs-search.js}, which is added to the \texttt{content}
 by default.
-\begin{Verbatim}[commandchars=\\\{\}]
-\ops{..}{.}
-{<}\id{div} \id{id}\ops{=}\str{"header"}{>}
-  {<}\id{div} \kwd{class}\ops{=}\str{"searchbox"}{>}
-    {<}\id{label} \kwd{for}\ops{=}\str{"search-by"}{>}
-      {<}\id{i} \kwd{class}\ops{=}\str{"fas fa-search"}{>}\ops{</}\id{i}{>}
-    \ops{</}\id{label}{>}
-    {<}\id{input} \id{data}\ops{-}\id{search}\ops{-}\id{input}\ops{=}\str{""} \id{id}\ops{=}\str{"search-by"} \kwd{type}\ops{=}\str{"search"} \id{placeholder}\ops{=}\str{"Search..."} \ops{/>}
-    {<}\id{span} \id{data}\ops{-}\id{search}\ops{-}\id{clear}\ops{=}\str{""}{>}
-      {<}\id{i} \kwd{class}\ops{=}\str{"fas fa-times"}{>}\ops{</}\id{i}{>}
-    \ops{</}\id{span}{>}
-  \ops{</}\id{div}{>}
-\ops{</}\id{div}{>}
-\ops{..}{.}
+\begin{lstlisting}
+...
+<div id="header">
+  <div class="searchbox">
+    <label for="search-by">
+      <i class="fas fa-search"></i>
+    </label>
+    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+    <span data-search-clear="">
+      <i class="fas fa-times"></i>
+    </span>
+  </div>
+</div>
+...
 
-\end{Verbatim}
-
+\end{lstlisting}
 
 
 \end{document}

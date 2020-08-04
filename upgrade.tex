@@ -52,12 +52,11 @@ Here are the typical steps to upgrade a repo based on \texttt{ProjectScaffold} t
 \item 
 
 Run
-\begin{Verbatim}[commandchars=\\\{\}]
-\id{dotnet} \kwd{new} \id{tool}
-\id{dotnet} \id{tool} \id{install} \id{FSharp}{.}\id{Formatting}{.}\id{CommandTool}
+\begin{lstlisting}
+dotnet new tool
+dotnet tool install FSharp.Formatting.CommandTool
 
-\end{Verbatim}
-
+\end{lstlisting}
 
 \item 
 
@@ -75,11 +74,10 @@ copying across any snippets from old templates.
 \item 
 
 Run
-\begin{Verbatim}[commandchars=\\\{\}]
-\id{dotnet} \id{fsdocs} \id{watch}
+\begin{lstlisting}
+dotnet fsdocs watch
 
-\end{Verbatim}
-
+\end{lstlisting}
 
 
 and edit and test your docs.
@@ -87,14 +85,13 @@ and edit and test your docs.
 \item 
 
 If using FAKE adjust \texttt{build.fsx} e.g.
-\begin{Verbatim}[commandchars=\\\{\}]
-\id{Target}{.}\id{create} \str{"GenerateDocs"} {(}\kwd{fun} \id{\_} \kwd{->}
-   \id{Shell}{.}\id{cleanDir} \str{".fsdocs"}
-   \id{DotNet}{.}\id{exec} \id{id} \str{"fsdocs"} \str{"build --clean"} \ops{|>} \id{ignore}
-{)}
+\begin{lstlisting}
+Target.create "GenerateDocs" (fun _ ->
+   Shell.cleanDir ".fsdocs"
+   DotNet.exec id "fsdocs" "build --clean" |> ignore
+)
 
-\end{Verbatim}
-
+\end{lstlisting}
 
 \item 
 
@@ -111,24 +108,23 @@ Also add load sections to make sure your notebooks and scripts contain the right
 
 
 Sample commands:
-\begin{Verbatim}[commandchars=\\\{\}]
-\id{dotnet} \id{tool} \id{install} \id{FSharp}{.}\id{Formatting}{.}\id{CommandTool} \ops{--}\id{local}
-\id{git} \id{add} \id{dotnet}\ops{-}\id{tools}{.}\id{json}   
-\id{git} \id{rm} \ops{-}\id{fr} \id{docs}
-\id{git} \id{mv} \id{docs}
-\id{git} \id{mv} \id{docs}
+\begin{lstlisting}
+dotnet tool install FSharp.Formatting.CommandTool --local
+git add dotnet-tools.json   
+git rm -fr docs/tools
+git mv docs/input/* docs
+git mv docs/files/* docs
 
-{<}\id{manually} \id{download} \kwd{and} \id{fixup} \id{the} \id{\_template}{.}\id{html}{>}
+<manually download and fixup the _template.html>
 
-\id{dotnet} \id{fsdocs} \id{watch}
+dotnet fsdocs watch
 
-\id{touch} \id{docs}
-\id{touch} \id{docs}
-\id{git} \id{add} \id{docs}
-\id{git} \id{add} \id{docs}
+touch docs/_template.fsx
+touch docs/_template.ipynb
+git add docs/_template.fsx
+git add docs/_template.ipynb
 
-\end{Verbatim}
-
+\end{lstlisting}
 
 
 Here is an example PR: \href{https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116}{https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116}

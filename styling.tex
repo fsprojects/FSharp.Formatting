@@ -78,20 +78,18 @@ you adjsut them there is no guarantee that your template will continue to work w
 The following \href{content.html}{content parameters} are particularly related to visual styling:
 \begin{tabular}{|l|l|}\hline
 \textbf{Substitution name} & \textbf{Value (if not overriden by --parameters)}\\ \hline\hline
+\texttt{fsdocs-authors} & \texttt{<Authors>}\\ \hline
+\texttt{fsdocs-collection-name} & Name of .sln, single .fsproj or containing directory\\ \hline
+\texttt{fsdocs-collection-name-link} & \texttt{<FsDocsCollectionNameLink>}\\ \hline
+\texttt{fsdocs-license-link} & \texttt{<FsDocsLicenseLink>}\\ \hline
+\texttt{fsdocs-logo-src} & \texttt{<FsDocsLogoSource>}\\ \hline
+\texttt{fsdocs-logo-link} & \texttt{<FsDocsLogoLink>}\\ \hline
+\texttt{fsdocs-navbar-position} & \texttt{<FsDocsNavbarPosition>} (\texttt{fixed-left} or \texttt{fixed-right})\\ \hline
+\texttt{fsdocs-release-notes-link} & \texttt{<FsDocsReleaseNotesLink>} else \texttt{<PackageProjectUrl>/blob/master/RELEASE\_NOTES.md}\\ \hline
+\texttt{fsdocs-repository-link} & \texttt{<RepositoryUrl>}\\ \hline
+\texttt{fsdocs-theme} & \texttt{<FsDocsTheme>}, must currently be \texttt{default}\\ \hline
 \end{tabular}
 
-
-
-| \texttt{fsdocs-authors}              | \texttt{<Authors>}                                                   |  |
-| \texttt{fsdocs-collection-name}      | Name of .sln, single .fsproj or containing directory          |  |
-| \texttt{fsdocs-collection-name-link} | \texttt{<FsDocsCollectionNameLink>}        |  |
-| \texttt{fsdocs-license-link}         | \texttt{<FsDocsLicenseLink>}  | |
-| \texttt{fsdocs-logo-src}             | \texttt{<FsDocsLogoSource>} |  |
-| \texttt{fsdocs-logo-link}            | \texttt{<FsDocsLogoLink>}   |    |            |
-| \texttt{fsdocs-navbar-position}      | \texttt{<FsDocsNavbarPosition>}  |   \texttt{fixed-left} or \texttt{fixed-right}     |  |
-| \texttt{fsdocs-release-notes-link}   | \texttt{<FsDocsReleaseNotesLink>} else \texttt{<PackageProjectUrl>}/blob/master/RELEASE\_NOTES.md  | |
-| \texttt{fsdocs-repository-link}      | \texttt{<RepositoryUrl>}                                             |
-| \texttt{fsdocs-theme}                | \texttt{<FsDocsTheme>}  |  Must currently be \texttt{default}    |
 
 
 As an example, here is \href{templates/leftside/styling.html}{a page with \texttt{fsdocs-navbar-position} set to \texttt{fixed-left}}.
@@ -102,16 +100,19 @@ As an example, here is \href{templates/leftside/styling.html}{a page with \textt
 You can start styling by creating a file \texttt{docs/fsdocs-custom.css} and adding entries to it.  It is loaded by
 the standard template.  The CSS classes of generated content are:
 \begin{tabular}{|l|l|}\hline
-\textbf{CSS class} & \textbf{Generated Content}\\ \hline\hline
-\texttt{.fsdocs-tip} & \\ \hline
-\texttt{.fsdocs-member-list} & \\ \hline
-\texttt{.fsdocs-member-name} & \\ \hline
-\texttt{.fsdocs-member-tooltip} & \\ \hline
-\texttt{.fsdocs-xmldoc} & \\ \hline
-\texttt{.fsdocs-entity-list} & \\ \hline
-\texttt{.fsdocs-member-list} & \\ \hline
+\textbf{CSS class} & \textbf{Corresponding Content}\\ \hline\hline
+\texttt{.fsdocs-tip} & generated tooltips\\ \hline
+\texttt{.fsdocs-member-list} & generated member lists\\ \hline
+\texttt{.fsdocs-member-name} & generated member names\\ \hline
+\texttt{.fsdocs-member-tooltip} & generated tooltips for members\\ \hline
+\texttt{.fsdocs-xmldoc} & generated xmldoc sections\\ \hline
+\texttt{.fsdocs-entity-list} & generated entity lists\\ \hline
+\texttt{.fsdocs-member-list} & generated member lists\\ \hline
 \end{tabular}
 
+
+
+Some generated elements are given specific HTML ids:
 \begin{tabular}{|l|l|}\hline
 \textbf{HTML Element Id} & \textbf{Content}\\ \hline\hline
 \texttt{\#fsdocs-content} & The generated content\\ \hline

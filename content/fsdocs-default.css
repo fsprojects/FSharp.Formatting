@@ -63,70 +63,6 @@ body {
 }
 
 /*--------------------------------------------------------------------------
-  Formatting pre and code sections in fsdocs-content (code highlighting is
-    further below)
-/*--------------------------------------------------------------------------*/
-
-#fsdocs-content code {
-    font-size: 0.95rem;
-    background-color: #f7f7f900;
-    border: 0px;
-    padding: 0px;
-}
-
-/* omitted */
-#fsdocs-content span.omitted {
-    background: #3c4e52;
-    border-radius: 5px;
-    color: #808080;
-    padding: 0px 0px 1px 0px;
-}
-
-#fsdocs-content pre .fssnip code {
-    font: 9pt 'Droid Sans Mono',consolas,monospace;
-}
-
-#fsdocs-content table.pre, pre.fssnip, pre {
-    line-height: 13pt;
-    border: 1px solid #d8d8d8;
-    border-collapse: separate;
-    white-space: pre;
-    font: 9pt 'Droid Sans Mono',consolas,monospace;
-    width: 90%;
-    margin: 10px 20px 20px 20px;
-    background-color: #212d30;
-    padding: 10px;
-    border-radius: 5px;
-    color: #d1d1d1;
-    max-width: none;
-}
-
-#fsdocs-content pre.fssnip code {
-    font: 9pt 'Droid Sans Mono',consolas,monospace;
-}
-
-#fsdocs-content table.pre pre {
-    padding: 0px;
-    margin: 0px;
-    border-radius: 0px;
-    width: 100%;
-}
-
-#fsdocs-content table.pre td {
-    padding: 0px;
-    white-space: normal;
-    margin: 0px;
-}
-
-    #fsdocs-content table.pre td.lines {
-        width: 30px;
-    }
-
-
-#fsdocs-content pre {
-    word-wrap: inherit;
-}
-/*--------------------------------------------------------------------------
   Formatting tables in fsdocs-content, using docs.microsoft.com tables
 /*--------------------------------------------------------------------------*/
 
@@ -194,7 +130,7 @@ body {
         border-top: 0;
     }
 
-    #fsdocs-content .table .table-striped > tbody > tr:nth-of-type(odd) {
+    #fsdocs-content .table table-striped > tbody > tr:nth-of-type(odd) {
         background-color: var(--box-shadow-light);
     }
 
@@ -270,6 +206,73 @@ body {
 }
 
 
+/*--------------------------------------------------------------------------
+  Formatting pre and code sections in fsdocs-content (code highlighting is
+    further below)
+/*--------------------------------------------------------------------------*/
+
+#fsdocs-content code {
+    font-size: 0.83rem;
+    background-color: #f7f7f900;
+    border: 0px;
+    padding: 0px;
+}
+
+/* omitted */
+#fsdocs-content span.omitted {
+    background: #3c4e52;
+    border-radius: 5px;
+    color: #808080;
+    padding: 0px 0px 1px 0px;
+}
+
+#fsdocs-content pre .fssnip code {
+    font: 9pt 'Droid Sans Mono',consolas,monospace;
+}
+
+#fsdocs-content table.pre,
+#fsdocs-content pre.fssnip,
+#fsdocs-content pre {
+    line-height: 13pt;
+    border: 0px solid #d8d8d8;
+    border-top: 0px solid #e3e3e3;
+    border-collapse: separate;
+    white-space: pre;
+    font: 9pt 'Droid Sans Mono',consolas,monospace;
+    width: 90%;
+    margin: 10px 20px 20px 20px;
+    background-color: #212d30;
+    padding: 10px;
+    border-radius: 5px;
+    color: #d1d1d1;
+    max-width: none;
+}
+
+    #fsdocs-content pre.fssnip code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+    }
+
+    #fsdocs-content table.pre pre {
+        padding: 0px;
+        margin: 0px;
+        border-radius: 0px;
+        width: 100%;
+    }
+
+    #fsdocs-content table.pre td {
+        padding: 0px;
+        white-space: normal;
+        margin: 0px;
+    }
+
+        #fsdocs-content table.pre td.lines {
+            width: 30px;
+        }
+
+
+#fsdocs-content pre {
+    word-wrap: inherit;
+}
 /*--------------------------------------------------------------------------
   Formatting github source links
 /*--------------------------------------------------------------------------*/

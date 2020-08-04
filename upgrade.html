@@ -149,7 +149,7 @@
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</h3>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</a></h3>
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
@@ -158,9 +158,9 @@
 <ol>
 <li>
 <p>Run</p>
-<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="k">new</span> <span class="id">tool</span>
-<span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
-</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet new tool
+dotnet tool install FSharp.Formatting.CommandTool
+</code></pre></td></tr></table>
 </li>
 <li><p>Delete all of <code>docs\tools</code> particularly <code>docs\tool\generate.fsx</code>.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.</p></li>
 <li><p>Put your docs directory so it refelcts the final shape of the site. For example move the content of <code>docs\input\*</code> and <code>docs\files\*</code> directly to <code>docs\*</code></p></li>
@@ -170,17 +170,17 @@ copying across any snippets from old templates.</p>
 </li>
 <li>
 <p>Run</p>
-<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">watch</span>
-</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet fsdocs watch
+</code></pre></td></tr></table>
 <p>and edit and test your docs.</p>
 </li>
 <li>
 <p>If using FAKE adjust <code>build.fsx</code> e.g.</p>
-<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">Target</span><span class="pn">.</span><span class="id">create</span> <span class="s">&quot;GenerateDocs&quot;</span> <span class="pn">(</span><span class="k">fun</span> <span class="id">_</span> <span class="k">-&gt;</span>
-   <span class="id">Shell</span><span class="pn">.</span><span class="id">cleanDir</span> <span class="s">&quot;.fsdocs&quot;</span>
-   <span class="id">DotNet</span><span class="pn">.</span><span class="id">exec</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">id</span> <span class="s">&quot;fsdocs&quot;</span> <span class="s">&quot;build --clean&quot;</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="id">ignore</span>
-<span class="pn">)</span>
-</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">Target.create "GenerateDocs" (fun _ -&gt;
+   Shell.cleanDir ".fsdocs"
+   DotNet.exec id "fsdocs" "build --clean" |&gt; ignore
+)
+</code></pre></td></tr></table>
 </li>
 <li>
 <p>Consider creating <code>docs\_template.fsx</code> and <code>docs\_template.ipynb</code> to enable co-generation of F# scripts and F# notebooks.</p>
@@ -189,27 +189,24 @@ copying across any snippets from old templates.</p>
 </li>
 </ol>
 <p>Sample commands:</p>
-<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 4)" onmouseover="showTip(event, 'fs1', 4)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span> <span class="o">--</span><span class="id">local</span>
-<span class="id">git</span> <span class="id">add</span> <span class="id">dotnet</span><span class="o">-</span><span class="id">tools</span><span class="pn">.</span><span class="id">json</span>   
-<span class="id">git</span> <span class="id">rm</span> <span class="o">-</span><span class="id">fr</span> <span class="id">docs</span>
-<span class="id">git</span> <span class="id">mv</span> <span class="id">docs</span>
-<span class="id">git</span> <span class="id">mv</span> <span class="id">docs</span>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet tool install FSharp.Formatting.CommandTool --local
+git add dotnet-tools.json   
+git rm -fr docs/tools
+git mv docs/input/* docs
+git mv docs/files/* docs
 
-<span class="pn">&lt;</span><span class="id">manually</span> <span class="id">download</span> <span class="k">and</span> <span class="id">fixup</span> <span class="id">the</span> <span class="id">_template</span><span class="pn">.</span><span class="id">html</span><span class="pn">&gt;</span>
+&lt;manually download and fixup the _template.html&gt;
 
-<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="id">watch</span>
+dotnet fsdocs watch
 
-<span class="id">touch</span> <span class="id">docs</span>
-<span class="id">touch</span> <span class="id">docs</span>
-<span class="id">git</span> <span class="id">add</span> <span class="id">docs</span>
-<span class="id">git</span> <span class="id">add</span> <span class="id">docs</span>
-</code></pre>
+touch docs/_template.fsx
+touch docs/_template.ipynb
+git add docs/_template.fsx
+git add docs/_template.ipynb
+</code></pre></td></tr></table>
 <p>Here is an example PR: <a href="https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116">https://github.com/fsprojects/FSharp.Control.AsyncSeq/pull/116</a></p>
 
-            <div class="tip" id="fs1">namespace Microsoft.FSharp</div>
-<div class="tip" id="fs2">val id : x:&#39;T -&gt; &#39;T</div>
-<div class="tip" id="fs3">val ignore : value:&#39;T -&gt; unit</div>
-
+            
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->

@@ -149,11 +149,49 @@
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</h3>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</a></h3>
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
-            <h1><a name="Markdown-extensions-side-by-side-example" class="anchor" href="#Markdown-extensions-side-by-side-example">Markdown extensions side-by-side example</a></h1>
+            <div class="row">
+                <div class="col-xs-4">
+                    <table class="pre"><tr><td><pre><code>Markdown extensions side-by-side example
+===================
+
+To use LaTex extension, you need add javascript
+link to [MathJax](http://www.mathjax.org/) in
+your template.
+
+To use inline LaTex, eclose LaTex code with `$`:
+$ k_{n+1} = n^2 + k_n^2 - k_{n-1} $. Alternatively,
+you can also use `$$`.
+
+To use block LaTex, start a new parapgraph, with
+the first line marked as `$$$` (no close `$$$`):
+
+$$$
+A_{m,n} =
+ \begin{pmatrix}
+  a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,n} \\
+  a_{2,1} &amp; a_{2,2} &amp; \cdots &amp; a_{2,n} \\
+  \vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+  a_{m,1} &amp; a_{m,2} &amp; \cdots &amp; a_{m,n}
+ \end{pmatrix}
+
+Use LaTex escape rule:
+
+- Escape \$ in inline mode: $ \$ $, $ \$var $
+- Other escapes: $ \&amp; \% \$ \# \_ \{ \} $
+- Using &lt; or &gt;: $ x &gt; 1 $, $ y &lt; 1 $, $ x &gt;= 1 $,
+  $ y &lt;= 1 $, $ x = 1 $
+- $ &lt;p&gt;something&lt;/p&gt; $
+
+
+</code></pre></td></tr></table>
+
+                </div>
+                <div class="col-xs-4">
+                    <h1><a name="Markdown-extensions-side-by-side-example" class="anchor" href="#Markdown-extensions-side-by-side-example">Markdown extensions side-by-side example</a></h1>
 <p>To use LaTex extension, you need add javascript
 link to <a href="http://www.mathjax.org/">MathJax</a> in
 your template.</p>
@@ -180,7 +218,9 @@ Using < or >: <span class="math">\(x &gt; 1\)</span>, <span class="math">\(y &lt
 <li><span class="math">\(&lt;p&gt;something&lt;/p&gt;\)</span></li>
 </ul>
 
-            
+                    
+                </div>
+            </div>
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->

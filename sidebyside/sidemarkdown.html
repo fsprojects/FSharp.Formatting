@@ -149,11 +149,81 @@
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</h3>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</a></h3>
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
-            <h1><a name="Literate-Markdown-side-by-side-example" class="anchor" href="#Literate-Markdown-side-by-side-example">Literate Markdown side-by-side example</a></h1>
+            <div class="row">
+                <div class="col-xs-4">
+                    <table class="pre"><tr><td><pre><code># Literate Markdown side-by-side example
+
+This file demonstrates how to write Markdown document with 
+embedded F# snippets that can be transformed into nice HTML 
+using the `literate.fsx` script from the [F# Formatting
+package](http://fsprojects.github.io/FSharp.Formatting).
+
+In this case, the document itself is a valid Markdown and 
+you can use standard Markdown features to format the text:
+
+ - Here is an example of unordered list and...
+ - Text formatting including **bold** and _emphasis_
+
+For more information, see the [Markdown][md] reference.
+
+ [md]: http://daringfireball.net/projects/markdown
+
+
+## Writing F# code
+
+In standard Markdown, you can include code snippets by 
+writing a block indented by four spaces and the code 
+snippet will be turned into a `&lt;pre&gt;` element. If you do 
+the same using Literate F# tool, the code is turned into
+a nicely formatted F# snippet:
+
+    /// The Hello World of functional languages!
+    let rec factorial x = 
+      if x = 0 then 1 
+      else x * (factorial (x - 1))
+
+    let f10 = factorial 10
+
+
+## Hiding code
+
+If you want to include some code in the source code, 
+but omit it from the output, you can use the `hide` 
+command. You can also use `module=...` to specify that 
+the snippet should be placed in a separate module 
+(e.g. to avoid duplicate definitions).
+
+    [hide, module=Hidden]
+    /// This is a hidden answer
+    let answer = 42
+
+The value will be deffined in the F# code that is 
+processed and so you can use it from other (visible) 
+code and get correct tool tips:
+
+    let answer = Hidden.answer
+
+
+## Including other snippets
+
+When writing literate programs as Markdown documents, 
+you can also include snippets in other languages. 
+These will not be colorized and processed as F# 
+code samples:
+
+    [lang=csharp]
+    Console.WriteLine("Hello world!");
+
+This snippet is turned into a `pre` element with the
+`lang` attribute set to `csharp`.</code></pre></td></tr></table>
+
+                </div>
+                <div class="col-xs-4">
+                    <h1><a name="Literate-Markdown-side-by-side-example" class="anchor" href="#Literate-Markdown-side-by-side-example">Literate Markdown side-by-side example</a></h1>
 <p>This file demonstrates how to write Markdown document with
 embedded F# snippets that can be transformed into nice HTML
 using the <code>literate.fsx</code> script from the <a href="http://fsprojects.github.io/FSharp.Formatting">F# Formatting
@@ -199,13 +269,15 @@ code samples:</p>
 <p>This snippet is turned into a <code>pre</code> element with the
 <code>lang</code> attribute set to <code>csharp</code>.</p>
 
-            <div class="tip" id="fs1">val factorial : x:int -&gt; int<br /><em><br /><br />&#160;The Hello World of functional languages!</em></div>
+                    <div class="tip" id="fs1">val factorial : x:int -&gt; int<br /><em><br /><br />&#160;The Hello World of functional languages!</em></div>
 <div class="tip" id="fs2">val x : int</div>
 <div class="tip" id="fs3">val f10 : int</div>
 <div class="tip" id="fs4">val answer : int</div>
 <div class="tip" id="fs5">module Hidden<br /><br />from sidemarkdown</div>
 <div class="tip" id="fs6">val answer : int<br /><em><br /><br />&#160;This is a hidden answer</em></div>
 
+                </div>
+            </div>
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->

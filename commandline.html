@@ -149,82 +149,105 @@
     </nav>
     <div class="container">
         <div class="masthead">
-            <h3 class="muted" href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</h3>
+            <h3 class="muted"><a href="https://fsprojects.github.io/FSharp.Formatting/">FSharp.Formatting</a></h3>
         </div>
         <hr />
         <div class="container" id="fsdocs-content">
             <h1><a name="Command-line-tool" class="anchor" href="#Command-line-tool">Command line tool</a></h1>
 <p>To use F# Formatting tools via the command line, you can use the <code>fsdocs</code> dotnet tool.</p>
-<pre class="fssnip highlighted"><code lang="fsharp"><span class="id">dotnet</span> <span class="id">tool</span> <span class="id">install</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="id">FSharp</span><span class="pn">.</span><span class="id">Formatting</span><span class="pn">.</span><span class="id">CommandTool</span>
-<span class="id">dotnet</span> <span class="id">fsdocs</span> <span class="pn">[</span><span class="id">command</span><span class="pn">]</span> <span class="pn">[</span><span class="id">options</span><span class="pn">]</span>
-</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">dotnet tool install FSharp.Formatting.CommandTool
+dotnet fsdocs [command] [options]
+</code></pre></td></tr></table>
 <h2><a name="The-build-command" class="anchor" href="#The-build-command">The build command</a></h2>
 <p>This command processes a <code>docs</code> directory and generates API docs for projects in the solution according to the
-rules of <a href="apidocs.html">API doc generation</a></p>
+rules of <a href="apidocs.html">API doc generation</a>. The input accepted is described in <a href="content.html">content</a>.</p>
 <table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">fsdocs build
 </code></pre></td></tr></table>
-<p>The input accepted is described in <a href="content.html">content</a>.</p>
 <p>The command line options accepted are:</p>
 <table>
 <thead>
 <tr class="header">
-<th align="left"><p>Option</p></th>
-<th align="center"><p>Description</p></th>
+<th align="left"><p>Command Line Option</p></th>
+<th align="left"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left"><p>--input</p></td>
-<td align="center"><p>Input directory of documentation content (default: <code>docs</code>)</p></td>
+<td align="left"><p><code>--input</code></p></td>
+<td align="left"><p>Input directory of content (default: <code>docs</code>)</p></td>
 </tr>
 <tr class="even">
-<td align="left"><p>--projects</p></td>
-<td align="center"><p>Project files to build API docs for outputs, defaults to all packable projects.</p></td>
+<td align="left"><p><code>--projects</code></p></td>
+<td align="left"><p>Project files to build API docs for outputs, defaults to all packable projects</p></td>
 </tr>
 <tr class="odd">
-<td align="left"><p>--output</p></td>
-<td align="center"><p>Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch'.</p></td>
+<td align="left"><p><code>--output</code></p></td>
+<td align="left"><p>Output Directory (default 'output' for 'build' and 'tmp/watch' for 'watch')</p></td>
 </tr>
 <tr class="even">
-<td align="left"><p>--noapidocs</p></td>
-<td align="center"><p>(Default: false) Disable generation of API docs.</p></td>
+<td align="left"><p><code>--noapidocs</code></p></td>
+<td align="left"><p>Disable generation of API docs</p></td>
 </tr>
 <tr class="odd">
-<td align="left"><p>--eval</p></td>
-<td align="center"><p>(Default: false) Evaluate F# fragments in scripts.</p></td>
+<td align="left"><p><code>--eval</code></p></td>
+<td align="left"><p>Evaluate F# fragments in scripts</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>--saveimages</code></p></td>
+<td align="left"><p>Save images referenced in docs</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>--nolinenumbers</code></p></td>
+<td align="left"><p>Don't add line numbers, default is to add line number.</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>--parameters</code></p></td>
+<td align="left"><p>Additional substitution parameters for templates</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>--nonpublic</code></p></td>
+<td align="left"><p>The tool will also generate documentation for non-public members</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>--nodefaultcontent</code></p></td>
+<td align="left"><p>Do not copy default content styles, javascript or use default templates</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>--clean</code></p></td>
+<td align="left"><p>Clean the output directory</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>--help</code></p></td>
+<td align="left"><p>Display this help screen</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>--version</code></p></td>
+<td align="left"><p>Display version information</p></td>
 </tr>
 </tbody>
 </table>
 
-<p>| --saveimages        |        (Default: none) Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs. |
-| --nolinenumbers       |      Don't add line numbers, default is to add line numbers. |
-| --parameters            |    Additional substitution parameters for templates. |
-| --nonpublic           |      (Default: false) The tool will also generate documentation for non-public members |
-| --nodefaultcontent      |    Do not copy default content styles, javascript or use default templates. |
-| --clean                 |    (Default: false) Clean the output directory. |
-| --help                  |    Display this help screen. |
-| --version               |    Display version information. |</p>
 <p>The following command line options are also accepted but it is instead recommended you use
 settings in your .fsproj project files:</p>
 <table>
 <thead>
 <tr class="header">
-<th align="left"><p>Option</p></th>
-<th align="center"><p>Description</p></th>
+<th align="left"><p>Command Line Option</p></th>
+<th align="left"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left"><p>--sourcefolder</p></td>
-<td align="center"><p>Source folder at time of component build (defaults to value of <code>&lt;FsDocsSourceFolder&gt;</code> from project file, else current directory)</p></td>
+<td align="left"><p><code>--sourcefolder</code></p></td>
+<td align="left"><p>Source folder at time of component build (<code>&lt;FsDocsSourceFolder&gt;</code>)</p></td>
 </tr>
 <tr class="even">
-<td align="left"><p>--sourcerepo</p></td>
-<td align="center"><p>Source repository for github links (defaults to value of <code>&lt;FsDocsSourceRepository&gt;</code> from project file, else <code>&lt;RepositoryUrl&gt;/tree/&lt;RepositoryBranch&gt;</code> for Git repositories)</p></td>
+<td align="left"><p><code>--sourcerepo</code></p></td>
+<td align="left"><p>Source repository for github links (<code>&lt;FsDocsSourceRepository&gt;</code>)</p></td>
 </tr>
 <tr class="odd">
-<td align="left"><p>--mdcomments</p></td>
-<td align="center"><p>Assume /// comments in F# code are markdown style (defaults to value of <code>&lt;UsesMarkdownComments&gt;</code> from project file)</p></td>
+<td align="left"><p><code>--mdcomments</code></p></td>
+<td align="left"><p>Assume comments in F# code are markdown (<code>&lt;UsesMarkdownComments&gt;</code>)</p></td>
 </tr>
 </tbody>
 </table>
@@ -238,26 +261,26 @@ directory (e.g. <code>docs</code>) are watched.</p>
 <table>
 <thead>
 <tr class="header">
-<th align="left"><p>Option</p></th>
-<th align="center"><p>Description</p></th>
+<th align="left"><p>Command Line Option</p></th>
+<th align="left"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left"><p><code>--noserver</code></p></td>
-<td align="center"><p>(Default: false) Do not serve content when watching.</p></td>
+<td align="left"><p>Do not serve content when watching.</p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>--nolaunch</code></p></td>
-<td align="center"><p>(Default: false) Do not launch a browser window.</p></td>
+<td align="left"><p>Do not launch a browser window.</p></td>
 </tr>
 <tr class="odd">
 <td align="left"><p><code>--open</code></p></td>
-<td align="center"><p>(Default: ) URL extension to launch <a href="http://localhost:&lt;port&gt;/%s.">http://localhost:<port>/%s.</a></p></td>
+<td align="left"><p>URL extension to launch <a href="http://localhost:&lt;port&gt;/%s.">http://localhost:<port>/%s.</a></p></td>
 </tr>
 <tr class="even">
 <td align="left"><p><code>--port</code></p></td>
-<td align="center"><p>(Default: 8901) Port to serve content for <a href="http://localhost">http://localhost</a> serving.</p></td>
+<td align="left"><p>Port to serve content for <a href="http://localhost">http://localhost</a> serving.</p></td>
 </tr>
 </tbody>
 </table>
@@ -267,24 +290,22 @@ directory (e.g. <code>docs</code>) are watched.</p>
 <p>A search box is included in the default template.  To add a search box
 to your own <code>_template.html</code>, include <code>fsdocs-search.js</code>, which is added to the <code>content</code>
 by default.</p>
-<pre class="fssnip highlighted"><code lang="fsharp"><span class="o">..</span><span class="pn">.</span>
-<span class="pn">&lt;</span><span class="id">div</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="id">id</span><span class="o">=</span><span class="s">&quot;header&quot;</span><span class="pn">&gt;</span>
-  <span class="pn">&lt;</span><span class="id">div</span> <span class="k">class</span><span class="o">=</span><span class="s">&quot;searchbox&quot;</span><span class="pn">&gt;</span>
-    <span class="pn">&lt;</span><span class="id">label</span> <span class="k">for</span><span class="o">=</span><span class="s">&quot;search-by&quot;</span><span class="pn">&gt;</span>
-      <span class="pn">&lt;</span><span class="id">i</span> <span class="k">class</span><span class="o">=</span><span class="s">&quot;fas fa-search&quot;</span><span class="pn">&gt;</span><span class="o">&lt;/</span><span class="id">i</span><span class="pn">&gt;</span>
-    <span class="o">&lt;/</span><span class="id">label</span><span class="pn">&gt;</span>
-    <span class="pn">&lt;</span><span class="id">input</span> <span class="id">data</span><span class="o">-</span><span class="id">search</span><span class="o">-</span><span class="id">input</span><span class="o">=</span><span class="s">&quot;&quot;</span> <span onmouseout="hideTip(event, 'fs2', 3)" onmouseover="showTip(event, 'fs2', 3)" class="id">id</span><span class="o">=</span><span class="s">&quot;search-by&quot;</span> <span class="k">type</span><span class="o">=</span><span class="s">&quot;search&quot;</span> <span class="id">placeholder</span><span class="o">=</span><span class="s">&quot;Search...&quot;</span> <span class="o">/&gt;</span>
-    <span class="pn">&lt;</span><span class="id">span</span> <span class="id">data</span><span class="o">-</span><span class="id">search</span><span class="o">-</span><span class="id">clear</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="pn">&gt;</span>
-      <span class="pn">&lt;</span><span class="id">i</span> <span class="k">class</span><span class="o">=</span><span class="s">&quot;fas fa-times&quot;</span><span class="pn">&gt;</span><span class="o">&lt;/</span><span class="id">i</span><span class="pn">&gt;</span>
-    <span class="o">&lt;/</span><span class="id">span</span><span class="pn">&gt;</span>
-  <span class="o">&lt;/</span><span class="id">div</span><span class="pn">&gt;</span>
-<span class="o">&lt;/</span><span class="id">div</span><span class="pn">&gt;</span>
-<span class="o">..</span><span class="pn">.</span>
-</code></pre>
+<table class="pre"><tr><td class="snippet"><pre class="fssnip"><code lang="text">...
+&lt;div id="header"&gt;
+  &lt;div class="searchbox"&gt;
+    &lt;label for="search-by"&gt;
+      &lt;i class="fas fa-search"&gt;&lt;/i&gt;
+    &lt;/label&gt;
+    &lt;input data-search-input="" id="search-by" type="search" placeholder="Search..." /&gt;
+    &lt;span data-search-clear=""&gt;
+      &lt;i class="fas fa-times"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+...
+</code></pre></td></tr></table>
 
-            <div class="tip" id="fs1">namespace Microsoft.FSharp</div>
-<div class="tip" id="fs2">val id : x:&#39;T -&gt; &#39;T</div>
-
+            
         </div>
 
         <!-- BEGIN SEARCH BOX: this adds support for the search box -->
