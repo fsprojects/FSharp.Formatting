@@ -69,7 +69,7 @@ module internal Formatting =
                yield line ]
         |> String.concat "\n"
 
-  let transformDocument (doc: LiterateDocument) output ctx =
+  let transformDocument (doc: LiterateDocument) outputPath ctx =
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
@@ -82,7 +82,7 @@ module internal Formatting =
 
     // Get page title (either heading or file name)
     let pageTitle =
-      let name = Path.GetFileNameWithoutExtension(output)
+      let name = Path.GetFileNameWithoutExtension(outputPath)
       defaultArg (findHeadings doc.Paragraphs ctx.GenerateHeaderAnchors ctx.OutputKind) name
 
     // Replace all special elements with ordinary Html/Latex Markdown
@@ -103,7 +103,7 @@ module internal Formatting =
 
     let indexText = (match ctx.OutputKind with OutputKind.Html -> Some (getIndexText doc) | _ -> None )
     {
-      OutputPath = output
+      OutputPath = outputPath
       OutputKind = ctx.OutputKind
       Title = pageTitle
       IndexText = indexText

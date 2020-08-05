@@ -60,7 +60,13 @@ type internal LiterateDocModel =
      /// The kind of output generated
      OutputKind : OutputKind
   }
-  member x.Uri(root) = sprintf "%s%s" root x.OutputPath
+
+  // Get the URI for the resource when it is part of an overall site
+  // Here 'OutputPath' is assumed to be relative to some 'output' directory.
+  member x.Uri(root) =
+      let uri = x.OutputPath.Replace("\\", "/")
+      let uri = if uri.StartsWith("./") then uri.[2..] else uri
+      sprintf "%s%s" root uri
 
 /// Specifies a context that is passed to functions that generate the output
 type internal LiterateProcessingContext =

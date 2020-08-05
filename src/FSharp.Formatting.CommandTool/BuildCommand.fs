@@ -203,7 +203,7 @@ module Crack =
             match gpResult with
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
-                printfn "props = %A" (Map.toList props)
+                //printfn "props = %A" (Map.toList props)
                 let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
                 let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
@@ -484,7 +484,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
               let haveModel = previous.TryFind inputFile
               if changed || (watch && mainRun && haveModel.IsNone) then
                   if isFsx then
-                      printfn "preparing %s --> %s" inputFile relativeOutputFile
+                      printfn "generating model for %s --> %s" inputFile relativeOutputFile
                       let model =
                         Literate.ParseAndTransformScriptFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
@@ -714,7 +714,9 @@ type CoreBuildOptions(watch) =
            (fun (_, key2) -> key1 = key2)
            (fun () -> Crack.crackProjects (userRoot, userCollectionName, userParameters, projects), key1)
 
-        printfn "general parameters: '%A" docsParameters
+        for (ParamKey pk, p) in docsParameters do  
+             printfn "  %s --> %s" pk p
+
         let apiDocInputs =
             [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
                 let sourceRepo =
@@ -877,24 +879,25 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 if crackedProjects.Length > 0 then
 
-                    let initialTemplate2 =
-                        let t1 = Path.Combine(x.input, "reference", "_template.html")
-                        let t2 = Path.Combine(x.input, "_template.html")
-                        if File.Exists(t1) then
-                            Some t1
-                        elif File.Exists(t2) then
-                            Some t2
-                        else
-                            match defaultTemplate with
-                            | Some d ->
-                                printfn "note, no template file '%s' or '%s', using default template %s" t1 t2 d
-                                Some d
-                            | None -> 
-                                printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
-                                None
-
                     if not x.noapidocs then
 
+                        let initialTemplate2 =
+                            let t1 = Path.Combine(x.input, "reference", "_template.html")
+                            let t2 = Path.Combine(x.input, "_template.html")
+                            if File.Exists(t1) then
+                                Some t1
+                            elif File.Exists(t2) then
+                                Some t2
+                            else
+                                match defaultTemplate with
+                                | Some d ->
+                                    printfn "note, no template file '%s' or '%s', using default template %s" t1 t2 d
+                                    Some d
+                                | None -> 
+                                    printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
+                                    None
+
+                        printfn "generating model for API docs..." 
                         let globals, index, phase2 =
                           ApiDocs.GenerateHtmlPhased (
                             inputs = apiDocInputs,

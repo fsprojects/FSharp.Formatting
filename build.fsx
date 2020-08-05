@@ -114,10 +114,17 @@ Target.create "NuGet" (fun _ ->
 
 Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".fsdocs"
+    Shell.cleanDir ".packages"
     DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
-    DotNet.exec id "tool" ("install --local --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
+    // Use a local package store to avoid reuse of previous builds of the package with the same version
+    try 
+      Environment.setEnvironVar "NUGET_PACKAGES" (__SOURCE_DIRECTORY__ + "/.packages")
+      DotNet.exec id "tool" ("install --local --no-cache --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
+    finally
+      Environment.setEnvironVar "NUGET_PACKAGES" ""
     DotNet.exec id "fsdocs" "build --clean" |> ignore
     DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
+    Shell.cleanDir ".packages"
 )
 
 // --------------------------------------------------------------------------------------
@@ -151,12 +158,12 @@ Target.create "Root" ignore
 Target.create "All" ignore
 Target.create "Release" ignore
 
+// clean and recreate assembly inform on release
 "Clean"
-  ==> "Release"
+  ==> "AssemblyInfo"
+  ==> "CreateTag"
 
 "Root"
-  //==> "Clean"
-  ==> "AssemblyInfo"
   ==> "Build"
   ==> "NuGet"
   ==> "Tests"
