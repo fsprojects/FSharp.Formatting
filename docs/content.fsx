@@ -79,7 +79,7 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |  
 | `fsdocs-list-of-documents`    | HTML `<li>` list of documents with  titles and links          |  
 | `fsdocs-page-title`           | First h1 heading in literate file. Generated for API docs     | 
-| `fsdocs-source`               | Original script source                                        | 
+| `fsdocs-source`               | Original literate script or markdown source                   | 
 | `fsdocs-tooltips`             | Generated hidden div elements for tooltips                    | 
 
 

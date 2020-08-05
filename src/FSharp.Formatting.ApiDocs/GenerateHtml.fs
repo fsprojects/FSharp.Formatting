@@ -106,7 +106,7 @@ type HtmlRender(model: ApiDocModel) =
                       ul [] [
                           for (pname, ptyp) in m.ParameterTooltips do
                           li [] [
-                              code [] [!! pname]
+                              span [Class "fsdocs-para-name"] [!! pname]
                               !! ":"
                               embed ptyp 
                           ]
@@ -344,6 +344,11 @@ type HtmlRender(model: ApiDocModel) =
     let allByCategory = categoriseEntities (nsIndex, ns)
     [ if allByCategory.Length > 0 then
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
+
+        match ns.NamespaceSummary with
+        | Some nsdocs -> div [] [!! nsdocs]
+        | None -> () 
+
         if (allByCategory.Length > 1) then
             ul [] [
                for category in allByCategory do
@@ -365,8 +370,8 @@ type HtmlRender(model: ApiDocModel) =
     [
         // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
         //
-        // For nonFSharp.Core we only show one link "API Reference"
-      if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+        // For non-FSharp.Core we only show one link "API Reference" in the nav menu 
+      if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
           li [Class "nav-header"] [!! "API Reference"]
           li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify))] [!! "All Namespaces" ] ] 
       else
@@ -374,26 +379,33 @@ type HtmlRender(model: ApiDocModel) =
       let categorise =
         [ for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
              let allByCategory = categoriseEntities (nsIndex, ns)
-             allByCategory, ns ]
+             if allByCategory.Length > 0 then
+                 allByCategory, ns ]
 
-      let someExist = categorise |> List.exists (fun (allByCategory, _) -> allByCategory.Length > 0)
+      let someExist = categorise.Length > 0 
 
       if someExist && nav then
         li [Class "nav-header"] [!! "Namespaces"]
 
-      for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
-         let allByCategory = categoriseEntities (nsIndex, ns)
-         if allByCategory.Length > 0 then
+      for allByCategory, ns in categorise do
+             li [ Class ("nav-item" + 
+                          // add the 'active' class if this is the namespace of the thing being shown
+                          match nsOpt with
+                          | Some ns2 when ns.Name = ns2.Name -> " active"
+                          | _ -> "") ]
+                [a [ Class ("nav-link" +
+                             // add the 'active' class if this is the namespace of the thing being shown
+                             match nsOpt with
+                             | Some ns2 when ns.Name = ns2.Name -> " active"
+                             | _ -> "")
+                     Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]
+                 if not nav then
+                     !! " - "
+                     match ns.NamespaceSummary with
+                     | Some nsdocs -> !! nsdocs
+                     | None -> () ]
 
-             li [ Class "nav-item"
-                  match nsOpt with
-                  | Some ns2 when ns.Name = ns2.Name -> Class "active"
-                  | _ -> () ]
-                [a [ Class "nav-link";
-                     match nsOpt with
-                     | Some ns2 when ns.Name = ns2.Name -> Class "active"
-                     | _ -> ()
-                     Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]]
+             // Generate the expanded list of entities if the namespace is the active one
              match nsOpt with
              | Some ns2 when ns.Name = ns2.Name ->
                  ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
@@ -419,6 +431,7 @@ type HtmlRender(model: ApiDocModel) =
         [| yield! parameters
            yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )
            yield (ParamKeys.``fsdocs-content``, content.ToString() )
+           yield (ParamKeys.``fsdocs-source``, "" )
            yield (ParamKeys.``fsdocs-tooltips``, "" )
            yield (ParamKeys.``fsdocs-page-title``, pageTitle )
            yield! globalParameters

@@ -262,9 +262,9 @@ type internal ParseScript(parseOptions, ctx:CompilerContext) =
 
   /// Parse script file with specified name and content
   /// and return `LiterateDocument` with the content
-  member _.ParseScriptFile filePath content =
+  member _.ParseAndCheckScriptFile filePath content =
     let defines = match ctx.ConditionalDefines with [] -> None | l -> Some (String.concat "," l)
-    let sourceSnippets, diagnostics = ctx.FormatAgent.ParseSource(filePath, content, ?options=ctx.CompilerOptions, ?defines=defines)
+    let sourceSnippets, diagnostics = ctx.FormatAgent.ParseAndCheckSource(filePath, content, ?options=ctx.CompilerOptions, ?defines=defines)
 
     for (SourceError((l0,c0),(l1,c1),kind,msg)) in diagnostics do
         printfn "   %s: %s(%d,%d)-(%d,%d) %s" filePath (if kind = ErrorKind.Error then "error" else "warning") l0 c0 l1 c1 msg

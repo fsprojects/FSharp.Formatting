@@ -78,7 +78,7 @@ module internal Formatting =
           getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx
         let source = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []
-        [ ParamKey "fsdocs-source", source ]
+        [ ParamKeys.``fsdocs-source``, source ]
 
     // Get page title (either heading or file name)
     let pageTitle =

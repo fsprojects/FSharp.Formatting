@@ -94,7 +94,7 @@ module ParamKeys =
     let ``fsdocs-repository-link`` = ParamKey "fsdocs-repository-link"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-repository-type`` = ParamKey "fsdocs-repository-type"
+    let ``fsdocs-source`` = ParamKey "fsdocs-source"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-theme`` = ParamKey "fsdocs-theme"

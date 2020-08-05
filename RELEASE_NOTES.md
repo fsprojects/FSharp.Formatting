@@ -1,3 +1,23 @@
+## 7.2.3
+
+- support `<namespacesummary>...<namespacesummary>`
+
+- support `<note>...<note>`
+
+- support `<exclude />`
+
+- allow  `<a href="..." >` in XML doc comments
+
+- document XML doc things supported
+
+## 7.2.2
+
+- instruct about settings
+
+## 7.2.1
+
+- fix images in nuget
+
 ## 7.2.0
 
 - include templates

@@ -114,7 +114,7 @@ module internal Transformations =
         // Process F# script file & build lookup table for replacement
         let defines = match ctx.ConditionalDefines with [] -> None | l -> Some (String.concat "," l)
         let snippets, diagnostics =
-          ctx.FormatAgent.ParseSource
+          ctx.FormatAgent.ParseAndCheckSource
             ( Path.ChangeExtension(path, ".fsx"), source,
               ?options = ctx.CompilerOptions, ?defines = defines )
         let results =

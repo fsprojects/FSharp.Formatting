@@ -99,8 +99,8 @@ body {
     }
 
     /* suppress the top line on inner lists such as tables of exceptions */
-    #fsdocs-content .table .inner-list td,
-    #fsdocs-content .table .inner-list th {
+    #fsdocs-content .table .fsdocs-exception-list td,
+    #fsdocs-content .table .fsdocs-exception-list th {
         border-top: 0
     }
 

@@ -160,6 +160,22 @@ let ``ApiDocs works on two sample F# assemblies``() =
   indxTxt |> shouldContainText """ITest_Issue229.Name \nName \n"""
 
 [<Test>]
+let ``Namespace summary generation works on two sample F# assemblies using XML docs``() =
+  let libraries =
+    [ testBin </> "TestLib1.dll"
+      testBin </> "TestLib2.dll" ]
+  let output = getOutputDir "TestLib12_Namespaces"
+  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false, parameters=parameters) ]
+  let _model, _searchIndex =
+      ApiDocs.GenerateHtml(inputs, output, collectionName="TestLibs", template=docTemplate,
+          root="http://root.io/root/", parameters=parameters, libDirs = [testBin])
+
+  let fileNames = Directory.GetFiles(output </> "reference")
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+  files.["index.html"] |> shouldContainText "FsLib is a good namespace"
+  files.["fslib.html"] |> shouldContainText "FsLib is a good namespace"
+
+[<Test>]
 let ``ApiDocs model generation works on two sample F# assemblies``() =
   let libraries =
     [ testBin </> "FsLib1.dll"

@@ -49,7 +49,7 @@ example shows, you can specify which version of `FSharp.Compiler.dll` to use.
 Processing F# source
 --------------------
 
-The formatting agent provides a `ParseSource` method (together with an asynchronous
+The formatting agent provides a `ParseAndCheckSource` method (together with an asynchronous
 version for use from F# and also a version that returns a .NET `Task` for C#).
 To call the method, we define a simple F# code as a string:
 *)
@@ -58,7 +58,7 @@ let source = """
     let hello () = 
       printfn "Hello world"
   """
-let snippets, errors = formattingAgent.ParseSource("C:\\snippet.fsx", source)
+let snippets, errors = formattingAgent.ParseAndCheckSource("C:\\snippet.fsx", source)
 
 (**
 When calling the method, you need to specify a file name and the actual content
