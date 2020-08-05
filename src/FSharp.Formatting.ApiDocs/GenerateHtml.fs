@@ -106,7 +106,7 @@ type HtmlRender(model: ApiDocModel) =
                       ul [] [
                           for (pname, ptyp) in m.ParameterTooltips do
                           li [] [
-                              code [] [!! pname]
+                              span [Class "fsdocs-para-name"] [!! pname]
                               !! ":"
                               embed ptyp 
                           ]
@@ -168,27 +168,28 @@ type HtmlRender(model: ApiDocModel) =
       ]
    ]
 
+  // Honour the CategoryIndex to put the categories in the right order
+  let getSortedCategories xs exclude category categoryIndex =
+    xs
+    |> List.filter (fun x -> not (exclude x))
+    |> List.groupBy (fun x -> category x)
+    |> List.map (fun (cat, xs) -> (cat, xs, xs |> List.minBy (fun x -> categoryIndex x)))
+    |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
+    |> List.map (fun (cat, xs, _x) -> cat, xs)
+
   let entityContent (info: ApiDocEntityInfo) =
     // Get all the members & comment for the type
     let entity = info.Entity
     let members = entity.AllMembers |> List.filter (fun e -> not e.IsObsolete)
     let comment = entity.Comment
 
-    // Group all members by their category which is an inline annotation
-    // that can be added to members using special XML comment:
-    //
-    //     /// [category:Something]
-    //
-    // ...and can be used to categorize members in large modules or types
-    // (but if this is not used, then all members end up in just one category)
+    // Group all members by their category 
     let byCategory =
-      members 
-      |> List.groupBy(fun m -> m.Category)
-      |> List.sortBy (fun (key, _) -> if String.IsNullOrEmpty(key) then "ZZZ" else key)
-      |> List.mapi (fun n (key, elems) ->
-          let elems= elems |> List.sortBy (fun m -> m.Name)
+      getSortedCategories members  (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
+      |> List.mapi (fun i (key, elems) ->
+          let elems = elems |> List.sortBy (fun m -> m.Name)
           let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
-          (n, key, elems, name))
+          (i, key, elems, name))
   
     let usageName =
         match info.ParentModule with
@@ -302,27 +303,18 @@ type HtmlRender(model: ApiDocModel) =
     let entities = ns.Entities
   
     let categories =
-        [ for e in entities -> e.Category ]
-        |> List.distinct
-        |> List.sortBy (fun s -> if String.IsNullOrEmpty(s) then "ZZZ" else s)
+        getSortedCategories entities (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
 
     let allByCategory =
-        [ for (catIndex, c) in Seq.indexed categories do
-            let name = (if String.IsNullOrEmpty(c) then "Other namespace members" else c)
+        [ for (catIndex, (categoryName, categoryEntities)) in Seq.indexed categories do
+            let caegoryName = (if String.IsNullOrEmpty(categoryName) then "Other namespace members" else categoryName)
             let index = String.Format("{0}_{1}", nsIndex, catIndex)
-            let entities =
-                entities
-                |> List.filter (fun e ->
-                    let cat = e.Category
-                    cat = c)
+            let categoryEntities =
+                categoryEntities
 
                 // Some bespoke hacks to make FSharp.Core docs look ok.
-                // TODO: work out how to generalise these so others can use them if needed
+                // TODO: use <exclude /> to do these
                 //
-                // Remove the funky array type definitions in FSharp.Core from display
-                |> List.filter (fun e -> not e.Symbol.IsArrayType)
-                // Remove the List<t> type definition in FSharp.Core from display, the type 't list is canonical
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Collections" && e.Symbol.DisplayName = "List"))
                 // Remove FSharp.Data.UnitSystems.SI from display, it's just so rarely used, has long names and dominates the docs.
                 // Find another way to document these
                 |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols"))
@@ -336,14 +328,21 @@ type HtmlRender(model: ApiDocModel) =
                 |> List.sortBy (fun e ->
                     (e.Symbol.DisplayName.ToLowerInvariant(), e.Symbol.GenericParameters.Count,
                         e.Name, (if e.IsTypeDefinition then e.UrlBaseName else "ZZZ")))
-            if entities.Length > 0 then
-                yield {| CategoryName = name; CategoryIndex = index; CategoryEntites = entities |} ]
+
+            if categoryEntities.Length > 0 then
+                yield {| CategoryName = caegoryName; CategoryIndex = index; CategoryEntites = categoryEntities |} ]
+
     allByCategory
 
   let namespaceContent (nsIndex, ns: ApiDocNamespace) =
     let allByCategory = categoriseEntities (nsIndex, ns)
     [ if allByCategory.Length > 0 then
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
+
+        match ns.NamespaceSummary with
+        | Some (nssummary, nsremarks) -> div [] [!! nssummary; !!nsremarks ]
+        | None -> () 
+
         if (allByCategory.Length > 1) then
             ul [] [
                for category in allByCategory do
@@ -356,17 +355,12 @@ type HtmlRender(model: ApiDocModel) =
           yield! renderEntities category.CategoryEntites
     ]  
 
-  //let namespacesContent (asm: ApiDocCollection) =
-  //  [ h1 [] [!! asm.CollectionName]
-  //    for (nsIndex, ns) in Seq.indexed asm.Namespaces do
-  //        yield! namespaceContent (nsIndex, ns) ]
-
   let listOfNamespacesAux otherDocs nav (nsOpt: ApiDocNamespace option) =
     [
         // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
         //
-        // For nonFSharp.Core we only show one link "API Reference"
-      if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+        // For non-FSharp.Core we only show one link "API Reference" in the nav menu 
+      if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
           li [Class "nav-header"] [!! "API Reference"]
           li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify))] [!! "All Namespaces" ] ] 
       else
@@ -374,34 +368,51 @@ type HtmlRender(model: ApiDocModel) =
       let categorise =
         [ for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
              let allByCategory = categoriseEntities (nsIndex, ns)
-             allByCategory, ns ]
+             if allByCategory.Length > 0 then
+                 allByCategory, ns ]
 
-      let someExist = categorise |> List.exists (fun (allByCategory, _) -> allByCategory.Length > 0)
+      let someExist = categorise.Length > 0 
 
       if someExist && nav then
         li [Class "nav-header"] [!! "Namespaces"]
 
-      for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
-         let allByCategory = categoriseEntities (nsIndex, ns)
-         if allByCategory.Length > 0 then
+      for allByCategory, ns in categorise do
 
-             li [ Class "nav-item"
-                  match nsOpt with
-                  | Some ns2 when ns.Name = ns2.Name -> Class "active"
-                  | _ -> () ]
-                [a [ Class "nav-link";
-                     match nsOpt with
-                     | Some ns2 when ns.Name = ns2.Name -> Class "active"
-                     | _ -> ()
-                     Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]]
-             match nsOpt with
-             | Some ns2 when ns.Name = ns2.Name ->
-                 ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
-                     for category in allByCategory do
-                         for e in category.CategoryEntites do
-                             li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
-                 ]
-             | _ -> ()
+          // Generate the entry for the namespace
+          li [ if nav then
+                    Class ("nav-item" + 
+                          // add the 'active' class if this is the namespace of the thing being shown
+                          match nsOpt with
+                          | Some ns2 when ns.Name = ns2.Name -> " active"
+                          | _ -> "") ]
+
+                [span [] [
+                    a [ if nav then
+                          Class ("nav-link" +
+                             // add the 'active' class if this is the namespace of the thing being shown
+                             match nsOpt with
+                             | Some ns2 when ns.Name = ns2.Name -> " active"
+                             | _ -> "")
+                        Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]
+
+                     // If not in the navigation list then generate the summary text as well
+                    if not nav then
+                       !! " - "
+                       match ns.NamespaceSummary with
+                       | Some (nssummary, _nsremarks) -> !! nssummary
+                       | None -> () ] ]
+
+          // In the navigation bar generate the expanded list of entities
+          // for the active namespace
+          if nav then
+              match nsOpt with
+              | Some ns2 when ns.Name = ns2.Name ->
+                  ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
+                      for category in allByCategory do
+                          for e in category.CategoryEntites do
+                              li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
+                  ]
+              | _ -> ()
      ]
 
   let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
@@ -419,6 +430,7 @@ type HtmlRender(model: ApiDocModel) =
         [| yield! parameters
            yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )
            yield (ParamKeys.``fsdocs-content``, content.ToString() )
+           yield (ParamKeys.``fsdocs-source``, "" )
            yield (ParamKeys.``fsdocs-tooltips``, "" )
            yield (ParamKeys.``fsdocs-page-title``, pageTitle )
            yield! globalParameters

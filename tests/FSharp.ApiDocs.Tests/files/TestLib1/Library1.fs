@@ -1,8 +1,10 @@
-﻿namespace FsLib
+namespace FsLib
 
 /// <summary>
 /// Union sample
 /// </summary>
+///
+/// <namespacesummary>FsLib is a good namespace</namespacesummary>
 type Union = 
   /// Hello of int
   | Hello of int

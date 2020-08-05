@@ -62,6 +62,10 @@ body {
     margin: 0px 0px 20px 0px;
 }
 
+#fsdocs-content li {
+    margin: 0px 0px 15px 0px;
+}
+
 /*--------------------------------------------------------------------------
   Formatting tables in fsdocs-content, using docs.microsoft.com tables
 /*--------------------------------------------------------------------------*/
@@ -99,8 +103,8 @@ body {
     }
 
     /* suppress the top line on inner lists such as tables of exceptions */
-    #fsdocs-content .table .inner-list td,
-    #fsdocs-content .table .inner-list th {
+    #fsdocs-content .table .fsdocs-exception-list td,
+    #fsdocs-content .table .fsdocs-exception-list th {
         border-top: 0
     }
 

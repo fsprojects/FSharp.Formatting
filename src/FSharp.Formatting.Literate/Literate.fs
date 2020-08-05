@@ -168,9 +168,9 @@ type Literate private () =
         doc.With(paragraphs = pars)
 
   /// Parse F# Script file
-  static member ParseScriptFile (path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+  static member ParseAndCheckScriptFile (path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
     let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
-    ParseScript(parseOptions, ctx).ParseScriptFile path (File.ReadAllText path)
+    ParseScript(parseOptions, ctx).ParseAndCheckScriptFile path (File.ReadAllText path)
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
@@ -178,7 +178,7 @@ type Literate private () =
   /// Parse F# Script file
   static member ParseScriptString (content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
     let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
-    ParseScript(parseOptions, ctx).ParseScriptFile (defaultArg path "C:\\Document.fsx") content
+    ParseScript(parseOptions, ctx).ParseAndCheckScriptFile (defaultArg path "C:\\Document.fsx") content
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
     |> Transformations.evaluateCodeSnippets ctx
@@ -292,7 +292,7 @@ type Literate private () =
         | _ -> MarkdownParseOptions.None
 
     let outputKind = defaultArg outputKind OutputKind.Html
-    let doc = Literate.ParseScriptFile (input, ?formatAgent=formatAgent, ?fscoptions=fscoptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
+    let doc = Literate.ParseAndCheckScriptFile (input, ?formatAgent=formatAgent, ?fscoptions=fscoptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors parameters tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc

@@ -37,21 +37,62 @@ The HTML is built by instantiating a template. The template used is the first of
 
 Usually the same template can be used as for [other content](content.html).
 
-## Classic XML Comments
+## Classic XML Doc Comments
 
-XML Comments may use [the normal F# and C# XML doc standards](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/).
+XML Doc Comments may use [the normal F# and C# XML doc standards](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/).
 
-An example of an XML documentation comment:
+In addition, you may also use
+
+* `<a href = "...">` links
+
+* Arbitrary paragraph-level HTML such as `<b>` for bold in XML doc text
+
+* `<namespacesummary>` for giving summary sections for the enclosing namespace
+
+* `<namespaceremarks>` for giving extended remarks for the enclosing namespace
+
+* `<exclude>` and `<omit>` to exclude from XML docs
+
+* `<category>` to give a category for presentation
+
+An example of an XML documentation comment, assuming the code is in namespace `TheNamespace`:
 *)
 /// <summary>
-/// Some actual comment
-/// <para>Another paragraph</para>
+///   Some actual comment
+///   <para>Another paragraph, see  <see cref="T:TheNamespace.SomeType"/>. </para>
 /// </summary>
-module Foo2 = 
-   let a = 42
+///
+/// <param name="x">The input</param>
+///
+/// <returns>The output</returns>
+///
+/// <example>
+///   Try using
+///   <code>
+///      open TheNamespace
+///      SomeModule.a
+///   </code>
+/// </example>
+///
+/// <namespacesummary>A namespace to remember</namespacesummary>
+///
+/// <namespaceremarks>More on that</namespaceremarks>
+///
+/// <category>Foo</category>
+///
+
+module SomeModule = 
+   let someFunction x = 42 + x
+
+/// <summary>
+///   A type, see  <see cref="T:TheNamespace.SomeModule"/> and
+///  <see cref="T:TheNamespace.SomeModule.someFunction"/>. </para>
+/// </summary>
+///
+type SomeType() =
+   member x.P = 1
 
 (**
-
 
 ## Go to Source links
 

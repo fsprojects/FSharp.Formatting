@@ -299,6 +299,7 @@ type CodeFormatAgent() =
                 not <| item.EndsWith "mscorlib.dll")
 
         //Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
+        let filePath = Path.GetFullPath(filePath)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, loadedTimeStamp = DateTime.Now, otherFlags = args, assumeDotNetFramework = false)
 
         let formatError (e:FSharpErrorInfo) =
@@ -355,11 +356,15 @@ type CodeFormatAgent() =
         if _errors |> List.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> List.length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
+        //printfn "filePath = %A" filePath
+        ////printfn "opts = %A" opts
+        //for o in opts.OtherOptions do
+        //   printfn "opt: %s" o
+
         // Run the second phase - perform type checking
         Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
         let! res = fsChecker.ParseAndCheckDocument(filePath, source,opts,false)
 
-        //printfn "opts = %A" source
         //printfn "source = %A" source
         //fsChecker.InvalidateConfiguration(opts)
         //results.
@@ -450,8 +455,8 @@ type CodeFormatAgent() =
     /// Parse, check and annotate the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.AsyncParseSource(file, source, ?options, ?defines) = async {
-        let! res = agent.PostAndAsyncReply(fun chnl -> (file, source, options, defines), chnl)
+    member __.AsyncParseAndCheckSource(filePath, source, ?options, ?defines) = async {
+        let! res = agent.PostAndAsyncReply(fun chnl -> (filePath, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> return res
         | Choice2Of2 exn -> return Helpers.ediRaise exn }
@@ -459,7 +464,7 @@ type CodeFormatAgent() =
     /// Parse, check and annotate the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.ParseSource(file, source, ?options, ?defines) =
+    member __.ParseAndCheckSource(file, source, ?options, ?defines) =
         let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
         match res with
         | Choice1Of2 res -> res

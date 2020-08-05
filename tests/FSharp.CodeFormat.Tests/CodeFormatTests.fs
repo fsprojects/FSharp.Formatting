@@ -36,7 +36,7 @@ let (|ToolTipWithLiteral|_|) text tips =
 [<Test>]
 let ``Simple code snippet is formatted with tool tips``() =
   let source = """let hello = 10"""
-  let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let snips, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
 
   errors |> shouldEqual [| |]
   snips |> containsSpan (function
@@ -51,7 +51,7 @@ let ``Preview language feature from FSharp Core is supported``() =
 let x = 12
 nameof x
 """
-    let snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+    let snips, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
 
     errors |> shouldEqual [||]
     snips |> containsSpan (function
@@ -101,12 +101,12 @@ let printApplicatives () =
     run r1 (Error "failure!") r3
 printApplicatives()
 """
-    let _, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+    let _, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
 
     errors |> shouldEqual [||]
 
 let getContentAndToolTip (source: string) =
-  let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
   let res = CodeFormat.FormatHtml(snips, "fstips")
   (Seq.head res.Snippets).Content, res.ToolTip
 
@@ -129,7 +129,7 @@ let ``Non-unicode characters do not cause exception`` () =
 // [snippet:16]
 ✘ let add I J = I+J
 // [/snippet]"""
-  let _snips, errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let _snips, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
   errors.Length |> shouldBeGreaterThan 0
   let (SourceError(_, _, _, msg)) = errors.[0]
   msg |> shouldContainText "✘"
@@ -228,7 +228,7 @@ let customCss kind =
 
 
 let getContentAndToolTip' (source: string) =
-  let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
   let res = CodeFormat.FormatHtml(snips, "fstips", tokenKindToCss = customCss)
   (Seq.head res.Snippets).Content, res.ToolTip
 
@@ -304,7 +304,7 @@ let ``Escaped characters are in spans of 'esc' class - custom CSS``() =
   content |> shouldContainText (sprintf "class=\"%s\">\\t</span>" "Escaped")
 
 let getLatex (source: string) =
-  let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
   let res = CodeFormat.FormatLatex(snips)
   (Seq.head res.Snippets).Content
 
@@ -316,7 +316,7 @@ let ``Simple code snippet is formatted as Latex``() =
     content |> shouldContainText (sprintf @"\end{Verbatim}")
 
 let getFsx (source: string) =
-  let snips, _errors = agent.ParseSource("/somewhere/test.fsx", source.Trim())
+  let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
   let res = CodeFormat.FormatFsx(snips)
   (Seq.head res.Snippets).Content
 

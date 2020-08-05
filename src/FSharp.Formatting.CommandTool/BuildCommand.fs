@@ -332,10 +332,14 @@ module Crack =
             printfn "Error while cracking project files, no project files succeeded, exiting."
             exit 1
 
-        let param (ParamKey tag as key) v =
+        let param setting (ParamKey tag as key) v =
             match v with
             | Some v -> (key, v)
-            | None -> (key, "{{" + tag + "}}")
+            | None ->
+                match setting with
+                | Some setting -> printfn "please set '%s' in 'Directory.Build.props'" setting
+                | None _ -> ()
+                (key, "{{" + tag + "}}")
 
         // For the 'docs' directory we use the best info we can find from across all projects
         let projectInfoForDocs =
@@ -374,28 +378,28 @@ module Crack =
             defaultArg userRoot (defaultArg projectUrl ("/" + collectionName) |> ensureTrailingSlash)
 
         let parametersForProjectInfo (info: CrackedProjectInfo) =
-              let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash
+              let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash |> Option.defaultValue root
+              let repoUrl = info.RepositoryUrl |> Option.map ensureTrailingSlash
               userParameters @
-              [ param ParamKeys.``root`` (Some root)
-                param ParamKeys.``fsdocs-authors`` info.Authors
-                param ParamKeys.``fsdocs-collection-name`` (Some collectionName)
-                param ParamKeys.``fsdocs-collection-name-link`` (info.FsDocsCollectionNameLink |> Option.orElse info.PackageProjectUrl)
-                param ParamKeys.``fsdocs-copyright`` info.Copyright
-                param ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png"  root)))
-                param ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
-                param ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
-                param ParamKeys.``fsdocs-logo-link`` (info.FsDocsLogoLink |> Option.orElse info.RepositoryUrl)
-                param ParamKeys.``fsdocs-license-link`` (info.FsDocsLicenseLink |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") info.RepositoryUrl))
-                param ParamKeys.``fsdocs-release-notes-link`` (info.FsDocsReleaseNotesLink |> Option.orElse (Option.map (sprintf "%sblob/master/RELEASE_NOTES.md") info.RepositoryUrl))
-                param ParamKeys.``fsdocs-package-project-url`` projectUrl
-                param ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
-                param ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
-                param ParamKeys.``fsdocs-package-tags`` info.PackageTags
-                param ParamKeys.``fsdocs-package-version`` info.PackageVersion
-                param ParamKeys.``fsdocs-repository-link`` info.RepositoryUrl
-                param ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
-                param ParamKeys.``fsdocs-repository-type`` info.RepositoryType
-                param ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
+              [ param None ParamKeys.``root`` (Some root)
+                param None ParamKeys.``fsdocs-authors`` (Some (info.Authors |> Option.defaultValue ""))
+                param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
+                param None ParamKeys.``fsdocs-collection-name-link`` (Some (info.FsDocsCollectionNameLink |> Option.defaultValue projectUrl))
+                param None ParamKeys.``fsdocs-copyright`` info.Copyright
+                param None ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png"  root)))
+                param None ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
+                param None ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
+                param None ParamKeys.``fsdocs-logo-link`` (Some (info.FsDocsLogoLink |> Option.defaultValue projectUrl))
+                param (Some "<FsDocsLicenseLink>") ParamKeys.``fsdocs-license-link`` (info.FsDocsLicenseLink |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") repoUrl))
+                param (Some "<FsDocsReleaseNotesLink>") ParamKeys.``fsdocs-release-notes-link`` (info.FsDocsReleaseNotesLink |> Option.orElse (Option.map (sprintf "%sblob/master/RELEASE_NOTES.md") repoUrl))
+                param None ParamKeys.``fsdocs-package-project-url`` (Some projectUrl)
+                param None ParamKeys.``fsdocs-package-license-expression`` info.PackageLicenseExpression
+                param None ParamKeys.``fsdocs-package-icon-url`` info.PackageIconUrl
+                param None ParamKeys.``fsdocs-package-tags`` (Some (info.PackageTags |> Option.defaultValue ""))
+                param (Some "<Version>") ParamKeys.``fsdocs-package-version`` info.PackageVersion
+                param (Some "<RepositoryUrl>") ParamKeys.``fsdocs-repository-link`` repoUrl
+                param None ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
+                param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
               ]
 
         let projects =  
@@ -411,7 +415,7 @@ module Crack =
         root, collectionName, projects, paths, docsParameters
 
 /// Convert markdown, script and other content into a static site
-type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch) =
+type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch, root) =
 
   let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
@@ -580,6 +584,30 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         yield! processDirectory (htmlTemplate, None, None, None) inputDirectory outputPrefix
     ]
 
+  member _.GetSearchIndexEntries(docModels: (string * LiterateDocModel) list) =
+        [| for (_inputFile, model) in docModels do
+                match model.IndexText with
+                | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
+                | _ -> () |]
+
+  member _.GetNavigationEntries(docModels: (string * LiterateDocModel) list) =
+    let modelsForList =
+        [ for thing in docModels do
+             match thing with
+             | (inputFile, model)
+                when model.OutputKind = OutputKind.Html &&
+                        // Don't put the index in the list
+                        not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
+             | _ -> () ]
+
+    [ if modelsForList.Length > 0 then
+            li [Class "nav-header"] [!! "Documentation"]
+      for model in modelsForList do
+            let link = model.Uri(root)
+            li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
+    ]
+    |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
+
 /// Processes and runs Suave server to host them on localhost
 module Serve =
 
@@ -714,13 +742,16 @@ type CoreBuildOptions(watch) =
            (fun (_, key2) -> key1 = key2)
            (fun () -> Crack.crackProjects (userRoot, userCollectionName, userParameters, projects), key1)
 
+        // Print the parameters
         for (ParamKey pk, p) in docsParameters do  
              printfn "  %s --> %s" pk p
-             let pd = dict docsParameters
-             for (dllFile, _, _, _, _, _, _, projectParameters) in crackedProjects do
-                 for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
-                    if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
-                       printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
+
+        // The parameters may differ for some projects due to different settings in the project files, if so show that
+        let pd = dict docsParameters
+        for (dllFile, _, _, _, _, _, _, projectParameters) in crackedProjects do
+            for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
+            if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
+                printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
             [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
@@ -827,51 +858,29 @@ type CoreBuildOptions(watch) =
 
                 let saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
                 let fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> IFsiEvaluator) else None)
-                let models =
+                let docContent =
                     DocContent(output, latestDocContentResults,
                         Some x.linenumbers, fsiEvaluator, docsParameters,
-                        saveImages, watch).Convert(x.input, defaultTemplate, extraInputs)
+                        saveImages, watch, root)
 
-                let extrasForSearchIndex =
-                    [| for (thing, _action) in models do
-                         match thing with
-                         | Some (_inputFile, model) ->
-                            match model.IndexText with
-                            | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
-                            | _ -> ()
-                         | _ -> () |]
+                let docModels = docContent.Convert(x.input, defaultTemplate, extraInputs)
 
+                let actualDocModels = docModels |> List.map fst |> List.choose id
+                let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
+                let navEntries = docContent.GetNavigationEntries(actualDocModels)
                 let results =
                     Map.ofList [
-                       for (thing, _action) in models do
+                       for (thing, _action) in docModels do
                           match thing with
                           | Some res -> res
                           | None -> () ]
 
-                let listOfDocs =
-                    let items =
-                        [ for (thing, _action) in models do
-                             match thing with
-                             | Some (inputFile, model)
-                                when model.OutputKind = OutputKind.Html &&
-                                     // Don't put the index in the list
-                                     not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
-                             | _ -> () ]
-
-                    [ if models.Length > 0 then
-                         li [Class "nav-header"] [!! "Documentation"]
-                      for model in items do
-                         let link = model.Uri(root)
-                         li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
-                    ]
-                    |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
-
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
-                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` ,listOfDocs ]
+                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` , navEntries ]
                 latestDocContentPhase2 <- (fun globals ->
 
-                    for (_thing, action) in models do
+                    for (_thing, action) in docModels do
                         action globals
 
                 )
