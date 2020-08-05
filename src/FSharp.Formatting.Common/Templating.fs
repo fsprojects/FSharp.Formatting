@@ -21,8 +21,8 @@ module internal ParamKeyUtils =
 #endif
 
 /// Defines the parameter keys known to FSharp.Formatting processing code
+[<RequireQualifiedAccess>]
 module ParamKeys =
-
 
     /// A parameter key known to FSharp.Formatting
     let ``root`` = ParamKey "root"

@@ -1,3 +1,7 @@
+## 7.2.0
+
+- include templates
+
 ## 7.1.8
 
 - bump version
