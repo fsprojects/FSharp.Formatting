@@ -418,7 +418,7 @@ type ApiDocEntity
 
 
 /// Represents a namespace integrated with its associated documentation
-type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: string option) =
+type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: (string * string) option) =
 
     let urlBaseName = name.Replace(".", "-").ToLower()
 
@@ -443,7 +443,7 @@ type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: string 
     member x.Entities : ApiDocEntity list = mods
 
     /// The summary text for the namespace
-    member x.NamespaceSummary : string option = nsdocs
+    member x.NamespaceSummary = nsdocs
 
     /// The substitution parameters active for generating thist content
     member x.Parameters  = parameters
@@ -1206,11 +1206,20 @@ module internal SymbolReader =
       let nsdocs =
          let ds = doc.Descendants(XName.Get "namespacesummary")
          if Seq.length ds > 0 then
-             Some
-              ([ for d in ds ->
+             let nssummary =
+                 [ for d in ds ->
+                     let html = new StringBuilder()
+                     readXmlElementAsHtml true urlMap cmds html d
+                     html.ToString() ]
+                 |> String.concat "\n"
+             let rs = doc.Descendants(XName.Get "namespacremarks")
+             let nsremarks = 
+              ([ for r in rs ->
                   let html = new StringBuilder()
-                  readXmlElementAsHtml true urlMap cmds html d
-                  html.ToString() ] |> String.concat "\n")
+                  readXmlElementAsHtml true urlMap cmds html r
+                  html.ToString() ]
+               |> String.concat "\n")
+             Some (nssummary, nsremarks)
          else
              None
 
@@ -1507,7 +1516,7 @@ module internal SymbolReader =
         |> List.choose id
         |> function
            | [] -> None
-           | xs -> Some (String.concat "\n" xs)
+           | xs -> Some (let (a,b) = List.unzip xs in String.concat "\n" a, String.concat "\n" b)
 
     let collectNamespaceDocs results =
       results 

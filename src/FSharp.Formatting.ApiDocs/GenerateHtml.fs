@@ -346,7 +346,7 @@ type HtmlRender(model: ApiDocModel) =
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
         match ns.NamespaceSummary with
-        | Some nsdocs -> div [] [!! nsdocs]
+        | Some (nssummary, nsremarks) -> div [] [!! nssummary; !!nsremarks ]
         | None -> () 
 
         if (allByCategory.Length > 1) then
@@ -388,32 +388,42 @@ type HtmlRender(model: ApiDocModel) =
         li [Class "nav-header"] [!! "Namespaces"]
 
       for allByCategory, ns in categorise do
-             li [ Class ("nav-item" + 
+
+          // Generate the entry for the namespace
+          li [ if nav then
+                    Class ("nav-item" + 
                           // add the 'active' class if this is the namespace of the thing being shown
                           match nsOpt with
                           | Some ns2 when ns.Name = ns2.Name -> " active"
                           | _ -> "") ]
-                [a [ Class ("nav-link" +
+
+                [span [] [
+                    a [ if nav then
+                          Class ("nav-link" +
                              // add the 'active' class if this is the namespace of the thing being shown
                              match nsOpt with
                              | Some ns2 when ns.Name = ns2.Name -> " active"
                              | _ -> "")
-                     Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]
-                 if not nav then
-                     !! " - "
-                     match ns.NamespaceSummary with
-                     | Some nsdocs -> !! nsdocs
-                     | None -> () ]
+                        Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]
 
-             // Generate the expanded list of entities if the namespace is the active one
-             match nsOpt with
-             | Some ns2 when ns.Name = ns2.Name ->
-                 ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
-                     for category in allByCategory do
-                         for e in category.CategoryEntites do
-                             li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
-                 ]
-             | _ -> ()
+                     // If not in the navigation list then generate the summary text as well
+                    if not nav then
+                       !! " - "
+                       match ns.NamespaceSummary with
+                       | Some (nssummary, _nsremarks) -> !! nssummary
+                       | None -> () ] ]
+
+          // In the navigation bar generate the expanded list of entities
+          // for the active namespace
+          if nav then
+              match nsOpt with
+              | Some ns2 when ns.Name = ns2.Name ->
+                  ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
+                      for category in allByCategory do
+                          for e in category.CategoryEntites do
+                              li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
+                  ]
+              | _ -> ()
      ]
 
   let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =

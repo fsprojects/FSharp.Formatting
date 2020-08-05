@@ -415,7 +415,7 @@ module Crack =
         root, collectionName, projects, paths, docsParameters
 
 /// Convert markdown, script and other content into a static site
-type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch) =
+type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch, root) =
 
   let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
@@ -583,6 +583,30 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
       for (inputDirectory, outputPrefix) in inputDirectories do
         yield! processDirectory (htmlTemplate, None, None, None) inputDirectory outputPrefix
     ]
+
+  member _.GetSearchIndexEntries(docModels: (string * LiterateDocModel) list) =
+        [| for (_inputFile, model) in docModels do
+                match model.IndexText with
+                | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
+                | _ -> () |]
+
+  member _.GetNavigationEntries(docModels: (string * LiterateDocModel) list) =
+    let modelsForList =
+        [ for thing in docModels do
+             match thing with
+             | (inputFile, model)
+                when model.OutputKind = OutputKind.Html &&
+                        // Don't put the index in the list
+                        not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
+             | _ -> () ]
+
+    [ if modelsForList.Length > 0 then
+            li [Class "nav-header"] [!! "Documentation"]
+      for model in modelsForList do
+            let link = model.Uri(root)
+            li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
+    ]
+    |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -834,51 +858,29 @@ type CoreBuildOptions(watch) =
 
                 let saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
                 let fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> IFsiEvaluator) else None)
-                let models =
+                let docContent =
                     DocContent(output, latestDocContentResults,
                         Some x.linenumbers, fsiEvaluator, docsParameters,
-                        saveImages, watch).Convert(x.input, defaultTemplate, extraInputs)
+                        saveImages, watch, root)
 
-                let extrasForSearchIndex =
-                    [| for (thing, _action) in models do
-                         match thing with
-                         | Some (_inputFile, model) ->
-                            match model.IndexText with
-                            | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
-                            | _ -> ()
-                         | _ -> () |]
+                let docModels = docContent.Convert(x.input, defaultTemplate, extraInputs)
 
+                let actualDocModels = docModels |> List.map fst |> List.choose id
+                let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
+                let navEntries = docContent.GetNavigationEntries(actualDocModels)
                 let results =
                     Map.ofList [
-                       for (thing, _action) in models do
+                       for (thing, _action) in docModels do
                           match thing with
                           | Some res -> res
                           | None -> () ]
 
-                let listOfDocs =
-                    let items =
-                        [ for (thing, _action) in models do
-                             match thing with
-                             | Some (inputFile, model)
-                                when model.OutputKind = OutputKind.Html &&
-                                     // Don't put the index in the list
-                                     not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
-                             | _ -> () ]
-
-                    [ if models.Length > 0 then
-                         li [Class "nav-header"] [!! "Documentation"]
-                      for model in items do
-                         let link = model.Uri(root)
-                         li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
-                    ]
-                    |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
-
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
-                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` ,listOfDocs ]
+                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` , navEntries ]
                 latestDocContentPhase2 <- (fun globals ->
 
-                    for (_thing, action) in models do
+                    for (_thing, action) in docModels do
                         action globals
 
                 )

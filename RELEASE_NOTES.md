@@ -2,6 +2,8 @@
 
 - support `<namespacesummary>...<namespacesummary>`
 
+- support `<namespaceremarks>...<namespaceremarks>`
+
 - support `<note>...<note>`
 
 - support `<exclude />`

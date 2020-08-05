@@ -49,6 +49,8 @@ In addition, you may also use
 
 * `<namespacesummary>` for giving summary sections for the enclosing namespace
 
+* `<namespaceremarks>` for giving extended remarks for the enclosing namespace
+
 * `<exclude>` and `<omit>` to exclude from XML docs
 
 * `<category>` to give a category for presentation
@@ -73,6 +75,8 @@ An example of an XML documentation comment, assuming the code is in namespace `T
 /// </example>
 ///
 /// <namespacesummary>A namespace to remember</namespacesummary>
+///
+/// <namespaceremarks>More on that</namespaceremarks>
 ///
 /// <category>Foo</category>
 ///
