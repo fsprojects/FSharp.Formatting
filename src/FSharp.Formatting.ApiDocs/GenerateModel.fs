@@ -217,7 +217,7 @@ type ApiDocMemberKind =
 /// Represents an method, property, constructor, function or value, record field, union case or static parameter
 /// integrated with its associated documentation. Includes extension members.
 type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityUrlBaseName: string,
-         kind, cat, details, comment, symbol) =
+         kind, cat, catidx: int, exclude: bool, details, comment, symbol) =
 
   // The URL for a member is currently the #DisplayName on the enclosing entity
   let (usageHtml, paramHtmls, returnHtml, mods, typars, baseType, location, compiledName) = details
@@ -286,6 +286,12 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
     /// The category
   member x.Category : string = cat
 
+    /// The category index
+  member x.CategoryIndex : int = catidx
+
+    /// The exclude flag
+  member x.Exclude : bool = exclude
+
     /// The kind of the member
   member x.Kind : ApiDocMemberKind = kind
 
@@ -319,7 +325,7 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
 
 /// Represents a type definition integrated with its associated documentation
 type ApiDocEntity
-       (tdef, name, cat, urlBaseName, comment, assembly: AssemblyName, attributes,
+       (tdef, name, cat: string, catidx: int, exclude: bool, urlBaseName, comment, assembly: AssemblyName, attributes,
         cases, fields, statParams, ctors, inst, stat, allInterfaces, baseType, abbreviatedType,
         delegateSignature, symbol: FSharpEntity,
         nested, vals, exts, pats, rqa, parameters: Parameters) =
@@ -331,7 +337,13 @@ type ApiDocEntity
     member x.Name : string = name
 
     /// The category of the type
-    member x.Category : string = cat
+    member x.Category = cat
+
+    /// The category index of the type
+    member x.CategoryIndex = catidx
+
+    /// The exclude flag
+    member x.Exclude = exclude
 
     /// The URL base name of the primary documentation for the entity  (without the http://site.io/reference)
     member x.UrlBaseName : string = urlBaseName
@@ -1223,30 +1235,31 @@ module internal SymbolReader =
          else
              None
 
-      begin
-          if summaryExpected then
-              let summaries = doc.Descendants(XName.Get "summary")
-              summaries |> Seq.iteri (fun id e ->
-                 let n = if id = 0 then "summary" else "summary-" + string id
-                 rawData.[n] <- e.Value
-                 html.Append("<p class='fsdocs-summary'>") |> ignore
-                 readXmlElementAsHtml true urlMap cmds html e
-                 html.Append("</p>") |> ignore
-              )
-          else
-              readXmlElementAsHtml false urlMap cmds html doc
-      end
-
-      for e in doc.Descendants(XName.Get "exclude") do
-          cmds.Add("exclude", e.Value)
-
-      for e in doc.Descendants(XName.Get "omit") do
-          cmds.Add("omit", e.Value)
-
-      for e in doc.Descendants(XName.Get "category") do
-          cmds.Add("category", e.Value)
+      if summaryExpected then
+          let summaries = doc.Descendants(XName.Get "summary")
+          summaries |> Seq.iteri (fun id e ->
+            let n = if id = 0 then "summary" else "summary-" + string id
+            rawData.[n] <- e.Value
+            html.Append("<p class='fsdocs-summary'>") |> ignore
+            readXmlElementAsHtml true urlMap cmds html e
+            html.Append("</p>") |> ignore
+        )
+      else
+        readXmlElementAsHtml false urlMap cmds html doc
 
       if all then
+          for e in doc.Descendants(XName.Get "exclude") do
+              cmds.["exclude"] <- e.Value
+
+          for e in doc.Descendants(XName.Get "omit") do
+              cmds.["omit"] <- e.Value
+
+          for e in doc.Descendants(XName.Get "category") do
+              cmds.["category"] <- e.Value
+
+          for e in doc.Descendants(XName.Get "categoryindex") do
+              cmds.["categoryindex"] <- e.Value
+
           let remarkNodes = doc.Descendants(XName.Get "remarks")
           if Seq.length remarkNodes > 0 then
              //html.Append("<h4>Remarks</h4>") |> ignore
@@ -1454,7 +1467,7 @@ module internal SymbolReader =
                   lines
                   |> List.filter (findCommand >> (function
                       | Some (k, v) ->
-                          cmds.Add(k, v)
+                          cmds.[k] <- v
                           false
                       | _ -> true))
                   |> List.map fst
@@ -1474,7 +1487,7 @@ module internal SymbolReader =
                 let html, nsdocs = readXmlCommentAsHtml ctx.UrlMap el cmds
                 lines
                   |> Seq.choose findCommand
-                  |> Seq.iter (fun (k, v) -> cmds.Add(k,v))
+                  |> Seq.iter (fun (k, v) -> cmds.[k] <- v)
                 cmds, html, nsdocs
 
 
@@ -1484,12 +1497,19 @@ module internal SymbolReader =
     let readCommentsInto (sym:FSharpSymbol) ctx xmlDocSig f =
         let cmds, comment, nsdocs = readCommentAndCommands ctx xmlDocSig
         match cmds with
-        | Command "exclude" _ -> None
-        | Command "omit" _ -> None
         | Command "category" cat
         | Let "" (cat, _) ->
+          let catindex =
+              match cmds with
+              | Command "categoryindex" idx
+              | Let "1000" (idx, _) -> (try int idx with _ -> Int32.MaxValue)
+          let exclude =
+              match cmds with
+              | Command "omit" v
+              | Command "exclude" v
+              | Let "false" (v, _) -> (v <> "false")
           try
-            Some(f cat cmds comment, nsdocs)
+            Some(f cat catindex exclude cmds comment, nsdocs)
           with e ->
             let name =
               try sym.FullName
@@ -1533,9 +1553,9 @@ module internal SymbolReader =
         |> collectNamespaceDocs
 
     let tryReadMember (ctx:ReadingContext) entityUrl kind (memb:FSharpMemberOrFunctionOrValue) =
-      readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat _ comment ->
+      readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat catidx exclude _ comment ->
         let details = readMemberOrVal ctx memb
-        ApiDocMember(memb.DisplayName, readAttributes memb.Attributes, entityUrl, kind, cat, details, comment, memb))
+        ApiDocMember(memb.DisplayName, readAttributes memb.Attributes, entityUrl, kind, cat, catidx, exclude, details, comment, memb))
 
     let readAllMembers ctx entityUrl kind (members:seq<FSharpMemberOrFunctionOrValue>) =
       members
@@ -1575,9 +1595,9 @@ module internal SymbolReader =
       |> List.ofSeq
       |> List.filter (fun v -> checkAccess ctx v.Accessibility)
       |> List.choose (fun case ->
-        readCommentsInto case ctx case.XmlDocSig (fun cat _ comment ->
+        readCommentsInto case ctx case.XmlDocSig (fun cat catidx exclude _ comment ->
           let details = readUnionCase ctx typ case
-          ApiDocMember(case.Name, readAttributes case.Attributes, entityUrl, ApiDocMemberKind.UnionCase, cat, details, comment, case)))
+          ApiDocMember(case.Name, readAttributes case.Attributes, entityUrl, ApiDocMemberKind.UnionCase, cat, catidx, exclude, details, comment, case)))
       |> collectNamespaceDocs
 
     let readRecordFields ctx entityUrl (typ:FSharpEntity) =
@@ -1585,18 +1605,18 @@ module internal SymbolReader =
       |> List.ofSeq
       |> List.filter (fun field -> not field.IsCompilerGenerated)
       |> List.choose (fun field ->
-        readCommentsInto field ctx field.XmlDocSig (fun cat _ comment ->
+        readCommentsInto field ctx field.XmlDocSig (fun cat catidx exclude _ comment ->
           let details = readFSharpField ctx field
-          ApiDocMember(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), entityUrl, ApiDocMemberKind.RecordField, cat, details, comment, field)))
+          ApiDocMember(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), entityUrl, ApiDocMemberKind.RecordField, cat, catidx, exclude, details, comment, field)))
       |> collectNamespaceDocs
             
     let readStaticParams ctx entityUrl (typ:FSharpEntity) =
       typ.StaticParameters
       |> List.ofSeq
       |> List.choose (fun staticParam ->
-        readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat _ comment ->
+        readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat catidx exclude _ comment ->
           let details = readFSharpStaticParam ctx staticParam
-          ApiDocMember(staticParam.Name, [], entityUrl, ApiDocMemberKind.StaticParameter, cat, details, comment, staticParam)))
+          ApiDocMember(staticParam.Name, [], entityUrl, ApiDocMemberKind.StaticParameter, cat, catidx, exclude, details, comment, staticParam)))
       |> collectNamespaceDocs
 
     // Create a xml documentation snippet and add it to the XmlMemberMap
@@ -1626,7 +1646,7 @@ module internal SymbolReader =
 
       let xmlDocSig = getXmlDocSigForType typ
 
-      readCommentsInto typ ctx xmlDocSig (fun cat _cmds comment ->
+      readCommentsInto typ ctx xmlDocSig (fun cat catidx exclude _cmds comment ->
         let entityUrl = ctx.UrlMap.TryResolveUrlBaseNameForEntity typ
 
         let rec getMembers (typ:FSharpEntity) = [
@@ -1675,11 +1695,11 @@ module internal SymbolReader =
         let nsdocs = combineNamespaceDocs [nsdocs1; nsdocs2; nsdocs3; nsdocs4; nsdocs5; nsdocs6 ]
         if nsdocs.IsSome then
            printfn "ignoring namespace summary on nested position"
-        ApiDocEntity (true, name, cat, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors,
+        ApiDocEntity (true, name, cat, catidx, exclude, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors,
            inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, typ, [], [], [], [], rqa, ctx.Parameters))
 
     and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
-      readCommentsInto modul ctx modul.XmlDocSig (fun cat _cmd comment ->
+      readCommentsInto modul ctx modul.XmlDocSig (fun cat catidx exclude _cmd comment ->
 
         // Properties & value bindings in the module
         let entityUrl = ctx.UrlMap.TryResolveUrlBaseNameForEntity modul
@@ -1695,7 +1715,7 @@ module internal SymbolReader =
            printfn "ignoring namespace summary on nested position"
  
         ApiDocEntity
-          ( false, modul.DisplayName, cat, entityUrl, comment, ctx.Assembly, attrs,
+          ( false, modul.DisplayName, cat, catidx, exclude, entityUrl, comment, ctx.Assembly, attrs,
             [], [], [], [], [], [], [], None, None, None, modul, entities, vals,
             exts, pats, rqa, ctx.Parameters ))
 
