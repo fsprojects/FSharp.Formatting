@@ -187,7 +187,7 @@ let ``ApiDocs model generation works on two sample F# assemblies``() =
   model.Collection.Assemblies.[1].Name |> shouldEqual "FsLib2"
   model.Collection.Namespaces.Length |> shouldEqual 1
   model.Collection.Namespaces.[0].Name |> shouldEqual "FsLib"
-  model.Collection.Namespaces.[0].Entities |> List.filter (fun c -> c.IsTypeDefinition) |> function x -> x.Length |> shouldEqual 9
+  model.Collection.Namespaces.[0].Entities |> List.filter (fun c -> c.IsTypeDefinition) |> function x -> x.Length |> shouldEqual 10
   let assemblies = [ for t in model.Collection.Namespaces.[0].Entities -> t.Assembly.Name ]
   assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
@@ -492,7 +492,8 @@ let ``ApiDocs omit works without markdown``() =
 
   let files = generateApiDocs [library] false "FsLib2_omit"
 
-  files.ContainsKey "fslib-test_omit.html" |> shouldEqual false
+  // Actually, the thing gets generated it's just not in the index
+  files.ContainsKey "fslib-test_omit.html" |> shouldEqual true
 
 [<Test>]
 let ``ApiDocs test FsLib1``() =
