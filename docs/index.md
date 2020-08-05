@@ -1,5 +1,3 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=index.ipynb)
-
 # F# Formatting: Documentation Tools for F# Code
 
 FSharp.Formatting is a set of libraries and tools for processing F# script files, markdown and for
