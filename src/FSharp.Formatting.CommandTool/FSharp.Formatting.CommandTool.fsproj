@@ -22,7 +22,9 @@
 
   <ItemGroup>
     <!-- NuGet package content -->
-    <Content Include="..\..\misc\templates\*.html" PackagePath="templates" />
+    <Content Include="..\..\docs\_template.html" PackagePath="templates" />
+    <Content Include="..\..\docs\_template.tex" PackagePath="templates" />
+    <Content Include="..\..\docs\_template.ipynb" PackagePath="templates" />
     <Content Include="..\..\docs\Dockerfile" PackagePath="extras" />
     <Content Include="..\..\docs\NuGet.config" PackagePath="extras" />
     <Content Include="..\..\docs\content\*" PackagePath="extras\content" />

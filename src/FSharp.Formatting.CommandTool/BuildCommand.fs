@@ -716,6 +716,11 @@ type CoreBuildOptions(watch) =
 
         for (ParamKey pk, p) in docsParameters do  
              printfn "  %s --> %s" pk p
+             let pd = dict docsParameters
+             for (dllFile, _, _, _, _, _, _, projectParameters) in crackedProjects do
+                 for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
+                    if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
+                       printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
             [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
@@ -759,6 +764,8 @@ type CoreBuildOptions(watch) =
            else x.output
 
         // This is in-package
+        //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
+        //   to .nuget\packages\fsharp.formatting.commandtool\7.1.7\templates
         let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
         let defaultTemplateAttempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.html"))
         // This is in-repo only
@@ -776,6 +783,8 @@ type CoreBuildOptions(watch) =
         let extraInputs =
            [ if not x.nodefaultcontent then
               // The "extras" content goes in "."
+              //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
+              //   to .nuget\packages\fsharp.formatting.commandtool\7.1.7\extras
               let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
               if (try Directory.Exists(attempt1) with _ -> false) then
                   printfn "using extra content from %s" attempt1

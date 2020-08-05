@@ -12,10 +12,9 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
 2. Delete all of `docs\tools` particularly `docs\tool\generate.fsx`.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.
 
-3. Put your docs directory so it refelcts the final shape of the site. For example move the content of `docs\input\*` and `docs\files\*` directly to `docs\*`
+3. Put your docs directory so it reflects the final shape of the site. For example move the content of `docs\input\*` and `docs\files\*` directly to `docs\*`
 
-4. Create `docs\_template.html`, starting with [this file](https://github.com/fsprojects/FSharp.Formatting/blob/master/misc/templates/_template.html) and 
-   copying across any snippets from old templates.
+4. Follow the notes in [styling](styling.html) to start to style your site.
 
 5. Run
 
