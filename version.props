@@ -1,6 +1,6 @@
 <Project>
       <PropertyGroup>
-        <Version>7.1.6</Version>
+        <Version>7.1.8</Version>
         <PackageReleaseNotes>
 - bump version
         </PackageReleaseNotes>

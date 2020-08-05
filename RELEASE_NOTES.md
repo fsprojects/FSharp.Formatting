@@ -1,3 +1,7 @@
+## 7.1.8
+
+- bump version
+
 ## 7.1.6
 
 - bump version

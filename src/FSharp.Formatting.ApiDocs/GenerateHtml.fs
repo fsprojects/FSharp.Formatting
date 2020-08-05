@@ -438,6 +438,8 @@ type HtmlRender(model: ApiDocModel) =
         SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
     end
 
+    //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
+
     for (nsIndex, ns) in Seq.indexed collection.Namespaces do
         let content = div [] (namespaceContent (nsIndex, ns))
         let pageTitle = ns.Name

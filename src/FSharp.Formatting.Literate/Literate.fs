@@ -147,8 +147,8 @@ type Literate private () =
       ConditionalDefines = (definedSymbols@extraDefines) }
 
   /// Get default output file name, given various information
-  static let defaultOutput output input (outputKind: OutputKind) =
-    match output  with
+  static let defaultOutput outputPath input (outputKind: OutputKind) =
+    match outputPath  with
     | Some out -> out
     | None -> Path.ChangeExtension(input, outputKind.Extension)
 
@@ -253,10 +253,10 @@ type Literate private () =
 
   /// Process the given literate document
   static member internal TransformDocument
-    (doc, output, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?parameters, ?tokenKindToCss) =
+    (doc, outputPath, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?parameters, ?tokenKindToCss) =
     let outputKind = defaultArg outputKind OutputKind.Html
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors parameters tokenKindToCss
-    Formatting.transformDocument doc output ctx
+    Formatting.transformDocument doc outputPath ctx
 
   /// Parse and transform a markdown document
   static member internal ParseAndTransformMarkdownFile
@@ -276,7 +276,8 @@ type Literate private () =
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
     
-    Formatting.transformDocument doc (defaultOutput output input outputKind) ctx
+    let outputPath = defaultOutput output input outputKind
+    Formatting.transformDocument doc outputPath ctx
 
   /// Parse and transform an F# script file
   static member internal ParseAndTransformScriptFile
@@ -295,7 +296,8 @@ type Literate private () =
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors parameters tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
-    Formatting.transformDocument doc (defaultOutput output input outputKind) ctx
+    let outputPath = defaultOutput output input outputKind
+    Formatting.transformDocument doc outputPath ctx
 
   /// Write a document object into HTML or another output kind
   static member TransformAndOutputDocument
