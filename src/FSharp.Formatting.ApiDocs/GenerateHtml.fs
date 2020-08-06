@@ -444,7 +444,7 @@ type HtmlRender(model: ApiDocModel) =
            div [] [h1 [] [!! "API Reference"];
                    h2 [] [!! "Available Namespaces:"];
                    ul [] (listOfNamespacesAux false false None) ]
-        let pageTitle = "API Reference" + collectionName
+        let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
         let parameters = getParameters model.Parameters toc content pageTitle
         let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
@@ -466,7 +466,7 @@ type HtmlRender(model: ApiDocModel) =
     for info in model.EntityInfos do
         Log.infof "Generating type/module: %s" info.Entity.UrlBaseName
         let content = div [] (entityContent info)
-        let pageTitle = info.Entity.Name + collectionName
+        let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let parameters = getParameters info.Entity.Parameters toc content pageTitle
         let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
