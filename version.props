@@ -1,8 +1,14 @@
 <Project>
       <PropertyGroup>
-        <Version>7.2.2</Version>
+        <Version>7.2.3</Version>
         <PackageReleaseNotes>
-- instruct about settings
+- support `&lt;namespacesummary&gt;...&lt;namespacesummary&gt;`
+- support `&lt;namespaceremarks&gt;...&lt;namespaceremarks&gt;`
+- support `&lt;note&gt;...&lt;note&gt;`
+- support `&lt;exclude /&gt;`
+- allow  `&lt;a href=&quot;...&quot; &gt;` in XML doc comments
+- allow  `&lt;paramref name=&quot;...&quot; &gt;` in XML doc comments
+- document XML doc things supported
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>
