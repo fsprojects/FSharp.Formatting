@@ -173,7 +173,9 @@ let ``Namespace summary generation works on two sample F# assemblies using XML d
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["index.html"] |> shouldContainText "FsLib is a good namespace"
+  files.["index.html"] |> shouldNotContainText "I tell you again FsLib is good"
   files.["fslib.html"] |> shouldContainText "FsLib is a good namespace"
+  files.["fslib.html"] |> shouldContainText "I tell you again FsLib is good"
 
 [<Test>]
 let ``ApiDocs model generation works on two sample F# assemblies``() =

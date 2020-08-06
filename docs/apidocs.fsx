@@ -41,19 +41,30 @@ Usually the same template can be used as for [other content](content.html).
 
 XML Doc Comments may use [the normal F# and C# XML doc standards](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/).
 
-In addition, you may also use
+The tags that form the core of the XML doc specification are:
+
+```
+<c>	<para>	<see>*	<value>
+<code>	<param>*	<seealso>*	
+<example>	<paramref>	<summary>	
+<exception>*	<permission>*	<typeparam>*	
+<include>*	<remarks>	<typeparamref>	
+<list>	<inheritdoc>	<returns>	
+```
+
+In addition, you may also use the [Recommended XML doc extensions for F# documentation tooling](https://github.com/fsharp/fslang-design/blob/master/tooling/FST-1031-xmldoc-extensions.md).
 
 * `<a href = "...">` links
 
 * Arbitrary paragraph-level HTML such as `<b>` for bold in XML doc text
 
-* `<namespacesummary>` for giving summary sections for the enclosing namespace
+* `<namespacedoc>` giving documentation for the enclosing namespace
 
-* `<namespaceremarks>` for giving extended remarks for the enclosing namespace
+* `<exclude>` to exclude from XML docs
 
-* `<exclude>` and `<omit>` to exclude from XML docs
+* `<category>` to give a category for an entity or member. An optional `index` attribute can be specified
+  to help sort the list of categories. 
 
-* `<category>` to give a category for presentation
 
 An example of an XML documentation comment, assuming the code is in namespace `TheNamespace`:
 *)
@@ -74,9 +85,11 @@ An example of an XML documentation comment, assuming the code is in namespace `T
 ///   </code>
 /// </example>
 ///
-/// <namespacesummary>A namespace to remember</namespacesummary>
+/// <namespacedoc>
+///   <summary>A namespace to remember</summary>
 ///
-/// <namespaceremarks>More on that</namespaceremarks>
+///   <remarks>More on that</remarks>
+/// </namespacedoc>
 ///
 /// <category>Foo</category>
 ///

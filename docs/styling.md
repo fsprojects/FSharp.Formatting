@@ -1,14 +1,29 @@
-# Styling 
+# Customization and Styling 
 
-By default `fsdocs` uses the following (which are the settings used to build this site):
+There are five levels of extra content development and styling.
 
-* the default template in [docs/_template.html](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html)
+0. Don't do any styling or documentation customization.  This is by far the simplest option to maintain.
 
-* the default styles in [docs/content/fsdocs-default.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css).
+1. Add content such as an `docs/index.md` to customize the front-page content for your generated docs.
+   You can also add content such as `docs/reference/fslib.md` to give a bespoke langing page
+   for one of your namespaces, e.g. here assumed to be `namespace FsLib`.  This will override any
+   generated content.
 
-* no custom styles in [docs/content/fsdocs-custom.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css).
+2. Customize via Styling Parameters
 
-* no styling parameters for the default template (see below)
+3. Customize via CSS
+
+4. Customize via a new tempalte
+
+By default `fsdocs` does no ctyling customization and uses the following. These are the settings used to build this site.
+
+* Uses the default template in [docs/_template.html](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html)
+
+* Uses the default styles in [docs/content/fsdocs-default.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css).
+
+* Uses no custom styles in [docs/content/fsdocs-custom.css](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/content/fsdocs-default.css).
+
+* Uses no styling parameters except those extracted from the project files.
 
 For your project, you don't need any of these files. However you can add them if you wish, though if
 you adjsut them there is no guarantee that your template will continue to work with future versions of F# Formatting.
@@ -29,6 +44,21 @@ The following [content parameters](content.html) are particularly related to vis
 | `fsdocs-repository-link`      | `<RepositoryUrl>`                                             | 
 | `fsdocs-theme`                | `<FsDocsTheme>`, must currently be `default`    | 
 
+These basic entry-level styling parameters can be set in the project file or `Directory.Build.props`.
+For example:
+
+```xml
+    <!-- Example ultra-simple styling and generation settings for FsDocs default template-->
+    <PackageLicenseUrl>https://github.com/foo/bar/blob/master/License.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://foo.github.io/bar/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/foo/bar/</RepositoryUrl>
+    <FsDocsLogoLink>https://fsharp.org</FsDocsLogoLink>
+    <FsDocsLicenseLink>https://github.com/foo/bar/blob/master/License.txt</FsDocsLicenseLink>
+    <FsDocsReleaseNotesLink>https://github.com/foo/bar/blob/master/release-notes.md</FsDocsReleaseNotesLink>
+    <FsDocsNavbarPosition>fixed-left</FsDocsNavbarPosition>
+    <FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>
+    <FsDocsTheme>default</FsDocsTheme>
+```
 
 As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-left`](templates/leftside/styling.html).
 
@@ -75,4 +105,16 @@ with the existing default template.
 > NOTE: There is no guarantee that your template will continue to work with future versions of F# Formatting.
 > If you do develop a good template please consider contributing it back to F# Formatting.
 
+
+## Customizing by generating your own site using your own code
+
+The `FSharp.Formatting.ApiDocs` namespace includes a `GenerateModel` that captures
+the results of documentation preparation in `ApiDocsModel` and allows you to 
+generate your own site using your own code.
+
+> NOTE: There is no guarantee that your bespoke site generation will continue to work
+> with future versions of F# Formatting.
+
+> NOTE: The contents of `ApiDocsModel` currently includes some generated HTML with some specific style tags.
+> In the long term these may be removed from the design of that component.
 

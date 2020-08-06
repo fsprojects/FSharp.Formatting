@@ -339,8 +339,8 @@ type HtmlRender(model: ApiDocModel) =
     [ if allByCategory.Length > 0 then
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
-        match ns.NamespaceSummary with
-        | Some (nssummary, nsremarks) -> p [] [!! nssummary; !!nsremarks ]
+        match ns.NamespaceDocs with
+        | Some nsdocs -> p [] [embed nsdocs.DescriptionHtml ]
         | None -> () 
 
         p [] [!! "Categories:" ]
@@ -400,8 +400,8 @@ type HtmlRender(model: ApiDocModel) =
                      // If not in the navigation list then generate the summary text as well
                     if not nav then
                        !! " - "
-                       match ns.NamespaceSummary with
-                       | Some (nssummary, _nsremarks) -> !! nssummary
+                       match ns.NamespaceDocs with
+                       | Some nsdocs -> embed nsdocs.SummaryHtml
                        | None -> () ] ]
 
           // In the navigation bar generate the expanded list of entities

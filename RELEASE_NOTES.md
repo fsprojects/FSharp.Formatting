@@ -1,3 +1,9 @@
+## 7.2.5
+
+- change `<namespacesummary>...<namespacesummary>` to `<namespacedoc> <summary>... </summary> </namespacedoc>`
+
+- change `<categoryindex>3<categoryindex>` to `<category index="3">...</category>`
+
 ## 7.2.4
 
 - support `<namespacesummary>...<namespacesummary>`
@@ -5,6 +11,8 @@
 - support `<namespaceremarks>...<namespaceremarks>`
 
 - support `<note>...<note>`
+
+- support `<category>...</category>`
 
 - support `<exclude />`
 

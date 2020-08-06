@@ -22,7 +22,8 @@ type ApiDocs =
         ApiDocModel.Generate(inputs, collectionName=collectionName,
             libDirs=libDirs, qualify=qualify,
             otherFlags=otherFlags,
-            urlRangeHighlight=urlRangeHighlight, root=root, parameters=parameters) 
+            urlRangeHighlight=urlRangeHighlight, root=root,
+            parameters=parameters) 
 
     /// Generates the search index from the given documentation model
     ///

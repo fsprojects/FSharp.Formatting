@@ -129,6 +129,7 @@ module Crack =
           FsDocsSourceFolder : string option
           FsDocsSourceRepository : string option
           FsDocsTheme: string option
+          FsDocsWarnOnMissingDocs: bool
           PackageProjectUrl : string option
           Authors : string option
           GenerateDocumentationFile : bool
@@ -165,6 +166,7 @@ module Crack =
               "FsDocsReleaseNotesLink"
               "FsDocsSourceFolder"
               "FsDocsSourceRepository"
+              "FsDocsWarnOnMissingDocs"
               "RepositoryType"
               "RepositoryBranch"
               "PackageProjectUrl"
@@ -223,7 +225,8 @@ module Crack =
                    FsDocsLogoLink = msbuildPropString "FsDocsLogoLink" 
                    FsDocsLogoSource = msbuildPropString "FsDocsLogoSource" 
                    FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition" 
-                   FsDocsTheme = msbuildPropString "FsDocsTheme" 
+                   FsDocsTheme = msbuildPropString "FsDocsTheme"
+                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
                    UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
                    PackageProjectUrl = msbuildPropString "PackageProjectUrl" 
                    Authors = msbuildPropString "Authors" 
@@ -361,6 +364,7 @@ module Crack =
                   FsDocsSourceRepository = projectInfos |> List.tryPick  (fun info -> info.FsDocsSourceRepository)
                   FsDocsNavbarPosition = projectInfos |> List.tryPick  (fun info -> info.FsDocsNavbarPosition)
                   FsDocsTheme = projectInfos |> List.tryPick  (fun info -> info.FsDocsTheme)
+                  FsDocsWarnOnMissingDocs = false
                   PackageProjectUrl = projectInfos |> List.tryPick  (fun info -> info.PackageProjectUrl) |> Option.map ensureTrailingSlash
                   Authors = projectInfos |> List.tryPick  (fun info -> info.Authors)
                   GenerateDocumentationFile = true
@@ -405,8 +409,15 @@ module Crack =
         let projects =  
             [ for info in projectInfos do
                  let parameters = parametersForProjectInfo info
-                 (info.TargetPath.Value, info.RepositoryUrl, info.RepositoryBranch, info.RepositoryType,
-                  info.UsesMarkdownComments, info.FsDocsSourceFolder, info.FsDocsSourceRepository, parameters) ]
+                 (info.TargetPath.Value,
+                  info.RepositoryUrl,
+                  info.RepositoryBranch,
+                  info.RepositoryType,
+                  info.UsesMarkdownComments,
+                  info.FsDocsWarnOnMissingDocs,
+                  info.FsDocsSourceFolder,
+                  info.FsDocsSourceRepository,
+                  parameters) ]
               
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
@@ -748,13 +759,13 @@ type CoreBuildOptions(watch) =
 
         // The parameters may differ for some projects due to different settings in the project files, if so show that
         let pd = dict docsParameters
-        for (dllFile, _, _, _, _, _, _, projectParameters) in crackedProjects do
+        for (dllFile, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
             for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
             if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
                 printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
-            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
+            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectWarn, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
                 let sourceRepo =
                     match projectSourceRepo with
                     | Some s -> Some s
@@ -787,6 +798,7 @@ type CoreBuildOptions(watch) =
                   SourceFolder = Some sourceFolder;
                   Parameters = Some projectParameters;
                   MarkdownComments = x.mdcomments || projectMarkdownComments;
+                  Warn = projectWarn;
                   PublicOnly = not x.nonpublic } ]
 
         let output =
@@ -969,8 +981,10 @@ type CoreBuildOptions(watch) =
         let ok =
             let ok1 = runDocContentPhase1() 
             let ok2 = runGeneratePhase1() 
-            let ok1 = ok1 && runDocContentPhase2() 
             let ok2 = ok2 && runGeneratePhase2()
+            // Run this second to override anything produced by API generate, e.g.
+            // bespoke file for namespaces etc.
+            let ok1 = ok1 && runDocContentPhase2() 
             regenerateSearchIndex()
             ok1 && ok2
 
