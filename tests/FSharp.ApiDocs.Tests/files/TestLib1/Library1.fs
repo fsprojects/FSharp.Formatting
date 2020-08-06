@@ -4,7 +4,10 @@ namespace FsLib
 /// Union sample
 /// </summary>
 ///
-/// <namespacesummary>FsLib is a good namespace</namespacesummary>
+/// <namespacedoc>
+///   <summary>FsLib is a good namespace</summary>
+///   <remarks>I tell you again FsLib is good</remarks>
+/// </namespacedoc>
 type Union = 
   /// Hello of int
   | Hello of int

@@ -430,7 +430,7 @@ type ApiDocEntity
 
 
 /// Represents a namespace integrated with its associated documentation
-type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: (string * string) option) =
+type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: ApiDocComment option) =
 
     let urlBaseName = name.Replace(".", "-").ToLower()
 
@@ -455,7 +455,7 @@ type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: (string
     member x.Entities : ApiDocEntity list = mods
 
     /// The summary text for the namespace
-    member x.NamespaceSummary = nsdocs
+    member x.NamespaceDocs = nsdocs
 
     /// The substitution parameters active for generating thist content
     member x.Parameters  = parameters
@@ -896,6 +896,7 @@ module internal SymbolReader =
           Assembly : AssemblyName
           XmlMemberMap : IDictionary<string, XElement>
           UrlMap : CrossReferenceResolver
+          WarnOnMissingDocs: bool
           MarkdownComments : bool
           UrlRangeHighlight : Uri -> int -> int -> string
           SourceFolderRepository : (string * string) option
@@ -911,12 +912,13 @@ module internal SymbolReader =
 
         static member internal Create
             (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap,
-             assemblyPath, fscoptions, formatAgent, parameters ) =
+             assemblyPath, fscoptions, formatAgent, parameters, warn ) =
 
           { PublicOnly=publicOnly
             Assembly = assembly
             XmlMemberMap = map
             MarkdownComments = mdcomments
+            WarnOnMissingDocs = warn
             UrlMap = urlMap
             UrlRangeHighlight = urlRangeHighlight
             SourceFolderRepository = sourceFolderRepo
@@ -1228,29 +1230,16 @@ module internal SymbolReader =
                 | _ ->
                     if anyTagsOK then html.Append(elem.ToString()) |> ignore
 
-    let readXmlCommentAsHtmlAux summaryExpected all (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
+    let readXmlCommentAsHtmlAux (sumTag: string) summaryExpected all (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
       let rawData = new Dictionary<string, string>()
       let html = new StringBuilder()
    //full.Append("</br>") |> ignore
 
       // not part of the XML doc standard
       let nsdocs =
-         let ds = doc.Descendants(XName.Get "namespacesummary")
+         let ds = doc.Descendants(XName.Get "namespacedoc")
          if Seq.length ds > 0 then
-             let nssummary =
-                 [ for d in ds ->
-                     let html = new StringBuilder()
-                     readXmlElementAsHtml true urlMap cmds html d
-                     html.ToString() ]
-                 |> String.concat "\n"
-             let rs = doc.Descendants(XName.Get "namespacremarks")
-             let nsremarks = 
-              ([ for r in rs ->
-                  let html = new StringBuilder()
-                  readXmlElementAsHtml true urlMap cmds html r
-                  html.ToString() ]
-               |> String.concat "\n")
-             Some (nssummary, nsremarks)
+             Some (Seq.toList ds)
          else
              None
 
@@ -1259,9 +1248,9 @@ module internal SymbolReader =
           summaries |> Seq.iteri (fun id e ->
             let n = if id = 0 then "summary" else "summary-" + string id
             rawData.[n] <- e.Value
-            html.Append("<p class='fsdocs-summary'>") |> ignore
+            html.AppendFormat("<{0} class='fsdocs-summary'>", sumTag) |> ignore
             readXmlElementAsHtml true urlMap cmds html e
-            html.Append("</p>") |> ignore
+            html.AppendFormat("</{0}>", sumTag) |> ignore
         )
       else
         readXmlElementAsHtml false urlMap cmds html doc
@@ -1274,10 +1263,11 @@ module internal SymbolReader =
               cmds.["omit"] <- e.Value
 
           for e in doc.Descendants(XName.Get "category") do
+              match e.Attribute(XName.Get "index") with
+              | null -> ()
+              | a ->
+                  cmds.["categoryindex"] <- a.Value
               cmds.["category"] <- e.Value
-
-          for e in doc.Descendants(XName.Get "categoryindex") do
-              cmds.["categoryindex"] <- e.Value
 
           let remarkNodes = doc.Descendants(XName.Get "remarks")
           if Seq.length remarkNodes > 0 then
@@ -1386,11 +1376,33 @@ module internal SymbolReader =
       let str = ApiDocHtml(html.ToString())
       str, rawData, nsdocs
 
-    let readXmlCommentAsHtml (urlMap : CrossReferenceResolver) (doc : XElement) (cmds: IDictionary<_, _>) =
-        let summary, _raw, nsdocs = readXmlCommentAsHtmlAux true false urlMap doc cmds
-        let full, rawData, _ = readXmlCommentAsHtmlAux true true urlMap doc cmds
+
+    let combineHtml (h1: ApiDocHtml) (h2: ApiDocHtml) =
+        ApiDocHtml(String.concat "\n" [h1.HtmlText; h2.HtmlText])
+
+    let combineComments (c1: ApiDocComment) (c2: ApiDocComment) =
+        ApiDocComment(combineHtml c1.SummaryHtml c2.SummaryHtml,
+            combineHtml c1.DescriptionHtml c2.DescriptionHtml,
+            c1.Sections @ c2.Sections,
+            c1.RawData @ c2.RawData)
+
+    let combineNamespaceDocs nspDocs =
+        nspDocs
+        |> List.choose id
+        |> function
+           | [] -> None
+           | xs -> Some (List.reduce combineComments xs)
+
+    let rec readXmlCommentAsHtml sumTag  (urlMap : CrossReferenceResolver) (doc : XElement) (cmds: IDictionary<_, _>) =
+        let summary, _raw, nsels = readXmlCommentAsHtmlAux sumTag true false urlMap doc cmds
+        let full, rawData, _ = readXmlCommentAsHtmlAux "p" true true urlMap doc cmds
         let raw = rawData |> Seq.toList
+        let nsdocs = readNamespaceDocs urlMap nsels 
         ApiDocComment(summary, full, [KeyValuePair("<default>", full)], raw), nsdocs
+
+    and readNamespaceDocs (urlMap : CrossReferenceResolver) (nsels : XElement list option) =
+        let nscmds = Dictionary() :> IDictionary<_,_>
+        nsels |> Option.map (List.map (fun n -> fst (readXmlCommentAsHtml "span" urlMap n nscmds)) >> List.reduce combineComments)
 
     /// Returns all indirect links in a specified span node
     let rec collectSpanIndirectLinks span =
@@ -1461,54 +1473,66 @@ module internal SymbolReader =
 
         doc.With(paragraphs=replacedParagraphs)
 
+    let readMarkdownCommentAndCommands (ctx:ReadingContext) text (cmds: IDictionary<_,_>) =
+        let lines = removeSpaces text |> List.map (fun s -> (s, MarkdownRange.zero))
+        let text =
+            lines
+            |> List.filter (findCommand >> (function
+                | Some (k, v) ->
+                    cmds.[k] <- v
+                    false
+                | _ -> true))
+            |> List.map fst
+            |> String.concat "\n"
+
+        let doc =
+            Literate.ParseMarkdownString
+                ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
+                formatAgent=ctx.FormatAgent, fscoptions=ctx.CompilerOptions )
+
+        let doc = doc |> addMissingLinkToTypes ctx
+        let html = readMarkdownCommentAsHtml doc
+        // TODO: namespace summaries for markdown comments
+        let nsdocs = None 
+        cmds, html, nsdocs
+
+    let readXmlCommentAndCommands (ctx:ReadingContext) text el (cmds: IDictionary<_,_>) =
+        let lines = removeSpaces text |> List.map (fun s -> (s, MarkdownRange.zero))
+        let html, nsdocs = readXmlCommentAsHtml "p" ctx.UrlMap el cmds
+        lines
+          |> Seq.choose findCommand
+          |> Seq.iter (fun (k, v) ->
+                printfn "The use of `[%s]` and other commands in XML comments is deprecated, please use XML extensions, see https://github.com/fsharp/fslang-design/blob/master/tooling/FST-1031-xmldoc-extensions.md" k
+                cmds.[k] <- v)
+        cmds, html, nsdocs
+
     let readCommentAndCommands (ctx:ReadingContext) xmlSig =
         let cmds = Dictionary<string, string>() :> IDictionary<_,_>
         match ctx.XmlMemberLookup(xmlSig) with
         | None ->
             if not (System.String.IsNullOrEmpty xmlSig) then
-                Log.verbf "Could not find documentation for '%s'! (You can ignore this message when you have not written documentation for this member)" xmlSig
+                if ctx.WarnOnMissingDocs then
+                    printfn "Warning: no documentation for '%s'" xmlSig
             cmds, ApiDocComment.Empty, None
         | Some el ->
             let sum = el.Element(XName.Get "summary")
             match sum with
             | null when String.IsNullOrEmpty el.Value ->
-              cmds, ApiDocComment.Empty, None
+                cmds, ApiDocComment.Empty, None
             | null ->
-              // We let through XML comments without a summary tag
-              let summary, _raw, nsdocs = readXmlCommentAsHtmlAux false false ctx.UrlMap el cmds
-              let all, _raw, _ = readXmlCommentAsHtmlAux false true ctx.UrlMap el cmds
-              cmds, (ApiDocComment(summary, all, [KeyValuePair("<default>", summary)], [])), nsdocs
+                // We let through XML comments without a summary tag. It's not clear
+                // why as all XML coming through here should be from F# .XML files
+                // and should have the tag.  It may be legacy of previously processing un-processed
+                // XML in raw F# source.
+                let summary, _raw, nsels = readXmlCommentAsHtmlAux "p" false false ctx.UrlMap el cmds
+                let all, _raw, _ = readXmlCommentAsHtmlAux "p"  false true ctx.UrlMap el cmds
+                let nsdocs = readNamespaceDocs ctx.UrlMap nsels 
+                cmds, (ApiDocComment(summary, all, [KeyValuePair("<default>", summary)], [])), nsdocs
             | sum ->
-              let lines = removeSpaces sum.Value |> List.map (fun s -> (s, MarkdownRange.zero))
-
-              if ctx.MarkdownComments then
-                let text =
-                  lines
-                  |> List.filter (findCommand >> (function
-                      | Some (k, v) ->
-                          cmds.[k] <- v
-                          false
-                      | _ -> true))
-                  |> List.map fst
-                  |> String.concat "\n"
-
-                let doc =
-                    Literate.ParseMarkdownString
-                      ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
-                        formatAgent=ctx.FormatAgent, fscoptions=ctx.CompilerOptions )
-
-                let doc = doc |> addMissingLinkToTypes ctx
-                let html = readMarkdownCommentAsHtml doc
-                let nsdocs = None // TODO: namespace summaries for markdown
-                cmds, html, nsdocs
-
-              else
-                let html, nsdocs = readXmlCommentAsHtml ctx.UrlMap el cmds
-                lines
-                  |> Seq.choose findCommand
-                  |> Seq.iter (fun (k, v) -> cmds.[k] <- v)
-                cmds, html, nsdocs
-
+                if ctx.MarkdownComments then
+                    readMarkdownCommentAndCommands ctx sum.Value cmds
+                else
+                    readXmlCommentAndCommands ctx sum.Value el cmds
 
     /// Reads XML documentation comments and calls the specified function
     /// to parse the rest of the entity, unless [omit] command is set.
@@ -1548,14 +1572,6 @@ module internal SymbolReader =
 
     let checkAccess ctx (access: FSharpAccessibility) =
        not ctx.PublicOnly || access.IsPublic
-
-
-    let combineNamespaceDocs nspDocs =
-        nspDocs
-        |> List.choose id
-        |> function
-           | [] -> None
-           | xs -> Some (let (a,b) = List.unzip xs in String.concat "\n" a, String.concat "\n" b)
 
     let collectNamespaceDocs results =
       results 
@@ -1764,7 +1780,7 @@ module internal SymbolReader =
       let entities, nsdocs  = readEntities ctx entities
       ApiDocNamespace(stripMicrosoft ns, entities, ctx.Parameters, nsdocs)
 
-    let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs) =
+    let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, warn) =
       let assemblyName = AssemblyName(assembly.QualifiedName)
 
       // Read in the supplied XML file, map its name attributes to document text
@@ -1794,7 +1810,7 @@ module internal SymbolReader =
       let ctx =
         ReadingContext.Create
           (publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
-           mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent, parameters)
+           mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent, parameters, warn)
              
       //
       let namespaces =
@@ -1830,14 +1846,18 @@ type ApiDocInput =
       /// Whether the input uses markdown comments
       MarkdownComments: bool
 
+      /// Whether doc processing should warn on missing comments
+      Warn: bool
+
       /// Whether to generate only public things
       PublicOnly: bool 
     }
-    static member FromFile(assemblyPath: string, ?mdcomments, ?parameters, ?sourceRepo, ?sourceFolder, ?publicOnly) =
+    static member FromFile(assemblyPath: string, ?mdcomments, ?parameters, ?sourceRepo, ?sourceFolder, ?publicOnly, ?warn) =
        { Path=assemblyPath;
          XmlFile = None;
          SourceFolder = sourceFolder;
          SourceRepo=sourceRepo;
+         Warn = defaultArg warn false;
          Parameters = parameters;
          PublicOnly=defaultArg publicOnly true;
          MarkdownComments = defaultArg mdcomments false }
@@ -1964,7 +1984,7 @@ type ApiDocModel =
           match xmlFileOpt with
           | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
           | Some xmlFile ->
-            SymbolReader.readAssembly (asm, publicOnly, xmlFile, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs )
+            SymbolReader.readAssembly (asm, publicOnly, xmlFile, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, project.Warn)
             |> Some)
 
     // Union namespaces from multiple libraries
@@ -1972,8 +1992,8 @@ type ApiDocModel =
     for _, nss in assemblies do
       for ns in nss do
         match namespaces.TryGetValue(ns.Name) with
-        | true, (entities, summary, parameters) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceSummary; summary],  parameters)
-        | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceSummary, ns.Parameters))
+        | true, (entities, summary, parameters) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceDocs; summary],  parameters)
+        | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Parameters))
 
     let namespaces =
       [ for (KeyValue(name, (entities, summary, parameters))) in namespaces do
