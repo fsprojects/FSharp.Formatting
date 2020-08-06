@@ -10,6 +10,8 @@
 
 - allow  `<a href="..." >` in XML doc comments
 
+- allow  `<paramref name="..." >` in XML doc comments
+
 - document XML doc things supported
 
 ## 7.2.2
