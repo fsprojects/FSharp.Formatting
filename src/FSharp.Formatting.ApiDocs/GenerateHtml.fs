@@ -106,7 +106,7 @@ type HtmlRender(model: ApiDocModel) =
                       ul [] [
                           for (pname, ptyp) in m.ParameterTooltips do
                           li [] [
-                              span [Class "fsdocs-para-name"] [!! pname]
+                              span [Class "fsdocs-param-name"] [!! pname]
                               !! ":"
                               embed ptyp 
                           ]
@@ -340,8 +340,10 @@ type HtmlRender(model: ApiDocModel) =
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
         match ns.NamespaceSummary with
-        | Some (nssummary, nsremarks) -> div [] [!! nssummary; !!nsremarks ]
+        | Some (nssummary, nsremarks) -> p [] [!! nssummary; !!nsremarks ]
         | None -> () 
+
+        p [] [!! "Categories:" ]
 
         if (allByCategory.Length > 1) then
             ul [] [

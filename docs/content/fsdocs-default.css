@@ -176,12 +176,12 @@ body {
         border-right: none;
     }
 
-#fsdocs-content .fsdocs-entity-list .fsdocs-entity-name {
+.fsdocs-entity-list .fsdocs-entity-name {
     width: 25%;
     font-weight: bold;
 }
 
-#fsdocs-content .fsdocs-member-list .fsdocs-member-name {
+.fsdocs-member-list .fsdocs-member-name {
     width: 35%;
 }
 
@@ -189,17 +189,17 @@ body {
   Formatting xmldoc sections in fsdocs-content
 /*--------------------------------------------------------------------------*/
 
-#fsdocs-content .fsdocs-xmldoc h1 {
+.fsdocs-xmldoc h1 {
     font-size: 1.2rem;
     margin: 10px 0px 0px 0px;
 }
 
-#fsdocs-content .fsdocs-xmldoc h2 {
+.fsdocs-xmldoc h2 {
     font-size: 1.2rem;
     margin: 10px 0px 0px 0px;
 }
 
-#fsdocs-content .fsdocs-xmldoc h3 {
+.fsdocs-xmldoc h3 {
     font-size: 1.1rem;
     margin: 10px 0px 0px 0px;
 }
@@ -281,29 +281,29 @@ body {
   Formatting github source links
 /*--------------------------------------------------------------------------*/
 
-#fsdocs-content .fsdocs-source-link {
+.fsdocs-source-link {
     float: right;
     text-decoration: none;
 }
 
-    #fsdocs-content .fsdocs-source-link img {
+    .fsdocs-source-link img {
         border-style: none;
         margin-left: 10px;
     }
 
-    #fsdocs-content .fsdocs-source-link .hover {
+    .fsdocs-source-link .hover {
         display: none;
     }
 
-    #fsdocs-content .fsdocs-source-link:hover .hover {
+    .fsdocs-source-link:hover .hover {
         display: block;
     }
 
-    #fsdocs-content .fsdocs-source-link .normal {
+    .fsdocs-source-link .normal {
         display: block;
     }
 
-    #fsdocs-content .fsdocs-source-link:hover .normal {
+    .fsdocs-source-link:hover .normal {
         display: none;
     }
 
@@ -319,14 +319,14 @@ body {
 }
 
 /*--------------------------------------------------------------------------
-  Formatting logo
+  
 /*--------------------------------------------------------------------------*/
+
 #fsdocs-content table.pre pre {
     padding: 0px;
     margin: 0px;
     border: none;
 }
-
 
 /*--------------------------------------------------------------------------
   Remove formatting from links
@@ -359,6 +359,9 @@ body {
   Formatting for F# code snippets
 /*--------------------------------------------------------------------------*/
 
+.fsdocs-param-name {
+    font-weight: 600;
+}
 /* strings --- and stlyes for other string related formats */
 #fsdocs-content span.s {
     color: #E0E268;

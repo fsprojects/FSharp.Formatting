@@ -946,6 +946,9 @@ module internal SymbolReader =
     let readMemberOrVal (ctx:ReadingContext) (v:FSharpMemberOrFunctionOrValue) =
         let requireQualifiedAccess =
             hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
+            // Hack for FSHarp.Core - `Option` module doesn't have RQA but really should have
+            || (v.ApparentEnclosingEntity.Namespace = Some "Microsoft.FSharp.Core" && v.ApparentEnclosingEntity.DisplayName = "Option")
+            || (v.ApparentEnclosingEntity.Namespace = Some "Microsoft.FSharp.Core" && v.ApparentEnclosingEntity.DisplayName = "ValueOption")
 
         // This module doesn't have RequireQualifiedAccessAttribute and anyway we want the name to show
         // usage of its members as Array.Parallel.map
@@ -971,10 +974,14 @@ module internal SymbolReader =
           | _, true, _, "Item" -> span [] [!! "this.["; fullArgUsage; !! "]"]
           // Ordinary instance members
           | _, true, _, name -> span [] [!! "this."; !! name; fullArgUsage ]
-          // A hack for Array.Parallel.map in FSharp.Core
-          | _, false, _, name when specialCase1 -> span [] [!! ("Array.Parallel." + name); fullArgUsage]
+          // A hack for Array.Parallel.map in FSharp.Core. 
+          | _, false, _, name when specialCase1 ->
+              span [] [!! ("Array.Parallel." + name); fullArgUsage]
           // Ordinary functions or values
-          | false, _, _, name when not requireQualifiedAccess -> span [] [!!name; fullArgUsage]
+          | false, _, _, name when not requireQualifiedAccess ->
+              span [] [!!name;
+                       if preferNoParens then !! "&#32;"
+                       fullArgUsage]
           // Ordinary static members or things (?) that require fully qualified access
           | _, false, _, name ->
               span [] [!!(v.ApparentEnclosingEntity.DisplayName + "." + name)
@@ -1177,6 +1184,10 @@ module internal SymbolReader =
                     html.Append("<p class='fsdocs-para'>") |> ignore
                     readXmlElementAsHtml anyTagsOK urlMap cmds html elem
                     html.Append("</p>") |> ignore
+                | "paramref" ->
+                    let name = elem.Attribute(XName.Get "name")
+                    if name <> null then
+                        html.AppendFormat("<span class=\"fsdocs-param-name\">{0}</span>", name.Value) |> ignore
                 | "see"
                 | "seealso" ->
                     let cref = elem.Attribute(XName.Get "cref")
@@ -1709,7 +1720,12 @@ module internal SymbolReader =
         let attrs = readAttributes modul.Attributes
         // Nested modules and types
         let entities, nsdocs4 = readEntities ctx modul.NestedEntities
-        let rqa = hasAttrib<RequireQualifiedAccessAttribute> modul.Attributes
+        let rqa =
+           hasAttrib<RequireQualifiedAccessAttribute> modul.Attributes
+           // Hack for FSHarp.Core - `Option` module doesn't have RQA but really should have
+           || (modul.Namespace = Some "Microsoft.FSharp.Core" && modul.DisplayName = "Option")
+           || (modul.Namespace = Some "Microsoft.FSharp.Core" && modul.DisplayName = "ValueOption")
+
         let nsdocs = combineNamespaceDocs [nsdocs1; nsdocs2; nsdocs3; nsdocs4]
         if nsdocs.IsSome then
            printfn "ignoring namespace summary on nested position"

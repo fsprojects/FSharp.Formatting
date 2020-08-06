@@ -483,9 +483,6 @@ let ``ApiDocs generates module link in nested types``() =
   files.["fslib-nested-submodule.html"] |> shouldContainText "Parent Module:"
   files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"
 
-open System.Diagnostics
-open FSharp.Formatting.Common
-
 [<Test>]
 let ``ApiDocs omit works without markdown``() =
   let library = testBin </> "FsLib2.dll" |> fullpath
