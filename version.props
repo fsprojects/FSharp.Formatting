@@ -1,14 +1,9 @@
 <Project>
       <PropertyGroup>
-        <Version>7.2.4</Version>
+        <Version>7.2.5</Version>
         <PackageReleaseNotes>
-- support `&lt;namespacesummary&gt;...&lt;namespacesummary&gt;`
-- support `&lt;namespaceremarks&gt;...&lt;namespaceremarks&gt;`
-- support `&lt;note&gt;...&lt;note&gt;`
-- support `&lt;exclude /&gt;`
-- allow  `&lt;a href=&quot;...&quot; &gt;` in XML doc comments
-- allow  `&lt;paramref name=&quot;...&quot; &gt;` in XML doc comments
-- document XML doc things supported
+- change `&lt;namespacesummary&gt;...&lt;namespacesummary&gt;` to `&lt;namespacedoc&gt; &lt;summary&gt;... &lt;/summary&gt; &lt;/namespacedoc&gt;`
+- change `&lt;categoryindex&gt;3&lt;categoryindex&gt;` to `&lt;category index=&quot;3&quot;&gt;...&lt;/category&gt;`
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>
