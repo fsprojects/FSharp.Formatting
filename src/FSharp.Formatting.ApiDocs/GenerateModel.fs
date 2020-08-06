@@ -973,7 +973,11 @@ module internal SymbolReader =
           // Indexers
           | _, true, _, "Item" -> span [] [!! "this.["; fullArgUsage; !! "]"]
           // Ordinary instance members
-          | _, true, _, name -> span [] [!! "this."; !! name; fullArgUsage ]
+          | _, true, _, name ->
+              span [] [!! "this.";
+                       !! name;
+                       if preferNoParens then !! "&#32;"
+                       fullArgUsage ]
           // A hack for Array.Parallel.map in FSharp.Core. 
           | _, false, _, name when specialCase1 ->
               span [] [!! ("Array.Parallel." + name); fullArgUsage]
@@ -1063,8 +1067,12 @@ module internal SymbolReader =
                 span [] [fieldsHtmls.[0]; !!"&#32;"; !! nm; fieldsHtmls.[1] ] 
                 |> codeHtml
             else
-                let fieldHtml = fieldsHtmls |> Html.sepWith ",&#32;"
-                span [] [!! nm; !! "("; fieldHtml;  !! ")" ]
+                match fieldsHtmls with
+                | [] -> span [] [!! nm ]
+                | [fieldHtml] -> span [] [!! nm; !!"&#32;"; fieldHtml ]
+                | _ ->
+                    let fieldHtml = fieldsHtmls |> Html.sepWith ",&#32;"
+                    span [] [!! nm; !! "("; fieldHtml;  !! ")" ]
                 |> codeHtml
 
         let paramHtmls =
