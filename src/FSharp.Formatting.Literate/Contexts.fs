@@ -49,7 +49,7 @@ type internal LiterateDocModel =
      Title: string
 
      /// The replacement paramaters
-     Parameters: Parameters
+     Substitutions: Substitutions
 
      /// The text for search index generation (empty for notebooks and latex)
      IndexText: string option
@@ -73,8 +73,8 @@ type internal LiterateProcessingContext =
   { /// Short prefix code added to all HTML 'id' elements
     Prefix : string
 
-    /// Additional parameters to be made in the template file
-    Replacements : Parameters
+    /// Additional substitutions to be made in the template file
+    Substitutions : Substitutions
 
     /// Generate line numbers for F# snippets?
     GenerateLineNumbers : bool

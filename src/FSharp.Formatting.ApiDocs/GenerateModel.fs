@@ -23,6 +23,7 @@ open FSharp.Patterns
 [<AutoOpen>]
 module internal Utils =
 
+    
     let (|AllAndLast|_|) (list:'T list)=
         if list.IsEmpty then None
         else let revd = List.rev list in Some(List.rev revd.Tail, revd.Head)
@@ -32,6 +33,9 @@ module internal Utils =
 
     let hasAttrib<'T> (attribs: IList<FSharpAttribute>) =
         attribs |> Seq.exists (fun a -> isAttrib<'T>(a))
+
+    let tryFindAttrib<'T> (attribs: IList<FSharpAttribute>) =
+        attribs |> Seq.tryFind (fun a -> isAttrib<'T>(a))
 
     let (|MeasureProd|_|) (typ : FSharpType) =
         if typ.HasTypeDefinition && typ.TypeDefinition.LogicalName = "*" && typ.GenericArguments.Count = 2 then Some (typ.GenericArguments.[0], typ.GenericArguments.[1])
@@ -54,6 +58,12 @@ module internal Utils =
         ty.HasTypeDefinition && ty.TypeDefinition.XmlDocSig = "T:Microsoft.FSharp.Core.unit" 
 
     module List =
+
+       let tailOrEmpty xs =
+           match xs with
+           | [] -> []
+           | _ :: t -> t
+
        let sepWith sep xs =
            match xs with
            | [] -> []
@@ -73,20 +83,35 @@ type ApiDocHtml(html: string) =
     member x.HtmlText = html
 
 /// Represents a documentation comment attached to source code
-type ApiDocComment(summary, full, sects, rawData) =
+type ApiDocComment(summary, remarks, parameters, returns, examples, notes, exceptions, sections, rawData) =
     /// The summary for the comment
-  member x.SummaryHtml : ApiDocHtml = summary
+  member x.Summary : ApiDocHtml = summary
 
-    /// The full html for the full description
-  member x.DescriptionHtml : ApiDocHtml = full
+    /// The remarks html for comment
+  member x.Remarks : ApiDocHtml option = remarks
+
+    /// The param sections of the comment
+  member x.Parameters : (string * ApiDocHtml) list = parameters
+
+    /// The examples sections of the comment
+  member x.Examples : ApiDocHtml list = examples
+
+    /// The notes sections of the comment
+  member x.Notes : ApiDocHtml list = notes
+
+    /// The return sections of the comment
+  member x.Returns : ApiDocHtml option = returns
+
+    /// The notes sections of the comment
+  member x.Exceptions : (string * string option * ApiDocHtml) list = exceptions
 
     /// The parsed sections of the comment
-  member x.Sections : KeyValuePair<string, ApiDocHtml> list = sects
+  member x.Sections : KeyValuePair<string, ApiDocHtml> list = sections
 
     /// The raw data of the comment
   member x.RawData: KeyValuePair<string, string> list = rawData
 
-  static member internal Empty = ApiDocComment(ApiDocHtml(""), ApiDocHtml(""), [], [])
+  static member internal Empty = ApiDocComment(ApiDocHtml(""), None, [], None, [], [], [],  [], [])
 
 /// Represents a custom attribute attached to source code
 type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments) =
@@ -194,7 +219,6 @@ type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArgum
     attributes
     |> Seq.tryFind (fun a -> a.IsCustomOperationAttribute)
     |> Option.map (fun a -> a.CustomOperationName)
-    |> Option.defaultValue ""
 
 
 /// Represents the kind of member
@@ -214,41 +238,83 @@ type ApiDocMemberKind =
   | RecordField = 101
   | StaticParameter = 102
 
+type ApiDocMemberDetails =
+    ApiDocMemberDetails of
+       usageHtml : ApiDocHtml *
+       paramTypes: (Choice<FSharpParameter, FSharpField> * string * ApiDocHtml) list *
+       returnType: ApiDocHtml option *
+       modifiers: string list *
+       typars: string list *
+       baseType: ApiDocHtml option *
+       location: string option *
+       compiledName: string option
+
 /// Represents an method, property, constructor, function or value, record field, union case or static parameter
 /// integrated with its associated documentation. Includes extension members.
-type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityUrlBaseName: string,
-         kind, cat, catidx: int, exclude: bool, details, comment, symbol) =
+type ApiDocMember (displayName: string, attributes: ApiDocAttribute list, entityUrlBaseName: string,
+         kind, cat, catidx: int, exclude: bool, details: ApiDocMemberDetails,
+         comment: ApiDocComment, symbol: FSharpSymbol, warn) =
 
-  // The URL for a member is currently the #DisplayName on the enclosing entity
-  let (usageHtml, paramHtmls, returnHtml, mods, typars, baseType, location, compiledName) = details
+  let (ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, baseType, location, compiledName)) = details
+
+  // merge the parameter docs and parameter types
+  let parameters = 
+      let paramTypes =
+             [ for (psym, _pnameText, _pty) in paramTypes -> 
+                  let pnm =
+                      match psym with
+                      | Choice1Of2 p -> p.Name
+                      | Choice2Of2 f -> Some f.Name
+                  (psym, pnm, _pnameText, _pty) ]
+      let tnames = Set.ofList [ for (_psym, pnm, _pnameText, _pty) in paramTypes -> pnm ]
+      let tdocs = Map.ofList [ for pnm, doc in comment.Parameters -> Some pnm, doc ]
+      let m = defaultArg symbol.DeclarationLocation range0
+      if warn then
+         for (pn, _pdoc) in comment.Parameters do
+            if not (tnames.Contains (Some pn)) then
+               printfn "%s(%d,%d): warning: extraneous docs for unknown parameter '%s'" m.FileName m.StartLine m.StartColumn pn
+         for (_psym, pnm, _pn, _pty) in paramTypes do
+            match pnm with
+            | None ->
+               printfn "%s(%d,%d): warning: a parameter was missing a name" m.FileName m.StartLine m.StartColumn
+            | Some nm ->
+                if not (tdocs.ContainsKey pnm) then
+                   printfn "%s(%d,%d): warning: missing docs for parameter '%s'" m.FileName m.StartLine m.StartColumn nm 
+
+      [ for (psym, pnm, pn, pty) in paramTypes ->
+           {| ParameterSymbol = psym
+              ParameterNameText=pn
+              ParameterType=pty
+              ParameterDocs=tdocs.TryFind pnm |} ]
+      
 
     /// The member's modifiers
-  member x.Modifiers : string list = mods
+  member x.Modifiers : string list = modifiers
 
     /// The member's type arguments
   member x.TypeArguments : string list = typars
 
     /// The usage section in a typical tooltip
-  member x.UsageTooltip : ApiDocHtml = usageHtml
+  member x.UsageHtml : ApiDocHtml = usageHtml
 
     /// The return section in a typical tooltip
-  member x.ReturnTooltip : ApiDocHtml option = returnHtml
+  member x.ReturnInfo =
+      {| ReturnDocs= comment.Returns; ReturnType= returnType |}
 
 //    /// The full signature section in a typical tooltip
 //  member x.SignatureTooltip : ApiDocHtml = signatureTooltip
 
-    /// The member's parameter sections in a typical tooltip
-  member x.ParameterTooltips: (string * ApiDocHtml) list = paramHtmls
+    /// The member's parameters and associated documentation
+  member x.Parameters = parameters
 
-    /// The member's source location, if any
+    /// The URL of the member's source location, if any
   member x.SourceLocation : string option = location
 
     /// The type extended by an extension member, if any
   member x.ExtendedType : ApiDocHtml option =  baseType
 
-  /// The member's compiled name, if any
-  [<Obsolete("Remove '.Details'. 'ApiDocsMemberDetails' has been merged with 'ApiDocsMember'", true)>]
-  member x.Details : int = 0
+  /// The members details
+  member x.Details = details
 
     /// The member's compiled name, if any
   member x.CompiledName : string option = compiledName
@@ -263,9 +329,6 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
 
   /// Formats modifiers
   member x.FormatModifiers = String.concat " " x.Modifiers
-
-  /// Formats source location
-  member x.FormatSourceLocation = defaultArg x.SourceLocation ""
 
   /// Formats the compiled name
   member x.FormatCompiledName = defaultArg x.CompiledName ""
@@ -314,12 +377,7 @@ type ApiDocMember(displayName: string, attributes: ApiDocAttribute list, entityU
     x.Attributes
     |> Seq.exists (fun a -> a.IsRequireQualifiedAccessAttribute)
 
-  /// Gets a value indicating whether this member has CustomOperationAttribute
-  member x.IsCustomOperation =
-    x.Attributes
-    |> Seq.exists (fun a -> a.IsCustomOperationAttribute)
-
-  /// Returns the custom operation name, when this attribute is the CustomOperationAttribute. When its not an empty string is returned
+  /// Returns the custom operation name, when this attribute is the CustomOperationAttribute. 
   member x.CustomOperationName =
     ApiDocAttribute.TryGetCustomOperationName(x.Attributes)
 
@@ -328,7 +386,9 @@ type ApiDocEntity
        (tdef, name, cat: string, catidx: int, exclude: bool, urlBaseName, comment, assembly: AssemblyName, attributes,
         cases, fields, statParams, ctors, inst, stat, allInterfaces, baseType, abbreviatedType,
         delegateSignature, symbol: FSharpEntity,
-        nested, vals, exts, pats, rqa, parameters: Parameters) =
+        nested, vals, exts, pats, rqa,
+        location: string option,
+        substitutions: Substitutions) =
 
     /// Indicates if the entity is a type definition
     member x.IsTypeDefinition : bool = tdef
@@ -344,6 +404,9 @@ type ApiDocEntity
 
     /// The exclude flag
     member x.Exclude = exclude
+
+  /// The URL of the member's source location, if any
+    member x.SourceLocation : string option = location
 
     /// The URL base name of the primary documentation for the entity  (without the http://site.io/reference)
     member x.UrlBaseName : string = urlBaseName
@@ -426,11 +489,11 @@ type ApiDocEntity
     member x.ActivePatterns : ApiDocMember list = pats
 
     /// The substitution parameters active for generating thist content
-    member x.Parameters  = parameters
+    member x.Substitutions  = substitutions
 
 
 /// Represents a namespace integrated with its associated documentation
-type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: ApiDocComment option) =
+type ApiDocNamespace(name: string, modifiers, substitutions: Substitutions, nsdocs: ApiDocComment option) =
 
     let urlBaseName = name.Replace(".", "-").ToLower()
 
@@ -452,13 +515,13 @@ type ApiDocNamespace(name: string, mods, parameters: Parameters, nsdocs: ApiDocC
         sprintf "reference/%s%s.html" (if qualify then collectionName + "/" else "") urlBaseName
 
     /// All modules in the namespace
-    member x.Entities : ApiDocEntity list = mods
+    member x.Entities : ApiDocEntity list = modifiers
 
     /// The summary text for the namespace
     member x.NamespaceDocs = nsdocs
 
-    /// The substitution parameters active for generating thist content
-    member x.Parameters  = parameters
+    /// The substitution substitutions active for generating thist content
+    member x.Substitutions  = substitutions
 
 /// Represents a group of assemblies integrated with its associated documentation
 type ApiDocCollection(name: string, asms: AssemblyName list, nss: ApiDocNamespace list) =
@@ -716,8 +779,12 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
             None
 
     member x.RegisterEntity entity = registerEntity entity
-    member x.TryResolveUrlBaseNameForEntity entity = getUrlBaseNameForRegisteredEntity entity
+    member x.ResolveUrlBaseNameForEntity entity = getUrlBaseNameForRegisteredEntity entity
     member x.TryResolveEntity entity = tryResolveCrossReferenceForEntity entity
+    member x.IsLocal cref =
+       match x.ResolveCref(cref) with
+       | None -> false
+       | Some r -> r.IsInternal
 
 
 [<AutoOpen>]
@@ -903,7 +970,7 @@ module internal SymbolReader =
           AssemblyPath : string
           CompilerOptions : string
           FormatAgent : CodeFormatAgent
-          Parameters : Parameters }
+          Substitutions : Substitutions }
 
         member x.XmlMemberLookup(key) =
             match x.XmlMemberMap.TryGetValue(key) with
@@ -912,7 +979,7 @@ module internal SymbolReader =
 
         static member internal Create
             (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap,
-             assemblyPath, fscoptions, formatAgent, parameters, warn ) =
+             assemblyPath, fscoptions, formatAgent, substitutions, warn ) =
 
           { PublicOnly=publicOnly
             Assembly = assembly
@@ -925,7 +992,7 @@ module internal SymbolReader =
             AssemblyPath = assemblyPath
             CompilerOptions = fscoptions
             FormatAgent = formatAgent
-            Parameters = parameters}
+            Substitutions = substitutions}
 
     let inline private getCompiledName (s : ^a when ^a :> FSharpSymbol) =
         let compiledName = (^a : (member CompiledName : string) (s))
@@ -952,6 +1019,15 @@ module internal SymbolReader =
             || (v.ApparentEnclosingEntity.Namespace = Some "Microsoft.FSharp.Core" && v.ApparentEnclosingEntity.DisplayName = "Option")
             || (v.ApparentEnclosingEntity.Namespace = Some "Microsoft.FSharp.Core" && v.ApparentEnclosingEntity.DisplayName = "ValueOption")
 
+        let customOpName =
+            match tryFindAttrib<CustomOperationAttribute> v.Attributes with
+            | None -> None
+            | Some v -> 
+              v.ConstructorArguments
+              |> Seq.map snd
+              |> Seq.tryFind (fun x -> x :? string)
+              |> Option.map string
+
         // This module doesn't have RequireQualifiedAccessAttribute and anyway we want the name to show
         // usage of its members as Array.Parallel.map
         let specialCase1 =
@@ -960,8 +1036,22 @@ module internal SymbolReader =
         let argInfos, retInfo = FSharpType.Prettify(v.CurriedParameterGroups, v.ReturnParameter)
         let argInfos = argInfos |> Seq.map Seq.toList |> Seq.toList
 
+        // custom ops take curried synax
+        let argInfos =
+            if customOpName.IsSome then
+                match List.map List.singleton (List.concat argInfos) with
+                | _source :: rest -> rest
+                | [] -> []
+            else argInfos
+
         let isItemIndexer = (v.IsInstanceMember && v.DisplayName = "Item")
-        let preferNoParens = isItemIndexer || not v.IsMember || Char.IsLower(v.DisplayName.[0])
+        let preferNoParens =
+           customOpName.IsSome ||
+           isItemIndexer ||
+           not v.IsMember ||
+           PrettyNaming.IsOperatorName v.CompiledName ||
+           Char.IsLower(v.DisplayName.[0])
+
         let fullArgUsage =
           match argInfos with
           | [[]] when (v.IsProperty && v.HasGetterMethod) -> !! ""
@@ -969,27 +1059,76 @@ module internal SymbolReader =
 
         let usageHtml =
 
-          match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName with
+          match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName, customOpName with
           // Constructors 
-          | _, _, ".ctor", _ -> span []  [!!v.ApparentEnclosingEntity.DisplayName; fullArgUsage ]
+          | _, _, ".ctor", _, _ -> span []  [!!v.ApparentEnclosingEntity.DisplayName; fullArgUsage ]
+
           // Indexers
-          | _, true, _, "Item" -> span [] [!! "this.["; fullArgUsage; !! "]"]
+          | _, true, _, "Item", _ -> span [] [!! "this.["; fullArgUsage; !! "]"]
+
+          // Custom operators
+          | _, _, _, _, Some name ->
+              span [] [!! name;
+                       if preferNoParens then !! "&#32;"
+                       fullArgUsage ]
+
+          // op_XYZ operators
+          | _, false, _, name, _ when FSharp.Compiler.PrettyNaming.IsMangledOpName v.CompiledName ->
+              match argInfos with
+              // binary operators (taking a tuple)
+              | [[x;y]] -> 
+                  let left = formatCurriedArgsUsageAsHtml true false [[x]]
+                  let nm = FSharp.Compiler.PrettyNaming.DecompileOpName v.CompiledName
+                  let right = formatCurriedArgsUsageAsHtml true false [[y]]
+                  span [] [left
+                           !! "&#32;"
+                           !! nm;
+                           !! "&#32;"
+                           right ]
+
+              // binary operators (curried, like in FSharp.Core.Operators)
+              | [args1;args2] ->
+                  let left = formatCurriedArgsUsageAsHtml true false [args1]
+                  let nm = FSharp.Compiler.PrettyNaming.DecompileOpName v.CompiledName
+                  let right = formatCurriedArgsUsageAsHtml true false [args2]
+                  span [] [left
+                           !! "&#32;"
+                           !! nm;
+                           !! "&#32;"
+                           right ]
+
+              // unary operators
+              | [[x]] -> 
+                  let nm = FSharp.Compiler.PrettyNaming.DecompileOpName v.CompiledName
+                  let right = formatCurriedArgsUsageAsHtml true false [[x]]
+                  span [] [!! nm;
+                           right ]
+              | _ -> 
+                  span [] [!!name;
+                           if preferNoParens then !! "&#32;"
+                           fullArgUsage]
+
           // Ordinary instance members
-          | _, true, _, name ->
+          | _, true, _, name, _ ->
               span [] [!! "this.";
                        !! name;
                        if preferNoParens then !! "&#32;"
                        fullArgUsage ]
-          // A hack for Array.Parallel.map in FSharp.Core. 
-          | _, false, _, name when specialCase1 ->
-              span [] [!! ("Array.Parallel." + name); fullArgUsage]
+
+          // A hack for Array.Parallel.map in FSharp.Core. TODO: generalise this
+          | _, false, _, name, _ when specialCase1 ->
+              span [] [!! ("Array.Parallel." + name);
+                       if preferNoParens then !! "&#32;"
+                       fullArgUsage]
+
           // Ordinary functions or values
-          | false, _, _, name when not requireQualifiedAccess ->
+          | false, _, _, name, _ when not requireQualifiedAccess ->
               span [] [!!name;
                        if preferNoParens then !! "&#32;"
                        fullArgUsage]
+
           // Ordinary static members or things (?) that require fully qualified access
-          | _, false, _, name ->
+          | _, false, _, name, _ ->
               span [] [!!(v.ApparentEnclosingEntity.DisplayName + "." + name)
                        if preferNoParens then !! "&#32;"
                        fullArgUsage]
@@ -1009,13 +1148,13 @@ module internal SymbolReader =
             | [[]], true, _ -> [], Some retType
             | _, _, _ -> argInfos, Some retType
 
-        let paramHtmls =
+        let paramTypes =
             argInfos
             |> List.concat
             |> List.mapi (fun i p ->
                 let nm, ty = formatArgNameAndType i p
-                let html = formatTypeAsHtml ctx.UrlMap ty |> codeHtml
-                nm, html )
+                let tyhtml = formatTypeAsHtml ctx.UrlMap ty |> codeHtml
+                Choice1Of2 p, nm, tyhtml )
            
         // Extension members can have apparent parents which are not F# types.
         // Hence getting the generic argument count if this is a little trickier
@@ -1030,7 +1169,7 @@ module internal SymbolReader =
         //let cxs  = indexedConstraints v.GenericParameters
         let retTypeHtml = retType |> Option.map (formatTypeAsHtml ctx.UrlMap >> codeHtml)
 
-        let returnHtml =
+        let returnType =
            match retType with
            | None -> None
            | Some retType -> if isUnitType retType then None else retTypeHtml
@@ -1050,7 +1189,7 @@ module internal SymbolReader =
         // If there is a signature file, we should go for implementation file
         let loc = tryGetLocation v
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-        (usageHtml, paramHtmls, returnHtml, modifiers, typars, baseType, location, getCompiledName v)
+        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, baseType, location, getCompiledName v)
 
     let readUnionCase (ctx:ReadingContext) (_typ: FSharpEntity) (case:FSharpUnionCase) =
 
@@ -1077,13 +1216,13 @@ module internal SymbolReader =
                     span [] [!! nm; !! "("; fieldHtml;  !! ")" ]
                 |> codeHtml
 
-        let paramHtmls =
-            fields |> List.map (fun p ->
-                let nm = p.Name
-                let html = formatTypeAsHtml ctx.UrlMap p.FieldType  |> codeHtml
-                nm, html)
+        let paramTypes =
+            fields |> List.map (fun fld ->
+                let nm = fld.Name
+                let html = formatTypeAsHtml ctx.UrlMap fld.FieldType  |> codeHtml
+                Choice2Of2 fld, nm, html)
 
-        let returnHtml = None
+        let returnType = None
            //if isUnitType retType then None else Some retTypeText 
 
         let modifiers = List.empty
@@ -1095,7 +1234,7 @@ module internal SymbolReader =
         //   | _ -> (fields |> List.map (fun field -> formatTypeAsText field.FieldType) |> String.concat " * ") + " -> " + retTypeText
         let loc = tryGetLocation case
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-        (usageHtml, paramHtmls, returnHtml, modifiers, typeParams, None, location, getCompiledName case)
+        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typeParams, None, location, getCompiledName case)
 
     let readFSharpField (ctx:ReadingContext) (field:FSharpField) =
         let usageHtml = !!field.Name |> codeHtml
@@ -1104,13 +1243,13 @@ module internal SymbolReader =
             if field.IsStatic then yield "static" ]
         let typeParams = List.empty
         //let signatureTooltip = formatTypeAsText field.FieldType
-        let paramHtmls = []
+        let paramTypes = []
 
-        let returnHtml = None
+        let returnType = None
            //if isUnitType retType then None else Some retTypeText 
         let loc = tryGetLocation field
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-        (usageHtml, paramHtmls, returnHtml, modifiers, typeParams, None, location, if field.Name <> field.DisplayName then Some field.Name else None)
+        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typeParams, None, location, if field.Name <> field.DisplayName then Some field.Name else None)
 
     let getFSharpStaticParamXmlSig (typeProvider:FSharpEntity) parameterName =
       "SP:" + typeProvider.AccessPath + "." + typeProvider.LogicalName + "." + parameterName
@@ -1122,13 +1261,13 @@ module internal SymbolReader =
             |> codeHtml
         let modifiers = List.empty
         let typeParams = List.empty
-        let paramHtmls = []
-        let returnHtml = None
+        let paramTypes = []
+        let returnType = None
         //let signatureTooltip = formatTypeAsText staticParam.Kind + (if staticParam.IsOptional then sprintf " (optional, default = %A)" staticParam.DefaultValue else "")
         
         let loc = tryGetLocation staticParam
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
-        (usageHtml, paramHtmls, returnHtml, modifiers, typeParams, None, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
+        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typeParams, None, location, if staticParam.Name <> staticParam.DisplayName then Some staticParam.Name else None)
 
     let removeSpaces (comment:string) =
         use reader = new StringReader(comment)
@@ -1139,7 +1278,7 @@ module internal SymbolReader =
         String.removeSpaces lines
 
     let readMarkdownCommentAsHtml (doc:LiterateDocument) =
-        let groups = System.Collections.Generic.Dictionary<_, _>()
+        let groups = System.Collections.Generic.List<(_ * _)>()
         let mutable current = "<default>"
         groups.Add(current, [])
         let raw =
@@ -1153,17 +1292,46 @@ module internal SymbolReader =
               current <- text.Trim()
               groups.Add(current, [par])
           | par ->
-              groups.[current] <- par::groups.[current]
-        let summary = ApiDocHtml(Literate.ToHtml(doc.With(List.rev groups.["<default>"])))
-        let full = ApiDocHtml(Literate.ToHtml(doc))
+              groups.[groups.Count-1] <- (current, par:: snd (groups.[groups.Count-1]))
+
+        // TODO: properly crack exceptions and parameters section of markdown docs, which have structure
+        let groups = groups |> Seq.toList
+        let summary, rest = groups |> List.partition (fun (section, _) -> section = "<default>")
+        let notes, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Notes")
+        let examples, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Examples")
+        let returns, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Returns")
+        let remarks, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Remarks")
+        //let exceptions, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Exceptions")
+        //let parameters, rest = rest |> Seq.toList |> List.partition (fun (section, _) -> section = "Parameters")
+
+        // tailOrEmpty drops the section headings, though not for summary which is implicit
+        let summary = summary |> List.collect (snd >> List.rev) 
+        let returns = returns |> List.collect (snd >> List.rev)  |> List.tailOrEmpty
+        let examples = examples |> List.map (snd >> List.rev)  |> List.tailOrEmpty
+        let notes = notes |> List.map (snd >> List.rev)  |> List.tailOrEmpty
+        //let exceptions = exceptions |> List.collect (snd >> List.rev) |> List.tailOrEmpty
+        //let parameters = parameters |> List.collect (snd >> List.rev) |> List.tailOrEmpty
+
+        // All unclassified things go in 'remarks'
+        let remarks =
+            (remarks |> List.collect (snd >> List.rev)  |> List.tailOrEmpty) @
+            (rest |> List.collect (snd >> List.rev))
+
+        let summary = ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=summary )))
+        let remarks = if remarks.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=remarks))))
+        //let exceptions = [ for e in exceptions -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=[e]))) ]
+        let notes = [ for e in notes -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e))) ]
+        let examples = [ for e in examples -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e))) ]
+        let returns = if returns.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=returns))))
 
         let sections =
-          [ for (KeyValue(k, v)) in groups ->
+          [ for (k, v) in groups ->
               let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
               let html = ApiDocHtml(Literate.ToHtml(doc.With(body)))
               KeyValuePair(k, html) ]
 
-        ApiDocComment(summary, full, sections, raw)
+        ApiDocComment(summary=summary, remarks=remarks, parameters=[], returns=returns, examples=examples, notes=notes,
+            exceptions=[], sections=sections, rawData=raw)
 
     let findCommand cmd =
         match cmd with 
@@ -1230,161 +1398,168 @@ module internal SymbolReader =
                 | _ ->
                     if anyTagsOK then html.Append(elem.ToString()) |> ignore
 
-    let readXmlCommentAsHtmlAux (sumTag: string) summaryExpected all (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
-      let rawData = new Dictionary<string, string>()
-      let html = new StringBuilder()
-   //full.Append("</br>") |> ignore
+    let readXmlCommentAsHtmlAux summaryExpected (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
+        let rawData = new Dictionary<string, string>()
 
-      // not part of the XML doc standard
-      let nsdocs =
-         let ds = doc.Descendants(XName.Get "namespacedoc")
-         if Seq.length ds > 0 then
-             Some (Seq.toList ds)
-         else
-             None
+        // not part of the XML doc standard
+        let nsels =
+            let ds = doc.Descendants(XName.Get "namespacedoc")
+            if Seq.length ds > 0 then
+                Some (Seq.toList ds)
+            else
+                None
 
-      if summaryExpected then
-          let summaries = doc.Descendants(XName.Get "summary")
-          summaries |> Seq.iteri (fun id e ->
-            let n = if id = 0 then "summary" else "summary-" + string id
-            rawData.[n] <- e.Value
-            html.AppendFormat("<{0} class='fsdocs-summary'>", sumTag) |> ignore
-            readXmlElementAsHtml true urlMap cmds html e
-            html.AppendFormat("</{0}>", sumTag) |> ignore
-        )
-      else
-        readXmlElementAsHtml false urlMap cmds html doc
+        let summary =
+            if summaryExpected then
+                let summaries = doc.Descendants(XName.Get "summary") |> Seq.toList
+                let html = new StringBuilder()
+                for (id, e) in List.indexed summaries do 
+                     let n = if id = 0 then "summary" else "summary-" + string id
+                     rawData.[n] <- e.Value
+                     readXmlElementAsHtml true urlMap cmds html e
+                ApiDocHtml(html.ToString()) 
+            else
+                let html = new StringBuilder()
+                readXmlElementAsHtml false urlMap cmds html doc
+                ApiDocHtml(html.ToString())
 
-      if all then
-          for e in doc.Descendants(XName.Get "exclude") do
-              cmds.["exclude"] <- e.Value
+        let paramNodes = doc.Descendants(XName.Get "param")  |> Seq.toList
+        let parameters =
+            [ for e in paramNodes do
+                 let paramName = e.Attribute(XName.Get "name").Value
+                 let phtml = new StringBuilder()
+                 readXmlElementAsHtml true urlMap cmds phtml e
+                 let paramHtml = ApiDocHtml(phtml.ToString())
+                 paramName, paramHtml ] 
 
-          for e in doc.Descendants(XName.Get "omit") do
-              cmds.["omit"] <- e.Value
+        for e in doc.Descendants(XName.Get "exclude") do
+            cmds.["exclude"] <- e.Value
 
-          for e in doc.Descendants(XName.Get "category") do
-              match e.Attribute(XName.Get "index") with
-              | null -> ()
-              | a ->
-                  cmds.["categoryindex"] <- a.Value
-              cmds.["category"] <- e.Value
+        for e in doc.Descendants(XName.Get "omit") do
+            cmds.["omit"] <- e.Value
 
-          let remarkNodes = doc.Descendants(XName.Get "remarks")
-          if Seq.length remarkNodes > 0 then
-             //html.Append("<h4>Remarks</h4>") |> ignore
-             remarkNodes |> Seq.iteri (fun id e ->
-               let n = if id = 0 then "remarks" else "remarks-" + string id
-               rawData.[n] <- e.Value
-               html.Append("<p class='fsdocs-remarks'>") |> ignore
-               readXmlElementAsHtml true urlMap cmds html e
-               html.Append("</p>") |> ignore
-             )
+        for e in doc.Descendants(XName.Get "category") do
+            match e.Attribute(XName.Get "index") with
+            | null -> ()
+            | a ->
+                cmds.["categoryindex"] <- a.Value
+            cmds.["category"] <- e.Value
 
-          let paramNodes = doc.Descendants(XName.Get "param")
-          if Seq.length paramNodes > 0 then
-             //full.Append("<h4>Parameters</h4>") |> ignore
-             html.Append("<dl  class='fsdocs-params'>") |> ignore
-             for e in paramNodes do
-               let name = e.Attribute(XName.Get "name").Value
-               rawData.["param-" + name] <- e.Value
-               html.AppendFormat("<dt class='fsdocs-param'><span class='fsdocs-param-name'>{0}</span></dt><dd><p>", name) |> ignore
-               readXmlElementAsHtml true urlMap cmds html e
-               html.AppendFormat("</p></dd>") |> ignore
-             html.Append("</dl>") |> ignore
+        let remarks =
+            let remarkNodes = doc.Descendants(XName.Get "remarks") |> Seq.toList
+            if Seq.length remarkNodes > 0 then
+                let html = new StringBuilder()
+                for (id, e) in List.indexed remarkNodes do
+                    let n = if id = 0 then "remarks" else "remarks-" + string id
+                    rawData.[n] <- e.Value
+                    readXmlElementAsHtml true urlMap cmds html e
+                ApiDocHtml(html.ToString()) |> Some 
+            else
+                None
 
-          let returns = doc.Descendants(XName.Get "returns")
-          returns |> Seq.iteri (fun id e ->
-             let n = if id = 0 then "returns" else "returns-" + string id
+        let returns =
+            let html = new StringBuilder()
+            let returnNodes = doc.Descendants(XName.Get "returns") |> Seq.toList
+            if returnNodes.Length > 0 then
+                for (id, e) in List.indexed returnNodes do
+                    let n = if id = 0 then "returns" else "returns-" + string id
+                    rawData.[n] <- e.Value
+                    readXmlElementAsHtml true urlMap cmds html e
+                Some (ApiDocHtml(html.ToString()))
+            else
+                None
 
-             html.Append("<p class='fsdocs-returns'>") |> ignore
-             rawData.[n] <- e.Value
-             html.AppendFormat("<p>Returns: ") |> ignore
-             readXmlElementAsHtml true urlMap cmds html e
-             html.Append("</p>") |> ignore
-           )
+        let exceptions =
+            let exceptionNodes = doc.Descendants(XName.Get "exception") |> Seq.toList
+            [     for e in exceptionNodes do
+                    let cref = e.Attribute(XName.Get "cref")
+                    if cref <> null then
+                        if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
+                            printfn "Warning: Invalid cref specified in: %A" doc
 
-          let exceptions = doc.Descendants(XName.Get "exception")
-          if Seq.length exceptions > 0 then
-             //html.Append("<p>Exceptions:</p>") |> ignore
-             html.Append("<table class='fsdocs-exception-list'>") |> ignore
-             for e in exceptions do
-                 let cref = e.Attribute(XName.Get "cref")
-                 if cref <> null then
-                     if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
-                         failwithf "Invalid cref specified in: %A" doc
+                        else
+                            // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
+                            let cname = cref.Value
+                            let cname = if cname.StartsWith("T:") then cname else "T:"+cname // FSharp.Core exception listings don't start with "T:"
 
-                     // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
-                     let cname = cref.Value
-                     let cname = if cname.StartsWith("T:") then cname else "T:"+cname // FSharp.Core exception listings don't start with "T:"
+                            match urlMap.ResolveCref cname with
+                            | Some reference ->
+                                let html = new StringBuilder()
+                                rawData.["exception-" + reference.NiceName] <- reference.ReferenceLink
+                                readXmlElementAsHtml true urlMap cmds html e
+                                reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString())
+                            | _ ->
+                                let html = new StringBuilder()
+                                readXmlElementAsHtml true urlMap cmds html e
+                                cname, None, ApiDocHtml(html.ToString())
+                           ]
 
-                     match urlMap.ResolveCref cname with
-                     | Some reference ->
-                         rawData.["exception-" + reference.NiceName] <- reference.ReferenceLink
-                         html.AppendFormat("<tr><td><a href=\"{0}\">{1}</a></td><td>", reference.ReferenceLink, reference.NiceName) |> ignore
-                         readXmlElementAsHtml true urlMap cmds html e
-                         html.AppendFormat("</td></tr>") |> ignore
-                     | _ ->
-                         html.AppendFormat("<tr><td>{0}</td><td></td></tr>", cref.Value) |> ignore
-             html.Append("</table>") |> ignore
+        let examples =
+            let exampleNodes = doc.Descendants(XName.Get "example") |> Seq.toList
+            [ for (id, e) in List.indexed exampleNodes do
+                let html = new StringBuilder()
+                let n = if id = 0 then "example" else "example-" + string id
+                rawData.[n] <- e.Value
+                readXmlElementAsHtml true urlMap cmds html e
+                ApiDocHtml(html.ToString()) ]
+ 
+        let notes =
+            let noteNodes = doc.Descendants(XName.Get "note") |> Seq.toList
+            // 'note' is not part of the XML doc standard but is supported by Sandcastle and other tools
+            [ for (id, e) in List.indexed noteNodes do
+                let html = new StringBuilder()
+                let n = if id = 0 then "note" else "note-" + string id
+                rawData.[n] <- e.Value
+                readXmlElementAsHtml true urlMap cmds html e
+                ApiDocHtml(html.ToString()) ]
 
-          let examples = doc.Descendants(XName.Get "example")
-          examples |> Seq.iteri (fun id e ->
-             let n = if id = 0 then "example" else "example-" + string id
+        // put the non-xmldoc sections into rawData
+        doc.Descendants ()
+         |> Seq.filter (fun n ->
+             let ln = n.Name.LocalName
+             ln <> "summary" &&
+             ln <> "param" &&
+             ln <> "exceptions" &&
+             ln <> "example" &&
+             ln <> "note" &&
+             ln <> "returns" &&
+             ln <> "remarks" )
+         |> Seq.groupBy (fun n -> n.Name.LocalName)
+         |> Seq.iter (fun (n, lst) ->
+             let lst = Seq.toList lst
+             match lst with
+             | [x] -> rawData.[n] <- x.Value
+             | lst ->
+                 lst |> Seq.iteri (fun id el ->
+                     rawData.[n + "-" + string id] <- el.Value))
 
-             rawData.[n] <- e.Value
-             html.AppendFormat("<h5 class='fsdocs-example-header'>Example</h5>") |> ignore
-             html.Append("<p class='fsdocs-example'>") |> ignore
-             readXmlElementAsHtml true urlMap cmds html e
-             html.Append("</p>") |> ignore
-           )
-
-          // 'note' is not part of the XML doc standard but is supported by Sandcastle and other tools
-          let notes = doc.Descendants(XName.Get "note")
-          notes |> Seq.iteri (fun id e ->
-             let n = if id = 0 then "note" else "note-" + string id
-
-             rawData.[n] <- e.Value
-             html.AppendFormat("<h5 class='fsdocs-note-header'>Note</h5>") |> ignore
-             html.Append("<p class='fsdocs-note'>") |> ignore
-             readXmlElementAsHtml true urlMap cmds html e
-             html.Append("</p>") |> ignore
-           )
-
-
-      // put the non-xmldoc sections into rawData
-      doc.Descendants ()
-       |> Seq.filter (fun n ->
-            let ln = n.Name.LocalName
-            ln <> "summary" &&
-            ln <> "param" &&
-            ln <> "exceptions" &&
-            ln <> "example" &&
-            ln <> "note" &&
-            ln <> "returns" &&
-            ln <> "remarks" )
-       |> Seq.groupBy (fun n -> n.Name.LocalName)
-       |> Seq.iter (fun (n, lst) ->
-            let lst = Seq.toList lst
-            match lst with
-            | [x] -> rawData.[n] <- x.Value
-            | lst ->
-                lst |> Seq.iteri (fun id el ->
-                    rawData.[n + "-" + string id] <- el.Value)
-            ()
-       )
-
-      let str = ApiDocHtml(html.ToString())
-      str, rawData, nsdocs
-
+        let sections = [KeyValuePair("<default>", summary)]
+        let rawData = rawData |> Seq.toList
+        let comment =
+            ApiDocComment(summary=summary, remarks=remarks, parameters=parameters, returns=returns,
+                examples=examples, notes=notes, exceptions=exceptions, sections=sections, rawData=rawData)
+        comment, nsels
 
     let combineHtml (h1: ApiDocHtml) (h2: ApiDocHtml) =
         ApiDocHtml(String.concat "\n" [h1.HtmlText; h2.HtmlText])
 
+    let combineHtmlOptions (h1: ApiDocHtml option) (h2: ApiDocHtml option) =
+        match h1, h2 with
+        | x, None -> x
+        | None, x -> x
+        | Some x, Some y -> Some (combineHtml x y)
+
     let combineComments (c1: ApiDocComment) (c2: ApiDocComment) =
-        ApiDocComment(combineHtml c1.SummaryHtml c2.SummaryHtml,
-            combineHtml c1.DescriptionHtml c2.DescriptionHtml,
-            c1.Sections @ c2.Sections,
-            c1.RawData @ c2.RawData)
+        ApiDocComment(
+            summary = combineHtml c1.Summary c2.Summary,
+            remarks = combineHtmlOptions c1.Remarks c2.Remarks,
+            parameters = c1.Parameters @ c2.Parameters,
+            examples = c1.Examples @ c2.Examples,
+            returns = combineHtmlOptions c1.Returns c2.Returns,
+            notes = c1.Notes @ c2.Notes,
+            exceptions = c1.Exceptions @ c2.Exceptions,
+            sections = c1.Sections @ c2.Sections,
+            rawData = c1.RawData @ c2.RawData)
 
     let combineNamespaceDocs nspDocs =
         nspDocs
@@ -1393,16 +1568,14 @@ module internal SymbolReader =
            | [] -> None
            | xs -> Some (List.reduce combineComments xs)
 
-    let rec readXmlCommentAsHtml sumTag  (urlMap : CrossReferenceResolver) (doc : XElement) (cmds: IDictionary<_, _>) =
-        let summary, _raw, nsels = readXmlCommentAsHtmlAux sumTag true false urlMap doc cmds
-        let full, rawData, _ = readXmlCommentAsHtmlAux "p" true true urlMap doc cmds
-        let raw = rawData |> Seq.toList
+    let rec readXmlCommentAsHtml (urlMap : CrossReferenceResolver) (doc : XElement) (cmds: IDictionary<_, _>) =
+        let doc, nsels = readXmlCommentAsHtmlAux true urlMap doc cmds
         let nsdocs = readNamespaceDocs urlMap nsels 
-        ApiDocComment(summary, full, [KeyValuePair("<default>", full)], raw), nsdocs
+        doc, nsdocs
 
     and readNamespaceDocs (urlMap : CrossReferenceResolver) (nsels : XElement list option) =
         let nscmds = Dictionary() :> IDictionary<_,_>
-        nsels |> Option.map (List.map (fun n -> fst (readXmlCommentAsHtml "span" urlMap n nscmds)) >> List.reduce combineComments)
+        nsels |> Option.map (List.map (fun n -> fst (readXmlCommentAsHtml urlMap n nscmds)) >> List.reduce combineComments)
 
     /// Returns all indirect links in a specified span node
     let rec collectSpanIndirectLinks span =
@@ -1498,7 +1671,7 @@ module internal SymbolReader =
 
     let readXmlCommentAndCommands (ctx:ReadingContext) text el (cmds: IDictionary<_,_>) =
         let lines = removeSpaces text |> List.map (fun s -> (s, MarkdownRange.zero))
-        let html, nsdocs = readXmlCommentAsHtml "p" ctx.UrlMap el cmds
+        let html, nsdocs = readXmlCommentAsHtml ctx.UrlMap el cmds
         lines
           |> Seq.choose findCommand
           |> Seq.iter (fun (k, v) ->
@@ -1506,13 +1679,15 @@ module internal SymbolReader =
                 cmds.[k] <- v)
         cmds, html, nsdocs
 
-    let readCommentAndCommands (ctx:ReadingContext) xmlSig =
+    let readCommentAndCommands (ctx:ReadingContext) xmlSig (m: range option) =
         let cmds = Dictionary<string, string>() :> IDictionary<_,_>
         match ctx.XmlMemberLookup(xmlSig) with
         | None ->
             if not (System.String.IsNullOrEmpty xmlSig) then
                 if ctx.WarnOnMissingDocs then
-                    printfn "Warning: no documentation for '%s'" xmlSig
+                    let m = defaultArg m range0
+                    if ctx.UrlMap.IsLocal xmlSig then
+                       printfn "%s(%d,%d): warning FD0001: no documentation for '%s'" m.FileName m.StartLine m.StartColumn xmlSig
             cmds, ApiDocComment.Empty, None
         | Some el ->
             let sum = el.Element(XName.Get "summary")
@@ -1524,10 +1699,9 @@ module internal SymbolReader =
                 // why as all XML coming through here should be from F# .XML files
                 // and should have the tag.  It may be legacy of previously processing un-processed
                 // XML in raw F# source.
-                let summary, _raw, nsels = readXmlCommentAsHtmlAux "p" false false ctx.UrlMap el cmds
-                let all, _raw, _ = readXmlCommentAsHtmlAux "p"  false true ctx.UrlMap el cmds
+                let doc, nsels = readXmlCommentAsHtmlAux false ctx.UrlMap el cmds
                 let nsdocs = readNamespaceDocs ctx.UrlMap nsels 
-                cmds, (ApiDocComment(summary, all, [KeyValuePair("<default>", summary)], [])), nsdocs
+                cmds, doc, nsdocs
             | sum ->
                 if ctx.MarkdownComments then
                     readMarkdownCommentAndCommands ctx sum.Value cmds
@@ -1538,7 +1712,7 @@ module internal SymbolReader =
     /// to parse the rest of the entity, unless [omit] command is set.
     /// The function is called with category name, commands & comment.
     let readCommentsInto (sym:FSharpSymbol) ctx xmlDocSig f =
-        let cmds, comment, nsdocs = readCommentAndCommands ctx xmlDocSig
+        let cmds, comment, nsdocs = readCommentAndCommands ctx xmlDocSig sym.DeclarationLocation
         match cmds with
         | Command "category" cat
         | Let "" (cat, _) ->
@@ -1590,7 +1764,7 @@ module internal SymbolReader =
     let tryReadMember (ctx:ReadingContext) entityUrl kind (memb:FSharpMemberOrFunctionOrValue) =
       readCommentsInto memb ctx (getXmlDocSigForMember memb) (fun cat catidx exclude _ comment ->
         let details = readMemberOrVal ctx memb
-        ApiDocMember(memb.DisplayName, readAttributes memb.Attributes, entityUrl, kind, cat, catidx, exclude, details, comment, memb))
+        ApiDocMember(memb.DisplayName, readAttributes memb.Attributes, entityUrl, kind, cat, catidx, exclude, details, comment, memb, ctx.WarnOnMissingDocs))
 
     let readAllMembers ctx entityUrl kind (members:seq<FSharpMemberOrFunctionOrValue>) =
       members
@@ -1632,7 +1806,7 @@ module internal SymbolReader =
       |> List.choose (fun case ->
         readCommentsInto case ctx case.XmlDocSig (fun cat catidx exclude _ comment ->
           let details = readUnionCase ctx typ case
-          ApiDocMember(case.Name, readAttributes case.Attributes, entityUrl, ApiDocMemberKind.UnionCase, cat, catidx, exclude, details, comment, case)))
+          ApiDocMember(case.Name, readAttributes case.Attributes, entityUrl, ApiDocMemberKind.UnionCase, cat, catidx, exclude, details, comment, case, ctx.WarnOnMissingDocs)))
       |> collectNamespaceDocs
 
     let readRecordFields ctx entityUrl (typ:FSharpEntity) =
@@ -1642,7 +1816,7 @@ module internal SymbolReader =
       |> List.choose (fun field ->
         readCommentsInto field ctx field.XmlDocSig (fun cat catidx exclude _ comment ->
           let details = readFSharpField ctx field
-          ApiDocMember(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), entityUrl, ApiDocMemberKind.RecordField, cat, catidx, exclude, details, comment, field)))
+          ApiDocMember(field.Name, readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes), entityUrl, ApiDocMemberKind.RecordField, cat, catidx, exclude, details, comment, field, ctx.WarnOnMissingDocs)))
       |> collectNamespaceDocs
             
     let readStaticParams ctx entityUrl (typ:FSharpEntity) =
@@ -1651,7 +1825,7 @@ module internal SymbolReader =
       |> List.choose (fun staticParam ->
         readCommentsInto staticParam ctx (getFSharpStaticParamXmlSig typ staticParam.Name) (fun cat catidx exclude _ comment ->
           let details = readFSharpStaticParam ctx staticParam
-          ApiDocMember(staticParam.Name, [], entityUrl, ApiDocMemberKind.StaticParameter, cat, catidx, exclude, details, comment, staticParam)))
+          ApiDocMember(staticParam.Name, [], entityUrl, ApiDocMemberKind.StaticParameter, cat, catidx, exclude, details, comment, staticParam, ctx.WarnOnMissingDocs)))
       |> collectNamespaceDocs
 
     // Create a xml documentation snippet and add it to the XmlMemberMap
@@ -1682,14 +1856,14 @@ module internal SymbolReader =
       let xmlDocSig = getXmlDocSigForType typ
 
       readCommentsInto typ ctx xmlDocSig (fun cat catidx exclude _cmds comment ->
-        let entityUrl = ctx.UrlMap.TryResolveUrlBaseNameForEntity typ
+        let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity typ
 
         let rec getMembers (typ:FSharpEntity) = [
           yield! typ.MembersFunctionsAndValues
           match typ.BaseType with
           | Some baseType ->
-              //TODO: would be better to reuse instead of reparsing the base type xml docs
-              let cmds, _comment, _ = readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition)
+              let loc = typ.DeclarationLocation
+              let cmds, _comment, _ = readCommentAndCommands ctx (getXmlDocSigForType baseType.TypeDefinition) (Some loc)
               match cmds with
               | Command "exclude" _ 
               | Command "omit" _ ->
@@ -1730,14 +1904,17 @@ module internal SymbolReader =
         let nsdocs = combineNamespaceDocs [nsdocs1; nsdocs2; nsdocs3; nsdocs4; nsdocs5; nsdocs6 ]
         if nsdocs.IsSome then
            printfn "ignoring namespace summary on nested position"
+        let loc = tryGetLocation typ
+        let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
         ApiDocEntity (true, name, cat, catidx, exclude, entityUrl, comment, ctx.Assembly, attrs, cases, fields, statParams, ctors,
-           inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, typ, [], [], [], [], rqa, ctx.Parameters))
+           inst, stat, allInterfaces, baseType, abbreviatedType, delegateSignature, typ, [], [], [], [], rqa,
+           location, ctx.Substitutions))
 
     and readModule (ctx:ReadingContext) (modul:FSharpEntity) =
       readCommentsInto modul ctx modul.XmlDocSig (fun cat catidx exclude _cmd comment ->
 
         // Properties & value bindings in the module
-        let entityUrl = ctx.UrlMap.TryResolveUrlBaseNameForEntity modul
+        let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity modul
         let vals, nsdocs1 = readMembers ctx entityUrl ApiDocMemberKind.ValueOrFunction modul (fun v -> not v.IsMember && not v.IsActivePattern)
         let exts, nsdocs2 = readMembers ctx entityUrl ApiDocMemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
         let pats, nsdocs3 = readMembers ctx entityUrl ApiDocMemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
@@ -1754,15 +1931,17 @@ module internal SymbolReader =
         if nsdocs.IsSome then
            printfn "ignoring namespace summary on nested position"
  
+        let loc = tryGetLocation modul
+        let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
         ApiDocEntity
           ( false, modul.DisplayName, cat, catidx, exclude, entityUrl, comment, ctx.Assembly, attrs,
             [], [], [], [], [], [], [], None, None, None, modul, entities, vals,
-            exts, pats, rqa, ctx.Parameters ))
+            exts, pats, rqa, location, ctx.Substitutions ))
 
     and readEntities ctx (entities:seq<_>) =
-        let mods, nsdocs1 = readChildren ctx entities readModule (fun x -> x.IsFSharpModule)
+        let modifiers, nsdocs1 = readChildren ctx entities readModule (fun x -> x.IsFSharpModule)
         let typs, nsdocs2 = readChildren ctx entities readType (fun x -> not x.IsFSharpModule)
-        (mods @ typs), combineNamespaceDocs [nsdocs1; nsdocs2]
+        (modifiers @ typs), combineNamespaceDocs [nsdocs1; nsdocs2]
 
     // ----------------------------------------------------------------------------------------------
     // Reading namespace and assembly details
@@ -1778,9 +1957,9 @@ module internal SymbolReader =
   
     let readNamespace ctx (ns, entities:seq<FSharpEntity>) =
       let entities, nsdocs  = readEntities ctx entities
-      ApiDocNamespace(stripMicrosoft ns, entities, ctx.Parameters, nsdocs)
+      ApiDocNamespace(stripMicrosoft ns, entities, ctx.Substitutions, nsdocs)
 
-    let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, warn) =
+    let readAssembly (assembly:FSharpAssembly, publicOnly, xmlFile:string, substitutions, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, warn) =
       let assemblyName = AssemblyName(assembly.QualifiedName)
 
       // Read in the supplied XML file, map its name attributes to document text
@@ -1810,7 +1989,7 @@ module internal SymbolReader =
       let ctx =
         ReadingContext.Create
           (publicOnly, assemblyName, xmlMemberMap, sourceFolderRepo, urlRangeHighlight,
-           mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent, parameters, warn)
+           mdcomments, urlMap, asmPath, codeFormatCompilerArgs, formatAgent, substitutions, warn)
              
       //
       let namespaces =
@@ -1838,10 +2017,10 @@ type ApiDocInput =
       /// The URL the the source repo where the source code lives
       SourceRepo: string option
 
-      /// The substitution parameters active for this input. If specified these
-      /// are used instead of the overall parameters.  This allows different parameters (e.g.
+      /// The substitutionss active for this input. If specified these
+      /// are used instead of the overall substitutions.  This allows different parameters (e.g.
       /// different authors) for each assembly in a collection.
-      Parameters: Parameters option
+      Substitutions: Substitutions option
 
       /// Whether the input uses markdown comments
       MarkdownComments: bool
@@ -1852,21 +2031,21 @@ type ApiDocInput =
       /// Whether to generate only public things
       PublicOnly: bool 
     }
-    static member FromFile(assemblyPath: string, ?mdcomments, ?parameters, ?sourceRepo, ?sourceFolder, ?publicOnly, ?warn) =
+    static member FromFile(assemblyPath: string, ?mdcomments, ?substitutions, ?sourceRepo, ?sourceFolder, ?publicOnly, ?warn) =
        { Path=assemblyPath;
          XmlFile = None;
          SourceFolder = sourceFolder;
          SourceRepo=sourceRepo;
          Warn = defaultArg warn false;
-         Parameters = parameters;
+         Substitutions = substitutions;
          PublicOnly=defaultArg publicOnly true;
          MarkdownComments = defaultArg mdcomments false }
 
 /// Represents a set of assemblies integrated with their associated documentation
 type ApiDocModel =
   {
-    /// The parameters.  Different parameters can also be used for each specific input
-    Parameters: Parameters
+    /// The substitutions.  Different substitutions can also be used for each specific input
+    Substitutions: Substitutions
 
     /// The full list of all entities
     Collection: ApiDocCollection
@@ -1891,7 +2070,7 @@ type ApiDocModel =
         sprintf "reference/%sindex.html" (if qualify then collectionName + "/" else "") 
 
   static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
-         qualify, urlRangeHighlight, root, parameters) =
+         qualify, urlRangeHighlight, root, substitutions) =
 
     let (@@) a b = Path.Combine(a, b)
 
@@ -1980,25 +2159,25 @@ type ApiDocModel =
 
           let publicOnly = project.PublicOnly
           let mdcomments = project.MarkdownComments
-          let parameters = defaultArg project.Parameters parameters 
+          let substitutions = defaultArg project.Substitutions substitutions
           match xmlFileOpt with
           | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
           | Some xmlFile ->
-            SymbolReader.readAssembly (asm, publicOnly, xmlFile, parameters, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, project.Warn)
+            SymbolReader.readAssembly (asm, publicOnly, xmlFile, substitutions, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, project.Warn)
             |> Some)
 
     // Union namespaces from multiple libraries
-    let namespaces = Dictionary<_, (_ * _ * Parameters)>()
+    let namespaces = Dictionary<_, (_ * _ * Substitutions)>()
     for _, nss in assemblies do
       for ns in nss do
         match namespaces.TryGetValue(ns.Name) with
-        | true, (entities, summary, parameters) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceDocs; summary],  parameters)
-        | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Parameters))
+        | true, (entities, summary, substitutions) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceDocs; summary],  substitutions)
+        | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
 
     let namespaces =
-      [ for (KeyValue(name, (entities, summary, parameters))) in namespaces do
+      [ for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
           if entities.Length > 0 then
-              ApiDocNamespace(name, entities, parameters, summary) ]
+              ApiDocNamespace(name, entities, substitutions, summary) ]
 
     let collection = ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
@@ -2037,7 +2216,7 @@ type ApiDocModel =
                  yield createType ns None n  ]
 
     {
-      Parameters = parameters
+      Substitutions = substitutions
       Collection = collection
       EntityInfos = moduleInfos @ typesInfos
       Root = root

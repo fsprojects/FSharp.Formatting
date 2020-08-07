@@ -1,3 +1,20 @@
+## 7.2.6
+
+- In ApiDocsModel, separate out the parameter, summary, remarks sections etc.
+
+- In ApiDocsModel, integrate the parameter types with the parameter docs (when using XML docs)
+
+- In HTML generation for API docs, locate the github link top right 
+
+- In ApiDocsModel.Generate, optionally give warnings when XML doc is missing or parameter names are incorrect. Activate using <FsDocsWarnOnMissingDocs>
+
+- In ApiDocsModel, change "Parameters" to "Substitutions"
+
+- Fix formatting of (most) custom operators
+
+- Fix formatting of op_XYZ binary and unary operators 
+
+
 ## 7.2.5
 
 - change `<namespacesummary>...<namespacesummary>` to `<namespacedoc> <summary>... </summary> </namespacedoc>`

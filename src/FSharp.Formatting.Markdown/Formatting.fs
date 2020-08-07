@@ -46,7 +46,7 @@ module internal MarkdownUtils =
       { Links : IDictionary<string, string * option<string>>
         Newline: string
         /// Additional replacements to be made in the code snippets
-        Replacements : Parameters
+        Substitutions : Substitutions
         DefineSymbol: string
       }
 
@@ -131,6 +131,6 @@ module internal MarkdownUtils =
         let lines = lines |> List.filter (fun line -> line.Trim() <> sym1 && line.Trim() <> sym2 )
 
         // Inside literate code blocks (not raw blocks) we make replacements for {{xyz}} parameters
-        let lines = lines |> List.map (SimpleTemplating.ReplaceParametersInText ctx.Replacements)
+        let lines = lines |> List.map (SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions)
         let code2 = String.concat ctx.Newline lines
         code2

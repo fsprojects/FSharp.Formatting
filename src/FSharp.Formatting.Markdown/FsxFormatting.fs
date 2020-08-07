@@ -26,5 +26,5 @@ let rec formatParagraphs ctx paragraphs =
   cells
  
 let formatAsFsx links replacements newline paragraphs = 
-  formatParagraphs { Links = links; Replacements=replacements; Newline=newline; DefineSymbol="FSX" } paragraphs
+  formatParagraphs { Links = links; Substitutions=replacements; Newline=newline; DefineSymbol="FSX" } paragraphs
   |> String.concat newline

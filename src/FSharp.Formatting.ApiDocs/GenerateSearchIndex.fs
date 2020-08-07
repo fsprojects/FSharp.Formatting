@@ -28,9 +28,12 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
 
     let doMember enclName (memb: ApiDocMember) =
         let cnt =
-            [ enclName + "." + memb.Name
-              memb.Name
-              memb.Comment.DescriptionHtml.HtmlText 
+            [ yield enclName + "." + memb.Name
+              yield memb.Name
+              yield memb.Comment.Summary.HtmlText 
+              match memb.Comment.Remarks with
+              | None -> ()
+              | Some s -> yield s.HtmlText
             ] |> String.concat " \n"
 
         { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify)
@@ -54,7 +57,10 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
             for e in entities.Entities do
                 let cnt =
                     [ e.Name
-                      e.Comment.DescriptionHtml.HtmlText
+                      e.Comment.Summary.HtmlText 
+                      match e.Comment.Remarks with
+                      | None -> ()
+                      | Some s -> s.HtmlText
                       for ne in e.NestedEntities do  
                         e.Name + "." + ne.Name
                         ne.Name
