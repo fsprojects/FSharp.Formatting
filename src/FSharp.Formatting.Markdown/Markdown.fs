@@ -109,14 +109,14 @@ type Markdown =
     Markdown.ToLatex(doc, ?newline=newline)
 
   /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
-  static member ToPynb(doc: MarkdownDocument, ?newline, ?parameters) =
+  static member ToPynb(doc: MarkdownDocument, ?newline, ?substitutions) =
     let newline = defaultArg newline Environment.NewLine
-    let parameters = defaultArg parameters []
-    PynbFormatting.formatAsPynb doc.DefinedLinks parameters newline doc.Paragraphs
+    let substitutions = defaultArg substitutions []
+    PynbFormatting.formatAsPynb doc.DefinedLinks substitutions newline doc.Paragraphs
 
   /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
-  static member ToFsx(doc: MarkdownDocument, ?newline, ?parameters) =
+  static member ToFsx(doc: MarkdownDocument, ?newline, ?substitutions) =
     let newline = defaultArg newline Environment.NewLine
-    let parameters = defaultArg parameters []
-    FsxFormatting.formatAsFsx doc.DefinedLinks parameters newline doc.Paragraphs
+    let substitutions = defaultArg substitutions []
+    FsxFormatting.formatAsFsx doc.DefinedLinks substitutions newline doc.Paragraphs
 

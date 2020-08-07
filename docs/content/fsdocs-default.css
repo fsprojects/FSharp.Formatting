@@ -359,7 +359,8 @@ body {
   Formatting for F# code snippets
 /*--------------------------------------------------------------------------*/
 
-.fsdocs-param-name {
+.fsdocs-param-name,
+.fsdocs-return-name {
     font-weight: 600;
 }
 /* strings --- and stlyes for other string related formats */

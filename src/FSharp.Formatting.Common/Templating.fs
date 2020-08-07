@@ -9,8 +9,8 @@ type ParamKey = ParamKey of string
 type ParamKey = string
 #endif
 
-/// A list of parameters indexed by parameter keys
-type Parameters = (ParamKey * string) list
+/// A list of parameters for substituting in templates, indexed by parameter keys
+type Substitutions = (ParamKey * string) list
 
 #if !DEBUG
 [<AutoOpen>]
@@ -105,11 +105,11 @@ module ParamKeys =
 module internal SimpleTemplating =
 
     // Replace '{{xyz}}' or '{xyz}' in template text
-    let replaceParameters (parameters:seq<ParamKey * string>) (templateTextOpt: string option) =
+    let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
       match templateTextOpt with
       | None | Some "" ->
           // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
-          let lookup = parameters |> dict
+          let lookup = substitutions |> dict
           (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then lookup.[ParamKeys.``fsdocs-content``] else "") +
           (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``] else "")
       | Some templateText ->
@@ -117,19 +117,19 @@ module internal SimpleTemplating =
           // (in case one of the keys appears in some other value)
           let id = System.Guid.NewGuid().ToString("d")
           let temp =
-              (templateText, parameters) ||> Seq.fold (fun text (ParamKey key, _value) ->
+              (templateText, substitutions) ||> Seq.fold (fun text (ParamKey key, _value) ->
                 let key2 = "{{" + key + "}}"
                 let rkey = "{" + key + id + "}"
                 let text = text.Replace(key2, rkey) 
                 text)
           let result =
-              (temp, parameters) ||> Seq.fold (fun text (ParamKey key, value) ->
+              (temp, substitutions) ||> Seq.fold (fun text (ParamKey key, value) ->
                   text.Replace("{" + key + id + "}", value)) 
           result
 
-    let UseFileAsSimpleTemplate (parameters, templateOpt, outputFile) =
+    let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
         let templateTextOpt = templateOpt |> Option.map System.IO.File.ReadAllText
-        let outputText = replaceParameters parameters templateTextOpt
+        let outputText = ApplySubstitutions substitutions templateTextOpt
         try
             let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
             Directory.CreateDirectory(path) |> ignore
@@ -137,7 +137,7 @@ module internal SimpleTemplating =
         File.WriteAllText(outputFile, outputText)
 
     // Replace '{{xyz}}' in text
-    let ReplaceParametersInText (parameters:seq<ParamKey * string>) (text: string) =
+    let ApplySubstitutionsInText (parameters:seq<ParamKey * string>) (text: string) =
         let id = System.Guid.NewGuid().ToString("d")
         let temp =
             (text, parameters) ||> Seq.fold (fun text (ParamKey key, _value) ->

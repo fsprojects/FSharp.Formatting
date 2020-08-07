@@ -1,8 +1,6 @@
 namespace FSharp.Formatting.Literate
 
 open System.IO
-open System.Collections.Concurrent
-open System.Globalization
 open FSharp.Formatting.Literate
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
@@ -11,10 +9,10 @@ open FSharp.Formatting.Templating
 module internal Formatting =
 
   /// Format document with the specified output kind
-  let format (doc: MarkdownDocument) generateAnchors outputKind parameters =
+  let format (doc: MarkdownDocument) generateAnchors outputKind substitutions =
     match outputKind with
-    | OutputKind.Fsx -> Markdown.ToFsx(doc, parameters=parameters)
-    | OutputKind.Pynb -> Markdown.ToPynb(doc, parameters=parameters)
+    | OutputKind.Fsx -> Markdown.ToFsx(doc, substitutions=substitutions)
+    | OutputKind.Pynb -> Markdown.ToPynb(doc, substitutions=substitutions)
     | OutputKind.Latex -> Markdown.ToLatex(doc)
     | OutputKind.Html ->
         let sb = new System.Text.StringBuilder()
@@ -73,7 +71,7 @@ module internal Formatting =
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
-    let sourceReplacements =
+    let sourceSubstitutions =
         let doc =
           getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx
@@ -87,17 +85,17 @@ module internal Formatting =
 
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let parameters0 =
+    let substitutions0 =
         [ ParamKeys.``fsdocs-page-title``, pageTitle
           ParamKeys.``fsdocs-page-source``, doc.SourceFile ]
-        @ ctx.Replacements
-        @ sourceReplacements
-    let formattedDocument = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind parameters0
+        @ ctx.Substitutions
+        @ sourceSubstitutions
+    let formattedDocument = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind substitutions0
     let tipsHtml = doc.FormattedTips
 
     // Construct new Markdown document and write it
-    let parameters =
-      parameters0 @
+    let substitutions =
+      substitutions0 @
       [ ParamKeys.``fsdocs-content``, formattedDocument
         ParamKeys.``fsdocs-tooltips``, tipsHtml ]
 
@@ -107,5 +105,5 @@ module internal Formatting =
       OutputKind = ctx.OutputKind
       Title = pageTitle
       IndexText = indexText
-      Parameters = parameters
+      Substitutions = substitutions
     }

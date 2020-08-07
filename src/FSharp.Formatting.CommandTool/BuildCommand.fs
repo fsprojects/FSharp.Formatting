@@ -408,7 +408,7 @@ module Crack =
 
         let projects =  
             [ for info in projectInfos do
-                 let parameters = parametersForProjectInfo info
+                 let substitutions = parametersForProjectInfo info
                  (info.TargetPath.Value,
                   info.RepositoryUrl,
                   info.RepositoryBranch,
@@ -417,7 +417,7 @@ module Crack =
                   info.FsDocsWarnOnMissingDocs,
                   info.FsDocsSourceFolder,
                   info.FsDocsSourceRepository,
-                  parameters) ]
+                  substitutions) ]
               
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
@@ -426,7 +426,7 @@ module Crack =
         root, collectionName, projects, paths, docsParameters
 
 /// Convert markdown, script and other content into a static site
-type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, parameters, saveImages, watch, root) =
+type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, substitutions, saveImages, watch, root) =
 
   let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
@@ -494,7 +494,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                   changeTime > generateTime
 
               // If it's changed or we don't know anything about it
-              // we have to compute the model to get the global parameters right
+              // we have to compute the model to get the global substitutions right
               let mainRun = (outputKind = OutputKind.Html)
               let haveModel = previous.TryFind inputFile
               if changed || (watch && mainRun && haveModel.IsNone) then
@@ -505,7 +505,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
                             ?formatAgent = None, ?prefix = None, ?fscoptions = None,
                             ?lineNumbers = lineNumbers, references=false, ?fsiEvaluator = fsiEvaluator,
-                            parameters = parameters,
+                            substitutions = substitutions,
                             generateAnchors = true,
                             //?customizeDocument = customizeDocument,
                             //?tokenKindToCss = tokenKindToCss,
@@ -515,7 +515,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                               (fun p ->
                                  printfn "writing %s --> %s" inputFile relativeOutputFile
                                  ensureDirectory (Path.GetDirectoryName(outputFile))
-                                 SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, outputFile)))
+                                 SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
                   elif isMd then
                       printfn "preparing %s --> %s" inputFile relativeOutputFile
@@ -524,7 +524,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
                             ?formatAgent = None, ?prefix = None, ?fscoptions = None,
                             ?lineNumbers = lineNumbers, references=false,
-                            parameters = parameters,
+                            substitutions = substitutions,
                             generateAnchors = true,
                             //?customizeDocument=customizeDocument,
                             //?tokenKindToCss = tokenKindToCss,
@@ -534,7 +534,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                               (fun p ->
                                   printfn "writing %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
-                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Parameters, template, outputFile)))
+                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
                   else 
                     if mainRun then
@@ -687,7 +687,7 @@ type CoreBuildOptions(watch) =
     [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)")>]
     member val mdcomments = false with get, set
 
-    [<Option("parameters", Required = false, HelpText = "Additional substitution parameters for templates.")>]
+    [<Option("parameters", Required = false, HelpText = "Additional substitution substitutions for templates.")>]
     member val parameters = Seq.empty<string> with get, set
 
     [<Option("nodefaultcontent", Required = false, HelpText = "Do not copy default content styles, javascript or use default templates.")>]
@@ -714,12 +714,12 @@ type CoreBuildOptions(watch) =
                     printfn "Error : \n%O" ex
                     false
 
-        /// The parameters as given by the user
+        /// The substitutions as given by the user
         let userParameters =
-            (evalPairwiseStringsNoOption x.parameters 
+            (evalPairwiseStringsNoOption x.parameters
                 |> List.map (fun (a,b) -> (ParamKey a, b)))
 
-        // Adjust the user parameters for 'watch' mode root
+        // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
                 let userRoot = sprintf "http://localhost:%d/" x.port_option
@@ -753,11 +753,11 @@ type CoreBuildOptions(watch) =
            (fun (_, key2) -> key1 = key2)
            (fun () -> Crack.crackProjects (userRoot, userCollectionName, userParameters, projects), key1)
 
-        // Print the parameters
+        // Print the substitutions
         for (ParamKey pk, p) in docsParameters do  
              printfn "  %s --> %s" pk p
 
-        // The parameters may differ for some projects due to different settings in the project files, if so show that
+        // The substitutions may differ for some projects due to different settings in the project files, if so show that
         let pd = dict docsParameters
         for (dllFile, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
             for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
@@ -796,7 +796,7 @@ type CoreBuildOptions(watch) =
                   XmlFile = None;
                   SourceRepo = sourceRepo;
                   SourceFolder = Some sourceFolder;
-                  Parameters = Some projectParameters;
+                  Substitutions = Some projectParameters;
                   MarkdownComments = x.mdcomments || projectMarkdownComments;
                   Warn = projectWarn;
                   PublicOnly = not x.nonpublic } ]
@@ -933,7 +933,7 @@ type CoreBuildOptions(watch) =
                             inputs = apiDocInputs,
                             output = output,
                             collectionName = collectionName,
-                            parameters = docsParameters,
+                            substitutions = docsParameters,
                             qualify = x.qualify,
                             ?template = initialTemplate2,
                             otherFlags = Seq.toList x.fscoptions,

@@ -33,6 +33,6 @@ let rec formatParagraphs ctx paragraphs =
   cells
  
 let formatAsPynb links replacements newline paragraphs = 
-  let cells = formatParagraphs { Links = links; Replacements=replacements; Newline=newline; DefineSymbol="IPYNB" } paragraphs
+  let cells = formatParagraphs { Links = links; Substitutions=replacements; Newline=newline; DefineSymbol="IPYNB" } paragraphs
   let notebook = {Notebook.Default with cells = Array.ofList cells}
   notebook.ToString()

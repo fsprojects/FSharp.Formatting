@@ -7,7 +7,7 @@ type ApiDocs =
     /// Generates a documentation model for the assemblies specified by the `inputs` parameter
     ///
     ///  - `inputs` - the components to generate documentation for
-    ///  - `parameters` - provides parameters for substitution in the templates
+    ///  - `substitutions` - provides substitutions for substitution in the templates
     ///  - `qualify` - qualify the output set by collection name, e.g. `reference/FSharp.Core/...`
     ///  - `sourceFolder` and `sourceRepo` - When specified, the documentation generator automatically
     ///    generates links to GitHub pages for each of the entity.
@@ -16,14 +16,14 @@ type ApiDocs =
     ///    specify references explicitly etc.)
     ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
     ///
-    static member GenerateModel(inputs: ApiDocInput list, collectionName, parameters, ?qualify, ?libDirs, ?otherFlags, ?root, ?urlRangeHighlight) =
+    static member GenerateModel(inputs: ApiDocInput list, collectionName, substitutions, ?qualify, ?libDirs, ?otherFlags, ?root, ?urlRangeHighlight) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         ApiDocModel.Generate(inputs, collectionName=collectionName,
             libDirs=libDirs, qualify=qualify,
             otherFlags=otherFlags,
             urlRangeHighlight=urlRangeHighlight, root=root,
-            parameters=parameters) 
+            substitutions=substitutions) 
 
     /// Generates the search index from the given documentation model
     ///
@@ -31,18 +31,18 @@ type ApiDocs =
     static member SearchIndexEntriesForModel(model: ApiDocModel) =
         GenerateSearchIndex.searchIndexEntriesForModel model 
 
-    /// Like GenerateHtml but allows for intermediate phase to insert other global parameters
+    /// Like GenerateHtml but allows for intermediate phase to insert other global substitutions
     /// and combine search index
-    static member GenerateHtmlPhased(inputs, output, collectionName, parameters, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight) =
+    static member GenerateHtmlPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, parameters=parameters) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions) 
         let renderer = GenerateHtml.HtmlRender(model)
         let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
-        renderer.GlobalParameters, index, (fun globalParameters ->
+        renderer.GlobalSubstitutions, index, (fun globalParameters ->
             renderer.Generate(output, template, collectionName, globalParameters))
 
     /// Generates default HTML pages for the assemblies specified by the `inputs` parameter
@@ -57,14 +57,14 @@ type ApiDocs =
     ///  - `otherFlags` - Additional flags that are passed to the F# compiler to specify references explicitly etc.
     ///  - `urlRangeHighlight` - A function that can be used to override the default way of generating GitHub links
     ///
-    static member GenerateHtml(inputs, output, collectionName, parameters, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight) =
+    static member GenerateHtml(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, parameters=parameters) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions) 
         let renderer = GenerateHtml.HtmlRender(model)
         let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
-        renderer.Generate(output, template, collectionName, renderer.GlobalParameters)
+        renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
         model,index

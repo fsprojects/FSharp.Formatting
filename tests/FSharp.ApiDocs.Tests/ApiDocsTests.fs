@@ -35,7 +35,7 @@ let removeWhiteSpace (str:string) =
 let docTemplate =
   root </> "../../docs/_template.html"
 
-let parameters =
+let substitutions =
   [ ParamKeys.``fsdocs-collection-name``, "F# TestProject"
     ParamKeys.``fsdocs-authors``, "Your Name"
     ParamKeys.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
@@ -45,7 +45,7 @@ let generateApiDocs (libraries:string list) useMarkdown uniq =
     try
         let output = getOutputDir uniq
         let inputs = [ for x in libraries -> ApiDocInput.FromFile(x, mdcomments = useMarkdown) ]
-        let _metadata = ApiDocs.GenerateHtml (inputs, libDirs = [root], output=output, collectionName="Collection", template=docTemplate, parameters=parameters)
+        let _metadata = ApiDocs.GenerateHtml (inputs, libDirs = [root], output=output, collectionName="Collection", template=docTemplate, substitutions=substitutions)
 
         let fileNames = Directory.GetFiles(output </> "reference")
         let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
@@ -73,7 +73,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
          sourceRepo = "https://github.com/fslaborg/Deedle/",
          sourceFolder = "c:/dev/FSharp.DataFrame") 
   let _model, _index =
-      ApiDocs.GenerateHtml( [input], output, collectionName="Deedle", template=docTemplate, parameters=parameters, libDirs = [testBin])
+      ApiDocs.GenerateHtml( [input], output, collectionName="Deedle", template=docTemplate, substitutions=substitutions, libDirs = [testBin])
   let files = Directory.GetFiles(output </> "reference")
 
   let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.html")
@@ -87,7 +87,7 @@ let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir "FakeLib"
   let input = ApiDocInput.FromFile(library, mdcomments = true) 
-  let _model, _index = ApiDocs.GenerateHtml( [input], output, collectionName="FAKE", template=docTemplate, parameters=parameters)
+  let _model, _index = ApiDocs.GenerateHtml( [input], output, collectionName="FAKE", template=docTemplate, substitutions=substitutions)
   let files = Directory.GetFiles(output </> "reference")
   files |> Seq.length |> shouldEqual 166
 
@@ -98,10 +98,10 @@ let ``ApiDocs works on two sample F# assemblies``() =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
   let output = getOutputDir "FsLib12"
-  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true, parameters=parameters) ]
+  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true, substitutions=substitutions) ]
   let _model, searchIndex =
       ApiDocs.GenerateHtml(inputs, output, collectionName="FsLib", template=docTemplate,
-          root="http://root.io/root/", parameters=parameters, libDirs = [testBin])
+          root="http://root.io/root/", substitutions=substitutions, libDirs = [testBin])
 
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
@@ -165,10 +165,10 @@ let ``Namespace summary generation works on two sample F# assemblies using XML d
     [ testBin </> "TestLib1.dll"
       testBin </> "TestLib2.dll" ]
   let output = getOutputDir "TestLib12_Namespaces"
-  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false, parameters=parameters) ]
+  let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = false, substitutions=substitutions) ]
   let _model, _searchIndex =
       ApiDocs.GenerateHtml(inputs, output, collectionName="TestLibs", template=docTemplate,
-          root="http://root.io/root/", parameters=parameters, libDirs = [testBin])
+          root="http://root.io/root/", substitutions=substitutions, libDirs = [testBin])
 
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
@@ -183,7 +183,7 @@ let ``ApiDocs model generation works on two sample F# assemblies``() =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
   let inputs = [ for lib in libraries -> ApiDocInput.FromFile(lib, mdcomments = true) ]
-  let model = ApiDocs.GenerateModel(inputs, collectionName="FsLib", parameters=parameters, libDirs = [testBin])
+  let model = ApiDocs.GenerateModel(inputs, collectionName="FsLib", substitutions=substitutions, libDirs = [testBin])
   model.Collection.Assemblies.Length |> shouldEqual 2
   model.Collection.Assemblies.[0].Name |> shouldEqual "FsLib1"
   model.Collection.Assemblies.[1].Name |> shouldEqual "FsLib2"
@@ -208,7 +208,7 @@ let ``ApiDocs generates Go to GitHub source links``() =
   let _model, _searchIndex =
     ApiDocs.GenerateHtml
       ( inputs, output, collectionName="FsLib", template=docTemplate,
-        parameters=parameters, libDirs = ([testBin] |> fullpaths))
+        substitutions=substitutions, libDirs = ([testBin] |> fullpaths))
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
   files.["fslib-class.html"] |> shouldContainText "fsdocs-source-link"
@@ -236,7 +236,7 @@ let ``ApiDocs test that cref generation works``() =
   let _model, _searchIndex =
     ApiDocs.GenerateHtml
       ( inputs, output, collectionName="CrefLibs", template=docTemplate,
-      parameters=parameters, libDirs = ([testBin]  |> fullpaths))
+      substitutions=substitutions, libDirs = ([testBin]  |> fullpaths))
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -305,7 +305,7 @@ let ``ApiDocs test that csharp (publiconly) support works``() =
   let _model, _searchIndex =
     ApiDocs.GenerateHtml
       ( inputs, output, collectionName="CSharpSupport",
-        template=docTemplate, parameters=parameters, libDirs = ([testBin]  |> fullpaths) )
+        template=docTemplate, substitutions=substitutions, libDirs = ([testBin]  |> fullpaths) )
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -364,7 +364,7 @@ let ``ApiDocs test that csharp support works``() =
   let _model, _searchIndex =
     ApiDocs.GenerateHtml
       ( inputs, output, collectionName="CSharpSupport",
-        template=docTemplate, parameters=parameters, libDirs = ([testBin] |> fullpaths))
+        template=docTemplate, substitutions=substitutions, libDirs = ([testBin] |> fullpaths))
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
@@ -464,12 +464,17 @@ let ``ApiDocs generates module link in nested types``() =
   let files = generateApiDocs [library] false "FsLib2"
 
   // Check that the modules and type files have namespace information
-  files.["fslib-class.html"] |> shouldContainText "Namespace: FsLib"
-  files.["fslib-nested.html"] |> shouldContainText "Namespace: FsLib"
-  files.["fslib-nested-nestedtype.html"] |> shouldContainText "Namespace: FsLib"
-  files.["fslib-nested-submodule.html"] |> shouldContainText "Namespace: FsLib"
-  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Namespace: FsLib"
-
+  files.["fslib-class.html"] |> shouldContainText "Namespace:"
+  files.["fslib-class.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.["fslib-nested.html"] |> shouldContainText "Namespace:"
+  files.["fslib-nested.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "Namespace:"
+  files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "Namespace:"
+  files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Namespace:"
+  files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  
   // Check that the link to the module is correctly generated
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Parent Module:"
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"

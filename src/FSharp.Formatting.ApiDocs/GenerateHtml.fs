@@ -35,6 +35,15 @@ type HtmlRender(model: ApiDocModel) =
       div [Class "fsdocs-tip"; Id id ] tip
     ]
 
+  let sourceLink url =
+      [ match url with
+        | None -> ()
+        | Some href ->
+          a [Href href; Class"fsdocs-source-link" ] [
+            img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
+            img [Src (sprintf "%scontent/img/github-blue.png" root); Class "hover"]
+          ] ]
+
   let renderMembers header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
        h3 [] [!! header]
@@ -48,30 +57,38 @@ type HtmlRender(model: ApiDocModel) =
          tbody [] [
            for m in members do
              tr [] [
-               td [Class "fsdocs-member-name"; Id m.Name] [
+               td [Class "fsdocs-member-name"] [
                   
                   codeWithToolTip [
-                      // This adds #MemberName anchor. These may currently be ambiguous
-                      embed m.UsageTooltip
+                      // This adds #MemberName anchor. These may be ambiguous due to overloading
+                      p [] [a [Id m.Name] [a [Href ("#"+m.Name)] [embed m.UsageHtml]]]
                     ]
                     [
                       div [Class "member-tooltip"] [
                         !! "Full Usage: "
-                        embed m.UsageTooltip
+                        embed m.UsageHtml
                         br []
                         br []
-                        if not m.ParameterTooltips.IsEmpty then
-                            !! "Parameter Types: "
+                        if not m.Parameters.IsEmpty then
+                            !! "Parameters: "
                             ul [] [
-                              for (pname, ptyp) in m.ParameterTooltips do
-                                span [] [b [] [!! pname]; !! ":"; embed ptyp ]
+                              for p in m.Parameters do
+                                span [] [
+                                    b [] [!! p.ParameterNameText ];
+                                    !! ":"; embed p.ParameterType
+                                    match p.ParameterDocs with
+                                    | None -> ()
+                                    | Some d -> !! " - "; embed d]
                                 br []
                             ]
                             br []
-                        match m.ReturnTooltip with
+                        match m.ReturnInfo.ReturnType with
                         | None -> ()
-                        | Some t ->
-                            span [] [!! "Return Type: "; embed t]
+                        | Some rty ->
+                            span [] [!! "Returns: "; embed rty ]
+                            match m.ReturnInfo.ReturnDocs with
+                            | None -> ()
+                            | Some d -> embed d
                             br []
                         //!! "Signature: "
                         //encode(m.SignatureTooltip)
@@ -92,40 +109,69 @@ type HtmlRender(model: ApiDocModel) =
                ]
             
                td [Class "fsdocs-xmldoc"] [
-                  if not (String.IsNullOrWhiteSpace(m.Comment.DescriptionHtml.HtmlText)) then
-                      embed m.Comment.DescriptionHtml
-                      br []
+                  p [Class "fsdocs-summary"]
+                     [yield! sourceLink m.SourceLocation
+                      embed m.Comment.Summary; ]
+
+                  match m.Comment.Remarks with
+                  | Some r ->
+                      p [Class "fsdocs-remarks"] [embed r]
+                  | None -> ()
+
                   match m.ExtendedType with
                   | Some s ->
-                      !! "Extended Type: "
-                      embed s 
-                      br []
+                      p [] [!! "Extended Type: "; embed s ]
                   | _ -> ()
-                  if not m.ParameterTooltips.IsEmpty then
-                      !! "Parameter Types: "
-                      ul [] [
-                          for (pname, ptyp) in m.ParameterTooltips do
-                          li [] [
-                              span [Class "fsdocs-param-name"] [!! pname]
-                              !! ":"
-                              embed ptyp 
-                          ]
+
+                  if not m.Parameters.IsEmpty then
+                      dl [Class "fsdocs-params"] [
+                          for parameter in m.Parameters do
+                              dt [Class "fsdocs-param"] [
+                                  span [Class "fsdocs-param-name"] [!! parameter.ParameterNameText]
+                                  !! ":"
+                                  embed parameter.ParameterType
+                              ]
+                              dd [Class "fsdocs-param-docs"] [
+                                  match parameter.ParameterDocs with
+                                  | None -> ()
+                                  | Some d -> p [] [embed d]
+                              ]
                       ]
-                  match m.ReturnTooltip with
+
+                  match m.ReturnInfo.ReturnType with
                   | None -> ()
                   | Some t ->
-                      !! "Return Type: "
-                      embed t
-                      br []
+                      dl [Class "fsdocs-returns"] [
+                          dt [] [
+                              span [Class "fsdocs-return-name"] [!! "Returns:"]
+                              embed t
+                          ]
+                          dd [Class "fsdocs-return-docs"] [
+                              match m.ReturnInfo.ReturnDocs with
+                              | None -> ()
+                              | Some r -> p [] [embed r]
+                          ]
+                      ]
+
+                  if not m.Comment.Exceptions.IsEmpty then
+                      //p [] [ !! "Exceptions:" ]
+                      table [Class "fsdocs-exception-list"] [
+                          for (nm, link, html) in m.Comment.Exceptions do
+                            tr [] [td [] (match link with None -> [] | Some href -> [a [Href href] [!! nm] ])
+                                   td [] [embed html]]
+                      ]
+
+                  for e in m.Comment.Notes do 
+                      h5 [Class "fsdocs-note-header"] [!! "Note"]
+                      p [Class "fsdocs-note"] [embed e]
+
+                  for e in m.Comment.Examples do 
+                      h5 [Class "fsdocs-example-header"] [!! "Example"]
+                      p [Class "fsdocs-example"] [embed e]
 
                   //if m.IsObsolete then
                   //    obsoleteMessage m.ObsoleteMessage
 
-                  if not (String.IsNullOrEmpty(m.FormatSourceLocation)) then
-                    a [Href (m.FormatSourceLocation); Class"fsdocs-source-link" ] [
-                      img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
-                      img [Src (sprintf "%scontent/img/github-blue.png" root); Class "hover"]
-                    ]
                   //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
                   //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
                ]
@@ -154,14 +200,11 @@ type HtmlRender(model: ApiDocModel) =
                  let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
 
                  // This adds #EntityName anchor. These may currently be ambiguous
-                 a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]
+                 p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]]
                ]
                td [Class "fsdocs-xmldoc" ] [
-                   //let isObsolete = e.IsObsolete 
-                   //let obs = e.ObsoleteMessage 
-                   //if isObsolete then
-                   //  obsoleteMessage obs
-                   embed e.Comment.SummaryHtml
+                   p [] [yield! sourceLink e.SourceLocation
+                         embed e.Comment.Summary;  ]
                ]
             ]
         ]
@@ -197,7 +240,7 @@ type HtmlRender(model: ApiDocModel) =
         | _ -> entity.Name
 
     [ h1 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
-      p [] [!! ("Namespace: " + info.Namespace.Name)]
+      p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify))] [!!info.Namespace .Name]]
       p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
 
       match info.ParentModule with
@@ -258,7 +301,7 @@ type HtmlRender(model: ApiDocModel) =
         h3 [] [!!"Table of contents"]
         ul [] [
           for (index, _, _, name) in byCategory do
-            li [] [ a [Href ("#section" + index.ToString())] [!! name ] ]
+            li [] [ a [Href (sprintf "#section%d" index)] [!! name ] ]
         ]
  
       //<!-- Render nested types and modules, if there are any -->
@@ -280,7 +323,7 @@ type HtmlRender(model: ApiDocModel) =
         // categories, print the category heading (as <h2>) and add XML comment from the type
         // that is related to this specific category.
         if (byCategory.Length > 1) then
-           h2 [Id ("#section" + index.ToString())] [!! name]
+           h2 [Id (sprintf "section%d" index)] [!! name]
            //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
         let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = key)
         match info with
@@ -355,7 +398,12 @@ type HtmlRender(model: ApiDocModel) =
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
         match ns.NamespaceDocs with
-        | Some nsdocs -> p [] [embed nsdocs.DescriptionHtml ]
+        | Some nsdocs ->
+            p [] [embed nsdocs.Summary ]
+            match nsdocs.Remarks with
+            | Some r -> p [] [embed r ]
+            | None -> ()
+            
         | None -> () 
 
         p [] [!! "Categories:" ]
@@ -416,7 +464,7 @@ type HtmlRender(model: ApiDocModel) =
                     if not nav then
                        !! " - "
                        match ns.NamespaceDocs with
-                       | Some nsdocs -> embed nsdocs.SummaryHtml
+                       | Some nsdocs -> embed nsdocs.Summary
                        | None -> () ] ]
 
           // In the navigation bar generate the expanded list of entities
@@ -437,13 +485,13 @@ type HtmlRender(model: ApiDocModel) =
      |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
   /// Get the substitutions relevant to all
-  member _.GlobalParameters : Parameters =
+  member _.GlobalSubstitutions : Substitutions =
     let toc = listOfNamespaces true true None
     [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )  ]
 
   member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
-    let getParameters parameters toc (content: HtmlElement) pageTitle =
+    let getSubstitutons parameters toc (content: HtmlElement) pageTitle =
         [| yield! parameters
            yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )
            yield (ParamKeys.``fsdocs-content``, content.ToString() )
@@ -461,10 +509,10 @@ type HtmlRender(model: ApiDocModel) =
                    ul [] (listOfNamespacesAux false false None) ]
         let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
-        let parameters = getParameters model.Parameters toc content pageTitle
+        let substitutions = getSubstitutons model.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
         printfn "Generating %s" outFile
-        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
     end
 
     //printfn "Namespaces = %A" [ for ns in collection.Namespaces -> ns.Name ]
@@ -473,19 +521,19 @@ type HtmlRender(model: ApiDocModel) =
         let content = div [] (namespaceContent (nsIndex, ns))
         let pageTitle = ns.Name
         let toc = listOfNamespaces false true (Some ns)
-        let parameters = getParameters model.Parameters toc content pageTitle
+        let substitutions = getSubstitutons model.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify) )
         printfn "Generating %s" outFile
-        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
     for info in model.EntityInfos do
         Log.infof "Generating type/module: %s" info.Entity.UrlBaseName
         let content = div [] (entityContent info)
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
-        let parameters = getParameters info.Entity.Parameters toc content pageTitle
+        let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
         printfn "Generating %s" outFile
-        SimpleTemplating.UseFileAsSimpleTemplate (parameters, templateOpt, outFile)
+        SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
         Log.infof "Finished %s" info.Entity.UrlBaseName
 
