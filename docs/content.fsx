@@ -87,7 +87,7 @@ The following substitutions are extracted from your project files and may or may
 template:
 
 |  Substitution name                   | Value                          | 
-|:------------------- -----------------|:-------------------------------| 
+|:-------------------------------------|:-------------------------------| 
 | `fsdocs-copyright`                   | `<Copyright>`                  |  
 | `fsdocs-package-project-url`         | `<PackageProjectUrl>`          | 
 | `fsdocs-package-license-expression`  | `<PackageLicenseExpression>`   |
