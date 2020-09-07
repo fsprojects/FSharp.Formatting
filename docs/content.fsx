@@ -96,11 +96,10 @@ template:
 
 ## Generating LaTeX output
 
-For Latex, the the `_template.tex` file is either empty of contains `{content}` as the key where the body
-of the document is placed. 
-
 To generate .tex output for each script and markdown file, add a `_template.tex`.
-It may contain `{{fsdocs-content}}`. 
+
+It is either empty of contains `{{fsdocs-content}}` as the key where the body
+of the document is placed. 
 
 ## Generating iPython Notebook output
 
