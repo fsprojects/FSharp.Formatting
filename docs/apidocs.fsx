@@ -107,26 +107,38 @@ type SomeType() =
 
 (**
 
-Generic types are referred to by .NET compiled name, e.g.
-*)
-///  <see cref="T:Microsoft.FSharp.Core.List`1"/>. </para>
-
-(**
 Like types, members are referred to by xml doc sig.  These must currently be precise as the F#
 compiler doesn't elaborate these references from simpler names:
 *)
 
 type Class2() = 
-    member this.Other = "more"
-    member this.OtherMethod0() = "more"
-    member this.OtherMethod1(c: string) = "more"
-    member this.OtherMethod2(c: string, o: obj) = "more"
+    member this.Property = "more"
+    member this.Method0() = "more"
+    member this.Method1(c: string) = "more"
+    member this.Method2(c: string, o: obj) = "more"
 
-/// <see cref="P:crefLib2.Class2.Other" />
-/// and <see cref="M:crefLib2.Class2.OtherMethod0" />
-/// and <see cref="M:crefLib2.Class2.OtherMethod1(System.String)" />
-/// and <see cref="M:crefLib2.Class2.OtherMethod2(System.String,System.Object)" />
-let f () = "result"
+/// <see cref="P:TheNamespace.Class2.Property" />
+/// and <see cref="M:TheNamespace.Class2.OtherMethod0" />
+/// and <see cref="M:TheNamespace.Class2.Method1(System.String)" />
+/// and <see cref="M:TheNamespace.Class2.Method2(System.String,System.Object)" />
+let referringFunction1 () = "result"
+
+(**
+Generic types are referred to by .NET compiled name, e.g.
+*)
+
+type GenericClass2<'T>() = 
+    member this.Property = "more"
+
+    member this.NonGenericMethod(_c: 'T) = "more"
+
+    member this.GenericMethod(_c: 'T, _o: 'U) = "more"
+
+/// See <see cref="T:TheNamespace.GenericClass2`1" />
+/// and <see cref="P:TheNamespace.GenericClass2`1.Property" />
+/// and <see cref="M:TheNamespace.GenericClass2`1.NonGenericMethod(`0)" />
+/// and <see cref="M:TheNamespace.GenericClass2`1.GenericMethod``1(`0,``0)" />
+let referringFunction2 () = "result"
 
 (*
 
