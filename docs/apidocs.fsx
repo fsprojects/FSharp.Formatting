@@ -107,6 +107,29 @@ type SomeType() =
 
 (**
 
+Generic types are referred to by .NET compiled name, e.g.
+*)
+///  <see cref="T:Microsoft.FSharp.Core.List`1"/>. </para>
+
+(**
+Like types, members are referred to by xml doc sig.  These must currently be precise as the F#
+compiler doesn't elaborate these references from simpler names:
+*)
+
+type Class2() = 
+    member this.Other = "more"
+    member this.OtherMethod0() = "more"
+    member this.OtherMethod1(c: string) = "more"
+    member this.OtherMethod2(c: string, o: obj) = "more"
+
+/// <see cref="P:crefLib2.Class2.Other" />
+/// and <see cref="M:crefLib2.Class2.OtherMethod0" />
+/// and <see cref="M:crefLib2.Class2.OtherMethod1(System.String)" />
+/// and <see cref="M:crefLib2.Class2.OtherMethod2(System.String,System.Object)" />
+let f () = "result"
+
+(*
+
 ## Go to Source links
 
 'fsdocs' normally automatically adds GitHub links to each functions, values and class members for further reference.

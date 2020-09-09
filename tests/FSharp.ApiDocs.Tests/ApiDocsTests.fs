@@ -249,14 +249,29 @@ let ``ApiDocs test that cref generation works``() =
   files.["creflib4-class2.html"] |> shouldContainText "creflib1-class1.html"
   /// + no crash on unresolved reference.
   files.["creflib4-class2.html"] |> shouldContainText "Unknown__Reference"
+
   /// reference to a member works.
   files.["creflib4-class3.html"] |> shouldContainText "Class2.Other"
   files.["creflib4-class3.html"] |> shouldContainText "creflib4-class2.html"
 
+  /// references to members work and give correct links
+  files.["creflib2-class3.html"] |> shouldContainText """<a href="/reference/creflib2-class2.html#Other">Class2.Other</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-class2.html#Method0">Class2.Method0</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-class2.html#Method1">Class2.Method1</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-class2.html#Method2">Class2.Method2</a>"""
+
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html">GenericClass2</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html#Property">GenericClass2.Property</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html#NonGenericMethod">GenericClass2.NonGenericMethod</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html#GenericMethod">GenericClass2.GenericMethod</a>"""
+
+  /// references to non-existent members where the type resolves give an approximation
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-class2.html">Class2.NotExistsProperty</a>"""
+  files.["creflib2-class3.html"] |> shouldContainText """and <a href="/reference/creflib2-class2.html">Class2.NotExistsMethod</a>"""
+
   /// reference to a corelib class works.
   files.["creflib4-class4.html"] |> shouldContainText "Assembly"
   files.["creflib4-class4.html"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
-
 
   // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
   // reference class in same assembly
