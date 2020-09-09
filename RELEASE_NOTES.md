@@ -1,3 +1,11 @@
+## 7.2.7
+
+* [ApiDocs: examples not showing for types and modules](https://github.com/fsprojects/FSharp.Formatting/issues/599)
+
+* [ApiDocs: cref to members are not resolving to best possible link](https://github.com/fsprojects/FSharp.Formatting/issues/598)
+
+* [ApiDocs: namespace docs are showing in module/type summaries as well](https://github.com/fsprojects/FSharp.Formatting/issues/597)
+
 ## 7.2.6
 
 - In ApiDocsModel, separate out the parameter, summary, remarks sections etc.
