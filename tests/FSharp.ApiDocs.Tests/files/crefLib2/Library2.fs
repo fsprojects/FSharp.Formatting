@@ -1,4 +1,4 @@
-﻿namespace crefLib2
+namespace crefLib2
 
 /// <summary>
 /// <see cref="Class2" />
@@ -10,13 +10,39 @@ type Class1() =
     member this.X = "F#"
 
 /// <summary>
-/// <see cref="crefLib1.Class1" />
+/// <see cref="T:crefLib1.Class1" />
 /// </summary>
 type Class2() = 
     /// <summary>
     /// <see cref="Unknown__Reference" />
     /// </summary>
     member this.Other = "more"
+
+    /// <summary>
+    /// This is a method in Class2 called Method0
+    /// </summary>
+    member this.Method0() = "more"
+
+    /// <summary>
+    /// This is a method in Class2 called Method1
+    /// </summary>
+    member this.Method1(_c: string) = "more"
+
+    /// <summary>
+    /// This is a method in Class2 called Method2
+    /// </summary>
+    member this.Method2(_c: string, _o: obj) = "more"
+
+    
+type GenericClass2<'T>() = 
+    /// This is a property in GenericClass2 called Property
+    member this.Property = "more"
+
+    /// This is a method in GenericClass2 called NonGenericMethod
+    member this.NonGenericMethod(_c: 'T) = "more"
+
+    /// This is a method in GenericClass2 called GenericMethod
+    member this.GenericMethod(_c: 'T, _o: 'U) = "more"
 
     
 /// <summary>
@@ -25,6 +51,17 @@ type Class2() =
 type Class3() = 
     /// <summary>
     /// <see cref="P:crefLib2.Class2.Other" />
+    /// and <see cref="M:crefLib2.Class2.Method0" />
+    /// and <see cref="M:crefLib2.Class2.Method1(System.String)" />
+    /// and <see cref="M:crefLib2.Class2.Method2(System.String,System.Object)" />
+    /// and <see cref="P:crefLib2.Class2.NotExistsProperty" />
+    /// and <see cref="M:crefLib2.Class2.NotExistsMethod()" />
+    /// and <see cref="T:crefLib2.GenericClass2`1" />
+    /// and <see cref="P:crefLib2.GenericClass2`1.Property" />
+    /// and <see cref="M:crefLib2.GenericClass2`1.NonGenericMethod(`0)" />
+    /// and <see cref="M:crefLib2.GenericClass2`1.GenericMethod``1(`0,``0)" />
+    /// and <see cref="P:crefLib2.GenericClass2`1.NotExistsProperty" />
+    /// and <see cref="M:crefLib2.GenericClass2`1.NotExistsMethod()" />
     /// </summary>
     member this.X = "F#"
 
@@ -33,7 +70,7 @@ type Class3() =
 /// </summary>
 type Class4() = 
     /// <summary>
-    /// <see cref="System.Reflection.Assembly" />
+    /// <see cref="T:System.Reflection.Assembly" />
     /// </summary>
     member this.X = "F#"
 

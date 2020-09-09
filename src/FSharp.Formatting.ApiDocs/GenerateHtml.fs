@@ -205,6 +205,20 @@ type HtmlRender(model: ApiDocModel) =
                td [Class "fsdocs-xmldoc" ] [
                    p [] [yield! sourceLink e.SourceLocation
                          embed e.Comment.Summary;  ]
+
+                   match e.Comment.Remarks with
+                   | Some r ->
+                      p [Class "fsdocs-remarks"] [embed r]
+                   | None -> ()
+
+                   for e in e.Comment.Notes do 
+                      h5 [Class "fsdocs-note-header"] [!! "Note"]
+                      p [Class "fsdocs-note"] [embed e]
+
+                   for e in e.Comment.Examples do 
+                      h5 [Class "fsdocs-example-header"] [!! "Example"]
+                      p [Class "fsdocs-example"] [embed e]
+
                ]
             ]
         ]

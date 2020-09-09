@@ -340,8 +340,12 @@ type ApiDocMember (displayName: string, attributes: ApiDocAttribute list, entity
   member x.UrlBaseName = entityUrlBaseName
 
     /// The URL of the best link documentation for the item relative to "reference" directory (without the http://site.io/reference)
-  member x.Url(root, collectionName, qualify) =
+  static member GetUrl(entityUrlBaseName, displayName, root, collectionName, qualify) =
       sprintf "%sreference/%s%s.html#%s" root (if qualify then collectionName + "/" else "") entityUrlBaseName displayName
+
+    /// The URL of the best link documentation for the item relative to "reference" directory (without the http://site.io/reference)
+  member x.Url(root, collectionName, qualify) =
+      ApiDocMember.GetUrl(entityUrlBaseName, displayName, root, collectionName, qualify)
 
     /// The declared attributes of the member
   member x.Attributes = attributes
@@ -411,9 +415,13 @@ type ApiDocEntity
     /// The URL base name of the primary documentation for the entity  (without the http://site.io/reference)
     member x.UrlBaseName : string = urlBaseName
 
+    /// Compute the URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
+    static member GetUrl(urlBaseName, root, collectionName, qualify) =
+        sprintf "%sreference/%s%s.html" root (if qualify then collectionName + "/" else "") urlBaseName
+
     /// The URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
     member x.Url(root, collectionName, qualify) =
-        sprintf "%sreference/%s%s.html" root (if qualify then collectionName + "/" else "") urlBaseName
+        ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify)
 
     /// The name of the file generated for this entity
     member x.OutputFile(collectionName, qualify) =
@@ -501,7 +509,7 @@ type ApiDocNamespace(name: string, modifiers, substitutions: Substitutions, nsdo
     member x.Name : string = name
 
     /// The hash label for the URL with the overall namespaces file
-    member x.UrlHash = name.Replace(".", "-").ToLower()
+    member x.UrlHash = urlBaseName
 
     /// The base name for the generated file
     member x.UrlBaseName = urlBaseName
@@ -623,8 +631,8 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
         |> Seq.distinctBy fst
         |> Seq.toList
     let usedNames = Dictionary<_, _>()
-    let registeredEntitiesToUrlBaseName = Dictionary<FSharpEntity, string>()
-    let xmlDocNameToEntity = Dictionary<string, FSharpEntity>()
+    let registeredSymbolsToUrlBaseName = Dictionary<FSharpSymbol, string>()
+    let xmlDocNameToSymbol = Dictionary<string, FSharpSymbol>()
     let niceNameEntityLookup = Dictionary<_, _>()
 
     let nameGen (name:string) =
@@ -638,14 +646,21 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
         usedNames.Add(found, true)
         found
 
+    let registerMember (memb: FSharpMemberOrFunctionOrValue) =
+        let xmlsig = getXmlDocSigForMember memb
+
+        if (not (System.String.IsNullOrEmpty xmlsig)) then
+            assert (xmlsig.StartsWith("M:") || xmlsig.StartsWith("P:") || xmlsig.StartsWith("F:") || xmlsig.StartsWith("E:"))
+            xmlDocNameToSymbol.[xmlsig] <- memb
+
     let rec registerEntity (entity: FSharpEntity) =
         let newName = nameGen (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
-        registeredEntitiesToUrlBaseName.[entity] <- newName
+        registeredSymbolsToUrlBaseName.[entity] <- newName
         let xmlsig = getXmlDocSigForType entity
 
         if (not (System.String.IsNullOrEmpty xmlsig)) then
             assert (xmlsig.StartsWith("T:"))
-            xmlDocNameToEntity.[xmlsig.Substring(2)] <- entity
+            xmlDocNameToSymbol.[xmlsig] <- entity
             if (not(niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
                 niceNameEntityLookup.[entity.LogicalName] <- System.Collections.Generic.List<_>()
             niceNameEntityLookup.[entity.LogicalName].Add(entity)
@@ -653,8 +668,11 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
         for nested in entity.NestedEntities do
             registerEntity nested
 
+        for memb in entity.TryGetMembersFunctionsAndValues do
+            registerMember memb
+
     let getUrlBaseNameForRegisteredEntity (entity:FSharpEntity) =
-        match registeredEntitiesToUrlBaseName.TryGetValue (entity) with
+        match registeredSymbolsToUrlBaseName.TryGetValue (entity) with
         | true, v -> v
         | _ -> failwithf "The entity %s was not registered before!" (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
 
@@ -696,10 +714,13 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
         sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
 
     let internalCrossReference urlBaseName =
-        sprintf "%sreference/%s%s.html" root (if qualify then collectionName + "/" else "") urlBaseName
+        ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify)
 
-    let tryResolveCrossReferenceForEntity entity =
-        match registeredEntitiesToUrlBaseName.TryGetValue (entity) with
+    let internalCrossReferenceForMember entityUrlBaseName (memb: FSharpMemberOrFunctionOrValue) =
+        ApiDocMember.GetUrl(entityUrlBaseName, memb.DisplayName, root, collectionName, qualify)
+
+    let tryResolveCrossReferenceForEntity (entity: FSharpEntity) =
+        match registeredSymbolsToUrlBaseName.TryGetValue (entity) with
         | true, _v -> 
             let urlBaseName = getUrlBaseNameForRegisteredEntity entity
             Some
@@ -718,15 +739,17 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
                     NiceName = simple
                     HasModuleSuffix = false}
 
-    let resolveCrossReferenceForTypeByName typeName =
-        match xmlDocNameToEntity.TryGetValue(typeName) with
-        | true, entity ->
+    let resolveCrossReferenceForTypeByXmlSig (typeXmlSig: string) =
+        assert (typeXmlSig.StartsWith("T:"))
+        match xmlDocNameToSymbol.TryGetValue(typeXmlSig) with
+        | true, (:? FSharpEntity as entity) ->
             let urlBaseName = getUrlBaseNameForRegisteredEntity entity
             { IsInternal = true
               ReferenceLink = internalCrossReference urlBaseName
-              NiceName = entity.LogicalName
+              NiceName = entity.DisplayName
               HasModuleSuffix=entity.HasFSharpModuleSuffix }
         | _ ->
+            let typeName = typeXmlSig.Substring(2)
             match niceNameEntityLookup.TryGetValue(typeName) with
             | true, entities ->
                 match Seq.toList entities with
@@ -734,7 +757,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
                     let urlBaseName = getUrlBaseNameForRegisteredEntity entity
                     { IsInternal = true
                       ReferenceLink = internalCrossReference urlBaseName
-                      NiceName = entity.LogicalName
+                      NiceName = entity.DisplayName
                       HasModuleSuffix=entity.HasFSharpModuleSuffix }
                 | _ -> failwith "unreachable"
             | _ ->
@@ -745,6 +768,27 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
                   NiceName = simple
                   HasModuleSuffix = false}
 
+    let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
+        assert (memberXmlSig.StartsWith("M:") || memberXmlSig.StartsWith("P:") || memberXmlSig.StartsWith("F:") || memberXmlSig.StartsWith("E:"))
+        match xmlDocNameToSymbol.TryGetValue(memberXmlSig) with
+        | true, (:? FSharpMemberOrFunctionOrValue as memb) when memb.DeclaringEntity.IsSome ->
+            let entityUrlBaseName = getUrlBaseNameForRegisteredEntity memb.DeclaringEntity.Value 
+            { IsInternal = true
+              ReferenceLink = internalCrossReferenceForMember entityUrlBaseName memb
+              NiceName = memb.DeclaringEntity.Value.DisplayName + "." + memb.DisplayName
+              HasModuleSuffix=false }
+            |> Some
+        | _ ->
+            // If we can't find the exact symbol for the member, don't despair, look for the type
+            let memberName = memberXmlSig.Substring(2) |> removeParen
+            match tryGetTypeFromMemberName memberName with
+            | Some typeName ->
+                let reference = resolveCrossReferenceForTypeByXmlSig ("T:" + typeName)
+                Some { reference with NiceName = getMemberName 2 reference.HasModuleSuffix memberName }
+            | None ->
+                Log.errorf "Assumed '%s' was a member but we cannot extract a type!" memberXmlSig
+                None
+
     member _.ResolveCref (cref:string) =
         if (cref.Length < 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
         let memberName = cref.Substring(2)
@@ -752,7 +796,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
         match cref with
         // Type
         | _ when cref.StartsWith("T:") ->
-            let reference = resolveCrossReferenceForTypeByName memberName 
+            let reference = resolveCrossReferenceForTypeByXmlSig cref
             // A reference to something in this component
             let simple = getMemberName 1 reference.HasModuleSuffix noParen
             Some { reference with NiceName = simple }
@@ -761,18 +805,9 @@ type internal CrossReferenceResolver (root, collectionName, qualify) =
         | _ when cref.StartsWith("!:")  ->
             Log.warnf "Compiler was unable to resolve %s" cref
             None
-
         // ApiDocMember
         | _ when cref.[1] = ':' ->
-            match tryGetTypeFromMemberName memberName with
-            | Some typeName ->
-                let reference = resolveCrossReferenceForTypeByName typeName 
-                // A reference to something in this component
-                let simple = getMemberName 2 reference.HasModuleSuffix noParen
-                Some { reference with NiceName = simple }
-            | None ->
-                Log.warnf "Assumed '%s' was a member but we cannot extract a type!" cref
-                None
+            tryResolveCrossReferenceForMemberByXmlSig cref
         // No idea
         | _ ->
             Log.warnf "Unresolved reference '%s'!" cref
@@ -1403,7 +1438,7 @@ module internal SymbolReader =
 
         // not part of the XML doc standard
         let nsels =
-            let ds = doc.Descendants(XName.Get "namespacedoc")
+            let ds = doc.Elements(XName.Get "namespacedoc")
             if Seq.length ds > 0 then
                 Some (Seq.toList ds)
             else
@@ -1411,7 +1446,7 @@ module internal SymbolReader =
 
         let summary =
             if summaryExpected then
-                let summaries = doc.Descendants(XName.Get "summary") |> Seq.toList
+                let summaries = doc.Elements(XName.Get "summary") |> Seq.toList
                 let html = new StringBuilder()
                 for (id, e) in List.indexed summaries do 
                      let n = if id = 0 then "summary" else "summary-" + string id
@@ -1423,7 +1458,7 @@ module internal SymbolReader =
                 readXmlElementAsHtml false urlMap cmds html doc
                 ApiDocHtml(html.ToString())
 
-        let paramNodes = doc.Descendants(XName.Get "param")  |> Seq.toList
+        let paramNodes = doc.Elements(XName.Get "param")  |> Seq.toList
         let parameters =
             [ for e in paramNodes do
                  let paramName = e.Attribute(XName.Get "name").Value
@@ -1432,13 +1467,13 @@ module internal SymbolReader =
                  let paramHtml = ApiDocHtml(phtml.ToString())
                  paramName, paramHtml ] 
 
-        for e in doc.Descendants(XName.Get "exclude") do
+        for e in doc.Elements(XName.Get "exclude") do
             cmds.["exclude"] <- e.Value
 
-        for e in doc.Descendants(XName.Get "omit") do
+        for e in doc.Elements(XName.Get "omit") do
             cmds.["omit"] <- e.Value
 
-        for e in doc.Descendants(XName.Get "category") do
+        for e in doc.Elements(XName.Get "category") do
             match e.Attribute(XName.Get "index") with
             | null -> ()
             | a ->
@@ -1446,7 +1481,7 @@ module internal SymbolReader =
             cmds.["category"] <- e.Value
 
         let remarks =
-            let remarkNodes = doc.Descendants(XName.Get "remarks") |> Seq.toList
+            let remarkNodes = doc.Elements(XName.Get "remarks") |> Seq.toList
             if Seq.length remarkNodes > 0 then
                 let html = new StringBuilder()
                 for (id, e) in List.indexed remarkNodes do
@@ -1459,7 +1494,7 @@ module internal SymbolReader =
 
         let returns =
             let html = new StringBuilder()
-            let returnNodes = doc.Descendants(XName.Get "returns") |> Seq.toList
+            let returnNodes = doc.Elements(XName.Get "returns") |> Seq.toList
             if returnNodes.Length > 0 then
                 for (id, e) in List.indexed returnNodes do
                     let n = if id = 0 then "returns" else "returns-" + string id
@@ -1470,7 +1505,7 @@ module internal SymbolReader =
                 None
 
         let exceptions =
-            let exceptionNodes = doc.Descendants(XName.Get "exception") |> Seq.toList
+            let exceptionNodes = doc.Elements(XName.Get "exception") |> Seq.toList
             [     for e in exceptionNodes do
                     let cref = e.Attribute(XName.Get "cref")
                     if cref <> null then
@@ -1495,7 +1530,7 @@ module internal SymbolReader =
                            ]
 
         let examples =
-            let exampleNodes = doc.Descendants(XName.Get "example") |> Seq.toList
+            let exampleNodes = doc.Elements(XName.Get "example") |> Seq.toList
             [ for (id, e) in List.indexed exampleNodes do
                 let html = new StringBuilder()
                 let n = if id = 0 then "example" else "example-" + string id
@@ -1504,7 +1539,7 @@ module internal SymbolReader =
                 ApiDocHtml(html.ToString()) ]
  
         let notes =
-            let noteNodes = doc.Descendants(XName.Get "note") |> Seq.toList
+            let noteNodes = doc.Elements(XName.Get "note") |> Seq.toList
             // 'note' is not part of the XML doc standard but is supported by Sandcastle and other tools
             [ for (id, e) in List.indexed noteNodes do
                 let html = new StringBuilder()
@@ -1840,7 +1875,7 @@ module internal SymbolReader =
     // so we need to add them to the XmlMemberMap separately
     let registerTypeProviderXmlDocs (ctx:ReadingContext) (typ:FSharpEntity) =
       let xmlDoc = registerXmlDoc ctx typ.XmlDocSig (String.concat "" typ.XmlDoc)
-      xmlDoc.Descendants(XName.Get "param")
+      xmlDoc.Elements(XName.Get "param")
       |> Seq.choose (fun p ->
           let nameAttr = p.Attribute(XName.Get "name")
           if nameAttr = null then None
