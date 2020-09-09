@@ -206,19 +206,6 @@ type HtmlRender(model: ApiDocModel) =
                    p [] [yield! sourceLink e.SourceLocation
                          embed e.Comment.Summary;  ]
 
-                   match e.Comment.Remarks with
-                   | Some r ->
-                      p [Class "fsdocs-remarks"] [embed r]
-                   | None -> ()
-
-                   for e in e.Comment.Notes do 
-                      h5 [Class "fsdocs-note-header"] [!! "Note"]
-                      p [Class "fsdocs-note"] [embed e]
-
-                   for e in e.Comment.Examples do 
-                      h5 [Class "fsdocs-example-header"] [!! "Example"]
-                      p [Class "fsdocs-example"] [embed e]
-
                ]
             ]
         ]
@@ -238,7 +225,6 @@ type HtmlRender(model: ApiDocModel) =
     // Get all the members & comment for the type
     let entity = info.Entity
     let members = entity.AllMembers |> List.filter (fun e -> not e.IsObsolete)
-    let comment = entity.Comment
 
     // Group all members by their category 
     let byCategory =
@@ -246,7 +232,7 @@ type HtmlRender(model: ApiDocModel) =
       |> List.mapi (fun i (key, elems) ->
           let elems = elems |> List.sortBy (fun m -> m.Name)
           let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
-          (i, key, elems, name))
+          (i, elems, name))
   
     let usageName =
         match info.ParentModule with
@@ -277,8 +263,11 @@ type HtmlRender(model: ApiDocModel) =
       match entity.AllInterfaces with
       | [] -> ()
       | l ->
-         p [] [!! ("All Interfaces: ")]
-         ul [] [ for i in l -> li [] [embed i] ]
+         p [] [!! ("All Interfaces: ")
+               for (i, ity) in Seq.indexed l do
+                  if i <> 0 then
+                     !! ", "
+                  embed ity ]
          
       if entity.Symbol.IsValueType then
          p [] [!! ("Kind: Struct")]
@@ -300,21 +289,28 @@ type HtmlRender(model: ApiDocModel) =
       //if info.Entity.IsObsolete then
       //    obsoleteMessage entity.ObsoleteMessage
   
-      div [Class "fsdocs-xmldoc" ] [
-        // XML comment for the type has multiple sections that can be labelled
-        // with categories (to give comment for an individual category). Here,
-        // we print only those that belong to the <default>
-        for sec in comment.Sections do
-          if not (byCategory |> List.exists (fun (_, g, _, _) -> g = sec.Key)) then
-            if (sec.Key <> "<default>") then 
-              h3 [] [encode(sec.Key)]
-          embed sec.Value
-        ]
+      // Show the summary (and sectioned docs without any members)
+      div [Class "fsdocs-xmldoc" ] [ embed entity.Comment.Summary ]
+
+      // Show the remarks etc.
+      match entity.Comment.Remarks with
+      | Some r ->
+          p [Class "fsdocs-remarks"] [embed r]
+      | None -> ()
+
+      for note in entity.Comment.Notes do 
+          h5 [Class "fsdocs-note-header"] [!! "Note"]
+          p [Class "fsdocs-note"] [embed note]
+
+      for example in entity.Comment.Examples do 
+          h5 [Class "fsdocs-example-header"] [!! "Example"]
+          p [Class "fsdocs-example"] [embed example]
+
       if (byCategory.Length > 1) then
         // If there is more than 1 category in the type, generate TOC 
         h3 [] [!!"Table of contents"]
         ul [] [
-          for (index, _, _, name) in byCategory do
+          for (index, _, name) in byCategory do
             li [] [ a [Href (sprintf "#section%d" index)] [!! name ] ]
         ]
  
@@ -332,18 +328,13 @@ type HtmlRender(model: ApiDocModel) =
           yield! renderEntities nestedEntities
         ]
  
-      for (index, key, ms, name) in byCategory do
+      for (index, ms, name) in byCategory do
         // Iterate over all the categories and print members. If there are more than one
         // categories, print the category heading (as <h2>) and add XML comment from the type
         // that is related to this specific category.
         if (byCategory.Length > 1) then
            h2 [Id (sprintf "section%d" index)] [!! name]
            //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
-        let info = comment.Sections |> Seq.tryFind(fun kvp -> kvp.Key = key)
-        match info with
-        | None -> ()
-        | Some key ->
-           div [Class "fsdocs-xmldoc"] [ embed key.Value ]
         div [] (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
         div [] (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
         div [] (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))

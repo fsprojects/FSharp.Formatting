@@ -1,6 +1,10 @@
-## 7.2.7
+## 7.2.8
 
 * [ApiDocs: examples not showing for types and modules](https://github.com/fsprojects/FSharp.Formatting/issues/599)
+
+* Comma-separate interface list in API docs
+
+## 7.2.7
 
 * [ApiDocs: cref to members are not resolving to best possible link](https://github.com/fsprojects/FSharp.Formatting/issues/598)
 
