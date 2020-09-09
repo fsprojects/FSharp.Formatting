@@ -16,7 +16,7 @@ open FSharp.Formatting.Templating
 /// </summary>
 ///
 /// <namespacedoc>
-///   <summary>Functionality relating to templating (mostly internal)</summary>
+///   <summary>Functionality to literate programming support for F# scripts</summary>
 /// </namespacedoc>
 type Literate private () =
 

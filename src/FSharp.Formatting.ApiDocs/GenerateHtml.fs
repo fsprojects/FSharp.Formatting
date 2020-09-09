@@ -420,9 +420,9 @@ type HtmlRender(model: ApiDocModel) =
             
         | None -> () 
 
-        p [] [!! "Categories:" ]
-
         if (allByCategory.Length > 1) then
+            p [] [!! "Categories:" ]
+
             ul [] [
                for category in allByCategory do
                    li [] [a [Href ("#category-" + category.CategoryIndex)] [!!category.CategoryName]]
