@@ -113,25 +113,25 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, diag
     List.ofSeq doc.Diagnostics, doc.Paragraphs
 
   /// Returns a list of paragraphs in the document
-  member x.Paragraphs : MarkdownParagraphs = paragraphs
+  member _.Paragraphs : MarkdownParagraphs = paragraphs
 
   /// Returns a dictionary containing explicitly defined links
-  member x.DefinedLinks : IDictionary<string, string * option<string>> = links
+  member _.DefinedLinks : IDictionary<string, string * option<string>> = links
 
   /// Errors
-  member x.Diagnostics : SourceError[] = diagnostics
+  member _.Diagnostics : SourceError[] = diagnostics
 
   /// Original document source code
-  member x.Source : LiterateSource = source
+  member _.Source : LiterateSource = source
 
   /// Location where the file was loaded from
-  member x.SourceFile : string = sourceFile
+  member _.SourceFile : string = sourceFile
 
   /// Formatted tool tips
-  member x.FormattedTips : string = formattedTips
+  member _.FormattedTips : string = formattedTips
 
   /// Return as markdown document, throwing away additional stuff
-  member x.MarkdownDocument = MarkdownDocument(paragraphs, links)
+  member _.MarkdownDocument = MarkdownDocument(paragraphs, links)
 
   // Implement equality & get hash code for testing purposes
   override x.Equals(other) = 

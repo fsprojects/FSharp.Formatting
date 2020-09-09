@@ -247,5 +247,5 @@ ApiDocs.GenerateHtml
       output=Path.Combine(root, "output"),
       collectionName="YourLibrary",
       template=Path.Combine(root, "templates", "template.html"),
-      parameters=[])
+      substitutions=[])
 

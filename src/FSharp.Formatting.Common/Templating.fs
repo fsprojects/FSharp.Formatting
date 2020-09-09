@@ -20,7 +20,13 @@ module internal ParamKeyUtils =
     let (|ParamKey|) (c: ParamKey) : string = c
 #endif
 
-/// Defines the parameter keys known to FSharp.Formatting processing code
+/// <summary>
+///  Defines the parameter keys known to FSharp.Formatting processing code
+/// </summary>
+///
+/// <namespacedoc>
+///   <summary>Functionality relating to templating (mostly internal)</summary>
+/// </namespacedoc>
 [<RequireQualifiedAccess>]
 module ParamKeys =
 

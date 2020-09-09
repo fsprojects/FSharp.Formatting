@@ -9,7 +9,13 @@ open System
 open System.Diagnostics
 open FSharp.Formatting.CodeFormat.Constants
 
-/// Represents an individual formatted snippet with title as key
+/// <summary>
+///  Represents an individual formatted snippet with title as key
+/// </summary>
+///
+/// <namespacedoc>
+///   <summary>Functionality relating to formatting F# scripts and code snippets</summary>
+/// </namespacedoc>
 type FormattedSnippet(key:string, content:string) =
 
   /// Returns the title of the snippet 

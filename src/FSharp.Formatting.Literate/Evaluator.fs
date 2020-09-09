@@ -338,10 +338,13 @@ module __FsiSettings =
 
   /// Temporarily holds the function value injected into the F# evaluation session
   static member val internal InjectedAddPrintTransformer : ((obj -> obj) * Type -> unit) = Unchecked.defaultof<_>  with get, set
+
   /// Temporarily holds the function value injected into the F# evaluation session
   static member val internal InjectedAddPrinter : ((obj -> string) * Type -> unit) = Unchecked.defaultof<_>  with get, set
+
   /// Temporarily holds the function value injected into the F# evaluation session
   static member val internal InjectedAddHtmlPrinter : ((obj -> seq<string * string> * string) * Type -> unit) = Unchecked.defaultof<_>  with get, set
+
   /// Temporarily holds the object value injected into the F# evaluation session
   static member val internal InjectedFsiObj : obj = Unchecked.defaultof<_>  with get, set
 

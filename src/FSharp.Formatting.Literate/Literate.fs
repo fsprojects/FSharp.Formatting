@@ -8,14 +8,16 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Templating
 
-// --------------------------------------------------------------------------------------
-// Public API
-// --------------------------------------------------------------------------------------
-
+/// <summary>
 /// This type provides three simple methods for calling the literate programming tool.
-/// The `ConvertMarkdownFile` and `ConvertScriptFile` methods process a single Markdown document
-/// and F# script, respectively. The `ConvertDirectory` method handles an entire directory tree
-/// (looking for `*.fsx` and `*.md` files).
+/// The <c>ConvertMarkdownFile</c> and <c>ConvertScriptFile</c> methods process a single Markdown document
+/// and F# script, respectively. The <c>ConvertDirectory</c> method handles an entire directory tree
+/// (looking for <c>*.fsx</c> and <c>*.md</c> files).
+/// </summary>
+///
+/// <namespacedoc>
+///   <summary>Functionality relating to templating (mostly internal)</summary>
+/// </namespacedoc>
 type Literate private () =
 
   /// Build default options context for formatting literate document
@@ -57,77 +59,6 @@ type Literate private () =
           MarkdownPatterns.ParagraphNested(o, List.map (downloadImages ctx) pars)
       | MarkdownPatterns.ParagraphLeaf p -> MarkdownPatterns.ParagraphLeaf p )
 
-
-  //let addHtmlPrinter = """
-  //  module FsInteractiveService = 
-  //    let mutable htmlPrinters = []
-  //    let tryFormatHtml o = htmlPrinters |> Seq.tryPick (fun f -> f o)
-  //    let htmlPrinterParams = System.Collections.Generic.Dictionary<string, obj>()
-  //    do htmlPrinterParams.["html-standalone-output"] <- @html-standalone-output
-
-  //  type __ReflectHelper.ForwardingInteractiveSettings with
-  //    member x.HtmlPrinterParameters = FsInteractiveService.htmlPrinterParams
-  //    member x.AddHtmlPrinter<'T>(f:'T -> seq<string * string> * string) = 
-  //      FsInteractiveService.htmlPrinters <- (fun (value:obj) ->
-  //        match value with
-  //        | :? 'T as value -> Some(f value)
-  //        | _ -> None) :: FsInteractiveService.htmlPrinters"""
-
-
-  /// Create FSI evaluator - this loads `addHtmlPrinter` and calls the registered
-  /// printers when processing outputs. Printed <head> elements are added to the
-  /// returned ResizeArray
-  //let createFsiEvaluator ctx = 
-  //  try
-  //    let addHtmlPrinter = addHtmlPrinter.Replace("@html-standalone-output", if ctx.Standalone then "true" else "false")
-  //    match (fsi :> IFsiEvaluator).Evaluate(addHtmlPrinter, false, None) with
-  //    | :? FsiEvaluationResult as res when res.ItValue.IsSome -> ()
-  //    | _ -> failwith "Evaluating addHtmlPrinter code failed"
-  //  with e ->
-  //    printfn "%A" e
-  //    reraise ()
-
-  //  let tryFormatHtml =
-  //    match (fsi :> IFsiEvaluator).Evaluate("(FsInteractiveService.tryFormatHtml : obj -> option<seq<string*string>*string>)", true, None) with
-  //    | :? FsiEvaluationResult as res -> 
-  //        let func = unbox<obj -> option<seq<string*string>*string>> (fst res.Result.Value)
-  //        fun (o:obj) -> func o
-  //    | _ -> failwith "Failed to get tryFormatHtml function"
-
-    //let head = new ResizeArray<_>()
-    //fsi.RegisterTransformation(fun (o, _t) ->
-    //  match tryFormatHtml o with
-    //  | Some (args, html) -> 
-    //      for _k, v in args do if not (head.Contains(v)) then head.Add(v)
-    //      Some [InlineBlock("<div class=\"fslab-html-output\">" + html + "</div>")]
-    //  | None -> None )
-
-    //fsi :> IFsiEvaluator, head
-
-  // Find or generate a default file that we want to show in browser
-  //static let getDefaultFile ctx = function
-  //  | [] -> failwith "No script files found!"
-  //  | [file, _] -> file // If there is just one file, return it
-  //  | generated ->
-  //      // If there is custom default or index file, use it
-  //      let existingDefault =
-  //        Directory.GetFiles(ctx.Root) |> Seq.tryPick (fun f ->
-  //          match Path.GetFileNameWithoutExtension(f).ToLower() with
-  //          | "default" | "index" -> Some(Path.GetFileNameWithoutExtension(f) + ".html")
-  //          | _ -> None)
-  //      match existingDefault with
-  //      | None ->
-  //          // Otherwise, generate simple page with list of all files
-  //          let items =
-  //            [ for file, title in generated ->
-  //                [Paragraph [ DirectLink([Literal title], (file,None)) ]] ]
-  //          let pars =
-  //            [ Heading(1, [Literal "FSharp Literate Scripts"])
-  //              ListBlock(Unordered, items) ]
-  //          let doc = LiterateDocument(pars, "", dict[], LiterateSource.Markdown "", "", Seq.empty)
-  //          generateFile ctx (ctx.Output @@ "index.html") doc "FSharp Literate Scripts" ""
-  //          "index.html"
-  //      | Some fn -> fn
 
   static let parsingContext formatAgent evaluator fscoptions definedSymbols =
     let definedSymbols = defaultArg definedSymbols []

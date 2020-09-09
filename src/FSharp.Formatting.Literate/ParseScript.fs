@@ -3,17 +3,12 @@ namespace FSharp.Formatting.Literate
 open System.Collections.Generic
 open FSharp.Patterns
 open FSharp.Formatting.CodeFormat
-open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Markdown
-
-// --------------------------------------------------------------------------------------
-// CodeBlockUtils module
-// --------------------------------------------------------------------------------------
 
 /// Parsing of F# Script files with Markdown commands. Given a parsed script file, we 
 /// split it into a sequence of comments, snippets and commands (comment starts with 
-/// `(**` and ending with `*)` are translated to Markdown, snippet is all other F# code 
-/// and command looks like `(*** key1:value, key2:value ***)` (and should be single line).
+/// <c>(**</c> and ending with <c>*)</c> are translated to Markdown, snippet is all other F# code 
+/// and command looks like <c>(*** key1:value, key2:value ***)</c> (and should be single line).
 module internal CodeBlockUtils =
   type Block = 
     | BlockComment of string
