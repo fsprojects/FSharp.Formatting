@@ -80,52 +80,49 @@ module internal Utils =
 type ApiDocHtml(html: string) =
 
     /// Get the HTML text of the HTML section
-    member x.HtmlText = html
+    member _.HtmlText = html
 
 /// Represents a documentation comment attached to source code
-type ApiDocComment(summary, remarks, parameters, returns, examples, notes, exceptions, sections, rawData) =
+type ApiDocComment(summary, remarks, parameters, returns, examples, notes, exceptions, rawData) =
     /// The summary for the comment
-  member x.Summary : ApiDocHtml = summary
+  member _.Summary : ApiDocHtml = summary
 
     /// The remarks html for comment
-  member x.Remarks : ApiDocHtml option = remarks
+  member _.Remarks : ApiDocHtml option = remarks
 
     /// The param sections of the comment
-  member x.Parameters : (string * ApiDocHtml) list = parameters
+  member _.Parameters : (string * ApiDocHtml) list = parameters
 
     /// The examples sections of the comment
-  member x.Examples : ApiDocHtml list = examples
+  member _.Examples : ApiDocHtml list = examples
 
     /// The notes sections of the comment
-  member x.Notes : ApiDocHtml list = notes
+  member _.Notes : ApiDocHtml list = notes
 
     /// The return sections of the comment
-  member x.Returns : ApiDocHtml option = returns
+  member _.Returns : ApiDocHtml option = returns
 
     /// The notes sections of the comment
-  member x.Exceptions : (string * string option * ApiDocHtml) list = exceptions
-
-    /// The parsed sections of the comment
-  member x.Sections : KeyValuePair<string, ApiDocHtml> list = sections
+  member _.Exceptions : (string * string option * ApiDocHtml) list = exceptions
 
     /// The raw data of the comment
-  member x.RawData: KeyValuePair<string, string> list = rawData
+  member _.RawData: KeyValuePair<string, string> list = rawData
 
-  static member internal Empty = ApiDocComment(ApiDocHtml(""), None, [], None, [], [], [],  [], [])
+  static member internal Empty = ApiDocComment(ApiDocHtml(""), None, [], None, [], [], [],  [])
 
 /// Represents a custom attribute attached to source code
 type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments) =
     /// The name of the attribute
-  member x.Name : string = name
+  member _.Name : string = name
 
     /// The qualified name of the attribute
-  member x.FullName : string = fullName
+  member _.FullName : string = fullName
 
     /// The arguments to the constructor for the attribute
-  member x.ConstructorArguments : obj list = constructorArguments
+  member _.ConstructorArguments : obj list = constructorArguments
 
     /// The named arguments for the attribute
-  member x.NamedConstructorArguments : (string*obj) list = namedConstructorArguments
+  member _.NamedConstructorArguments : (string*obj) list = namedConstructorArguments
 
   /// Gets a value indicating whether this attribute is System.ObsoleteAttribute
   member x.IsObsoleteAttribute =
@@ -1359,14 +1356,8 @@ module internal SymbolReader =
         let examples = [ for e in examples -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e))) ]
         let returns = if returns.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=returns))))
 
-        let sections =
-          [ for (k, v) in groups ->
-              let body = if k = "<default>" then List.rev v else List.tail (List.rev v)
-              let html = ApiDocHtml(Literate.ToHtml(doc.With(body)))
-              KeyValuePair(k, html) ]
-
         ApiDocComment(summary=summary, remarks=remarks, parameters=[], returns=returns, examples=examples, notes=notes,
-            exceptions=[], sections=sections, rawData=raw)
+            exceptions=[], rawData=raw)
 
     let findCommand cmd =
         match cmd with 
@@ -1568,11 +1559,10 @@ module internal SymbolReader =
                  lst |> Seq.iteri (fun id el ->
                      rawData.[n + "-" + string id] <- el.Value))
 
-        let sections = [KeyValuePair("<default>", summary)]
         let rawData = rawData |> Seq.toList
         let comment =
             ApiDocComment(summary=summary, remarks=remarks, parameters=parameters, returns=returns,
-                examples=examples, notes=notes, exceptions=exceptions, sections=sections, rawData=rawData)
+                examples=examples, notes=notes, exceptions=exceptions, rawData=rawData)
         comment, nsels
 
     let combineHtml (h1: ApiDocHtml) (h2: ApiDocHtml) =
@@ -1593,7 +1583,6 @@ module internal SymbolReader =
             returns = combineHtmlOptions c1.Returns c2.Returns,
             notes = c1.Notes @ c2.Notes,
             exceptions = c1.Exceptions @ c2.Exceptions,
-            sections = c1.Sections @ c2.Sections,
             rawData = c1.RawData @ c2.RawData)
 
     let combineNamespaceDocs nspDocs =
