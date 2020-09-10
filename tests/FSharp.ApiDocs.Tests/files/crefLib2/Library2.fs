@@ -45,6 +45,33 @@ type GenericClass2<'T>() =
     member this.GenericMethod(_c: 'T, _o: 'U) = "more"
 
     
+type MathTest() = 
+    /// <summary>
+    ///  This is XmlMath1 \(f(x)\)
+    /// </summary>
+    member this.XmlMath1 = "more"
+
+    /// <summary>
+    /// This is XmlMath2 \(\left\lceil \frac{\text{end} - \text{start}}{\text{step}} \right\rceil\)
+    /// </summary>
+    member this.XmlMath2 = "more"
+
+    /// <summary>
+    ///   <para>XmlMath3</para>
+    ///   \[
+    ///     \left\lceil \frac{\text{end} - \text{start}}{\text{step}} \right\rceil
+    ///   \]
+    /// </summary>
+    member this.XmlMath3  = "more"
+    
+    /// <summary>
+    ///   <para>XmlMath4</para>
+    ///   \[
+    ///     1 &lt; 2 &lt; 3 &gt; 0
+    ///   \]
+    /// </summary>
+    member this.XmlMath4  = "more"
+    
 /// <summary>
 /// Test
 /// </summary>

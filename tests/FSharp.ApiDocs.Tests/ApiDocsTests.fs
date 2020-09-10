@@ -305,6 +305,32 @@ let ``ApiDocs test that cref generation works``() =
   files.["creflib2-class8.html"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
 [<Test>]
+let ``Math in XML generated ok``() =
+  let libraries =
+    [ testBin  </> "crefLib1.dll"
+      testBin  </> "crefLib2.dll" ] |> fullpaths
+  let output = getOutputDir "crefLibs_math"
+  printfn "Output: %s" output
+  let inputs =
+     [ for lib in libraries ->
+         ApiDocInput.FromFile(lib, 
+           sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
+           sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
+           mdcomments = false) ]
+  let _model, _searchIndex =
+    ApiDocs.GenerateHtml
+      ( inputs, output, collectionName="CrefLibs", template=docTemplate,
+      substitutions=substitutions, libDirs = ([testBin]  |> fullpaths))
+  let fileNames = Directory.GetFiles(output </> "reference")
+  let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
+
+  /// math is emitted ok
+  files.["creflib2-mathtest.html"] |> shouldContainText """This is XmlMath1 \(f(x)\)"""
+  files.["creflib2-mathtest.html"] |> shouldContainText """This is XmlMath2 \(\left\lceil \frac{\text{end} - \text{start}}{\text{step}} \right\rceil\)"""
+  files.["creflib2-mathtest.html"] |> shouldContainText """<p class='fsdocs-para'>XmlMath3</p>"""
+  files.["creflib2-mathtest.html"] |> shouldContainText """1 < 2 < 3 > 0"""
+
+[<Test>]
 let ``ApiDocs test that csharp (publiconly) support works``() =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
