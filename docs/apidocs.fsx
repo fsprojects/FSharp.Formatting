@@ -65,6 +65,8 @@ In addition, you may also use the [Recommended XML doc extensions for F# documen
 * `<category>` to give a category for an entity or member. An optional `index` attribute can be specified
   to help sort the list of categories. 
 
+* `\(...\)` for inline math and `$$...$$` and `\[...\]`for math environments, see http://docs.mathjax.org.
+  Some escaping of characters (e.g. `&lt;`, `&gt;`) may be needed to form valid XML
 
 An example of an XML documentation comment, assuming the code is in namespace `TheNamespace`:
 *)

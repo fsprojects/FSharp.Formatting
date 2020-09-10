@@ -1,3 +1,7 @@
+## 7.2.9
+
+* Document how to do math in XML comments
+
 ## 7.2.8
 
 * [ApiDocs: examples not showing for types and modules](https://github.com/fsprojects/FSharp.Formatting/issues/599)
