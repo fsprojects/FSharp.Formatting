@@ -1,21 +1,23 @@
 # Customization and Styling 
 
-There are five levels of extra content development and styling.
+When using `fsdocs`, there are six levels of extra content development and styling.
 
-0. Don't do any styling or documentation customization.  This is by far the simplest option to maintain.
+1. Don't do any styling or documentation customization and simply write content.  This is by far the simplest option to maintain.
 
-1. Add content such as an `docs/index.md` to customize the front-page content for your generated docs.
+2. Add content such as an `docs/index.md` to customize the front-page content for your generated docs.
    You can also add content such as `docs/reference/fslib.md` to give a bespoke langing page
    for one of your namespaces, e.g. here assumed to be `namespace FsLib`.  This will override any
    generated content.
 
-2. Customize via Styling Parameters
+3. Customize via Styling Parameters
 
-3. Customize via CSS
+4. Customize via CSS
 
-4. Customize via a new tempalte
+5. Customize via a new template
 
-By default `fsdocs` does no ctyling customization and uses the following. These are the settings used to build this site.
+6. Customize by generating your own site using your own code
+
+By default `fsdocs` does no styling customization and uses the following defaults. These are the settings used to build this site.
 
 * Uses the default template in [docs/_template.html](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/_template.html)
 
@@ -112,9 +114,9 @@ The `FSharp.Formatting.ApiDocs` namespace includes a `GenerateModel` that captur
 the results of documentation preparation in `ApiDocsModel` and allows you to 
 generate your own site using your own code.
 
-> NOTE: There is no guarantee that your bespoke site generation will continue to work
+> NOTE: The ApiDocsModel API is undergoing change and improvement and there is no guarantee that your bespoke site generation will continue to work
 > with future versions of F# Formatting.
 
-> NOTE: The contents of `ApiDocsModel` currently includes some generated HTML with some specific style tags.
+> NOTE: The `ApiDocsModel` currently includes some generated HTML with some specific style tags.
 > In the long term these may be removed from the design of that component.
 
