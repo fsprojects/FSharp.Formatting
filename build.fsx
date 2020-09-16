@@ -177,4 +177,7 @@ Target.create "Release" ignore
   ==> "ReleaseDocs"
   ==> "Release"
 
+"GenerateDocs"
+  ==> "All"
+
 Target.runOrDefault "All"
