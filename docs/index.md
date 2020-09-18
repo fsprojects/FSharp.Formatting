@@ -1,7 +1,7 @@
 # F# Formatting: Documentation Tools for F# Code
 
 FSharp.Formatting is a set of libraries and tools for processing F# script files, markdown and for
-generating API documentation. F# Formatting package is used by the this project and many other repositories.
+generating API documentation. F# Formatting package is used by this project and many other repositories.
 
 To use the tool, install and use the [fsdocs](commandline.html) tool in a typical F# project with
 F# project files plus markdown and script content in the `docs` directory:
