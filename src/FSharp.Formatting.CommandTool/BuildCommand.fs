@@ -886,7 +886,7 @@ type CoreBuildOptions(watch) =
                 printfn "" 
                 printfn "Content:" 
                 let saveImages = (match this.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
-                let fsiEvaluator = (if this.eval then Some ( FsiEvaluator() :> IFsiEvaluator) else None)
+                let fsiEvaluator = (if this.eval then Some ( FsiEvaluator(strict=this.strict) :> IFsiEvaluator) else None)
                 let docContent =
                     DocContent(output, latestDocContentResults,
                         Some this.linenumbers, fsiEvaluator, docsParameters,
