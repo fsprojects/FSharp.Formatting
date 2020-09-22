@@ -154,16 +154,12 @@ Target.create "CreateTag" (fun _ ->
     Git.Branches.pushTag "" projectRepo release.NugetVersion
 )
 
-Target.create "Root" ignore
 Target.create "All" ignore
 Target.create "Release" ignore
 
 // clean and recreate assembly inform on release
 "Clean"
   ==> "AssemblyInfo"
-  ==> "CreateTag"
-
-"Root"
   ==> "Build"
   ==> "NuGet"
   ==> "Tests"

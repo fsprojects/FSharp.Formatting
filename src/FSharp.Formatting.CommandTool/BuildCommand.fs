@@ -500,7 +500,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
               let haveModel = previous.TryFind inputFile
               if changed || (watch && mainRun && haveModel.IsNone) then
                   if isFsx then
-                      printfn "generating model for %s --> %s" inputFile relativeOutputFile
+                      printfn "  generating model for %s --> %s" inputFile relativeOutputFile
                       let model =
                         Literate.ParseAndTransformScriptFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
@@ -514,12 +514,12 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
                       yield ((if mainRun then Some (inputFile, model) else None),
                               (fun p ->
-                                 printfn "writing %s --> %s" inputFile relativeOutputFile
+                                 printfn "  writing %s --> %s" inputFile relativeOutputFile
                                  ensureDirectory (Path.GetDirectoryName(outputFile))
                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
                   elif isMd then
-                      printfn "preparing %s --> %s" inputFile relativeOutputFile
+                      printfn "  preparing %s --> %s" inputFile relativeOutputFile
                       let model =
                         Literate.ParseAndTransformMarkdownFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
@@ -533,7 +533,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
                       yield ( (if mainRun then Some (inputFile, model) else None),
                               (fun p ->
-                                  printfn "writing %s --> %s" inputFile relativeOutputFile
+                                  printfn "  writing %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
                                   SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
@@ -541,7 +541,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                     if mainRun then
                       yield (None, 
                               (fun _p ->
-                                  printfn "copying %s --> %s" inputFile relativeOutputFile
+                                  printfn "  copying %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
                                   // check the file still exists for the incremental case
                                   if (File.Exists inputFile) then
@@ -583,7 +583,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         for subdir in Directory.EnumerateDirectories(indir) do
             let name = Path.GetFileName(subdir)
             if name.StartsWith "." then
-                printfn "skipping directory %s" subdir
+                printfn "  skipping directory %s" subdir
             else
                 yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
        ]
@@ -883,6 +883,8 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
+                printfn "" 
+                printfn "Content:" 
                 let saveImages = (match this.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
                 let fsiEvaluator = (if this.eval then Some ( FsiEvaluator() :> IFsiEvaluator) else None)
                 let docContent =
@@ -907,6 +909,8 @@ type CoreBuildOptions(watch) =
                 latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` , navEntries ]
                 latestDocContentPhase2 <- (fun globals ->
 
+                    printfn "" 
+                    printfn "Write Content:" 
                     for (_thing, action) in docModels do
                         action globals
 
@@ -942,7 +946,9 @@ type CoreBuildOptions(watch) =
                                     printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
                                     None
 
-                        printfn "generating model for API docs..." 
+                        printfn "" 
+                        printfn "API docs:" 
+                        printfn "  generating model for API docs..." 
                         let globals, index, phase2 =
                           ApiDocs.GenerateHtmlPhased (
                             inputs = apiDocInputs,
@@ -963,6 +969,8 @@ type CoreBuildOptions(watch) =
 
         let runGeneratePhase2 () =
             protect (fun () ->
+                printfn "" 
+                printfn "Write API Docs:" 
                 let globals = getLatestGlobalParameters()
                 latestApiDocPhase2 globals 
                 regenerateSearchIndex()
