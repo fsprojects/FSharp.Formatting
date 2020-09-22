@@ -2094,7 +2094,7 @@ type ApiDocModel =
         sprintf "reference/%sindex.html" (if qualify then collectionName + "/" else "") 
 
   static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
-         qualify, urlRangeHighlight, root, substitutions) =
+         qualify, urlRangeHighlight, root, substitutions, strict) =
 
     let (@@) a b = Path.Combine(a, b)
 
@@ -2132,24 +2132,25 @@ type ApiDocModel =
 
     // Read and process assemblies and the corresponding XML files
     let assemblies =
-      printfn "  loading assemblies..."
+      printfn "  loading %d assemblies..." dllFiles.Length
       let resolvedList =
         //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
         FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
         |> Seq.toList
         |> List.zip projects
 
+      printfn "  resolved %d assemblies..." resolvedList.Length
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
       let urlMap = CrossReferenceResolver(root, collectionName, qualify)
 
       for (_, asmOpt) in resolvedList do
         match asmOpt with
         | (_, Some asm) ->
+          printfn "  registering entities for assembly %s..."  asm.SimpleName
           asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
         | _ -> ()
 
       resolvedList |> List.choose (fun (project, (dllFile, asmOpt)) ->
-        printfn "  reading XML doc for %s..." dllFile
         let sourceFolderRepo =
             match project.SourceFolder, project.SourceRepo with
             | Some folder, Some repo -> Some(folder, repo)
@@ -2163,9 +2164,14 @@ type ApiDocModel =
 
         match asmOpt with
         | None ->
-          Log.warnf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+          if strict then
+              failwithf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+          else
+              printfn "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+
           None
         | Some asm ->
+          printfn "  reading XML doc for %s..." dllFile
           let xmlFile = defaultArg project.XmlFile (Path.ChangeExtension(dllFile, ".xml"))
           let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
           let xmlFileOpt =
@@ -2196,14 +2202,16 @@ type ApiDocModel =
     printfn "  collecting namespaces..."
     // Union namespaces from multiple libraries
     let namespaces = Dictionary<_, (_ * _ * Substitutions)>()
-    for _, nss in assemblies do
+    for asm, nss in assemblies do
       for ns in nss do
+        printfn "  found namespace %s in assembly %s..." ns.Name asm.Name
         match namespaces.TryGetValue(ns.Name) with
         | true, (entities, summary, substitutions) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceDocs; summary],  substitutions)
         | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
 
     let namespaces =
       [ for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
+          printfn "  found %d entities in namespace %s..." entities.Length name
           if entities.Length > 0 then
               ApiDocNamespace(name, entities, substitutions, summary) ]
 

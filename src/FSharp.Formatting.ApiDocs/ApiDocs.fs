@@ -24,15 +24,18 @@ type ApiDocs =
     /// <param name="otherFlags">Additional flags that are passed to the F# compiler (you can use this if you want to
     ///    specify references explicitly etc.)</param>
     /// <param name="urlRangeHighlight">A function that can be used to override the default way of generating GitHub links</param>
+    /// <param name="strict">Fail if any assembly is missing XML docs or can't be resolved</param>
     ///
-    static member GenerateModel(inputs: ApiDocInput list, collectionName, substitutions, ?qualify, ?libDirs, ?otherFlags, ?root, ?urlRangeHighlight) =
+    static member GenerateModel(inputs: ApiDocInput list, collectionName, substitutions, ?qualify, ?libDirs, ?otherFlags, ?root, ?urlRangeHighlight, ?strict) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
+        let strict = defaultArg strict false
         ApiDocModel.Generate(inputs, collectionName=collectionName,
             libDirs=libDirs, qualify=qualify,
             otherFlags=otherFlags,
             urlRangeHighlight=urlRangeHighlight, root=root,
-            substitutions=substitutions) 
+            substitutions=substitutions,
+            strict=strict) 
 
     /// <summary>
     /// Generates the search index from the given documentation model
@@ -44,13 +47,14 @@ type ApiDocs =
 
     /// Like GenerateHtml but allows for intermediate phase to insert other global substitutions
     /// and combine search index
-    static member GenerateHtmlPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight) =
+    static member GenerateHtmlPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
+        let strict = defaultArg strict false
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict) 
         let renderer = GenerateHtml.HtmlRender(model)
         let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
         renderer.GlobalSubstitutions, index, (fun globalParameters ->
@@ -70,13 +74,14 @@ type ApiDocs =
     /// <param name="otherFlags">Additional flags that are passed to the F# compiler to specify references explicitly etc.</param>
     /// <param name="urlRangeHighlight">A function that can be used to override the default way of generating GitHub links</param>
     ///
-    static member GenerateHtml(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight) =
+    static member GenerateHtml(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
+        let strict = defaultArg strict false
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict) 
         let renderer = GenerateHtml.HtmlRender(model)
         let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)

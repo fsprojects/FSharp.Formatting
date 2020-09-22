@@ -959,7 +959,8 @@ type CoreBuildOptions(watch) =
                             ?template = initialTemplate2,
                             otherFlags = Seq.toList this.fscoptions,
                             root = root,
-                            libDirs = paths
+                            libDirs = paths,
+                            strict = this.strict
                             )
 
                         latestApiDocSearchIndexEntries <- index
