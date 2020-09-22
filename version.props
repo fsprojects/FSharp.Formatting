@@ -1,10 +1,9 @@
 <Project>
       <PropertyGroup>
-        <Version>7.2.8</Version>
+        <Version>7.2.9</Version>
         <PackageReleaseNotes>
-[ApiDocs: examples not showing for types and modules](https://github.com/fsprojects/FSharp.Formatting/issues/599)
-Comma-separate interface list in API docs
-Remove untyped Sections from ApiDocComment since individual supported sections are now available
+Document how to do math in XML comments
+Add --strict flag to fsdocs
         </PackageReleaseNotes>
       </PropertyGroup>
     </Project>

@@ -516,7 +516,7 @@ type HtmlRender(model: ApiDocModel) =
         let toc = listOfNamespaces false true None 
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
-        printfn "Generating %s" outFile
+        printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
     end
 
@@ -528,17 +528,15 @@ type HtmlRender(model: ApiDocModel) =
         let toc = listOfNamespaces false true (Some ns)
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify) )
-        printfn "Generating %s" outFile
+        printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
     for info in model.EntityInfos do
-        Log.infof "Generating type/module: %s" info.Entity.UrlBaseName
         let content = div [] (entityContent info)
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
-        printfn "Generating %s" outFile
+        printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
-        Log.infof "Finished %s" info.Entity.UrlBaseName
 

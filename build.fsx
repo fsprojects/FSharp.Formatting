@@ -119,7 +119,7 @@ Target.create "GenerateDocs" (fun _ ->
     // Use a local package store to avoid reuse of previous builds of the package with the same version
     try 
       Environment.setEnvironVar "NUGET_PACKAGES" (__SOURCE_DIRECTORY__ + "/.packages")
-      DotNet.exec id "tool" ("install --local --no-cache --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
+      DotNet.exec id "tool" ("install --local --no-cache --version " + release.NugetVersion + " --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
     finally
       Environment.setEnvironVar "NUGET_PACKAGES" ""
     DotNet.exec id "fsdocs" "build --clean" |> ignore

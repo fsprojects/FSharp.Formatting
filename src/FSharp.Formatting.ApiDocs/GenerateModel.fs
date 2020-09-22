@@ -2132,6 +2132,7 @@ type ApiDocModel =
 
     // Read and process assemblies and the corresponding XML files
     let assemblies =
+      printfn "  loading assemblies..."
       let resolvedList =
         //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
         FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
@@ -2148,6 +2149,7 @@ type ApiDocModel =
         | _ -> ()
 
       resolvedList |> List.choose (fun (project, (dllFile, asmOpt)) ->
+        printfn "  reading XML doc for %s..." dllFile
         let sourceFolderRepo =
             match project.SourceFolder, project.SourceRepo with
             | Some folder, Some repo -> Some(folder, repo)
@@ -2187,9 +2189,11 @@ type ApiDocModel =
           match xmlFileOpt with
           | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
           | Some xmlFile ->
+            printfn "  reading assembly data for %s..." dllFile
             SymbolReader.readAssembly (asm, publicOnly, xmlFile, substitutions, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, project.Warn)
             |> Some)
 
+    printfn "  collecting namespaces..."
     // Union namespaces from multiple libraries
     let namespaces = Dictionary<_, (_ * _ * Substitutions)>()
     for _, nss in assemblies do
@@ -2203,6 +2207,7 @@ type ApiDocModel =
           if entities.Length > 0 then
               ApiDocNamespace(name, entities, substitutions, summary) ]
 
+    printfn "  found %d namespaces..." namespaces.Length
     let collection = ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
     let rec nestedModules ns parent (modul:ApiDocEntity) =

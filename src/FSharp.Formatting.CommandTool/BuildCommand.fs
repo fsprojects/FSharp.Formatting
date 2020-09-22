@@ -948,7 +948,7 @@ type CoreBuildOptions(watch) =
 
                         printfn "" 
                         printfn "API docs:" 
-                        printfn "  generating model for API docs..." 
+                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
                         let globals, index, phase2 =
                           ApiDocs.GenerateHtmlPhased (
                             inputs = apiDocInputs,
