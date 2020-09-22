@@ -1,7 +1,9 @@
 ## 7.2.9
 
 * Document how to do math in XML comments
-* Add --strict flag to fsdocs
+* Add --strict flag to fsdocs for stricter checking
+* Add --property flag to fsdocs to pass properties to dotnet msbuild
+* Better diangostics and logging for fsdocs
 
 ## 7.2.8
 
