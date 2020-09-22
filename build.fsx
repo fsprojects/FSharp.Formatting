@@ -119,7 +119,7 @@ Target.create "GenerateDocs" (fun _ ->
     // Use a local package store to avoid reuse of previous builds of the package with the same version
     try 
       Environment.setEnvironVar "NUGET_PACKAGES" (__SOURCE_DIRECTORY__ + "/.packages")
-      DotNet.exec id "tool" ("install --local --no-cache --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
+      DotNet.exec id "tool" ("install --local --no-cache --version " + release.NugetVersion + " --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
     finally
       Environment.setEnvironVar "NUGET_PACKAGES" ""
     DotNet.exec id "fsdocs" "build --clean" |> ignore
@@ -154,16 +154,12 @@ Target.create "CreateTag" (fun _ ->
     Git.Branches.pushTag "" projectRepo release.NugetVersion
 )
 
-Target.create "Root" ignore
 Target.create "All" ignore
 Target.create "Release" ignore
 
 // clean and recreate assembly inform on release
 "Clean"
   ==> "AssemblyInfo"
-  ==> "CreateTag"
-
-"Root"
   ==> "Build"
   ==> "NuGet"
   ==> "Tests"

@@ -108,12 +108,13 @@ type FsiEvaluatorConfig() =
   static member CreateNoOpFsiObject() = box (new NoOpFsiObject())
 
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
-type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?discardStdOut: bool, ?disableFsiObj: bool) =
+type FsiEvaluator(?options:string[], ?fsiObj: obj, ?addHtmlPrinter: bool, ?discardStdOut: bool, ?disableFsiObj: bool, ?strict: bool) =
 
   let discardStdOut = defaultArg discardStdOut true
   let fsiObj = defaultArg fsiObj (box FSharp.Compiler.Interactive.Shell.Settings.fsi)
   let addHtmlPrinter = defaultArg addHtmlPrinter true
   let disableFsiObj = defaultArg disableFsiObj false
+  let strict = defaultArg strict false
 
   let fsiOptions = options |> Option.map FsiOptions.ofArgs |> Option.defaultWith (fun _ -> FsiOptions.Default)
   let fsiOptions =
@@ -428,6 +429,7 @@ module __FsiSettings =
           )
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
+        if strict then exit 1
         { Output = None
           FsiOutput = None
           FsiMergedOutput = None

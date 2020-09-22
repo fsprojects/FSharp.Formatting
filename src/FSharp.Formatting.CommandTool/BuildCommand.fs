@@ -252,7 +252,7 @@ module Crack =
         | Error d ->
             failwithf "cannot load the sln: %A" d
 
-    let crackProjects (userRoot, userCollectionName, userParameters, projects) =
+    let crackProjects (strict, userRoot, userCollectionName, userParameters, projects) =
         let slnDir = Path.GetFullPath "."
         
         //printfn "x.projects = %A" x.projects
@@ -288,7 +288,7 @@ module Crack =
         let projectFiles =
             projectFiles |> List.choose (fun s ->
                 if s.Contains(".Tests") || s.Contains("test") then
-                    printfn "skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
+                    printfn "  skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
                     None
                 else
                     Some s)
@@ -305,7 +305,8 @@ module Crack =
                 try
                    Some (crackProjectFile slnDir p)
                 with e -> 
-                   printfn "skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
+                   if strict then exit 1
+                   printfn "  skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
                    None)
             |> Array.toList
 
@@ -315,16 +316,16 @@ module Crack =
               |> List.choose (fun info ->
                 let shortName = Path.GetFileName info.ProjectFileName
                 if info.TargetPath.IsNone then
-                    printfn "skipping project '%s' because it doesn't have a target path" shortName
+                    printfn "  skipping project '%s' because it doesn't have a target path" shortName
                     None
                 elif not info.IsLibrary then 
-                    printfn "skipping project '%s' because it isn't a library" shortName
+                    printfn "  skipping project '%s' because it isn't a library" shortName
                     None
                 elif info.IsTestProject then 
-                    printfn "skipping project '%s' because it has <IsTestProject> true" shortName
+                    printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
                     None
                 elif not info.GenerateDocumentationFile then 
-                    printfn "skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
+                    printfn "  skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
                     None
                 else
                     Some info)
@@ -499,7 +500,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
               let haveModel = previous.TryFind inputFile
               if changed || (watch && mainRun && haveModel.IsNone) then
                   if isFsx then
-                      printfn "generating model for %s --> %s" inputFile relativeOutputFile
+                      printfn "  generating model for %s --> %s" inputFile relativeOutputFile
                       let model =
                         Literate.ParseAndTransformScriptFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
@@ -513,12 +514,12 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
                       yield ((if mainRun then Some (inputFile, model) else None),
                               (fun p ->
-                                 printfn "writing %s --> %s" inputFile relativeOutputFile
+                                 printfn "  writing %s --> %s" inputFile relativeOutputFile
                                  ensureDirectory (Path.GetDirectoryName(outputFile))
                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
                   elif isMd then
-                      printfn "preparing %s --> %s" inputFile relativeOutputFile
+                      printfn "  preparing %s --> %s" inputFile relativeOutputFile
                       let model =
                         Literate.ParseAndTransformMarkdownFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
@@ -532,7 +533,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
                       yield ( (if mainRun then Some (inputFile, model) else None),
                               (fun p ->
-                                  printfn "writing %s --> %s" inputFile relativeOutputFile
+                                  printfn "  writing %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
                                   SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
@@ -540,7 +541,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                     if mainRun then
                       yield (None, 
                               (fun _p ->
-                                  printfn "copying %s --> %s" inputFile relativeOutputFile
+                                  printfn "  copying %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
                                   // check the file still exists for the incremental case
                                   if (File.Exists inputFile) then
@@ -550,7 +551,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                                        File.SetLastWriteTime(outputFile,DateTime.Now)
                                      with _ when watch -> () ))
               else
-                 if mainRun then
+                 if mainRun && watch then
                      //printfn "skipping unchanged file %s" inputFile
                      yield (Some (inputFile, haveModel.Value), (fun _ -> ()))
           ]
@@ -582,7 +583,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         for subdir in Directory.EnumerateDirectories(indir) do
             let name = Path.GetFileName(subdir)
             if name.StartsWith "." then
-                printfn "skipping directory %s" subdir
+                printfn "  skipping directory %s" subdir
             else
                 yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
        ]
@@ -663,6 +664,9 @@ type CoreBuildOptions(watch) =
     [<Option("noapidocs", Default= false, Required = false, HelpText = "Disable generation of API docs.")>]
     member val noapidocs = false with get, set
 
+    [<Option("strict", Default= false, Required = false, HelpText = "Fail if there is a problem generating docs.")>]
+    member val strict = false with get, set
+
     [<Option("eval", Default=false, Required = false, HelpText = "Evaluate F# fragments in scripts.")>]
     member val eval = false with get, set
 
@@ -699,7 +703,7 @@ type CoreBuildOptions(watch) =
     [<Option("clean", Required = false, Default=false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
-    member x.Execute() =
+    member this.Execute() =
         let protect f = 
             try
                 f()
@@ -708,21 +712,23 @@ type CoreBuildOptions(watch) =
                 | :?AggregateException as ex ->
                     Log.errorf "received exception :\n %A" ex
                     printfn "Error : \n%O" ex
+                    if this.strict then exit 1
                     false
-                | _ as ex ->
+                | ex ->
                     Log.errorf "received exception :\n %A" ex
                     printfn "Error : \n%O" ex
+                    if this.strict then exit 1
                     false
 
         /// The substitutions as given by the user
         let userParameters =
-            (evalPairwiseStringsNoOption x.parameters
+            (evalPairwiseStringsNoOption this.parameters
                 |> List.map (fun (a,b) -> (ParamKey a, b)))
 
         // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
-                let userRoot = sprintf "http://localhost:%d/" x.port_option
+                let userRoot = sprintf "http://localhost:%d/" this.port_option
                 if (dict userParameters).ContainsKey(ParamKeys.root) then
                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
                 let userParameters =
@@ -742,27 +748,36 @@ type CoreBuildOptions(watch) =
             | _ -> None
 
         let (root, collectionName, crackedProjects, paths, docsParameters), _key =
-          let projects = Seq.toList x.projects
+          let projects = Seq.toList this.projects
           let cacheFile = ".fsdocs/cache"
           let getTime p = try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now
           let key1 =
-             (userRoot, x.parameters, projects,
+             (userRoot, this.parameters, projects,
               getTime (typeof<CoreBuildOptions>.Assembly.Location),
               (projects |> List.map getTime |> List.toArray))
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
-           (fun () -> Crack.crackProjects (userRoot, userCollectionName, userParameters, projects), key1)
+           (fun () -> Crack.crackProjects (this.strict, userRoot, userCollectionName, userParameters, projects), key1)
 
-        // Print the substitutions
-        for (ParamKey pk, p) in docsParameters do  
-             printfn "  %s --> %s" pk p
+        if crackedProjects.Length > 0 then
+            printfn "" 
+            printfn "Inputs for API Docs:" 
+            for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
+                printfn "    %s" dllFile
 
-        // The substitutions may differ for some projects due to different settings in the project files, if so show that
-        let pd = dict docsParameters
-        for (dllFile, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
-            for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
-            if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
-                printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
+        if crackedProjects.Length > 0 then
+            printfn "" 
+            printfn "Substitutions/parameters:" 
+            // Print the substitutions
+            for (ParamKey pk, p) in docsParameters do  
+                 printfn "  %s --> %s" pk p
+
+            // The substitutions may differ for some projects due to different settings in the project files, if so show that
+            let pd = dict docsParameters
+            for (dllFile, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
+                for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
+                if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
+                    printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
             [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectWarn, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
@@ -770,7 +785,7 @@ type CoreBuildOptions(watch) =
                     match projectSourceRepo with
                     | Some s -> Some s
                     | None -> 
-                    match evalString x.sourceRepo with
+                    match evalString this.sourceRepo with
                     | Some v -> Some v
                     | None ->
                         //printfn "repoBranchOption = %A" repoBranchOption
@@ -786,7 +801,7 @@ type CoreBuildOptions(watch) =
                     match projectSourceFolder with
                     | Some s -> s
                     | None -> 
-                    match evalString x.sourceFolder with
+                    match evalString this.sourceFolder with
                     | None -> Environment.CurrentDirectory
                     | Some v -> v
 
@@ -797,14 +812,14 @@ type CoreBuildOptions(watch) =
                   SourceRepo = sourceRepo;
                   SourceFolder = Some sourceFolder;
                   Substitutions = Some projectParameters;
-                  MarkdownComments = x.mdcomments || projectMarkdownComments;
+                  MarkdownComments = this.mdcomments || projectMarkdownComments;
                   Warn = projectWarn;
-                  PublicOnly = not x.nonpublic } ]
+                  PublicOnly = not this.nonpublic } ]
 
         let output =
-           if x.output = "" then
+           if this.output = "" then
               if watch then "tmp/watch" else "output"
-           else x.output
+           else this.output
 
         // This is in-package
         //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
@@ -814,7 +829,7 @@ type CoreBuildOptions(watch) =
         // This is in-repo only
         let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.html"))
         let defaultTemplate =
-           if x.nodefaultcontent then
+           if this.nodefaultcontent then
               None
            else
               if (try File.Exists(defaultTemplateAttempt1) with _ -> false) then
@@ -824,7 +839,7 @@ type CoreBuildOptions(watch) =
               else None
 
         let extraInputs =
-           [ if not x.nodefaultcontent then
+           [ if not this.nodefaultcontent then
               // The "extras" content goes in "."
               //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
               //   to .nuget\packages\fsharp.formatting.commandtool\7.1.7\extras
@@ -868,14 +883,16 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
-                let saveImages = (match x.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
-                let fsiEvaluator = (if x.eval then Some ( FsiEvaluator() :> IFsiEvaluator) else None)
+                printfn "" 
+                printfn "Content:" 
+                let saveImages = (match this.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
+                let fsiEvaluator = (if this.eval then Some ( FsiEvaluator(strict=this.strict) :> IFsiEvaluator) else None)
                 let docContent =
                     DocContent(output, latestDocContentResults,
-                        Some x.linenumbers, fsiEvaluator, docsParameters,
+                        Some this.linenumbers, fsiEvaluator, docsParameters,
                         saveImages, watch, root)
 
-                let docModels = docContent.Convert(x.input, defaultTemplate, extraInputs)
+                let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
 
                 let actualDocModels = docModels |> List.map fst |> List.choose id
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
@@ -892,6 +909,8 @@ type CoreBuildOptions(watch) =
                 latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` , navEntries ]
                 latestDocContentPhase2 <- (fun globals ->
 
+                    printfn "" 
+                    printfn "Write Content:" 
                     for (_thing, action) in docModels do
                         action globals
 
@@ -909,11 +928,11 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 if crackedProjects.Length > 0 then
 
-                    if not x.noapidocs then
+                    if not this.noapidocs then
 
                         let initialTemplate2 =
-                            let t1 = Path.Combine(x.input, "reference", "_template.html")
-                            let t2 = Path.Combine(x.input, "_template.html")
+                            let t1 = Path.Combine(this.input, "reference", "_template.html")
+                            let t2 = Path.Combine(this.input, "_template.html")
                             if File.Exists(t1) then
                                 Some t1
                             elif File.Exists(t2) then
@@ -927,16 +946,18 @@ type CoreBuildOptions(watch) =
                                     printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
                                     None
 
-                        printfn "generating model for API docs..." 
+                        printfn "" 
+                        printfn "API docs:" 
+                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
                         let globals, index, phase2 =
                           ApiDocs.GenerateHtmlPhased (
                             inputs = apiDocInputs,
                             output = output,
                             collectionName = collectionName,
                             substitutions = docsParameters,
-                            qualify = x.qualify,
+                            qualify = this.qualify,
                             ?template = initialTemplate2,
-                            otherFlags = Seq.toList x.fscoptions,
+                            otherFlags = Seq.toList this.fscoptions,
                             root = root,
                             libDirs = paths
                             )
@@ -948,6 +969,8 @@ type CoreBuildOptions(watch) =
 
         let runGeneratePhase2 () =
             protect (fun () ->
+                printfn "" 
+                printfn "Write API Docs:" 
                 let globals = getLatestGlobalParameters()
                 latestApiDocPhase2 globals 
                 regenerateSearchIndex()
@@ -957,9 +980,9 @@ type CoreBuildOptions(watch) =
         // Clean
 
         let fullOut = Path.GetFullPath output
-        let fullIn = Path.GetFullPath x.input
+        let fullIn = Path.GetFullPath this.input
 
-        if x.clean then
+        if this.clean then
             let rec clean dir =
                 for file in Directory.EnumerateFiles(dir) do
                     File.Delete file |> ignore
@@ -993,10 +1016,10 @@ type CoreBuildOptions(watch) =
 
         if watch then
 
-            use docsWatcher = new FileSystemWatcher(x.input)
-            use templateWatcher = new FileSystemWatcher(x.input)
+            use docsWatcher = new FileSystemWatcher(this.input)
+            use templateWatcher = new FileSystemWatcher(this.input)
 
-            let projectOutputWatchers = [ for input in apiDocInputs -> (new FileSystemWatcher(x.input), input.Path) ]
+            let projectOutputWatchers = [ for input in apiDocInputs -> (new FileSystemWatcher(this.input), input.Path) ]
             use _holder = { new IDisposable with member __.Dispose() = for (p,_) in projectOutputWatchers do p.Dispose() }
 
             // Only one update at a time
@@ -1009,7 +1032,7 @@ type CoreBuildOptions(watch) =
             docsDependenciesChanged.Publish.Add(fun () -> 
                 if not docsQueued then
                     docsQueued <- true
-                    printfn "Detected change in '%s', scheduling rebuild of docs..."  x.input
+                    printfn "Detected change in '%s', scheduling rebuild of docs..."  this.input
                     Async.Start(async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
@@ -1061,11 +1084,11 @@ type CoreBuildOptions(watch) =
 
             generateQueued <- false
             docsQueued <- false
-            if not x.noserver_option then
-                printfn "starting server on http://localhost:%d for content in %s" x.port_option fullOut
-                Serve.startWebServer fullOut x.port_option
-            if not x.nolaunch_option then
-                let url = sprintf "http://localhost:%d/%s" x.port_option x.open_option
+            if not this.noserver_option then
+                printfn "starting server on http://localhost:%d for content in %s" this.port_option fullOut
+                Serve.startWebServer fullOut this.port_option
+            if not this.nolaunch_option then
+                let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
                 printfn "launching browser window to open %s" url
                 let OpenBrowser(url: string) =
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) then
@@ -1078,7 +1101,7 @@ type CoreBuildOptions(watch) =
                 OpenBrowser (url)
             waitForKey watch
 
-        if ok then 0 else -1 
+        if ok then 0 else 1 
 
     abstract noserver_option : bool
     default x.noserver_option = false

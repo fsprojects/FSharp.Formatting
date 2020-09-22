@@ -1,6 +1,7 @@
 ## 7.2.9
 
 * Document how to do math in XML comments
+* Add --strict flag to fsdocs
 
 ## 7.2.8
 
