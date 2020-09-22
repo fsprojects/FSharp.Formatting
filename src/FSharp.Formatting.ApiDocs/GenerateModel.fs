@@ -2139,7 +2139,6 @@ type ApiDocModel =
         |> Seq.toList
         |> List.zip projects
 
-      printfn "  resolved %d assemblies..." resolvedList.Length
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
       let urlMap = CrossReferenceResolver(root, collectionName, qualify)
 
