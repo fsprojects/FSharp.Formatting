@@ -122,7 +122,7 @@ Target.create "GenerateDocs" (fun _ ->
       DotNet.exec id "tool" ("install --local --no-cache --version " + release.NugetVersion + " --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
     finally
       Environment.setEnvironVar "NUGET_PACKAGES" ""
-    DotNet.exec id "fsdocs" "build --clean" |> ignore
+    DotNet.exec id "fsdocs" "build --strict --clean -p Configuration=Release" |> ignore
     DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
     Shell.cleanDir ".packages"
 )

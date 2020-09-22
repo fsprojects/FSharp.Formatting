@@ -144,7 +144,7 @@ module Crack =
           //PackageReleaseNotes : string option
           RepositoryCommit : string option }
 
-    let crackProjectFile slnDir (file : string) : CrackedProjectInfo =
+    let crackProjectFile slnDir extraMsbuildProperties (file : string) : CrackedProjectInfo =
 
         let projDir = Path.GetDirectoryName(file)
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
@@ -187,7 +187,7 @@ module Crack =
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
-           let args = List.append args [ "/p:DesignTimeBuild=true" ]
+           let args = List.append args [ yield "/p:DesignTimeBuild=true"; for p in extraMsbuildProperties do yield ("/p:" + p) ]
            //printfn "%s, args = %A" exePath args
            let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
            //printfn "done..."
@@ -252,7 +252,7 @@ module Crack =
         | Error d ->
             failwithf "cannot load the sln: %A" d
 
-    let crackProjects (strict, userRoot, userCollectionName, userParameters, projects) =
+    let crackProjects (strict, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects) =
         let slnDir = Path.GetFullPath "."
         
         //printfn "x.projects = %A" x.projects
@@ -303,7 +303,7 @@ module Crack =
             |> Array.ofList
             |> Array.Parallel.choose (fun p -> 
                 try
-                   Some (crackProjectFile slnDir p)
+                   Some (crackProjectFile slnDir extraMsbuildProperties p)
                 with e -> 
                    if strict then exit 1
                    printfn "  skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
@@ -407,7 +407,7 @@ module Crack =
                 param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
               ]
 
-        let projects =  
+        let crackedProjects =  
             [ for info in projectInfos do
                  let substitutions = parametersForProjectInfo info
                  (info.TargetPath.Value,
@@ -424,7 +424,7 @@ module Crack =
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
 
-        root, collectionName, projects, paths, docsParameters
+        root, collectionName, crackedProjects, paths, docsParameters
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, substitutions, saveImages, watch, root) =
@@ -697,6 +697,9 @@ type CoreBuildOptions(watch) =
     [<Option("nodefaultcontent", Required = false, HelpText = "Do not copy default content styles, javascript or use default templates.")>]
     member val nodefaultcontent = false with get, set
 
+    [<Option("property", Required = false, HelpText = "Provide a property to dotnet msbuild, e.g. --property Configuration=Release")>]
+    member val extraMsbuildProperties = Seq.empty<string> with get, set
+
     [<Option("fscoptions", Required=false, HelpText = "Extra flags for F# compiler analysis, e.g. dependency resolution.")>]
     member val fscoptions = Seq.empty<string> with get, set
 
@@ -757,13 +760,21 @@ type CoreBuildOptions(watch) =
               (projects |> List.map getTime |> List.toArray))
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
-           (fun () -> Crack.crackProjects (this.strict, userRoot, userCollectionName, userParameters, projects), key1)
+           (fun () -> Crack.crackProjects (this.strict, this.extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects), key1)
 
         if crackedProjects.Length > 0 then
             printfn "" 
             printfn "Inputs for API Docs:" 
             for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
+
+        for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
+            if not (File.Exists dllFile) then
+                let msg = sprintf "*** %s does not exist, has it been built? You may need to provide --property Configuration=Release." dllFile
+                if this.strict then
+                    failwith msg
+                else 
+                    printfn "%s" msg
 
         if crackedProjects.Length > 0 then
             printfn "" 

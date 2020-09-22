@@ -31,6 +31,8 @@ The command line options accepted are:
 | `--clean`                 |    Clean the output directory |
 | `--help`                  |    Display this help screen |
 | `--version`               |    Display version information |
+| `--property`               |    Provide a property to dotnet msbuild, e.g. --property Configuration=Release |
+| `--strict`               |    Fail if docs are missing or can't be generated |
 
 The following command line options are also accepted but it is instead recommended you use
 settings in your .fsproj project files:
