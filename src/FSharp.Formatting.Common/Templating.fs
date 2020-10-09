@@ -2,23 +2,11 @@ namespace FSharp.Formatting.Templating
 
 open System.IO
 
-#if DEBUG
+[<Struct>]
 type ParamKey = ParamKey of string
-#else
-/// An abbreviation for 'string' representing a strong name for a parameter key
-type ParamKey = string
-#endif
 
 /// A list of parameters for substituting in templates, indexed by parameter keys
 type Substitutions = (ParamKey * string) list
-
-#if !DEBUG
-[<AutoOpen>]
-/// Defines the parameter keys known to FSharp.Formatting processing code
-module internal ParamKeyUtils =
-    let ParamKey (c: string) : ParamKey = c
-    let (|ParamKey|) (c: ParamKey) : string = c
-#endif
 
 /// <summary>
 ///  Defines the parameter keys known to FSharp.Formatting processing code
@@ -126,11 +114,11 @@ module internal SimpleTemplating =
               (templateText, substitutions) ||> Seq.fold (fun text (ParamKey key, _value) ->
                 let key2 = "{{" + key + "}}"
                 let rkey = "{" + key + id + "}"
-                let text = text.Replace(key2, rkey) 
+                let text = text.Replace(key2, rkey)
                 text)
           let result =
               (temp, substitutions) ||> Seq.fold (fun text (ParamKey key, value) ->
-                  text.Replace("{" + key + id + "}", value)) 
+                  text.Replace("{" + key + id + "}", value))
           result
 
     let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
@@ -153,5 +141,5 @@ module internal SimpleTemplating =
                 text)
         let result =
             (temp, parameters) ||> Seq.fold (fun text (ParamKey key, value) ->
-                text.Replace("{" + key + id + "}", value)) 
+                text.Replace("{" + key + id + "}", value))
         result
