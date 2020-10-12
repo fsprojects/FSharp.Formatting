@@ -1,6 +1,9 @@
 namespace FSharp.Formatting.Templating
 
+open System
+open System.Collections.Generic
 open System.IO
+open System.Text
 
 [<Struct>]
 type ParamKey = ParamKey of string
@@ -98,28 +101,61 @@ module ParamKeys =
 
 module internal SimpleTemplating =
 
-    // Replace '{{xyz}}' or '{xyz}' in template text
-    let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
-      match templateTextOpt with
-      | None | Some "" ->
-          // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
-          let lookup = substitutions |> dict
-          (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then lookup.[ParamKeys.``fsdocs-content``] else "") +
-          (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``] else "")
-      | Some templateText ->
-          // First replace {{key}} or {key} with some uglier keys and then replace them with values
-          // (in case one of the keys appears in some other value)
-          let id = System.Guid.NewGuid().ToString("d")
-          let temp =
-              (templateText, substitutions) ||> Seq.fold (fun text (ParamKey key, _value) ->
-                let key2 = "{{" + key + "}}"
-                let rkey = "{" + key + id + "}"
-                let text = text.Replace(key2, rkey)
-                text)
-          let result =
-              (temp, substitutions) ||> Seq.fold (fun text (ParamKey key, value) ->
-                  text.Replace("{" + key + id + "}", value))
-          result
+#if NETSTANDARD2_0
+    type StringBuilder with
+        member this.Append(span: ReadOnlySpan<char>) =
+            this.Append(span.ToString())
+#endif
+
+    // Replace '{{xyz}}' in template text
+    let ApplySubstitutionsInText (substitutions: seq<ParamKey * string>) (text: string) =
+        let substitutions = readOnlyDict substitutions
+        let sb = StringBuilder(text.Length)
+        let mutable span = text.AsSpan()
+        while not span.IsEmpty do
+            // We try to find the first double curly bracket.
+            match span.IndexOf("{{".AsSpan(), StringComparison.Ordinal) with
+            | -1 ->
+                // If it's not found, there are no more tags in the template.
+                // We simply append all the remaining text.
+                sb.Append(span) |> ignore
+                span <- ReadOnlySpan.Empty
+            | curlyBraceBegin ->
+                // If we found two beginning curly brackets,
+                // we first append all the text before and
+                // then advance our span until just after them.
+                sb.Append(span.Slice(0, curlyBraceBegin)) |> ignore
+                span <- span.Slice(curlyBraceBegin + "{{".Length)
+                // Now we try to find the first double ending curly
+                // bracket after the beginning ones we previously found.
+                match span.IndexOf("}}".AsSpan(), StringComparison.Ordinal) with
+                | -1 ->
+                    // If the whole tag had not been closed, we add the beginning
+                    // double curly brackets we had previously discarded and then
+                    // add the rest of the text.
+                    sb.Append("{{").Append(span) |> ignore
+                    span <- ReadOnlySpan.Empty
+                | curlyBraceEnd ->
+                    // Otherwise we extract the tag's
+                    // content, i.e. the parameter key.
+                    let key = span.Slice(0, curlyBraceEnd).ToString()
+                    match substitutions.TryGetValue(ParamKey key) with
+                    | true, value ->
+                        sb.Append(value) |> ignore
+                    | false, _ ->
+                        sb.Append("{{").Append(key).Append("}}") |> ignore
+                    span <- span.Slice(curlyBraceEnd + "}}".Length)
+        sb.ToString()
+
+    // Replace '{{xyz}}' in text
+    let ApplySubstitutions (substitutions: seq<ParamKey * string>) templateTextOpt =
+        match templateTextOpt with
+        | None | Some "" ->
+            // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
+            let lookup = readOnlyDict substitutions
+            (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then lookup.[ParamKeys.``fsdocs-content``] else "") +
+            (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``] else "")
+        | Some templateText -> ApplySubstitutionsInText substitutions templateText
 
     let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
         let templateTextOpt = templateOpt |> Option.map System.IO.File.ReadAllText
@@ -129,17 +165,3 @@ module internal SimpleTemplating =
             Directory.CreateDirectory(path) |> ignore
         with _ -> ()
         File.WriteAllText(outputFile, outputText)
-
-    // Replace '{{xyz}}' in text
-    let ApplySubstitutionsInText (parameters:seq<ParamKey * string>) (text: string) =
-        let id = System.Guid.NewGuid().ToString("d")
-        let temp =
-            (text, parameters) ||> Seq.fold (fun text (ParamKey key, _value) ->
-                let key2 = "{{" + key + "}}"
-                let rkey = "{" + key + id + "}"
-                let text = text.Replace(key2, rkey)
-                text)
-        let result =
-            (temp, parameters) ||> Seq.fold (fun text (ParamKey key, value) ->
-                text.Replace("{" + key + id + "}", value))
-        result
