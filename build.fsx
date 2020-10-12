@@ -9,7 +9,7 @@
 #endif
 
 open System
-open System.IO
+open System.Xml.Linq
 open Fake.Core
 open Fake.Core.TargetOperators
 open Fake.IO.Globbing.Operators
@@ -52,15 +52,14 @@ Target.create "AssemblyInfo" (fun _ ->
 
     AssemblyInfoFile.createFSharp "src/Common/AssemblyInfo.fs" info
     AssemblyInfoFile.createCSharp "src/Common/AssemblyInfo.cs" info
-    let releaseNotes = String.toLines release.Notes |> System.Net.WebUtility.HtmlEncode
-    File.WriteAllText("version.props", sprintf """<Project>
-      <PropertyGroup>
-        <Version>%s</Version>
-        <PackageReleaseNotes>
-%s
-        </PackageReleaseNotes>
-      </PropertyGroup>
-    </Project>""" release.NugetVersion releaseNotes)
+    let versionProps =
+        XElement(XName.Get "Project",
+            XElement(XName.Get "PropertyGroup",
+                XElement(XName.Get "Version", release.NugetVersion),
+                XElement(XName.Get "PackageReleaseNotes", String.toLines release.Notes)
+            )
+        )
+    versionProps.Save("version.props")
 )
 
 // Clean build results
@@ -104,8 +103,8 @@ Target.create "Tests" (fun _ ->
 Target.create "NuGet" (fun _ ->
     DotNet.pack (fun pack ->
         { pack with
-            OutputPath = Some artifactsDir 
-            Configuration = configuration 
+            OutputPath = Some artifactsDir
+            Configuration = configuration
         }) solutionFile
 )
 
@@ -117,7 +116,7 @@ Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".packages"
     DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
     // Use a local package store to avoid reuse of previous builds of the package with the same version
-    try 
+    try
       Environment.setEnvironVar "NUGET_PACKAGES" (__SOURCE_DIRECTORY__ + "/.packages")
       DotNet.exec id "tool" ("install --local --no-cache --version " + release.NugetVersion + " --add-source " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
     finally
@@ -146,7 +145,7 @@ Target.create "PublishNuget" (fun _ ->
     let apikey =  Environment.environVar "NUGET_KEY"
     for artifact in !! (artifactsDir + "/*nupkg") do
         let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
-        if not result.OK then failwith "failed to push packages"  
+        if not result.OK then failwith "failed to push packages"
 )
 
 Target.create "CreateTag" (fun _ ->

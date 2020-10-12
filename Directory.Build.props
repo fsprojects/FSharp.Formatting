@@ -1,5 +1,5 @@
 <Project>
-  <Import Project="version.props" />
+  <Import Condition="Exists('version.props')" Project="version.props" />
   <PropertyGroup>
     <!-- Include PDBs in Nuget package. -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>.pdb; $(AllowedOutputExtensionsInPackageBuildOutputFolder)</AllowedOutputExtensionsInPackageBuildOutputFolder>

@@ -39,3 +39,7 @@ _NCrunch_*
 artifacts/
 tests/FSharp.ApiDocs.Tests/output/
 tmp
+.idea/
+*.binlog
+version.props
+src/Common/AssemblyInfo.?s
