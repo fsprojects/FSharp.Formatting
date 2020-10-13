@@ -217,8 +217,6 @@ module Crack =
             ]
         let gp () = Inspect.getProperties (["TargetPath"] @ additionalInfo)
 
-        let tryGetTargetPath a= ()
-
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
            let args = List.append args [ yield "/p:DesignTimeBuild=true"; for p in extraMsbuildProperties do yield ("/p:" + p) ]
