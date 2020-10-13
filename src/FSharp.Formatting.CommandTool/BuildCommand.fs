@@ -8,8 +8,9 @@ open System.IO
 open System.Globalization
 open System.Reflection
 open System.Runtime.InteropServices
-open System.Runtime.Serialization.Formatters.Binary
+open System.Runtime.Serialization
 open System.Text
+open System.Xml
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.HtmlModel
@@ -38,18 +39,20 @@ module Utils =
 
     let saveBinary (object:'T) (fileName:string) =
         try Directory.CreateDirectory (Path.GetDirectoryName(fileName)) |> ignore with _ -> ()
-        let formatter = BinaryFormatter()
-        use fs = new FileStream(fileName, FileMode.Create)
-        formatter.Serialize(fs, object)
+        let formatter = DataContractSerializer(typeof<'T>)
+        use fs = File.Create(fileName)
+        use xw = XmlDictionaryWriter.CreateBinaryWriter(fs)
+        formatter.WriteObject(xw, object)
         fs.Flush()
 
     let loadBinary<'T> (fileName:string):'T option =
-        let formatter = BinaryFormatter()
-        use fs = new FileStream(fileName, FileMode.Open)
+        let formatter = DataContractSerializer(typeof<'T>)
+        use fs = File.OpenRead(fileName)
+        use xw = XmlDictionaryReader.CreateBinaryReader(fs, XmlDictionaryReaderQuotas.Max)
         try
-            let object = formatter.Deserialize(fs) :?> 'T
+            let object = formatter.ReadObject(xw) :?> 'T
             Some object
-        with e -> None
+        with _ -> None
 
     let cacheBinary cacheFile cacheValid (f: unit -> 'T)  : 'T =
         let attempt =
