@@ -143,14 +143,45 @@ module Crack =
           //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
           //PackageReleaseNotes : string option
           RepositoryCommit : string option }
+    type private CrackErrors=
+        | CouldNotGetProperties of Inspect.GetResult
+        | NotASingleResult of list<Result<Inspect.GetResult,Inspect.GetProjectInfoErrors<obj>>>
+        | GetProjectOptionsErrors of string * (string list)
 
-    let crackProjectFile slnDir extraMsbuildProperties (file : string) : CrackedProjectInfo =
+    let private crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties (file : string) =
+        let msbuildPropString prop props= props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
+        let mapToCrackedProjectInfo (props:Map<string,string>) file=
+            let msbuildPropString prop = msbuildPropString prop props
+            let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
-        let projDir = Path.GetDirectoryName(file)
-        let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
-        if not(File.Exists(projectAssetsJsonPath)) then
-            failwithf "project '%s' not restored" file
-
+            {  ProjectFileName = file
+               TargetPath = msbuildPropString "TargetPath"
+               IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
+               IsLibrary = msbuildPropString "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
+               IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
+               RepositoryUrl = msbuildPropString "RepositoryUrl"
+               RepositoryType = msbuildPropString "RepositoryType"
+               RepositoryBranch = msbuildPropString "RepositoryBranch"
+               FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink"
+               FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
+               FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
+               FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
+               FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
+               FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
+               FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+               FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition"
+               FsDocsTheme = msbuildPropString "FsDocsTheme"
+               FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
+               UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
+               PackageProjectUrl = msbuildPropString "PackageProjectUrl"
+               Authors = msbuildPropString "Authors"
+               GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
+               PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
+               PackageTags = msbuildPropString "PackageTags"
+               Copyright = msbuildPropString "Copyright"
+               PackageVersion = msbuildPropString "PackageVersion"
+               PackageIconUrl = msbuildPropString "PackageIconUrl"
+               RepositoryCommit = msbuildPropString "RepositoryCommit"}
         let additionalInfo =
             [ "OutputType"
               "IsTestProject"
@@ -182,8 +213,11 @@ module Crack =
               //Removed because this is typically a multi-line string and dotnet-proj-info can't handle this
               //"PackageReleaseNotes"
               "RepositoryCommit"
+              "TargetFrameworks"
             ]
         let gp () = Inspect.getProperties (["TargetPath"] @ additionalInfo)
+
+        let tryGetTargetPath a= ()
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
@@ -199,50 +233,49 @@ module Crack =
         let result = file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
-        //printfn "msgs = %A" msgs
         match result with
         | Ok [gpResult] ->
             match gpResult with
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
                 //printfn "props = %A" (Map.toList props)
-                let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
-                let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
+                let msbuildPropString prop = msbuildPropString prop props
+                let splitTargetFrameworks = function Some (s:string) -> s.Split(";", StringSplitOptions.RemoveEmptyEntries) |> Array.map (fun s'->s'.Trim()) |> Some | _ -> None
+                let targetFrameworks = msbuildPropString "TargetFrameworks" |> splitTargetFrameworks
 
-                {  ProjectFileName = file
-                   TargetPath = msbuildPropString "TargetPath"
-                   IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                   IsLibrary = msbuildPropString "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
-                   IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                   RepositoryUrl = msbuildPropString "RepositoryUrl" 
-                   RepositoryType = msbuildPropString "RepositoryType" 
-                   RepositoryBranch = msbuildPropString "RepositoryBranch" 
-                   FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink" 
-                   FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder" 
-                   FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository" 
-                   FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink" 
-                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink" 
-                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink" 
-                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource" 
-                   FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition" 
-                   FsDocsTheme = msbuildPropString "FsDocsTheme"
-                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
-                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
-                   PackageProjectUrl = msbuildPropString "PackageProjectUrl" 
-                   Authors = msbuildPropString "Authors" 
-                   GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
-                   PackageLicenseExpression = msbuildPropString "PackageLicenseExpression" 
-                   PackageTags = msbuildPropString "PackageTags" 
-                   Copyright = msbuildPropString "Copyright"
-                   PackageVersion = msbuildPropString "PackageVersion"
-                   PackageIconUrl = msbuildPropString "PackageIconUrl"
-                   RepositoryCommit = msbuildPropString "RepositoryCommit" }
-                
-            | Ok ok -> failwithf "huh? ok = %A" ok
-            | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
-        | Ok ok -> failwithf "huh? ok = %A" ok
-        | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
-                
+                Ok (targetFrameworks,mapToCrackedProjectInfo props file)
+            | Ok gp -> CouldNotGetProperties gp |> Result.Error
+            | Error err-> GetProjectOptionsErrors (string err, msgs) |> Result.Error
+        | Ok gps -> NotASingleResult gps |> Result.Error
+        | Error err-> GetProjectOptionsErrors (string err, msgs) |> Result.Error
+
+    let crackProjectFile slnDir extraMsbuildProperties (file : string) : CrackedProjectInfo =
+
+        let projDir = Path.GetDirectoryName(file)
+        let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
+        if not(File.Exists(projectAssetsJsonPath)) then
+            failwithf "project '%s' not restored" file
+
+        let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
+        //printfn "msgs = %A" msgs
+        match result with
+        | Ok (Some targetFrameworks,crackedProjectInfo) when crackedProjectInfo.TargetPath.IsNone && targetFrameworks.Length > 1 ->
+            // no targetpath and there are multiple target frameworks
+            // let us retry with first target framework specified:
+            let extraMsbuildPropertiesAndFirstTargetFramework = Seq.append extraMsbuildProperties [sprintf "TargetFramework=%s" targetFrameworks.[0]]
+            let result2 = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildPropertiesAndFirstTargetFramework file
+            match result2 with
+            | Ok (_,crackedProjectInfo) ->
+                crackedProjectInfo
+            | Error (CouldNotGetProperties ok) -> failwithf "huh? ok = %A" ok
+            | Error (GetProjectOptionsErrors (err, msgs)) -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+            | Error (NotASingleResult ok) -> failwithf "huh? ok = %A" ok
+        | Ok (_,crackedProjectInfo) ->
+            crackedProjectInfo
+        | Error (CouldNotGetProperties ok) -> failwithf "huh? ok = %A" ok
+        | Error (GetProjectOptionsErrors (err, msgs)) -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+        | Error (NotASingleResult ok) -> failwithf "huh? ok = %A" ok
+
     let getProjectsFromSlnFile (slnPath : string) =
         match InspectSln.tryParseSln slnPath with
         | Ok (_, slnData) ->
@@ -254,7 +287,7 @@ module Crack =
 
     let crackProjects (strict, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects) =
         let slnDir = Path.GetFullPath "."
-        
+
         //printfn "x.projects = %A" x.projects
         let collectionName, projectFiles =
             match projects with
@@ -264,7 +297,7 @@ module Crack =
                     printfn "getting projects from solution file %s" sln
                     let collectionName = defaultArg userCollectionName (Path.GetFileNameWithoutExtension(sln))
                     collectionName, getProjectsFromSlnFile sln
-                | _ -> 
+                | _ ->
                     let projectFiles =
                         [ yield! Directory.EnumerateFiles(slnDir, "*.fsproj")
                           for d in Directory.EnumerateDirectories(slnDir) do
@@ -272,23 +305,23 @@ module Crack =
                              for d2 in Directory.EnumerateDirectories(d) do
                                 yield! Directory.EnumerateFiles(d2, "*.fsproj") ]
 
-                    let collectionName = 
-                        defaultArg userCollectionName 
+                    let collectionName =
+                        defaultArg userCollectionName
                            (match projectFiles with
                             | [ file1 ] -> Path.GetFileNameWithoutExtension(file1)
                             | _ -> Path.GetFileName(slnDir))
 
                     collectionName, projectFiles
-                    
-            | projectFiles -> 
+
+            | projectFiles ->
                 let collectionName = Path.GetFileName(slnDir)
                 collectionName, projectFiles
-    
+
           //printfn "projects = %A" projectFiles
         let projectFiles =
             projectFiles |> List.choose (fun s ->
                 if s.Contains(".Tests") || s.Contains("test") then
-                    printfn "  skipping project '%s' because it looks like a test project" (Path.GetFileName s) 
+                    printfn "  skipping project '%s' because it looks like a test project" (Path.GetFileName s)
                     None
                 else
                     Some s)
@@ -297,14 +330,14 @@ module Crack =
         if projectFiles.Length = 0 then
             printfn "no project files found, no API docs will be generated"
 
-        printfn "cracking projects..." 
+        printfn "cracking projects..."
         let projectInfos =
             projectFiles
             |> Array.ofList
-            |> Array.Parallel.choose (fun p -> 
+            |> Array.Parallel.choose (fun p ->
                 try
                    Some (crackProjectFile slnDir extraMsbuildProperties p)
-                with e -> 
+                with e ->
                    if strict then exit 1
                    printfn "  skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
                    None)
@@ -318,13 +351,13 @@ module Crack =
                 if info.TargetPath.IsNone then
                     printfn "  skipping project '%s' because it doesn't have a target path" shortName
                     None
-                elif not info.IsLibrary then 
+                elif not info.IsLibrary then
                     printfn "  skipping project '%s' because it isn't a library" shortName
                     None
-                elif info.IsTestProject then 
+                elif info.IsTestProject then
                     printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
                     None
-                elif not info.GenerateDocumentationFile then 
+                elif not info.GenerateDocumentationFile then
                     printfn "  skipping project '%s' because it doesn't have <GenerateDocumentationFile>" shortName
                     None
                 else
@@ -374,7 +407,7 @@ module Crack =
                   UsesMarkdownComments = false
                   Copyright = projectInfos |> List.tryPick  (fun info -> info.Copyright)
                   PackageVersion = projectInfos |> List.tryPick  (fun info -> info.PackageVersion)
-                  PackageIconUrl = projectInfos |> List.tryPick  (fun info -> info.PackageIconUrl) 
+                  PackageIconUrl = projectInfos |> List.tryPick  (fun info -> info.PackageIconUrl)
                   RepositoryCommit = projectInfos |> List.tryPick  (fun info -> info.RepositoryCommit)
               }
 
@@ -407,7 +440,7 @@ module Crack =
                 param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
               ]
 
-        let crackedProjects =  
+        let crackedProjects =
             [ for info in projectInfos do
                  let substitutions = parametersForProjectInfo info
                  (info.TargetPath.Value,
@@ -419,7 +452,7 @@ module Crack =
                   info.FsDocsSourceFolder,
                   info.FsDocsSourceRepository,
                   substitutions) ]
-              
+
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
@@ -449,12 +482,12 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
   let processFile (inputFile: string) outputKind template outputPrefix imageSaver =
         [
           let name = Path.GetFileName(inputFile)
-          if name.StartsWith(".") then 
+          if name.StartsWith(".") then
               printfn "skipping file %s" inputFile
-          elif name.StartsWith "_template" then 
+          elif name.StartsWith "_template" then
               ()
           else
-              let isFsx = inputFile.EndsWith(".fsx", true, CultureInfo.InvariantCulture) 
+              let isFsx = inputFile.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
               let isMd = inputFile.EndsWith(".md", true, CultureInfo.InvariantCulture)
 
               // A _template.tex or _template.pynb is needed to generate those files
@@ -464,7 +497,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
               | OutputKind.Fsx, None -> ()
               | _ ->
 
-              let imageSaverOpt = 
+              let imageSaverOpt =
                 match outputKind with
                 | OutputKind.Pynb when saveImages <> Some false -> Some imageSaver
                 | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
@@ -537,9 +570,9 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
                                   SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
-                  else 
+                  else
                     if mainRun then
-                      yield (None, 
+                      yield (None,
                               (fun _p ->
                                   printfn "  copying %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
@@ -570,7 +603,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
         ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
 
-        let inputs = Directory.GetFiles(indir, "*") 
+        let inputs = Directory.GetFiles(indir, "*")
         let imageSaver = createImageSaver (Path.Combine(outputDirectory, outputPrefix))
 
         // Look for the four different kinds of content
@@ -707,7 +740,7 @@ type CoreBuildOptions(watch) =
     member val clean = false with get, set
 
     member this.Execute() =
-        let protect f = 
+        let protect f =
             try
                 f()
                 true
@@ -763,8 +796,8 @@ type CoreBuildOptions(watch) =
            (fun () -> Crack.crackProjects (this.strict, this.extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects), key1)
 
         if crackedProjects.Length > 0 then
-            printfn "" 
-            printfn "Inputs for API Docs:" 
+            printfn ""
+            printfn "Inputs for API Docs:"
             for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
 
@@ -773,14 +806,14 @@ type CoreBuildOptions(watch) =
                 let msg = sprintf "*** %s does not exist, has it been built? You may need to provide --property Configuration=Release." dllFile
                 if this.strict then
                     failwith msg
-                else 
+                else
                     printfn "%s" msg
 
         if crackedProjects.Length > 0 then
-            printfn "" 
-            printfn "Substitutions/parameters:" 
+            printfn ""
+            printfn "Substitutions/parameters:"
             // Print the substitutions
-            for (ParamKey pk, p) in docsParameters do  
+            for (ParamKey pk, p) in docsParameters do
                  printfn "  %s --> %s" pk p
 
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
@@ -791,11 +824,11 @@ type CoreBuildOptions(watch) =
                     printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
-            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectWarn, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects -> 
+            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectWarn, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects ->
                 let sourceRepo =
                     match projectSourceRepo with
                     | Some s -> Some s
-                    | None -> 
+                    | None ->
                     match evalString this.sourceRepo with
                     | Some v -> Some v
                     | None ->
@@ -811,7 +844,7 @@ type CoreBuildOptions(watch) =
                 let sourceFolder =
                     match projectSourceFolder with
                     | Some s -> s
-                    | None -> 
+                    | None ->
                     match evalString this.sourceFolder with
                     | None -> Environment.CurrentDirectory
                     | Some v -> v
@@ -858,10 +891,10 @@ type CoreBuildOptions(watch) =
               if (try Directory.Exists(attempt1) with _ -> false) then
                   printfn "using extra content from %s" attempt1
                   (attempt1, ".")
-              else 
+              else
                   // This is for in-repo use only, assuming we are executing directly from
-                  //   src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe 
-                  //   src\FSharp.Formatting.CommandTool\bin\Release\netcoreapp3.1\fsdocs.exe 
+                  //   src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe
+                  //   src\FSharp.Formatting.CommandTool\bin\Release\netcoreapp3.1\fsdocs.exe
                   let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
                   if (try Directory.Exists(attempt2) with _ -> false) then
                       printfn "using extra content from %s" attempt2
@@ -894,8 +927,8 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
-                printfn "" 
-                printfn "Content:" 
+                printfn ""
+                printfn "Content:"
                 let saveImages = (match this.saveImages with "some" -> None | "none" -> Some false | "all" -> Some true | _ -> None)
                 let fsiEvaluator = (if this.eval then Some ( FsiEvaluator(strict=this.strict) :> IFsiEvaluator) else None)
                 let docContent =
@@ -920,8 +953,8 @@ type CoreBuildOptions(watch) =
                 latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents`` , navEntries ]
                 latestDocContentPhase2 <- (fun globals ->
 
-                    printfn "" 
-                    printfn "Write Content:" 
+                    printfn ""
+                    printfn "Write Content:"
                     for (_thing, action) in docModels do
                         action globals
 
@@ -953,12 +986,12 @@ type CoreBuildOptions(watch) =
                                 | Some d ->
                                     printfn "note, no template file '%s' or '%s', using default template %s" t1 t2 d
                                     Some d
-                                | None -> 
+                                | None ->
                                     printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
                                     None
 
-                        printfn "" 
-                        printfn "API docs:" 
+                        printfn ""
+                        printfn "API docs:"
                         printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
                         let globals, index, phase2 =
                           ApiDocs.GenerateHtmlPhased (
@@ -976,15 +1009,15 @@ type CoreBuildOptions(watch) =
 
                         latestApiDocSearchIndexEntries <- index
                         latestApiDocGlobalParameters <- globals
-                        latestApiDocPhase2 <- phase2 
+                        latestApiDocPhase2 <- phase2
             )
 
         let runGeneratePhase2 () =
             protect (fun () ->
-                printfn "" 
-                printfn "Write API Docs:" 
+                printfn ""
+                printfn "Write API Docs:"
                 let globals = getLatestGlobalParameters()
-                latestApiDocPhase2 globals 
+                latestApiDocPhase2 globals
                 regenerateSearchIndex()
             )
 
@@ -1008,18 +1041,18 @@ type CoreBuildOptions(watch) =
                 printfn "warning: skipping cleaning due to strange output path: \"%s\"" output
 
         if watch then
-            printfn "Building docs first time..." 
+            printfn "Building docs first time..."
 
         //-----------------------------------------
         // Build
 
         let ok =
-            let ok1 = runDocContentPhase1() 
-            let ok2 = runGeneratePhase1() 
+            let ok1 = runDocContentPhase1()
+            let ok2 = runGeneratePhase1()
             let ok2 = ok2 && runGeneratePhase2()
             // Run this second to override anything produced by API generate, e.g.
             // bespoke file for namespaces etc.
-            let ok1 = ok1 && runDocContentPhase2() 
+            let ok1 = ok1 && runDocContentPhase2()
             regenerateSearchIndex()
             ok1 && ok2
 
@@ -1041,7 +1074,7 @@ type CoreBuildOptions(watch) =
             let mutable generateQueued = true
 
             let docsDependenciesChanged = Event<_>()
-            docsDependenciesChanged.Publish.Add(fun () -> 
+            docsDependenciesChanged.Publish.Add(fun () ->
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..."  this.input
@@ -1052,13 +1085,13 @@ type CoreBuildOptions(watch) =
                         if runDocContentPhase1() then
                             if runDocContentPhase2() then
                                 regenerateSearchIndex()
-                        ) }) ) 
+                        ) }) )
 
             let apiDocsDependenciesChanged = Event<_>()
-            apiDocsDependenciesChanged.Publish.Add(fun () -> 
+            apiDocsDependenciesChanged.Publish.Add(fun () ->
                 if not generateQueued then
                     generateQueued <- true
-                    printfn "Detected change in built outputs, scheduling rebuild of API docs..."  
+                    printfn "Detected change in built outputs, scheduling rebuild of API docs..."
                     Async.Start(async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
@@ -1109,11 +1142,11 @@ type CoreBuildOptions(watch) =
                         Process.Start("xdg-open", url)  |> ignore
                     elif (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) then
                         Process.Start("open", url) |> ignore
-            
+
                 OpenBrowser (url)
             waitForKey watch
 
-        if ok then 0 else 1 
+        if ok then 0 else 1
 
     abstract noserver_option : bool
     default x.noserver_option = false
