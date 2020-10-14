@@ -7,6 +7,9 @@ open System.Text
 
 [<Struct>]
 type ParamKey = ParamKey of string
+with
+    override x.ToString() =
+        match x with ParamKey x -> x
 
 /// A list of parameters for substituting in templates, indexed by parameter keys
 type Substitutions = (ParamKey * string) list
