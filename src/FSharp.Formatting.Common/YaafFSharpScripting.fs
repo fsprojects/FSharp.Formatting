@@ -71,7 +71,7 @@ module internal CompilerServiceExtensions =
         |> Array.toList)
 
       let fscoreResolveDirs libDirs =
-        [ 
+        [
           yield System.AppContext.BaseDirectory
 
           yield! libDirs
@@ -97,7 +97,7 @@ module internal CompilerServiceExtensions =
             failwithf "Could not find a FSharp.Core.dll in %s" paths
 
       let hasAssembly asm l =
-        l |> Seq.exists (fun a -> Path.GetFileNameWithoutExtension a =? asm)
+        l |> Seq.exists (fun (a: string) -> Path.GetFileNameWithoutExtension a =? asm)
 
       let getCheckerArguments frameworkVersion defaultReferences hasFsCoreLib (fsCoreLib: _ option) dllFiles libDirs otherFlags =
           ignore frameworkVersion
@@ -164,7 +164,7 @@ module internal CompilerServiceExtensions =
             if not hasFsCoreLib then
               Some (findFSCore dllFiles libDirs)
             else None
-            
+
           let projFileName, args = getCheckerArguments frameworkVersion ignore hasFsCoreLib (fsCoreLib: _ option) dllFiles libDirs otherFlags
           //Log.verbf "Checker Arguments: %O" (Log.formatArgs args)
 
@@ -225,7 +225,10 @@ module internal CompilerServiceExtensions =
           Directory.EnumerateFiles(libDir, "*.dll")
           |> Seq.map Path.GetFullPath
           // Filter files already referenced directly
-          |> Seq.filter (fun file -> dllFiles |> Seq.map Path.GetFileName |> Seq.exists ((=?) (Path.GetFileName file)) |> not)
+          |> Seq.filter (fun file ->
+                let fileName = Path.GetFileName file
+                dllFiles |> Seq.exists (fun (dllFile: string) ->
+                    Path.GetFileName dllFile =? fileName) |> not)
           |> Seq.filter (fun file ->
             if Path.GetFileName file =? "FSharp.Core.dll" then
               FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
@@ -338,7 +341,7 @@ type internal FsiEvaluationException =
         sprintf
           "FsiEvaluationException:\n\nError: %s\n\nOutput: %s\n\nInput: %s\n\Arguments: %s\n\nException: %s"
           (nl x.Result.Error.Merged) (nl x.Result.Output.Merged) (nl x.Input) (Log.formatArgs args) (base.ToString())
-        
+
 
 /// Exception for invalid expression types
 type internal FsiExpressionTypeException =
@@ -405,8 +408,8 @@ module internal Shell =
       addedPrinters <- Choice2Of2 (typeof<'T>, unbox >> printer) :: addedPrinters
 
 module internal ArgParser =
-  let (|StartsWith|_|) start (s:string) =
-    if s.StartsWith (start) then
+  let (|StartsWith|_|) (start: string) (s:string) =
+    if s.StartsWith(start) then
       StartsWith(s.Substring(start.Length))
       |> Some
     else
@@ -883,7 +886,7 @@ type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, 
       let addDiagsToFsiOutput (o: InteractionOutputs) diags =
          { o with Output = { o.Output with FsiOutput = diagsToString diags + o.Output.FsiOutput } }
 
-      member __.EvalInteraction text = 
+      member __.EvalInteraction text =
         let i, (r, diags) = evalInteraction text
         let i2 = addDiagsToFsiOutput i diags
         let res =
@@ -891,8 +894,8 @@ type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, 
             | Choice1Of2 v -> Ok v
             | Choice2Of2 exn -> Error exn
         i2, res
-        
-      member __.EvalScript path = 
+
+      member __.EvalScript path =
         let i, (r, diags) = evalScript path
         let i2 = addDiagsToFsiOutput i diags
         let res =
@@ -919,9 +922,9 @@ type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, 
       /// See https://github.com/Microsoft/visualfsharp/issues/1392
       member x.EvalScriptAsInteraction s =
           // See https://github.com/fsharp/FSharp.Compiler.Service/issues/621
-          let scriptContents = 
-            sprintf "#line 1 @\"%s\"\n" s + 
-            System.IO.File.ReadAllText s + 
+          let scriptContents =
+            sprintf "#line 1 @\"%s\"\n" s +
+            System.IO.File.ReadAllText s +
             "\n()"
           x.EvalInteraction scriptContents
 
@@ -976,7 +979,7 @@ type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, 
       member x.WithCd dir f =
           use __ = x.ChangeCurrentDirectory dir
           f ()
-          
+
       /// Change the current directory (so that relative paths within scripts work properly).
       /// Returns a handle to change the current directory back to it's initial state
       /// (Because this will change the current directory of the currently running code as well!).

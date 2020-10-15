@@ -2,30 +2,24 @@ namespace FSharp.Formatting.CommandTool
 
 module Common =
 
-    let evalString s =
-        if s = "" then None
-        else Some s
+    let evalString s = if s = "" then None else Some s
 
     let evalStrings a =
-        let a = Seq.toArray a
-        if a = [|""|] then None
-        else Some (List.ofArray a)
+        match Seq.tryExactlyOne a with
+        | Some "" -> None
+        | _ -> Some (List.ofSeq a)
 
     let evalPairwiseStrings a =
-        let a = Seq.toArray a
-        if a = [|""|] then None
-        else Some (a |> Seq.pairwise |> Array.ofSeq |> List.ofArray)
+        match Seq.tryExactlyOne a with
+        | Some "" -> None
+        | _ -> a |> Seq.pairwise |> List.ofSeq |> Some
 
     let evalPairwiseStringsNoOption a =
-        let a = Seq.toArray a
-        if a = [|""|] then []
-        else a |> Seq.pairwise |> Array.ofSeq |> List.ofArray
+        evalPairwiseStrings a |> Option.defaultValue []
 
     let concat a =
-        let mutable s = ""
-        for i in a do s <- (sprintf "%s %s" s i)
-        if s = " " then s <- ""
-        s 
+        let s = String.concat " " a
+        if s = " " then "" else s
 
     let waitForKey b =
         if b then
