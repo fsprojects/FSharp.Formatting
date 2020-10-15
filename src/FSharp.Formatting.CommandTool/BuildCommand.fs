@@ -8,8 +8,9 @@ open System.IO
 open System.Globalization
 open System.Reflection
 open System.Runtime.InteropServices
-open System.Runtime.Serialization.Formatters.Binary
+open System.Runtime.Serialization
 open System.Text
+open System.Xml
 
 open FSharp.Formatting.Common
 open FSharp.Formatting.HtmlModel
@@ -38,18 +39,20 @@ module Utils =
 
     let saveBinary (object:'T) (fileName:string) =
         try Directory.CreateDirectory (Path.GetDirectoryName(fileName)) |> ignore with _ -> ()
-        let formatter = BinaryFormatter()
-        use fs = new FileStream(fileName, FileMode.Create)
-        formatter.Serialize(fs, object)
+        let formatter = DataContractSerializer(typeof<'T>)
+        use fs = File.Create(fileName)
+        use xw = XmlDictionaryWriter.CreateBinaryWriter(fs)
+        formatter.WriteObject(xw, object)
         fs.Flush()
 
     let loadBinary<'T> (fileName:string):'T option =
-        let formatter = BinaryFormatter()
-        use fs = new FileStream(fileName, FileMode.Open)
+        let formatter = DataContractSerializer(typeof<'T>)
+        use fs = File.OpenRead(fileName)
+        use xw = XmlDictionaryReader.CreateBinaryReader(fs, XmlDictionaryReaderQuotas.Max)
         try
-            let object = formatter.Deserialize(fs) :?> 'T
+            let object = formatter.ReadObject(xw) :?> 'T
             Some object
-        with e -> None
+        with _ -> None
 
     let cacheBinary cacheFile cacheValid (f: unit -> 'T)  : 'T =
         let attempt =
@@ -149,9 +152,8 @@ module Crack =
         | GetProjectOptionsErrors of string * (string list)
 
     let private crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties (file : string) =
-        let msbuildPropString prop props= props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
         let mapToCrackedProjectInfo (props:Map<string,string>) file=
-            let msbuildPropString prop = msbuildPropString prop props
+            let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
             let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
             {  ProjectFileName = file
@@ -181,7 +183,8 @@ module Crack =
                Copyright = msbuildPropString "Copyright"
                PackageVersion = msbuildPropString "PackageVersion"
                PackageIconUrl = msbuildPropString "PackageIconUrl"
-               RepositoryCommit = msbuildPropString "RepositoryCommit"}
+               RepositoryCommit = msbuildPropString "RepositoryCommit" }
+
         let additionalInfo =
             [ "OutputType"
               "IsTestProject"
@@ -273,6 +276,7 @@ module Crack =
         | Error (CouldNotGetProperties ok) -> failwithf "huh? ok = %A" ok
         | Error (GetProjectOptionsErrors (err, msgs)) -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
         | Error (NotASingleResult ok) -> failwithf "huh? ok = %A" ok
+
 
     let getProjectsFromSlnFile (slnPath : string) =
         match InspectSln.tryParseSln slnPath with
@@ -414,10 +418,10 @@ module Crack =
             defaultArg userRoot (defaultArg projectUrl ("/" + collectionName) |> ensureTrailingSlash)
 
         let parametersForProjectInfo (info: CrackedProjectInfo) =
-              let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash |> Option.defaultValue root
-              let repoUrl = info.RepositoryUrl |> Option.map ensureTrailingSlash
-              userParameters @
-              [ param None ParamKeys.``root`` (Some root)
+            let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash |> Option.defaultValue root
+            let repoUrl = info.RepositoryUrl |> Option.map ensureTrailingSlash
+            userParameters @
+            [   param None ParamKeys.``root`` (Some root)
                 param None ParamKeys.``fsdocs-authors`` (Some (info.Authors |> Option.defaultValue ""))
                 param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
                 param None ParamKeys.``fsdocs-collection-name-link`` (Some (info.FsDocsCollectionNameLink |> Option.defaultValue projectUrl))
@@ -436,20 +440,21 @@ module Crack =
                 param (Some "<RepositoryUrl>") ParamKeys.``fsdocs-repository-link`` repoUrl
                 param None ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
                 param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
-              ]
+            ]
 
-        let crackedProjects =
-            [ for info in projectInfos do
-                 let substitutions = parametersForProjectInfo info
-                 (info.TargetPath.Value,
-                  info.RepositoryUrl,
-                  info.RepositoryBranch,
-                  info.RepositoryType,
-                  info.UsesMarkdownComments,
-                  info.FsDocsWarnOnMissingDocs,
-                  info.FsDocsSourceFolder,
-                  info.FsDocsSourceRepository,
-                  substitutions) ]
+        let crackedProjects = [
+            for info in projectInfos do
+                let substitutions = parametersForProjectInfo info
+                (   info.TargetPath.Value,
+                    info.RepositoryUrl,
+                    info.RepositoryBranch,
+                    info.RepositoryType,
+                    info.UsesMarkdownComments,
+                    info.FsDocsWarnOnMissingDocs,
+                    info.FsDocsSourceFolder,
+                    info.FsDocsSourceRepository,
+                    substitutions)
+        ]
 
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
@@ -460,7 +465,7 @@ module Crack =
 /// Convert markdown, script and other content into a static site
 type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, substitutions, saveImages, watch, root) =
 
-  let createImageSaver (outputDirectory) =
+    let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
         let wc = new System.Net.WebClient()
         let mutable counter = 0
@@ -477,25 +482,22 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                 url2
             else url
 
-  let processFile (inputFile: string) outputKind template outputPrefix imageSaver =
-        [
-          let name = Path.GetFileName(inputFile)
-          if name.StartsWith(".") then
-              printfn "skipping file %s" inputFile
-          elif name.StartsWith "_template" then
-              ()
-          else
-              let isFsx = inputFile.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
-              let isMd = inputFile.EndsWith(".md", true, CultureInfo.InvariantCulture)
+    let processFile (inputFile: string) outputKind template outputPrefix imageSaver = [
+        let name = Path.GetFileName(inputFile)
+        if name.StartsWith(".") then
+            printfn "skipping file %s" inputFile
+        elif not (name.StartsWith "_template") then
+            let isFsx = inputFile.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
+            let isMd = inputFile.EndsWith(".md", true, CultureInfo.InvariantCulture)
 
               // A _template.tex or _template.pynb is needed to generate those files
-              match outputKind, template with
-              | OutputKind.Pynb, None -> ()
-              | OutputKind.Latex, None -> ()
-              | OutputKind.Fsx, None -> ()
-              | _ ->
+            match outputKind, template with
+            | OutputKind.Pynb, None -> ()
+            | OutputKind.Latex, None -> ()
+            | OutputKind.Fsx, None -> ()
+            | _ ->
 
-              let imageSaverOpt =
+            let imageSaverOpt =
                 match outputKind with
                 | OutputKind.Pynb when saveImages <> Some false -> Some imageSaver
                 | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
@@ -503,36 +505,36 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                 | OutputKind.Html when saveImages = Some true -> Some imageSaver
                 | _ -> None
 
-              let ext = outputKind.Extension
-              let relativeOutputFile =
-                  if isFsx || isMd then
-                      let basename = Path.GetFileNameWithoutExtension(inputFile)
-                      Path.Combine(outputPrefix, sprintf "%s.%s" basename ext)
-                  else
-                      Path.Combine(outputPrefix, name)
+            let ext = outputKind.Extension
+            let relativeOutputFile =
+                if isFsx || isMd then
+                    let basename = Path.GetFileNameWithoutExtension(inputFile)
+                    Path.Combine(outputPrefix, sprintf "%s.%s" basename ext)
+                else
+                    Path.Combine(outputPrefix, name)
 
               // Update only when needed - template or file or tool has changed
-              let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, relativeOutputFile))
-              let changed =
-                  let fileChangeTime = try File.GetLastWriteTime(inputFile) with _ -> DateTime.MaxValue
-                  let templateChangeTime =
-                      match template with
-                      | Some t when isFsx || isMd -> try File.GetLastWriteTime(t) with _ -> DateTime.MaxValue
-                      | _ -> DateTime.MinValue
-                  let toolChangeTime =
-                      try File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location) with _ -> DateTime.MaxValue
-                  let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
-                  let generateTime = try File.GetLastWriteTime(outputFile) with _ -> System.DateTime.MinValue
-                  changeTime > generateTime
+            let outputFile = Path.GetFullPath(Path.Combine(outputDirectory, relativeOutputFile))
+            let changed =
+                let fileChangeTime = try File.GetLastWriteTime(inputFile) with _ -> DateTime.MaxValue
+                let templateChangeTime =
+                    match template with
+                    | Some t when isFsx || isMd -> try File.GetLastWriteTime(t) with _ -> DateTime.MaxValue
+                    | _ -> DateTime.MinValue
+                let toolChangeTime =
+                    try File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location) with _ -> DateTime.MaxValue
+                let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
+                let generateTime = try File.GetLastWriteTime(outputFile) with _ -> System.DateTime.MinValue
+                changeTime > generateTime
 
               // If it's changed or we don't know anything about it
               // we have to compute the model to get the global substitutions right
-              let mainRun = (outputKind = OutputKind.Html)
-              let haveModel = previous.TryFind inputFile
-              if changed || (watch && mainRun && haveModel.IsNone) then
-                  if isFsx then
-                      printfn "  generating model for %s --> %s" inputFile relativeOutputFile
-                      let model =
+            let mainRun = (outputKind = OutputKind.Html)
+            let haveModel = previous.TryFind inputFile
+            if changed || (watch && mainRun && haveModel.IsNone) then
+                if isFsx then
+                    printfn "  generating model for %s --> %s" inputFile relativeOutputFile
+                    let model =
                         Literate.ParseAndTransformScriptFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
                             ?formatAgent = None, ?prefix = None, ?fscoptions = None,
@@ -543,15 +545,15 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             //?tokenKindToCss = tokenKindToCss,
                             ?imageSaver=imageSaverOpt)
 
-                      yield ((if mainRun then Some (inputFile, model) else None),
+                    yield ((if mainRun then Some (inputFile, model) else None),
                               (fun p ->
                                  printfn "  writing %s --> %s" inputFile relativeOutputFile
                                  ensureDirectory (Path.GetDirectoryName(outputFile))
                                  SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
-                  elif isMd then
-                      printfn "  preparing %s --> %s" inputFile relativeOutputFile
-                      let model =
+                elif isMd then
+                    printfn "  preparing %s --> %s" inputFile relativeOutputFile
+                    let model =
                         Literate.ParseAndTransformMarkdownFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
                             ?formatAgent = None, ?prefix = None, ?fscoptions = None,
@@ -562,15 +564,15 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             //?tokenKindToCss = tokenKindToCss,
                             ?imageSaver=imageSaverOpt)
 
-                      yield ( (if mainRun then Some (inputFile, model) else None),
+                    yield ( (if mainRun then Some (inputFile, model) else None),
                               (fun p ->
                                   printfn "  writing %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
                                   SimpleTemplating.UseFileAsSimpleTemplate( p@model.Substitutions, template, outputFile)))
 
-                  else
+                else
                     if mainRun then
-                      yield (None,
+                        yield (None,
                               (fun _p ->
                                   printfn "  copying %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
@@ -581,13 +583,12 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                                        File.Copy(inputFile, outputFile, true)
                                        File.SetLastWriteTime(outputFile,DateTime.Now)
                                      with _ when watch -> () ))
-              else
-                 if mainRun && watch then
-                     //printfn "skipping unchanged file %s" inputFile
-                     yield (Some (inputFile, haveModel.Value), (fun _ -> ()))
-          ]
-  let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) indir outputPrefix =
-       [
+            else
+                if mainRun && watch then
+                    //printfn "skipping unchanged file %s" inputFile
+                    yield (Some (inputFile, haveModel.Value), (fun _ -> ()))
+        ]
+    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) indir outputPrefix = [
         // Look for the presence of the _template.* files to activate the
         // generation of the content.
         let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
@@ -617,39 +618,40 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                 printfn "  skipping directory %s" subdir
             else
                 yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
-       ]
-
-  member _.Convert(input, htmlTemplate, extraInputs) =
-
-    let inputDirectories = extraInputs @ [(input, ".") ]
-    [
-      for (inputDirectory, outputPrefix) in inputDirectories do
-        yield! processDirectory (htmlTemplate, None, None, None) inputDirectory outputPrefix
     ]
 
-  member _.GetSearchIndexEntries(docModels: (string * LiterateDocModel) list) =
+    member _.Convert(input, htmlTemplate, extraInputs) =
+
+        let inputDirectories = extraInputs @ [(input, ".") ]
+        [
+        for (inputDirectory, outputPrefix) in inputDirectories do
+            yield! processDirectory (htmlTemplate, None, None, None) inputDirectory outputPrefix
+        ]
+
+    member _.GetSearchIndexEntries(docModels: (string * LiterateDocModel) list) =
         [| for (_inputFile, model) in docModels do
                 match model.IndexText with
                 | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
                 | _ -> () |]
 
-  member _.GetNavigationEntries(docModels: (string * LiterateDocModel) list) =
-    let modelsForList =
-        [ for thing in docModels do
-             match thing with
-             | (inputFile, model)
-                when model.OutputKind = OutputKind.Html &&
-                        // Don't put the index in the list
-                        not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
-             | _ -> () ]
+    member _.GetNavigationEntries(docModels: (string * LiterateDocModel) list) =
+        let modelsForList =
+            [ for thing in docModels do
+                match thing with
+                | (inputFile, model)
+                    when model.OutputKind = OutputKind.Html &&
+                            // Don't put the index in the list
+                            not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
+                | _ -> () ]
 
-    [ if modelsForList.Length > 0 then
-            li [Class "nav-header"] [!! "Documentation"]
-      for model in modelsForList do
-            let link = model.Uri(root)
-            li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
-    ]
-    |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
+        [
+            if modelsForList.Length > 0 then
+                li [Class "nav-header"] [!! "Documentation"]
+            for model in modelsForList do
+                let link = model.Uri(root)
+                li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
+        ]
+        |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -657,12 +659,13 @@ module Serve =
     let refreshEvent = new Event<_>()
 
     let socketHandler (webSocket : WebSocket) _ = socket {
-      while true do
-        do!
-          refreshEvent.Publish
-          |> Control.Async.AwaitEvent
-          |> Suave.Sockets.SocketOp.ofAsync
-        do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true }
+        while true do
+            do!
+                refreshEvent.Publish
+                |> Control.Async.AwaitEvent
+                |> Suave.Sockets.SocketOp.ofAsync
+            do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true
+    }
 
     let startWebServer outputDirectory localPort =
         let defaultBinding = defaultConfig.bindings.[0]
@@ -673,12 +676,13 @@ module Serve =
                 homeFolder = Some outputDirectory }
         let app =
             choose [
-              path "/" >=> Redirection.redirect "/index.html"
-              path "/websocket" >=> handShake socketHandler
-              Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
-              >=> Writers.setHeader "Pragma" "no-cache"
-              >=> Writers.setHeader "Expires" "0"
-              >=> Files.browseHome ]
+                path "/" >=> Redirection.redirect "/index.html"
+                path "/websocket" >=> handShake socketHandler
+                Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
+                >=> Writers.setHeader "Pragma" "no-cache"
+                >=> Writers.setHeader "Expires" "0"
+                >=> Files.browseHome
+            ]
         startWebServerAsync serverConfig app |> snd |> Async.Start
 
 type CoreBuildOptions(watch) =
@@ -759,19 +763,21 @@ type CoreBuildOptions(watch) =
             (evalPairwiseStringsNoOption this.parameters
                 |> List.map (fun (a,b) -> (ParamKey a, b)))
 
+        let userParametersDict = readOnlyDict userParameters
+
         // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
                 let userRoot = sprintf "http://localhost:%d/" this.port_option
-                if (dict userParameters).ContainsKey(ParamKeys.root) then
-                   printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
+                if userParametersDict.ContainsKey(ParamKeys.root) then
+                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
                 let userParameters =
                     [ ParamKeys.``root``,  userRoot] @
                     (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.``root``))
                 Some userRoot, userParameters
             else
                 let r =
-                    match (dict userParameters).TryGetValue(ParamKeys.root) with
+                    match userParametersDict.TryGetValue(ParamKeys.root) with
                     | true, v -> Some v
                     | _ -> None
                 r, userParameters
@@ -812,7 +818,7 @@ type CoreBuildOptions(watch) =
             printfn "Substitutions/parameters:"
             // Print the substitutions
             for (ParamKey pk, p) in docsParameters do
-                 printfn "  %s --> %s" pk p
+                printfn "  %s --> %s" pk p
 
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
             let pd = dict docsParameters
@@ -859,9 +865,9 @@ type CoreBuildOptions(watch) =
                   PublicOnly = not this.nonpublic } ]
 
         let output =
-           if this.output = "" then
-              if watch then "tmp/watch" else "output"
-           else this.output
+            if this.output = "" then
+                if watch then "tmp/watch" else "output"
+            else this.output
 
         // This is in-package
         //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
@@ -871,35 +877,35 @@ type CoreBuildOptions(watch) =
         // This is in-repo only
         let defaultTemplateAttempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.html"))
         let defaultTemplate =
-           if this.nodefaultcontent then
-              None
-           else
-              if (try File.Exists(defaultTemplateAttempt1) with _ -> false) then
-                  Some defaultTemplateAttempt1
-              elif (try File.Exists(defaultTemplateAttempt2) with _ -> false) then
-                  Some defaultTemplateAttempt2
-              else None
+            if this.nodefaultcontent then
+                None
+            else
+                if (try File.Exists(defaultTemplateAttempt1) with _ -> false) then
+                    Some defaultTemplateAttempt1
+                elif (try File.Exists(defaultTemplateAttempt2) with _ -> false) then
+                    Some defaultTemplateAttempt2
+                else None
 
-        let extraInputs =
-           [ if not this.nodefaultcontent then
-              // The "extras" content goes in "."
-              //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
-              //   to .nuget\packages\fsharp.formatting.commandtool\7.1.7\extras
-              let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
-              if (try Directory.Exists(attempt1) with _ -> false) then
-                  printfn "using extra content from %s" attempt1
-                  (attempt1, ".")
-              else
-                  // This is for in-repo use only, assuming we are executing directly from
-                  //   src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe
-                  //   src\FSharp.Formatting.CommandTool\bin\Release\netcoreapp3.1\fsdocs.exe
-                  let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
-                  if (try Directory.Exists(attempt2) with _ -> false) then
-                      printfn "using extra content from %s" attempt2
-                      (attempt2, "content")
-                  else
-                      printfn "no extra content found at %s or %s" attempt1 attempt2
-            ]
+        let extraInputs = [
+            if not this.nodefaultcontent then
+                // The "extras" content goes in "."
+                //   From .nuget\packages\fsharp.formatting.commandtool\7.1.7\tools\netcoreapp3.1\any
+                //   to .nuget\packages\fsharp.formatting.commandtool\7.1.7\extras
+                let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+                if (try Directory.Exists(attempt1) with _ -> false) then
+                    printfn "using extra content from %s" attempt1
+                    (attempt1, ".")
+                else
+                    // This is for in-repo use only, assuming we are executing directly from
+                    //   src\FSharp.Formatting.CommandTool\bin\Debug\netcoreapp3.1\fsdocs.exe
+                    //   src\FSharp.Formatting.CommandTool\bin\Release\netcoreapp3.1\fsdocs.exe
+                    let attempt2 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+                    if (try Directory.Exists(attempt2) with _ -> false) then
+                        printfn "using extra content from %s" attempt2
+                        (attempt2, "content")
+                    else
+                        printfn "no extra content found at %s or %s" attempt1 attempt2
+        ]
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocGlobalParameters = [ ]
@@ -941,10 +947,10 @@ type CoreBuildOptions(watch) =
                 let navEntries = docContent.GetNavigationEntries(actualDocModels)
                 let results =
                     Map.ofList [
-                       for (thing, _action) in docModels do
-                          match thing with
-                          | Some res -> res
-                          | None -> () ]
+                        for (thing, _action) in docModels do
+                            match thing with
+                            | Some res -> res
+                            | None -> () ]
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
@@ -1030,8 +1036,8 @@ type CoreBuildOptions(watch) =
                 for file in Directory.EnumerateFiles(dir) do
                     File.Delete file |> ignore
                 for subdir in Directory.EnumerateDirectories dir do
-                   if not (Path.GetFileName(subdir).StartsWith ".") then
-                       clean subdir
+                    if not (Path.GetFileName(subdir).StartsWith ".") then
+                        clean subdir
             if output <> "/" && output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty output) then
                 try clean fullOut
                 with e -> printfn "warning: error during cleaning, continuing: %s" e.Message
@@ -1114,10 +1120,10 @@ type CoreBuildOptions(watch) =
 
             // Listen to changes in output DLLs
             for (projectOutputWatcher, projectOutput) in projectOutputWatchers do
-               projectOutputWatcher.Filter <- Path.GetFileName(projectOutput)
-               projectOutputWatcher.Path <- Path.GetDirectoryName(projectOutput)
-               projectOutputWatcher.NotifyFilter <- NotifyFilters.LastWrite
-               projectOutputWatcher.Changed.Add (fun _ -> apiDocsDependenciesChanged.Trigger())
+                projectOutputWatcher.Filter <- Path.GetFileName(projectOutput)
+                projectOutputWatcher.Path <- Path.GetDirectoryName(projectOutput)
+                projectOutputWatcher.NotifyFilter <- NotifyFilters.LastWrite
+                projectOutputWatcher.Changed.Add (fun _ -> apiDocsDependenciesChanged.Trigger())
 
             // Start raising events
             docsWatcher.EnableRaisingEvents <- true
@@ -1181,6 +1187,3 @@ type WatchCommand() =
     override x.port_option = x.port
     [<Option("port", Required = false, Default=8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
-
-
-
