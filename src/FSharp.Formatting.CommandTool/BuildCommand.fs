@@ -240,7 +240,7 @@ module Crack =
             | Ok (Inspect.GetResult.Properties props) ->
                 let props = props |> Map.ofList
                 //printfn "props = %A" (Map.toList props)
-                let msbuildPropString prop = msbuildPropString prop props
+                let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
                 let splitTargetFrameworks = function Some (s:string) -> s.Split(";", StringSplitOptions.RemoveEmptyEntries) |> Array.map (fun s'->s'.Trim()) |> Some | _ -> None
                 let targetFrameworks = msbuildPropString "TargetFrameworks" |> splitTargetFrameworks
 
