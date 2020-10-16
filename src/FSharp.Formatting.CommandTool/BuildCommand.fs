@@ -309,17 +309,11 @@ type CoreBuildOptions(watch) =
             try
                 f()
                 true
-            with
-                | :?AggregateException as ex ->
-                    Log.errorf "received exception :\n %A" ex
-                    printfn "Error : \n%O" ex
-                    if this.strict then exit 1
-                    false
-                | ex ->
-                    Log.errorf "received exception :\n %A" ex
-                    printfn "Error : \n%O" ex
-                    if this.strict then exit 1
-                    false
+            with ex ->
+                Log.errorf "received exception :\n %A" ex
+                printfn "Error : \n%O" ex
+                if this.strict then exit 1
+                false
 
         /// The substitutions as given by the user
         let userParameters =
@@ -489,7 +483,7 @@ type CoreBuildOptions(watch) =
 
         let regenerateSearchIndex() =
             let index = Array.append latestApiDocSearchIndexEntries  latestDocContentSearchIndexEntries
-            let indxTxt = index |> Newtonsoft.Json.JsonConvert.SerializeObject
+            let indxTxt = System.Text.Json.JsonSerializer.Serialize index
             File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
 
         // Incrementally convert content
