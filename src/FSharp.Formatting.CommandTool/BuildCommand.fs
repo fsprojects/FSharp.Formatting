@@ -289,7 +289,7 @@ type CoreBuildOptions(watch) =
     [<Option("mdcomments", Default=false, Required = false, HelpText = "Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)")>]
     member val mdcomments = false with get, set
 
-    [<Option("parameters", Required = false, HelpText = "Additional substitution substitutions for templates.")>]
+    [<Option("parameters", Required = false, HelpText = "Additional substitution substitutions for templates, e.g. --parameters key1 value1 key2 value2")>]
     member val parameters = Seq.empty<string> with get, set
 
     [<Option("nodefaultcontent", Required = false, HelpText = "Do not copy default content styles, javascript or use default templates.")>]
@@ -323,8 +323,11 @@ type CoreBuildOptions(watch) =
 
         /// The substitutions as given by the user
         let userParameters =
-            (evalPairwiseStringsNoOption this.parameters
-                |> List.map (fun (a,b) -> (ParamKey a, b)))
+            let parameters = Array.ofSeq this.parameters
+            if parameters.Length % 2 = 1 then
+                failwith "The --parameters option's arguments' count has to be an even number"
+            evalPairwiseStringsNoOption parameters
+            |> List.map (fun (a,b) -> (ParamKey a, b))
 
         let userParametersDict = readOnlyDict userParameters
 
