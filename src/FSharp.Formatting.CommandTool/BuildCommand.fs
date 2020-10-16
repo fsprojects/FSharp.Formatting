@@ -155,13 +155,13 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         // Look for the presence of the _template.* files to activate the
         // generation of the content.
         let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
-        let htmlTemplate = if (try File.Exists(possibleNewHtmlTemplate) with _ -> false) then Some possibleNewHtmlTemplate else htmlTemplate
+        let htmlTemplate = if File.Exists(possibleNewHtmlTemplate) then Some possibleNewHtmlTemplate else htmlTemplate
         let possibleNewPynbTemplate = Path.Combine(indir, "_template.ipynb")
-        let pynbTemplate = if (try File.Exists(possibleNewPynbTemplate) with _ -> false) then Some possibleNewPynbTemplate else pynbTemplate
+        let pynbTemplate = if File.Exists(possibleNewPynbTemplate) then Some possibleNewPynbTemplate else pynbTemplate
         let possibleNewFsxTemplate = Path.Combine(indir, "_template.fsx")
-        let fsxTemplate = if (try File.Exists(possibleNewFsxTemplate) with _ -> false) then Some possibleNewFsxTemplate else fsxTemplate
+        let fsxTemplate = if File.Exists(possibleNewFsxTemplate) then Some possibleNewFsxTemplate else fsxTemplate
         let possibleNewLatexTemplate = Path.Combine(indir, "_template.tex")
-        let texTemplate = if (try File.Exists(possibleNewLatexTemplate) with _ -> false) then Some possibleNewLatexTemplate else texTemplate
+        let texTemplate = if File.Exists(possibleNewLatexTemplate) then Some possibleNewLatexTemplate else texTemplate
 
         ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
 
@@ -705,15 +705,7 @@ type CoreBuildOptions(watch) =
             if not this.nolaunch_option then
                 let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
                 printfn "launching browser window to open %s" url
-                let OpenBrowser(url: string) =
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) then
-                        Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
-                    elif (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) then
-                        Process.Start("xdg-open", url)  |> ignore
-                    elif (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) then
-                        Process.Start("open", url) |> ignore
-
-                OpenBrowser (url)
+                Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
             waitForKey watch
 
         if ok then 0 else 1
