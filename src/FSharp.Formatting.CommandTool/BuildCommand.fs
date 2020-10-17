@@ -319,7 +319,8 @@ type CoreBuildOptions(watch) =
         let userParameters =
             let parameters = Array.ofSeq this.parameters
             if parameters.Length % 2 = 1 then
-                failwith "The --parameters option's arguments' count has to be an even number"
+                printfn "The --parameters option's arguments' count has to be an even number"
+                exit 1
             evalPairwiseStringsNoOption parameters
             |> List.map (fun (a,b) -> (ParamKey a, b))
 
