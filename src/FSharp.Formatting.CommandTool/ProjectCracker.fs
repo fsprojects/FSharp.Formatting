@@ -166,11 +166,11 @@ module Crack =
             //"PackageReleaseNotes"
             "RepositoryCommit"
         ]
-        let gp () = Inspect.getProperties (["TargetPath"] @ additionalInfo)
+        let gp() = Inspect.getProperties ("TargetPath" :: additionalInfo)
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
-            let args = List.append args [ yield "/p:DesignTimeBuild=true"; for p in extraMsbuildProperties do yield ("/p:" + p) ]
+            let args = args @ [ yield "/p:DesignTimeBuild=true"; yield! Seq.map ((+) "/p:") extraMsbuildProperties]
             //printfn "%s, args = %A" exePath args
             let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
             //printfn "done..."
@@ -184,49 +184,48 @@ module Crack =
         let msgs = (loggedMessages.ToArray() |> Array.toList)
         //printfn "msgs = %A" msgs
         match result with
-        | Ok [gpResult] ->
-            match gpResult with
-            | Ok (Inspect.GetResult.Properties props) ->
-                let props = props |> Map.ofList
-                //printfn "props = %A" (Map.toList props)
-                let msbuildPropString prop = props |> Map.tryFind prop |> Option.bind (function s when String.IsNullOrWhiteSpace(s) -> None | s -> Some s)
-                let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
+        | Ok [Ok (Inspect.GetResult.Properties props)] ->
+            let props = readOnlyDict props
+            //printfn "props = %A" (Map.toList props)
+            let msbuildPropString prop =
+                match props.TryGetValue prop with
+                | false, _ -> None
+                | true, s when String.IsNullOrWhiteSpace s -> None
+                | true, s -> Some s
+            let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
 
-                {
-                    ProjectFileName = file
-                    TargetPath = msbuildPropString "TargetPath"
-                    IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
-                    IsLibrary = msbuildPropString "OutputType" |> Option.map (fun s -> s.ToLowerInvariant()) |> ((=) (Some "library"))
-                    IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
-                    RepositoryUrl = msbuildPropString "RepositoryUrl"
-                    RepositoryType = msbuildPropString "RepositoryType"
-                    RepositoryBranch = msbuildPropString "RepositoryBranch"
-                    FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink"
-                    FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
-                    FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
-                    FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
-                    FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
-                    FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
-                    FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
-                    FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition"
-                    FsDocsTheme = msbuildPropString "FsDocsTheme"
-                    FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
-                    UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
-                    PackageProjectUrl = msbuildPropString "PackageProjectUrl"
-                    Authors = msbuildPropString "Authors"
-                    GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
-                    PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
-                    PackageTags = msbuildPropString "PackageTags"
-                    Copyright = msbuildPropString "Copyright"
-                    PackageVersion = msbuildPropString "PackageVersion"
-                    PackageIconUrl = msbuildPropString "PackageIconUrl"
-                    RepositoryCommit = msbuildPropString "RepositoryCommit"
-                }
-
-            | Ok ok -> failwithf "huh? ok = %A" ok
-            | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+            {
+                ProjectFileName = file
+                TargetPath = msbuildPropString "TargetPath"
+                IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
+                IsLibrary = msbuildPropString "OutputType" |> Option.map (fun s -> s.Equals("library", StringComparison.OrdinalIgnoreCase)) |> Option.defaultValue false
+                IsPackable = msbuildPropBool "IsPackable" |> Option.defaultValue false
+                RepositoryUrl = msbuildPropString "RepositoryUrl"
+                RepositoryType = msbuildPropString "RepositoryType"
+                RepositoryBranch = msbuildPropString "RepositoryBranch"
+                FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink"
+                FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
+                FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
+                FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
+                FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
+                FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
+                FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+                FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition"
+                FsDocsTheme = msbuildPropString "FsDocsTheme"
+                FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
+                UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
+                PackageProjectUrl = msbuildPropString "PackageProjectUrl"
+                Authors = msbuildPropString "Authors"
+                GenerateDocumentationFile = msbuildPropBool "GenerateDocumentationFile" |> Option.defaultValue false
+                PackageLicenseExpression = msbuildPropString "PackageLicenseExpression"
+                PackageTags = msbuildPropString "PackageTags"
+                Copyright = msbuildPropString "Copyright"
+                PackageVersion = msbuildPropString "PackageVersion"
+                PackageIconUrl = msbuildPropString "PackageIconUrl"
+                RepositoryCommit = msbuildPropString "RepositoryCommit"
+            }
         | Ok ok -> failwithf "huh? ok = %A" ok
-        | Error err -> failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
+        | Error err -> failwithf "error - %O\nlog - %s" err (String.concat "\n" msgs)
 
     let getProjectsFromSlnFile (slnPath : string) =
         match InspectSln.tryParseSln slnPath with
@@ -234,8 +233,8 @@ module Crack =
             InspectSln.loadingBuildOrder slnData
 
             //this.LoadProjects(projs, crosstargetingStrategy, useBinaryLogger, numberOfThreads)
-        | Error d ->
-            failwithf "cannot load the sln: %A" d
+        | Error e ->
+            raise (exn("cannot load the sln", e))
 
     let crackProjects (strict, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects) =
         let slnDir = Path.GetFullPath "."
@@ -394,19 +393,20 @@ module Crack =
                 param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
             ]
 
-        let crackedProjects = [
-            for info in projectInfos do
+        let crackedProjects =
+            projectInfos
+            |> List.map (fun info ->
                 let substitutions = parametersForProjectInfo info
-                (   info.TargetPath.Value,
-                    info.RepositoryUrl,
-                    info.RepositoryBranch,
-                    info.RepositoryType,
-                    info.UsesMarkdownComments,
-                    info.FsDocsWarnOnMissingDocs,
-                    info.FsDocsSourceFolder,
-                    info.FsDocsSourceRepository,
-                    substitutions)
-        ]
+                info.TargetPath.Value,
+                info.RepositoryUrl,
+                info.RepositoryBranch,
+                info.RepositoryType,
+                info.UsesMarkdownComments,
+                info.FsDocsWarnOnMissingDocs,
+                info.FsDocsSourceFolder,
+                info.FsDocsSourceRepository,
+                substitutions
+            )
 
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
