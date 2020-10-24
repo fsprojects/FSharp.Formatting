@@ -1,6 +1,5 @@
 FSharp.Core
 FSharp.Compiler.Service
-Newtonsoft.Json
 FsUnit
 NUnit
 NUnit3TestAdapter
