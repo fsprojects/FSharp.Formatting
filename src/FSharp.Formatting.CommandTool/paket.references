@@ -2,5 +2,4 @@ FSharp.Core
 CommandLineParser
 Dotnet.ProjInfo
 Dotnet.ProjInfo.Workspace
-Newtonsoft.Json
 Suave

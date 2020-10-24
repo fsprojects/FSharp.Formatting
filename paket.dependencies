@@ -1,4 +1,4 @@
-version 5.247.4
+version 5.249.0
 source https://api.nuget.org/v3/index.json
 framework: auto-detect
 storage: none
@@ -9,7 +9,7 @@ nuget CommandLineParser ~> 2.8
 nuget Dotnet.ProjInfo
 nuget Dotnet.ProjInfo.Workspace
 nuget Newtonsoft.Json
-nuget Suave 2.1.1
+nuget Suave
 nuget System.Memory
 
 # Used to create notebook docs with mybinder links that work

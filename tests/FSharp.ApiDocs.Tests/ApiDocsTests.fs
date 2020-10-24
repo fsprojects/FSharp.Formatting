@@ -69,9 +69,9 @@ let ``ApiDocs works on sample Deedle assembly``() =
   let output = getOutputDir "Deedle"
 
   let input =
-      ApiDocInput.FromFile(library, mdcomments = true, 
+      ApiDocInput.FromFile(library, mdcomments = true,
          sourceRepo = "https://github.com/fslaborg/Deedle/",
-         sourceFolder = "c:/dev/FSharp.DataFrame") 
+         sourceFolder = "c:/dev/FSharp.DataFrame")
   let _model, _index =
       ApiDocs.GenerateHtml( [input], output, collectionName="Deedle", template=docTemplate, substitutions=substitutions, libDirs = [testBin])
   let files = Directory.GetFiles(output </> "reference")
@@ -86,7 +86,7 @@ let ``ApiDocs works on sample Deedle assembly``() =
 let ``ApiDocs works on sample FAKE assembly``() =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir "FakeLib"
-  let input = ApiDocInput.FromFile(library, mdcomments = true) 
+  let input = ApiDocInput.FromFile(library, mdcomments = true)
   let _model, _index = ApiDocs.GenerateHtml( [input], output, collectionName="FAKE", template=docTemplate, substitutions=substitutions)
   let files = Directory.GetFiles(output </> "reference")
   files |> Seq.length |> shouldEqual 166
@@ -149,7 +149,7 @@ let ``ApiDocs works on two sample F# assemblies``() =
   files.["fslib-test_issue472_t.html"] |> shouldContainText "this.MultPartial arg1 arg2"
 
 *)
-  let indxTxt = searchIndex |> Newtonsoft.Json.JsonConvert.SerializeObject
+  let indxTxt = System.Text.Json.JsonSerializer.Serialize searchIndex
 
   // Test a few entries in the search index
   indxTxt |> shouldContainText "\"uri\""
@@ -229,7 +229,7 @@ let ``ApiDocs test that cref generation works``() =
   printfn "Output: %s" output
   let inputs =
      [ for lib in libraries ->
-         ApiDocInput.FromFile(lib, 
+         ApiDocInput.FromFile(lib,
            sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
            sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
            mdcomments = false) ]
@@ -313,7 +313,7 @@ let ``Math in XML generated ok``() =
   printfn "Output: %s" output
   let inputs =
      [ for lib in libraries ->
-         ApiDocInput.FromFile(lib, 
+         ApiDocInput.FromFile(lib,
            sourceRepo = "https://github.com/fsprojects/FSharp.Formatting/tree/master",
            sourceFolder = (__SOURCE_DIRECTORY__ </> "../.."),
            mdcomments = false) ]
@@ -515,7 +515,7 @@ let ``ApiDocs generates module link in nested types``() =
   files.["fslib-nested-submodule.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
   files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "Namespace:"
   files.["fslib-nested-submodule-verynestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
-  
+
   // Check that the link to the module is correctly generated
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "Parent Module:"
   files.["fslib-nested-nestedtype.html"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"
