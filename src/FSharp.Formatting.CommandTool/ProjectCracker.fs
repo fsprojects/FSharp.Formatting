@@ -203,11 +203,11 @@ module Crack =
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
         let runCmd exePath args =
-           let args = List.append args [ yield "/p:DesignTimeBuild=true"; for p in extraMsbuildProperties do yield ("/p:" + p) ]
-           //printfn "%s, args = %A" exePath args
-           let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
-           //printfn "done..."
-           res
+            let args = args @ [ yield "/p:DesignTimeBuild=true"; yield! Seq.map ((+) "/p:") extraMsbuildProperties]
+            //printfn "%s, args = %A" exePath args
+            let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
+            //printfn "done..."
+            res
 
         let msbuildPath = Inspect.MSBuildExePath.DotnetMsbuild "dotnet"
         let msbuildExec = Inspect.msbuild msbuildPath runCmd
