@@ -119,7 +119,11 @@ module internal MarkdownUtils =
                        | AlignRight -> "---:"
                        | AlignDefault -> "---"
                 ])
-                yield (String.concat " | " (rows |> List.collect (id) |> List.collect (fun rs -> [for r in rs -> String.concat "" (formatParagraph ctx r)])))
+
+                yield String.concat "\n" [
+                    for r in rows ->
+                        r |> Seq.collect (Seq.map (fun p -> formatParagraph ctx p |> String.concat "")) |> String.concat "|"
+                ]   
 
 
             | OutputBlock(output, "text/html", _executionCount) ->
