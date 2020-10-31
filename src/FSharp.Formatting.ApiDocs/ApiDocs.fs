@@ -92,7 +92,7 @@ type ApiDocs =
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
         model,index
     
-    /// Like GenerateHtml but allows for intermediate phase to insert other global substitutions
+    /// Like GenerateMarkdown but allows for intermediate phase to insert other global substitutions
     /// and combine search index
     static member GenerateMarkdownPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
         let root = defaultArg root "/"
