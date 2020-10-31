@@ -16,6 +16,7 @@ type HtmlRender(model: ApiDocModel) =
   let root = model.Root
   let collectionName = model.Collection.CollectionName
   let qualify = model.Qualify
+  let extension = "html"
   //let obsoleteMessage msg =
   //  div [Class "alert alert-warning"] [
   //      strong [] [!!"NOTE:"]
@@ -200,7 +201,7 @@ type HtmlRender(model: ApiDocModel) =
                  let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
 
                  // This adds #EntityName anchor. These may currently be ambiguous
-                 p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]]
+                 p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify, extension))] [!!nmWithSiffix]]]
                ]
                td [Class "fsdocs-xmldoc" ] [
                    p [] [yield! sourceLink e.SourceLocation
@@ -240,13 +241,13 @@ type HtmlRender(model: ApiDocModel) =
         | _ -> entity.Name
 
     [ h1 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
-      p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify))] [!!info.Namespace .Name]]
+      p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, extension))] [!!info.Namespace .Name]]
       p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
 
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
-        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify))] [!! parentModule.Name ]]
+        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify, extension))] [!! parentModule.Name ]]
   
 
       match entity.AbbreviatedType with
@@ -432,7 +433,7 @@ type HtmlRender(model: ApiDocModel) =
         // For non-FSharp.Core we only show one link "API Reference" in the nav menu 
       if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
           li [Class "nav-header"] [!! "API Reference"]
-          li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify))] [!! "All Namespaces" ] ] 
+          li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify, extension))] [!! "All Namespaces" ] ] 
       else
 
       let categorise =
@@ -463,7 +464,7 @@ type HtmlRender(model: ApiDocModel) =
                              match nsOpt with
                              | Some ns2 when ns.Name = ns2.Name -> " active"
                              | _ -> "")
-                        Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]
+                        Href (ns.Url(root, collectionName, qualify, extension))] [!!ns.Name]
 
                      // If not in the navigation list then generate the summary text as well
                     if not nav then
@@ -480,7 +481,7 @@ type HtmlRender(model: ApiDocModel) =
                   ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
                       for category in allByCategory do
                           for e in category.CategoryEntites do
-                              li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
+                              li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify, extension))] [!! e.Name] ]
                   ]
               | _ -> ()
      ]
@@ -515,7 +516,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
+        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, extension) )
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
     end
@@ -527,7 +528,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = ns.Name
         let toc = listOfNamespaces false true (Some ns)
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify) )
+        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, extension) )
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
@@ -536,7 +537,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, "html"))
+        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, extension))
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
