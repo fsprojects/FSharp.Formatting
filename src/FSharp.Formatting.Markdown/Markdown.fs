@@ -114,9 +114,14 @@ type Markdown =
     let substitutions = defaultArg substitutions []
     PynbFormatting.formatAsPynb doc.DefinedLinks substitutions newline doc.Paragraphs
 
-  /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
+  /// Transform the provided MarkdownDocument into Fsx and return the result as a string.
   static member ToFsx(doc: MarkdownDocument, ?newline, ?substitutions) =
     let newline = defaultArg newline Environment.NewLine
     let substitutions = defaultArg substitutions []
     FsxFormatting.formatAsFsx doc.DefinedLinks substitutions newline doc.Paragraphs
 
+  /// Transform the provided MarkdownDocument into Md and return the result as a string.
+  static member ToMd(doc: MarkdownDocument, ?newline, ?substitutions) =
+    let newline = defaultArg newline Environment.NewLine
+    let substitutions = defaultArg substitutions []
+    MarkdownFormatting.formatAsMd doc.DefinedLinks substitutions newline doc.Paragraphs

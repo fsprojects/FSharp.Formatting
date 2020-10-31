@@ -86,3 +86,16 @@ type ApiDocs =
         let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
         model,index
+    
+    static member GenerateMarkdown(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
+        let root = defaultArg root "/"
+        let qualify = defaultArg qualify false
+        let strict = defaultArg strict false
+        let model =
+            ApiDocModel.Generate(inputs, collectionName=collectionName,
+                    libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
+                    urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict) 
+        let renderer = GenerateMarkdown.MarkdownRender(model)
+        let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
+        renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
+        model,index

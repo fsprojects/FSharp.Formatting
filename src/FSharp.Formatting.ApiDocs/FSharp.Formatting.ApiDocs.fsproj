@@ -16,6 +16,7 @@
     </Compile>
     <Compile Include="GenerateModel.fs" />
     <Compile Include="GenerateHtml.fs" />
+    <Compile Include="GenerateMarkdown.fs" />
     <Compile Include="GenerateSearchIndex.fs" />
     <Compile Include="ApiDocs.fs" />
   </ItemGroup>
