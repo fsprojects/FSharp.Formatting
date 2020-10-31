@@ -34,10 +34,14 @@ type OutputKind =
 
   /// Requests F# Script output
   | Fsx
+
+  /// Requests Markdown output
+  | Md
   member x.Extension =
       match x with
       | Fsx -> "fsx"
       | Latex -> "tex"
+      | Md -> "md"
       | Html -> "html"
       | Pynb -> "ipynb"
 

@@ -87,6 +87,35 @@ type ApiDocs =
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
         model,index
     
+    /// Like GenerateHtml but allows for intermediate phase to insert other global substitutions
+    /// and combine search index
+    static member GenerateMarkdownPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
+        let root = defaultArg root "/"
+        let qualify = defaultArg qualify false
+        let strict = defaultArg strict false
+        let model =
+            ApiDocModel.Generate(inputs, collectionName=collectionName,
+                libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict) 
+        let renderer = GenerateMarkdown.MarkdownRender(model)
+        let index = GenerateSearchIndex.searchIndexEntriesForModel(model)
+        renderer.GlobalSubstitutions, index, (fun globalParameters ->
+            renderer.Generate(output, template, collectionName, globalParameters))
+    
+    /// <summary>
+    /// Generates default Markdown pages for the assemblies specified by the `inputs` parameter
+    /// </summary>
+    ///
+    /// <param name="inputs">the components to generate documentation for</param>
+    /// <param name="output">the output directory</param>
+    /// <param name="collectionName">the overall collection name</param>
+    /// <param name="template">the template to use for each documentation page</param>
+    /// <param name="root">The root url of the generated documentation within the website</param>
+    /// <param name="qualify">qualify the output set by collection name, e.g. `reference/FSharp.Core/...`</param>
+    /// <param name="libDirs">Use this to specify additional paths where referenced DLL files can be found when formatting code snippets inside Markdown comments</param>
+    /// <param name="otherFlags">Additional flags that are passed to the F# compiler to specify references explicitly etc.</param>
+    /// <param name="urlRangeHighlight">A function that can be used to override the default way of generating GitHub links</param>
+    ///
     static member GenerateMarkdown(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false

@@ -536,7 +536,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
+        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, "html"))
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 

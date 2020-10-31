@@ -421,8 +421,8 @@ type ApiDocEntity
         ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify)
 
     /// The name of the file generated for this entity
-    member x.OutputFile(collectionName, qualify) =
-        sprintf "reference/%s%s.html" (if qualify then collectionName + "/" else "") urlBaseName
+    member x.OutputFile(collectionName, qualify, extension) =
+        sprintf "reference/%s%s.%s" (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The attached comment
     member x.Comment : ApiDocComment = comment
