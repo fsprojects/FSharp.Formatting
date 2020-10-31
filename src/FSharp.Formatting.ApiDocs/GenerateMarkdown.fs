@@ -404,4 +404,3 @@ type MarkdownRender(model: ApiDocModel) =
         let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
-
