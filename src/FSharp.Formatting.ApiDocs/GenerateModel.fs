@@ -338,7 +338,7 @@ type ApiDocMember (displayName: string, attributes: ApiDocAttribute list, entity
 
     /// The URL of the best link documentation for the item relative to "reference" directory (without the http://site.io/reference)
   static member GetUrl(entityUrlBaseName, displayName, root, collectionName, qualify, extension) =
-      sprintf "%sreference/%s%s.%s#%s" root (if qualify then collectionName + "/" else "") entityUrlBaseName displayName extension
+      sprintf "%sreference/%s%s%s#%s" root (if qualify then collectionName + "/" else "") entityUrlBaseName extension displayName 
 
     /// The URL of the best link documentation for the item relative to "reference" directory (without the http://site.io/reference)
   member x.Url(root, collectionName, qualify, extension) =
@@ -414,7 +414,7 @@ type ApiDocEntity
 
     /// Compute the URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
     static member GetUrl(urlBaseName, root, collectionName, qualify, extension) =
-        sprintf "%sreference/%s%s.%s" root (if qualify then collectionName + "/" else "") urlBaseName extension
+        sprintf "%sreference/%s%s%s" root (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
     member x.Url(root, collectionName, qualify, extension) =
@@ -422,7 +422,7 @@ type ApiDocEntity
 
     /// The name of the file generated for this entity
     member x.OutputFile(collectionName, qualify, extension) =
-        sprintf "reference/%s%s.%s" (if qualify then collectionName + "/" else "") urlBaseName extension
+        sprintf "reference/%s%s%s" (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The attached comment
     member x.Comment : ApiDocComment = comment
@@ -513,11 +513,11 @@ type ApiDocNamespace(name: string, modifiers, substitutions: Substitutions, nsdo
 
     /// The URL of the best link documentation for the item (without the http://site.io/reference)
     member x.Url(root, collectionName, qualify, extension) =
-        sprintf "%sreference/%s%s.%s" root (if qualify then collectionName + "/" else "") urlBaseName extension
+        sprintf "%sreference/%s%s%s" root (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The name of the file generated for this entity
     member x.OutputFile(collectionName, qualify, extension) =
-        sprintf "reference/%s%s.%s" (if qualify then collectionName + "/" else "") urlBaseName extension
+        sprintf "reference/%s%s%s" (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// All modules in the namespace
     member x.Entities : ApiDocEntity list = modifiers
@@ -619,7 +619,7 @@ module internal CrossReferences =
 type internal CrefReference =
     { IsInternal : bool; ReferenceLink : string; NiceName : string; HasModuleSuffix: bool }
 
-type internal CrossReferenceResolver (root, collectionName, qualify, extension) =
+type internal CrossReferenceResolver (root, collectionName, qualify, extensions) =
     let toReplace =
         ([("Microsoft.", ""); (".", "-"); ("`", "-"); ("<", "_"); (">", "_"); (" ", "_"); ("#", "_")] @
             (Path.GetInvalidPathChars()
@@ -631,7 +631,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extension) 
     let registeredSymbolsToUrlBaseName = Dictionary<FSharpSymbol, string>()
     let xmlDocNameToSymbol = Dictionary<string, FSharpSymbol>()
     let niceNameEntityLookup = Dictionary<_, _>()
-    let extension = extension
+    let extensions = extensions
 
     let nameGen (name:string) =
         let nice = (toReplace
@@ -712,10 +712,10 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extension) 
         sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
 
     let internalCrossReference urlBaseName =
-        ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify, extension)
+        ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify, extensions.InUrl)
 
     let internalCrossReferenceForMember entityUrlBaseName (memb: FSharpMemberOrFunctionOrValue) =
-        ApiDocMember.GetUrl(entityUrlBaseName, memb.DisplayName, root, collectionName, qualify, extension)
+        ApiDocMember.GetUrl(entityUrlBaseName, memb.DisplayName, root, collectionName, qualify, extensions.InUrl)
 
     let tryResolveCrossReferenceForEntity (entity: FSharpEntity) =
         match registeredSymbolsToUrlBaseName.TryGetValue (entity) with
@@ -2066,6 +2066,12 @@ type ApiDocInput =
          PublicOnly=defaultArg publicOnly true;
          MarkdownComments = defaultArg mdcomments false }
 
+
+type ApiDocFileExtensions = {
+    InFile: string
+    InUrl: string
+}
+ 
 /// Represents a set of assemblies integrated with their associated documentation
 type ApiDocModel =
   {
@@ -2084,18 +2090,20 @@ type ApiDocModel =
     /// Indicates if each collection is being qualified by its collection name, e.g. 'reference/FSharp.Core'
     Qualify: bool
 
+    /// Specifies file extensions to use in files and URLs
+    FileExtensions: ApiDocFileExtensions
   }
 
   /// URL of the 'index.html' for the reference documentation for the model
   member x.IndexFileUrl(root, collectionName, qualify, extension) =
-        sprintf "%sreference/%sindex.%s" root (if qualify then collectionName + "/" else "") extension
+        sprintf "%sreference/%sindex%s" root (if qualify then collectionName + "/" else "") extension
 
   /// URL of the 'index.html' for the reference documentation for the model
   member x.IndexOutputFile(collectionName, qualify, extension) =
-        sprintf "reference/%sindex.%s" (if qualify then collectionName + "/" else "") extension
+        sprintf "reference/%sindex%s" (if qualify then collectionName + "/" else "") extension
 
   static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
-         qualify, urlRangeHighlight, root, substitutions, strict, extension) =
+         qualify, urlRangeHighlight, root, substitutions, strict, extensions) =
 
     let (@@) a b = Path.Combine(a, b)
 
@@ -2141,7 +2149,7 @@ type ApiDocModel =
         |> List.zip projects
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
-      let urlMap = CrossReferenceResolver(root, collectionName, qualify, extension)
+      let urlMap = CrossReferenceResolver(root, collectionName, qualify, extensions)
 
       for (_, asmOpt) in resolvedList do
         match asmOpt with
@@ -2258,6 +2266,7 @@ type ApiDocModel =
       EntityInfos = moduleInfos @ typesInfos
       Root = root
       Qualify = qualify
+      FileExtensions = extensions
     }
 
 /// Represents an entry suitable for constructing a Lunr index

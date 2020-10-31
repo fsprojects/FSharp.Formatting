@@ -14,7 +14,7 @@ let rec collectEntities (m: ApiDocEntity) =
         yield! m.NestedEntities |> List.collect collectEntities
     ]
 
-let searchIndexEntriesForModel (model: ApiDocModel) extension =
+let searchIndexEntriesForModel (model: ApiDocModel) =
     let allEntities =
         [ for n in model.Collection.Namespaces do
             for m in n.Entities do
@@ -36,7 +36,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) extension =
               | Some s -> yield s.HtmlText
             ] |> String.concat " \n"
 
-        { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify, extension)
+        { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
           title = enclName + "." + memb.Name
           content = cnt }
 
@@ -49,7 +49,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) extension =
                         e.Name
                     ] |> String.concat " \n"
 
-                { uri = nsp.Url(model.Root, model.Collection.CollectionName, model.Qualify, extension)
+                { uri = nsp.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
                   title = nsp.Name
                   content = ctn }
 
@@ -72,7 +72,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) extension =
                     ] |> String.concat " \n"
 
 
-                let url = e.Url(model.Root, model.Collection.CollectionName, model.Qualify, extension)
+                let url = e.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
                 { uri = url
                   title = e.Name
                   content = cnt }

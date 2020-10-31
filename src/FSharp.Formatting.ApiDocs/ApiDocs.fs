@@ -30,14 +30,14 @@ type ApiDocs =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extension = defaultArg extension "html"
+        let extensions = defaultArg extension { InFile = ".html"; InUrl = ".html"}
         ApiDocModel.Generate(inputs, collectionName=collectionName,
             libDirs=libDirs, qualify=qualify,
             otherFlags=otherFlags,
             urlRangeHighlight=urlRangeHighlight, root=root,
             substitutions=substitutions,
             strict=strict,
-            extension=extension
+            extensions=extensions
             ) 
 
     /// <summary>
@@ -54,13 +54,13 @@ type ApiDocs =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extension = "html"
+        let extensions = { InFile = ".html"; InUrl = ".html"}
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extension=extension) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
         let renderer = GenerateHtml.HtmlRender(model)
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model extension
+        let index = GenerateSearchIndex.searchIndexEntriesForModel model
         renderer.GlobalSubstitutions, index, (fun globalParameters ->
             renderer.Generate(output, template, collectionName, globalParameters))
 
@@ -82,13 +82,13 @@ type ApiDocs =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extension = "html"
+        let extensions = { InFile = ".html"; InUrl = ".html"}
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extension=extension) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
         let renderer = GenerateHtml.HtmlRender(model)
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model extension 
+        let index = GenerateSearchIndex.searchIndexEntriesForModel model 
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
         model,index
     
@@ -98,13 +98,13 @@ type ApiDocs =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extension = "md"
+        let extensions = { InFile = ".md"; InUrl = ""}
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                 libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extension=extension) 
+                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
         let renderer = GenerateMarkdown.MarkdownRender(model)
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model extension
+        let index = GenerateSearchIndex.searchIndexEntriesForModel model
         renderer.GlobalSubstitutions, index, (fun globalParameters ->
             renderer.Generate(output, template, collectionName, globalParameters))
     
@@ -126,12 +126,13 @@ type ApiDocs =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extension = "md"
+        let extensions = { InFile = ".md"; InUrl = ""}
+
         let model =
             ApiDocModel.Generate(inputs, collectionName=collectionName,
                     libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                    urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extension=extension) 
+                    urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
         let renderer = GenerateMarkdown.MarkdownRender(model)
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model extension
+        let index = GenerateSearchIndex.searchIndexEntriesForModel model
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
         model,index

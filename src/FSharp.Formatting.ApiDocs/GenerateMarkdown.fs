@@ -16,7 +16,6 @@ type MarkdownRender(model: ApiDocModel) =
   let root = model.Root
   let collectionName = model.Collection.CollectionName
   let qualify = model.Qualify
-  let extension = "md"
 
   // let mutable uniqueNumber = 0
   // let UniqueID() =
@@ -106,7 +105,7 @@ type MarkdownRender(model: ApiDocModel) =
       ``#`` [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module"))]
       p [
         !! "Namespace: "
-        link [!! info.Namespace.Name] (info.Namespace.Url(root, collectionName, qualify, extension))
+        link [!! info.Namespace.Name] (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
       ]
       p [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
    
@@ -116,7 +115,7 @@ type MarkdownRender(model: ApiDocModel) =
       | Some parentModule ->
         span [
           !! "Parent Module: "
-          link [!! parentModule.Name] (parentModule.Url(root, collectionName, qualify, extension))
+          link [!! parentModule.Name] (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
         ]
 
       match entity.AbbreviatedType with
@@ -304,10 +303,10 @@ type MarkdownRender(model: ApiDocModel) =
         //
         // For non-FSharp.Core we only show one link "API Reference" in the nav menu 
       if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
-        Paragraph([
-          Literal("API Reference", None)
-          DirectLink([Literal("All Namespaces", None)], model.IndexFileUrl(root, collectionName, qualify, extension), None, None)
-        ], None)
+        p [
+          !! "API Reference"
+          link [!! "All Namespaces"] (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)) 
+        ]
       else
 
       let categorise =
@@ -325,14 +324,14 @@ type MarkdownRender(model: ApiDocModel) =
 
           // Generate the entry for the namespace
           p [
-                    link [!!ns.Name] (ns.Url(root, collectionName, qualify, extension))
+              link [!!ns.Name] (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
 
-                     // If not in the navigation list then generate the summary text as well
-                    if not nav then
-                       !! " - "
-                       match ns.NamespaceDocs with
-                       | Some nsdocs -> embed nsdocs.Summary
-                       | None -> () ] 
+               // If not in the navigation list then generate the summary text as well
+              if not nav then
+                 !! " - "
+                 match ns.NamespaceDocs with
+                 | Some nsdocs -> embed nsdocs.Summary
+                 | None -> () ] 
 
           // In the navigation bar generate the expanded list of entities
           // for the active namespace
@@ -342,7 +341,7 @@ type MarkdownRender(model: ApiDocModel) =
                   ul [
                       for category in allByCategory do
                           for e in category.CategoryEntites do
-                              [p [link [!! e.Name] (e.Url(root, collectionName, qualify, extension))]  ]
+                              [p [link [!! e.Name] (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))]  ]
                   ]
               | _ -> ()
      ]
@@ -381,7 +380,7 @@ type MarkdownRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, extension) )
+        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile) )
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
     end
@@ -393,7 +392,7 @@ type MarkdownRender(model: ApiDocModel) =
         let pageTitle = ns.Name
         let toc = listOfNamespaces false true (Some ns)
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, extension) )
+        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile) )
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
@@ -402,6 +401,6 @@ type MarkdownRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, extension))
+        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)

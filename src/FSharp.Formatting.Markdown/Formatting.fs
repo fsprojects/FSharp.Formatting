@@ -103,6 +103,8 @@ module internal MarkdownUtils =
             | CodeBlock(code, _, _, _, _) ->
                 yield code
                 yield ""
+            | ListBlock (Unordered, paragraphs, _) ->
+                yield (String.concat "\n" (paragraphs |> List.collect(fun ps -> [ for p in ps -> String.concat "" (formatParagraph ctx p)])))
             | OutputBlock(output, "text/html", _executionCount) ->
                 yield (output.Trim())
                 yield ""
