@@ -10,7 +10,10 @@ open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
 /// Embed some HTML generateed in GenerateModel
-let embed (x: ApiDocHtml) = !! x.HtmlText
+
+let encode = HttpUtility.HtmlEncode 
+let urlEncode (x: string) = HttpUtility.UrlEncode x
+let embed (x: ApiDocHtml) = !! x.HtmlText.Trim()
 
 type MarkdownRender(model: ApiDocModel) =
   let root = model.Root
@@ -22,145 +25,110 @@ type MarkdownRender(model: ApiDocModel) =
         | None -> ()
         | Some href ->
           link [
-            img "" (sprintf "%scontent/img/github.png" root)
+            img "Link to source code" (sprintf "%scontent/img/github.png" root)
           ] (href) ]
 
   let renderMembers header tableHeader (members: ApiDocMember list) =
-    // [ if members.Length > 0 then
-    //     h3 [] [!! header]
-    //     table [Class "table outer-list fsdocs-member-list"] [
-    //       thead [] [
-    //         tr [] [
-    //           td [Class "fsdocs-member-list-header"] [ !!tableHeader ]
-    //           td [Class "fsdocs-member-list-header"] [ !! "Description" ]
-    //         ]
-    //       ]
-    //       tbody [] [
-    //         for m in members do
-    //           tr [] [
-    //             td [Class "fsdocs-member-name"] [
-                   
-    //                codeWithToolTip [
-    //                    // This adds #MemberName anchor. These may be ambiguous due to overloading
-    //                    p [] [a [Id m.Name] [a [Href ("#"+m.Name)] [embed m.UsageHtml]]]
-    //                  ]
-    //                  [
-    //                    div [Class "member-tooltip"] [
-    //                      !! "Full Usage: "
-    //                      embed m.UsageHtml
-    //                      br []
-    //                      br []
-    //                      if not m.Parameters.IsEmpty then
-    //                          !! "Parameters: "
-    //                          ul [] [
-    //                            for p in m.Parameters do
-    //                              span [] [
-    //                                  b [] [!! p.ParameterNameText ];
-    //                                  !! ":"; embed p.ParameterType
-    //                                  match p.ParameterDocs with
-    //                                  | None -> ()
-    //                                  | Some d -> !! " - "; embed d]
-    //                              br []
-    //                          ]
-    //                          br []
-    //                      match m.ReturnInfo.ReturnType with
-    //                      | None -> ()
-    //                      | Some rty ->
-    //                          span [] [!! "Returns: "; embed rty ]
-    //                          match m.ReturnInfo.ReturnDocs with
-    //                          | None -> ()
-    //                          | Some d -> embed d
-    //                          br []
-    //                      //!! "Signature: "
-    //                      //encode(m.SignatureTooltip)
-    //                      if not m.Modifiers.IsEmpty then
-    //                        !! "Modifiers: "
-    //                        encode(m.FormatModifiers)
-    //                        br []
+    [ if members.Length > 0 then
+        ``###`` [!! header]
+        table [
+          [p [ !! tableHeader ]]
+          [p [ !! "Description"]]
+          [p [ !! "Source"]]
+         ]
+         [AlignLeft; AlignLeft; AlignLeft]
+         [
+            for m in members do
+            [
+              [
+                p [
+                  link [!! encode(m.Name)] ("#" + urlEncode(m.Name))
+                ]
+              ]
+              [
+                p [
+                   embed m.Comment.Summary
+                ]
+              ]
+              [
+                p [yield! sourceLink m.SourceLocation]
+              ]
+            ]
+         ]
+    ]   
 
-    //                        // We suppress the display of ill-formatted type parameters for places
-    //                        // where these have not been explicitly declared
-    //                        match m.FormatTypeArguments with
-    //                        | None -> ()
-    //                        | Some v -> 
-    //                            !!"Type parameters: "
-    //                            encode(v)
-    //                    ]
-    //                  ]
-    //             ]
+
+
+   
              
-    //             td [Class "fsdocs-xmldoc"] [
-    //                p [Class "fsdocs-summary"]
-    //                   [yield! sourceLink m.SourceLocation
-    //                    embed m.Comment.Summary; ]
+                // td [Class "fsdocs-xmldoc"] [
+                //    p [Class "fsdocs-summary"]
+                //       [yield! sourceLink m.SourceLocation
+                //        embed m.Comment.Summary; ]
 
-    //                match m.Comment.Remarks with
-    //                | Some r ->
-    //                    p [Class "fsdocs-remarks"] [embed r]
-    //                | None -> ()
+                //    match m.Comment.Remarks with
+                //    | Some r ->
+                //        p [Class "fsdocs-remarks"] [embed r]
+                //    | None -> ()
 
-    //                match m.ExtendedType with
-    //                | Some s ->
-    //                    p [] [!! "Extended Type: "; embed s ]
-    //                | _ -> ()
+                //    match m.ExtendedType with
+                //    | Some s ->
+                //        p [] [!! "Extended Type: "; embed s ]
+                //    | _ -> ()
 
-    //                if not m.Parameters.IsEmpty then
-    //                    dl [Class "fsdocs-params"] [
-    //                        for parameter in m.Parameters do
-    //                            dt [Class "fsdocs-param"] [
-    //                                span [Class "fsdocs-param-name"] [!! parameter.ParameterNameText]
-    //                                !! ":"
-    //                                embed parameter.ParameterType
-    //                            ]
-    //                            dd [Class "fsdocs-param-docs"] [
-    //                                match parameter.ParameterDocs with
-    //                                | None -> ()
-    //                                | Some d -> p [] [embed d]
-    //                            ]
-    //                    ]
+                //    if not m.Parameters.IsEmpty then
+                //        dl [Class "fsdocs-params"] [
+                //            for parameter in m.Parameters do
+                //                dt [Class "fsdocs-param"] [
+                //                    span [Class "fsdocs-param-name"] [!! parameter.ParameterNameText]
+                //                    !! ":"
+                //                    embed parameter.ParameterType
+                //                ]
+                //                dd [Class "fsdocs-param-docs"] [
+                //                    match parameter.ParameterDocs with
+                //                    | None -> ()
+                //                    | Some d -> p [] [embed d]
+                //                ]
+                //        ]
 
-    //                match m.ReturnInfo.ReturnType with
-    //                | None -> ()
-    //                | Some t ->
-    //                    dl [Class "fsdocs-returns"] [
-    //                        dt [] [
-    //                            span [Class "fsdocs-return-name"] [!! "Returns:"]
-    //                            embed t
-    //                        ]
-    //                        dd [Class "fsdocs-return-docs"] [
-    //                            match m.ReturnInfo.ReturnDocs with
-    //                            | None -> ()
-    //                            | Some r -> p [] [embed r]
-    //                        ]
-    //                    ]
+                //    match m.ReturnInfo.ReturnType with
+                //    | None -> ()
+                //    | Some t ->
+                //        dl [Class "fsdocs-returns"] [
+                //            dt [] [
+                //                span [Class "fsdocs-return-name"] [!! "Returns:"]
+                //                embed t
+                //            ]
+                //            dd [Class "fsdocs-return-docs"] [
+                //                match m.ReturnInfo.ReturnDocs with
+                //                | None -> ()
+                //                | Some r -> p [] [embed r]
+                //            ]
+                //        ]
 
-    //                if not m.Comment.Exceptions.IsEmpty then
-    //                    //p [] [ !! "Exceptions:" ]
-    //                    table [Class "fsdocs-exception-list"] [
-    //                        for (nm, link, html) in m.Comment.Exceptions do
-    //                          tr [] [td [] (match link with None -> [] | Some href -> [a [Href href] [!! nm] ])
-    //                                 td [] [embed html]]
-    //                    ]
+                //    if not m.Comment.Exceptions.IsEmpty then
+                //        //p [] [ !! "Exceptions:" ]
+                //        table [Class "fsdocs-exception-list"] [
+                //            for (nm, link, html) in m.Comment.Exceptions do
+                //              tr [] [td [] (match link with None -> [] | Some href -> [a [Href href] [!! nm] ])
+                //                     td [] [embed html]]
+                //        ]
 
-    //                for e in m.Comment.Notes do 
-    //                    h5 [Class "fsdocs-note-header"] [!! "Note"]
-    //                    p [Class "fsdocs-note"] [embed e]
+                //    for e in m.Comment.Notes do 
+                //        h5 [Class "fsdocs-note-header"] [!! "Note"]
+                //        p [Class "fsdocs-note"] [embed e]
 
-    //                for e in m.Comment.Examples do 
-    //                    h5 [Class "fsdocs-example-header"] [!! "Example"]
-    //                    p [Class "fsdocs-example"] [embed e]
+                //    for e in m.Comment.Examples do 
+                //        h5 [Class "fsdocs-example-header"] [!! "Example"]
+                //        p [Class "fsdocs-example"] [embed e]
 
-    //                //if m.IsObsolete then
-    //                //    obsoleteMessage m.ObsoleteMessage
+                //    //if m.IsObsolete then
+                //    //    obsoleteMessage m.ObsoleteMessage
 
-    //                //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
-    //                //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
-    //             ]
-    //          ]
-    //        ]
-    //      ]
-    //  ]
-    members |> Seq.map (fun m -> !! m.Name) |> Seq.toList
+                //    //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
+                //    //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
+
+    //members |> Seq.map (fun m -> !! m.Name) |> Seq.toList
 
   let renderEntities (entities: ApiDocEntity list) =
    [ if entities.Length > 0 then
@@ -325,18 +293,17 @@ type MarkdownRender(model: ApiDocModel) =
         // that is related to this specific category.
         if (byCategory.Length > 1) then ``##`` [!! name]
 
-        p (renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
-        p (renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
-        p (renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
-        p (renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
-        p (renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
-        p (renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
-        p (renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
-        p (renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
-        p (renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
+        yield! renderMembers "Functions and values" "Function or value" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction))
+        yield! renderMembers "Type extensions" "Type extension" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension))
+        yield! renderMembers "Active patterns" "Active pattern" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern))
+        yield! renderMembers "Union cases" "Union case" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase))
+        yield! renderMembers "Record fields" "Record Field" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField))
+        yield! renderMembers "Static parameters" "Static parameters" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter))
+        yield! renderMembers "Constructors" "Constructor" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor))
+        yield! renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember))
+        yield! renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember))
     ]
- 
-    
+
   let categoriseEntities (nsIndex: int, ns: ApiDocNamespace, suppress) =
     let entities = ns.Entities
   

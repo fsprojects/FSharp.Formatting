@@ -106,11 +106,13 @@ module internal MarkdownUtils =
             | ListBlock (Unordered, paragraphs, _) ->
                 yield (String.concat "\n" (paragraphs |> List.collect(fun ps -> [ for p in ps -> String.concat "" (formatParagraph ctx p)])))
             | TableBlock (headers, alignments, rows, _) -> 
+                let escapePipeline (x:string) = x.Replace("|", "&#124;") 
+            
                 match headers with
                  | Some headers -> 
-                   yield (String.concat " | " (headers |> List.collect (fun hs -> [for h in hs -> String.concat "" (formatParagraph ctx h)])))
+                   yield (String.concat " | " (headers |> List.collect (fun hs -> [for h in hs -> String.concat "" (formatParagraph ctx h) |> escapePipeline])))
                  | None -> ()
-                //yield ""
+
                 yield (String.concat " | " [
                     for a in alignments -> 
                       match a with
@@ -122,9 +124,9 @@ module internal MarkdownUtils =
 
                 yield String.concat "\n" [
                     for r in rows ->
-                        r |> Seq.collect (Seq.map (fun p -> formatParagraph ctx p |> String.concat "")) |> String.concat "|"
-                ]   
-
+                        r |> Seq.collect (Seq.map (fun p -> formatParagraph ctx p |> String.concat "" |> escapePipeline)) |> String.concat "|"
+                ]
+                yield "\n"
 
             | OutputBlock(output, "text/html", _executionCount) ->
                 yield (output.Trim())

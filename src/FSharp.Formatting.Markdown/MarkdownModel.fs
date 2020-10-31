@@ -84,6 +84,7 @@ module Dsl =
   let ``###`` value = Heading(3, value, None)
   let ``####`` value = Heading(4, value, None)
   let ``#####`` value = Heading(5, value, None)
+  let strong value = Strong(value, None)
   let p value = Paragraph(value, None)
   let span value = Span(value, None)
   let (!!) value = Literal(value, None)
