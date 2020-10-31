@@ -17,63 +17,47 @@ type MarkdownRender(model: ApiDocModel) =
   let collectionName = model.Collection.CollectionName
   let qualify = model.Qualify
 
-  // let mutable uniqueNumber = 0
-  // let UniqueID() =
-  //   uniqueNumber <- uniqueNumber + 1
-  //   uniqueNumber
-
-  // let codeWithToolTip content tip =
-  //   div [] [
-  //     let id = UniqueID().ToString()
-  //     code [ OnMouseOut  (sprintf "hideTip(event, '%s', %s)" id id)
-  //            OnMouseOver (sprintf "showTip(event, '%s', %s)" id id)] content
-  //     div [Class "fsdocs-tip"; Id id ] tip
-  //   ]
-
-  // let sourceLink url =
-  //     [ match url with
-  //       | None -> ()
-  //       | Some href ->
-  //         a [Href href; Class"fsdocs-source-link" ] [
-  //           img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
-  //           img [Src (sprintf "%scontent/img/github-blue.png" root); Class "hover"]
-  //         ] ]
+  let sourceLink url =
+      [ match url with
+        | None -> ()
+        | Some href ->
+          link [
+            img "" (sprintf "%scontent/img/github.png" root)
+          ] (href) ]
 
   let renderMembers header tableHeader (members: ApiDocMember list) =
     members |> Seq.map (fun m -> !! m.Name) |> Seq.toList
 
-  // let renderEntities (entities: ApiDocEntity list) =
-  //  [ if entities.Length > 0 then
-  //     let hasTypes = entities |> List.exists (fun e -> e.IsTypeDefinition)
-  //     let hasModules = entities |> List.exists (fun e -> not e.IsTypeDefinition)
-  //     table [Class "table outer-list fsdocs-entity-list" ] [
-  //       thead [] [
-  //         tr [] [
-  //           td [] [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
-  //           td [] [!!"Description"]
-  //         ]
-  //       ]
-  //       tbody [] [
-  //         for e in entities do 
-  //           tr [] [
-  //              td [Class "fsdocs-entity-name"] [
-  //                let nm = e.Name 
-  //                let multi = (entities |> List.filter (fun e -> e.Name = nm) |> List.length) > 1
-  //                let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
-
-  //                // This adds #EntityName anchor. These may currently be ambiguous
-  //                p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]]
-  //              ]
-  //              td [Class "fsdocs-xmldoc" ] [
-  //                  p [] [yield! sourceLink e.SourceLocation
-  //                        embed e.Comment.Summary;  ]
-
-  //              ]
-  //           ]
-  //       ]
-  //     ]
-  //  ]
-
+  let renderEntities (entities: ApiDocEntity list) =
+   [ if entities.Length > 0 then
+      let hasTypes = entities |> List.exists (fun e -> e.IsTypeDefinition)
+      let hasModules = entities |> List.exists (fun e -> not e.IsTypeDefinition)
+      table [ 
+        [
+         p [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
+         p [!!"Description"]
+        ]
+       ] 
+       [AlignLeft; AlignLeft]
+       [
+        for e in entities do 
+          [
+            [p [
+              let nm = e.Name 
+              let multi = (entities |> List.filter (fun e -> e.Name = nm) |> List.length) > 1
+              let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
+              link [!!nmWithSiffix] (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+            ]]
+            [
+             p [
+                yield! (sourceLink e.SourceLocation)
+                embed e.Comment.Summary 
+              ]
+            ]
+          ]
+       ]
+   ]
+   
   // Honour the CategoryIndex to put the categories in the right order
   let getSortedCategories xs exclude category categoryIndex =
     xs
@@ -199,7 +183,7 @@ type MarkdownRender(model: ApiDocModel) =
         ``###`` [!! (if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition)  then "Nested modules"
                      elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then "Types"
                      else "Types and nested modules")]
-        //     yield! renderEntities nestedEntities
+        yield! renderEntities nestedEntities
 
       for (index, ms, name) in byCategory do
         // Iterate over all the categories and print members. If there are more than one
@@ -294,7 +278,7 @@ type MarkdownRender(model: ApiDocModel) =
         for category in allByCategory do
           if (allByCategory.Length > 1) then
              ``###`` [link [!! category.CategoryName] ("#category-" + category.CategoryIndex)]
-          //yield! renderEntities category.CategoryEntites
+          yield! renderEntities category.CategoryEntites
     ]  
 
   let listOfNamespacesAux otherDocs nav (nsOpt: ApiDocNamespace option) =

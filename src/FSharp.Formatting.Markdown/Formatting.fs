@@ -66,10 +66,10 @@ module internal MarkdownUtils =
           "[" + formatSpans ctx body + "](" + link + ")"
 
       | IndirectImage(_body, _, LookupKey ctx.Links (_link, _), _) 
-      | DirectImage(_body, _link, _, _) 
       | IndirectImage(_body, _link, _, _) ->
           failwith "tbd - IndirectImage"
-
+      | DirectImage(_body, _link, _, _) ->
+        sprintf "![%s](%s)" _body _link
       | Strong(body, _) -> 
           "**" + formatSpans ctx body + "**"
       | InlineCode(body, _) -> 
@@ -105,6 +105,23 @@ module internal MarkdownUtils =
                 yield ""
             | ListBlock (Unordered, paragraphs, _) ->
                 yield (String.concat "\n" (paragraphs |> List.collect(fun ps -> [ for p in ps -> String.concat "" (formatParagraph ctx p)])))
+            | TableBlock (headers, alignments, rows, _) -> 
+                match headers with
+                 | Some headers -> 
+                   yield (String.concat " | " (headers |> List.collect (fun hs -> [for h in hs -> String.concat "" (formatParagraph ctx h)])))
+                 | None -> ()
+                //yield ""
+                yield (String.concat " | " [
+                    for a in alignments -> 
+                      match a with
+                       | AlignLeft -> ":---"
+                       | AlignCenter -> ":---:"
+                       | AlignRight -> "---:"
+                       | AlignDefault -> "---"
+                ])
+                yield (String.concat " | " (rows |> List.collect (id) |> List.collect (fun rs -> [for r in rs -> String.concat "" (formatParagraph ctx r)])))
+
+
             | OutputBlock(output, "text/html", _executionCount) ->
                 yield (output.Trim())
                 yield ""

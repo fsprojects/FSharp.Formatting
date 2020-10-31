@@ -90,7 +90,10 @@ module Dsl =
   let link content url = DirectLink(content, url, None, None)
   let ul value = ListBlock(Unordered, value, None) 
   let ol value = ListBlock(Ordered, value, None) 
-
+  let table headers alignments rows = 
+    let hs = match headers with | [] -> None | hs -> Some hs
+    TableBlock(hs, alignments, rows, None)
+  let img body link = DirectImage(body, link, None, None)
 // --------------------------------------------------------------------------------------
 // Patterns that make recursive Markdown processing easier
 // --------------------------------------------------------------------------------------
