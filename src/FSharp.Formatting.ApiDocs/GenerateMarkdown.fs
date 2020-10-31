@@ -97,7 +97,7 @@ type MarkdownRender(model: ApiDocModel) =
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
-        span [
+        p [
           !! "Parent Module: "
           link [!! parentModule.Name] (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
         ]
