@@ -121,17 +121,17 @@ module internal MarkdownUtils =
                        | AlignRight -> "---:"
                        | AlignDefault -> "---"
                 ])
-                let ignoreEmpty s = match s with | "" | null -> None | s -> Some s
+                let ignoreEmptyWith x s = match s with | "" | null -> x | s -> Some s
                 yield String.concat "\n" [
                     for r in rows do
                     [
                       for ps in r do
                       let x = [
                             for p in ps do
-                             yield formatParagraph ctx p |> Seq.choose ignoreEmpty |> Seq.map escapePipeline |> String.concat ""
+                             yield formatParagraph ctx p |> Seq.choose (ignoreEmptyWith (Some "&nbsp;")) |> Seq.map escapePipeline |> String.concat ""
                           ] 
-                      yield x |> Seq.choose ignoreEmpty |> String.concat "<br />"
-                    ] |> Seq.choose ignoreEmpty |> String.concat " | "
+                      yield x |> Seq.choose (ignoreEmptyWith (Some "&nbsp;")) |> String.concat "<br />"
+                    ] |> Seq.choose (ignoreEmptyWith (Some "&nbsp;"))  |> String.concat " | "
                 ]
                 yield "\n"
 

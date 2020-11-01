@@ -1,15 +1,11 @@
 module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 
 open System
-open System.Collections.Generic
 open System.IO
 open System.Web
-open FSharp.Formatting.Common
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
-
-/// Embed some HTML generateed in GenerateModel
 
 let encode = HttpUtility.HtmlEncode 
 let urlEncode (x: string) = HttpUtility.UrlEncode x
@@ -46,15 +42,17 @@ type MarkdownRender(model: ApiDocModel) =
               [
                 p [link [!! encode(m.Name)] ("#" + urlEncode(m.Name))]
                 match m.Comment.Remarks with
-                 | Some r ->
-                     p [embedSafe r]
                  | None -> ()
+                 | Some r ->  p [embedSafe r]
               ]
               [
-                p [ embedSafe m.Comment.Summary ]
+                let summary = m.Comment.Summary
+                let emptySummary = summary.HtmlText |> String.IsNullOrWhiteSpace
+
+                if not emptySummary then p [ embedSafe m.Comment.Summary ]
 
                 if not m.Parameters.IsEmpty then p [ 
-                  if not (m.Comment.Summary |> htmlString |> System.String.IsNullOrWhiteSpace) then (!! "<br />")
+                  if not emptySummary then (!! "<br />")
                   !! "Parameters: "
                 ]
                 yield! m.Parameters |> List.collect (fun parameter ->
@@ -64,18 +62,15 @@ type MarkdownRender(model: ApiDocModel) =
                            !! ":"
                            embedSafe parameter.ParameterType
                         ]
-                        p [
-                          match parameter.ParameterDocs with
-                           | None -> ()
-                           | Some d -> !! (sprintf ": %s" (htmlStringSafe d))
-                        ]
-                        p [
-                          match m.ExtendedType with
-                           | None -> ()
-                           | Some s ->
-                               !! "Extended Type: "
-                               embedSafe s
-                        ]
+                        match parameter.ParameterDocs with
+                         | None -> ()
+                         | Some d -> p [!! (sprintf ": %s" (htmlStringSafe d))]
+                        match m.ExtendedType with
+                         | None -> ()
+                         | Some s -> p [
+                             !! "Extended Type: "
+                             embedSafe s
+                           ]
                   ])
               ]
               [
@@ -132,9 +127,10 @@ type MarkdownRender(model: ApiDocModel) =
         [
          p [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
          p [!!"Description"]
+         p [ !! "Source"]
         ]
        ] 
-       [AlignLeft; AlignLeft]
+       [AlignLeft; AlignLeft; AlignLeft]
        [
         for e in entities do 
           [
@@ -145,9 +141,13 @@ type MarkdownRender(model: ApiDocModel) =
               link [!!nmWithSiffix] (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
             ]]
             [
+              p [
+                embedSafe e.Comment.Summary
+              ]
+            ]
+            [
              p [
                 yield! (sourceLink e.SourceLocation)
-                embedSafe e.Comment.Summary 
               ]
             ]
           ]
