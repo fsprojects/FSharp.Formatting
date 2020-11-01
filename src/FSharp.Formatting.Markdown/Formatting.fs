@@ -121,10 +121,17 @@ module internal MarkdownUtils =
                        | AlignRight -> "---:"
                        | AlignDefault -> "---"
                 ])
-
+                let ignoreEmpty s = match s with | "" | null -> None | s -> Some s
                 yield String.concat "\n" [
-                    for r in rows ->
-                        r |> Seq.collect (Seq.map (fun p -> formatParagraph ctx p |> String.concat "" |> escapePipeline)) |> String.concat "|"
+                    for r in rows do
+                    [
+                      for ps in r do
+                      let x = [
+                            for p in ps do
+                             yield formatParagraph ctx p |> Seq.choose ignoreEmpty |> Seq.map escapePipeline |> String.concat ""
+                          ] 
+                      yield x |> Seq.choose ignoreEmpty |> String.concat "<br />"
+                    ] |> Seq.choose ignoreEmpty |> String.concat " | "
                 ]
                 yield "\n"
 

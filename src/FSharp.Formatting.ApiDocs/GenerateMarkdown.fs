@@ -13,7 +13,10 @@ open FSharp.Formatting.Templating
 
 let encode = HttpUtility.HtmlEncode 
 let urlEncode (x: string) = HttpUtility.UrlEncode x
-let embed (x: ApiDocHtml) = !! x.HtmlText.Trim()
+let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
+let htmlStringSafe (x: ApiDocHtml) =  (x.HtmlText.Trim()).Replace("\n", "<br />")
+let embed (x: ApiDocHtml) = !! (htmlString x)
+let embedSafe (x: ApiDocHtml) = !! (htmlStringSafe x)
 
 type MarkdownRender(model: ApiDocModel) =
   let root = model.Root
@@ -38,17 +41,42 @@ type MarkdownRender(model: ApiDocModel) =
          ]
          [AlignLeft; AlignLeft; AlignLeft]
          [
-            for m in members do
+            for m in members ->
             [
               [
-                p [
-                  link [!! encode(m.Name)] ("#" + urlEncode(m.Name))
-                ]
+                p [link [!! encode(m.Name)] ("#" + urlEncode(m.Name))]
+                match m.Comment.Remarks with
+                 | Some r ->
+                     p [embedSafe r]
+                 | None -> ()
               ]
               [
-                p [
-                   embed m.Comment.Summary
+                p [ embedSafe m.Comment.Summary ]
+
+                if not m.Parameters.IsEmpty then p [ 
+                  if not (m.Comment.Summary |> htmlString |> System.String.IsNullOrWhiteSpace) then (!! "<br />")
+                  !! "Parameters: "
                 ]
+                yield! m.Parameters |> List.collect (fun parameter ->
+                  [
+                        p [ 
+                           strong [!! parameter.ParameterNameText]
+                           !! ":"
+                           embedSafe parameter.ParameterType
+                        ]
+                        p [
+                          match parameter.ParameterDocs with
+                           | None -> ()
+                           | Some d -> !! (sprintf ": %s" (htmlStringSafe d))
+                        ]
+                        p [
+                          match m.ExtendedType with
+                           | None -> ()
+                           | Some s ->
+                               !! "Extended Type: "
+                               embedSafe s
+                        ]
+                  ])
               ]
               [
                 p [yield! sourceLink m.SourceLocation]
@@ -56,40 +84,6 @@ type MarkdownRender(model: ApiDocModel) =
             ]
          ]
     ]   
-
-
-
-   
-             
-                // td [Class "fsdocs-xmldoc"] [
-                //    p [Class "fsdocs-summary"]
-                //       [yield! sourceLink m.SourceLocation
-                //        embed m.Comment.Summary; ]
-
-                //    match m.Comment.Remarks with
-                //    | Some r ->
-                //        p [Class "fsdocs-remarks"] [embed r]
-                //    | None -> ()
-
-                //    match m.ExtendedType with
-                //    | Some s ->
-                //        p [] [!! "Extended Type: "; embed s ]
-                //    | _ -> ()
-
-                //    if not m.Parameters.IsEmpty then
-                //        dl [Class "fsdocs-params"] [
-                //            for parameter in m.Parameters do
-                //                dt [Class "fsdocs-param"] [
-                //                    span [Class "fsdocs-param-name"] [!! parameter.ParameterNameText]
-                //                    !! ":"
-                //                    embed parameter.ParameterType
-                //                ]
-                //                dd [Class "fsdocs-param-docs"] [
-                //                    match parameter.ParameterDocs with
-                //                    | None -> ()
-                //                    | Some d -> p [] [embed d]
-                //                ]
-                //        ]
 
                 //    match m.ReturnInfo.ReturnType with
                 //    | None -> ()
@@ -153,7 +147,7 @@ type MarkdownRender(model: ApiDocModel) =
             [
              p [
                 yield! (sourceLink e.SourceLocation)
-                embed e.Comment.Summary 
+                embedSafe e.Comment.Summary 
               ]
             ]
           ]
@@ -227,7 +221,7 @@ type MarkdownRender(model: ApiDocModel) =
             for (i, ity) in Seq.indexed l do
                   if i <> 0 then
                      !! ", "
-                  embed ity ]
+                     embed ity ]
          
       if entity.Symbol.IsValueType then
           p [!! ("Kind: Struct")]
