@@ -13,6 +13,7 @@ let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 let htmlStringSafe (x: ApiDocHtml) =  (x.HtmlText.Trim()).Replace("\n", "<br />")
 let embed (x: ApiDocHtml) = !! (htmlString x)
 let embedSafe (x: ApiDocHtml) = !! (htmlStringSafe x)
+let br = !! "<br />"
 
 type MarkdownRender(model: ApiDocModel) =
   let root = model.Root
@@ -35,7 +36,7 @@ type MarkdownRender(model: ApiDocModel) =
           [p [ !! "Description"]]
           [p [ !! "Source"]]
          ]
-         [AlignLeft; AlignLeft; AlignLeft]
+         [AlignLeft; AlignLeft; AlignCenter]
          [
             for m in members ->
             [
@@ -49,29 +50,44 @@ type MarkdownRender(model: ApiDocModel) =
                 let summary = m.Comment.Summary
                 let emptySummary = summary.HtmlText |> String.IsNullOrWhiteSpace
 
-                if not emptySummary then p [ embedSafe m.Comment.Summary ]
+                if not emptySummary then 
+                  p [ 
+                      embedSafe m.Comment.Summary 
+                      br
+                    ]
 
-                if not m.Parameters.IsEmpty then p [ 
-                  if not emptySummary then (!! "<br />")
-                  !! "Parameters: "
-                ]
-                yield! m.Parameters |> List.collect (fun parameter ->
-                  [
-                        p [ 
-                           strong [!! parameter.ParameterNameText]
-                           !! ":"
-                           embedSafe parameter.ParameterType
-                        ]
-                        match parameter.ParameterDocs with
-                         | None -> ()
-                         | Some d -> p [!! (sprintf ": %s" (htmlStringSafe d))]
-                        match m.ExtendedType with
-                         | None -> ()
-                         | Some s -> p [
-                             !! "Extended Type: "
-                             embedSafe s
-                           ]
-                  ])
+                if not m.Parameters.IsEmpty then
+                  p [ !! "Parameters: "]
+                  yield! m.Parameters |> List.collect (fun parameter ->
+                    [
+                          p [ 
+                             strong [!! parameter.ParameterNameText]
+                             !! ":"
+                             embedSafe parameter.ParameterType
+                          ]
+                          match parameter.ParameterDocs with
+                           | None -> ()
+                           | Some d -> p [!! (sprintf ": %s" (htmlStringSafe d))]
+                         
+                    ])
+                  p [ ] // empty to force new line
+                match m.ExtendedType with
+                 | None -> ()
+                 | Some s -> p [
+                     !! "Extended Type: "
+                     embedSafe s
+                     br
+                   ]
+                match m.ReturnInfo.ReturnType with
+                 | None -> ()
+                 | Some t -> p [
+                       !! "Returns:"
+                       embedSafe t
+                       match m.ReturnInfo.ReturnDocs with
+                             | None -> ()
+                             | Some r -> embedSafe r
+                                         br
+                    ]
               ]
               [
                 p [yield! sourceLink m.SourceLocation]
@@ -80,20 +96,6 @@ type MarkdownRender(model: ApiDocModel) =
          ]
     ]   
 
-                //    match m.ReturnInfo.ReturnType with
-                //    | None -> ()
-                //    | Some t ->
-                //        dl [Class "fsdocs-returns"] [
-                //            dt [] [
-                //                span [Class "fsdocs-return-name"] [!! "Returns:"]
-                //                embed t
-                //            ]
-                //            dd [Class "fsdocs-return-docs"] [
-                //                match m.ReturnInfo.ReturnDocs with
-                //                | None -> ()
-                //                | Some r -> p [] [embed r]
-                //            ]
-                //        ]
 
                 //    if not m.Comment.Exceptions.IsEmpty then
                 //        //p [] [ !! "Exceptions:" ]
@@ -117,8 +119,6 @@ type MarkdownRender(model: ApiDocModel) =
                 //    //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
                 //    //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
 
-    //members |> Seq.map (fun m -> !! m.Name) |> Seq.toList
-
   let renderEntities (entities: ApiDocEntity list) =
    [ if entities.Length > 0 then
       let hasTypes = entities |> List.exists (fun e -> e.IsTypeDefinition)
@@ -130,7 +130,7 @@ type MarkdownRender(model: ApiDocModel) =
          p [ !! "Source"]
         ]
        ] 
-       [AlignLeft; AlignLeft; AlignLeft]
+       [AlignLeft; AlignLeft; AlignCenter]
        [
         for e in entities do 
           [
