@@ -42,9 +42,6 @@ type MarkdownRender(model: ApiDocModel) =
             [
               [
                 p [link [!! encode(m.Name)] ("#" + urlEncode(m.Name))]
-                match m.Comment.Remarks with
-                 | None -> ()
-                 | Some r ->  p [embedSafe r]
               ]
               [
                 let summary = m.Comment.Summary
@@ -55,7 +52,12 @@ type MarkdownRender(model: ApiDocModel) =
                       embedSafe m.Comment.Summary 
                       br
                     ]
-
+                match m.Comment.Remarks with
+                 | None -> ()
+                 | Some r ->  p [
+                     embedSafe r
+                     br
+                   ]
                 if not m.Parameters.IsEmpty then
                   p [ !! "Parameters: "]
                   yield! m.Parameters |> List.collect (fun parameter ->
