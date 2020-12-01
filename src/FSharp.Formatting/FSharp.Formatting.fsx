@@ -8,7 +8,7 @@
 #I "lib/netstandard2.1"
 
 // Standard Paket locations
-#I "../FSharp.Compiler.Service/lib/netstandard2.1"
+#I "../FSharp.Compiler.Service/lib/netstandard2.0"
 
 // Reference F# Formatting components
 #r "FSharp.Formatting.Common.dll"
