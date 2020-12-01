@@ -117,6 +117,27 @@ type CodeFormatAgent() =
     | SemanticClassificationType.Enumeration -> Some TokenKind.Enumeration
     | SemanticClassificationType.Function -> Some TokenKind.Function
     | SemanticClassificationType.Interface -> Some TokenKind.Interface
+    | SemanticClassificationType.Delegate -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.DisposableLocalValue -> Some TokenKind.Disposable
+    | SemanticClassificationType.DisposableTopLevelValue -> Some TokenKind.Disposable
+    | SemanticClassificationType.DisposableType -> Some TokenKind.Disposable
+    | SemanticClassificationType.Event -> Some TokenKind.Property
+    | SemanticClassificationType.Exception -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.ExtensionMethod -> Some TokenKind.Function
+    | SemanticClassificationType.Field -> Some TokenKind.Property
+    | SemanticClassificationType.Literal -> Some TokenKind.Property
+    | SemanticClassificationType.LocalValue -> Some TokenKind.Function
+    | SemanticClassificationType.Method -> Some TokenKind.Function
+    | SemanticClassificationType.MutableRecordField -> Some TokenKind.Property
+    | SemanticClassificationType.NamedArgument -> Some TokenKind.Function
+    | SemanticClassificationType.Namespace -> Some TokenKind.Identifier
+    | SemanticClassificationType.Plaintext -> Some TokenKind.Punctuation
+    | SemanticClassificationType.RecordField -> Some TokenKind.Property
+    | SemanticClassificationType.RecordFieldAsFunction -> Some TokenKind.Function
+    | SemanticClassificationType.Type -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.TypeDef -> Some TokenKind.ReferenceType
+    | SemanticClassificationType.UnionCaseField -> Some TokenKind.Property
+    | SemanticClassificationType.Value -> Some TokenKind.Identifier
     | SemanticClassificationType.Module -> Some TokenKind.Module
     | SemanticClassificationType.MutableVar -> Some TokenKind.MutableVar
     | SemanticClassificationType.Printf -> Some TokenKind.Printf
@@ -124,8 +145,9 @@ type CodeFormatAgent() =
     | SemanticClassificationType.ReferenceType -> Some TokenKind.ReferenceType
     | SemanticClassificationType.UnionCase -> Some TokenKind.UnionCase
     | SemanticClassificationType.ValueType  -> Some TokenKind.ValueType
-    | SemanticClassificationType.Disposable -> Some TokenKind.Disposable
     | SemanticClassificationType.ComputationExpression -> Some TokenKind.Keyword
+    | SemanticClassificationType.ConstructorForReferenceType -> Some TokenKind.Function
+    | SemanticClassificationType.ConstructorForValueType -> Some TokenKind.Function
     | SemanticClassificationType.TypeArgument -> Some TokenKind.TypeArgument
     | SemanticClassificationType.Operator -> Some TokenKind.Operator
     | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword

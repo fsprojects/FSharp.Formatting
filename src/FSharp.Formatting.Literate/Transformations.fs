@@ -43,7 +43,7 @@ module internal Transformations =
   /// (The dictionary argument is a map from original code snippets to formatted HTML snippets.)
   ///
   /// Note: this processes snipppets within markdown, not snippets coming from .fsx
-  let rec replaceCodeSnippets path (codeLookup:IDictionary<_, _>) para =
+  let rec replaceCodeSnippets (path: string) (codeLookup:IDictionary<_, _>) para =
     match para with
     | CodeBlock (code, _executionCount, language, _, range) ->
         match code with
@@ -87,7 +87,7 @@ module internal Transformations =
   /// their formatted representation (of `LiterateParagraph` type)
   ///
   /// Note: this processes snipppets within markdown, not snippets coming from .fsx
-  let formatCodeSnippets path (ctx: CompilerContext) (doc:LiterateDocument) =
+  let formatCodeSnippets (path: string) (ctx: CompilerContext) (doc:LiterateDocument) =
     let name = Path.GetFileNameWithoutExtension(path)
 
     // Extract all CodeBlocks and pass them to F# snippets

@@ -4,6 +4,7 @@ open System
 open System.IO
 open System.Text
 open System.Reflection
+open System.Reflection.Emit
 open System.Diagnostics
 open System.Runtime.CompilerServices
 open FSharp.Compiler.Interactive.Shell
@@ -62,6 +63,9 @@ module internal CompilerServiceExtensions =
 
       let getNetCoreAppFrameworkDependencies = lazy(
         let options, _ = checker.GetProjectOptionsFromScript("foo.fsx", SourceText.ofString "module Foo", assumeDotNetFramework = false) |> Async.RunSynchronously
+        printfn "isNetCoreApp = %b" isNetCoreApp
+        for r in options.OtherOptions do
+            printfn "option: %s" r
 
         options.OtherOptions
         |> Array.filter (fun path -> path.StartsWith "-r:")
@@ -124,9 +128,6 @@ module internal CompilerServiceExtensions =
                   if not suppressFSharpCore then
                      yield r
 
-               if fsCoreLib.IsSome then
-                 yield sprintf "-r:%s" fsCoreLib.Value
-
                yield "--out:" + dllName
                yield "--doc:" + xmlName
                yield "--warn:3"
@@ -137,10 +138,15 @@ module internal CompilerServiceExtensions =
                    yield "-r:"+dllFile
                for libDir in libDirs do
                    yield "-I:"+libDir
+               if fsCoreLib.IsSome then
+                 yield sprintf "-r:%s" fsCoreLib.Value
+
                yield! otherFlags
                yield fileName1
             |]
 
+          for arg in args do
+            printfn "arg: %s" arg
           projFileName, args
 
       let getProjectReferences frameworkVersion otherFlags libDirs dllFiles =
@@ -1011,7 +1017,7 @@ type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, 
       // Try to get the AssemblyBuilder
       member x.DynamicAssemblyBuilder =
         match x.DynamicAssembly with
-        | :? System.Reflection.Emit.AssemblyBuilder as builder -> builder
+        | :? AssemblyBuilder as builder -> builder
         | _ -> failwith "The DynamicAssembly property is no AssemblyBuilder!"
 
 type internal ScriptHost() =

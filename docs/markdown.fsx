@@ -1,5 +1,5 @@
 (*** condition: prepare ***)
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 (*** condition: fsx ***)
