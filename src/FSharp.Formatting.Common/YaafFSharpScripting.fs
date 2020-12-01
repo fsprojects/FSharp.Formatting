@@ -63,9 +63,9 @@ module internal CompilerServiceExtensions =
 
       let getNetCoreAppFrameworkDependencies = lazy(
         let options, _ = checker.GetProjectOptionsFromScript("foo.fsx", SourceText.ofString "module Foo", assumeDotNetFramework = false) |> Async.RunSynchronously
-        printfn "isNetCoreApp = %b" isNetCoreApp
-        for r in options.OtherOptions do
-            printfn "option: %s" r
+        //printfn "isNetCoreApp = %b" isNetCoreApp
+        //for r in options.OtherOptions do
+        //    printfn "option: %s" r
 
         options.OtherOptions
         |> Array.filter (fun path -> path.StartsWith "-r:")
@@ -145,8 +145,8 @@ module internal CompilerServiceExtensions =
                yield fileName1
             |]
 
-          for arg in args do
-            printfn "arg: %s" arg
+          //for arg in args do
+          //  printfn "arg: %s" arg
           projFileName, args
 
       let getProjectReferences frameworkVersion otherFlags libDirs dllFiles =
