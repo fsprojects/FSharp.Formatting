@@ -30,6 +30,16 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
           Shell.cleanDir ".fsdocs"
           DotNet.exec id "fsdocs" "build --clean" |> ignore
        )
+       
+       Target.create "ReleaseDocs" (fun _ ->
+           Git.Repository.clone "" projectRepo "temp/gh-pages"
+           Git.Branches.checkoutBranch "temp/gh-pages" "gh-pages"
+           Shell.copyRecursive "output" "temp/gh-pages" true |> printfn "%A"
+           Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
+           let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
+           Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
+           Git.Branches.push "temp/gh-pages"
+       )
 
 7. Consider creating `docs\_template.fsx` and `docs\_template.ipynb` to enable co-generation of F# scripts and F# notebooks.
 
