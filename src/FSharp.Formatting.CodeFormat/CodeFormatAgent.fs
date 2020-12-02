@@ -200,7 +200,7 @@ type CodeFormatAgent() =
                     if (token.TokenName = "IDENT") then
                         let island = List.rev island
                         let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
-                        match Async.RunSynchronously tip |> fun (tooltip) ->
+                        match tip |> fun (tooltip) ->
                             //tooltip.
                             ToolTipReader.tryFormatTip tooltip with
                         | Some(_) as res -> res
@@ -393,7 +393,7 @@ type CodeFormatAgent() =
         match res with
         | Some (_parseResults, parsedInput, checkResults) ->
             Log.verbf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
-            let! _symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile ()
+            let _symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile ()
             let errors = checkResults.Errors
             let classifications =
                 checkResults.GetSemanticClassification (Some parsedInput.Range)
