@@ -5,7 +5,7 @@ When using `fsdocs`, there are six levels of extra content development and styli
 1. Don't do any styling or documentation customization and simply write content.  This is by far the simplest option to maintain.
 
 2. Add content such as an `docs/index.md` to customize the front-page content for your generated docs.
-   You can also add content such as `docs/reference/fslib.md` to give a bespoke langing page
+   You can also add content such as `docs/reference/fslib.md` to give a bespoke landing page
    for one of your namespaces, e.g. here assumed to be `namespace FsLib`.  This will override any
    generated content.
 
@@ -28,7 +28,7 @@ By default `fsdocs` does no styling customization and uses the following default
 * Uses no styling parameters except those extracted from the project files.
 
 For your project, you don't need any of these files. However you can add them if you wish, though if
-you adjsut them there is no guarantee that your template will continue to work with future versions of F# Formatting.
+you adjust them there is no guarantee that your template will continue to work with future versions of F# Formatting.
 
 ## Customizing via Styling Parameters
 
