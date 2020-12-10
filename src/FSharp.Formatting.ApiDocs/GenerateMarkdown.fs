@@ -300,58 +300,8 @@ type MarkdownRender(model: ApiDocModel) =
         yield! renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember))
     ]
 
-  let categoriseEntities (nsIndex: int, ns: ApiDocNamespace, suppress) =
-    let entities = ns.Entities
-  
-    let categories =
-        getSortedCategories entities (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
-
-    let allByCategory =
-        [ for (catIndex, (categoryName, categoryEntities)) in Seq.indexed categories do
-            let categoryName = (if String.IsNullOrEmpty(categoryName) then "Other namespace members" else categoryName)
-            let index = String.Format("{0}_{1}", nsIndex, catIndex)
-            let categoryEntities =
-              // When calculating list-of-namespaces suppress some entries
-              // Some bespoke hacks to make FSharp.Core docs look ok.
-              //
-              // TODO: use <exclude /> to do these, or work out if there's a better way
-              if suppress then
-                categoryEntities
-
-                // Remove FSharp.Data.UnitSystems.SI from the list-of-namespaces
-                // display - it's just so rarely used, has long names and dominates the docs.
-                //
-                // See https://github.com/fsharp/fsharp-core-docs/issues/57, we may rethink this
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols"))
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitNames"))
-                // Don't show 'AnonymousObject' in list-of-namespaces navigation
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.RuntimeHelpers" && e.Symbol.DisplayName = "AnonymousObject"))
-                // Don't show 'FSharp.Linq.QueryRunExtensions' in list-of-namespaces navigation
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions" && e.Symbol.DisplayName = "LowPriority"))
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions" && e.Symbol.DisplayName = "HighPriority"))
-              else
-                categoryEntities
-                
-            // We currently suppress all obsolete entries all the time
-            let categoryEntities =
-                categoryEntities
-                |> List.filter (fun e -> not e.IsObsolete)
-
-            let categoryEntities =
-                categoryEntities
-                |> List.sortBy (fun e ->
-                    (e.Symbol.DisplayName.ToLowerInvariant(), e.Symbol.GenericParameters.Count,
-                        e.Name, (if e.IsTypeDefinition then e.UrlBaseName else "ZZZ")))
-
-            if categoryEntities.Length > 0 then
-                yield {| CategoryName = categoryName
-                         CategoryIndex = index
-                         CategoryEntites = categoryEntities |} ]
-
-    allByCategory
-
   let namespaceContent (nsIndex, ns: ApiDocNamespace) =
-    let allByCategory = categoriseEntities (nsIndex, ns, false)
+    let allByCategory = GenerateDoc.categoriseEntities (nsIndex, ns, false) getSortedCategories
     [ if allByCategory.Length > 0 then
         ``##`` [!! (ns.Name + " Namespace")]
 
@@ -390,11 +340,7 @@ type MarkdownRender(model: ApiDocModel) =
         ]
       else
 
-      let categorise =
-        [ for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
-             let allByCategory = categoriseEntities (nsIndex, ns, true)
-             if allByCategory.Length > 0 then
-                 allByCategory, ns ]
+      let categorise = GenerateDoc.categorise model getSortedCategories
 
       let someExist = categorise.Length > 0 
 
@@ -435,7 +381,6 @@ type MarkdownRender(model: ApiDocModel) =
   member _.GlobalSubstitutions : Substitutions =
     let toc = listOfNamespaces true true None
     [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )  ]
-    
 
   member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) = 
     
