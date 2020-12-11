@@ -401,7 +401,7 @@ type MarkdownRender(model: ApiDocModel) =
     begin
         let content = MarkdownDocument([
               ``#`` [!! "API Reference"]
-              ``##`` [!! "Available Namespaces:"]
+              ``##`` [!! "Available Namespaces"]
               ul [(listOfNamespacesAux false false None)]], links)
         let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
