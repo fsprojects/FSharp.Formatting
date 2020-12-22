@@ -349,6 +349,20 @@ let ``Can hide and include-it`` () =
   html1 |> shouldNotContainText "1000"
 
 [<Test>]
+let ``Can hide and include-it-raw`` () =
+  let content = """
+1000+1000
+|> string
+(*** include-it-raw ***)
+"""
+  let fsie = getFsiEvaluator()
+  let doc1 = Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent=getFormatAgent(), fsiEvaluator = fsie)
+  let html1 = Literate.ToHtml(doc1)
+  html1 |> shouldContainText "2000"
+  html1 |> shouldNotContainText "\"2000\""
+  html1 |> shouldNotContainText "<code>2000</code>"
+
+[<Test>]
 let ``Can include-output`` () =
   let content = """
 printfn "%sworld" "hello"

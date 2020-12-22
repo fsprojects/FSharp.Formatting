@@ -67,6 +67,10 @@ type LiterateParagraph =
   /// (*** include-it:foo ***) - Include "it" value from a named snippet
   | ItValueReference of string * LiterateParagraphOptions
 
+  /// (*** include-it-raw ***) - Include "it" value from the subsequent snippet here as raw text (Not formatted as fsi)
+  /// (*** include-it-raw:foo ***) - Include "it" value from a named snippet as raw text (Not formatted as fsi)
+  | ItRawReference of string * LiterateParagraphOptions
+
   /// (*** include-value:foo ***) - Include the formatting of a specified value here
   | ValueReference of string * LiterateParagraphOptions
 
@@ -86,6 +90,7 @@ type LiterateParagraph =
     | FsiOutputReference(_,popts) -> popts
     | OutputReference(_,popts) -> popts
     | ItValueReference(_,popts) -> popts
+    | ItRawReference(_,popts) -> popts
     | ValueReference(_,popts) -> popts
     | LiterateCode(_,_,popts) -> popts
     | LanguageTaggedCode(_,_,popts) -> popts

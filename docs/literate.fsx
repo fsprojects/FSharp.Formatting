@@ -64,6 +64,7 @@ The F# script files is processed as follows:
 |   `(*** include-fsi-output ***)`       | The F# Interactive output of the preceeding snippet   |
 |   `(*** include-fsi-merged-output ***)`       | The merge of console output and F# Interactive output of the preceeding snippet   |
 |   `(*** include-it ***)`       | The formatted result of the preceeding snippet |
+|   `(*** include-it-raw ***)`       | The unformatted result of the preceeding snippet |
 |   `(*** include-value: value-name ***)`       | The formatted value  |
 |   `(*** raw ***)`       | The subsequent code is treated as raw text |
 
@@ -82,6 +83,7 @@ F# language.
 |   `(*** include-fsi-output: snippet-name ***)`       | The F# Interactive output of the named snippet  |
 |   `(*** include-fsi-merged-output: snippet-name ***)`       | The merge of console output and F# Interactive output of the named snippet  |
 |   `(*** include-it: snippet-name ***)`       | The formatted result of the named snippet  |
+|   `(*** include-it-raw: snippet-name ***)`       | The unformatted result of the named snippet  |
 |   `(*** include: snippet-name ***)`       | Include the code of the named snippet |
 
 #### Hiding code snippets
