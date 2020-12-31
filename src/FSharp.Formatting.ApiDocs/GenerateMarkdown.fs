@@ -100,7 +100,7 @@ type MarkdownRender(model: ApiDocModel) =
 
 
                 //    if not m.Comment.Exceptions.IsEmpty then
-                //        //p [] [ !! "Exceptions:" ]
+
                 //        table [Class "fsdocs-exception-list"] [
                 //            for (nm, link, html) in m.Comment.Exceptions do
                 //              tr [] [td [] (match link with None -> [] | Some href -> [a [Href href] [!! nm] ])
@@ -114,12 +114,6 @@ type MarkdownRender(model: ApiDocModel) =
                 //    for e in m.Comment.Examples do 
                 //        h5 [Class "fsdocs-example-header"] [!! "Example"]
                 //        p [Class "fsdocs-example"] [embed e]
-
-                //    //if m.IsObsolete then
-                //    //    obsoleteMessage m.ObsoleteMessage
-
-                //    //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
-                //    //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
 
   let renderEntities (entities: ApiDocEntity list) =
    [ if entities.Length > 0 then
@@ -221,9 +215,8 @@ type MarkdownRender(model: ApiDocModel) =
       | l ->
          p [!! "All Interfaces: "
             for (i, ity) in Seq.indexed l do
-                  if i <> 0 then
-                     !! ", "
-                     embed ity ]
+                  if i <> 0 then !! ", "
+                  embed ity ]
          
       if entity.Symbol.IsValueType then
           p [!! ("Kind: Struct")]
