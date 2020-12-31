@@ -20,6 +20,8 @@ type FsiEmbedKind =
   | ConsoleOutput
   /// The 'it' value
   | ItValue
+  /// The 'it' value as raw text
+  | ItRaw
   /// A specific value
   | Value
 
@@ -376,6 +378,22 @@ module __FsiSettings =
         let outputText = defaultArg result.FsiMergedOutput "No output has been produced."
         let output = outputText.Trim()
         [ OutputBlock (output, "text/plain", Some executionCount) ]
+      | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItRaw ->
+        match valueTransformations |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount))) with
+        | [] ->
+          [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
+        | blocks ->
+            blocks
+            |> List.map (function
+                | OutputBlock(output,_,Some executionCount) ->
+                    let output = 
+                        if ty.FullName = (typeof<string>).FullName then
+                            let l = output.Length
+                            output.Substring(1,l-2)
+                        else
+                            output
+                    OutputBlock(output,"text/html",Some executionCount)
+                | _ -> OutputBlock("Value could not be returned raw", "text/plain", Some executionCount))
       | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItValue
       | { Result = Some (obj, ty) }, FsiEmbedKind.Value ->
         match valueTransformations |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount))) with

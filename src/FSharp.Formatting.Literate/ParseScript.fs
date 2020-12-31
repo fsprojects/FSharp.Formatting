@@ -194,6 +194,18 @@ type internal ParseScript(parseOptions, ctx:CompilerContext) =
         let p = EmbedParagraphs(ItValueReference(ref, popts), None)
         transformBlocks None count noEval (p::acc) defs blocks
 
+    // Include unformatted 'it' of previous block
+    | BlockCommand((Command "include-it-raw" "") as cmds)::blocks when prevCodeId.IsSome -> 
+        let popts = getParaOptions cmds
+        let p1 = EmbedParagraphs(ItRawReference(prevCodeId.Value, popts), None)
+        transformBlocks prevCodeId count noEval (p1::acc) defs blocks
+
+    // Include unformatted 'it' of a named block
+    | BlockCommand(Command "include-it-raw" ref as cmds)::blocks -> 
+        let popts = getParaOptions cmds
+        let p = EmbedParagraphs(ItRawReference(ref, popts), None)
+        transformBlocks None count noEval (p::acc) defs blocks
+
     // Include formatted named value 
     | BlockCommand(Command "include-value" ref as cmds)::blocks -> 
         let popts = getParaOptions cmds

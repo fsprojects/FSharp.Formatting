@@ -295,6 +295,7 @@ module internal Transformations =
       | FsiOutputReference (ref, _popts)
       | OutputReference (ref, _popts)
       | ItValueReference (ref, _popts)
+      | ItRawReference (ref, _popts)
       | ValueReference (ref, _popts) ->
         let key = (match special with ValueReference _ -> ValueRef ref | _ -> OutputRef ref)
         match results.TryFind(key) with
@@ -305,6 +306,7 @@ module internal Transformations =
             | FsiOutputReference _ -> FsiEmbedKind.FsiOutput
             | OutputReference _ -> FsiEmbedKind.ConsoleOutput
             | ItValueReference _ -> FsiEmbedKind.ItValue
+            | ItRawReference _ -> FsiEmbedKind.ItRaw
             | ValueReference _ -> FsiEmbedKind.Value
             | _ -> failwith "unreachable"
           ctx.Evaluator.Value.Format(result, kind, executionCount)
@@ -385,6 +387,7 @@ module internal Transformations =
         | FsiOutputReference _
         | OutputReference _
         | ItValueReference _
+        | ItRawReference _
         | ValueReference _ ->
             let msg = "Warning: Output, it-value and value references require --eval" 
             printfn "%s" msg
