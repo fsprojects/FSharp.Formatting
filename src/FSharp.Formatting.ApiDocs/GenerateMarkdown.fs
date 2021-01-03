@@ -376,14 +376,12 @@ type MarkdownRender(model: ApiDocModel) =
          yield! globalParameters
          |]
 
-    let links = ["s", ("s", Some "s")] |> Map.ofList
-
     let collection = model.Collection
     begin
         let content = MarkdownDocument([
               ``#`` [!! "API Reference"]
               ``##`` [!! "Available Namespaces"]
-              ul [(listOfNamespacesAux false false None)]], links)
+              ul [(listOfNamespacesAux false false None)]], Map.empty)
         let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
@@ -395,7 +393,7 @@ type MarkdownRender(model: ApiDocModel) =
 
     for (nsIndex, ns) in Seq.indexed collection.Namespaces do
 
-        let content = MarkdownDocument( namespaceContent (nsIndex, ns), links )
+        let content = MarkdownDocument( namespaceContent (nsIndex, ns), Map.empty)
         let pageTitle = ns.Name
         let toc = listOfNamespaces false true (Some ns)
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
@@ -404,7 +402,7 @@ type MarkdownRender(model: ApiDocModel) =
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
     for info in model.EntityInfos do
-        let content = MarkdownDocument(entityContent info, links)
+        let content = MarkdownDocument(entityContent info, Map.empty)
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
