@@ -106,11 +106,10 @@ module internal MarkdownUtils =
             | ListBlock (Unordered, paragraphs, _) ->
                 yield (String.concat "\n" (paragraphs |> List.collect(fun ps -> [ for p in ps -> String.concat "" (formatParagraph ctx p)])))
             | TableBlock (headers, alignments, rows, _) -> 
-                let escapePipeline (x:string) = x.Replace("|", "&#124;") 
             
                 match headers with
                  | Some headers -> 
-                   yield (String.concat " | " (headers |> List.collect (fun hs -> [for h in hs -> String.concat "" (formatParagraph ctx h) |> escapePipeline])))
+                   yield (String.concat " | " (headers |> List.collect (fun hs -> [for h in hs -> String.concat "" (formatParagraph ctx h)])))
                  | None -> ()
 
                 yield (String.concat " | " [
@@ -128,10 +127,10 @@ module internal MarkdownUtils =
                       for ps in r do
                       let x = [
                             for p in ps do
-                             yield formatParagraph ctx p |> Seq.choose (ignoreEmptyWith (Some "&nbsp;")) |> Seq.map escapePipeline |> String.concat ""
+                             yield formatParagraph ctx p |> Seq.choose (ignoreEmptyWith (Some "&#32;")) |> String.concat ""
                           ] 
-                      yield x |> Seq.choose (ignoreEmptyWith (Some "&nbsp;")) |> String.concat "<br />"
-                    ] |> Seq.choose (ignoreEmptyWith (Some "&nbsp;"))  |> String.concat " | "
+                      yield x |> Seq.choose (ignoreEmptyWith (Some "&#32;")) |> String.concat "<br />"
+                    ] |> Seq.choose (ignoreEmptyWith (Some "&#32;"))  |> String.concat " | "
                 ]
                 yield "\n"
 
