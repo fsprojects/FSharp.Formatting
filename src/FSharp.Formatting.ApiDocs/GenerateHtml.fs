@@ -213,27 +213,11 @@ type HtmlRender(model: ApiDocModel) =
       ]
    ]
 
-  // Honour the CategoryIndex to put the categories in the right order
-  let getSortedCategories xs exclude category categoryIndex =
-    xs
-    |> List.filter (fun x -> not (exclude x))
-    |> List.groupBy (fun x -> category x)
-    |> List.map (fun (cat, xs) -> (cat, xs, xs |> List.minBy (fun x -> categoryIndex x)))
-    |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
-    |> List.map (fun (cat, xs, _x) -> cat, xs)
-
   let entityContent (info: ApiDocEntityInfo) =
     // Get all the members & comment for the type
     let entity = info.Entity
     let members = entity.AllMembers |> List.filter (fun e -> not e.IsObsolete)
-
-    // Group all members by their category 
-    let byCategory =
-      getSortedCategories members  (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
-      |> List.mapi (fun i (key, elems) ->
-          let elems = elems |> List.sortBy (fun m -> m.Name)
-          let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
-          (i, elems, name))
+    let byCategory = members |> Categorise.getMembersByCategory
   
     let usageName =
         match info.ParentModule with
@@ -348,7 +332,7 @@ type HtmlRender(model: ApiDocModel) =
     ]
 
   let namespaceContent (nsIndex, ns: ApiDocNamespace) =
-    let allByCategory = GenerateDoc.categoriseEntities (nsIndex, ns, false) getSortedCategories
+    let allByCategory = Categorise.entities (nsIndex, ns, false)
     [ if allByCategory.Length > 0 then
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
@@ -385,7 +369,7 @@ type HtmlRender(model: ApiDocModel) =
           li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! "All Namespaces" ] ] 
       else
 
-      let categorise = GenerateDoc.categorise model getSortedCategories
+      let categorise = Categorise.model model
        
       let someExist = categorise.Length > 0 
 

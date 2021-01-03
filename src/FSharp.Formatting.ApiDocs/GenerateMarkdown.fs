@@ -59,12 +59,13 @@ type MarkdownRender(model: ApiDocModel) =
                      br
                    ]
                 if not m.Parameters.IsEmpty then
-                  p [ !! "Parameters: "]
+                  p [ !! "Parameters"]
+                  p []
                   yield! m.Parameters |> List.collect (fun parameter ->
                     [
                           p [ 
                              strong [!! parameter.ParameterNameText]
-                             !! ":"
+                             !! ": "
                              embedSafe parameter.ParameterType
                           ]
                           match parameter.ParameterDocs with
@@ -83,13 +84,37 @@ type MarkdownRender(model: ApiDocModel) =
                 match m.ReturnInfo.ReturnType with
                  | None -> ()
                  | Some t -> p [
-                       !! "Returns:"
+                       !! "Returns: "
                        embedSafe t
+                       br
                        match m.ReturnInfo.ReturnDocs with
                              | None -> ()
                              | Some r -> embedSafe r
                                          br
                     ]
+
+                if not m.Comment.Exceptions.IsEmpty then
+                  for (nm, url, html) in m.Comment.Exceptions do
+                    p [ 
+                      match url with None -> () | Some href -> link [!! nm] href 
+                      embed html
+                      br
+                    ]
+                
+                for e in  m.Comment.Notes do
+                  p [ !! "Note"]
+                  p [
+                   
+                   embed e
+                   br
+                  ]
+
+                for e in m.Comment.Examples do
+                  p [!! "Example"]
+                  p [
+                    embed e
+                    br
+                  ]
               ]
               [
                 p [yield! sourceLink m.SourceLocation]
@@ -97,23 +122,6 @@ type MarkdownRender(model: ApiDocModel) =
             ]
          ]
     ]   
-
-
-                //    if not m.Comment.Exceptions.IsEmpty then
-
-                //        table [Class "fsdocs-exception-list"] [
-                //            for (nm, link, html) in m.Comment.Exceptions do
-                //              tr [] [td [] (match link with None -> [] | Some href -> [a [Href href] [!! nm] ])
-                //                     td [] [embed html]]
-                //        ]
-
-                //    for e in m.Comment.Notes do 
-                //        h5 [Class "fsdocs-note-header"] [!! "Note"]
-                //        p [Class "fsdocs-note"] [embed e]
-
-                //    for e in m.Comment.Examples do 
-                //        h5 [Class "fsdocs-example-header"] [!! "Example"]
-                //        p [Class "fsdocs-example"] [embed e]
 
   let renderEntities (entities: ApiDocEntity list) =
    [ if entities.Length > 0 then
@@ -150,28 +158,11 @@ type MarkdownRender(model: ApiDocModel) =
        ]
    ]
    
-  // Honour the CategoryIndex to put the categories in the right order
-  let getSortedCategories xs exclude category categoryIndex =
-    xs
-    |> List.filter (exclude >> not)
-    |> List.groupBy (category)
-    |> List.map (fun (cat, xs) -> (cat, xs, xs |> List.minBy (categoryIndex)))
-    |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
-    |> List.map (fun (cat, xs, _x) -> cat, xs)
-
   let entityContent (info: ApiDocEntityInfo) =
     // Get all the members & comment for the type
     let entity = info.Entity
     let members = entity.AllMembers |> List.filter (fun e -> not e.IsObsolete)
-
-    // Group all members by their category 
-    let byCategory =
-      getSortedCategories members  (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
-      |> List.mapi (fun i (key, elems) ->
-          let elems = elems |> List.sortBy (fun m -> m.Name)
-          let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
-          (i, elems, name))
-  
+    let byCategory = Categorise.getMembersByCategory members 
     let usageName =
         match info.ParentModule with
         | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
@@ -185,7 +176,6 @@ type MarkdownRender(model: ApiDocModel) =
       ]
       p [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
    
-
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
@@ -276,7 +266,7 @@ type MarkdownRender(model: ApiDocModel) =
                      else "Types and nested modules")]
         yield! renderEntities nestedEntities
 
-      for (index, ms, name) in byCategory do
+      for (_, ms, name) in byCategory do
         // Iterate over all the categories and print members. If there are more than one
         // categories, print the category heading (as <h2>) and add XML comment from the type
         // that is related to this specific category.
@@ -294,7 +284,7 @@ type MarkdownRender(model: ApiDocModel) =
     ]
 
   let namespaceContent (nsIndex, ns: ApiDocNamespace) =
-    let allByCategory = GenerateDoc.categoriseEntities (nsIndex, ns, false) getSortedCategories
+    let allByCategory = Categorise.entities (nsIndex, ns, false)
     [ if allByCategory.Length > 0 then
         ``##`` [!! (ns.Name + " Namespace")]
 
@@ -304,7 +294,6 @@ type MarkdownRender(model: ApiDocModel) =
             match nsdocs.Remarks with
             | Some r -> p [embed r ]
             | None -> ()
-            
         | None -> () 
 
         if (allByCategory.Length > 1) then
@@ -333,7 +322,7 @@ type MarkdownRender(model: ApiDocModel) =
         ]
       else
 
-      let categorise = GenerateDoc.categorise model getSortedCategories
+      let categorise = Categorise.model model
 
       let someExist = categorise.Length > 0 
 
@@ -388,7 +377,6 @@ type MarkdownRender(model: ApiDocModel) =
          |]
 
     let links = ["s", ("s", Some "s")] |> Map.ofList
-
 
     let collection = model.Collection
     begin

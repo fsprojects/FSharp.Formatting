@@ -1,8 +1,26 @@
-module internal FSharp.Formatting.ApiDocs.GenerateDoc
+[<RequireQualifiedAccess>]
+module internal FSharp.Formatting.ApiDocs.Categorise
 
 open System
 
-let categoriseEntities (nsIndex: int, ns: ApiDocNamespace, suppress) getSortedCategories =
+// Honour the CategoryIndex to put the categories in the right order
+let private getSortedCategories xs exclude category categoryIndex =
+    xs
+    |> List.filter (exclude >> not)
+    |> List.groupBy (category)
+    |> List.map (fun (cat, xs) -> (cat, xs, xs |> List.minBy (categoryIndex)))
+    |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
+    |> List.map (fun (cat, xs, _x) -> cat, xs)
+
+// Group all members by their category
+let getMembersByCategory (members:ApiDocMember list) = 
+  getSortedCategories members  (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
+    |> List.mapi (fun i (key, elems) ->
+                    let elems = elems |> List.sortBy (fun m -> m.Name)
+                    let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
+                    (i, elems, name))
+
+let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
   let entities = ns.Entities
 
   let categories =
@@ -52,8 +70,8 @@ let categoriseEntities (nsIndex: int, ns: ApiDocNamespace, suppress) getSortedCa
 
   allByCategory
 
-let categorise model getSortedCategories =
-  [ for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
-    let allByCategory = categoriseEntities (nsIndex, ns, true) getSortedCategories
+let model apiDocModel =
+  [ for (nsIndex, ns) in Seq.indexed apiDocModel.Collection.Namespaces do
+    let allByCategory = entities (nsIndex, ns, true)
     if allByCategory.Length > 0 then
       allByCategory, ns ]
