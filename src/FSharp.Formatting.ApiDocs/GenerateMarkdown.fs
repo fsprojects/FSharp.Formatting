@@ -73,7 +73,7 @@ type MarkdownRender(model: ApiDocModel) =
                            | Some d -> p [!! (sprintf ": %s" (htmlStringSafe d))]
                          
                     ])
-                  p [ ] // empty to force new line
+                  p []
                 match m.ExtendedType with
                  | None -> ()
                  | Some s -> p [
@@ -104,9 +104,8 @@ type MarkdownRender(model: ApiDocModel) =
                 for e in  m.Comment.Notes do
                   p [ !! "Note"]
                   p [
-                   
-                   embed e
-                   br
+                    embed e
+                    br
                   ]
 
                 for e in m.Comment.Examples do
@@ -131,7 +130,7 @@ type MarkdownRender(model: ApiDocModel) =
         [
          p [!! (if hasTypes && hasModules then "Type/Module" elif hasTypes then "Type" else "Modules")]
          p [!!"Description"]
-         p [ !! "Source"]
+         p [!! "Source"]
         ]
        ] 
        [AlignLeft; AlignLeft; AlignCenter]
@@ -145,14 +144,10 @@ type MarkdownRender(model: ApiDocModel) =
               link [!!nmWithSiffix] (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
             ]]
             [
-              p [
-                embedSafe e.Comment.Summary
-              ]
+              p [embedSafe e.Comment.Summary]
             ]
             [
-             p [
-                yield! (sourceLink e.SourceLocation)
-              ]
+              p [yield! (sourceLink e.SourceLocation)]
             ]
           ]
        ]
