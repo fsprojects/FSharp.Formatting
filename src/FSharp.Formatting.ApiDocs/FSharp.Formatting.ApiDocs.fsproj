@@ -15,7 +15,7 @@
       <Link>Common\StringParsing.fs</Link>
     </Compile>
     <Compile Include="GenerateModel.fs" />
-    <Compile Include="GenerateDoc.fs" />
+    <Compile Include="Categorise.fs" />
     <Compile Include="GenerateHtml.fs" />
     <Compile Include="GenerateMarkdown.fs" />
     <Compile Include="GenerateSearchIndex.fs" />
