@@ -7,7 +7,7 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
-let encode = HttpUtility.HtmlEncode 
+let encode (x:string) = HttpUtility.HtmlEncode(x).Replace("|", "&#124;") 
 let urlEncode (x: string) = HttpUtility.UrlEncode x
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 let htmlStringSafe (x: ApiDocHtml) =  (x.HtmlText.Trim()).Replace("\n", "<br />")
