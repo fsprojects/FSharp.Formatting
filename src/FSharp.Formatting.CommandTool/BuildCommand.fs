@@ -218,16 +218,24 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
+    //not sure what this was needed for
+    //let refreshEvent = new Event<_>()
 
-    let refreshEvent = new Event<_>()
+    let mutable signalHotReload = false
 
     let socketHandler (webSocket : WebSocket) _ = socket {
         while true do
-            do!
-                refreshEvent.Publish
-                |> Control.Async.AwaitEvent
-                |> Suave.Sockets.SocketOp.ofAsync
-            do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true
+            let emptyResponse = [||] |> ByteSegment
+            //not sure what this was needed for
+            //do!
+            //    refreshEvent.Publish
+            //    |> Control.Async.AwaitEvent
+            //    |> Suave.Sockets.SocketOp.ofAsync
+            //do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true
+            if signalHotReload then
+                printfn "Triggering hot reload on the client"
+                do! webSocket.send Close emptyResponse true
+                signalHotReload <- false
     }
 
     let startWebServer outputDirectory localPort =
@@ -643,33 +651,43 @@ type CoreBuildOptions(watch) =
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..."  this.input
-                    Async.Start(async {
+                    async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
                         docsQueued <- false
                         if runDocContentPhase1() then
                             if runDocContentPhase2() then
                                 regenerateSearchIndex()
-                        ) }) )
+                        )
+                    }
+                    |> Async.RunSynchronously
+                    Serve.signalHotReload <- true
+                ) 
 
             let apiDocsDependenciesChanged = Event<_>()
             apiDocsDependenciesChanged.Publish.Add(fun () ->
                 if not generateQueued then
                     generateQueued <- true
                     printfn "Detected change in built outputs, scheduling rebuild of API docs..."
-                    Async.Start(async {
+                    async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
                         generateQueued <- false
                         if runGeneratePhase1() then
                             if runGeneratePhase2() then
-                                regenerateSearchIndex()) }))
+                                regenerateSearchIndex())
+                    }
+                    |> Async.RunSynchronously
+                    Serve.signalHotReload <- true
+                )
 
+            // handler for signalling to refresh the page to the client
+            let hotReloadHandler _ = Serve.signalHotReload <- true
 
             // Listen to changes in any input under docs
             docsWatcher.IncludeSubdirectories <- true
             docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-            docsWatcher.Changed.Add (fun _ ->docsDependenciesChanged.Trigger())
+            docsWatcher.Changed.Add (fun _ -> docsDependenciesChanged.Trigger())
 
             // When _template.* change rebuild everything
             templateWatcher.IncludeSubdirectories <- true
