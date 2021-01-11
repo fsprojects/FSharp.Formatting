@@ -28,7 +28,7 @@ module internal Env =
   let (=?) s1 s2 = System.String.Equals(s1, s2, System.StringComparison.OrdinalIgnoreCase)
   let (<>?) s1 s2 = not (s1 =? s2)
 
-  let isNetCoreApp = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Core")
+  let isNetCoreApp = true
 
 open Env
 module internal Log =
