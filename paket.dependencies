@@ -1,10 +1,11 @@
 version 5.249.0
 source https://api.nuget.org/v3/index.json
+source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
 framework: auto-detect
 storage: none
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
-nuget FSharp.Compiler.Service ~> 38.0
+nuget FSharp.Compiler.Service 38.0.2
 nuget CommandLineParser ~> 2.8
 nuget Microsoft.Build.Framework
 nuget Microsoft.Build.Tasks.Core
