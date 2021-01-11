@@ -221,6 +221,28 @@ module Serve =
     //not sure what this was needed for
     //let refreshEvent = new Event<_>()
 
+    /// generate the script to inject into html to enable hot reload during development
+    let generateWatchScript (port:int) =
+        let tag = """
+<script type="text/javascript">
+    var wsUri = "ws://localhost:{{PORT}}/websocket";
+    function init()
+    {
+        websocket = new WebSocket(wsUri);
+        websocket.onclose = function(evt) { onClose(evt) };
+    }
+    function onClose(evt)
+    {
+        console.log('closing');
+        websocket.close();
+        document.location.reload();
+    }
+    window.addEventListener("load", init, false);
+</script>
+"""
+        tag.Replace("{{PORT}}", string port)
+
+
     let mutable signalHotReload = false
 
     let socketHandler (webSocket : WebSocket) _ = socket {
@@ -495,6 +517,16 @@ type CoreBuildOptions(watch) =
             let indxTxt = System.Text.Json.JsonSerializer.Serialize index
             File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
 
+        /// get the hot reload script if running in watch mode
+        let getLatestWatchScript() =
+            if watch then
+                // if running in watch mode, inject hot reload script
+                [ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript this.port_option]
+            else
+                // otherwise, inject empty replacement string 
+                [ParamKeys.``fsdocs-watch-script``, ""]
+
+
         // Incrementally convert content
         let runDocContentPhase1 () =
             protect (fun () ->
@@ -536,7 +568,7 @@ type CoreBuildOptions(watch) =
 
         let runDocContentPhase2 () =
             protect (fun () ->
-                let globals = getLatestGlobalParameters()
+                let globals = getLatestWatchScript() @ getLatestGlobalParameters()
                 latestDocContentPhase2 globals
             )
 
@@ -589,7 +621,7 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 printfn ""
                 printfn "Write API Docs:"
-                let globals = getLatestGlobalParameters()
+                let globals = getLatestWatchScript() @ getLatestGlobalParameters()
                 latestApiDocPhase2 globals
                 regenerateSearchIndex()
             )
@@ -680,9 +712,6 @@ type CoreBuildOptions(watch) =
                     |> Async.RunSynchronously
                     Serve.signalHotReload <- true
                 )
-
-            // handler for signalling to refresh the page to the client
-            let hotReloadHandler _ = Serve.signalHotReload <- true
 
             // Listen to changes in any input under docs
             docsWatcher.IncludeSubdirectories <- true
