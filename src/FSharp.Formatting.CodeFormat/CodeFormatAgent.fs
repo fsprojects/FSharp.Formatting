@@ -200,9 +200,7 @@ type CodeFormatAgent() =
                     if (token.TokenName = "IDENT") then
                         let island = List.rev island
                         let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
-                        match tip |> fun (tooltip) ->
-                            //tooltip.
-                            ToolTipReader.tryFormatTip tooltip with
+                        match tip |> Async.RunSynchronously |> ToolTipReader.tryFormatTip with
                         | Some(_) as res -> res
                         | _ -> None
                     else None
