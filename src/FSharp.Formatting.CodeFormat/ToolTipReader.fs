@@ -19,16 +19,17 @@ open FSharp.Compiler.SourceCodeServices
 // --------------------------------------------------------------------------------------
 
 /// Turn string into a sequence of lines interleaved with line breaks
-let formatMultilineString (s:string) = 
-  [ for line in s.Split('\n') do
+let formatMultilineString (lines:string[]) = 
+  [ for line in lines do
       yield HardLineBreak
       yield Literal line ]
   |> List.tail
 
 /// Format comment in the tool tip
-let private formatComment = function
-  | FSharpXmlDoc.Text(s) -> 
-      [ Emphasis (formatMultilineString s)
+let private formatComment xmlDoc =
+  match xmlDoc with
+  | FSharpXmlDoc.Text(unprocessedLines, _processedLines) -> 
+      [ Emphasis (formatMultilineString unprocessedLines)
         HardLineBreak ]
   | _ ->
       // TODO: For 'XmlCommentSignature' we could get documentation 
@@ -36,7 +37,8 @@ let private formatComment = function
       []
 
 /// Format the element of a tool tip (comment, overloads, etc.)
-let private formatElement = function
+let private formatElement tooltip =
+  match tooltip with
   | FSharpToolTipElement.None -> []
   //| FSharpToolTipElement.(it, comment) -> 
   //    [ yield! formatMultilineString it
@@ -48,7 +50,7 @@ let private formatElement = function
         if items.Length <= 10 then items, false
         else items |> Seq.take 10 |> List.ofSeq, true
       [ for it in items do
-          yield! formatMultilineString it.MainDescription
+          yield! formatMultilineString (it.MainDescription.Split('\n'))
           yield HardLineBreak
           yield! formatComment it.XmlDoc
 

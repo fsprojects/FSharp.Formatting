@@ -1,6 +1,6 @@
 (*** condition: prepare ***)
 #nowarn "211"
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.CodeFormat.dll"
@@ -177,7 +177,7 @@ A header may be needed to get the code to load, a typical example is this:
 
     (*** condition: prepare ***)
     #nowarn "211"
-    #I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
+    #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
     #r "FSharp.Formatting.Common.dll"
     #r "FSharp.Formatting.Markdown.dll"
     #r "FSharp.Formatting.CodeFormat.dll"

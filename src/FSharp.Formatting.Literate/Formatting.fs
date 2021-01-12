@@ -68,7 +68,7 @@ module internal Formatting =
                yield line ]
         |> String.concat "\n"
 
-  let transformDocument (doc: LiterateDocument) outputPath ctx =
+  let transformDocument (doc: LiterateDocument) (outputPath: string) ctx =
 
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
