@@ -1,11 +1,15 @@
 version 5.249.0
 source https://api.nuget.org/v3/index.json
+source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
 framework: auto-detect
 storage: none
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
-nuget FSharp.Compiler.Service ~> 36.0
+nuget FSharp.Compiler.Service 38.0.2
 nuget CommandLineParser ~> 2.8
+nuget Microsoft.Build.Framework
+nuget Microsoft.Build.Tasks.Core
+nuget Microsoft.Build.Utilities.Core
 nuget Dotnet.ProjInfo
 nuget Dotnet.ProjInfo.Workspace
 nuget Newtonsoft.Json
@@ -31,6 +35,7 @@ group Fake
     source https://api.nuget.org/v3/index.json
     storage: none
 
+    nuget FSharp.Core ~> 4.7
     nuget Fake.Core.Target             ~> 5.20.0
     nuget Fake.Core.ReleaseNotes       ~> 5.20.0
     nuget Fake.DotNet.AssemblyInfoFile ~> 5.20.0

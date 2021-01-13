@@ -5,6 +5,7 @@
     <AssemblyName>fsdocs</AssemblyName>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>FSharp.Formatting.CommandTool</PackageId>
+    <RollForward>LatestMajor</RollForward>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <UsesMarkdownComments>true</UsesMarkdownComments>

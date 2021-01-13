@@ -30,7 +30,7 @@ let configuration =
 
 let tfm =
 #if NETCOREAPP
-    "netstandard2.0"
+    "netstandard2.1"
 #else
     "net472"
 #endif
