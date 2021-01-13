@@ -81,7 +81,7 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-page-title`           | First h1 heading in literate file. Generated for API docs     | 
 | `fsdocs-source`               | Original literate script or markdown source                   | 
 | `fsdocs-tooltips`             | Generated hidden div elements for tooltips                    | 
-
+| `fsdocs-watch-script`         | The websocket script used in watch mode to trigger hot reload |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:

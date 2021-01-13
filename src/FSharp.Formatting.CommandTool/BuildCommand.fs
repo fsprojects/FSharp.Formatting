@@ -686,14 +686,14 @@ type CoreBuildOptions(watch) =
                     async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
-                        docsQueued <- false
-                        if runDocContentPhase1() then
-                            if runDocContentPhase2() then
-                                regenerateSearchIndex()
+                            docsQueued <- false
+                            if runDocContentPhase1() then
+                                if runDocContentPhase2() then
+                                    regenerateSearchIndex()
                         )
+                        Serve.signalHotReload <- true
                     }
-                    |> Async.RunSynchronously
-                    Serve.signalHotReload <- true
+                    |> Async.Start
                 ) 
 
             let apiDocsDependenciesChanged = Event<_>()
@@ -704,13 +704,14 @@ type CoreBuildOptions(watch) =
                     async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
-                        generateQueued <- false
-                        if runGeneratePhase1() then
-                            if runGeneratePhase2() then
-                                regenerateSearchIndex())
+                            generateQueued <- false
+                            if runGeneratePhase1() then
+                                if runGeneratePhase2() then
+                                    regenerateSearchIndex()
+                        )
+                        Serve.signalHotReload <- true
                     }
-                    |> Async.RunSynchronously
-                    Serve.signalHotReload <- true
+                    |> Async.Start
                 )
 
             // Listen to changes in any input under docs

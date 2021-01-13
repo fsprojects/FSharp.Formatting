@@ -104,7 +104,7 @@ If you write a new theme by CSS styling please contribute it back to FSharp.Form
 You can do advanced styling by creating a new template.  Add a file `docs/_template.html`, likely starting
 with the existing default template.
 
-to enable hot reload during development with `fsdocs watch` in a custom `_template.html` file, make sure to add the following line to your `<head>` tag:
+To enable hot reload during development with `fsdocs watch` in a custom `_template.html` file, make sure to add the following line to your `<head>` tag:
 
 ```
 {{fsdocs-watch-script}}
