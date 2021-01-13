@@ -1,3 +1,11 @@
+## 8.0.0
+* [update FCS, allow fsdocs to roll forward to net5.0](https://github.com/fsprojects/FSharp.Formatting/pull/621)
+* [Refactor the templating engine and the command tool cache](https://github.com/fsprojects/FSharp.Formatting/pull/615)
+* [Refactor the project cracker](https://github.com/fsprojects/FSharp.Formatting/pull/618)
+* [Retry project cracking when there isn't a targetPath](https://github.com/fsprojects/FSharp.Formatting/pull/613)
+* [Add include-it-raw literate command](https://github.com/fsprojects/FSharp.Formatting/pull/624)
+* Add more complete info on how to upgrade
+
 ## 7.2.9
 
 * Document how to do math in XML comments
