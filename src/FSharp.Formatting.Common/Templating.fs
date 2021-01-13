@@ -102,6 +102,9 @@ module ParamKeys =
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-tooltips`` = ParamKey "fsdocs-tooltips"
 
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-watch-script`` = ParamKey "fsdocs-watch-script"
+
 module internal SimpleTemplating =
 
 #if NETSTANDARD2_0

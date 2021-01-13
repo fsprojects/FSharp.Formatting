@@ -218,16 +218,46 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
+    //not sure what this was needed for
+    //let refreshEvent = new Event<_>()
 
-    let refreshEvent = new Event<_>()
+    /// generate the script to inject into html to enable hot reload during development
+    let generateWatchScript (port:int) =
+        let tag = """
+<script type="text/javascript">
+    var wsUri = "ws://localhost:{{PORT}}/websocket";
+    function init()
+    {
+        websocket = new WebSocket(wsUri);
+        websocket.onclose = function(evt) { onClose(evt) };
+    }
+    function onClose(evt)
+    {
+        console.log('closing');
+        websocket.close();
+        document.location.reload();
+    }
+    window.addEventListener("load", init, false);
+</script>
+"""
+        tag.Replace("{{PORT}}", string port)
+
+
+    let mutable signalHotReload = false
 
     let socketHandler (webSocket : WebSocket) _ = socket {
         while true do
-            do!
-                refreshEvent.Publish
-                |> Control.Async.AwaitEvent
-                |> Suave.Sockets.SocketOp.ofAsync
-            do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true
+            let emptyResponse = [||] |> ByteSegment
+            //not sure what this was needed for
+            //do!
+            //    refreshEvent.Publish
+            //    |> Control.Async.AwaitEvent
+            //    |> Suave.Sockets.SocketOp.ofAsync
+            //do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true
+            if signalHotReload then
+                printfn "Triggering hot reload on the client"
+                do! webSocket.send Close emptyResponse true
+                signalHotReload <- false
     }
 
     let startWebServer outputDirectory localPort =
@@ -487,6 +517,16 @@ type CoreBuildOptions(watch) =
             let indxTxt = System.Text.Json.JsonSerializer.Serialize index
             File.WriteAllText(Path.Combine(output, "index.json"), indxTxt)
 
+        /// get the hot reload script if running in watch mode
+        let getLatestWatchScript() =
+            if watch then
+                // if running in watch mode, inject hot reload script
+                [ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript this.port_option]
+            else
+                // otherwise, inject empty replacement string 
+                [ParamKeys.``fsdocs-watch-script``, ""]
+
+
         // Incrementally convert content
         let runDocContentPhase1 () =
             protect (fun () ->
@@ -528,7 +568,7 @@ type CoreBuildOptions(watch) =
 
         let runDocContentPhase2 () =
             protect (fun () ->
-                let globals = getLatestGlobalParameters()
+                let globals = getLatestWatchScript() @ getLatestGlobalParameters()
                 latestDocContentPhase2 globals
             )
 
@@ -581,7 +621,7 @@ type CoreBuildOptions(watch) =
             protect (fun () ->
                 printfn ""
                 printfn "Write API Docs:"
-                let globals = getLatestGlobalParameters()
+                let globals = getLatestWatchScript() @ getLatestGlobalParameters()
                 latestApiDocPhase2 globals
                 regenerateSearchIndex()
             )
@@ -643,33 +683,41 @@ type CoreBuildOptions(watch) =
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..."  this.input
-                    Async.Start(async {
+                    async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
-                        docsQueued <- false
-                        if runDocContentPhase1() then
-                            if runDocContentPhase2() then
-                                regenerateSearchIndex()
-                        ) }) )
+                            docsQueued <- false
+                            if runDocContentPhase1() then
+                                if runDocContentPhase2() then
+                                    regenerateSearchIndex()
+                        )
+                        Serve.signalHotReload <- true
+                    }
+                    |> Async.Start
+                ) 
 
             let apiDocsDependenciesChanged = Event<_>()
             apiDocsDependenciesChanged.Publish.Add(fun () ->
                 if not generateQueued then
                     generateQueued <- true
                     printfn "Detected change in built outputs, scheduling rebuild of API docs..."
-                    Async.Start(async {
+                    async {
                         do! Async.Sleep(300)
                         lock monitor (fun () ->
-                        generateQueued <- false
-                        if runGeneratePhase1() then
-                            if runGeneratePhase2() then
-                                regenerateSearchIndex()) }))
-
+                            generateQueued <- false
+                            if runGeneratePhase1() then
+                                if runGeneratePhase2() then
+                                    regenerateSearchIndex()
+                        )
+                        Serve.signalHotReload <- true
+                    }
+                    |> Async.Start
+                )
 
             // Listen to changes in any input under docs
             docsWatcher.IncludeSubdirectories <- true
             docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-            docsWatcher.Changed.Add (fun _ ->docsDependenciesChanged.Trigger())
+            docsWatcher.Changed.Add (fun _ -> docsDependenciesChanged.Trigger())
 
             // When _template.* change rebuild everything
             templateWatcher.IncludeSubdirectories <- true
