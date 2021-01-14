@@ -5,7 +5,7 @@
 * [Retry project cracking when there isn't a targetPath](https://github.com/fsprojects/FSharp.Formatting/pull/613)
 * [Add include-it-raw literate command](https://github.com/fsprojects/FSharp.Formatting/pull/624)
 * Add more complete info on how to upgrade
-
+* [CommandTool: add hot reload to the watch command](https://github.com/fsprojects/FSharp.Formatting/pull/629)
 ## 7.2.9
 
 * Document how to do math in XML comments
