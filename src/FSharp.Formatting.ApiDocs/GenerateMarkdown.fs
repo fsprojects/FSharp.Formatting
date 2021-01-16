@@ -10,7 +10,7 @@ open FSharp.Formatting.Templating
 let encode (x:string) = HttpUtility.HtmlEncode(x).Replace("|", "&#124;") 
 let urlEncode (x: string) = HttpUtility.UrlEncode x
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
-let htmlStringSafe (x: ApiDocHtml) =  (x.HtmlText.Trim()).Replace("\n", "<br />")
+let htmlStringSafe (x: ApiDocHtml) =  (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;") 
 let embed (x: ApiDocHtml) = !! (htmlString x)
 let embedSafe (x: ApiDocHtml) = !! (htmlStringSafe x)
 let br = !! "<br />"
@@ -41,7 +41,7 @@ type MarkdownRender(model: ApiDocModel) =
             for m in members ->
             [
               [
-                p [link [!! encode(m.Name)] ("#" + urlEncode(m.Name))]
+                p [link [embedSafe(m.UsageHtml)] ("#" + urlEncode(m.Name))]
               ]
               [
                 let summary = m.Comment.Summary

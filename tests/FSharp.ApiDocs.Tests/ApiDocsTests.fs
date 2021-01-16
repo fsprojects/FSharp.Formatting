@@ -149,6 +149,12 @@ let ``ApiDocs works on two sample F# assemblies`` (format:OutputFormat) =
   files.[$"fslib-union.{format.Extension}"] |> shouldContainText "<span>World(<span>string,&#32;int</span>)</span>"
   files.[$"fslib-union.{format.Extension}"] |> shouldContainText "<span>Naming(<span>rate,&#32;string</span>)</span>"
 
+
+  // Check that implict cast operator is generated correctly
+  files.[$"fslib-space-missing-implicit-cast.{format.Extension}"] |> shouldContainText "<code><span>op_Implicit&#32;<span>source</span></span></code>"
+  files.[$"fslib-space-missing-implicit-cast.{format.Extension}"] |> match format with
+                                                                     | Html -> shouldContainText "<code><span>!|>&#32;<span>value</span></span></code>"
+                                                                     | Markdown -> shouldContainText "<code><span>!&#124;>&#32;<span>value</span></span></code>"
   (*
   // Check that methods with no arguments are correctly generated (#113)
   files.[$"fslib-record.{format.Extension}"] |> shouldNotContainText "Foo2(arg1)"
@@ -240,11 +246,16 @@ let ``ApiDocs generates Go to GitHub source links`` (format:OutputFormat) =
         substitutions=substitutions, libDirs = ([testBin] |> fullpaths))
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "fsdocs-source-link"
+  let onlyInHtml value =
+    match format with
+    | Html -> value
+    | Markdown -> ""
+
+  files.[$"fslib-class.{format.Extension}"] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
   files.[$"fslib-class.{format.Extension}"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib2/Library2.fs#L"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "fsdocs-source-link"
+  files.[$"fslib-record.{format.Extension}"] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
   files.[$"fslib-record.{format.Extension}"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText "fsdocs-source-link"
+  files.[$"fslib-union.{format.Extension}"] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
   files.[$"fslib-union.{format.Extension}"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
 
 [<Test>]
@@ -285,19 +296,19 @@ let ``ApiDocs test that cref generation works`` (format:OutputFormat) =
   files.[$"creflib4-class3.{format.Extension}"] |> shouldContainText $"creflib4-class2{format.ExtensionInUrl}"
 
   /// references to members work and give correct links
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """<a href="/reference/creflib2-class2.html#Other">Class2.Other</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-class2.html#Method0">Class2.Method0</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-class2.html#Method1">Class2.Method1</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-class2.html#Method2">Class2.Method2</a>"""
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Other\">Class2.Other</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Method0\">Class2.Method0</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Method1\">Class2.Method1</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Method2\">Class2.Method2</a>"
 
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html">GenericClass2</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html#Property">GenericClass2.Property</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html#NonGenericMethod">GenericClass2.NonGenericMethod</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-genericclass2-1.html#GenericMethod">GenericClass2.GenericMethod</a>"""
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}\">GenericClass2</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}#Property\">GenericClass2.Property</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}#NonGenericMethod\">GenericClass2.NonGenericMethod</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}#GenericMethod\">GenericClass2.GenericMethod</a>"
 
   /// references to non-existent members where the type resolves give an approximation
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-class2.html">Class2.NotExistsProperty</a>"""
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText """and <a href="/reference/creflib2-class2.html">Class2.NotExistsMethod</a>"""
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}\">Class2.NotExistsProperty</a>"
+  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}\">Class2.NotExistsMethod</a>"
 
   /// reference to a corelib class works.
   files.[$"creflib4-class4.{format.Extension}"] |> shouldContainText "Assembly"
@@ -306,10 +317,10 @@ let ``ApiDocs test that cref generation works`` (format:OutputFormat) =
   // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
   // reference class in same assembly
   files.[$"creflib2-class1.{format.Extension}"] |> shouldContainText "Class2"
-  //files.[$"creflib2-class1.{format.Extension}"] |> shouldContainText "creflib2-class2{format.ExtensionInUrl}"
+  //files.[$"creflib2-class1.{format.Extension}"] |> shouldContainText $"creflib2-class2{format.ExtensionInUrl}"
   // reference to another assembly
   files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText "Class1"
-  //files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText "creflib1-class1{format.ExtensionInUrl}"
+  //files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText $"creflib1-class1{format.ExtensionInUrl}"
   /// + no crash on unresolved reference.
   files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText "Unknown__Reference"
 
@@ -320,15 +331,15 @@ let ``ApiDocs test that cref generation works`` (format:OutputFormat) =
   // F# tests (fully quallified)
   // reference class in same assembly
   files.[$"creflib2-class5.{format.Extension}"] |> shouldContainText "Class2"
-  files.[$"creflib2-class5.{format.Extension}"] |> shouldContainText "creflib2-class2{format.ExtensionInUrl}"
+  files.[$"creflib2-class5.{format.Extension}"] |> shouldContainText $"creflib2-class2{format.ExtensionInUrl}"
   // reference to another assembly
   files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText "Class1"
-  files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText "creflib1-class1{format.ExtensionInUrl}"
+  files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText $"creflib1-class1{format.ExtensionInUrl}"
   /// + no crash on unresolved reference.
   files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText "Unknown__Reference"
   /// reference to a member works.
   files.[$"creflib2-class7.{format.Extension}"] |> shouldContainText "Class2.Other"
-  files.[$"creflib2-class7.{format.Extension}"] |> shouldContainText "creflib2-class2{format.ExtensionInUrl}"
+  files.[$"creflib2-class7.{format.Extension}"] |> shouldContainText $"creflib2-class2{format.ExtensionInUrl}"
 
   /// reference to a corelib class works.
   files.[$"creflib2-class8.{format.Extension}"] |> shouldContainText "Assembly"
@@ -512,7 +523,7 @@ let ``ApiDocs handles c# dlls`` (format:OutputFormat) =
 
   let files = (generateApiDocs [library] format false "CSharpFormat").Keys
 
-  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith "index.{format.Extension}")
+  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith $"index.{format.Extension}")
   optIndex.IsSome |> shouldEqual true
 
 [<Test>]
@@ -545,30 +556,30 @@ let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
 
   // Check that the modules and type files have namespace information
   files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.[$"fslib-class.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
   files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
   files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
   files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
   files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib.html\">"
+  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
 
   // Check that the link to the module is correctly generated
   files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"
+  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-nested{format.ExtensionInUrl}\">"
 
   // Only for nested types
   files.[$"fslib-class.{format.Extension}"] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
   files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib-nested-submodule.html\">"
+  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-nested-submodule{format.ExtensionInUrl}\">"
 
   // Check that nested submodules have links to its module
   files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib-nested.html\">"
+  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-nested{format.ExtensionInUrl}\">"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -578,7 +589,7 @@ let ``ApiDocs omit works without markdown`` (format:OutputFormat) =
   let files = generateApiDocs [library] format false "FsLib2_omit"
 
   // Actually, the thing gets generated it's just not in the index
-  files.ContainsKey "fslib-test_omit.{format.Extension}" |> shouldEqual true
+  files.ContainsKey $"fslib-test_omit.{format.Extension}" |> shouldEqual true
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -587,7 +598,7 @@ let ``ApiDocs test FsLib1`` (format:OutputFormat) =
 
   let files = generateApiDocs [library] format false "FsLib1_omit"
 
-  files.ContainsKey "fslib-test_omit.{format.Extension}" |> shouldEqual false
+  files.ContainsKey $"fslib-test_omit.{format.Extension}" |> shouldEqual false
 
 // -------------------Indirect links----------------------------------
 [<Test>]
@@ -598,22 +609,22 @@ let ``ApiDocs generates cross-type links for Indirect Links`` (format:OutputForm
   let files = generateApiDocs [library] format true "FsLib2_indirect"
 
   // Check that a link to MyType exists when using Full Name of the type
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "This function returns a <a href=\"/reference/fslib-nested-mytype.html\" title=\"MyType\">FsLib.Nested.MyType</a>"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a <a href=\"/reference/fslib-nested-mytype{format.ExtensionInUrl}\" title=\"MyType\">FsLib.Nested.MyType</a>"
 
   // Check that a link to OtherType exists when using Logical Name of the type only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "This function returns a <a href=\"/reference/fslib-nested-othertype.html\" title=\"OtherType\">OtherType</a>"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a <a href=\"/reference/fslib-nested-othertype{format.ExtensionInUrl}\" title=\"OtherType\">OtherType</a>"
 
   // Check that a link to a module is created when using Logical Name only
-  files.[$"fslib-duplicatedtypename.{format.Extension}"] |> shouldContainText "This type name will be duplicated in <a href=\"/reference/fslib-nested.html\" title=\"Nested\">Nested</a>"
+  files.[$"fslib-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type name will be duplicated in <a href=\"/reference/fslib-nested{format.ExtensionInUrl}\" title=\"Nested\">Nested</a>"
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.[$"fslib-nested-duplicatedtypename.{format.Extension}"] |> shouldContainText "This type has the same name as <a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
+  files.[$"fslib-nested-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type has the same name as <a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
 
 (*
   // Check that a link to a type with a duplicated name is created even when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "This function returns a <a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\">DuplicatedTypeName</a> multiplied by 4."
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a <a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\">DuplicatedTypeName</a> multiplied by 4."
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "This function returns a [InexistentTypeName] multiplied by 5."
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a [InexistentTypeName] multiplied by 5."
 *)
 
   // -------------------Inline code----------------------------------

@@ -121,3 +121,13 @@ type Test_Omit() =
 /// Test ` ` test
 type Test_Empty_Code_Block() =
   let empty = ()
+
+module ``Space-Missing`` =
+
+  /// Operator + pipeline test
+  let (!|>) value = value
+
+  /// Implicit cast operator test
+  type ``Implicit-Cast``(value: int) = class end
+  with static member op_Implicit (source: int) :  ``Implicit-Cast`` = ``Implicit-Cast``(source)
+    
