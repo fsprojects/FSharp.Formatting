@@ -554,32 +554,47 @@ let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
 
   let files = generateApiDocs [library] format false "FsLib2"
 
+  let namespaceReference = 
+    match format with
+    | Html -> """<a href="/reference/fslib.html">"""
+    | Markdown -> "[FsLib](/reference/fslib)"
+
   // Check that the modules and type files have namespace information
   files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
+  files.[$"fslib-class.{format.Extension}"] |> shouldContainText namespaceReference
   files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText namespaceReference
   files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText namespaceReference
   files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText namespaceReference
   files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText namespaceReference
 
   // Check that the link to the module is correctly generated
+  let parentModuleReference =
+    match format with
+    | Html -> """<a href="/reference/fslib-nested.html">"""
+    | Markdown -> "[Nested](/reference/fslib-nested)"
+
   files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-nested{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText parentModuleReference
 
   // Only for nested types
   files.[$"fslib-class.{format.Extension}"] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
+  let nestedParentModuleReference =
+    match format with
+    | Html -> """<a href="/reference/fslib-nested-submodule.html">"""
+    | Markdown -> "[Submodule](/reference/fslib-nested-submodule)"
+
   files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-nested-submodule{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText nestedParentModuleReference
 
   // Check that nested submodules have links to its module
   files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-nested{format.ExtensionInUrl}\">"
+  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText parentModuleReference
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]

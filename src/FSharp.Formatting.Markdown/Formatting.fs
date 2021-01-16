@@ -120,17 +120,17 @@ module internal MarkdownUtils =
                        | AlignRight -> "---:"
                        | AlignDefault -> "---"
                 ])
-                let ignoreEmptyWith x s = match s with | "" | null -> x | s -> Some s
+                let replaceEmptyWith x s = match s with | "" | null -> x | s -> Some s
                 yield String.concat "\n" [
                     for r in rows do
                     [
                       for ps in r do
                       let x = [
                             for p in ps do
-                             yield formatParagraph ctx p |> Seq.choose (ignoreEmptyWith (Some "&#32;")) |> String.concat ""
+                             yield formatParagraph ctx p |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat ""
                           ] 
-                      yield x |> Seq.choose (ignoreEmptyWith (Some "&#32;")) |> String.concat "<br />"
-                    ] |> Seq.choose (ignoreEmptyWith (Some "&#32;"))  |> String.concat " | "
+                      yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />"
+                    ] |> Seq.choose (replaceEmptyWith (Some "&#32;"))  |> String.concat " | "
                 ]
                 yield "\n"
 
