@@ -625,22 +625,22 @@ let ``Metadata generates cross-type links for Inline Code`` (format:OutputFormat
   let files = generateApiDocs [library] format true "FsLib2_inline"
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "You will notice that <a href=\"/reference/fslib-nested-mytype.html\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"You will notice that <a href=\"/reference/fslib-nested-mytype{format.ExtensionInUrl}\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
 
     // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "You will notice that <a href=\"/reference/fslib-nested-othertype.html\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"You will notice that <a href=\"/reference/fslib-nested-othertype{format.ExtensionInUrl}\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "<a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>DuplicatedTypeName</code></a> is duplicated"
+  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\"><code>DuplicatedTypeName</code></a> is duplicated"
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
   files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
 
   // Check that a link to a module is created when using Logical Name only
-  files.[$"fslib-duplicatedtypename.{format.Extension}"] |> shouldContainText "This type name will be duplicated in <a href=\"/reference/fslib-nested.html\" title=\"Nested\"><code>Nested</code></a>"
+  files.[$"fslib-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type name will be duplicated in <a href=\"/reference/fslib-nested{format.ExtensionInUrl}\" title=\"Nested\"><code>Nested</code></a>"
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.[$"fslib-nested-duplicatedtypename.{format.Extension}"] |> shouldContainText "This type has the same name as <a href=\"/reference/fslib-duplicatedtypename.html\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
+  files.[$"fslib-nested-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type has the same name as <a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
 
 
 let runtest testfn =
