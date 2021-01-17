@@ -57,7 +57,7 @@ let removeWhiteSpace (str:string) =
     str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
 let docTemplate (format:OutputFormat) =
-  root </> $"../../docs/_template.{format.Extension}"
+  root </> (sprintf "../../docs/_template.%s" format.Extension)
 
 let substitutions =
   [ ParamKeys.``fsdocs-collection-name``, "F# TestProject"
@@ -101,7 +101,7 @@ let ``ApiDocs works on sample Deedle assembly`` (format:OutputFormat) =
     DocsGenerator(format).Run([input], output, collectionName="Deedle", template=docTemplate format, substitutions=substitutions, libDirs = [testBin])
   let files = Directory.GetFiles(output </> "reference")
 
-  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith $"index.{format.Extension}")
+  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith (sprintf "index.%s" format.Extension))
   optIndex.IsSome |> shouldEqual true
 
   let optSeriesMod = files |> Seq.tryFind (fun s -> s.Contains "seriesmodule")
@@ -133,52 +133,52 @@ let ``ApiDocs works on two sample F# assemblies`` (format:OutputFormat) =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   // Check that all comments appear in the output
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Readonly int property"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "This is name"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "Additional member"
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText "Hello of int"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "Sample class"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "Union sample"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "Record sample"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Somewhat nested type"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Somewhat nested module"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Very nested member"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Very nested field"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "Readonly int property"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "This is name"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "Additional member"
+  files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText "Hello of int"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "Sample class"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "Union sample"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "Record sample"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText "Somewhat nested type"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText "Somewhat nested module"
+  files.[(sprintf "fslib-nested-nestedtype.%s" format.Extension)] |> shouldContainText "Very nested member"
+  files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText "Very nested field"
 
   // Check that union fields are correctly generated
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText "<span>World(<span>string,&#32;int</span>)</span>"
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText "<span>Naming(<span>rate,&#32;string</span>)</span>"
+  files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText "<span>World(<span>string,&#32;int</span>)</span>"
+  files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText "<span>Naming(<span>rate,&#32;string</span>)</span>"
 
 
   // Check that implict cast operator is generated correctly
-  files.[$"fslib-space-missing-implicit-cast.{format.Extension}"] |> shouldContainText "<code><span>op_Implicit&#32;<span>source</span></span></code>"
-  files.[$"fslib-space-missing-implicit-cast.{format.Extension}"] |> match format with
-                                                                     | Html -> shouldContainText "<code><span>!|>&#32;<span>value</span></span></code>"
-                                                                     | Markdown -> shouldContainText "<code><span>!&#124;>&#32;<span>value</span></span></code>"
+  files.[(sprintf "fslib-space-missing-implicit-cast.%s" format.Extension)] |> shouldContainText "<code><span>op_Implicit&#32;<span>source</span></span></code>"
+  files.[(sprintf "fslib-space-missing-implicit-cast.%s" format.Extension)] |> match format with
+                                                                               | Html -> shouldContainText "<code><span>!|>&#32;<span>value</span></span></code>"
+                                                                               | Markdown -> shouldContainText "<code><span>!&#124;>&#32;<span>value</span></span></code>"
   (*
   // Check that methods with no arguments are correctly generated (#113)
-  files.[$"fslib-record.{format.Extension}"] |> shouldNotContainText "Foo2(arg1)"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "Foo2()"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "Signature"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "unit -&gt; int"
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Class()"
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "unit -&gt; Class"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldNotContainText "Foo2(arg1)"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "Foo2()"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "Signature"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "unit -&gt; int"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "Class()"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "unit -&gt; Class"
 
   // Check that properties are correctly generated (#114)
-  files.[$"fslib-class.{format.Extension}"] |> removeWhiteSpace |> shouldNotContainText ">this.Member(arg1)<"
-  files.[$"fslib-class.{format.Extension}"] |> removeWhiteSpace |> shouldNotContainText ">this.Member()<"
-  files.[$"fslib-class.{format.Extension}"] |> removeWhiteSpace |> shouldContainText ">this.Member<"
-  files.[$"fslib-class.{format.Extension}"] |> shouldNotContainText "unit -&gt; int"
-  //files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Signature:"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> removeWhiteSpace |> shouldNotContainText ">this.Member(arg1)<"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> removeWhiteSpace |> shouldNotContainText ">this.Member()<"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> removeWhiteSpace |> shouldContainText ">this.Member<"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldNotContainText "unit -&gt; int"
+  //files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "Signature:"
 
   // Check that formatting is correct
-  files.[$"fslib-test_issue472_r.{format.Extension}"] |> shouldContainText "Test_Issue472_R.fmultipleargs x y"
-  files.[$"fslib-test_issue472_r.{format.Extension}"] |> shouldContainText "Test_Issue472_R.ftupled(x, y)"
-  files.[$"fslib-test_issue472.{format.Extension}"] |> shouldContainText "fmultipleargs x y"
-  files.[$"fslib-test_issue472.{format.Extension}"] |> shouldContainText "ftupled(x, y)"
-  files.[$"fslib-test_issue472_t.{format.Extension}"] |> shouldContainText "this.MultArg(arg1, arg2)"
-  files.[$"fslib-test_issue472_t.{format.Extension}"] |> shouldContainText "this.MultArgTupled(arg)"
-  files.[$"fslib-test_issue472_t.{format.Extension}"] |> shouldContainText "this.MultPartial arg1 arg2"
+  files.[(sprintf "fslib-test_issue472_r.%s" format.Extension)] |> shouldContainText "Test_Issue472_R.fmultipleargs x y"
+  files.[(sprintf "fslib-test_issue472_r.%s" format.Extension)] |> shouldContainText "Test_Issue472_R.ftupled(x, y)"
+  files.[(sprintf "fslib-test_issue472.%s" format.Extension)] |> shouldContainText "fmultipleargs x y"
+  files.[(sprintf "fslib-test_issue472.%s" format.Extension)] |> shouldContainText "ftupled(x, y)"
+  files.[(sprintf "fslib-test_issue472_t.%s" format.Extension)] |> shouldContainText "this.MultArg(arg1, arg2)"
+  files.[(sprintf "fslib-test_issue472_t.%s" format.Extension)] |> shouldContainText "this.MultArgTupled(arg)"
+  files.[(sprintf "fslib-test_issue472_t.%s" format.Extension)] |> shouldContainText "this.MultPartial arg1 arg2"
 
 *)
   let indxTxt = System.Text.Json.JsonSerializer.Serialize searchIndex
@@ -205,10 +205,10 @@ let ``Namespace summary generation works on two sample F# assemblies using XML d
 
   let fileNames = Directory.GetFiles(output </> "reference")
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
-  files.[$"index.{format.Extension}"] |> shouldContainText "FsLib is a good namespace"
-  files.[$"index.{format.Extension}"] |> shouldNotContainText "I tell you again FsLib is good"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "FsLib is a good namespace"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "I tell you again FsLib is good"
+  files.[(sprintf "index.%s" format.Extension)] |> shouldContainText "FsLib is a good namespace"
+  files.[(sprintf "index.%s" format.Extension)] |> shouldNotContainText "I tell you again FsLib is good"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "FsLib is a good namespace"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "I tell you again FsLib is good"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -251,12 +251,12 @@ let ``ApiDocs generates Go to GitHub source links`` (format:OutputFormat) =
     | Html -> value
     | Markdown -> ""
 
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib2/Library2.fs#L"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib2/Library2.fs#L"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
+  files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText ("fsdocs-source-link" |> onlyInHtml)
+  files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -283,67 +283,67 @@ let ``ApiDocs test that cref generation works`` (format:OutputFormat) =
 
   // C# tests
   // reference class in same assembly
-  files.[$"creflib4-class1.{format.Extension}"] |> shouldContainText "Class2"
-  files.[$"creflib4-class1.{format.Extension}"] |> shouldContainText $"creflib4-class2{format.ExtensionInUrl}"
+  files.[(sprintf "creflib4-class1.%s" format.Extension)] |> shouldContainText "Class2"
+  files.[(sprintf "creflib4-class1.%s" format.Extension)] |> shouldContainText (sprintf "creflib4-class2%s" format.ExtensionInUrl)
   // reference to another assembly
-  files.[$"creflib4-class2.{format.Extension}"] |> shouldContainText "Class1"
-  files.[$"creflib4-class2.{format.Extension}"] |> shouldContainText $"creflib1-class1{format.ExtensionInUrl}"
+  files.[(sprintf "creflib4-class2.%s" format.Extension)] |> shouldContainText "Class1"
+  files.[(sprintf "creflib4-class2.%s" format.Extension)] |> shouldContainText (sprintf "creflib1-class1%s" format.ExtensionInUrl)
   /// + no crash on unresolved reference.
-  files.[$"creflib4-class2.{format.Extension}"] |> shouldContainText "Unknown__Reference"
+  files.[(sprintf "creflib4-class2.%s" format.Extension)] |> shouldContainText "Unknown__Reference"
 
   /// reference to a member works.
-  files.[$"creflib4-class3.{format.Extension}"] |> shouldContainText "Class2.Other"
-  files.[$"creflib4-class3.{format.Extension}"] |> shouldContainText $"creflib4-class2{format.ExtensionInUrl}"
+  files.[(sprintf "creflib4-class3.%s" format.Extension)] |> shouldContainText "Class2.Other"
+  files.[(sprintf "creflib4-class3.%s" format.Extension)] |> shouldContainText (sprintf "creflib4-class2%s" format.ExtensionInUrl)
 
   /// references to members work and give correct links
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Other\">Class2.Other</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Method0\">Class2.Method0</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Method1\">Class2.Method1</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}#Method2\">Class2.Method2</a>"
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "<a href=\"/reference/creflib2-class2%s#Other\">Class2.Other</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-class2%s#Method0\">Class2.Method0</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-class2%s#Method1\">Class2.Method1</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-class2%s#Method2\">Class2.Method2</a>" format.ExtensionInUrl)
 
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}\">GenericClass2</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}#Property\">GenericClass2.Property</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}#NonGenericMethod\">GenericClass2.NonGenericMethod</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-genericclass2-1{format.ExtensionInUrl}#GenericMethod\">GenericClass2.GenericMethod</a>"
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-genericclass2-1%s\">GenericClass2</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-genericclass2-1%s#Property\">GenericClass2.Property</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-genericclass2-1%s#NonGenericMethod\">GenericClass2.NonGenericMethod</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-genericclass2-1%s#GenericMethod\">GenericClass2.GenericMethod</a>" format.ExtensionInUrl)
 
   /// references to non-existent members where the type resolves give an approximation
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}\">Class2.NotExistsProperty</a>"
-  files.[$"creflib2-class3.{format.Extension}"] |> shouldContainText $"and <a href=\"/reference/creflib2-class2{format.ExtensionInUrl}\">Class2.NotExistsMethod</a>"
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-class2%s\">Class2.NotExistsProperty</a>" format.ExtensionInUrl)
+  files.[(sprintf "creflib2-class3.%s" format.Extension)] |> shouldContainText (sprintf "and <a href=\"/reference/creflib2-class2%s\">Class2.NotExistsMethod</a>" format.ExtensionInUrl)
 
   /// reference to a corelib class works.
-  files.[$"creflib4-class4.{format.Extension}"] |> shouldContainText "Assembly"
-  files.[$"creflib4-class4.{format.Extension}"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+  files.[(sprintf "creflib4-class4.%s" format.Extension)] |> shouldContainText "Assembly"
+  files.[(sprintf "creflib4-class4.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
   // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
   // reference class in same assembly
-  files.[$"creflib2-class1.{format.Extension}"] |> shouldContainText "Class2"
-  //files.[$"creflib2-class1.{format.Extension}"] |> shouldContainText $"creflib2-class2{format.ExtensionInUrl}"
+  files.[(sprintf "creflib2-class1.%s" format.Extension)] |> shouldContainText "Class2"
+  //files.[(sprintf "creflib2-class1.%s" format.Extension)] |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
   // reference to another assembly
-  files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText "Class1"
-  //files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText $"creflib1-class1{format.ExtensionInUrl}"
+  files.[(sprintf "creflib2-class2.%s" format.Extension)] |> shouldContainText "Class1"
+  //files.[(sprintf "creflib2-class2.%s" format.Extension)] |> shouldContainText (sprintf "creflib1-class1%s" format.ExtensionInUrl)
   /// + no crash on unresolved reference.
-  files.[$"creflib2-class2.{format.Extension}"] |> shouldContainText "Unknown__Reference"
+  files.[(sprintf "creflib2-class2.%s" format.Extension)] |> shouldContainText "Unknown__Reference"
 
   /// reference to a corelib class works.
-  files.[$"creflib2-class4.{format.Extension}"] |> shouldContainText "Assembly"
-  //files.[$"creflib2-class4.{format.Extension}"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+  files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "Assembly"
+  //files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
   // F# tests (fully quallified)
   // reference class in same assembly
-  files.[$"creflib2-class5.{format.Extension}"] |> shouldContainText "Class2"
-  files.[$"creflib2-class5.{format.Extension}"] |> shouldContainText $"creflib2-class2{format.ExtensionInUrl}"
+  files.[(sprintf "creflib2-class5.%s" format.Extension)] |> shouldContainText "Class2"
+  files.[(sprintf "creflib2-class5.%s" format.Extension)] |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
   // reference to another assembly
-  files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText "Class1"
-  files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText $"creflib1-class1{format.ExtensionInUrl}"
+  files.[(sprintf "creflib2-class6.%s" format.Extension)] |> shouldContainText "Class1"
+  files.[(sprintf "creflib2-class6.%s" format.Extension)] |> shouldContainText (sprintf "creflib1-class1%s" format.ExtensionInUrl)
   /// + no crash on unresolved reference.
-  files.[$"creflib2-class6.{format.Extension}"] |> shouldContainText "Unknown__Reference"
+  files.[(sprintf "creflib2-class6.%s" format.Extension)] |> shouldContainText "Unknown__Reference"
   /// reference to a member works.
-  files.[$"creflib2-class7.{format.Extension}"] |> shouldContainText "Class2.Other"
-  files.[$"creflib2-class7.{format.Extension}"] |> shouldContainText $"creflib2-class2{format.ExtensionInUrl}"
+  files.[(sprintf "creflib2-class7.%s" format.Extension)] |> shouldContainText "Class2.Other"
+  files.[(sprintf "creflib2-class7.%s" format.Extension)] |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
 
   /// reference to a corelib class works.
-  files.[$"creflib2-class8.{format.Extension}"] |> shouldContainText "Assembly"
-  files.[$"creflib2-class8.{format.Extension}"] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+  files.[(sprintf "creflib2-class8.%s" format.Extension)] |> shouldContainText "Assembly"
+  files.[(sprintf "creflib2-class8.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -367,10 +367,10 @@ let ``Math in XML generated ok`` (format:OutputFormat) =
   let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
   /// math is emitted ok
-  files.[$"creflib2-mathtest.{format.Extension}"] |> shouldContainText """This is XmlMath1 \(f(x)\)"""
-  files.[$"creflib2-mathtest.{format.Extension}"] |> shouldContainText """This is XmlMath2 \(\left\lceil \frac{\text{end} - \text{start}}{\text{step}} \right\rceil\)"""
-  files.[$"creflib2-mathtest.{format.Extension}"] |> shouldContainText """<p class='fsdocs-para'>XmlMath3</p>"""
-  files.[$"creflib2-mathtest.{format.Extension}"] |> shouldContainText """1 < 2 < 3 > 0"""
+  files.[(sprintf "creflib2-mathtest.%s" format.Extension)] |> shouldContainText """This is XmlMath1 \(f(x)\)"""
+  files.[(sprintf "creflib2-mathtest.%s" format.Extension)] |> shouldContainText """This is XmlMath2 \(\left\lceil \frac{\text{end} - \text{start}}{\text{step}} \right\rceil\)"""
+  files.[(sprintf "creflib2-mathtest.%s" format.Extension)] |> shouldContainText """<p class='fsdocs-para'>XmlMath3</p>"""
+  files.[(sprintf "creflib2-mathtest.%s" format.Extension)] |> shouldContainText """1 < 2 < 3 > 0"""
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -395,36 +395,36 @@ let ``ApiDocs test that csharp (publiconly) support works`` (format:OutputFormat
 
   // C# tests
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Sample_Class"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Sample_Class"
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Constructor"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Constructor"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Event"
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Constructor"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Constructor"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Event"
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Static_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Static_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Static_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Static_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Static_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Static_Event"
 
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Static_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Static_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldNotContainText "My_Private_Static_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Static_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Static_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Static_Event"
 
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Sample_Class"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Sample_Class"
 
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Method"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Property"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Event"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Method"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Property"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Event"
 
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldNotContainText "My_Private_Static_Method"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldNotContainText "My_Private_Static_Property"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldNotContainText "My_Private_Static_Event"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Static_Method"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Static_Property"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldNotContainText "My_Private_Static_Event"
 
   //#if INTERACTIVE
   //System.Diagnostics.Process.Start(output)
@@ -455,36 +455,36 @@ let ``ApiDocs test that csharp support works`` (format:OutputFormat) =
 
   // C# tests
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Sample_Class"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Sample_Class"
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Constructor"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Constructor"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Event"
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Constructor"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Constructor"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Event"
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Static_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Static_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Static_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Static_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Static_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Static_Event"
 
 
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Static_Method"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Static_Property"
-  files.[$"csharpsupport-sampleclass.{format.Extension}"] |> shouldContainText "My_Private_Static_Event"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Method"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Property"
+  files.[(sprintf "csharpsupport-sampleclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Event"
 
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Sample_Class"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Sample_Class"
 
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Method"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Property"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Static_Event"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Method"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Property"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Static_Event"
 
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Private_Static_Method"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Private_Static_Property"
-  files.[$"csharpsupport-samplestaticclass.{format.Extension}"] |> shouldContainText "My_Private_Static_Event"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Method"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Property"
+  files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Event"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -493,17 +493,17 @@ let ``ApiDocs process XML comments in two sample F# assemblies`` (format:OutputF
     [ testBin  </> "TestLib1.dll"
       testBin </> "TestLib2.dll" ] |> fullpaths
   let files = generateApiDocs libraries format false "TestLibs"
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Readonly int property"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "This is name"
-  files.[$"fslib-record.{format.Extension}"] |> shouldContainText "Additional member"
-  files.[$"fslib-union.{format.Extension}"] |> shouldContainText "Hello of int"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "Sample class"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "Union sample"
-  files.[$"fslib.{format.Extension}"] |> shouldContainText "Record sample"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Somewhat nested type"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Somewhat nested module"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Very nested member"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Very nested field"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "Readonly int property"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "This is name"
+  files.[(sprintf "fslib-record.%s" format.Extension)] |> shouldContainText "Additional member"
+  files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText "Hello of int"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "Sample class"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "Union sample"
+  files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "Record sample"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText "Somewhat nested type"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText "Somewhat nested module"
+  files.[(sprintf "fslib-nested-nestedtype.%s" format.Extension)] |> shouldContainText "Very nested member"
+  files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText "Very nested field"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -512,9 +512,9 @@ let ``ApiDocs highlights code snippets in Markdown comments`` (format:OutputForm
 
   let files = generateApiDocs [library] format true "TestLib1"
 
-  files.[$"fslib-myclass.{format.Extension}"] |> shouldContainText """<span class="k">let</span>"""
-  files.[$"fslib-myclass.{format.Extension}"] |> shouldContainText """<span class="k">var</span>"""
-  files.[$"fslib-myclass.{format.Extension}"] |> shouldContainText """val a : FsLib.MyClass"""
+  files.[(sprintf "fslib-myclass.%s" format.Extension)] |> shouldContainText """<span class="k">let</span>"""
+  files.[(sprintf "fslib-myclass.%s" format.Extension)] |> shouldContainText """<span class="k">var</span>"""
+  files.[(sprintf "fslib-myclass.%s" format.Extension)] |> shouldContainText """val a : FsLib.MyClass"""
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -523,7 +523,7 @@ let ``ApiDocs handles c# dlls`` (format:OutputFormat) =
 
   let files = (generateApiDocs [library] format false "CSharpFormat").Keys
 
-  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith $"index.{format.Extension}")
+  let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith (sprintf "index.%s" format.Extension))
   optIndex.IsSome |> shouldEqual true
 
 [<Test>]
@@ -533,8 +533,8 @@ let ``ApiDocs processes C# types and includes xml comments in docs`` (format:Out
 
     let files = generateApiDocs [library] format false "CSharpFormat2"
 
-    files.[$"manoli-utils-csharpformat.{format.Extension}"] |> shouldContainText "CLikeFormat"
-    files.[$"manoli-utils-csharpformat.{format.Extension}"] |> shouldContainText "Provides a base class for formatting languages similar to C."
+    files.[(sprintf "manoli-utils-csharpformat.%s" format.Extension)] |> shouldContainText "CLikeFormat"
+    files.[(sprintf "manoli-utils-csharpformat.%s" format.Extension)] |> shouldContainText "Provides a base class for formatting languages similar to C."
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -543,8 +543,8 @@ let ``ApiDocs processes C# properties on types and includes xml comments in docs
 
     let files = generateApiDocs [library] format false "CSharpFormat3"
 
-    files.[$"manoli-utils-csharpformat-clikeformat.{format.Extension}"] |> shouldContainText "CommentRegEx"
-    files.[$"manoli-utils-csharpformat-clikeformat.{format.Extension}"] |> shouldContainText "Regular expression string to match single line and multi-line"
+    files.[(sprintf "manoli-utils-csharpformat-clikeformat.%s" format.Extension)] |> shouldContainText "CommentRegEx"
+    files.[(sprintf "manoli-utils-csharpformat-clikeformat.%s" format.Extension)] |> shouldContainText "Regular expression string to match single line and multi-line"
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -560,16 +560,16 @@ let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
     | Markdown -> "[FsLib](/reference/fslib)"
 
   // Check that the modules and type files have namespace information
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-class.{format.Extension}"] |> shouldContainText namespaceReference
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText namespaceReference
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText namespaceReference
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText namespaceReference
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "Namespace:"
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText namespaceReference
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText "Namespace:"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldContainText namespaceReference
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText "Namespace:"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText namespaceReference
+  files.[(sprintf "fslib-nested-nestedtype.%s" format.Extension)] |> shouldContainText "Namespace:"
+  files.[(sprintf "fslib-nested-nestedtype.%s" format.Extension)] |> shouldContainText namespaceReference
+  files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText "Namespace:"
+  files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText namespaceReference
+  files.[(sprintf "fslib-nested-submodule-verynestedtype.%s" format.Extension)] |> shouldContainText "Namespace:"
+  files.[(sprintf "fslib-nested-submodule-verynestedtype.%s" format.Extension)] |> shouldContainText namespaceReference
 
   // Check that the link to the module is correctly generated
   let parentModuleReference =
@@ -577,11 +577,11 @@ let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
     | Html -> """<a href="/reference/fslib-nested.html">"""
     | Markdown -> "[Nested](/reference/fslib-nested)"
 
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-nestedtype.{format.Extension}"] |> shouldContainText parentModuleReference
+  files.[(sprintf "fslib-nested-nestedtype.%s" format.Extension)] |> shouldContainText "Parent Module:"
+  files.[(sprintf "fslib-nested-nestedtype.%s" format.Extension)] |> shouldContainText parentModuleReference
 
   // Only for nested types
-  files.[$"fslib-class.{format.Extension}"] |> shouldNotContainText "Parent Module:"
+  files.[(sprintf "fslib-class.%s" format.Extension)] |> shouldNotContainText "Parent Module:"
 
   // Check that the link to the module is correctly generated for types in nested modules
   let nestedParentModuleReference =
@@ -589,12 +589,12 @@ let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
     | Html -> """<a href="/reference/fslib-nested-submodule.html">"""
     | Markdown -> "[Submodule](/reference/fslib-nested-submodule)"
 
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-submodule-verynestedtype.{format.Extension}"] |> shouldContainText nestedParentModuleReference
+  files.[(sprintf "fslib-nested-submodule-verynestedtype.%s" format.Extension)] |> shouldContainText "Parent Module:"
+  files.[(sprintf "fslib-nested-submodule-verynestedtype.%s" format.Extension)] |> shouldContainText nestedParentModuleReference
 
   // Check that nested submodules have links to its module
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText "Parent Module:"
-  files.[$"fslib-nested-submodule.{format.Extension}"] |> shouldContainText parentModuleReference
+  files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText "Parent Module:"
+  files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText parentModuleReference
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -604,7 +604,7 @@ let ``ApiDocs omit works without markdown`` (format:OutputFormat) =
   let files = generateApiDocs [library] format false "FsLib2_omit"
 
   // Actually, the thing gets generated it's just not in the index
-  files.ContainsKey $"fslib-test_omit.{format.Extension}" |> shouldEqual true
+  files.ContainsKey (sprintf "fslib-test_omit.%s" format.Extension) |> shouldEqual true
 
 [<Test>]
 [<TestCaseSource(nameof formats)>]
@@ -613,7 +613,7 @@ let ``ApiDocs test FsLib1`` (format:OutputFormat) =
 
   let files = generateApiDocs [library] format false "FsLib1_omit"
 
-  files.ContainsKey $"fslib-test_omit.{format.Extension}" |> shouldEqual false
+  files.ContainsKey (sprintf "fslib-test_omit.%s" format.Extension) |> shouldEqual false
 
 // -------------------Indirect links----------------------------------
 [<Test>]
@@ -624,22 +624,22 @@ let ``ApiDocs generates cross-type links for Indirect Links`` (format:OutputForm
   let files = generateApiDocs [library] format true "FsLib2_indirect"
 
   // Check that a link to MyType exists when using Full Name of the type
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a <a href=\"/reference/fslib-nested-mytype{format.ExtensionInUrl}\" title=\"MyType\">FsLib.Nested.MyType</a>"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "This function returns a <a href=\"/reference/fslib-nested-mytype%s\" title=\"MyType\">FsLib.Nested.MyType</a>" format.ExtensionInUrl)
 
   // Check that a link to OtherType exists when using Logical Name of the type only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a <a href=\"/reference/fslib-nested-othertype{format.ExtensionInUrl}\" title=\"OtherType\">OtherType</a>"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "This function returns a <a href=\"/reference/fslib-nested-othertype%s\" title=\"OtherType\">OtherType</a>" format.ExtensionInUrl)
 
   // Check that a link to a module is created when using Logical Name only
-  files.[$"fslib-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type name will be duplicated in <a href=\"/reference/fslib-nested{format.ExtensionInUrl}\" title=\"Nested\">Nested</a>"
+  files.[(sprintf "fslib-duplicatedtypename.%s" format.Extension)] |> shouldContainText (sprintf "This type name will be duplicated in <a href=\"/reference/fslib-nested%s\" title=\"Nested\">Nested</a>" format.ExtensionInUrl)
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.[$"fslib-nested-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type has the same name as <a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>"
+  files.[(sprintf "fslib-nested-duplicatedtypename.%s" format.Extension)] |> shouldContainText (sprintf "This type has the same name as <a href=\"/reference/fslib-duplicatedtypename%s\" title=\"DuplicatedTypeName\">FsLib.DuplicatedTypeName</a>" format.ExtensionInUrl)
 
 (*
   // Check that a link to a type with a duplicated name is created even when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a <a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\">DuplicatedTypeName</a> multiplied by 4."
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "This function returns a <a href=\"/reference/fslib-duplicatedtypename%s\" title=\"DuplicatedTypeName\">DuplicatedTypeName</a> multiplied by 4."
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"This function returns a [InexistentTypeName] multiplied by 5."
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "This function returns a [InexistentTypeName] multiplied by 5."
 *)
 
   // -------------------Inline code----------------------------------
@@ -651,22 +651,22 @@ let ``Metadata generates cross-type links for Inline Code`` (format:OutputFormat
   let files = generateApiDocs [library] format true "FsLib2_inline"
 
   // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"You will notice that <a href=\"/reference/fslib-nested-mytype{format.ExtensionInUrl}\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "You will notice that <a href=\"/reference/fslib-nested-mytype%s\" title=\"MyType\"><code>FsLib.Nested.MyType</code></a> is just an <code>int</code>" format.ExtensionInUrl)
 
     // Check that a link to MyType exists when using Full Name of the type in a inline code
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"You will notice that <a href=\"/reference/fslib-nested-othertype{format.ExtensionInUrl}\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "You will notice that <a href=\"/reference/fslib-nested-othertype%s\" title=\"OtherType\"><code>OtherType</code></a> is just an <code>int</code>" format.ExtensionInUrl)
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText $"<a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\"><code>DuplicatedTypeName</code></a> is duplicated"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText (sprintf "<a href=\"/reference/fslib-duplicatedtypename%s\" title=\"DuplicatedTypeName\"><code>DuplicatedTypeName</code></a> is duplicated" format.ExtensionInUrl)
 
   // Check that a link to a type with a duplicated name is not created when using Logical name only
-  files.[$"fslib-nested.{format.Extension}"] |> shouldContainText "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
+  files.[(sprintf "fslib-nested.%s" format.Extension)] |> shouldContainText "<code>InexistentTypeName</code> does not exists so it should no add a cross-type link"
 
   // Check that a link to a module is created when using Logical Name only
-  files.[$"fslib-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type name will be duplicated in <a href=\"/reference/fslib-nested{format.ExtensionInUrl}\" title=\"Nested\"><code>Nested</code></a>"
+  files.[(sprintf "fslib-duplicatedtypename.%s" format.Extension)] |> shouldContainText (sprintf "This type name will be duplicated in <a href=\"/reference/fslib-nested%s\" title=\"Nested\"><code>Nested</code></a>" format.ExtensionInUrl)
 
   // Check that a link to a type with a duplicated name is created when using full name
-  files.[$"fslib-nested-duplicatedtypename.{format.Extension}"] |> shouldContainText $"This type has the same name as <a href=\"/reference/fslib-duplicatedtypename{format.ExtensionInUrl}\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>"
+  files.[(sprintf "fslib-nested-duplicatedtypename.%s" format.Extension)] |> shouldContainText (sprintf "This type has the same name as <a href=\"/reference/fslib-duplicatedtypename%s\" title=\"DuplicatedTypeName\"><code>FsLib.DuplicatedTypeName</code></a>" format.ExtensionInUrl)
 
 
 let runtest testfn =
