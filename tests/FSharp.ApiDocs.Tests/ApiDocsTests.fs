@@ -88,7 +88,7 @@ let generateApiDocs (libraries:string list) (format:OutputFormat) useMdComments 
 do FSharp.Formatting.TestHelpers.enableLogging()
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs works on sample Deedle assembly`` (format:OutputFormat) =
   let library = root </> "files" </> "Deedle.dll"
   let output = getOutputDir format "Deedle"
@@ -108,7 +108,7 @@ let ``ApiDocs works on sample Deedle assembly`` (format:OutputFormat) =
   optSeriesMod.IsSome |> shouldEqual true
 
 [<Test; Ignore "Ignore by default to make tests run reasonably fast">]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs works on sample FAKE assembly`` (format:OutputFormat) =
   let library = root </> "files" </> "FAKE" </> "FakeLib.dll"
   let output = getOutputDir format "FakeLib"
@@ -118,7 +118,7 @@ let ``ApiDocs works on sample FAKE assembly`` (format:OutputFormat) =
   files |> Seq.length |> shouldEqual 166
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs works on two sample F# assemblies`` (format:OutputFormat) =
   let libraries =
     [ testBin </> "FsLib1.dll"
@@ -192,7 +192,7 @@ let ``ApiDocs works on two sample F# assemblies`` (format:OutputFormat) =
   indxTxt |> shouldContainText """ITest_Issue229.Name \nName \n"""
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``Namespace summary generation works on two sample F# assemblies using XML docs`` (format:OutputFormat) =
   let libraries =
     [ testBin </> "TestLib1.dll"
@@ -211,7 +211,7 @@ let ``Namespace summary generation works on two sample F# assemblies using XML d
   files.[(sprintf "fslib.%s" format.Extension)] |> shouldContainText "I tell you again FsLib is good"
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs model generation works on two sample F# assemblies`` (format:OutputFormat) =
   let libraries =
     [ testBin </> "FsLib1.dll"
@@ -228,7 +228,7 @@ let ``ApiDocs model generation works on two sample F# assemblies`` (format:Outpu
   assemblies |> List.distinct |> List.sort |> shouldEqual ["FsLib1"; "FsLib2"]
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs generates Go to GitHub source links`` (format:OutputFormat) =
   let libraries =
     [ testBin  </> "FsLib1.dll"
@@ -259,7 +259,7 @@ let ``ApiDocs generates Go to GitHub source links`` (format:OutputFormat) =
   files.[(sprintf "fslib-union.%s" format.Extension)] |> shouldContainText "https://github.com/fsprojects/FSharp.Formatting/tree/master/tests/FSharp.ApiDocs.Tests/files/FsLib1/Library1.fs#L"
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs test that cref generation works`` (format:OutputFormat) =
   let libraries =
     [ testBin  </> "crefLib1.dll"
@@ -346,7 +346,7 @@ let ``ApiDocs test that cref generation works`` (format:OutputFormat) =
   files.[(sprintf "creflib2-class8.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``Math in XML generated ok`` (format:OutputFormat) =
   let libraries =
     [ testBin  </> "crefLib1.dll"
@@ -373,7 +373,7 @@ let ``Math in XML generated ok`` (format:OutputFormat) =
   files.[(sprintf "creflib2-mathtest.%s" format.Extension)] |> shouldContainText """1 < 2 < 3 > 0"""
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs test that csharp (publiconly) support works`` (format:OutputFormat) =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
@@ -433,7 +433,7 @@ let ``ApiDocs test that csharp (publiconly) support works`` (format:OutputFormat
 
 [<Ignore "Ignored because publicOnly=false is currently not working, see https://github.com/fsprojects/FSharp.Formatting/pull/259" >]
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs test that csharp support works`` (format:OutputFormat) =
   let libraries =
     [ testBin </> "csharpSupport.dll" ] |> fullpaths
@@ -487,7 +487,7 @@ let ``ApiDocs test that csharp support works`` (format:OutputFormat) =
   files.[(sprintf "csharpsupport-samplestaticclass.%s" format.Extension)] |> shouldContainText "My_Private_Static_Event"
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs process XML comments in two sample F# assemblies`` (format:OutputFormat) =
   let libraries =
     [ testBin  </> "TestLib1.dll"
@@ -506,7 +506,7 @@ let ``ApiDocs process XML comments in two sample F# assemblies`` (format:OutputF
   files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText "Very nested field"
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs highlights code snippets in Markdown comments`` (format:OutputFormat) =
   let library = testBin </> "TestLib1.dll" |> fullpath
 
@@ -517,7 +517,7 @@ let ``ApiDocs highlights code snippets in Markdown comments`` (format:OutputForm
   files.[(sprintf "fslib-myclass.%s" format.Extension)] |> shouldContainText """val a : FsLib.MyClass"""
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs handles c# dlls`` (format:OutputFormat) =
   let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
 
@@ -527,7 +527,7 @@ let ``ApiDocs handles c# dlls`` (format:OutputFormat) =
   optIndex.IsSome |> shouldEqual true
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs processes C# types and includes xml comments in docs`` (format:OutputFormat) =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
@@ -537,7 +537,7 @@ let ``ApiDocs processes C# types and includes xml comments in docs`` (format:Out
     files.[(sprintf "manoli-utils-csharpformat.%s" format.Extension)] |> shouldContainText "Provides a base class for formatting languages similar to C."
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs processes C# properties on types and includes xml comments in docs`` (format:OutputFormat) =
     let library = __SOURCE_DIRECTORY__ </> "files" </> "CSharpFormat.dll" |> fullpath
 
@@ -547,7 +547,7 @@ let ``ApiDocs processes C# properties on types and includes xml comments in docs
     files.[(sprintf "manoli-utils-csharpformat-clikeformat.%s" format.Extension)] |> shouldContainText "Regular expression string to match single line and multi-line"
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
 
   let library =  testBin  </> "FsLib2.dll"
@@ -597,7 +597,7 @@ let ``ApiDocs generates module link in nested types`` (format:OutputFormat) =
   files.[(sprintf "fslib-nested-submodule.%s" format.Extension)] |> shouldContainText parentModuleReference
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs omit works without markdown`` (format:OutputFormat) =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
@@ -607,7 +607,7 @@ let ``ApiDocs omit works without markdown`` (format:OutputFormat) =
   files.ContainsKey (sprintf "fslib-test_omit.%s" format.Extension) |> shouldEqual true
 
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs test FsLib1`` (format:OutputFormat) =
   let library = testBin </> "FsLib1.dll" |> fullpath
 
@@ -617,7 +617,7 @@ let ``ApiDocs test FsLib1`` (format:OutputFormat) =
 
 // -------------------Indirect links----------------------------------
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``ApiDocs generates cross-type links for Indirect Links`` (format:OutputFormat) =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
@@ -644,7 +644,7 @@ let ``ApiDocs generates cross-type links for Indirect Links`` (format:OutputForm
 
   // -------------------Inline code----------------------------------
 [<Test>]
-[<TestCaseSource(nameof formats)>]
+[<TestCaseSource("formats")>]
 let ``Metadata generates cross-type links for Inline Code`` (format:OutputFormat) =
   let library = testBin </> "FsLib2.dll" |> fullpath
 
