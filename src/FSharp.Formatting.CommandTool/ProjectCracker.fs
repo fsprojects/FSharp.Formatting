@@ -402,7 +402,7 @@ module Crack =
         let parametersForProjectInfo (info: CrackedProjectInfo) =
             let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash |> Option.defaultValue root
             let repoUrl = info.RepositoryUrl |> Option.map ensureTrailingSlash
-            userParameters @ List.choose id [
+            List.choose id [
                 param None ParamKeys.``root`` (Some root)
                 param None ParamKeys.``fsdocs-authors`` (Some (info.Authors |> Option.defaultValue ""))
                 param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
@@ -422,7 +422,7 @@ module Crack =
                 param (Some "<RepositoryUrl>") ParamKeys.``fsdocs-repository-link`` repoUrl
                 param None ParamKeys.``fsdocs-repository-branch`` info.RepositoryBranch
                 param None ParamKeys.``fsdocs-repository-commit`` info.RepositoryCommit
-            ]
+            ] @ userParameters
 
         let crackedProjects =
             projectInfos
