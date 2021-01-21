@@ -1,3 +1,7 @@
+## 8.0.1
+* [Prevent CLI parameters from being discarded](https://github.com/fsprojects/FSharp.Formatting/pull/634)
+* [Update Dockerfile and NuGet.config for binder](https://github.com/fsprojects/FSharp.Formatting/pull/636)
+
 ## 8.0.0
 * [update FCS, allow fsdocs to roll forward to net5.0](https://github.com/fsprojects/FSharp.Formatting/pull/621)
 * [Refactor the templating engine and the command tool cache](https://github.com/fsprojects/FSharp.Formatting/pull/615)
@@ -6,6 +10,7 @@
 * [Add include-it-raw literate command](https://github.com/fsprojects/FSharp.Formatting/pull/624)
 * Add more complete info on how to upgrade
 * [CommandTool: add hot reload to the watch command](https://github.com/fsprojects/FSharp.Formatting/pull/629)
+
 ## 7.2.9
 
 * Document how to do math in XML comments
