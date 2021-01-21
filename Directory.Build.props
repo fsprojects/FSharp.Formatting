@@ -16,7 +16,7 @@
     <Description>
       The package is a collection of libraries that can be used for literate programming
       with F# (great for building documentation) and for generating library documentation
-      from inline code comments. The key componments are Markdown parser, tools for formatting
+      from inline code comments. The key components are Markdown parser, tools for formatting
       F# code snippets, including tool tip type information and a tool for generating
       documentation from library metadata.
     </Description>
