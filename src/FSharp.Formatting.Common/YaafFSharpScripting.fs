@@ -145,8 +145,6 @@ module internal CompilerServiceExtensions =
                yield fileName1
             |]
 
-          for arg in args do
-            printfn "arg: %s" arg
           projFileName, args
 
       let getProjectReferences frameworkVersion otherFlags libDirs dllFiles =
