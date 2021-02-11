@@ -126,35 +126,7 @@ Target.create "GenerateDocs" (fun _ ->
     Shell.cleanDir ".packages"
 )
 
-// --------------------------------------------------------------------------------------
-// Release Scripts
-
-Target.create "ReleaseDocs" (fun _ ->
-    Shell.cleanDir "temp"
-    Git.CommandHelper.runSimpleGitCommand "." (sprintf "clone %s temp/gh-pages --depth 1 -b gh-pages" projectRepo) |> ignore
-    Shell.copyRecursive "output" "temp/gh-pages" true |> printfn "%A"
-    Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" "add ." |> printfn "%s"
-    let cmd = sprintf """commit -a -m "Update generated documentation for version %s""" release.NugetVersion
-    Git.CommandHelper.runSimpleGitCommand "temp/gh-pages" cmd |> printfn "%s"
-    Git.Branches.push "temp/gh-pages"
-)
-
-
-Target.create "PublishNuget" (fun _ ->
-    let source = "https://api.nuget.org/v3/index.json"
-    let apikey =  Environment.environVar "NUGET_KEY"
-    for artifact in !! (artifactsDir + "/*nupkg") do
-        let result = DotNet.exec id "nuget" (sprintf "push -s %s -k %s %s" source apikey artifact)
-        if not result.OK then failwith "failed to push packages"
-)
-
-Target.create "CreateTag" (fun _ ->
-    Git.Branches.tag "" release.NugetVersion
-    Git.Branches.pushTag "" projectRepo release.NugetVersion
-)
-
 Target.create "All" ignore
-Target.create "Release" ignore
 
 // clean and recreate assembly inform on release
 "Clean"
@@ -162,17 +134,7 @@ Target.create "Release" ignore
   ==> "Build"
   ==> "NuGet"
   ==> "Tests"
-  ==> "All"
-  ==> "CreateTag"
-  ==> "PublishNuget"
-  ==> "Release"
-
-"NuGet"
   ==> "GenerateDocs"
-  ==> "ReleaseDocs"
-  ==> "Release"
-
-"GenerateDocs"
   ==> "All"
 
 Target.runOrDefault "All"
