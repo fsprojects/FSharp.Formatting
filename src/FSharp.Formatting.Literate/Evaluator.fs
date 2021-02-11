@@ -331,7 +331,7 @@ module __FsiSettings =
 
   /// Registered transformations for pretty printing values
   /// (the default formats value as a string and emits single CodeBlock)
-  let mutable valueTransformations = 
+  let mutable valueTransformations : ((obj * Type * int) -> MarkdownParagraph list option) list = 
     [ (fun (o:obj, _t:Type, executionCount: int) ->
         tryHtmlPrint 0 o |> Option.map (fun (_tags, html) -> 
            [OutputBlock(html, "text/html", Some executionCount)]) )

@@ -259,7 +259,7 @@ version of the F# compiler:
 
  - `prefix` - a string that is added to all automatically generated `id` attributes
    in the generated HTML document (to avoid collisions with other HTML elements)
- - `fscOptions` - this can be used to pass any additional command line 
+ - `fscoptions` - this can be used to pass any additional command line 
    parameters to the F# compiler (you can use any standard parameters of `fsc.exe`)
  - `lineNumbers` - if `true` then the generated F# snippets include line numbers.
  - `references` - if `true` then the script automatically adds a "References" 
