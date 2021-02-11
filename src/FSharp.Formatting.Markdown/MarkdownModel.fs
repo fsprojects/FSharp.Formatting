@@ -64,7 +64,7 @@ type MarkdownParagraph =
   | HorizontalRule of character:char * range:MarkdownRange option
   | TableBlock of headers:option<MarkdownTableRow> * alignments:list<MarkdownColumnAlignment> * rows:list<MarkdownTableRow> * range:MarkdownRange option
   | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
-  /// Reprsents a block of markdown produced when parsing of tables or quoted blocks is suppressed
+  /// Represents a block of markdown produced when parsing of code or tables or quoted blocks is suppressed
   | OtherBlock of lines:(string * MarkdownRange) list * range:MarkdownRange option
 
 /// A type alias for a list of paragraphs

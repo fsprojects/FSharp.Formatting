@@ -9,7 +9,8 @@ open System.Xml
 open System.Xml.Linq
 
 open FSharp.Compiler.SourceCodeServices
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
+open FSharp.Compiler.Text.Range
 open FSharp.Formatting.Common
 open FSharp.Formatting.Internal
 open FSharp.Formatting.CodeFormat
@@ -666,7 +667,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
         for nested in entity.NestedEntities do
             registerEntity nested
 
-        for memb in entity.TryGetMembersFunctionsAndValues do
+        for memb in entity.TryGetMembersFunctionsAndValues() do
             registerMember memb
 
     let getUrlBaseNameForRegisteredEntity (entity:FSharpEntity) =
@@ -1012,7 +1013,7 @@ module internal SymbolReader =
 
         static member internal Create
             (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap,
-             assemblyPath, fscoptions, formatAgent, substitutions, warn ) =
+             assemblyPath, fscOptions, formatAgent, substitutions, warn ) =
 
           { PublicOnly=publicOnly
             Assembly = assembly
@@ -1023,7 +1024,7 @@ module internal SymbolReader =
             UrlRangeHighlight = urlRangeHighlight
             SourceFolderRepository = sourceFolderRepo
             AssemblyPath = assemblyPath
-            CompilerOptions = fscoptions
+            CompilerOptions = fscOptions
             FormatAgent = formatAgent
             Substitutions = substitutions}
 
@@ -1106,12 +1107,12 @@ module internal SymbolReader =
                        fullArgUsage ]
 
           // op_XYZ operators
-          | _, false, _, name, _ when FSharp.Compiler.PrettyNaming.IsMangledOpName v.CompiledName ->
+          | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
               match argInfos with
               // binary operators (taking a tuple)
               | [[x;y]] -> 
                   let left = formatCurriedArgsUsageAsHtml true false [[x]]
-                  let nm = FSharp.Compiler.PrettyNaming.DecompileOpName v.CompiledName
+                  let nm = PrettyNaming.DecompileOpName v.CompiledName
                   let right = formatCurriedArgsUsageAsHtml true false [[y]]
                   span [] [left
                            !! "&#32;"
@@ -1122,7 +1123,7 @@ module internal SymbolReader =
               // binary operators (curried, like in FSharp.Core.Operators)
               | [args1;args2] ->
                   let left = formatCurriedArgsUsageAsHtml true false [args1]
-                  let nm = FSharp.Compiler.PrettyNaming.DecompileOpName v.CompiledName
+                  let nm = PrettyNaming.DecompileOpName v.CompiledName
                   let right = formatCurriedArgsUsageAsHtml true false [args2]
                   span [] [left
                            !! "&#32;"
@@ -1132,7 +1133,7 @@ module internal SymbolReader =
 
               // unary operators
               | [[x]] -> 
-                  let nm = FSharp.Compiler.PrettyNaming.DecompileOpName v.CompiledName
+                  let nm = PrettyNaming.DecompileOpName v.CompiledName
                   let right = formatCurriedArgsUsageAsHtml true false [[x]]
                   span [] [!! nm;
                            right ]
@@ -1686,7 +1687,7 @@ module internal SymbolReader =
         let doc =
             Literate.ParseMarkdownString
                 ( text, path=Path.Combine(ctx.AssemblyPath, "docs.fsx"),
-                formatAgent=ctx.FormatAgent, fscoptions=ctx.CompilerOptions )
+                formatAgent=ctx.FormatAgent, fscOptions=ctx.CompilerOptions )
 
         let doc = doc |> addMissingLinkToTypes ctx
         let html = readMarkdownCommentAsHtml doc
@@ -1861,9 +1862,9 @@ module internal SymbolReader =
       ctx.XmlMemberMap.Add(xmlDocSig, xmlDoc)
       xmlDoc
 
-    // Type providers don't have their docs dumped into the xml file,
+    // Provided types don't have their docs dumped into the xml file,
     // so we need to add them to the XmlMemberMap separately
-    let registerTypeProviderXmlDocs (ctx:ReadingContext) (typ:FSharpEntity) =
+    let registerProvidedTypeXmlDocs (ctx:ReadingContext) (typ:FSharpEntity) =
       let xmlDoc = registerXmlDoc ctx typ.XmlDocSig (String.concat "" typ.XmlDoc)
       xmlDoc.Elements(XName.Get "param")
       |> Seq.choose (fun p ->
@@ -1876,7 +1877,7 @@ module internal SymbolReader =
 
     let rec readType (ctx:ReadingContext) (typ:FSharpEntity) =
       if typ.IsProvided && typ.XmlDoc.Count > 0 then
-          registerTypeProviderXmlDocs ctx typ
+          registerProvidedTypeXmlDocs ctx typ
 
       let xmlDocSig = getXmlDocSigForType typ
 
@@ -2145,7 +2146,6 @@ type ApiDocModel =
       let resolvedList =
         //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
         FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
-        |> Seq.toList
         |> List.zip projects
 
       // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
@@ -2244,19 +2244,21 @@ type ApiDocModel =
         ApiDocEntityInfo(typ, collection, ns, parent)
 
     let rec nestedTypes ns (modul:ApiDocEntity) =
-      [ for n in modul.NestedEntities do
+      [ let entities = modul.NestedEntities
+        for n in entities do
          if n.IsTypeDefinition then
             yield createType ns (Some modul) n
-        for n in modul.NestedEntities do
+        for n in entities do
          if not n.IsTypeDefinition then
           yield! nestedTypes ns n ]
 
     let typesInfos =
       [ for ns in collection.Namespaces do
-          for n in ns.Entities do
+          let entities = ns.Entities
+          for n in entities do
               if not n.IsTypeDefinition then
                   yield! nestedTypes ns n
-          for n in ns.Entities do
+          for n in entities do
               if n.IsTypeDefinition then
                  yield createType ns None n  ]
 
