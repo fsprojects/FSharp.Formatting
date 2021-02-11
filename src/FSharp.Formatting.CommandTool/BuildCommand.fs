@@ -691,11 +691,29 @@ type CoreBuildOptions(watch) =
 
         if watch then
 
-            use docsWatcher = new FileSystemWatcher(this.input)
-            use templateWatcher = new FileSystemWatcher(this.input)
+            let docsWatchers =
+                if Directory.Exists(this.input) then
+                   [new FileSystemWatcher(this.input)]
+                else []
 
-            let projectOutputWatchers = [ for input in apiDocInputs -> (new FileSystemWatcher(this.input), input.Path) ]
-            use _holder = { new IDisposable with member __.Dispose() = for (p,_) in projectOutputWatchers do p.Dispose() }
+            let templateWatchers =
+                if Directory.Exists(this.input) then
+                    [ new FileSystemWatcher(this.input) ]
+                else []
+
+            let projectOutputWatchers =
+                [ for input in apiDocInputs do
+                     let dir = Path.GetDirectoryName(input.Path)
+                     if Directory.Exists(dir) then
+                         new FileSystemWatcher(dir), input.Path ]
+
+            use _holder =
+                { new IDisposable with
+                    member __.Dispose() =
+                        for p in docsWatchers do p.Dispose()
+                        for p in templateWatchers do p.Dispose()
+                        for (p,_) in projectOutputWatchers do p.Dispose()
+                        }
 
             // Only one update at a time
             let monitor = obj()
@@ -740,17 +758,19 @@ type CoreBuildOptions(watch) =
                 )
 
             // Listen to changes in any input under docs
-            docsWatcher.IncludeSubdirectories <- true
-            docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-            docsWatcher.Changed.Add (fun _ -> docsDependenciesChanged.Trigger())
+            for docsWatcher in docsWatchers do
+                docsWatcher.IncludeSubdirectories <- true
+                docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
+                docsWatcher.Changed.Add (fun _ -> docsDependenciesChanged.Trigger())
 
             // When _template.* change rebuild everything
-            templateWatcher.IncludeSubdirectories <- true
-            templateWatcher.Filter <- "_template.html"
-            templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
-            templateWatcher.Changed.Add (fun _ ->
-                docsDependenciesChanged.Trigger()
-                apiDocsDependenciesChanged.Trigger())
+            for templateWatcher in templateWatchers do
+                templateWatcher.IncludeSubdirectories <- true
+                templateWatcher.Filter <- "_template.html"
+                templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
+                templateWatcher.Changed.Add (fun _ ->
+                    docsDependenciesChanged.Trigger()
+                    apiDocsDependenciesChanged.Trigger())
 
             // Listen to changes in output DLLs
             for (projectOutputWatcher, projectOutput) in projectOutputWatchers do
@@ -760,8 +780,10 @@ type CoreBuildOptions(watch) =
                 projectOutputWatcher.Changed.Add (fun _ -> apiDocsDependenciesChanged.Trigger())
 
             // Start raising events
-            docsWatcher.EnableRaisingEvents <- true
-            templateWatcher.EnableRaisingEvents <- true
+            for docsWatcher in docsWatchers do
+                docsWatcher.EnableRaisingEvents <- true
+            for templateWatcher in templateWatchers do
+                templateWatcher.EnableRaisingEvents <- true
             for (pathWatcher, _path) in projectOutputWatchers do
                 pathWatcher.EnableRaisingEvents <- true
 
