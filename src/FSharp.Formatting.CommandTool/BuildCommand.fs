@@ -26,7 +26,8 @@ open Suave.Operators
 open Suave.Filters
 
 /// Convert markdown, script and other content into a static site
-type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator, substitutions, saveImages, watch, root) =
+type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator,
+                         substitutions, saveImages, watch, root) =
 
     let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
@@ -45,7 +46,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                 url2
             else url
 
-    let processFile (inputFile: string) outputKind template outputPrefix imageSaver = [
+    let processFile isOtherLang (inputFile: string) outputKind template outputPrefix imageSaver = [
         let name = Path.GetFileName(inputFile)
         if name.StartsWith(".") then
             printfn "skipping file %s" inputFile
@@ -110,7 +111,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             //?tokenKindToCss = tokenKindToCss,
                             ?imageSaver=imageSaverOpt)
 
-                    yield ((if mainRun then Some (inputFile, model) else None),
+                    yield ((if mainRun then Some (inputFile, isOtherLang, model) else None),
                               (fun p ->
                                  printfn "  writing %s --> %s" inputFile relativeOutputFile
                                  ensureDirectory (Path.GetDirectoryName(outputFile))
@@ -129,7 +130,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             //?tokenKindToCss = tokenKindToCss,
                             ?imageSaver=imageSaverOpt)
 
-                    yield ( (if mainRun then Some (inputFile, model) else None),
+                    yield ( (if mainRun then Some (inputFile, isOtherLang, model) else None),
                               (fun p ->
                                   printfn "  writing %s --> %s" inputFile relativeOutputFile
                                   ensureDirectory (Path.GetDirectoryName(outputFile))
@@ -151,11 +152,24 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
             else
                 if mainRun && watch then
                     //printfn "skipping unchanged file %s" inputFile
-                    yield (Some (inputFile, haveModel.Value), (fun _ -> ()))
+                    yield (Some (inputFile, isOtherLang, haveModel.Value), (fun _ -> ()))
         ]
-    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate) indir outputPrefix = [
+
+    let allCultures =
+        System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.AllCultures)
+        |> Array.map (fun x -> x.TwoLetterISOLanguageName)
+        |> Array.filter (fun x -> x.Length = 2)
+        |> Array.distinct
+
+    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang) (indir: string) outputPrefix = [
         // Look for the presence of the _template.* files to activate the
         // generation of the content.
+        let indirName = Path.GetDirectoryName(indir)
+
+        // Two-letter directory names with 'docs' count as multi-language and are suppressed from table-of-content
+        // generation and site search index
+        let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures |> Array.contains indirName )
+        
         let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
         let htmlTemplate = if File.Exists(possibleNewHtmlTemplate) then Some possibleNewHtmlTemplate else htmlTemplate
         let possibleNewPynbTemplate = Path.Combine(indir, "_template.ipynb")
@@ -174,18 +188,18 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
 
         // Look for the four different kinds of content
         for input in inputs do
-            yield! processFile input OutputKind.Html htmlTemplate outputPrefix imageSaver
-            yield! processFile input OutputKind.Latex texTemplate outputPrefix imageSaver
-            yield! processFile input OutputKind.Pynb pynbTemplate outputPrefix imageSaver
-            yield! processFile input OutputKind.Fsx fsxTemplate outputPrefix imageSaver
-            yield! processFile input OutputKind.Md mdTemplate outputPrefix imageSaver
+            yield! processFile isOtherLang input OutputKind.Html htmlTemplate outputPrefix imageSaver
+            yield! processFile isOtherLang input OutputKind.Latex texTemplate outputPrefix imageSaver
+            yield! processFile isOtherLang input OutputKind.Pynb pynbTemplate outputPrefix imageSaver
+            yield! processFile isOtherLang input OutputKind.Fsx fsxTemplate outputPrefix imageSaver
+            yield! processFile isOtherLang input OutputKind.Md mdTemplate outputPrefix imageSaver
 
         for subdir in Directory.EnumerateDirectories(indir) do
             let name = Path.GetFileName(subdir)
             if name.StartsWith "." then
                 printfn "  skipping directory %s" subdir
             else
-                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
+                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
     ]
 
     member _.Convert(input, htmlTemplate, extraInputs) =
@@ -193,23 +207,25 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         let inputDirectories = extraInputs @ [(input, ".") ]
         [
         for (inputDirectory, outputPrefix) in inputDirectories do
-            yield! processDirectory (htmlTemplate, None, None, None, None) inputDirectory outputPrefix
+            yield! processDirectory (htmlTemplate, None, None, None, None, false) inputDirectory outputPrefix
         ]
 
-    member _.GetSearchIndexEntries(docModels: (string * LiterateDocModel) list) =
-        [| for (_inputFile, model) in docModels do
+    member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =
+        [| for (_inputFile, isOtherLang, model) in docModels do
+              if not isOtherLang then
                 match model.IndexText with
                 | Some text -> {title=model.Title; content = text; uri=model.Uri(root) }
                 | _ -> () |]
 
-    member _.GetNavigationEntries(docModels: (string * LiterateDocModel) list) =
+    member _.GetNavigationEntries(docModels: (string * bool * LiterateDocModel) list) =
         let modelsForList =
             [ for thing in docModels do
                 match thing with
-                | (inputFile, model)
-                    when model.OutputKind = OutputKind.Html &&
-                            // Don't put the index in the list
-                            not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
+                | (inputFile, isOtherLang, model)
+                    when // Don't put the index or other-language entries in the list
+                         not isOtherLang && 
+                         model.OutputKind = OutputKind.Html &&
+                         not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
                 | _ -> () ]
 
         [
@@ -555,7 +571,7 @@ type CoreBuildOptions(watch) =
                     Map.ofList [
                         for (thing, _action) in docModels do
                             match thing with
-                            | Some res -> res
+                            | Some (file, _isOtherLang, model) -> (file, model)
                             | None -> () ]
 
                 latestDocContentResults <- results
