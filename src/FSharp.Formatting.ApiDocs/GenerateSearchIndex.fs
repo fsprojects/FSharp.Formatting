@@ -36,7 +36,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
               | Some s -> yield s.HtmlText
             ] |> String.concat " \n"
 
-        { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify)
+        { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
           title = enclName + "." + memb.Name
           content = cnt }
 
@@ -49,7 +49,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
                         e.Name
                     ] |> String.concat " \n"
 
-                { uri = nsp.Url(model.Root, model.Collection.CollectionName, model.Qualify)
+                { uri = nsp.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
                   title = nsp.Name
                   content = ctn }
 
@@ -72,7 +72,7 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
                     ] |> String.concat " \n"
 
 
-                let url = e.Url(model.Root, model.Collection.CollectionName, model.Qualify)
+                let url = e.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
                 { uri = url
                   title = e.Name
                   content = cnt }

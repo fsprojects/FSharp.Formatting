@@ -16,6 +16,7 @@ type HtmlRender(model: ApiDocModel) =
   let root = model.Root
   let collectionName = model.Collection.CollectionName
   let qualify = model.Qualify
+
   //let obsoleteMessage msg =
   //  div [Class "alert alert-warning"] [
   //      strong [] [!!"NOTE:"]
@@ -200,7 +201,7 @@ type HtmlRender(model: ApiDocModel) =
                  let nmWithSiffix = if multi then (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)") else nm
 
                  // This adds #EntityName anchor. These may currently be ambiguous
-                 p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify))] [!!nmWithSiffix]]]
+                 p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!nmWithSiffix]]]
                ]
                td [Class "fsdocs-xmldoc" ] [
                    p [] [yield! sourceLink e.SourceLocation
@@ -212,27 +213,11 @@ type HtmlRender(model: ApiDocModel) =
       ]
    ]
 
-  // Honour the CategoryIndex to put the categories in the right order
-  let getSortedCategories xs exclude category categoryIndex =
-    xs
-    |> List.filter (fun x -> not (exclude x))
-    |> List.groupBy (fun x -> category x)
-    |> List.map (fun (cat, xs) -> (cat, xs, xs |> List.minBy (fun x -> categoryIndex x)))
-    |> List.sortBy (fun (cat, _xs, x) -> categoryIndex x, cat)
-    |> List.map (fun (cat, xs, _x) -> cat, xs)
-
   let entityContent (info: ApiDocEntityInfo) =
     // Get all the members & comment for the type
     let entity = info.Entity
     let members = entity.AllMembers |> List.filter (fun e -> not e.IsObsolete)
-
-    // Group all members by their category 
-    let byCategory =
-      getSortedCategories members  (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
-      |> List.mapi (fun i (key, elems) ->
-          let elems = elems |> List.sortBy (fun m -> m.Name)
-          let name = if String.IsNullOrEmpty(key) then  "Other module members" else key
-          (i, elems, name))
+    let byCategory = members |> Categorise.getMembersByCategory
   
     let usageName =
         match info.ParentModule with
@@ -240,13 +225,13 @@ type HtmlRender(model: ApiDocModel) =
         | _ -> entity.Name
 
     [ h1 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
-      p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify))] [!!info.Namespace .Name]]
+      p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!info.Namespace .Name]]
       p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
 
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
-        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify))] [!! parentModule.Name ]]
+        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! parentModule.Name ]]
   
 
       match entity.AbbreviatedType with
@@ -345,60 +330,9 @@ type HtmlRender(model: ApiDocModel) =
         div [] (renderMembers "Instance members" "Instance member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
         div [] (renderMembers "Static members" "Static member" (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)))
     ]
- 
-    
-  let categoriseEntities (nsIndex: int, ns: ApiDocNamespace, suppress) =
-    let entities = ns.Entities
-  
-    let categories =
-        getSortedCategories entities (fun m -> m.Exclude) (fun m -> m.Category) (fun m -> m.CategoryIndex)
-
-    let allByCategory =
-        [ for (catIndex, (categoryName, categoryEntities)) in Seq.indexed categories do
-            let categoryName = (if String.IsNullOrEmpty(categoryName) then "Other namespace members" else categoryName)
-            let index = String.Format("{0}_{1}", nsIndex, catIndex)
-            let categoryEntities =
-              // When calculating list-of-namespaces suppress some entries
-              // Some bespoke hacks to make FSharp.Core docs look ok.
-              //
-              // TODO: use <exclude /> to do these, or work out if there's a better way
-              if suppress then
-                categoryEntities
-
-                // Remove FSharp.Data.UnitSystems.SI from the list-of-namespaces
-                // display - it's just so rarely used, has long names and dominates the docs.
-                //
-                // See https://github.com/fsharp/fsharp-core-docs/issues/57, we may rethink this
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols"))
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitNames"))
-                // Don't show 'AnonymousObject' in list-of-namespaces navigation
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.RuntimeHelpers" && e.Symbol.DisplayName = "AnonymousObject"))
-                // Don't show 'FSharp.Linq.QueryRunExtensions' in list-of-namespaces navigation
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions" && e.Symbol.DisplayName = "LowPriority"))
-                |> List.filter (fun e -> not (e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions" && e.Symbol.DisplayName = "HighPriority"))
-              else
-                categoryEntities
-                
-            // We currently suppress all obsolete entries all the time
-            let categoryEntities =
-                categoryEntities
-                |> List.filter (fun e -> not e.IsObsolete)
-
-            let categoryEntities =
-                categoryEntities
-                |> List.sortBy (fun e ->
-                    (e.Symbol.DisplayName.ToLowerInvariant(), e.Symbol.GenericParameters.Count,
-                        e.Name, (if e.IsTypeDefinition then e.UrlBaseName else "ZZZ")))
-
-            if categoryEntities.Length > 0 then
-                yield {| CategoryName = categoryName
-                         CategoryIndex = index
-                         CategoryEntites = categoryEntities |} ]
-
-    allByCategory
 
   let namespaceContent (nsIndex, ns: ApiDocNamespace) =
-    let allByCategory = categoriseEntities (nsIndex, ns, false)
+    let allByCategory = Categorise.entities (nsIndex, ns, false)
     [ if allByCategory.Length > 0 then
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
@@ -432,15 +366,11 @@ type HtmlRender(model: ApiDocModel) =
         // For non-FSharp.Core we only show one link "API Reference" in the nav menu 
       if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
           li [Class "nav-header"] [!! "API Reference"]
-          li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify))] [!! "All Namespaces" ] ] 
+          li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! "All Namespaces" ] ] 
       else
 
-      let categorise =
-        [ for (nsIndex, ns) in Seq.indexed model.Collection.Namespaces do
-             let allByCategory = categoriseEntities (nsIndex, ns, true)
-             if allByCategory.Length > 0 then
-                 allByCategory, ns ]
-
+      let categorise = Categorise.model model
+       
       let someExist = categorise.Length > 0 
 
       if someExist && nav then
@@ -463,7 +393,7 @@ type HtmlRender(model: ApiDocModel) =
                              match nsOpt with
                              | Some ns2 when ns.Name = ns2.Name -> " active"
                              | _ -> "")
-                        Href (ns.Url(root, collectionName, qualify))] [!!ns.Name]
+                        Href (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!ns.Name]
 
                      // If not in the navigation list then generate the summary text as well
                     if not nav then
@@ -480,7 +410,7 @@ type HtmlRender(model: ApiDocModel) =
                   ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
                       for category in allByCategory do
                           for e in category.CategoryEntites do
-                              li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify))] [!! e.Name] ]
+                              li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! e.Name] ]
                   ]
               | _ -> ()
      ]
@@ -515,7 +445,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (API Reference)" collectionName
         let toc = listOfNamespaces false true None 
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify) )
+        let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile) )
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
     end
@@ -527,7 +457,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = ns.Name
         let toc = listOfNamespaces false true (Some ns)
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify) )
+        let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile) )
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 
@@ -536,7 +466,7 @@ type HtmlRender(model: ApiDocModel) =
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
         let toc = listOfNamespaces false true (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
-        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify))
+        let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
         printfn "  Generating %s" outFile
         SimpleTemplating.UseFileAsSimpleTemplate (substitutions, templateOpt, outFile)
 

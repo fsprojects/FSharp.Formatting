@@ -428,6 +428,8 @@ module internal Transformations =
                   code
               | OutputKind.Fsx ->
                   code
+              | OutputKind.Md ->
+                  code
             Some(InlineBlock(inlined, None, None))
     // Traverse all other structures recursively
     | MarkdownPatterns.ParagraphNested(pn, nested) ->
@@ -460,6 +462,8 @@ module internal Transformations =
       | OutputKind.Pynb ->
           CodeFormat.FormatFsx(snippets)
       | OutputKind.Fsx ->
+          CodeFormat.FormatFsx(snippets)
+      | OutputKind.Md ->
           CodeFormat.FormatFsx(snippets)
 
     let lookup =

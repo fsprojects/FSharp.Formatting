@@ -21,6 +21,7 @@
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="FsxFormatting.fs" />
+    <Compile Include="MarkdownFormatting.fs" />
     <Compile Include="PynbFormatting.fs" />
     <Compile Include="Markdown.fs" />
   </ItemGroup>
