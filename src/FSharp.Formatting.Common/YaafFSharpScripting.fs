@@ -100,8 +100,8 @@ module internal CompilerServiceExtensions =
             printfn "Could not find a FSharp.Core.dll in %s" paths
             failwithf "Could not find a FSharp.Core.dll in %s" paths
 
-      let hasAssembly asm l =
-        l |> Seq.exists (fun (a: string) -> Path.GetFileNameWithoutExtension a =? asm)
+      let isAssembly asm l =
+        l |> List.exists (fun (a: string) -> Path.GetFileNameWithoutExtension a =? asm)
 
       let getCheckerArguments frameworkVersion defaultReferences hasFsCoreLib (fsCoreLib: _ option) dllFiles libDirs otherFlags =
           ignore frameworkVersion
@@ -147,21 +147,21 @@ module internal CompilerServiceExtensions =
 
           projFileName, args
 
-      let getProjectReferences frameworkVersion otherFlags libDirs dllFiles =
+      let getProjectReferences frameworkVersion otherFlags (libDirs: string list option) (dllFiles: string list) =
           let otherFlags = defaultArg otherFlags Seq.empty
-          let libDirs = defaultArg libDirs Seq.empty |> Seq.toList
-          let dllFiles = dllFiles |> Seq.toList
+          let libDirs = defaultArg libDirs []
 
           let hasAssembly asm =
             // we are explicitely requested
-            hasAssembly asm dllFiles ||
-            libDirs |> Seq.exists (fun lib ->
+            isAssembly asm dllFiles ||
+            libDirs |> List.exists (fun lib ->
               Directory.EnumerateFiles(lib)
               |> Seq.filter (fun file -> Path.GetExtension file =? ".dll")
               |> Seq.filter (fun file ->
                   // If we find a FSharp.Core in a lib path, we check if is suited for us...
                   Path.GetFileNameWithoutExtension file <>? "FSharp.Core" || (tryCheckFsCore file |> Option.isSome))
-              |> hasAssembly asm)
+              |> Seq.toList
+              |> isAssembly asm)
 
           let hasFsCoreLib = hasAssembly "FSharp.Core"
           let fsCoreLib =
@@ -175,8 +175,8 @@ module internal CompilerServiceExtensions =
           let options = checker.GetProjectOptionsFromCommandLineArgs(projFileName, args)
 
           let results = checker.ParseAndCheckProject(options) |> Async.RunSynchronously
-          let mapError (err:FSharpErrorInfo) =
-            sprintf "**** %s: %s" (if err.Severity = FSharpErrorSeverity.Error then "error" else "warning") err.Message
+          let mapError (err:FSharpDiagnostic) =
+            sprintf "**** %s: %s" (if err.Severity = FSharpDiagnosticSeverity.Error then "error" else "warning") err.Message
           if results.HasCriticalErrors then
               let errors = results.Errors |> Seq.map mapError
               let errorMsg = sprintf "Parsing and checking project failed: \n\t%s" (System.String.Join("\n\t", errors))
@@ -191,22 +191,19 @@ module internal CompilerServiceExtensions =
 
       let referenceMap references =
           references
-          |> Seq.choose (fun (r:FSharpAssembly) -> r.FileName |> Option.map (fun f -> f, r))
+          |> List.choose (fun (r:FSharpAssembly) -> r.FileName |> Option.map (fun f -> f, r))
 
-      let resolve dllFiles references =
-          let referenceMap =
-            referenceMap references
-            |> dict
-          dllFiles |> Seq.map (fun file -> file, if referenceMap.ContainsKey file then Some referenceMap.[file] else None)
+      let resolve (dllFiles: string list) references =
+          let referenceDict = referenceMap references |> dict
+          dllFiles |> List.map (fun file -> file, if referenceDict.ContainsKey file then Some referenceDict.[file] else None)
 
-      let getProjectReferencesSimple frameworkVersion dllFiles =
-        let dllFiles = dllFiles |> Seq.toList
+      let getProjectReferencesSimple frameworkVersion (dllFiles: string list) =
         getProjectReferences frameworkVersion None None dllFiles
         |> resolve dllFiles
 
       let getProjectReferenceFromFile frameworkVersion dllFile =
           getProjectReferencesSimple frameworkVersion [ dllFile ]
-          |> Seq.exactlyOne
+          |> List.exactlyOne
           |> snd
 
       let rec enumerateEntities (e:FSharpEntity) =
@@ -221,10 +218,9 @@ module internal CompilerServiceExtensions =
           x.FullName.Substring(0, match x.FullName.IndexOf("[") with | -1 -> x.FullName.Length | _ as i -> i)
 
   type FSharpAssembly with
-      static member LoadFiles (dllFiles, ?libDirs, ?otherFlags, ?manualResolve) =
+      static member LoadFiles (dllFiles: string list, ?libDirs: string list, ?otherFlags, ?manualResolve) =
         let resolveDirs = defaultArg manualResolve true
-        let libDirs = defaultArg libDirs Seq.empty
-        let dllFiles = dllFiles |> Seq.toList
+        let libDirs = defaultArg libDirs []
         let findReferences libDir =
           Directory.EnumerateFiles(libDir, "*.dll")
           |> Seq.map Path.GetFullPath
@@ -237,16 +233,14 @@ module internal CompilerServiceExtensions =
             if Path.GetFileName file =? "FSharp.Core.dll" then
               FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
             else true)
+          |> Seq.toList
 
         // See https://github.com/tpetricek/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
         let _dllFiles, _libDirs =
           if resolveDirs then
-            libDirs
-            |> Seq.collect findReferences
-            |> Seq.append dllFiles,
-            //|> Seq.filter (fun file -> blacklist |> List.exists ((=?) (Path.GetFileName file)) |> not),
-            Seq.empty
-          else dllFiles |> List.toSeq, libDirs |> Seq.map (fun l -> Path.GetFullPath (l))
+            libDirs |> List.collect findReferences |> List.append dllFiles, List.empty
+          else
+            dllFiles, libDirs |> List.map Path.GetFullPath
         let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
         let refs = FSharpAssemblyHelper.getProjectReferences frameworkVersion otherFlags (Some _libDirs) _dllFiles
         let result = FSharpAssemblyHelper.resolve dllFiles refs
@@ -884,7 +878,7 @@ type internal FsiSession (fsi: obj, options: FsiOptions, reportGlobal, liveOut, 
       let evalInteraction = save fsiSession.EvalInteractionNonThrowing
       let evalExpression = save fsiSession.EvalExpressionNonThrowing
       let evalScript = saveScript fsiSession.EvalScriptNonThrowing
-      let diagsToString (diags: FSharpErrorInfo[]) =
+      let diagsToString (diags: FSharpDiagnostic[]) =
          [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
       let addDiagsToFsiOutput (o: InteractionOutputs) diags =

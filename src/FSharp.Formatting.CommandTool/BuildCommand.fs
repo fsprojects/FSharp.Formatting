@@ -100,7 +100,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                     let model =
                         Literate.ParseAndTransformScriptFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
-                            ?formatAgent = None, ?prefix = None, ?fscoptions = None,
+                            ?formatAgent = None, ?prefix = None, ?fscOptions = None,
                             ?lineNumbers = lineNumbers, references=false, ?fsiEvaluator = fsiEvaluator,
                             substitutions = substitutions,
                             generateAnchors = true,
@@ -119,7 +119,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                     let model =
                         Literate.ParseAndTransformMarkdownFile
                           (inputFile, output = relativeOutputFile, outputKind = outputKind,
-                            ?formatAgent = None, ?prefix = None, ?fscoptions = None,
+                            ?formatAgent = None, ?prefix = None, ?fscOptions = None,
                             ?lineNumbers = lineNumbers, references=false,
                             substitutions = substitutions,
                             generateAnchors = true,
@@ -325,7 +325,7 @@ type CoreBuildOptions(watch) =
     [<Option("nodefaultcontent", Required = false, HelpText = "Do not copy default content styles, javascript or use default templates.")>]
     member val nodefaultcontent = false with get, set
 
-    [<Option("property", Required = false, HelpText = "Provide a property to dotnet msbuild, e.g. --property Configuration=Release")>]
+    [<Option("properties", Required = false, HelpText = "Provide properties to dotnet msbuild, e.g. --properties Configuration=Release Version=3.4")>]
     member val extraMsbuildProperties = Seq.empty<string> with get, set
 
     [<Option("fscoptions", Required=false, HelpText = "Extra flags for F# compiler analysis, e.g. dependency resolution.")>]
@@ -398,7 +398,7 @@ type CoreBuildOptions(watch) =
 
         for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
             if not (File.Exists dllFile) then
-                let msg = sprintf "*** %s does not exist, has it been built? You may need to provide --property Configuration=Release." dllFile
+                let msg = sprintf "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release." dllFile
                 if this.strict then
                     failwith msg
                 else

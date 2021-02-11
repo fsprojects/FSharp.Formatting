@@ -60,7 +60,7 @@ type Literate private () =
       | MarkdownPatterns.ParagraphLeaf p -> MarkdownPatterns.ParagraphLeaf p )
 
 
-  static let parsingContext formatAgent evaluator fscoptions definedSymbols =
+  static let parsingContext formatAgent evaluator fscOptions definedSymbols =
     let definedSymbols = defaultArg definedSymbols []
     let extraDefines =
         [ // When formatting for tooltips or executing snippets we always include the 'prepare' define.
@@ -73,7 +73,7 @@ type Literate private () =
       | Some agent -> agent
       | _ -> CodeFormat.CreateAgent()
     { FormatAgent = agent
-      CompilerOptions = fscoptions
+      CompilerOptions = fscOptions
       Evaluator = evaluator
       ConditionalDefines = (definedSymbols@extraDefines) }
 
@@ -99,24 +99,24 @@ type Literate private () =
         doc.With(paragraphs = pars)
 
   /// Parse F# Script file
-  static member ParseAndCheckScriptFile (path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
+  static member ParseAndCheckScriptFile (path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     ParseScript(parseOptions, ctx).ParseAndCheckScriptFile path (File.ReadAllText path)
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse F# Script file
-  static member ParseScriptString (content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
+  static member ParseScriptString (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     ParseScript(parseOptions, ctx).ParseAndCheckScriptFile (defaultArg path "C:\\Document.fsx") content
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse Markdown document
-  static member ParseMarkdownFile(path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
+  static member ParseMarkdownFile(path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     ParseMarkdown.parseMarkdown path (File.ReadAllText path) parseOptions
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
@@ -124,8 +124,8 @@ type Literate private () =
 
   /// Parse Markdown document
   static member ParseMarkdownString
-    (content, ?path, ?formatAgent, ?fscoptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
-    let ctx = parsingContext formatAgent fsiEvaluator fscoptions definedSymbols
+    (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+    let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content parseOptions
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
@@ -191,7 +191,7 @@ type Literate private () =
 
   /// Parse and transform a markdown document
   static member internal ParseAndTransformMarkdownFile
-    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?substitutions, ?generateAnchors,
       ?customizeDocument, ?tokenKindToCss, ?imageSaver) =
 
@@ -202,7 +202,7 @@ type Literate private () =
         | OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
         | _ -> MarkdownParseOptions.None
 
-    let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?fscoptions=fscoptions, ?references=references, parseOptions=parseOptions)
+    let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, parseOptions=parseOptions)
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
@@ -212,7 +212,7 @@ type Literate private () =
 
   /// Parse and transform an F# script file
   static member internal ParseAndTransformScriptFile
-    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+    (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?substitutions,
       ?generateAnchors, ?customizeDocument, ?tokenKindToCss, ?imageSaver) =
 
@@ -223,7 +223,7 @@ type Literate private () =
         | _ -> MarkdownParseOptions.None
 
     let outputKind = defaultArg outputKind OutputKind.Html
-    let doc = Literate.ParseAndCheckScriptFile (input, ?formatAgent=formatAgent, ?fscoptions=fscoptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
+    let doc = Literate.ParseAndCheckScriptFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
@@ -241,7 +241,7 @@ type Literate private () =
 
   /// Convert a markdown file into HTML or another output kind
   static member ConvertMarkdownFile
-    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?substitutions, ?generateAnchors
       (* ?customizeDocument, *) ) =
 
@@ -249,14 +249,14 @@ type Literate private () =
       let output = defaultOutput output input outputKind
       let res =
           Literate.ParseAndTransformMarkdownFile
-              (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscoptions=fscoptions,
+              (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscOptions=fscOptions,
                ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
                ?substitutions=substitutions (* ?customizeDocument=customizeDocument, *))
       SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
   /// Convert a script file into HTML or another output kind
   static member ConvertScriptFile
-    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscoptions,
+    (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?substitutions,
       ?generateAnchors (* ?customizeDocument, *)) =
 
@@ -264,7 +264,7 @@ type Literate private () =
         let output=defaultOutput output input outputKind
         let res =
             Literate.ParseAndTransformScriptFile
-                (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscoptions=fscoptions,
+                (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscOptions=fscOptions,
                  ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
                  ?substitutions=substitutions, (* ?customizeDocument=customizeDocument, *) ?fsiEvaluator=fsiEvaluator)
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
