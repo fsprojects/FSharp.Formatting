@@ -59,6 +59,16 @@ copy of this content in your `content` directory.
 
 Any file or directory beginning with `.` is ignored.
 
+## Multi-language Content
+
+Versions of content in other languages should go in two-letter coded sub-directories, e.g.
+
+    docs/ja/...
+    docs/de/...
+
+These will be elided from the main table-of-contents and search indexes.  (Currently no language-specific
+table of contents is built, nor language-specific site search indexes).
+
 ## HTML Templates
 
 Template files are named `_template.html` and should contain `{{fsdocs-content}}`,  `{{fsdocs-tooltips}}`
