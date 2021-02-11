@@ -66,10 +66,10 @@ module internal MarkdownUtils =
           "[" + formatSpans ctx body + "](" + link + ")"
 
       | IndirectImage(_body, _, LookupKey ctx.Links (_link, _), _) 
-      | DirectImage(_body, _link, _, _) 
       | IndirectImage(_body, _link, _, _) ->
           failwith "tbd - IndirectImage"
-
+      | DirectImage(_body, _link, _, _) ->
+        sprintf "![%s](%s)" _body _link
       | Strong(body, _) -> 
           "**" + formatSpans ctx body + "**"
       | InlineCode(body, _) -> 
@@ -103,6 +103,37 @@ module internal MarkdownUtils =
             | CodeBlock(code, _, _, _, _) ->
                 yield code
                 yield ""
+            | ListBlock (Unordered, paragraphs, _) ->
+                yield (String.concat "\n" (paragraphs |> List.collect(fun ps -> [ for p in ps -> String.concat "" (formatParagraph ctx p)])))
+            | TableBlock (headers, alignments, rows, _) -> 
+            
+                match headers with
+                 | Some headers -> 
+                   yield (String.concat " | " (headers |> List.collect (fun hs -> [for h in hs -> String.concat "" (formatParagraph ctx h)])))
+                 | None -> ()
+
+                yield (String.concat " | " [
+                    for a in alignments -> 
+                      match a with
+                       | AlignLeft -> ":---"
+                       | AlignCenter -> ":---:"
+                       | AlignRight -> "---:"
+                       | AlignDefault -> "---"
+                ])
+                let replaceEmptyWith x s = match s with | "" | null -> x | s -> Some s
+                yield String.concat "\n" [
+                    for r in rows do
+                    [
+                      for ps in r do
+                      let x = [
+                            for p in ps do
+                             yield formatParagraph ctx p |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat ""
+                          ] 
+                      yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />"
+                    ] |> Seq.choose (replaceEmptyWith (Some "&#32;"))  |> String.concat " | "
+                ]
+                yield "\n"
+
             | OutputBlock(output, "text/html", _executionCount) ->
                 yield (output.Trim())
                 yield ""

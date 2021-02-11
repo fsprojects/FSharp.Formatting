@@ -58,6 +58,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
             | OutputKind.Pynb, None -> ()
             | OutputKind.Latex, None -> ()
             | OutputKind.Fsx, None -> ()
+            | OutputKind.Md, None -> ()
             | _ ->
 
             let imageSaverOpt =
@@ -66,6 +67,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                 | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
                 | OutputKind.Fsx when saveImages = Some true -> Some imageSaver
                 | OutputKind.Html when saveImages = Some true -> Some imageSaver
+                | OutputKind.Md when saveImages = Some true -> Some imageSaver
                 | _ -> None
 
             let ext = outputKind.Extension
@@ -151,7 +153,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                     //printfn "skipping unchanged file %s" inputFile
                     yield (Some (inputFile, haveModel.Value), (fun _ -> ()))
         ]
-    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) indir outputPrefix = [
+    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate) indir outputPrefix = [
         // Look for the presence of the _template.* files to activate the
         // generation of the content.
         let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
@@ -160,6 +162,8 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         let pynbTemplate = if File.Exists(possibleNewPynbTemplate) then Some possibleNewPynbTemplate else pynbTemplate
         let possibleNewFsxTemplate = Path.Combine(indir, "_template.fsx")
         let fsxTemplate = if File.Exists(possibleNewFsxTemplate) then Some possibleNewFsxTemplate else fsxTemplate
+        let possibleNewMdTemplate = Path.Combine(indir, "_template.md")
+        let mdTemplate = if File.Exists(possibleNewMdTemplate) then Some possibleNewMdTemplate else mdTemplate
         let possibleNewLatexTemplate = Path.Combine(indir, "_template.tex")
         let texTemplate = if File.Exists(possibleNewLatexTemplate) then Some possibleNewLatexTemplate else texTemplate
 
@@ -174,13 +178,14 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
             yield! processFile input OutputKind.Latex texTemplate outputPrefix imageSaver
             yield! processFile input OutputKind.Pynb pynbTemplate outputPrefix imageSaver
             yield! processFile input OutputKind.Fsx fsxTemplate outputPrefix imageSaver
+            yield! processFile input OutputKind.Md mdTemplate outputPrefix imageSaver
 
         for subdir in Directory.EnumerateDirectories(indir) do
             let name = Path.GetFileName(subdir)
             if name.StartsWith "." then
                 printfn "  skipping directory %s" subdir
             else
-                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
+                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
     ]
 
     member _.Convert(input, htmlTemplate, extraInputs) =
@@ -188,7 +193,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         let inputDirectories = extraInputs @ [(input, ".") ]
         [
         for (inputDirectory, outputPrefix) in inputDirectories do
-            yield! processDirectory (htmlTemplate, None, None, None) inputDirectory outputPrefix
+            yield! processDirectory (htmlTemplate, None, None, None, None) inputDirectory outputPrefix
         ]
 
     member _.GetSearchIndexEntries(docModels: (string * LiterateDocModel) list) =
@@ -579,38 +584,58 @@ type CoreBuildOptions(watch) =
 
                     if not this.noapidocs then
 
-                        let initialTemplate2 =
-                            let t1 = Path.Combine(this.input, "reference", "_template.html")
-                            let t2 = Path.Combine(this.input, "_template.html")
-                            if File.Exists(t1) then
-                                Some t1
-                            elif File.Exists(t2) then
-                                Some t2
-                            else
-                                match defaultTemplate with
+                        let (outputKind, initialTemplate2) =
+                            let templates = [
+                              OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                              OutputKind.Html, Path.Combine(this.input, "_template.html")
+                              OutputKind.Md, Path.Combine(this.input, "reference", "_template.md")
+                              OutputKind.Md, Path.Combine(this.input, "_template.md")
+                            ] 
+                            match templates |> Seq.tryFind (fun (_,path) -> path |> File.Exists) with
+                             | Some (kind, path) -> kind, Some path
+                             | None ->  
+                               let templateFiles = templates |> Seq.map snd |> String.concat "', '"
+                               match defaultTemplate with
                                 | Some d ->
-                                    printfn "note, no template file '%s' or '%s', using default template %s" t1 t2 d
-                                    Some d
+                                    printfn "note, no template files: '%s' found, using default template %s" templateFiles d
+                                    OutputKind.Html, Some d
                                 | None ->
-                                    printfn "note, no template file '%s' or '%s', and no default template at '%s'" t1 t2 defaultTemplateAttempt1
-                                    None
-
+                                    printfn "note, no template file '%s' found, and no default template at '%s'" templateFiles defaultTemplateAttempt1
+                                    OutputKind.Html, None
+                               
                         printfn ""
                         printfn "API docs:"
                         printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
+                        
                         let globals, index, phase2 =
-                          ApiDocs.GenerateHtmlPhased (
-                            inputs = apiDocInputs,
-                            output = output,
-                            collectionName = collectionName,
-                            substitutions = docsParameters,
-                            qualify = this.qualify,
-                            ?template = initialTemplate2,
-                            otherFlags = Seq.toList this.fscoptions,
-                            root = root,
-                            libDirs = paths,
-                            strict = this.strict
-                            )
+                            match outputKind with 
+                             | OutputKind.Html -> 
+                                 ApiDocs.GenerateHtmlPhased (
+                                    inputs = apiDocInputs,
+                                    output = output,
+                                    collectionName = collectionName,
+                                    substitutions = docsParameters,
+                                    qualify = this.qualify,
+                                    ?template = initialTemplate2,
+                                    otherFlags = Seq.toList this.fscoptions,
+                                    root = root,
+                                    libDirs = paths,
+                                    strict = this.strict
+                                    )
+                             | OutputKind.Md ->
+                                 ApiDocs.GenerateMarkdownPhased (
+                                    inputs = apiDocInputs,
+                                    output = output,
+                                    collectionName = collectionName,
+                                    substitutions = docsParameters,
+                                    qualify = this.qualify,
+                                    ?template = initialTemplate2,
+                                    otherFlags = Seq.toList this.fscoptions,
+                                    root = root,
+                                    libDirs = paths,
+                                    strict = this.strict
+                                    )
+                             | _ -> failwithf "API Docs format '%A' is not supported" outputKind
 
                         latestApiDocSearchIndexEntries <- index
                         latestApiDocGlobalParameters <- globals

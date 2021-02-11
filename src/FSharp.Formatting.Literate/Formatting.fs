@@ -12,6 +12,7 @@ module internal Formatting =
   let format (doc: MarkdownDocument) generateAnchors outputKind substitutions =
     match outputKind with
     | OutputKind.Fsx -> Markdown.ToFsx(doc, substitutions=substitutions)
+    | OutputKind.Md -> Markdown.ToMd(doc, substitutions=substitutions)
     | OutputKind.Pynb -> Markdown.ToPynb(doc, substitutions=substitutions)
     | OutputKind.Latex -> Markdown.ToLatex(doc)
     | OutputKind.Html ->

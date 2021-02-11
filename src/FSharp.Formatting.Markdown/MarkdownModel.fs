@@ -78,6 +78,23 @@ type MarkdownTableRow = list<MarkdownParagraphs>
 type MarkdownEmbedParagraphs =
   abstract Render : unit -> MarkdownParagraphs
 
+module Dsl =
+  let ``#`` value = Heading(1, value, None)
+  let ``##`` value = Heading(2, value, None)
+  let ``###`` value = Heading(3, value, None)
+  let ``####`` value = Heading(4, value, None)
+  let ``#####`` value = Heading(5, value, None)
+  let strong value = Strong(value, None)
+  let p value = Paragraph(value, None)
+  let span value = Span(value, None)
+  let (!!) value = Literal(value, None)
+  let link content url = DirectLink(content, url, None, None)
+  let ul value = ListBlock(Unordered, value, None) 
+  let ol value = ListBlock(Ordered, value, None) 
+  let table headers alignments rows = 
+    let hs = match headers with | [] -> None | hs -> Some hs
+    TableBlock(hs, alignments, rows, None)
+  let img body link = DirectImage(body, link, None, None)
 // --------------------------------------------------------------------------------------
 // Patterns that make recursive Markdown processing easier
 // --------------------------------------------------------------------------------------
