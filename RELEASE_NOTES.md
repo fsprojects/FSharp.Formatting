@@ -1,3 +1,6 @@
+## 9.0.1
+* Proper fix for elide multi-language docs from navigation and site search index
+
 ## 9.0.0
 * Rename --property flag to --properties
 * Elide multi-language docs from navigation and site search index

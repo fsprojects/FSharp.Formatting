@@ -164,11 +164,13 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
     let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang) (indir: string) outputPrefix = [
         // Look for the presence of the _template.* files to activate the
         // generation of the content.
-        let indirName = Path.GetDirectoryName(indir)
+        let indirName = Path.GetFileName(indir).ToLower()
 
         // Two-letter directory names with 'docs' count as multi-language and are suppressed from table-of-content
         // generation and site search index
+        printfn "indirName = %s" indirName
         let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures |> Array.contains indirName )
+        printfn "isOtherLang = %b" isOtherLang
         
         let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
         let htmlTemplate = if File.Exists(possibleNewHtmlTemplate) then Some possibleNewHtmlTemplate else htmlTemplate
