@@ -117,11 +117,11 @@ Target.create "GenerateDocs" (fun _ ->
     // Τhe tool has been uninstalled when the
     // artifacts folder was removed in the Clean target.
     DotNet.exec id "tool" ("install --no-cache --version " + release.NugetVersion + " --add-source " + artifactsDir + " --tool-path " + artifactsDir + " FSharp.Formatting.CommandTool")  |> ignore
-    CreateProcess.fromRawCommand (artifactsDir @@ "fsdocs") ["build"; "--strict"; "--clean"; "--property"; "Configuration=Release"]
+    CreateProcess.fromRawCommand (artifactsDir @@ "fsdocs") ["build"; "--strict"; "--clean"; "--properties"; "Configuration=Release"]
     |> CreateProcess.ensureExitCode
     |> Proc.run
     |> ignore
-    // DotNet.exec id "fsdocs" "build --strict --clean --property Configuration=Release" |> ignore
+    // DotNet.exec id "fsdocs" "build --strict --clean --properties Configuration=Release" |> ignore
     // DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
     Shell.cleanDir ".packages"
 )

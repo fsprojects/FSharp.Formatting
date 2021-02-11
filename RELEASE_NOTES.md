@@ -1,3 +1,6 @@
+## 8.0.2
+* Rename --property flag to --properties
+
 ## 8.0.1
 * [Prevent CLI parameters from being discarded](https://github.com/fsprojects/FSharp.Formatting/pull/634)
 * [Update Dockerfile and NuGet.config for binder](https://github.com/fsprojects/FSharp.Formatting/pull/636)

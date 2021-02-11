@@ -71,21 +71,8 @@ In addition, you may also use the [Recommended XML doc extensions for F# documen
 An example of an XML documentation comment, assuming the code is in namespace `TheNamespace`:
 *)
 /// <summary>
-///   Some actual comment
-///   <para>Another paragraph, see  <see cref="T:TheNamespace.SomeType"/>. </para>
+///   A module
 /// </summary>
-///
-/// <param name="x">The input</param>
-///
-/// <returns>The output</returns>
-///
-/// <example>
-///   Try using
-///   <code>
-///      open TheNamespace
-///      SomeModule.a
-///   </code>
-/// </example>
 ///
 /// <namespacedoc>
 ///   <summary>A namespace to remember</summary>
@@ -93,15 +80,30 @@ An example of an XML documentation comment, assuming the code is in namespace `T
 ///   <remarks>More on that</remarks>
 /// </namespacedoc>
 ///
-/// <category>Foo</category>
-///
-
 module SomeModule = 
+    /// <summary>
+    ///   Some actual comment
+    ///   <para>Another paragraph, see  <see cref="T:TheNamespace.SomeType"/>. </para>
+    /// </summary>
+    ///
+    /// <param name="x">The input</param>
+    ///
+    /// <returns>The output</returns>
+    ///
+    /// <example>
+    ///   Try using
+    ///   <code>
+    ///      open TheNamespace
+    ///      SomeModule.a
+    ///   </code>
+    /// </example>
+    ///
+    /// <category>Foo</category>
    let someFunction x = 42 + x
 
 /// <summary>
 ///   A type, see  <see cref="T:TheNamespace.SomeModule"/> and
-///  <see cref="T:TheNamespace.SomeModule.someFunction"/>. </para>
+///  <see cref="T:TheNamespace.SomeModule.someFunction"/>. 
 /// </summary>
 ///
 type SomeType() =

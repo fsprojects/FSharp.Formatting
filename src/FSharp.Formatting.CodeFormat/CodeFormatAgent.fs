@@ -8,9 +8,8 @@ open System
 open System.IO
 open System.Runtime.ExceptionServices
 open FSharp.Compiler
-open FSharp.Compiler.Range
-open FSharp.Compiler.Text
 open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Text
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.CodeFormat.CommentFilter
 open FSharp.Formatting.Common
@@ -154,7 +153,7 @@ type CodeFormatAgent() =
 
 
     // Processes a single line of the snippet
-    let processSnippetLine (checkResults: FSharpCheckFileResults) (semanticRanges: struct(Range.range * SemanticClassificationType)[])
+    let processSnippetLine (checkResults: FSharpCheckFileResults) (semanticRanges: struct(range * SemanticClassificationType)[])
                             (lines: string[]) (line: int, lineTokens: SnippetLine) =
         let lineStr = lines.[line]
 
@@ -200,7 +199,7 @@ type CodeFormatAgent() =
                     if (token.TokenName = "IDENT") then
                         let island = List.rev island
                         let tip = checkResults.GetToolTipText(line + 1, token.LeftColumn + 1, lines.[line], island,FSharpTokenTag.IDENT)
-                        match tip |> Async.RunSynchronously |> ToolTipReader.tryFormatTip with
+                        match tip |> ToolTipReader.tryFormatTip with
                         | Some(_) as res -> res
                         | _ -> None
                     else None
@@ -322,7 +321,7 @@ type CodeFormatAgent() =
         let filePath = Path.GetFullPath(filePath)
         let! (opts,_errors) = fsChecker.GetProjectOptionsFromScript(filePath, SourceText.ofString source, loadedTimeStamp = DateTime.Now, otherFlags = args, assumeDotNetFramework = false)
 
-        let formatError (e:FSharpErrorInfo) =
+        let formatError (e:FSharpDiagnostic) =
              sprintf "%s (%d,%d)-(%d,%d): %A FS%04d: %s" e.FileName e.StartLineAlternate e.StartColumn e.EndLineAlternate e.EndColumn e.Severity e.ErrorNumber e.Message
 
         let formatErrors errors =
@@ -373,7 +372,7 @@ type CodeFormatAgent() =
         //let! results = fsChecker.ParseAndCheckProject(opts)
         //let _errors = results.Errors
         
-        if _errors |> List.filter (fun e -> e.Severity = FSharpErrorSeverity.Error) |> List.length > 0 then
+        if _errors |> List.filter (fun e -> e.Severity = FSharpDiagnosticSeverity.Error) |> List.length > 0 then
             Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
         //printfn "filePath = %A" filePath
@@ -444,7 +443,7 @@ type CodeFormatAgent() =
                         yield SourceError(
                             (errInfo.StartLineAlternate - 1, errInfo.StartColumn),
                             (errInfo.EndLineAlternate - 1, errInfo.EndColumn),
-                            (if errInfo.Severity = FSharpErrorSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
+                            (if errInfo.Severity = FSharpDiagnosticSeverity.Error then ErrorKind.Error else ErrorKind.Warning),
                             errInfo.Message
                         )
             |]
