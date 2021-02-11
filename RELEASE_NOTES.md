@@ -1,5 +1,6 @@
-## 8.0.2
+## 9.0.0
 * Rename --property flag to --properties
+* Elide multi-language docs from navigation and site search index
 
 ## 8.0.1
 * [Prevent CLI parameters from being discarded](https://github.com/fsprojects/FSharp.Formatting/pull/634)
