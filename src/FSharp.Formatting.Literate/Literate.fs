@@ -122,8 +122,7 @@ type Literate private () =
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
-  /// <summary>Parse Markdown document</summary>
-
+  /// Parse Markdown document
   static member ParseMarkdownString
     (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
