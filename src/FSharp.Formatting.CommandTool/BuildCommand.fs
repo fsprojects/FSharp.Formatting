@@ -813,7 +813,10 @@ type CoreBuildOptions(watch) =
             if not this.nolaunch_option then
                 let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
                 printfn "launching browser window to open %s" url
-                Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
+                try
+                    Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
+                with ex ->
+                    printfn "Warning, unable to launch browser(%s), try manually browsing to %s" ex.Message url
             waitForKey watch
 
         if ok then 0 else 1
