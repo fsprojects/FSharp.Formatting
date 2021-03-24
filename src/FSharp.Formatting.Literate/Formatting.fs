@@ -36,7 +36,7 @@ module internal Formatting =
       | _ -> None)
 
   /// Given literate document, get a new MarkdownDocument that represents the
-  /// entire source code of the specified document (with possible `fsx` formatting)
+  /// entire source code of the specified document (with possible fsx formatting)
   let getSourceDocument (doc:LiterateDocument) =
     match doc.Source with
     | LiterateSource.Markdown text ->

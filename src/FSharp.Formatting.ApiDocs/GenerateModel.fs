@@ -1643,7 +1643,7 @@ module internal SymbolReader =
         | Some(k, v) -> do doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName))
         | None -> ()
 
-    /// Wraps the span inside an `IndirectLink` if it is an inline code that can be converted to a link
+    /// Wraps the span inside an IndirectLink if it is an inline code that can be converted to a link
     let wrapInlineCodeLinksInSpans (ctx:ReadingContext) span =
         match span with
         | InlineCode(code, r) ->
@@ -1652,7 +1652,7 @@ module internal SymbolReader =
             | None -> span
         | _ -> span
 
-    /// Wraps inside an `IndirectLink` all inline code spans in the paragraph that can be converted to a link
+    /// Wraps inside an IndirectLink all inline code spans in the paragraph that can be converted to a link
     let rec wrapInlineCodeLinksInParagraphs (ctx:ReadingContext) (para:MarkdownParagraph) =
         match para with
         | MarkdownPatterns.ParagraphLeaf _ -> para

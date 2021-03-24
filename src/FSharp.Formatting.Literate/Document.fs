@@ -24,12 +24,16 @@ type LiterateParagraphOptions =
     Condition : string option
   }
 
+/// <summary>
 /// Additional properties of a literate code snippet, embedded in a
-/// `LiterateParagraph.LiterateCode`. The properties specify how should
+/// <c>LiterateParagraph.LiterateCode</c>. The properties specify how should
 /// a snippet be evaluated and formatted.
+/// </summary>
 type LiterateCodeOptions = 
-  { /// Specifies whether the snippet is evalauted while processing
-    /// Use (*** do-not-eval ***) command to set this to `false`
+  { /// <summary>
+    /// Specifies whether the snippet is evalauted while processing
+    /// Use (*** do-not-eval ***) command to set this to <c>false</c>
+    /// </summary>
     Evaluate : bool
 
     /// Specifies the name of the output produced by this snippet
@@ -44,9 +48,11 @@ type LiterateCodeOptions =
     Visibility : LiterateCodeVisibility
   }
 
-/// Extends `MarkdownParagrap` using the `MarkdownEmbedParagraphs` case with
+/// <summary>
+/// Extends <c>MarkdownParagrap</c> using the <c>MarkdownEmbedParagraphs</c> case with
 /// additional kinds of paragraphs that can appear in literate F# scripts
 /// (such as various special commands to embed output of a snippet etc.)
+/// </summary>
 type LiterateParagraph =
   /// (*** include:foo ***) - Include formatted snippet from other part of the document here 
   | CodeReference of string * LiterateParagraphOptions
@@ -156,8 +162,10 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, diag
 // Pattern matching helpers
 // --------------------------------------------------------------------------------------
 
-/// Provides active patterns for extracting `LiterateParagraph` values from
+/// <summary>
+/// Provides active patterns for extracting <c>LiterateParagraph</c> values from
 /// Markdown documents.
+/// </summary>
 module MarkdownPatterns =
   let (|LiterateParagraph|_|) = function
     | EmbedParagraphs(:? LiterateParagraph as lp, _) -> Some lp | _ -> None

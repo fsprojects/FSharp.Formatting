@@ -84,7 +84,7 @@ module internal Transformations =
 
 
   /// Walk over literate document and replace F# code snippets with
-  /// their formatted representation (of `LiterateParagraph` type)
+  /// their formatted representation (of LiterateParagraph type)
   ///
   /// Note: this processes snipppets within markdown, not snippets coming from .fsx
   let formatCodeSnippets (path: string) (ctx: CompilerContext) (doc:LiterateDocument) =
@@ -280,8 +280,8 @@ module internal Transformations =
     | [] -> acc
 
   /// Given an evaluator and document, evaluate all code snippets and return a map with
-  /// their results - the key is `ValueRef(name)` for all value references and
-  /// `OutputRef(name)` for all references to the snippet console output
+  /// their results - the key is ValueRef(name) for all value references and
+  /// OutputRef(name) for all references to the snippet console output
   let evalAllSnippets ctx fsi (doc:LiterateDocument) =
     evalBlocks ctx fsi (ref 0) doc.SourceFile [] doc.Paragraphs |> Map.ofList
 

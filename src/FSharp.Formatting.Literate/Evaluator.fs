@@ -10,6 +10,9 @@ open FSharp.Formatting.Internal
 // ------------------------------------------------------------------------------------------------
 
 /// Represents a kind of thing that can be embedded 
+/// <namespacedoc>
+///   <summary>Functionality to support literate evaluation for F# scripts</summary>
+/// </namespacedoc>
 [<RequireQualifiedAccessAttribute>]
 type FsiEmbedKind = 
   /// The FSI output 
@@ -39,7 +42,7 @@ type FsiEvaluationResult =
     Result : (obj * Type) option }
   interface IFsiEvaluationResult
 
-/// Record that is reported by the `EvaluationFailed` event when something
+/// Record that is reported by the EvaluationFailed event when something
 /// goes wrong during evalutaiton of an expression
 type FsiEvaluationFailedInfo = 
   { Text : string
@@ -102,9 +105,9 @@ type private NoOpFsiObject()  =
   member self.EventLoop with get () = evLoop and set (_x:NoOpFsiEventLoop)  = ()
   member self.AddPrintTransformer(_printer : 'T -> obj) = ()
 
-/// Provides configuration options for the `FsiEvaluator`
+/// Provides configuration options for the FsiEvaluator
 type FsiEvaluatorConfig() =
-  /// Creates a dummy `fsi` object that does not affect the behaviour of F# Interactive
+  /// Creates a dummy fsi object that does not affect the behaviour of F# Interactive
   /// (and simply ignores all operations that are done on it). You can use this to 
   /// e.g. disable registered printers that would open new windows etc.
   static member CreateNoOpFsiObject() = box (new NoOpFsiObject())

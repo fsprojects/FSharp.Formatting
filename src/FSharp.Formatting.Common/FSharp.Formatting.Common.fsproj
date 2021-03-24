@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
-    <UsesMarkdownComments>true</UsesMarkdownComments>
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />

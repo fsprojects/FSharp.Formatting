@@ -113,9 +113,9 @@ open CodeBlockUtils
 // LiterateScript module
 // --------------------------------------------------------------------------------------
 
-/// Turns the content of `fsx` file into `LiterateDocument` that contains
+/// Turns the content of fsx file into LiterateDocument that contains
 /// formatted F# snippets and parsed Markdown document. Handles commands such
-/// as `hide`, `define` and `include`.
+/// as hide, define and include.
 type internal ParseScript(parseOptions, ctx:CompilerContext) = 
 
   let getVisibility cmds =
@@ -268,7 +268,7 @@ type internal ParseScript(parseOptions, ctx:CompilerContext) =
         List.rev acc, allDefs
 
   /// Parse script file with specified name and content
-  /// and return `LiterateDocument` with the content
+  /// and return LiterateDocument with the content
   member _.ParseAndCheckScriptFile filePath content =
     let defines = match ctx.ConditionalDefines with [] -> None | l -> Some (String.concat "," l)
     let sourceSnippets, diagnostics = ctx.FormatAgent.ParseAndCheckSource(filePath, content, ?options=ctx.CompilerOptions, ?defines=defines)

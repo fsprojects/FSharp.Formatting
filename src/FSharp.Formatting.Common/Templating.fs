@@ -5,6 +5,13 @@ open System.Collections.Generic
 open System.IO
 open System.Text
 
+/// <summary>
+/// A parameter key
+/// </summary>
+///
+/// <namespacedoc>
+///   <summary>Functionality relating to templating (mostly internal)</summary>
+/// </namespacedoc>
 [<Struct>]
 type ParamKey = ParamKey of string
 with
@@ -17,10 +24,6 @@ type Substitutions = (ParamKey * string) list
 /// <summary>
 ///  Defines the parameter keys known to FSharp.Formatting processing code
 /// </summary>
-///
-/// <namespacedoc>
-///   <summary>Functionality relating to templating (mostly internal)</summary>
-/// </namespacedoc>
 [<RequireQualifiedAccess>]
 module ParamKeys =
 

@@ -28,8 +28,6 @@ type MarkdownDocument(paragraphs, links) =
 type Markdown =
   /// Parse the specified text into a MarkdownDocument. Line breaks in the
   /// inline HTML (etc.) will be stored using the specified string.
-  ///
-  ///  - `parseOptions`: Controls whether code and non-code blocks are parsed as raw lines or not.
   static member Parse(text, ?newline, ?parseOptions) =
     let newline = defaultArg newline Environment.NewLine
     let parseOptions = defaultArg parseOptions MarkdownParseOptions.None

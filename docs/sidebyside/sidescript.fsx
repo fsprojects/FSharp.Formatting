@@ -1,5 +1,5 @@
 (**
-# Literate script side-by-side example
+# Literate script example
 
 This file demonstrates how to write literate F# script
 files (`*.fsx`) that can be transformed into nice HTML

@@ -11,7 +11,7 @@ open System.Collections.Generic
 // Definition of the Markdown format
 // --------------------------------------------------------------------------------------
 
-/// A list kind can be `Ordered` or `Unordered` corresponding to `<ol>` and `<ul>` elements
+/// A list kind can be Ordered or Unordered corresponding to <ol> and <ul> elements
 type MarkdownListKind = 
   | Ordered 
   | Unordered
@@ -40,11 +40,11 @@ type MarkdownSpan =
   | LatexDisplayMath of code:string * range:MarkdownRange option
   | EmbedSpans of customSpans:MarkdownEmbedSpans * range:MarkdownRange option
 
-/// A type alias for a list of `MarkdownSpan` values
+/// A type alias for a list of MarkdownSpan values
 type MarkdownSpans = MarkdownSpan list
 
 /// Provides an extensibility point for adding custom kinds of spans into a document
-/// (`MarkdownEmbedSpans` values can be embedded using `MarkdownSpan.EmbedSpans`)
+/// (MarkdownEmbedSpans values can be embedded using MarkdownSpan.EmbedSpans)
 type MarkdownEmbedSpans =
   abstract Render : unit -> MarkdownSpans
 
@@ -74,7 +74,7 @@ type MarkdownParagraphs = list<MarkdownParagraph>
 type MarkdownTableRow = list<MarkdownParagraphs>
 
 /// Provides an extensibility point for adding custom kinds of paragraphs into a document
-/// (`MarkdownEmbedParagraphs` values can be embedded using `MarkdownParagraph.EmbedParagraphs`)
+/// (MarkdownEmbedParagraphs values can be embedded using MarkdownParagraph.EmbedParagraphs)
 type MarkdownEmbedParagraphs =
   abstract Render : unit -> MarkdownParagraphs
 

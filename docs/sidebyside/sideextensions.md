@@ -1,4 +1,4 @@
-﻿Markdown extensions side-by-side example
+﻿Markdown extensions example
 ===================
 
 To use LaTex extension, you need add javascript

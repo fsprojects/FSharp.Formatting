@@ -1,4 +1,4 @@
-﻿# Literate Markdown side-by-side example
+﻿# Literate Markdown example
 
 This file demonstrates how to write Markdown document with 
 embedded F# snippets that can be transformed into nice HTML 
