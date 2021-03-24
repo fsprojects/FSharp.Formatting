@@ -254,7 +254,12 @@ type Literate private () =
                ?substitutions=substitutions (* ?customizeDocument=customizeDocument, *))
       SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
-  /// Convert a script file into HTML or another output kind
+  /// <summary>Convert a script file into HTML or another output kind</summary>
+  /// <example>
+  ///   <code>
+  ///     Literate.ConvertScriptFile("script.fsx", template)
+  ///   </code>
+  /// </example>
   static member ConvertScriptFile
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?substitutions,

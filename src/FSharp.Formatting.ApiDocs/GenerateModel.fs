@@ -1413,11 +1413,11 @@ module internal SymbolReader =
                             html.AppendFormat("{0}", cref.Value) |> ignore
                 | "c" ->
                     html.Append("<code>") |> ignore
-                    html.Append(elem.Value) |> ignore
+                    html.Append(elem.Value.Trim('\r','\n', ' ')) |> ignore
                     html.Append("</code>") |> ignore
                 | "code" ->
                     html.Append("<pre>") |> ignore
-                    html.Append(elem.Value) |> ignore
+                    html.Append(elem.Value.Trim('\r','\n', ' ')) |> ignore
                     html.Append("</pre>") |> ignore
                 // 'a' is not part of the XML doc standard but is widely used
                 | "a" ->
