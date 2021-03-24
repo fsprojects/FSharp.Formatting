@@ -1,3 +1,6 @@
+## 9.0.2
+* Fix default styles to show examples and strings more clearly
+
 ## 9.0.1
 * Proper fix for elide multi-language docs from navigation and site search index
 

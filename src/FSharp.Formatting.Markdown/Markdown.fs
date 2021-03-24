@@ -77,8 +77,15 @@ type Markdown =
     Markdown.WriteHtml(doc, wr, ?newline=newline)
     sb.ToString()
 
-  /// Transform Markdown document into HTML format. 
-  /// The result will be returned as a string.
+  /// <summary>
+  ///  Transform Markdown document into HTML format. 
+  ///  The result will be returned as a string.
+  /// </summary>
+  /// <example>
+  ///   <code>
+  ///     let html = Markdown.ToHtml("# Heading")
+  ///   </code>
+  /// </example>
   static member ToHtml(markdownText: string, ?newline) =
     let doc = Markdown.Parse(markdownText, ?newline=newline)
     Markdown.ToHtml(doc, ?newline=newline)
