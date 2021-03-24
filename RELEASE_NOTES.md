@@ -1,3 +1,6 @@
+## 9.0.3
+* Trim spaces from examples
+
 ## 9.0.1
 * Proper fix for elide multi-language docs from navigation and site search index
 
