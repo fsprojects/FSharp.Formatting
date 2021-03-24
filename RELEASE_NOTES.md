@@ -1,3 +1,6 @@
+## 9.0.4
+* Trim spaces from examples (TrimEnd only)
+
 ## 9.0.3
 * Trim spaces from examples
 
