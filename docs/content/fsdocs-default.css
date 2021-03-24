@@ -309,7 +309,7 @@ body {
     background-color: #212d30;
     padding: 10px;
     border-radius: 5px;
-    color: #8e0e2b;
+    color: #d1d1d1;
     max-width: none;
 }
 
@@ -426,7 +426,7 @@ body {
 }
 /* strings --- and stlyes for other string related formats */
 #fsdocs-content span.s {
-    color: #771212;
+    color: #E0E268;
 }
 /* printf formatters */
 #fsdocs-content span.pf {
