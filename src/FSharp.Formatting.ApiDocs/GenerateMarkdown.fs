@@ -164,7 +164,7 @@ type MarkdownRender(model: ApiDocModel) =
         | _ -> entity.Name
 
     [ 
-      ``#`` [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module"))]
+      ``##`` [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module"))]
       p [
         !! "Namespace: "
         link [!! info.Namespace.Name] (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))

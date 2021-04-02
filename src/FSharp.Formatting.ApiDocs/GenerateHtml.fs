@@ -224,7 +224,7 @@ type HtmlRender(model: ApiDocModel) =
         | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
         | _ -> entity.Name
 
-    [ h1 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
+    [ h2 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
       p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!info.Namespace .Name]]
       p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
 
