@@ -155,7 +155,7 @@ type Literate private () =
     let substitutions = defaultArg substitutions []
     let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineHtmlBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
     HtmlFormatting.formatMarkdown wr ctx.GenerateHeaderAnchors true doc.DefinedLinks substitutions Environment.NewLine doc.Paragraphs
@@ -165,7 +165,7 @@ type Literate private () =
   static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss, ?substitutions) =
     let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let paragraphs = doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks
+    let paragraphs = doc.Paragraphs @ [InlineHtmlBlock(doc.FormattedTips, None, None)], doc.DefinedLinks
     let doc = MarkdownDocument(paragraphs)
     let substitutions = defaultArg substitutions []
     HtmlFormatting.formatMarkdown writer ctx.GenerateHeaderAnchors true doc.DefinedLinks substitutions Environment.NewLine doc.Paragraphs

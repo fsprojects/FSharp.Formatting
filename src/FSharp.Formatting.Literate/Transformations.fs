@@ -380,7 +380,7 @@ module internal Transformations =
         | LiterateCode(_, { Visibility = LiterateCodeVisibility.NamedCode _ }, _) -> None
         | _ -> 
         match special with
-        | RawBlock (lines, _) -> Some (InlineBlock(unparse lines, None, None))
+        | RawBlock (lines, _) -> Some (InlineHtmlBlock(unparse lines, None, None))
         | LiterateCode(lines, _, _) -> Some (formatted.[Choice1Of2 lines])
         | CodeReference (ref, _) -> Some (formatted.[Choice2Of2 ref])
         | FsiMergedOutputReference _
@@ -391,7 +391,7 @@ module internal Transformations =
         | ValueReference _ ->
             let msg = "Warning: Output, it-value and value references require --eval" 
             printfn "%s" msg
-            Some(InlineBlock(msg, None, None))
+            Some(InlineHtmlBlock(msg, None, None))
         | LanguageTaggedCode(lang, code, _) ->
             let inlined =
               match ctx.OutputKind with
@@ -430,7 +430,7 @@ module internal Transformations =
                   code
               | OutputKind.Md ->
                   code
-            Some(InlineBlock(inlined, None, None))
+            Some(InlineHtmlBlock(inlined, None, None))
     // Traverse all other structures recursively
     | MarkdownPatterns.ParagraphNested(pn, nested) ->
         let nested = List.map (List.choose (replaceLiterateParagraph ctx formatted)) nested
@@ -468,7 +468,7 @@ module internal Transformations =
 
     let lookup =
       [ for (key, (_, executionCount)), fmtd in Seq.zip codes formatted.Snippets ->
-          let block = InlineBlock(fmtd.Content, executionCount, None)
+          let block = InlineHtmlBlock(fmtd.Content, executionCount, None)
           key, block ] |> dict
 
     // Replace original snippets with formatted HTML/Latex and return document

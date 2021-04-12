@@ -890,7 +890,7 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
           yield OtherBlock (takenLines@takenLines2, ctx.CurrentRange)
       else
           let all = String.concat ctx.Newline (code |> List.map fst)
-          yield InlineBlock(all, None, ctx.CurrentRange)
+          yield InlineHtmlBlock(all, None, ctx.CurrentRange)
       yield! parseParagraphs ctx lines
 
   | TakeParagraphLines((Lines.TrimParagraphLines lines as takenLines), Lines.TrimBlankStart (takenLines2, rest)) ->

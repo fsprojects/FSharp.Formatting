@@ -207,7 +207,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
 
   | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code, _executionCount, _) ->
+  | InlineHtmlBlock(code, _executionCount, _) ->
       ctx.Writer.Write(code)
   | OtherBlock (code, _) ->
       ctx.Writer.Write(@"\begin{lstlisting}")

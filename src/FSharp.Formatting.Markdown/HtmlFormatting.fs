@@ -268,7 +268,7 @@ let rec internal formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</blockquote>")
   | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code, _, _) ->
+  | InlineHtmlBlock(code, _, _) ->
       ctx.Writer.Write(code)
   | OtherBlock (lines, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")

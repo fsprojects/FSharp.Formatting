@@ -16,7 +16,7 @@
     </Compile>
     <Compile Include="MarkdownModel.fs" />
     <Compile Include="MarkdownParser.fs" />
-    <Compile Include="Formatting.fs" />
+    <Compile Include="MarkdownUtils.fs" />
     <Compile Include="HtmlFormatting.fs" />
     <Compile Include="LatexFormatting.fs" />
     <Compile Include="FsxFormatting.fs" />
