@@ -100,6 +100,12 @@ module ParamKeys =
     let ``fsdocs-source`` = ParamKey "fsdocs-source"
 
     /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-source-filename`` = ParamKey "fsdocs-source-filename"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-source-basename`` = ParamKey "fsdocs-source-basename"
+
+    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-theme`` = ParamKey "fsdocs-theme"
 
     /// A parameter key known to FSharp.Formatting
@@ -118,6 +124,8 @@ module internal SimpleTemplating =
 
     // Replace '{{xyz}}' in template text
     let ApplySubstitutionsInText (substitutions: seq<ParamKey * string>) (text: string) =
+      if not (text.Contains "{{") then text
+      else
         let substitutions = readOnlyDict substitutions
         let sb = StringBuilder(text.Length)
         let mutable span = text.AsSpan()

@@ -161,7 +161,61 @@ module internal MarkdownUtils =
         let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
         let lines = lines |> List.filter (fun line -> line.Trim() <> sym1 && line.Trim() <> sym2 )
 
-        // Inside literate code blocks (not raw blocks) we make replacements for {{xyz}} parameters
-        let lines = lines |> List.map (SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions)
         let code2 = String.concat ctx.Newline lines
         code2
+
+    let applySubstitutionsInText ctx (text: string) =
+        SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions text
+
+    let rec mapMarkdownSpans f (md: MarkdownSpans) =
+        md |> List.map (function
+            | Literal (text, range) -> Literal (f text, range)
+            | Strong (spans, range) -> Strong (mapMarkdownSpans f spans, range)
+            | Emphasis (spans, range) -> Emphasis (mapMarkdownSpans f spans, range)
+            | AnchorLink (link, range) -> AnchorLink (f link, range)
+            | DirectLink (spans, link, title, range) ->
+                DirectLink (mapMarkdownSpans f spans, f link,
+                    Option.map (f) title, range)
+            | IndirectLink (spans, original, key, range) -> IndirectLink (mapMarkdownSpans f spans, original, key, range)
+            | DirectImage (body, link, title, range) ->
+                DirectImage (f body, f link,
+                    Option.map (f) title, range)
+            | IndirectImage (body, original, key, range) ->
+                IndirectImage (f body, original, key, range)
+            | HardLineBreak (range) -> HardLineBreak (range) 
+
+            // NOTE: substitutions not applied to Latex math, embedded spans or inline code
+            | InlineCode (code, range) -> InlineCode (code, range)
+            | LatexInlineMath (code, range) -> LatexInlineMath (code, range) 
+            | LatexDisplayMath (code, range) -> LatexDisplayMath (code, range) 
+            | EmbedSpans (customSpans, range) -> EmbedSpans (customSpans , range)
+            )
+    let rec mapMarkdownParagraphs f (md: MarkdownParagraphs) =
+        md |> List.map (function 
+        | Heading (size, body, range) -> Heading (size, mapMarkdownSpans f body, range)
+        | Paragraph (body, range) -> Paragraph (mapMarkdownSpans f body, range)
+        | CodeBlock (code, count, language, ignoredLine, range) ->
+            CodeBlock (f code, count, language, ignoredLine, range)
+        | OutputBlock (output, kind, count) -> OutputBlock (output, kind, count)
+        | InlineBlock (code, count, range) -> InlineBlock (f code, count, range)
+        | ListBlock (kind, items, range) -> ListBlock (kind, List.map (mapMarkdownParagraphs f) items, range)
+        | QuotedBlock (paragraphs, range) ->
+           QuotedBlock (mapMarkdownParagraphs f paragraphs, range)
+        | Span (spans, range) ->
+            Span (mapMarkdownSpans f spans, range)
+        | LatexBlock (env, body, range) ->
+            LatexBlock (env, List.map (f) body, range)
+        | HorizontalRule (character, range) ->
+            HorizontalRule (character, range)
+        | TableBlock (headers, alignments, rows, range) ->
+            TableBlock (Option.map (List.map (mapMarkdownParagraphs f)) headers,
+                alignments,
+                List.map (List.map (mapMarkdownParagraphs f)) rows,
+                range)
+        | EmbedParagraphs (customParagraphs, range) -> EmbedParagraphs (customParagraphs, range) 
+        | OtherBlock (lines:(string * MarkdownRange) list, range) ->
+            OtherBlock (lines |> List.map (fun (line, range) -> (f line, range)), range))
+
+    let applySubstitutionsInMarkdown ctx md =
+        mapMarkdownParagraphs (applySubstitutionsInText ctx) md
+

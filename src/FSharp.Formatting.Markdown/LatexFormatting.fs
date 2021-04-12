@@ -11,6 +11,7 @@ open System.Web
 open System.Collections.Generic
 open FSharp.Patterns
 open FSharp.Collections
+open MarkdownUtils
 
 /// LaTEX special chars
 /// from http://tex.stackexchange.com/questions/34580/escape-character-in-latex
@@ -228,9 +229,12 @@ and formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer newline links = 
+let formatMarkdown writer links replacements newline paragraphs = 
+  let ctx = { Links = links; Substitutions=replacements; Newline=newline; DefineSymbol="LATEX" }
+  let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
   formatParagraphs 
     { Writer = writer
       Links = links
       Newline = newline
       LineBreak = ignore }
+    paragraphs

@@ -474,3 +474,4 @@ module internal Transformations =
     // Replace original snippets with formatted HTML/Latex and return document
     let newParagraphs = doc.Paragraphs |> List.choose (replaceLiterateParagraph ctx lookup) 
     doc.With(paragraphs = newParagraphs, formattedTips = formatted.ToolTip)
+

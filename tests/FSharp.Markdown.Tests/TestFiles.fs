@@ -59,9 +59,9 @@ let transformAndCompare transFunc (source:string) (target:string) (verify:string
 
 let rec runTests dir = 
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare Markdown.WriteHtml file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
+    transformAndCompare (fun (doc, writer, newline) -> Markdown.WriteHtml(doc, writer, newline)) file (file.Replace(".text", ".2.html")) (file.Replace(".text", ".html"))
   for file in Directory.GetFiles(dir, "*.text") do
-    transformAndCompare Markdown.WriteLatex file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
+    transformAndCompare (fun (doc, writer, newline) -> Markdown.WriteLatex(doc, writer, newline)) file (file.Replace(".text", ".2.tex")) (file.Replace(".text", ".tex"))
   for dir in Directory.GetDirectories(dir) do
     runTests dir
 

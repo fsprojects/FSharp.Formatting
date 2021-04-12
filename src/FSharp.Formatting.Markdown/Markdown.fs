@@ -57,54 +57,56 @@ type Markdown =
 
   /// Transform the provided MarkdownDocument into HTML
   /// format and write the result to a given writer.
-  static member WriteHtml(doc:MarkdownDocument, writer, ?newline) = 
+  static member WriteHtml(doc:MarkdownDocument, writer, ?newline, ?substitutions) = 
     let newline = defaultArg newline Environment.NewLine
-    HtmlFormatting.formatMarkdown writer false newline false doc.DefinedLinks doc.Paragraphs
+    let substitutions = defaultArg substitutions []
+    HtmlFormatting.formatMarkdown writer false false doc.DefinedLinks substitutions newline doc.Paragraphs
 
   /// Transform Markdown text into HTML format. The result
   /// will be written to the provided TextWriter.
-  static member WriteHtml(markdownText: string, writer:TextWriter, ?newline) = 
+  static member WriteHtml(markdownText: string, writer:TextWriter, ?newline, ?substitutions) = 
     let doc = Markdown.Parse(markdownText, ?newline=newline)
-    Markdown.WriteHtml(doc, writer, ?newline=newline)
+    Markdown.WriteHtml(doc, writer, ?newline=newline, ?substitutions=substitutions)
 
   /// Transform the provided MarkdownDocument into HTML
   /// format and return the result as a string.
-  static member ToHtml(doc:MarkdownDocument, ?newline) = 
+  static member ToHtml(doc:MarkdownDocument, ?newline, ?substitutions) = 
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
-    Markdown.WriteHtml(doc, wr, ?newline=newline)
+    Markdown.WriteHtml(doc, wr, ?newline=newline, ?substitutions=substitutions)
     sb.ToString()
 
   /// Transform Markdown document into HTML format. 
   /// The result will be returned as a string.
-  static member ToHtml(markdownText: string, ?newline) =
+  static member ToHtml(markdownText: string, ?newline, ?substitutions) =
     let doc = Markdown.Parse(markdownText, ?newline=newline)
-    Markdown.ToHtml(doc, ?newline=newline)
+    Markdown.ToHtml(doc, ?newline=newline, ?substitutions=substitutions)
 
   /// Transform the provided MarkdownDocument into LaTeX
   /// format and write the result to a given writer.
-  static member WriteLatex(doc:MarkdownDocument, writer, ?newline) = 
+  static member WriteLatex(doc:MarkdownDocument, writer, ?newline, ?substitutions) = 
     let newline = defaultArg newline Environment.NewLine
-    LatexFormatting.formatMarkdown writer newline doc.DefinedLinks doc.Paragraphs
+    let substitutions = defaultArg substitutions []
+    LatexFormatting.formatMarkdown writer doc.DefinedLinks substitutions newline doc.Paragraphs
 
   /// Transform Markdown document into LaTeX format. The result
   /// will be written to the provided TextWriter.
-  static member WriteLatex(markdownText, writer:TextWriter, ?newline) = 
+  static member WriteLatex(markdownText, writer:TextWriter, ?newline, ?substitutions) = 
     let doc = Markdown.Parse(markdownText, ?newline=newline)
-    Markdown.WriteLatex(doc, writer, ?newline=newline)
+    Markdown.WriteLatex(doc, writer, ?newline=newline, ?substitutions=substitutions)
 
   /// Transform the provided MarkdownDocument into LaTeX
   /// format and return the result as a string.
-  static member ToLatex(doc:MarkdownDocument, ?newline) = 
+  static member ToLatex(doc:MarkdownDocument, ?newline, ?substitutions) = 
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
-    Markdown.WriteLatex(doc, wr, ?newline=newline)
+    Markdown.WriteLatex(doc, wr, ?newline=newline, ?substitutions=substitutions)
     sb.ToString()
 
   /// Transform Markdown text into LaTeX format. The result will be returned as a string.
-  static member ToLatex(markdownText: string, ?newline) =
+  static member ToLatex(markdownText: string, ?newline, ?substitutions) =
     let doc = Markdown.Parse(markdownText, ?newline=newline)
-    Markdown.ToLatex(doc, ?newline=newline)
+    Markdown.ToLatex(doc, ?newline=newline, ?substitutions=substitutions)
 
   /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
   static member ToPynb(doc: MarkdownDocument, ?newline, ?substitutions) =

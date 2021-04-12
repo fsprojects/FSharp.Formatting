@@ -46,7 +46,7 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                 url2
             else url
 
-    let processFile isOtherLang (inputFile: string) outputKind template outputPrefix imageSaver = [
+    let processFile rootInputFolder isOtherLang (inputFile: string) outputKind template outputPrefix imageSaver = [
         let name = Path.GetFileName(inputFile)
         if name.StartsWith(".") then
             printfn "skipping file %s" inputFile
@@ -109,7 +109,8 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             generateAnchors = true,
                             //?customizeDocument = customizeDocument,
                             //?tokenKindToCss = tokenKindToCss,
-                            ?imageSaver=imageSaverOpt)
+                            ?imageSaver=imageSaverOpt,
+                            ?rootInputFolder=rootInputFolder)
 
                     yield ((if mainRun then Some (inputFile, isOtherLang, model) else None),
                               (fun p ->
@@ -128,7 +129,8 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             generateAnchors = true,
                             //?customizeDocument=customizeDocument,
                             //?tokenKindToCss = tokenKindToCss,
-                            ?imageSaver=imageSaverOpt)
+                            ?imageSaver=imageSaverOpt,
+                            ?rootInputFolder=rootInputFolder)
 
                     yield ( (if mainRun then Some (inputFile, isOtherLang, model) else None),
                               (fun p ->
@@ -161,55 +163,53 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
         |> Array.filter (fun x -> x.Length = 2)
         |> Array.distinct
 
-    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang) (indir: string) outputPrefix = [
+    let rec processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder) (inputFolder: string) outputPrefix = [
         // Look for the presence of the _template.* files to activate the
         // generation of the content.
-        let indirName = Path.GetFileName(indir).ToLower()
+        let indirName = Path.GetFileName(inputFolder).ToLower()
 
-        // Two-letter directory names with 'docs' count as multi-language and are suppressed from table-of-content
+        // Two-letter directory names (e.g. 'ja') with 'docs' count as multi-language and are suppressed from table-of-content
         // generation and site search index
-        printfn "indirName = %s" indirName
         let isOtherLang = isOtherLang || (indirName.Length = 2 && allCultures |> Array.contains indirName )
-        printfn "isOtherLang = %b" isOtherLang
         
-        let possibleNewHtmlTemplate = Path.Combine(indir, "_template.html")
+        let possibleNewHtmlTemplate = Path.Combine(inputFolder, "_template.html")
         let htmlTemplate = if File.Exists(possibleNewHtmlTemplate) then Some possibleNewHtmlTemplate else htmlTemplate
-        let possibleNewPynbTemplate = Path.Combine(indir, "_template.ipynb")
+        let possibleNewPynbTemplate = Path.Combine(inputFolder, "_template.ipynb")
         let pynbTemplate = if File.Exists(possibleNewPynbTemplate) then Some possibleNewPynbTemplate else pynbTemplate
-        let possibleNewFsxTemplate = Path.Combine(indir, "_template.fsx")
+        let possibleNewFsxTemplate = Path.Combine(inputFolder, "_template.fsx")
         let fsxTemplate = if File.Exists(possibleNewFsxTemplate) then Some possibleNewFsxTemplate else fsxTemplate
-        let possibleNewMdTemplate = Path.Combine(indir, "_template.md")
+        let possibleNewMdTemplate = Path.Combine(inputFolder, "_template.md")
         let mdTemplate = if File.Exists(possibleNewMdTemplate) then Some possibleNewMdTemplate else mdTemplate
-        let possibleNewLatexTemplate = Path.Combine(indir, "_template.tex")
+        let possibleNewLatexTemplate = Path.Combine(inputFolder, "_template.tex")
         let texTemplate = if File.Exists(possibleNewLatexTemplate) then Some possibleNewLatexTemplate else texTemplate
 
         ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
 
-        let inputs = Directory.GetFiles(indir, "*")
+        let inputs = Directory.GetFiles(inputFolder, "*")
         let imageSaver = createImageSaver (Path.Combine(outputDirectory, outputPrefix))
 
         // Look for the four different kinds of content
         for input in inputs do
-            yield! processFile isOtherLang input OutputKind.Html htmlTemplate outputPrefix imageSaver
-            yield! processFile isOtherLang input OutputKind.Latex texTemplate outputPrefix imageSaver
-            yield! processFile isOtherLang input OutputKind.Pynb pynbTemplate outputPrefix imageSaver
-            yield! processFile isOtherLang input OutputKind.Fsx fsxTemplate outputPrefix imageSaver
-            yield! processFile isOtherLang input OutputKind.Md mdTemplate outputPrefix imageSaver
+            yield! processFile rootInputFolder isOtherLang input OutputKind.Html htmlTemplate outputPrefix imageSaver
+            yield! processFile rootInputFolder isOtherLang input OutputKind.Latex texTemplate outputPrefix imageSaver
+            yield! processFile rootInputFolder isOtherLang input OutputKind.Pynb pynbTemplate outputPrefix imageSaver
+            yield! processFile rootInputFolder isOtherLang input OutputKind.Fsx fsxTemplate outputPrefix imageSaver
+            yield! processFile rootInputFolder isOtherLang input OutputKind.Md mdTemplate outputPrefix imageSaver
 
-        for subdir in Directory.EnumerateDirectories(indir) do
+        for subdir in Directory.EnumerateDirectories(inputFolder) do
             let name = Path.GetFileName(subdir)
             if name.StartsWith "." then
                 printfn "  skipping directory %s" subdir
             else
-                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang) (Path.Combine(indir, name)) (Path.Combine(outputPrefix, name))
+                yield! processDirectory (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder) (Path.Combine(inputFolder, name)) (Path.Combine(outputPrefix, name))
     ]
 
     member _.Convert(input, htmlTemplate, extraInputs) =
 
         let inputDirectories = extraInputs @ [(input, ".") ]
         [
-        for (inputDirectory, outputPrefix) in inputDirectories do
-            yield! processDirectory (htmlTemplate, None, None, None, None, false) inputDirectory outputPrefix
+        for (inputFolder, outputPrefix) in inputDirectories do
+            yield! processDirectory (htmlTemplate, None, None, None, None, false, Some inputFolder) inputFolder outputPrefix
         ]
 
     member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =

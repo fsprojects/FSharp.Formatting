@@ -18,7 +18,7 @@ module internal Formatting =
     | OutputKind.Html ->
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
-        HtmlFormatting.formatMarkdown wr generateAnchors System.Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+        HtmlFormatting.formatMarkdown wr generateAnchors true doc.DefinedLinks substitutions System.Environment.NewLine doc.Paragraphs
         sb.ToString()
 
   /// Try find first-level heading in the paragraph collection
@@ -73,11 +73,20 @@ module internal Formatting =
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
     let sourceSubstitutions =
+        let relativeSourceFileName =
+            match doc.RootInputFolder with
+            | None -> Path.GetFileName(doc.SourceFile)
+            | Some rootInputFolder -> Path.GetRelativePath(rootInputFolder, doc.SourceFile)
+        let relativeSourceFileBaseName = Path.ChangeExtension(relativeSourceFileName,null)
+        let relativeSourceFileName = relativeSourceFileName.Replace(@"\", "/")
+        let relativeSourceFileBaseName = relativeSourceFileBaseName.Replace(@"\", "/")
         let doc =
           getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx
         let source = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []
-        [ ParamKeys.``fsdocs-source``, source ]
+        [ ParamKeys.``fsdocs-source-filename``, relativeSourceFileName;
+          ParamKeys.``fsdocs-source-basename``, relativeSourceFileBaseName;
+          ParamKeys.``fsdocs-source``, source]
 
     // Get page title (either heading or file name)
     let pageTitle =
