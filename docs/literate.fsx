@@ -16,7 +16,7 @@
 
 
 (**
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath={{fsdocs-source-basename}}.ipynb)
 
 Literate Scripts and Markdown
 ===================================
@@ -95,6 +95,10 @@ omitted from the output.
 
 The commands to evaluate and format results are explained in [evaluation](evaluation.html).
 You must build your documentation with evaluation turned on using `--eval`.
+
+#### Substitutions
+
+Substitutions are applied to content, see [content](content.html).
 
 ### Literate Markdown Documents
 

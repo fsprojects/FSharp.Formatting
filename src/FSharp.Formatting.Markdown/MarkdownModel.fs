@@ -54,18 +54,39 @@ type MarkdownEmbedSpans =
 type MarkdownParagraph = 
   | Heading of size:int * body:MarkdownSpans * range:MarkdownRange option
   | Paragraph of body:MarkdownSpans * range:MarkdownRange option
+
+  /// A code block, whether fenced or via indentation
   | CodeBlock of code:string * executionCount: int option * language:string * ignoredLine:string * range:MarkdownRange option
-  | OutputBlock of output:string * kind: string * executionCount: int option 
-  | InlineBlock of code:string * executionCount: int option * range:MarkdownRange option
+
+  /// A HTML block
+  | InlineHtmlBlock of code:string * executionCount: int option * range:MarkdownRange option
+
+  /// A Markdown List block
   | ListBlock of kind:MarkdownListKind * items:list<MarkdownParagraphs> * range:MarkdownRange option
+
+  /// A Markdown Quote block
   | QuotedBlock of paragraphs:MarkdownParagraphs * range:MarkdownRange option
+
+  /// A Markdown Span block
   | Span of body:MarkdownSpans * range:MarkdownRange option
+
+  /// A Markdown Latex block
   | LatexBlock of env: string * body:list<string> * range:MarkdownRange option
+
+  /// A Markdown Horizontal rule
   | HorizontalRule of character:char * range:MarkdownRange option
+
+  /// A Markdown Table
   | TableBlock of headers:option<MarkdownTableRow> * alignments:list<MarkdownColumnAlignment> * rows:list<MarkdownTableRow> * range:MarkdownRange option
-  | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
+
   /// Represents a block of markdown produced when parsing of code or tables or quoted blocks is suppressed
   | OtherBlock of lines:(string * MarkdownRange) list * range:MarkdownRange option
+
+  /// A special addition for computing paragraphs
+  | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
+
+  /// A special addition for inserted outputs
+  | OutputBlock of output:string * kind: string * executionCount: int option 
 
 /// A type alias for a list of paragraphs
 type MarkdownParagraphs = list<MarkdownParagraph>
@@ -145,7 +166,7 @@ module MarkdownPatterns =
     | OtherBlock _
     | OutputBlock _
     | CodeBlock _
-    | InlineBlock _ 
+    | InlineHtmlBlock _ 
     | EmbedParagraphs _
     | LatexBlock _
     | HorizontalRule _ ->

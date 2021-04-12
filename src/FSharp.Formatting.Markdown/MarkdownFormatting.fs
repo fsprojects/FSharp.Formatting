@@ -10,5 +10,7 @@ let rec formatParagraphs ctx (paragraphs:MarkdownParagraph list) =
   paragraphs |> Seq.collect (formatParagraph ctx)
  
 let formatAsMd links replacements newline paragraphs = 
-  formatParagraphs { Links = links; Substitutions=replacements; Newline=newline; DefineSymbol="MD" } paragraphs
+  let ctx = { Links = links; Substitutions=replacements; Newline=newline; DefineSymbol="MD" }
+  let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
+  formatParagraphs ctx paragraphs
   |> String.concat newline

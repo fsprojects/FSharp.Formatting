@@ -1,3 +1,7 @@
+## 10.0.1
+* Apply substitutions to content
+* Add `fsdocs-source-filename` and `fsdocs-source-basename` substitutions
+
 ## 9.0.4
 * Trim spaces from examples (TrimEnd only)
 

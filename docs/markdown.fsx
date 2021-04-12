@@ -13,7 +13,7 @@
 
 
 (**
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=markdown.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath={{fsdocs-source-basename}}.ipynb)
 
 Markdown parser
 ==============================

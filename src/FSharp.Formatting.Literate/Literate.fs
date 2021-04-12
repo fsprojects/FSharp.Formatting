@@ -99,36 +99,51 @@ type Literate private () =
         doc.With(paragraphs = pars)
 
   /// Parse F# Script file
-  static member ParseAndCheckScriptFile (path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+  static member ParseAndCheckScriptFile (path: string, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
-    ParseScript(parseOptions, ctx).ParseAndCheckScriptFile path (File.ReadAllText path)
+    let rootInputFolder = Some (defaultArg rootInputFolder (Path.GetDirectoryName(path)))
+    ParseScript(parseOptions, ctx).ParseAndCheckScriptFile (path, File.ReadAllText path, rootInputFolder)
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse F# Script file
-  static member ParseScriptString (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+  static member ParseScriptString (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
-    ParseScript(parseOptions, ctx).ParseAndCheckScriptFile (defaultArg path "C:\\Document.fsx") content
+    let filePath =
+        match path with
+        | Some s -> s
+        | None ->
+            match rootInputFolder with
+            | None -> "C:\\script.fsx"
+            | Some r -> Path.Combine(r, "script.fsx")
+    ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder)
     |> Transformations.generateReferences references
-    |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.fsx") ctx
+    |> Transformations.formatCodeSnippets filePath ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse Markdown document
-  static member ParseMarkdownFile(path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+  static member ParseMarkdownFile(path: string, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
-    ParseMarkdown.parseMarkdown path (File.ReadAllText path) parseOptions
+    let rootInputFolder = Some (defaultArg rootInputFolder (Path.GetDirectoryName(path)))
+    ParseMarkdown.parseMarkdown path rootInputFolder (File.ReadAllText path) parseOptions
     |> Transformations.generateReferences references
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   /// Parse Markdown document
-  static member ParseMarkdownString
-    (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions) =
+  static member ParseMarkdownString (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
-    ParseMarkdown.parseMarkdown (defaultArg path "C:\\Document.md") content parseOptions
+    let filePath =
+        match path with
+        | Some s -> s
+        | None ->
+            match rootInputFolder with
+            | None -> "C:\\document.md"
+            | Some r -> Path.Combine(r, "document.md")
+    ParseMarkdown.parseMarkdown filePath rootInputFolder content parseOptions
     |> Transformations.generateReferences references
-    |> Transformations.formatCodeSnippets (defaultArg path "C:\\Document.md") ctx
+    |> Transformations.formatCodeSnippets filePath ctx
     |> Transformations.evaluateCodeSnippets ctx
 
   // ------------------------------------------------------------------------------------
@@ -136,33 +151,36 @@ type Literate private () =
   // ------------------------------------------------------------------------------------
 
   /// Format the literate document as HTML without using a template
-  static member ToHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+  static member ToHtml(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss, ?substitutions) =
+    let substitutions = defaultArg substitutions []
     let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
+    let doc = MarkdownDocument(doc.Paragraphs @ [InlineHtmlBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
     let sb = new System.Text.StringBuilder()
     use wr = new StringWriter(sb)
-    HtmlFormatting.formatMarkdown wr ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+    HtmlFormatting.formatMarkdown wr ctx.GenerateHeaderAnchors true doc.DefinedLinks substitutions Environment.NewLine doc.Paragraphs
     sb.ToString()
 
   /// Write the literate document as HTML without using a template
-  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss) =
+  static member WriteHtml(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?tokenKindToCss, ?substitutions) =
     let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    let doc = MarkdownDocument(doc.Paragraphs @ [InlineBlock(doc.FormattedTips, None, None)], doc.DefinedLinks)
-    HtmlFormatting.formatMarkdown writer ctx.GenerateHeaderAnchors Environment.NewLine true doc.DefinedLinks doc.Paragraphs
+    let paragraphs = doc.Paragraphs @ [InlineHtmlBlock(doc.FormattedTips, None, None)], doc.DefinedLinks
+    let doc = MarkdownDocument(paragraphs)
+    let substitutions = defaultArg substitutions []
+    HtmlFormatting.formatMarkdown writer ctx.GenerateHeaderAnchors true doc.DefinedLinks substitutions Environment.NewLine doc.Paragraphs
 
   /// Format the literate document as Latex without using a template
-  static member ToLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors) =
+  static member ToLatex(doc:LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions) =
     let ctx = formattingContext OutputKind.Latex prefix lineNumbers generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks))
+    Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions=substitutions)
 
   /// Write the literate document as Latex without using a template
-  static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors) =
+  static member WriteLatex(doc:LiterateDocument, writer:TextWriter, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions) =
     let ctx = formattingContext OutputKind.Latex prefix lineNumbers  generateAnchors None None
     let doc = Transformations.replaceLiterateParagraphs ctx doc
-    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer)
+    Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer, ?substitutions=substitutions)
 
   /// Formate the literate document as an iPython notebook 
   static member ToPynb(doc:LiterateDocument, ?substitutions) =
@@ -193,7 +211,7 @@ type Literate private () =
   static member internal ParseAndTransformMarkdownFile
     (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?substitutions, ?generateAnchors,
-      ?customizeDocument, ?tokenKindToCss, ?imageSaver) =
+      ?customizeDocument, ?tokenKindToCss, ?imageSaver, ?rootInputFolder) =
 
     let outputKind = defaultArg outputKind OutputKind.Html
     let parseOptions =
@@ -202,7 +220,7 @@ type Literate private () =
         | OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
         | _ -> MarkdownParseOptions.None
 
-    let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, parseOptions=parseOptions)
+    let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, parseOptions=parseOptions, ?rootInputFolder=rootInputFolder)
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
@@ -214,7 +232,7 @@ type Literate private () =
   static member internal ParseAndTransformScriptFile
     (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?substitutions,
-      ?generateAnchors, ?customizeDocument, ?tokenKindToCss, ?imageSaver) =
+      ?generateAnchors, ?customizeDocument, ?tokenKindToCss, ?imageSaver, ?rootInputFolder) =
 
     let parseOptions =
         match outputKind with
@@ -223,14 +241,13 @@ type Literate private () =
         | _ -> MarkdownParseOptions.None
 
     let outputKind = defaultArg outputKind OutputKind.Html
-    let doc = Literate.ParseAndCheckScriptFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions)
+    let doc = Literate.ParseAndCheckScriptFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, ?fsiEvaluator = fsiEvaluator, parseOptions=parseOptions, ?rootInputFolder=rootInputFolder)
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss
     let doc = customizeDoc customizeDocument ctx doc
     let doc = downloadImagesForDoc imageSaver doc
     let outputPath = defaultOutput output input outputKind
     Formatting.transformDocument doc outputPath ctx
 
-  /// Write a document object into HTML or another output kind
   static member TransformAndOutputDocument
     (doc, output, ?template, ?outputKind, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions) =
       let res =
@@ -243,7 +260,7 @@ type Literate private () =
   static member ConvertMarkdownFile
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?substitutions, ?generateAnchors
-      (* ?customizeDocument, *) ) =
+      (* ?customizeDocument, *), ?rootInputFolder ) =
 
       let outputKind = defaultArg outputKind OutputKind.Html
       let output = defaultOutput output input outputKind
@@ -251,7 +268,7 @@ type Literate private () =
           Literate.ParseAndTransformMarkdownFile
               (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscOptions=fscOptions,
                ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
-               ?substitutions=substitutions (* ?customizeDocument=customizeDocument, *))
+               ?substitutions=substitutions (* ?customizeDocument=customizeDocument, *), ?rootInputFolder=rootInputFolder)
       SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
   /// <summary>Convert a script file into HTML or another output kind</summary>
@@ -263,7 +280,7 @@ type Literate private () =
   static member ConvertScriptFile
     (input, ?template, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?fsiEvaluator, ?substitutions,
-      ?generateAnchors (* ?customizeDocument, *)) =
+      ?generateAnchors (* ?customizeDocument, *), ?rootInputFolder) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
         let output=defaultOutput output input outputKind
@@ -271,7 +288,7 @@ type Literate private () =
             Literate.ParseAndTransformScriptFile
                 (input, output=output, outputKind=outputKind, ?formatAgent=formatAgent, ?prefix=prefix, ?fscOptions=fscOptions,
                  ?lineNumbers=lineNumbers, ?references=references, ?generateAnchors=generateAnchors,
-                 ?substitutions=substitutions, (* ?customizeDocument=customizeDocument, *) ?fsiEvaluator=fsiEvaluator)
+                 ?substitutions=substitutions, (* ?customizeDocument=customizeDocument, *) ?fsiEvaluator=fsiEvaluator, ?rootInputFolder=rootInputFolder)
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
 

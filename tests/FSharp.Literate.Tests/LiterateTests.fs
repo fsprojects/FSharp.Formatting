@@ -453,6 +453,47 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using substitu
   temp.Content |> shouldContainText "</a>"
   temp.Content |> shouldContainText "val hello : string"
   temp.Content |> shouldContainText "<title>Heading"
+  
+[<Test>]
+let ``Substitutions apply to correct parts of inputs``() =
+  let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
+  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+  use temp = new TempFile()
+  Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
+  temp.Content |> shouldContainText "dont-substitute-in-inline-code: <code>{{fsdocs-source-basename}}</code>"
+  temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
+  temp.Content |> shouldContainText "substitute-in-template basename: simple"
+  temp.Content |> shouldContainText "substitute-in-markdown: simple" // check substitutions are made in markdown
+  temp.Content |> shouldContainText "http://substitute-in-link: simple" // check substitutions are made in links
+  temp.Content |> shouldContainText "substitute-in-href-text: simple" // check substitutions are made in href text
+  temp.Content |> shouldContainText "substitute-in-fsx-code: simple" // check substitutions are made in FSX code
+  
+[<Test>]
+let ``Filename substitutions are correct``() =
+  let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
+  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+  use temp = new TempFile()
+  Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
+  temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
+  temp.Content |> shouldContainText "substitute-in-template basename: simple"
+
+[<Test>]
+let ``Filename substitutions are correct with relative path``() =
+  let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
+  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+  use temp = new TempFile()
+  Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File, rootInputFolder= (__SOURCE_DIRECTORY__ </> "files"))
+  temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
+  temp.Content |> shouldContainText "substitute-in-template basename: simple"
+
+[<Test>]
+let ``Filename substitutions are correct with relative path 2``() =
+  let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
+  let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+  use temp = new TempFile()
+  Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File, rootInputFolder= __SOURCE_DIRECTORY__)
+  temp.Content |> shouldContainText "substitute-in-template filename: files/simple.fsx"
+  temp.Content |> shouldContainText "substitute-in-template basename: files/simple"
 
 // --------------------------------------------------------------------------------------
 // Test processing simple files using the NuGet included templates

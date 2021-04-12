@@ -12,6 +12,7 @@ open System.Collections.Generic
 open System.Text.RegularExpressions
 open FSharp.Patterns
 open FSharp.Collections
+open MarkdownUtils
 
 // --------------------------------------------------------------------------------------
 // Formats Markdown documents as an HTML file
@@ -267,7 +268,7 @@ let rec internal formatParagraph (ctx:FormattingContext) paragraph =
       ctx.Writer.Write("</blockquote>")
   | Span(spans, _) -> 
       formatSpans ctx spans
-  | InlineBlock(code, _, _) ->
+  | InlineHtmlBlock(code, _, _) ->
       ctx.Writer.Write(code)
   | OtherBlock (lines, _) ->
       if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
@@ -288,7 +289,9 @@ and internal formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to 
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer generateAnchors newline wrap links = 
+let formatMarkdown writer generateAnchors wrap links substitutions newline paragraphs = 
+  let ctx = { Links = links; Substitutions=substitutions; Newline=newline; DefineSymbol="LATEX" }
+  let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
   formatParagraphs 
     { Writer = writer
       Links = links
@@ -298,3 +301,4 @@ let formatMarkdown writer generateAnchors newline wrap links =
       GenerateHeaderAnchors = generateAnchors
       UniqueNameGenerator = new UniqueNameGenerator()
       ParagraphIndent = ignore }
+    paragraphs

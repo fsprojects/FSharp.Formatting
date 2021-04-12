@@ -156,7 +156,7 @@ that the type of the value is a list (containing values of any type) and then it
 casts all values in the list to `obj` (for simplicity). Then we generate Markdown
 blocks representing an ordered list. This means that the code will work for both
 LaTeX and HTML formatting - but if you only need one, you can simply produce HTML and
-embed it in `InlineBlock`.
+embed it in `InlineHtmlBlock`.
 
 To use the new `FsiEvaluator`, we can use the same style as earlier. This time, we format
 a simple list containing strings:
