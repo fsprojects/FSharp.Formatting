@@ -41,7 +41,7 @@ Processing is by these two commands:
 
 The output goes in `output/` by default.  Processing is recursive, making this a form of static site generation.
 
-## Literate Scripts and Markdown
+## Literate Scripts and Markdown Content
 
 The input directory may contain [literate scripts and markdown](literate.html).
 
@@ -109,6 +109,34 @@ template:
 | `fsdocs-package-version`             | `<Version>`                    |  
 
 For the `fsdocs` tool, additional substitutions can be specified using `--parameters`.
+
+## Cross References to API Docs
+
+Markdown content can contain cross-references to API Docs.  Use inline
+markdown code snippets of the special form `` `cref:T:MyNamespace.MyType` `` where `T:MyNamespace.MyType`
+is a method, property or type xml doc sig reference, see [API Docs](apidocs.html).
+This can include any cross-references resolved by fsdocs.
+
+For example, within this project,
+
+- the text `` `cref:T:FSharp.Formatting.Markdown.MarkdownParagraph` `` resolves to the link `cref:T:FSharp.Formatting.Markdown.MarkdownParagraph`
+
+- the text ``` ``cref:T:System.Console`` ``` resolves to the link ``cref:T:System.Console``
+
+- the text ``` ``cref:M:System.Console.WriteLine`` ``` resolves to the link ``cref:M:System.Console.WriteLine``
+
+- the text ``` ``cref:M:System.Console.WriteLine(System.String)`` ``` resolves to the link ``cref:M:System.Console.WriteLine(System.String)``
+
+- the text ``` ``cref:T:FSharp.Control.FSharpAsync`1`` ``` resolves to the link ``cref:T:FSharp.Control.FSharpAsync`1``
+
+- the text ``` ``cref:T:FSharp.Control.FSharpAsync`` ``` resolves to the link ``cref:T:FSharp.Control.FSharpAsync``
+
+> NOTE: These cases act as tests - if the links above do not work, then that indicates a bug or a change in the
+> external link. [Please report it](https://github.com/fsprojects/FSharp.Formatting/issues/new).
+
+> NOTE: xmldoc sig references into FSharp.Core are somewhat problematic as they represent the "compiled name"
+> of the construct.  The [documentation pages](https://fsharp.github.io/fsharp-core-docs) come with
+> buttons to copy out the XmlDoc signature.
 
 ## Generating HTML Output
 

@@ -103,7 +103,7 @@ module SomeModule =
 
 /// <summary>
 ///   A type, see  <see cref="T:TheNamespace.SomeModule"/> and
-///  <see cref="T:TheNamespace.SomeModule.someFunction"/>. 
+///  <see cref="M:TheNamespace.SomeModule.someFunction"/>. 
 /// </summary>
 ///
 type SomeType() =

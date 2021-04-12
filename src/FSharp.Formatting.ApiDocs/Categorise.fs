@@ -70,7 +70,7 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
 
   allByCategory
 
-let model apiDocModel =
+let model (apiDocModel: ApiDocModel) =
   [ for (nsIndex, ns) in Seq.indexed apiDocModel.Collection.Namespaces do
     let allByCategory = entities (nsIndex, ns, true)
     if allByCategory.Length > 0 then
