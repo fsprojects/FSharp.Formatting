@@ -33,7 +33,7 @@ To use a local builg of FSharp.Formatting:
 
 Notebooks are generated for all .md and .fsx files under docs as part of the build.
 
-* Dockerfile - see https://github.com/dotnet/interactive/blob/master/docs/CreateBinder.md
+* Dockerfile - see https://github.com/dotnet/interactive/blob/main/docs/CreateBinder.md
 
 * NuGet.config - likewise
 
