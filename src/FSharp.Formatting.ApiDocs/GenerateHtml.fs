@@ -227,8 +227,8 @@ type HtmlRender(model: ApiDocModel) =
                ]
                td [Class "fsdocs-xmldoc" ] [
                    div [] [
-                       yield! copyXmlSigIconForSymbol e.Symbol
-                       yield! sourceLink e.SourceLocation
+                       //yield! copyXmlSigIconForSymbol e.Symbol
+                       //yield! sourceLink e.SourceLocation
                        p [Class "fsdocs-summary" ] [ embed e.Comment.Summary ];
                    ]
                ]
