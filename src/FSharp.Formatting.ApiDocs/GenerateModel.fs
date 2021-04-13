@@ -712,7 +712,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             let memberName = getMemberName 1 false fullMemberName
             let noParen = removeParen typeName
             let docs = noParen.Replace("``", "").Replace("`", "-").Replace(".", "-").Replace("microsoft-","").ToLower()
-            let link = $"https://fsharp.github.io/fsharp-core-docs/reference/{docs}#{memberName}" 
+            let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s#%s" docs memberName
             { IsInternal = false
               ReferenceLink = link
               NiceName = simple
