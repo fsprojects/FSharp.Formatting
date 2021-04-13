@@ -142,9 +142,8 @@ For example, within this project,
 > NOTE: These cases act as tests - if the links above do not work, then that indicates a bug or a change in the
 > external link. [Please report it](https://github.com/fsprojects/FSharp.Formatting/issues/new).
 
-> NOTE: xmldoc sig references into FSharp.Core are somewhat problematic as they represent the "compiled name"
-> of the construct.  The [documentation pages](https://fsharp.github.io/fsharp-core-docs) come with
-> buttons to copy out the XmlDoc signature.
+Determining xmldoc sig references is not simple.  The API doc generated pages come with
+buttons to copy out the XmlDoc signature.
 
 ## Generating HTML Output
 
