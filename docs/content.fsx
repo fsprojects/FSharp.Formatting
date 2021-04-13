@@ -129,7 +129,9 @@ For example, within this project,
 
 - the text ``` ``cref:T:FSharp.Control.FSharpAsync`1`` ``` resolves to the link ``cref:T:FSharp.Control.FSharpAsync`1``
 
-- the text ``` ``cref:T:FSharp.Control.FSharpAsync`` ``` resolves to the link ``cref:T:FSharp.Control.FSharpAsync``
+- the text ``` ``cref:T:FSharp.Control.FSharpAsync`` ``` resolves to the link `cref:T:FSharp.Control.FSharpAsync`
+
+- the text ``` ``cref:T:Microsoft.FSharp.Core.array`1`` ``` resolves to the link ``cref:T:Microsoft.FSharp.Core.array`1``
 
 > NOTE: These cases act as tests - if the links above do not work, then that indicates a bug or a change in the
 > external link. [Please report it](https://github.com/fsprojects/FSharp.Formatting/issues/new).

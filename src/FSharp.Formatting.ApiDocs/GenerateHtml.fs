@@ -68,8 +68,14 @@ type HtmlRender(model: ApiDocModel) =
          ]
 
   // Copy XML sig for use in `cref` markdown
-  let copyXmlSigIconMarkdown xmlDocSig =
-      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('`cref:%s`')" xmlDocSig) ] [
+  let copyXmlSigIconMarkdown (xmlDocSig: string) =
+    if xmlDocSig.StartsWith("`") || xmlDocSig.EndsWith("`")  then div [ ] []
+    else
+      let delim =
+          if xmlDocSig.Contains("``") then "```"
+          elif xmlDocSig.Contains("`") then "``"
+          else "`"
+      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('%scref:%s%s')" delim xmlDocSig delim) ] [
             img [Src (sprintf "%scontent/img/copy-md.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/copy-md-blue.png" root); Class "hover"]
           ] 

@@ -1,3 +1,6 @@
+## 10.0.15
+* Fix generated cref for generics
+
 ## 10.0.14
 * Fiddle with defaults
 
