@@ -11,7 +11,9 @@ open System.Collections.Generic
 // Definition of the Markdown format
 // --------------------------------------------------------------------------------------
 
-/// A list kind can be Ordered or Unordered corresponding to <ol> and <ul> elements
+/// <summary>
+///   A list kind can be Ordered or Unordered corresponding to <c>&lt;ol&gt;</c> and <c>&lt;ul&gt;</c> elements
+/// </summary>
 type MarkdownListKind = 
   | Ordered 
   | Unordered

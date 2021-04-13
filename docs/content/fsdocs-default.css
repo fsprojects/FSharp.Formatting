@@ -11,7 +11,7 @@ body {
 */
 }
 
-  /* Format the heading - nicer spacing etc. */
+/* Format the heading - nicer spacing etc. */
 .masthead {
     overflow: hidden;
 }
@@ -39,21 +39,25 @@ body {
 /*--------------------------------------------------------------------------
   Formatting fsdocs-content
 /*--------------------------------------------------------------------------*/
-  
-/* Change font sizes for headings etc. 
-#fsdocs-content h2 {
-    margin: 20px 0px 10px 0px;
+
+/* Change margins for headings etc. */
+#fsdocs-content h1 {
+    margin: 25px 0px 15px 0px;
 }
-  
+
+#fsdocs-content h2 {
+    margin: 20px 0px 15px 0px;
+}
+
 #fsdocs-content h3 {
     font-size: 1.2rem;
     margin: 15px 0px 10px 0px;
 }
-  
+
 #fsdocs-content hr {
     margin: 0px 0px 20px 0px;
 }
-  
+
 #fsdocs-content li {
     margin: 0px 0px 15px 0px;
 }
@@ -61,12 +65,21 @@ body {
 #fsdocs-content p {
     color: #262626;
 }
-  
+
 #fsdocs-content a {
     color: #4974D1;
 }
 
-*/
+
+/* remove the default bootstrap bold on dt elements */
+#fsdocs-content dt {
+    font-weight: normal;
+}
+
+/* slightly reduce the metadata at the head of each entity */
+.fsdocs-metadata dt {
+    font-size: 0.75rem;
+}
 
 /*--------------------------------------------------------------------------
   Formatting tables in fsdocs-content, using docs.microsoft.com tables
@@ -199,45 +212,45 @@ body {
 /*--------------------------------------------------------------------------
   Formatting xmldoc sections in fsdocs-content
 /*--------------------------------------------------------------------------*/
-  
-#fsdocs-nav img.logo{
-  width:90%;
-  margin-top:40px;
-  border-style:none;
+
+#fsdocs-nav img.logo {
+    width: 90%;
+    margin-top: 40px;
+    border-style: none;
 }
-  
-#fsdocs-nav input{
-  margin-right: 20px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  width: 93%;
-  -webkit-border-radius: 0;
-  border-radius: 0;
+
+#fsdocs-nav input {
+    margin-right: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 93%;
+    -webkit-border-radius: 0;
+    border-radius: 0;
 }
-  
-#fsdocs-nav li.nav-header{
-  padding-left: 0;
-  color: #262626;
-  text-transform: none;
-  font-size:16px;
+
+#fsdocs-nav li.nav-header {
+    padding-left: 0;
+    color: #262626;
+    text-transform: none;
+    font-size: 16px;
 }
-  
-#fsdocs-nav li.nav-item{
-  padding-left: 20px;
-  color: #262626;
-  text-transform: none;
-  font-size:16px;
+
+#fsdocs-nav li.nav-item {
+    padding-left: 20px;
+    color: #262626;
+    text-transform: none;
+    font-size: 16px;
 }
-  
-#fsdocs-nav a.nav-link{
-  padding-left: 0;
-  color: #6c6c6d;
+
+#fsdocs-nav a.nav-link {
+    padding-left: 0;
+    color: #6c6c6d;
 }
-  
-#fsdocs-nav a:hover.nav-link{
-  padding-left: 0;
-  color: #141277;
-} 
+
+#fsdocs-nav a:hover.nav-link {
+    padding-left: 0;
+    color: #141277;
+}
 
 /*--------------------------------------------------------------------------
   Formatting pre and code sections in fsdocs-content (code highlighting is
@@ -341,10 +354,10 @@ body {
 /*--------------------------------------------------------------------------*/
 
 #fsdocs-logo {
-    width:140px;
-    height:140px;
-    margin:10px 0px 0px 0px;
-    border-style:none;
+    width: 140px;
+    height: 140px;
+    margin: 10px 0px 0px 0px;
+    border-style: none;
 }
 
 /*--------------------------------------------------------------------------

@@ -50,8 +50,9 @@ type HtmlRender(model: ApiDocModel) =
     let firstParen = memberName.IndexOf("(")
     if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
 
+  // Copy XML sig for use in `cref` XML 
   let copyXmlSigIcon xmlDocSig =
-      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('%s')" xmlDocSig) ] [
+      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('<see cref=\"%s\"/>')" xmlDocSig) ] [
             img [Src (sprintf "%scontent/img/copy.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/copy-blue.png" root); Class "hover"]
           ] 
@@ -62,6 +63,23 @@ type HtmlRender(model: ApiDocModel) =
         copyXmlSigIcon (removeParen v.XmlDocSig)
       | :? FSharpEntity as v ->
         copyXmlSigIcon (removeParen v.XmlDocSig)
+      | _ ->
+        ()
+         ]
+
+  // Copy XML sig for use in `cref` markdown
+  let copyXmlSigIconMarkdown xmlDocSig =
+      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('`cref:%s`')" xmlDocSig) ] [
+            img [Src (sprintf "%scontent/img/copy-md.png" root); Class "normal"]
+            img [Src (sprintf "%scontent/img/copy-md-blue.png" root); Class "hover"]
+          ] 
+
+  let copyXmlSigIconForSymbolMarkdown (symbol: FSharpSymbol) =
+    [ match symbol with
+      | :? FSharpMemberOrFunctionOrValue as v ->
+        copyXmlSigIconMarkdown (removeParen v.XmlDocSig)
+      | :? FSharpEntity as v ->
+        copyXmlSigIconMarkdown (removeParen v.XmlDocSig)
       | _ ->
         ()
          ]
@@ -132,7 +150,8 @@ type HtmlRender(model: ApiDocModel) =
             
                td [Class "fsdocs-xmldoc"] [
                   div [Class "fsdocs-summary"]
-                     [ yield! copyXmlSigIconForSymbol m.Symbol
+                     [ yield! copyXmlSigIconForSymbolMarkdown m.Symbol
+                       yield! copyXmlSigIconForSymbol m.Symbol
                        yield! sourceLink m.SourceLocation
                        p [Class "fsdocs-summary"] [ embed m.Comment.Summary ]; ]
 
@@ -391,12 +410,29 @@ type HtmlRender(model: ApiDocModel) =
           yield! renderEntities category.CategoryEntites
     ]  
 
-  let listOfNamespacesAux otherDocs nav (nsOpt: ApiDocNamespace option) =
+  let tableOfNamespacesAux () =
+    [
+      let categorise = Categorise.model model
+       
+      for _allByCategory, ns in categorise do
+
+          // Generate the entry for the namespace
+          tr [ ] [
+              td [] [ a [ Href (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!ns.Name] ]
+              td [] [
+                  match ns.NamespaceDocs with
+                  | Some nsdocs -> embed nsdocs.Summary
+                  | None -> ()
+              ]
+          ]
+    ]
+
+  let listOfNamespacesNavAux otherDocs (nsOpt: ApiDocNamespace option) =
     [
         // For FSharp.Core we make all entries available to other docs else there's not a lot else to show.
         //
         // For non-FSharp.Core we only show one link "API Reference" in the nav menu 
-      if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
+      if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
           li [Class "nav-header"] [!! "API Reference"]
           li [ Class "nav-item"  ] [a [Class "nav-link"; Href (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! "All Namespaces" ] ] 
       else
@@ -405,55 +441,47 @@ type HtmlRender(model: ApiDocModel) =
        
       let someExist = categorise.Length > 0 
 
-      if someExist && nav then
+      if someExist then
         li [Class "nav-header"] [!! "Namespaces"]
 
       for allByCategory, ns in categorise do
 
           // Generate the entry for the namespace
-          li [ if nav then
-                    Class ("nav-item" + 
+          li [ Class ("nav-item" + 
                           // add the 'active' class if this is the namespace of the thing being shown
                           match nsOpt with
                           | Some ns2 when ns.Name = ns2.Name -> " active"
-                          | _ -> "") ]
-
-                [span [] [
-                    a [ if nav then
-                          Class ("nav-link" +
+                          | _ -> "") ] [
+             span [] [
+                    a [ Class ("nav-link" +
                              // add the 'active' class if this is the namespace of the thing being shown
                              match nsOpt with
                              | Some ns2 when ns.Name = ns2.Name -> " active"
                              | _ -> "")
                         Href (ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!ns.Name]
 
-                     // If not in the navigation list then generate the summary text as well
-                    if not nav then
-                       !! " - "
-                       match ns.NamespaceDocs with
-                       | Some nsdocs -> embed nsdocs.Summary
-                       | None -> () ] ]
+              ]
+          ]
 
           // In the navigation bar generate the expanded list of entities
           // for the active namespace
-          if nav then
-              match nsOpt with
-              | Some ns2 when ns.Name = ns2.Name ->
+          match nsOpt with
+          | Some ns2 when ns.Name = ns2.Name ->
                   ul [ Custom ("list-style-type", "none") (* Class "navbar-nav " *) ] [
                       for category in allByCategory do
                           for e in category.CategoryEntites do
                               li [ Class "nav-item"  ] [a [Class "nav-link"; Href (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! e.Name] ]
                   ]
-              | _ -> ()
+          | _ -> ()
      ]
 
-  let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
-     listOfNamespacesAux otherDocs nav nsOpt
+  let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
+     listOfNamespacesNavAux otherDocs nsOpt
      |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 
   /// Get the substitutions relevant to all
   member _.GlobalSubstitutions : Substitutions =
-    let toc = listOfNamespaces true true None
+    let toc = listOfNamespacesNav true None
     [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc )  ]
 
   member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
@@ -471,11 +499,21 @@ type HtmlRender(model: ApiDocModel) =
     let collection = model.Collection
     begin
         let content =
-           div [] [h1 [] [!! "API Reference"];
-                   h2 [] [!! "Available Namespaces:"];
-                   ul [] (listOfNamespacesAux false false None) ]
+           div [] [
+               h1 [] [!! "API Reference"];
+               h2 [] [!! "Available Namespaces:"];
+               table [Class "table outer-list fsdocs-member-list"] [
+                 thead [] [
+                   tr [] [
+                      td [Class "fsdocs-member-list-header"] [ !! "Namespace" ]
+                      td [Class "fsdocs-member-list-header"] [ !! "Description" ]
+                   ]
+                  ]
+                 tbody [] (tableOfNamespacesAux())
+               ]
+           ]
         let pageTitle = sprintf "%s (API Reference)" collectionName
-        let toc = listOfNamespaces false true None 
+        let toc = listOfNamespacesNav false None 
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, model.IndexOutputFile(collectionName, model.Qualify, model.FileExtensions.InFile) )
         printfn "  Generating %s" outFile
@@ -487,7 +525,7 @@ type HtmlRender(model: ApiDocModel) =
     for (nsIndex, ns) in Seq.indexed collection.Namespaces do
         let content = div [] (namespaceContent (nsIndex, ns))
         let pageTitle = ns.Name
-        let toc = listOfNamespaces false true (Some ns)
+        let toc = listOfNamespacesNav false (Some ns)
         let substitutions = getSubstitutons model.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, ns.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile) )
         printfn "  Generating %s" outFile
@@ -496,7 +534,7 @@ type HtmlRender(model: ApiDocModel) =
     for info in model.EntityInfos do
         let content = div [] (entityContent info)
         let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
-        let toc = listOfNamespaces false true (Some info.Namespace)
+        let toc = listOfNamespacesNav false (Some info.Namespace)
         let substitutions = getSubstitutons info.Entity.Substitutions toc content pageTitle
         let outFile = Path.Combine(outDir, info.Entity.OutputFile(collectionName, model.Qualify, model.FileExtensions.InFile))
         printfn "  Generating %s" outFile
