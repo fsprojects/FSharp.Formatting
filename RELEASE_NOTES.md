@@ -1,3 +1,6 @@
+## 10.0.19
+* Better diagnostics on exit
+
 ## 10.0.18
 * Better diagnostics on exit
 

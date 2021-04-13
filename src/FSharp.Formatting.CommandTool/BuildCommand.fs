@@ -360,14 +360,16 @@ type CoreBuildOptions(watch) =
     member val clean = false with get, set
 
     member this.Execute() =
-        let protect f =
+        let protect phase f =
             try
                 f()
                 true
             with ex ->
                 Log.errorf "received exception :\n %A" ex
                 printfn "Error : \n%O" ex
-                if this.strict then exit 1
+                if this.strict then
+                    printfn "%s failed, and --strict is on : \n%O" phase ex
+                    exit 1
                 false
 
         /// The substitutions as given by the user
@@ -555,7 +557,7 @@ type CoreBuildOptions(watch) =
 
         // Incrementally generate API docs (regenerates all api docs, in two phases)
         let runGeneratePhase1 () =
-            protect (fun () ->
+            protect "API doc generation (phase 1)" (fun () ->
                 if crackedProjects.Length > 0 then
 
                     if not this.noapidocs then
@@ -632,7 +634,7 @@ type CoreBuildOptions(watch) =
             )
 
         let runGeneratePhase2 () =
-            protect (fun () ->
+            protect "API doc generation (phase 2)" (fun () ->
                 printfn ""
                 printfn "Write API Docs:"
                 let globals = getLatestWatchScript() @ getLatestGlobalParameters()
@@ -642,7 +644,7 @@ type CoreBuildOptions(watch) =
 
         // Incrementally convert content
         let runDocContentPhase1 () =
-            protect (fun () ->
+            protect "Content generation (phase 1)" (fun () ->
                 //printfn "projectInfos = %A" projectInfos
 
                 printfn ""
@@ -680,7 +682,7 @@ type CoreBuildOptions(watch) =
             )
 
         let runDocContentPhase2 () =
-            protect (fun () ->
+            protect "Content generation (phase 2)" (fun () ->
                 let globals = getLatestWatchScript() @ getLatestGlobalParameters()
                 latestDocContentPhase2 globals
             )

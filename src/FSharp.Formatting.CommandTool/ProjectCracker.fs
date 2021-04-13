@@ -321,8 +321,10 @@ module Crack =
                 try
                     Some (crackProjectFile slnDir extraMsbuildProperties p)
                 with e ->
-                    if strict then exit 1
                     printfn "  skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
+                    if strict then
+                        printfn "Project cracking failed and --strict is on, exiting"
+                        exit 1
                     None)
             |> Array.toList
 
