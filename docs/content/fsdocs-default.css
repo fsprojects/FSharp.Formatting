@@ -424,7 +424,6 @@ body {
 .fsdocs-param-name,
 .fsdocs-return-name {
     font-weight: 600;
-    font-family: 'Roboto Mono', monospace;
 }
 /* strings --- and stlyes for other string related formats */
 #fsdocs-content span.s {
