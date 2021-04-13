@@ -52,7 +52,7 @@ type HtmlRender(model: ApiDocModel) =
 
   // Copy XML sig for use in `cref` XML 
   let copyXmlSigIcon xmlDocSig =
-      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('<see cref=\"%s\"/>')" xmlDocSig) ] [
+      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('<see cref=\\\"%s\\\"/>')" xmlDocSig) ] [
             img [Src (sprintf "%scontent/img/copy.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/copy-blue.png" root); Class "hover"]
           ] 

@@ -1,3 +1,6 @@
+## 10.0.6
+* Fix cref copy
+
 ## 10.0.5
 * Fix some formatting in HTML
 
