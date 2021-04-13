@@ -89,6 +89,9 @@ type internal LiterateProcessingContext =
     /// The output format
     OutputKind : OutputKind
 
+    /// Helper to resolve `cref:T:TypeName` references in markdown
+    ResolveApiDocReference: string -> (string * string) option
+
     /// Conditional defines for the processing
     ConditionalDefines: string list
 

@@ -707,10 +707,24 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             | arr -> String.Join("`", arr.[0..arr.Length-2])
         noGenerics
 
-    let dotnetDocsLink (memberName: string) =
-        let noParen = removeParen memberName
-        let docs = noParen.Replace("``", "").Replace("`", "-").ToLower()
-        sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
+    let externalDocsLink simple (typeName: string) (fullMemberName: string) =
+        if fullMemberName.StartsWith "FSharp." || fullMemberName.StartsWith "Microsoft.FSharp." then
+            let memberName = getMemberName 1 false fullMemberName
+            let noParen = removeParen typeName
+            let docs = noParen.Replace("``", "").Replace("`", "-").Replace(".", "-").Replace("microsoft-","").ToLower()
+            let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s#%s" docs memberName
+            { IsInternal = false
+              ReferenceLink = link
+              NiceName = simple
+              HasModuleSuffix = false}
+        else
+            let noParen = removeParen fullMemberName
+            let docs = noParen.Replace("``", "").Replace("`", "-").ToLower()
+            let link = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
+            { IsInternal = false
+              ReferenceLink = link
+              NiceName = simple
+              HasModuleSuffix = false}
 
     let internalCrossReference urlBaseName =
         ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify, extensions.InUrl)
@@ -730,13 +744,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
         | _ -> 
             match entity.TryFullName with
             | None -> None
-            | Some nm ->
-                let simple = entity.DisplayName
-                Some
-                  { IsInternal = false
-                    ReferenceLink = dotnetDocsLink nm
-                    NiceName = simple
-                    HasModuleSuffix = false}
+            | Some nm -> Some (externalDocsLink entity.DisplayName nm nm)
 
     let resolveCrossReferenceForTypeByXmlSig (typeXmlSig: string) =
         assert (typeXmlSig.StartsWith("T:"))
@@ -762,10 +770,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             | _ ->
                 // A reference to something external, currently assumed to be in .NET
                 let simple = getMemberName 1 false typeName
-                { IsInternal = false
-                  ReferenceLink = dotnetDocsLink typeName
-                  NiceName = simple
-                  HasModuleSuffix = false}
+                externalDocsLink simple typeName typeName
 
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
         assert (memberXmlSig.StartsWith("M:") || memberXmlSig.StartsWith("P:") || memberXmlSig.StartsWith("F:") || memberXmlSig.StartsWith("E:"))
@@ -782,8 +787,19 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             let memberName = memberXmlSig.Substring(2) |> removeParen
             match tryGetTypeFromMemberName memberName with
             | Some typeName ->
-                let reference = resolveCrossReferenceForTypeByXmlSig ("T:" + typeName)
-                Some { reference with NiceName = getMemberName 2 reference.HasModuleSuffix memberName }
+                let typeXmlSig = ("T:" + typeName)
+                match xmlDocNameToSymbol.TryGetValue(typeXmlSig) with
+                | true, (:? FSharpEntity as entity) ->
+                    let urlBaseName = getUrlBaseNameForRegisteredEntity entity
+                    Some
+                      { IsInternal = true
+                        ReferenceLink = internalCrossReference urlBaseName
+                        NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName
+                        HasModuleSuffix=entity.HasFSharpModuleSuffix }
+                | _ ->
+                    // A reference to something external, currently assumed to be in .NET
+                    let simple = getMemberName 2 false memberName
+                    Some (externalDocsLink simple typeName memberName)
             | None ->
                 Log.errorf "Assumed '%s' was a member but we cannot extract a type!" memberXmlSig
                 None
@@ -812,9 +828,12 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             Log.warnf "Unresolved reference '%s'!" cref
             None
 
-    member x.RegisterEntity entity = registerEntity entity
-    member x.ResolveUrlBaseNameForEntity entity = getUrlBaseNameForRegisteredEntity entity
-    member x.TryResolveEntity entity = tryResolveCrossReferenceForEntity entity
+    member _.RegisterEntity entity = registerEntity entity
+
+    member _.ResolveUrlBaseNameForEntity entity = getUrlBaseNameForRegisteredEntity entity
+
+    member _.TryResolveEntity entity = tryResolveCrossReferenceForEntity entity
+
     member x.IsLocal cref =
        match x.ResolveCref(cref) with
        | None -> false
@@ -2074,202 +2093,204 @@ type ApiDocFileExtensions = {
 }
  
 /// Represents a set of assemblies integrated with their associated documentation
-type ApiDocModel =
-  {
+type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify, fileExtensions, urlMap) =
     /// The substitutions.  Different substitutions can also be used for each specific input
-    Substitutions: Substitutions
+    member _.Substitutions: Substitutions = substitutions
 
     /// The full list of all entities
-    Collection: ApiDocCollection
+    member _.Collection: ApiDocCollection = collection
 
     /// The full list of all entities
-    EntityInfos: ApiDocEntityInfo list
+    member _.EntityInfos: ApiDocEntityInfo list = entityInfos
 
     /// The root URL for the entire generation, normally '/'
-    Root: string
+    member _.Root: string = root
 
     /// Indicates if each collection is being qualified by its collection name, e.g. 'reference/FSharp.Core'
-    Qualify: bool
+    member _.Qualify: bool = qualify
 
     /// Specifies file extensions to use in files and URLs
-    FileExtensions: ApiDocFileExtensions
-  }
+    member _.FileExtensions: ApiDocFileExtensions = fileExtensions
 
-  /// URL of the 'index.html' for the reference documentation for the model
-  member x.IndexFileUrl(root, collectionName, qualify, extension) =
+    /// Specifies file extensions to use in files and URLs
+    member internal _.Resolver: CrossReferenceResolver = urlMap
+
+    /// URL of the 'index.html' for the reference documentation for the model
+    member x.IndexFileUrl(root, collectionName, qualify, extension) =
         sprintf "%sreference/%sindex%s" root (if qualify then collectionName + "/" else "") extension
 
-  /// URL of the 'index.html' for the reference documentation for the model
-  member x.IndexOutputFile(collectionName, qualify, extension) =
+    /// URL of the 'index.html' for the reference documentation for the model
+    member x.IndexOutputFile(collectionName, qualify, extension) =
         sprintf "reference/%sindex%s" (if qualify then collectionName + "/" else "") extension
 
-  static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
+    static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
          qualify, urlRangeHighlight, root, substitutions, strict, extensions) =
 
-    let (@@) a b = Path.Combine(a, b)
+        let (@@) a b = Path.Combine(a, b)
 
-    // Default template file names
+        // Default template file names
 
-    let otherFlags = defaultArg otherFlags []
-    let libDirs = defaultArg libDirs [] |> List.map Path.GetFullPath
-    let dllFiles = projects |> List.map (fun p -> Path.GetFullPath p.Path)
-    let urlRangeHighlight = defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
+        let otherFlags = defaultArg otherFlags []
+        let libDirs = defaultArg libDirs [] |> List.map Path.GetFullPath
+        let dllFiles = projects |> List.map (fun p -> Path.GetFullPath p.Path)
+        let urlRangeHighlight = defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
 
-    // When resolving assemblies, look in folders where all DLLs live
-    AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
-      Log.verbf "Resolving assembly: %s" e.Name
-      let asmName = System.Reflection.AssemblyName(e.Name)
-      let asmOpt =
-        dllFiles |> Seq.tryPick (fun dll ->
-          let root = Path.GetDirectoryName(dll)
-          let file = root @@ (asmName.Name + ".dll")
-          if File.Exists(file) then
-            try
-                let bytes = File.ReadAllBytes(file)
-                Some(System.Reflection.Assembly.Load(bytes))
-            with e ->
-              printfn "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
+        // When resolving assemblies, look in folders where all DLLs live
+        AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
+          Log.verbf "Resolving assembly: %s" e.Name
+          let asmName = System.Reflection.AssemblyName(e.Name)
+          let asmOpt =
+            dllFiles |> Seq.tryPick (fun dll ->
+              let root = Path.GetDirectoryName(dll)
+              let file = root @@ (asmName.Name + ".dll")
+              if File.Exists(file) then
+                try
+                    let bytes = File.ReadAllBytes(file)
+                    Some(System.Reflection.Assembly.Load(bytes))
+                with e ->
+                  printfn "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
+                  None
+              else None )
+          defaultArg asmOpt null
+        ))
+
+        // Compiler arguments used when formatting code snippets inside Markdown comments
+        let codeFormatCompilerArgs =
+          [ for dir in libDirs do yield sprintf "-I:\"%s\"" dir
+            for file in dllFiles do yield sprintf "-r:\"%s\"" file ]
+          |> String.concat " "
+
+        printfn "  loading %d assemblies..." dllFiles.Length
+        let resolvedList =
+            //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
+            FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
+            |> List.zip projects
+
+        // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
+        let urlMap = CrossReferenceResolver(root, collectionName, qualify, extensions)
+
+        // Read and process assemblies and the corresponding XML files
+        let assemblies =
+
+          for (_, asmOpt) in resolvedList do
+            match asmOpt with
+            | (_, Some asm) ->
+              printfn "  registering entities for assembly %s..."  asm.SimpleName
+              asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
+            | _ -> ()
+
+          resolvedList |> List.choose (fun (project, (dllFile, asmOpt)) ->
+            let sourceFolderRepo =
+                match project.SourceFolder, project.SourceRepo with
+                | Some folder, Some repo -> Some(folder, repo)
+                | Some _folder, _ ->
+                    Log.warnf "Repository url should be specified along with source folder."
+                    None
+                | _, Some _repo ->
+                    Log.warnf "Repository url should be specified along with source folder."
+                    None
+                | _ -> None
+
+            match asmOpt with
+            | None ->
+              if strict then
+                  failwithf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+              else
+                  printfn "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+
               None
-          else None )
-      defaultArg asmOpt null
-    ))
+            | Some asm ->
+              printfn "  reading XML doc for %s..." dllFile
+              let xmlFile = defaultArg project.XmlFile (Path.ChangeExtension(dllFile, ".xml"))
+              let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
+              let xmlFileOpt =
+                //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
+                Directory.EnumerateFiles(Path.GetDirectoryName xmlFile)
+                |> Seq.filter (fun file ->
+                    let fileNoExt = Path.GetFileNameWithoutExtension file
+                    let ext = Path.GetExtension file
+                    xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
+                    && ext.Equals(".xml",StringComparison.OrdinalIgnoreCase)
+                )
+                |> Seq.tryHead
+                //|> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
+                //|> Seq.tryPick (fun (f, ext) ->
+                //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
+                //      then Some(f) else None)
 
-    // Compiler arguments used when formatting code snippets inside Markdown comments
-    let codeFormatCompilerArgs =
-      [ for dir in libDirs do yield sprintf "-I:\"%s\"" dir
-        for file in dllFiles do yield sprintf "-r:\"%s\"" file ]
-      |> String.concat " "
+              let publicOnly = project.PublicOnly
+              let mdcomments = project.MarkdownComments
+              let substitutions = defaultArg project.Substitutions substitutions
+              match xmlFileOpt with
+              | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
+              | Some xmlFile ->
+                printfn "  reading assembly data for %s..." dllFile
+                SymbolReader.readAssembly (asm, publicOnly, xmlFile, substitutions, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, project.Warn)
+                |> Some)
 
-    // Read and process assemblies and the corresponding XML files
-    let assemblies =
-      printfn "  loading %d assemblies..." dllFiles.Length
-      let resolvedList =
-        //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
-        FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
-        |> List.zip projects
+        printfn "  collecting namespaces..."
+        // Union namespaces from multiple libraries
+        let namespaces = Dictionary<_, (_ * _ * Substitutions)>()
+        for asm, nss in assemblies do
+          for ns in nss do
+            printfn "  found namespace %s in assembly %s..." ns.Name asm.Name
+            match namespaces.TryGetValue(ns.Name) with
+            | true, (entities, summary, substitutions) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceDocs; summary],  substitutions)
+            | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
 
-      // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
-      let urlMap = CrossReferenceResolver(root, collectionName, qualify, extensions)
+        let namespaces =
+          [ for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
+              printfn "  found %d entities in namespace %s..." entities.Length name
+              if entities.Length > 0 then
+                  ApiDocNamespace(name, entities, substitutions, summary) ]
 
-      for (_, asmOpt) in resolvedList do
-        match asmOpt with
-        | (_, Some asm) ->
-          printfn "  registering entities for assembly %s..."  asm.SimpleName
-          asm.Contents.Entities |> Seq.iter (urlMap.RegisterEntity)
-        | _ -> ()
+        printfn "  found %d namespaces..." namespaces.Length
+        let collection = ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
 
-      resolvedList |> List.choose (fun (project, (dllFile, asmOpt)) ->
-        let sourceFolderRepo =
-            match project.SourceFolder, project.SourceRepo with
-            | Some folder, Some repo -> Some(folder, repo)
-            | Some _folder, _ ->
-                Log.warnf "Repository url should be specified along with source folder."
-                None
-            | _, Some _repo ->
-                Log.warnf "Repository url should be specified along with source folder."
-                None
-            | _ -> None
+        let rec nestedModules ns parent (modul:ApiDocEntity) =
+          [
+            yield ApiDocEntityInfo(modul, collection, ns, parent)
+            for n in modul.NestedEntities do
+                if not n.IsTypeDefinition then
+                   yield! nestedModules ns (Some modul) n
+          ]
 
-        match asmOpt with
-        | None ->
-          if strict then
-              failwithf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
-          else
-              printfn "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+        let moduleInfos =
+          [ for ns in collection.Namespaces do
+              for n in ns.Entities do
+                if not n.IsTypeDefinition then
+                   yield! nestedModules ns None n ]
 
-          None
-        | Some asm ->
-          printfn "  reading XML doc for %s..." dllFile
-          let xmlFile = defaultArg project.XmlFile (Path.ChangeExtension(dllFile, ".xml"))
-          let xmlFileNoExt = Path.GetFileNameWithoutExtension(xmlFile)
-          let xmlFileOpt =
-            //Directory.EnumerateFiles(Path.GetDirectoryName(xmlFile), xmlFileNoExt + ".*")
-            Directory.EnumerateFiles(Path.GetDirectoryName xmlFile)
-            |> Seq.filter (fun file ->
-                let fileNoExt = Path.GetFileNameWithoutExtension file
-                let ext = Path.GetExtension file
-                xmlFileNoExt.Equals(fileNoExt,StringComparison.OrdinalIgnoreCase)
-                && ext.Equals(".xml",StringComparison.OrdinalIgnoreCase)
-            )
-            |> Seq.tryHead
-            //|> Seq.map (fun f -> f, f.Remove(0, xmlFile.Length - 4))
-            //|> Seq.tryPick (fun (f, ext) ->
-            //    if ext.Equals(".xml", StringComparison.CurrentCultureIgnoreCase)
-            //      then Some(f) else None)
+        let createType ns parent typ =
+            ApiDocEntityInfo(typ, collection, ns, parent)
 
-          let publicOnly = project.PublicOnly
-          let mdcomments = project.MarkdownComments
-          let substitutions = defaultArg project.Substitutions substitutions
-          match xmlFileOpt with
-          | None -> raise (FileNotFoundException(sprintf "Associated XML file '%s' was not found." xmlFile))
-          | Some xmlFile ->
-            printfn "  reading assembly data for %s..." dllFile
-            SymbolReader.readAssembly (asm, publicOnly, xmlFile, substitutions, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap, codeFormatCompilerArgs, project.Warn)
-            |> Some)
+        let rec nestedTypes ns (modul:ApiDocEntity) =
+          [ let entities = modul.NestedEntities
+            for n in entities do
+             if n.IsTypeDefinition then
+                yield createType ns (Some modul) n
+            for n in entities do
+             if not n.IsTypeDefinition then
+              yield! nestedTypes ns n ]
 
-    printfn "  collecting namespaces..."
-    // Union namespaces from multiple libraries
-    let namespaces = Dictionary<_, (_ * _ * Substitutions)>()
-    for asm, nss in assemblies do
-      for ns in nss do
-        printfn "  found namespace %s in assembly %s..." ns.Name asm.Name
-        match namespaces.TryGetValue(ns.Name) with
-        | true, (entities, summary, substitutions) -> namespaces.[ns.Name] <- (entities @ ns.Entities, combineNamespaceDocs [ns.NamespaceDocs; summary],  substitutions)
-        | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
+        let typesInfos =
+          [ for ns in collection.Namespaces do
+              let entities = ns.Entities
+              for n in entities do
+                  if not n.IsTypeDefinition then
+                      yield! nestedTypes ns n
+              for n in entities do
+                  if n.IsTypeDefinition then
+                     yield createType ns None n  ]
 
-    let namespaces =
-      [ for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
-          printfn "  found %d entities in namespace %s..." entities.Length name
-          if entities.Length > 0 then
-              ApiDocNamespace(name, entities, substitutions, summary) ]
-
-    printfn "  found %d namespaces..." namespaces.Length
-    let collection = ApiDocCollection(collectionName, List.map fst assemblies, namespaces |> List.sortBy (fun ns -> ns.Name))
-
-    let rec nestedModules ns parent (modul:ApiDocEntity) =
-      [
-        yield ApiDocEntityInfo(modul, collection, ns, parent)
-        for n in modul.NestedEntities do
-            if not n.IsTypeDefinition then
-               yield! nestedModules ns (Some modul) n
-      ]
-
-    let moduleInfos =
-      [ for ns in collection.Namespaces do
-          for n in ns.Entities do
-            if not n.IsTypeDefinition then
-               yield! nestedModules ns None n ]
-
-    let createType ns parent typ =
-        ApiDocEntityInfo(typ, collection, ns, parent)
-
-    let rec nestedTypes ns (modul:ApiDocEntity) =
-      [ let entities = modul.NestedEntities
-        for n in entities do
-         if n.IsTypeDefinition then
-            yield createType ns (Some modul) n
-        for n in entities do
-         if not n.IsTypeDefinition then
-          yield! nestedTypes ns n ]
-
-    let typesInfos =
-      [ for ns in collection.Namespaces do
-          let entities = ns.Entities
-          for n in entities do
-              if not n.IsTypeDefinition then
-                  yield! nestedTypes ns n
-          for n in entities do
-              if n.IsTypeDefinition then
-                 yield createType ns None n  ]
-
-    {
-      Substitutions = substitutions
-      Collection = collection
-      EntityInfos = moduleInfos @ typesInfos
-      Root = root
-      Qualify = qualify
-      FileExtensions = extensions
-    }
+        ApiDocModel(
+          substitutions = substitutions,
+          collection = collection,
+          entityInfos = moduleInfos @ typesInfos,
+          root = root,
+          qualify = qualify,
+          fileExtensions = extensions,
+          urlMap = urlMap)
 
 /// Represents an entry suitable for constructing a Lunr index
 type ApiDocsSearchIndexEntry = {

@@ -27,7 +27,7 @@ open Suave.Filters
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEvaluator,
-                         substitutions, saveImages, watch, root) =
+                         substitutions, saveImages, watch, root, crefResolver) =
 
     let createImageSaver (outputDirectory) =
         // Download images so that they can be embedded
@@ -110,7 +110,8 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             //?customizeDocument = customizeDocument,
                             //?tokenKindToCss = tokenKindToCss,
                             ?imageSaver=imageSaverOpt,
-                            ?rootInputFolder=rootInputFolder)
+                            ?rootInputFolder=rootInputFolder,
+                            crefResolver=crefResolver)
 
                     yield ((if mainRun then Some (inputFile, isOtherLang, model) else None),
                               (fun p ->
@@ -130,7 +131,8 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                             //?customizeDocument=customizeDocument,
                             //?tokenKindToCss = tokenKindToCss,
                             ?imageSaver=imageSaverOpt,
-                            ?rootInputFolder=rootInputFolder)
+                            ?rootInputFolder=rootInputFolder,
+                            crefResolver=crefResolver)
 
                     yield ( (if mainRun then Some (inputFile, isOtherLang, model) else None),
                               (fun p ->
@@ -522,7 +524,9 @@ type CoreBuildOptions(watch) =
         ]
 
         // The incremental state (as well as the files written to disk)
+        let mutable latestApiDocModel = None
         let mutable latestApiDocGlobalParameters = [ ]
+        let mutable latestApiDocCodeReferenceResolver = (fun _ -> None)
         let mutable latestApiDocPhase2 = (fun _ -> ())
         let mutable latestApiDocSearchIndexEntries = [| |]
         let mutable latestDocContentPhase2 = (fun _ -> ())
@@ -549,6 +553,92 @@ type CoreBuildOptions(watch) =
                 // otherwise, inject empty replacement string 
                 [ParamKeys.``fsdocs-watch-script``, ""]
 
+        // Incrementally generate API docs (regenerates all api docs, in two phases)
+        let runGeneratePhase1 () =
+            protect (fun () ->
+                if crackedProjects.Length > 0 then
+
+                    if not this.noapidocs then
+
+                        let (outputKind, initialTemplate2) =
+                            let templates = [
+                              OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                              OutputKind.Html, Path.Combine(this.input, "_template.html")
+                              OutputKind.Md, Path.Combine(this.input, "reference", "_template.md")
+                              OutputKind.Md, Path.Combine(this.input, "_template.md")
+                            ] 
+                            match templates |> Seq.tryFind (fun (_,path) -> path |> File.Exists) with
+                             | Some (kind, path) -> kind, Some path
+                             | None ->  
+                               let templateFiles = templates |> Seq.map snd |> String.concat "', '"
+                               match defaultTemplate with
+                                | Some d ->
+                                    printfn "note, no template files: '%s' found, using default template %s" templateFiles d
+                                    OutputKind.Html, Some d
+                                | None ->
+                                    printfn "note, no template file '%s' found, and no default template at '%s'" templateFiles defaultTemplateAttempt1
+                                    OutputKind.Html, None
+                               
+                        printfn ""
+                        printfn "API docs:"
+                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
+                        
+                        let model, globals, index, phase2 =
+                            match outputKind with 
+                             | OutputKind.Html -> 
+                                 ApiDocs.GenerateHtmlPhased (
+                                    inputs = apiDocInputs,
+                                    output = output,
+                                    collectionName = collectionName,
+                                    substitutions = docsParameters,
+                                    qualify = this.qualify,
+                                    ?template = initialTemplate2,
+                                    otherFlags = Seq.toList this.fscoptions,
+                                    root = root,
+                                    libDirs = paths,
+                                    strict = this.strict
+                                    )
+                             | OutputKind.Md ->
+                                 ApiDocs.GenerateMarkdownPhased (
+                                    inputs = apiDocInputs,
+                                    output = output,
+                                    collectionName = collectionName,
+                                    substitutions = docsParameters,
+                                    qualify = this.qualify,
+                                    ?template = initialTemplate2,
+                                    otherFlags = Seq.toList this.fscoptions,
+                                    root = root,
+                                    libDirs = paths,
+                                    strict = this.strict
+                                    )
+                             | _ -> failwithf "API Docs format '%A' is not supported" outputKind
+
+                        // Used to resolve code references in content with respect to the API Docs model
+                        let resolveInlineCodeReference (s: string) =
+                            if s.StartsWith("cref:") then
+                                let s = s.[5..]
+                                match model.Resolver.ResolveCref s with
+                                | None -> None
+                                | Some cref ->
+                                    Some (cref.NiceName, cref.ReferenceLink)
+                            else
+                                None
+
+                        latestApiDocModel <- Some model
+                        latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
+                        latestApiDocSearchIndexEntries <- index
+                        latestApiDocGlobalParameters <- globals
+                        latestApiDocPhase2 <- phase2
+            )
+
+        let runGeneratePhase2 () =
+            protect (fun () ->
+                printfn ""
+                printfn "Write API Docs:"
+                let globals = getLatestWatchScript() @ getLatestGlobalParameters()
+                latestApiDocPhase2 globals
+                regenerateSearchIndex()
+            )
 
         // Incrementally convert content
         let runDocContentPhase1 () =
@@ -562,7 +652,7 @@ type CoreBuildOptions(watch) =
                 let docContent =
                     DocContent(output, latestDocContentResults,
                         Some this.linenumbers, fsiEvaluator, docsParameters,
-                        saveImages, watch, root)
+                        saveImages, watch, root, latestApiDocCodeReferenceResolver)
 
                 let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
 
@@ -595,80 +685,6 @@ type CoreBuildOptions(watch) =
                 latestDocContentPhase2 globals
             )
 
-        // Incrementally generate API docs (actually regenerates everything)
-        let runGeneratePhase1 () =
-            protect (fun () ->
-                if crackedProjects.Length > 0 then
-
-                    if not this.noapidocs then
-
-                        let (outputKind, initialTemplate2) =
-                            let templates = [
-                              OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                              OutputKind.Html, Path.Combine(this.input, "_template.html")
-                              OutputKind.Md, Path.Combine(this.input, "reference", "_template.md")
-                              OutputKind.Md, Path.Combine(this.input, "_template.md")
-                            ] 
-                            match templates |> Seq.tryFind (fun (_,path) -> path |> File.Exists) with
-                             | Some (kind, path) -> kind, Some path
-                             | None ->  
-                               let templateFiles = templates |> Seq.map snd |> String.concat "', '"
-                               match defaultTemplate with
-                                | Some d ->
-                                    printfn "note, no template files: '%s' found, using default template %s" templateFiles d
-                                    OutputKind.Html, Some d
-                                | None ->
-                                    printfn "note, no template file '%s' found, and no default template at '%s'" templateFiles defaultTemplateAttempt1
-                                    OutputKind.Html, None
-                               
-                        printfn ""
-                        printfn "API docs:"
-                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
-                        
-                        let globals, index, phase2 =
-                            match outputKind with 
-                             | OutputKind.Html -> 
-                                 ApiDocs.GenerateHtmlPhased (
-                                    inputs = apiDocInputs,
-                                    output = output,
-                                    collectionName = collectionName,
-                                    substitutions = docsParameters,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    strict = this.strict
-                                    )
-                             | OutputKind.Md ->
-                                 ApiDocs.GenerateMarkdownPhased (
-                                    inputs = apiDocInputs,
-                                    output = output,
-                                    collectionName = collectionName,
-                                    substitutions = docsParameters,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    strict = this.strict
-                                    )
-                             | _ -> failwithf "API Docs format '%A' is not supported" outputKind
-
-                        latestApiDocSearchIndexEntries <- index
-                        latestApiDocGlobalParameters <- globals
-                        latestApiDocPhase2 <- phase2
-            )
-
-        let runGeneratePhase2 () =
-            protect (fun () ->
-                printfn ""
-                printfn "Write API Docs:"
-                let globals = getLatestWatchScript() @ getLatestGlobalParameters()
-                latestApiDocPhase2 globals
-                regenerateSearchIndex()
-            )
-
         //-----------------------------------------
         // Clean
 
@@ -695,9 +711,26 @@ type CoreBuildOptions(watch) =
         // Build
 
         let ok =
-            let ok1 = runDocContentPhase1()
-            let ok2 = runGeneratePhase1()
+            let ok1 = runGeneratePhase1()
+            // Note, the above generates these outputs:
+            //   latestApiDocModel 
+            //   latestApiDocGlobalParameters
+            //   latestApiDocCodeReferenceResolver
+            //   latestApiDocPhase2
+            //   latestApiDocSearchIndexEntries
+
+            let ok2 = runDocContentPhase1()
+            // Note, the above references these inputs:
+            //   latestApiDocCodeReferenceResolver
+            //
+            // Note, the above generates these outputs:
+            //   latestDocContentResults
+            //   latestDocContentSearchIndexEntries
+            //   latestDocContentGlobalParameters
+            //   latestDocContentPhase2
+
             let ok2 = ok2 && runGeneratePhase2()
+
             // Run this second to override anything produced by API generate, e.g.
             // bespoke file for namespaces etc.
             let ok1 = ok1 && runDocContentPhase2()

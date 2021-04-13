@@ -45,8 +45,10 @@ module internal MarkdownUtils =
     type FormattingContext =
       { Links : IDictionary<string, string * option<string>>
         Newline: string
-        /// Additional replacements to be made in the code snippets
+        /// Additional replacements to be made in content
         Substitutions : Substitutions
+        /// Helper to resolve `cref:T:TypeName` references in markdown
+        ResolveApiDocReference: string -> (string * string) option
         DefineSymbol: string
       }
 
@@ -167,25 +169,34 @@ module internal MarkdownUtils =
     let applySubstitutionsInText ctx (text: string) =
         SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions text
 
+    let applyCodeReferenceResolver ctx (code, range) =
+        match ctx.ResolveApiDocReference code with
+        | None -> InlineCode (code, range)
+        | Some (niceName, link) -> DirectLink([Literal (niceName, range)], link, None, range)
+
+    let mapText (f,_) text = f text
+    let mapInlineCode (_,f) (code, range) = f (code, range)
+
     let rec mapSpans f (md: MarkdownSpans) =
         md |> List.map (function
-            | Literal (text, range) -> Literal (f text, range)
+            | Literal (text, range) -> Literal (mapText f text, range)
             | Strong (spans, range) -> Strong (mapSpans f spans, range)
             | Emphasis (spans, range) -> Emphasis (mapSpans f spans, range)
-            | AnchorLink (link, range) -> AnchorLink (f link, range)
+            | AnchorLink (link, range) -> AnchorLink (mapText f link, range)
             | DirectLink (spans, link, title, range) ->
-                DirectLink (mapSpans f spans, f link,
-                    Option.map (f) title, range)
-            | IndirectLink (spans, original, key, range) -> IndirectLink (mapSpans f spans, original, key, range)
+                DirectLink (mapSpans f spans, mapText f link,
+                    Option.map (mapText f) title, range)
+            | IndirectLink (spans, original, key, range) ->
+                IndirectLink (mapSpans f spans, original, key, range)
             | DirectImage (body, link, title, range) ->
-                DirectImage (f body, f link,
-                    Option.map (f) title, range)
+                DirectImage (mapText f body, mapText f link,
+                    Option.map (mapText f) title, range)
             | IndirectImage (body, original, key, range) ->
-                IndirectImage (f body, original, key, range)
+                IndirectImage (mapText f body, original, key, range)
             | HardLineBreak (range) -> HardLineBreak (range) 
+            | InlineCode (code, range) -> mapInlineCode f (code, range)
 
             // NOTE: substitutions not applied to Latex math, embedded spans or inline code
-            | InlineCode (code, range) -> InlineCode (code, range)
             | LatexInlineMath (code, range) -> LatexInlineMath (code, range) 
             | LatexDisplayMath (code, range) -> LatexDisplayMath (code, range) 
             | EmbedSpans (customSpans, range) -> EmbedSpans (customSpans , range)
@@ -197,7 +208,7 @@ module internal MarkdownUtils =
         | Paragraph (body, range) ->
            Paragraph (mapSpans f body, range)
         | CodeBlock (code, count, language, ignoredLine, range) ->
-            CodeBlock (f code, count, language, ignoredLine, range)
+            CodeBlock (mapText f code, count, language, ignoredLine, range)
         | OutputBlock (output, kind, count) ->
             OutputBlock (output, kind, count)
         | ListBlock (kind, items, range) ->
@@ -207,7 +218,7 @@ module internal MarkdownUtils =
         | Span (spans, range) ->
             Span (mapSpans f spans, range)
         | LatexBlock (env, body, range) ->
-            LatexBlock (env, List.map (f) body, range)
+            LatexBlock (env, List.map (mapText f) body, range)
         | HorizontalRule (character, range) ->
             HorizontalRule (character, range)
         | TableBlock (headers, alignments, rows, range) ->
@@ -216,8 +227,8 @@ module internal MarkdownUtils =
                 List.map (List.map (mapParagraphs f)) rows,
                 range)
         | OtherBlock (lines:(string * MarkdownRange) list, range) ->
-            OtherBlock (lines |> List.map (fun (line, range) -> (f line, range)), range)
-        | InlineHtmlBlock (code, count, range) -> InlineHtmlBlock (f code, count, range)
+            OtherBlock (lines |> List.map (fun (line, range) -> (mapText f line, range)), range)
+        | InlineHtmlBlock (code, count, range) -> InlineHtmlBlock (mapText f code, count, range)
 
         // NOTE: substitutions are not currently applied to embedded LiterateParagraph which are in any case eliminated
         // before substitutions are applied.
@@ -227,5 +238,5 @@ module internal MarkdownUtils =
             )
 
     let applySubstitutionsInMarkdown ctx md =
-        mapParagraphs (applySubstitutionsInText ctx) md
+        mapParagraphs (applySubstitutionsInText ctx, applyCodeReferenceResolver ctx) md
 

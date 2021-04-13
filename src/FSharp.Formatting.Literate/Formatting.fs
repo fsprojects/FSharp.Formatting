@@ -9,16 +9,16 @@ open FSharp.Formatting.Templating
 module internal Formatting =
 
   /// Format document with the specified output kind
-  let format (doc: MarkdownDocument) generateAnchors outputKind substitutions =
+  let format (doc: MarkdownDocument) generateAnchors outputKind substitutions crefResolver =
     match outputKind with
-    | OutputKind.Fsx -> Markdown.ToFsx(doc, substitutions=substitutions)
-    | OutputKind.Md -> Markdown.ToMd(doc, substitutions=substitutions)
-    | OutputKind.Pynb -> Markdown.ToPynb(doc, substitutions=substitutions)
-    | OutputKind.Latex -> Markdown.ToLatex(doc)
+    | OutputKind.Fsx -> Markdown.ToFsx(doc, substitutions=substitutions, crefResolver=crefResolver)
+    | OutputKind.Md -> Markdown.ToMd(doc, substitutions=substitutions, crefResolver=crefResolver)
+    | OutputKind.Pynb -> Markdown.ToPynb(doc, substitutions=substitutions, crefResolver=crefResolver)
+    | OutputKind.Latex -> Markdown.ToLatex(doc, substitutions=substitutions, crefResolver=crefResolver)
     | OutputKind.Html ->
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
-        HtmlFormatting.formatMarkdown wr generateAnchors true doc.DefinedLinks substitutions System.Environment.NewLine doc.Paragraphs
+        HtmlFormatting.formatMarkdown wr generateAnchors true doc.DefinedLinks substitutions System.Environment.NewLine crefResolver doc.Paragraphs
         sb.ToString()
 
   /// Try find first-level heading in the paragraph collection
@@ -30,7 +30,7 @@ module internal Formatting =
           | OutputKind.Html
           | OutputKind.Latex ->
               let doc = MarkdownDocument([Span(text, r)], dict [])
-              Some(format doc generateAnchors outputKind [])
+              Some(format doc generateAnchors outputKind [] (fun _ -> None))
           | _ ->
               None
       | _ -> None)
@@ -83,7 +83,7 @@ module internal Formatting =
         let doc =
           getSourceDocument doc
           |> Transformations.replaceLiterateParagraphs ctx
-        let source = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []
+        let source = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind []  (fun _ -> None)
         [ ParamKeys.``fsdocs-source-filename``, relativeSourceFileName;
           ParamKeys.``fsdocs-source-basename``, relativeSourceFileBaseName;
           ParamKeys.``fsdocs-source``, source]
@@ -100,7 +100,7 @@ module internal Formatting =
           ParamKeys.``fsdocs-page-source``, doc.SourceFile ]
         @ ctx.Substitutions
         @ sourceSubstitutions
-    let formattedDocument = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind substitutions0
+    let formattedDocument = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind substitutions0 ctx.ResolveApiDocReference
     let tipsHtml = doc.FormattedTips
 
     // Construct new Markdown document and write it

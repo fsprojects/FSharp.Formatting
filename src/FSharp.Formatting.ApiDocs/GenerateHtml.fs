@@ -5,6 +5,7 @@ open System.Collections.Generic
 open System.IO
 open System.Web
 open FSharp.Formatting.Common
+open FSharp.Compiler.SourceCodeServices
 open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
@@ -44,6 +45,26 @@ type HtmlRender(model: ApiDocModel) =
             img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/github-blue.png" root); Class "hover"]
           ] ]
+
+  let removeParen (memberName:string) =
+    let firstParen = memberName.IndexOf("(")
+    if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
+
+  let copyXmlSigIcon xmlDocSig =
+      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('%s')" xmlDocSig) ] [
+            img [Src (sprintf "../content/img/copy.png"); Class "normal"]
+            img [Src (sprintf "../content/img/copy-blue.png"); Class "hover"]
+          ] 
+
+  let copyXmlSigIconForSymbol (symbol: FSharpSymbol) =
+    [ match symbol with
+      | :? FSharpMemberOrFunctionOrValue as v ->
+        copyXmlSigIcon (removeParen v.XmlDocSig)
+      | :? FSharpEntity as v ->
+        copyXmlSigIcon (removeParen v.XmlDocSig)
+      | _ ->
+        ()
+         ]
 
   let renderMembers header tableHeader (members: ApiDocMember list) =
    [ if members.Length > 0 then
@@ -111,8 +132,9 @@ type HtmlRender(model: ApiDocModel) =
             
                td [Class "fsdocs-xmldoc"] [
                   p [Class "fsdocs-summary"]
-                     [yield! sourceLink m.SourceLocation
-                      embed m.Comment.Summary; ]
+                     [ yield! copyXmlSigIconForSymbol m.Symbol
+                       yield! sourceLink m.SourceLocation
+                       embed m.Comment.Summary; ]
 
                   match m.Comment.Remarks with
                   | Some r ->
@@ -204,9 +226,11 @@ type HtmlRender(model: ApiDocModel) =
                  p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!nmWithSiffix]]]
                ]
                td [Class "fsdocs-xmldoc" ] [
-                   p [] [yield! sourceLink e.SourceLocation
-                         embed e.Comment.Summary;  ]
-
+                   p [Class "fsdocs-summary"] [
+                       yield! copyXmlSigIconForSymbol e.Symbol
+                       yield! sourceLink e.SourceLocation
+                       embed e.Comment.Summary;
+                   ]
                ]
             ]
         ]
@@ -275,21 +299,27 @@ type HtmlRender(model: ApiDocModel) =
       //    obsoleteMessage entity.ObsoleteMessage
   
       // Show the summary (and sectioned docs without any members)
-      div [Class "fsdocs-xmldoc" ] [ embed entity.Comment.Summary ]
+      div [Class "fsdocs-xmldoc" ] [
+          p [Class "fsdocs-summary"] [
+              yield! copyXmlSigIconForSymbol entity.Symbol
+              yield! sourceLink entity.SourceLocation
+              embed entity.Comment.Summary;
+          ]
+          // Show the remarks etc.
+          match entity.Comment.Remarks with
+          | Some r ->
+              p [Class "fsdocs-remarks"] [embed r]
+          | None -> ()
+          for note in entity.Comment.Notes do 
+              h5 [Class "fsdocs-note-header"] [!! "Note"]
+              p [Class "fsdocs-note"] [embed note]
 
-      // Show the remarks etc.
-      match entity.Comment.Remarks with
-      | Some r ->
-          p [Class "fsdocs-remarks"] [embed r]
-      | None -> ()
+          for example in entity.Comment.Examples do 
+              h5 [Class "fsdocs-example-header"] [!! "Example"]
+              p [Class "fsdocs-example"] [embed example]
 
-      for note in entity.Comment.Notes do 
-          h5 [Class "fsdocs-note-header"] [!! "Note"]
-          p [Class "fsdocs-note"] [embed note]
+      ]
 
-      for example in entity.Comment.Examples do 
-          h5 [Class "fsdocs-example-header"] [!! "Example"]
-          p [Class "fsdocs-example"] [embed example]
 
       if (byCategory.Length > 1) then
         // If there is more than 1 category in the type, generate TOC 

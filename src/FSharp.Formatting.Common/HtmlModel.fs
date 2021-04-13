@@ -83,6 +83,7 @@ type internal HtmlProperties =
     | Muted of bool
     | Name of string
     | NoValidate of bool
+    | OnClick of string
     | OnMouseOut of string
     | OnMouseOver of string
     | Open of bool
@@ -231,6 +232,7 @@ type internal HtmlProperties =
         | Muted s -> sprintf "muted=\"%s\"" (if s then "true" else "false")
         | Name s -> sprintf "name=\"%s\"" s
         | NoValidate s -> sprintf "noValidate=\"%s\"" (if s then "true" else "false")
+        | OnClick s -> sprintf "onclick=\"%s\"" s
         | OnMouseOut s -> sprintf "onmouseout=\"%s\"" s
         | OnMouseOver s -> sprintf "onmouseover=\"%s\"" s
         | Open s -> sprintf "open=\"%s\"" (if s then "true" else "false")

@@ -32,8 +32,8 @@ let rec formatParagraphs ctx paragraphs =
   let cells = cell :: others
   cells
  
-let formatAsPynb links replacements newline paragraphs = 
-  let ctx = { Links = links; Substitutions=replacements; Newline=newline; DefineSymbol="IPYNB" }
+let formatAsPynb links replacements newline crefResolver paragraphs = 
+  let ctx = { Links = links; Substitutions=replacements; Newline=newline; ResolveApiDocReference=crefResolver; DefineSymbol="IPYNB" }
   let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
   let cells = formatParagraphs ctx paragraphs
   let notebook = {Notebook.Default with cells = Array.ofList cells}

@@ -214,7 +214,7 @@ let ``Namespace summary generation works on two sample F# assemblies using XML d
 
 [<Test>]
 [<TestCaseSource("formats")>]
-let ``ApiDocs model generation works on two sample F# assemblies`` (format:OutputFormat) =
+let ``ApiDocs model generation works on two sample F# assemblies`` (_format:OutputFormat) =
   let libraries =
     [ testBin </> "FsLib1.dll"
       testBin </> "FsLib2.dll" ]
