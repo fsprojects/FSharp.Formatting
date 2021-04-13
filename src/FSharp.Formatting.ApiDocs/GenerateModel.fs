@@ -713,6 +713,25 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             let noParen = removeParen typeName
             let docs = noParen.Replace("``", "").Replace("`", "-").Replace(".", "-").Replace("microsoft-","").ToLower()
             let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s" docs
+            let niceName =
+                match simple with
+                | "FSharpAsync" -> "Async"
+                | "FSharpAsyncBuilder" -> "AsyncBuilder"
+                | "FSharpEvent" -> "Event"
+                | "FSharpDelegateEvent" -> "DelegateEvent"
+                | "FSharpAsyncReplyChannel" -> "AsyncReplyChannel"
+                | "FSharpMailboxProcessor" -> "MailboxProcessor"
+                | "FSharpMap" -> "Map"
+                | "FSharpChoice" -> "Choice"
+                | "FSharpRef" -> "ref"
+                | "FSharpList" -> "list"
+                | "FSharpOption" -> "option"
+                | "FSharpValueOption" -> "voption"
+                | "FSharpHandler" -> "Handler"
+                | "FSharpVar" -> "Var"
+                | "FSharpExpr" -> "Expr"
+                | "FSharpSet" -> "Set"
+                | _ -> simple
             { IsInternal = false
               ReferenceLink = link
               NiceName = simple
