@@ -9,7 +9,9 @@ open FSharp.Formatting.Internal
 // Evaluator
 // ------------------------------------------------------------------------------------------------
 
-/// Represents a kind of thing that can be embedded 
+/// <summary>
+///   Represents a kind of thing that can be embedded
+/// </summary>
 /// <namespacedoc>
 ///   <summary>Functionality to support literate evaluation for F# scripts</summary>
 /// </namespacedoc>
