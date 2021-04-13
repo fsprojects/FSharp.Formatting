@@ -1,3 +1,6 @@
+## 10.0.12
+* Fiddle with defaults
+
 ## 10.0.11
 * Update default fonts
 

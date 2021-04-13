@@ -82,13 +82,21 @@ body {
     font-weight: normal;
 }
 
+/*--------------------------------------------------------------------------
+  Formatting metadata section of fsdocs-content (for entities)
+/*--------------------------------------------------------------------------*/
+
 /* reduce the font size for the metadata at the head of each entity */
-.fsdocs-metadata dt {
-    font-size: 0.75rem;
+#fsdocs-content .fsdocs-metadata dt {
+    font-size: 0.78rem;
+}
+
+#fsdocs-content .fsdocs-metadata code {
+    font-size: 0.78rem;
 }
 
 /* increase font size for main descriptions */
-.fsdocs-xmldoc p {
+#fsdocs-content .fsdocs-xmldoc p {
     font-size: 0.95rem;
 }
 
