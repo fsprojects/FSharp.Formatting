@@ -734,7 +734,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                 | _ -> simple
             { IsInternal = false
               ReferenceLink = link
-              NiceName = simple
+              NiceName = niceName
               HasModuleSuffix = false}
         else
             let noParen = removeParen memberName
