@@ -227,8 +227,8 @@ type HtmlRender(model: ApiDocModel) =
                ]
                td [Class "fsdocs-xmldoc" ] [
                    div [] [
-                       //yield! copyXmlSigIconForSymbol e.Symbol
-                       //yield! sourceLink e.SourceLocation
+                       yield! copyXmlSigIconForSymbol e.Symbol
+                       yield! sourceLink e.SourceLocation
                        p [Class "fsdocs-summary" ] [ embed e.Comment.Summary ];
                    ]
                ]
@@ -302,8 +302,8 @@ type HtmlRender(model: ApiDocModel) =
       // Show the summary (and sectioned docs without any members)
       div [Class "fsdocs-xmldoc" ] [
           div [] [
-              yield! copyXmlSigIconForSymbol entity.Symbol
-              yield! sourceLink entity.SourceLocation
+              //yield! copyXmlSigIconForSymbol entity.Symbol
+              //yield! sourceLink entity.SourceLocation
               p [Class "fsdocs-summary" ] [ embed entity.Comment.Summary ];
           ]
           // Show the remarks etc.
