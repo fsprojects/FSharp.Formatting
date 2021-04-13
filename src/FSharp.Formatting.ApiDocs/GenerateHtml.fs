@@ -51,7 +51,7 @@ type HtmlRender(model: ApiDocModel) =
     if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
 
   let copyXmlSigIcon xmlDocSig =
-      div [ Class"fsdocs-source-link"; OnClick $"Clipboard_CopyTo('{xmlDocSig}')" ] [
+      div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('%s')" xmlDocSig) ] [
             img [Src (sprintf "../content/img/copy.png"); Class "normal"]
             img [Src (sprintf "../content/img/copy-blue.png"); Class "hover"]
           ] 
