@@ -326,11 +326,11 @@ module Crack =
         let projectInfos =
             projectFiles
             |> Array.ofList
-            |> Array.Parallel.choose (fun p ->
+            |> Array.choose (fun p ->
                 try
                     Some (crackProjectFile slnDir extraMsbuildProperties p)
                 with e ->
-                    printfn "  skipping project '%s' because an error occurred while cracking it: %A" (Path.GetFileName p) e
+                    printfn "  skipping project '%s' because an error occurred while cracking it: %O" (Path.GetFileName p) e
                     if strict then
                         printfn "Project cracking failed and --strict is on, exiting"
                         exit 1
