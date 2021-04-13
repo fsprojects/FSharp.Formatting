@@ -1,6 +1,9 @@
 ## 10.0.18
 * Better diagnostics on exit
 
+## 10.0.18
+* Better diagnostics on exit
+
 ## 10.0.17
 * Fix generated cref for generics
 
