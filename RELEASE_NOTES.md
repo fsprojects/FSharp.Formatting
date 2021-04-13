@@ -1,3 +1,6 @@
+## 10.0.11
+* Update default fonts
+
 ## 10.0.10
 * Fix nice name
 

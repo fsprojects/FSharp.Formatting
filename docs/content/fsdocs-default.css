@@ -1,11 +1,11 @@
-@import url(https://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono|Open+Sans:400,600,700);
+@import url('https://fonts.googleapis.com/css2?family=Hind+Vadodara&family=Roboto+Mono&display=swap');
 
 /*--------------------------------------------------------------------------
   Formatting for page & standard document content
 /*--------------------------------------------------------------------------*/
 
 body {
-    font-family: FreightSans, Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: 'Hind Vadodara', sans-serif;
     /*    padding-top: 0px;
     padding-bottom: 40px;
 */
@@ -270,6 +270,7 @@ body {
 
 #fsdocs-content code {
     font-size: 0.83rem;
+    font: 0.85rem 'Roboto Mono', monospace;
     background-color: #f7f7f900;
     border: 0px;
     padding: 0px;
@@ -284,7 +285,7 @@ body {
 }
 
 #fsdocs-content pre .fssnip code {
-    font: 9pt 'Droid Sans Mono',consolas,monospace;
+    font: 0.85rem 'Roboto Mono', monospace;
 }
 
 #fsdocs-content table.pre,
@@ -295,7 +296,7 @@ body {
     border-top: 0px solid #e3e3e3;
     border-collapse: separate;
     white-space: pre;
-    font: 9pt 'Droid Sans Mono',consolas,monospace;
+    font: 0.85rem 'Roboto Mono', monospace;
     width: 90%;
     margin: 10px 20px 20px 20px;
     background-color: #212d30;
@@ -306,7 +307,7 @@ body {
 }
 
     #fsdocs-content pre.fssnip code {
-        font: 9pt 'Droid Sans Mono',consolas,monospace;
+        font: 9pt 'Roboto Mono', monospace;
     }
 
     #fsdocs-content table.pre pre {
@@ -415,6 +416,7 @@ body {
 .fsdocs-param-name,
 .fsdocs-return-name {
     font-weight: 600;
+    font-family: 'Roboto Mono', monospace;
 }
 /* strings --- and stlyes for other string related formats */
 #fsdocs-content span.s {
@@ -523,7 +525,7 @@ body {
 div.fsdocs-tip {
     background: #475b5f;
     border-radius: 4px;
-    font: 11pt 'Droid Sans', arial, sans-serif;
+    font: 0.85rem 'Roboto Mono', monospace;
     padding: 6px 8px 6px 8px;
     display: none;
     color: #d1d1d1;
@@ -532,5 +534,5 @@ div.fsdocs-tip {
 
     div.fsdocs-tip code {
         color: #d1d1d1;
-        font: 11pt 'Droid Sans', arial, sans-serif;
+        font: 0.85rem 'Roboto Mono', monospace;
     }
