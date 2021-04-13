@@ -57,13 +57,18 @@ body {
 #fsdocs-content li {
     margin: 0px 0px 15px 0px;
 }
-  
+
 #fsdocs-content p {
+    font-size: 1.0rem;
     color: #262626;
 }
   
 #fsdocs-content a {
     color: #4974D1;
+}
+
+#fsdocs-metadata p {
+    font-size: .875rem;
 }
   
 /*--------------------------------------------------------------------------

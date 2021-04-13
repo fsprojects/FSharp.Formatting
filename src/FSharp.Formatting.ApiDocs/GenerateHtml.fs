@@ -249,51 +249,52 @@ type HtmlRender(model: ApiDocModel) =
         | _ -> entity.Name
 
     [ h2 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
-      p [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!info.Namespace .Name]]
-      p [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
+      p [Class "fsdocs-metadata"] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!info.Namespace .Name]]
+      p [Class "fsdocs-metadata"] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
 
       match info.ParentModule with
       | None -> ()
       | Some parentModule ->
-        span [] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! parentModule.Name ]]
+        p [Class "fsdocs-metadata"] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! parentModule.Name ]]
   
 
       match entity.AbbreviatedType with
       | Some abbreviatedTyp ->
-         p [] [!! "Abbreviation For: "; embed abbreviatedTyp]
+         p [Class "fsdocs-metadata"] [!! "Abbreviation For: "; embed abbreviatedTyp]
           
       | None ->  ()
 
       match entity.BaseType with
       | Some baseType ->
-         p [] [!! "Base Type: "; embed baseType]
+         p [Class "fsdocs-metadata"] [!! "Base Type: "; embed baseType]
       | None -> ()
 
       match entity.AllInterfaces with
       | [] -> ()
       | l ->
-         p [] [!! ("All Interfaces: ")
+         p [Class "fsdocs-metadata"] [
+               !! ("All Interfaces: ")
                for (i, ity) in Seq.indexed l do
                   if i <> 0 then
                      !! ", "
                   embed ity ]
          
       if entity.Symbol.IsValueType then
-         p [] [!! ("Kind: Struct")]
+         p [Class "fsdocs-metadata"] [!! ("Kind: Struct")]
 
       match entity.DelegateSignature with
       | Some d ->
-          p [] [!! ("Delegate Signature: "); embed d]
+          p [Class "fsdocs-metadata"] [!! ("Delegate Signature: "); embed d]
       | None -> ()
 
       if entity.Symbol.IsProvided then
-         p [] [!! ("This is a provided type definition")]
+         p [Class "fsdocs-metadata"] [!! ("This is a provided type definition")]
 
       if entity.Symbol.IsAttributeType then
-         p [] [!! ("This is an attribute type definition")]
+         p [Class "fsdocs-metadata"] [!! ("This is an attribute type definition")]
 
       if entity.Symbol.IsEnum then
-         p [] [!! ("This is an enum type definition")]
+         p [Class "fsdocs-metadata"] [!! ("This is an enum type definition")]
 
       //if info.Entity.IsObsolete then
       //    obsoleteMessage entity.ObsoleteMessage
