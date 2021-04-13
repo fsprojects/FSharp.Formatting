@@ -72,12 +72,15 @@ the standard template.  The CSS classes of generated content are:
 |  CSS class   | Corresponding Content|  
 |:------------------------------------|:--------------------------------------------------------------|
 | `.fsdocs-tip`              |   generated tooltips                                                  |  
-| `.fsdocs-member-list `      |  generated member lists  |
-| `.fsdocs-member-name `      |  generated member names |
-| `.fsdocs-member-tooltip `      |  generated tooltips for members |
-| `.fsdocs-xmldoc `      |  generated xmldoc sections  |
-| `.fsdocs-entity-list `      |  generated entity lists |
-| `.fsdocs-exception-list `      |  generated exception lists |
+| `.fsdocs-xmldoc`      |  generated xmldoc sections  |
+| `.fsdocs-member-list`      |  generated member lists (tables)  |
+| `.fsdocs-member-usage`      |  usage in generated member lists  |
+| `.fsdocs-member-tooltip`      |  tooltips in generated member lists |
+| `.fsdocs-member-xmldoc`      |  documentation in generated member lists |
+| `.fsdocs-entity-list`      |  generated entity lists |
+| `.fsdocs-entity-name`      |  generated entity lists |
+| `.fsdocs-entity-xmldoc`      |  documentation in generated entity lists |
+| `.fsdocs-exception-list`      |  generated exception lists |
 | `.fsdocs-summary`      |  the 'summary' section of an XML doc |
 | `.fsdocs-remarks`      |  the 'remarks' section of an XML doc |
 | `.fsdocs-params`      |  the 'parameters' section of an XML doc |

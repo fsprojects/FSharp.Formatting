@@ -97,7 +97,7 @@ type HtmlRender(model: ApiDocModel) =
          tbody [] [
            for m in members do
              tr [] [
-               td [Class "fsdocs-member-name"] [
+               td [Class "fsdocs-member-usage"] [
                   
                   codeWithToolTip [
                       // This adds #MemberName anchor. These may be ambiguous due to overloading
@@ -148,7 +148,7 @@ type HtmlRender(model: ApiDocModel) =
                     ]
                ]
             
-               td [Class "fsdocs-xmldoc"] [
+               td [Class "fsdocs-member-xmldoc"] [
                   div [Class "fsdocs-summary"]
                      [ yield! copyXmlSigIconForSymbolMarkdown m.Symbol
                        yield! copyXmlSigIconForSymbol m.Symbol
@@ -244,8 +244,9 @@ type HtmlRender(model: ApiDocModel) =
                  // This adds #EntityName anchor. These may currently be ambiguous
                  p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!nmWithSiffix]]]
                ]
-               td [Class "fsdocs-xmldoc" ] [
+               td [Class "fsdocs-entity-xmldoc" ] [
                    div [] [
+                       yield! copyXmlSigIconForSymbolMarkdown e.Symbol
                        yield! copyXmlSigIconForSymbol e.Symbol
                        yield! sourceLink e.SourceLocation
                        p [Class "fsdocs-summary" ] [ embed e.Comment.Summary ];
@@ -320,7 +321,7 @@ type HtmlRender(model: ApiDocModel) =
       //    obsoleteMessage entity.ObsoleteMessage
       ]
       // Show the summary (and sectioned docs without any members)
-      div [Class "fsdocs-xmldoc" ] [
+      div [Class "fsdocs-xmldoc"] [
           div [] [
               //yield! copyXmlSigIconForSymbol entity.Symbol
               //yield! sourceLink entity.SourceLocation
@@ -340,7 +341,6 @@ type HtmlRender(model: ApiDocModel) =
               p [Class "fsdocs-example"] [embed example]
 
       ]
-
 
       if (byCategory.Length > 1) then
         // If there is more than 1 category in the type, generate TOC 
@@ -387,14 +387,16 @@ type HtmlRender(model: ApiDocModel) =
     [ if allByCategory.Length > 0 then
         h2 [Id ns.UrlHash] [!! (ns.Name + " Namespace") ]
 
-        match ns.NamespaceDocs with
-        | Some nsdocs ->
-            p [] [embed nsdocs.Summary ]
-            match nsdocs.Remarks with
-            | Some r -> p [] [embed r ]
-            | None -> ()
+        div [Class "fsdocs-xmldoc"] [
+            match ns.NamespaceDocs with
+            | Some nsdocs ->
+                p [] [embed nsdocs.Summary ]
+                match nsdocs.Remarks with
+                | Some r -> p [] [embed r ]
+                | None -> ()
             
-        | None -> () 
+            | None -> ()
+        ]
 
         if (allByCategory.Length > 1) then
             p [] [!! "Categories:" ]

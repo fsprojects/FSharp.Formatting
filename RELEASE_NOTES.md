@@ -1,3 +1,6 @@
+## 10.0.7
+* Fix more formatting and switch to `fsdocs-member-usage` instead of `fsdocs-member-name`
+
 ## 10.0.6
 * Fix cref copy
 

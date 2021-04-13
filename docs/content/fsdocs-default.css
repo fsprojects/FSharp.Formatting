@@ -82,9 +82,14 @@ body {
     font-weight: normal;
 }
 
-/* slightly reduce the metadata at the head of each entity */
+/* reduce the font size for the metadata at the head of each entity */
 .fsdocs-metadata dt {
     font-size: 0.75rem;
+}
+
+/* increase font size for main descriptions */
+.fsdocs-xmldoc p {
+    font-size: 0.95rem;
 }
 
 /*--------------------------------------------------------------------------
@@ -202,7 +207,7 @@ body {
     font-weight: bold;
 }
 
-.fsdocs-member-list .fsdocs-member-name {
+.fsdocs-member-list .fsdocs-member-usage {
     width: 35%;
 }
 
