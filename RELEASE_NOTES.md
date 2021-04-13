@@ -1,7 +1,6 @@
-## 10.1.0
+## 10.1.1
 * Switch to cleaner default styling based on DiffSharp styles
 * Change `fsdocs-menu` to `fsdocs-nav`
-* Remove `{{fsdocs-collection-name}}`` from default template
 
 ## 10.0.8
 * Add cref copy buttons by default
