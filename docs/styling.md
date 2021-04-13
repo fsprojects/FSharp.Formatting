@@ -98,7 +98,7 @@ Some generated elements are given specific HTML ids:
 | `#fsdocs-content`              |    The generated content |  
 | `#fsdocs-searchbox `      |   The search box |
 | `#fsdocs-logo `      |  The logo |
-| `#fsdocs-menu `      |  The navigation-bar |
+| `#fsdocs-nav `      |  The navigation-bar |
 
 If you write a new theme by CSS styling please contribute it back to FSharp.Formatting.
 

@@ -50,7 +50,7 @@ body {
     font-size: 2rem;
     letter-spacing: 1.78px;
     line-height: 2.5rem;
-    text-transform: uppercase;    
+    text-transform: uppercase;
     font-weight: 400;
 }
 
@@ -224,38 +224,38 @@ body {
     line-height: 1.375rem;
     letter-spacing: 0.01px;
     font-weight: 500;
-    color: #262626;    
+    color: #262626;
 }
 
-.fsdocs-xmldoc h1 {
-    font-size: 1.2rem;
-    margin: 10px 0px 0px 0px;
-}
+    .fsdocs-xmldoc h1 {
+        font-size: 1.2rem;
+        margin: 10px 0px 0px 0px;
+    }
 
-.fsdocs-xmldoc h2 {
-    font-size: 1.2rem;
-    margin: 10px 0px 0px 0px;
-}
+    .fsdocs-xmldoc h2 {
+        font-size: 1.2rem;
+        margin: 10px 0px 0px 0px;
+    }
 
-.fsdocs-xmldoc h3 {
-    font-size: 1.1rem;
-    margin: 10px 0px 0px 0px;
-}
+    .fsdocs-xmldoc h3 {
+        font-size: 1.1rem;
+        margin: 10px 0px 0px 0px;
+    }
 
 /* #fsdocs-nav .searchbox {
     margin-top: 30px;
     margin-bottom: 30px;
 } */
 
-#fsdocs-nav img.logo{
-    width:90%;
+#fsdocs-nav img.logo {
+    width: 90%;
     /* height:140px; */
     /* margin:10px 0px 0px 20px; */
-    margin-top:40px;
-    border-style:none;
+    margin-top: 40px;
+    border-style: none;
 }
 
-#fsdocs-nav input{
+#fsdocs-nav input {
     /* margin-left: 20px; */
     margin-right: 20px;
     margin-top: 20px;
@@ -268,24 +268,26 @@ body {
 #fsdocs-nav {
     /* margin-left: -5px; */
     /* width: 90%; */
-    font-size:0.95rem;
+    font-size: 0.95rem;
 }
 
-#fsdocs-nav li.nav-header{
-    /* margin-left: -5px; */
-    /* width: 90%; */
-    padding-left: 0;
-    color: #262626;
-    text-transform: none;
-    font-size:16px;
-}
+    #fsdocs-nav li.nav-header {
+        /* margin-left: -5px; */
+        /* width: 90%; */
+        padding-left: 0;
+        color: #262626;
+        text-transform: none;
+        font-size: 16px;
+        margin-top: 9px;
+        font-weight: bold;
+    }
 
-#fsdocs-nav a{
-    padding-left: 0;
-    color: #6c6c6d;
-    /* margin-left: 5px; */
-    /* width: 90%; */
-}
+    #fsdocs-nav a {
+        padding-left: 0;
+        color: #6c6c6d;
+        /* margin-left: 5px; */
+        /* width: 90%; */
+    }
 
 /*--------------------------------------------------------------------------
   Formatting pre and code sections in fsdocs-content (code highlighting is
@@ -332,26 +334,26 @@ body {
     max-width: none;
 }
 
-#fsdocs-content pre.fssnip code {
-    font: 0.85rem 'Roboto Mono', monospace;
-}
+    #fsdocs-content pre.fssnip code {
+        font: 0.85rem 'Roboto Mono', monospace;
+    }
 
-#fsdocs-content table.pre pre {
-    padding: 0px;
-    margin: 0px;
-    border-radius: 0px;
-    width: 100%;
-}
+    #fsdocs-content table.pre pre {
+        padding: 0px;
+        margin: 0px;
+        border-radius: 0px;
+        width: 100%;
+    }
 
-#fsdocs-content table.pre td {
-    padding: 0px;
-    white-space: normal;
-    margin: 0px;
-}
+    #fsdocs-content table.pre td {
+        padding: 0px;
+        white-space: normal;
+        margin: 0px;
+    }
 
-#fsdocs-content table.pre td.lines {
-    width: 30px;
-}
+        #fsdocs-content table.pre td.lines {
+            width: 30px;
+        }
 
 
 #fsdocs-content pre {
@@ -363,7 +365,7 @@ body {
     line-height: 1.375rem;
     letter-spacing: 0.01px;
     font-weight: 700;
-    color: #262626;    
+    color: #262626;
 }
 
 /*--------------------------------------------------------------------------
@@ -401,10 +403,10 @@ body {
 /*--------------------------------------------------------------------------*/
 
 #fsdocs-logo {
-    width:140px;
-    height:140px;
-    margin:10px 0px 0px 0px;
-    border-style:none;
+    width: 140px;
+    height: 140px;
+    margin: 10px 0px 0px 0px;
+    border-style: none;
 }
 
 /*--------------------------------------------------------------------------
@@ -505,6 +507,7 @@ body {
 #fsdocs-content span.p {
     color: #43AEC6;
 }
+
 #fsdocs-content span.pn {
     color: #262626;
 }
@@ -512,6 +515,7 @@ body {
 #fsdocs-content span.f {
     color: #e1e1e1;
 }
+
 #fsdocs-content span.fn {
     color: #990000;
 }
