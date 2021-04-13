@@ -67,11 +67,6 @@ body {
     color: #4974D1;
 }
 
-#fsdocs-metadata p {
-    font-size: .875rem;
-    margin: 0px 0px 0px 0px;
-}
-  
 /*--------------------------------------------------------------------------
   Formatting tables in fsdocs-content, using docs.microsoft.com tables
 /*--------------------------------------------------------------------------*/
