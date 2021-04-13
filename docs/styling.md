@@ -62,7 +62,7 @@ For example:
     <FsDocsTheme>default</FsDocsTheme>
 ```
 
-As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-left`](templates/leftside/styling.html).
+As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-right`](templates/leftside/styling.html).
 
 ## Customizing via CSS
 
