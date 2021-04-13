@@ -41,24 +41,13 @@ body {
 /*--------------------------------------------------------------------------*/
   
 /* Change font sizes for headings etc. */
-#fsdocs-content h1 {
-    margin: 30px 0px 15px 0px;
-    font-size: 2rem;
-    letter-spacing: 1.78px;
-    line-height: 2.5rem;
-    font-weight: 400;
-}
-  
 #fsdocs-content h2 {
-    font-size: 1.6rem;
     margin: 20px 0px 10px 0px;
-    font-weight: 400;
 }
   
 #fsdocs-content h3 {
     font-size: 1.2rem;
     margin: 15px 0px 10px 0px;
-    font-weight: 400;
 }
   
 #fsdocs-content hr {
@@ -66,18 +55,10 @@ body {
 }
   
 #fsdocs-content li {
-    font-size: 1.0rem;
-    line-height: 1.375rem;
-    letter-spacing: 0.01px;
-    font-weight: 500;
     margin: 0px 0px 15px 0px;
 }
   
 #fsdocs-content p {
-    font-size: 1.0rem;
-    line-height: 1.375rem;
-    letter-spacing: 0.01px;
-    font-weight: 500;
     color: #262626;
 }
   
@@ -207,21 +188,6 @@ body {
 /*--------------------------------------------------------------------------
   Formatting xmldoc sections in fsdocs-content
 /*--------------------------------------------------------------------------*/
-
-.fsdocs-xmldoc h1 {
-    font-size: 1.2rem;
-    margin: 10px 0px 0px 0px;
-}
-
-.fsdocs-xmldoc h2 {
-    font-size: 1.2rem;
-    margin: 10px 0px 0px 0px;
-}
-
-.fsdocs-xmldoc h3 {
-    font-size: 1.1rem;
-    margin: 10px 0px 0px 0px;
-}
 
 #fsdocs-searchbox {
     margin-top: 30px;
