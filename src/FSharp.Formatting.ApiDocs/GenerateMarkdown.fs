@@ -292,7 +292,7 @@ type MarkdownRender(model: ApiDocModel) =
         | None -> () 
 
         if (allByCategory.Length > 1) then
-            p [!! "Categories:" ]
+            ``###`` [!! "Contents" ]
 
             ul [
                for category in allByCategory do

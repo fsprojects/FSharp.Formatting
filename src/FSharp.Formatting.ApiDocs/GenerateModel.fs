@@ -618,7 +618,7 @@ module internal CrossReferences =
         | n -> n
 
 type internal CrefReference =
-    { IsInternal : bool; ReferenceLink : string; NiceName : string; HasModuleSuffix: bool }
+    { IsInternal : bool; ReferenceLink : string; NiceName : string }
 
 type internal CrossReferenceResolver (root, collectionName, qualify, extensions) =
     let toReplace =
@@ -707,9 +707,8 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             | arr -> String.Join("`", arr.[0..arr.Length-2])
         noGenerics
 
-    let externalDocsLink simple (typeName: string) (memberName: string) =
-        if memberName.StartsWith "FSharp." || memberName.StartsWith "Microsoft.FSharp." then
-            let simple = getMemberName 2 false memberName
+    let externalDocsLink simple (typeName: string) (fullName: string) =
+        if fullName.StartsWith "FSharp." || fullName.StartsWith "Microsoft.FSharp." then
             let noParen = removeParen typeName
             let docs = noParen.Replace("``", "").Replace("`", "-").Replace(".", "-").Replace("microsoft-","").ToLower()
             let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s" docs
@@ -734,16 +733,14 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                 | _ -> simple
             { IsInternal = false
               ReferenceLink = link
-              NiceName = niceName
-              HasModuleSuffix = false}
+              NiceName = niceName}
         else
-            let noParen = removeParen memberName
+            let noParen = removeParen fullName
             let docs = noParen.Replace("``", "").Replace("`", "-").ToLower()
             let link = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
             { IsInternal = false
               ReferenceLink = link
-              NiceName = simple
-              HasModuleSuffix = false}
+              NiceName = simple}
 
     let internalCrossReference urlBaseName =
         ApiDocEntity.GetUrl(urlBaseName, root, collectionName, qualify, extensions.InUrl)
@@ -758,8 +755,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             Some
               { IsInternal = true
                 ReferenceLink = internalCrossReference urlBaseName  
-                NiceName = entity.LogicalName
-                HasModuleSuffix=entity.HasFSharpModuleSuffix }
+                NiceName = entity.LogicalName }
         | _ -> 
             match entity.TryFullName with
             | None -> None
@@ -772,8 +768,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             let urlBaseName = getUrlBaseNameForRegisteredEntity entity
             { IsInternal = true
               ReferenceLink = internalCrossReference urlBaseName
-              NiceName = entity.DisplayName
-              HasModuleSuffix=entity.HasFSharpModuleSuffix }
+              NiceName = entity.DisplayName}
         | _ ->
             let typeName = typeXmlSig.Substring(2)
             match niceNameEntityLookup.TryGetValue(typeName) with
@@ -783,8 +778,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                     let urlBaseName = getUrlBaseNameForRegisteredEntity entity
                     { IsInternal = true
                       ReferenceLink = internalCrossReference urlBaseName
-                      NiceName = entity.DisplayName
-                      HasModuleSuffix=entity.HasFSharpModuleSuffix }
+                      NiceName = entity.DisplayName}
                 | _ -> failwith "unreachable"
             | _ ->
                 // A reference to something external, currently assumed to be in .NET
@@ -798,8 +792,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             let entityUrlBaseName = getUrlBaseNameForRegisteredEntity memb.DeclaringEntity.Value 
             { IsInternal = true
               ReferenceLink = internalCrossReferenceForMember entityUrlBaseName memb
-              NiceName = memb.DeclaringEntity.Value.DisplayName + "." + memb.DisplayName
-              HasModuleSuffix=false }
+              NiceName = memb.DeclaringEntity.Value.DisplayName + "." + memb.DisplayName }
             |> Some
         | _ ->
             // If we can't find the exact symbol for the member, don't despair, look for the type
@@ -813,8 +806,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                     Some
                       { IsInternal = true
                         ReferenceLink = internalCrossReference urlBaseName
-                        NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName
-                        HasModuleSuffix=entity.HasFSharpModuleSuffix }
+                        NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
                 | _ ->
                     // A reference to something external, currently assumed to be in .NET
                     let simple = getMemberName 2 false memberName
@@ -825,16 +817,10 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
 
     member _.ResolveCref (cref:string) =
         if (cref.Length < 2) then invalidArg "cref" (sprintf "the given cref: '%s' is invalid!" cref)
-        let memberName = cref.Substring(2)
-        let noParen = removeParen memberName
         match cref with
         // Type
         | _ when cref.StartsWith("T:") ->
-            let reference = resolveCrossReferenceForTypeByXmlSig cref
-            // A reference to something in this component
-            let simple = getMemberName 1 reference.HasModuleSuffix noParen
-            Some { reference with NiceName = simple }
-
+            Some (resolveCrossReferenceForTypeByXmlSig cref)
         // Compiler was unable to resolve!
         | _ when cref.StartsWith("!:")  ->
             Log.warnf "Compiler was unable to resolve %s" cref

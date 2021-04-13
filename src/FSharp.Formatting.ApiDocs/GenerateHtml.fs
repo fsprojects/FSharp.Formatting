@@ -399,7 +399,7 @@ type HtmlRender(model: ApiDocModel) =
         ]
 
         if (allByCategory.Length > 1) then
-            p [] [!! "Categories:" ]
+            h3 [] [!! "Contents" ]
 
             ul [] [
                for category in allByCategory do

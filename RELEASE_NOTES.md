@@ -1,3 +1,6 @@
+## 10.0.10
+* Fix nice name
+
 ## 10.0.9
 * Fix nice name
 
