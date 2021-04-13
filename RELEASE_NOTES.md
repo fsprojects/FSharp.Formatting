@@ -1,3 +1,6 @@
+## 10.0.5
+* Fix some formatting in HTML
+
 ## 10.0.4
 * Fix some formatting in HTML
 
