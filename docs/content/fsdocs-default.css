@@ -40,7 +40,7 @@ body {
   Formatting fsdocs-content
 /*--------------------------------------------------------------------------*/
   
-/* Change font sizes for headings etc. */
+/* Change font sizes for headings etc. 
 #fsdocs-content h2 {
     margin: 20px 0px 10px 0px;
 }
@@ -59,13 +59,14 @@ body {
 }
 
 #fsdocs-content p {
-    /* font-size: 1.0rem; */
     color: #262626;
 }
   
 #fsdocs-content a {
     color: #4974D1;
 }
+
+*/
 
 /*--------------------------------------------------------------------------
   Formatting tables in fsdocs-content, using docs.microsoft.com tables

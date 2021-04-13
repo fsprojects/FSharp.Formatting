@@ -707,18 +707,18 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             | arr -> String.Join("`", arr.[0..arr.Length-2])
         noGenerics
 
-    let externalDocsLink simple (typeName: string) (fullMemberName: string) =
-        if fullMemberName.StartsWith "FSharp." || fullMemberName.StartsWith "Microsoft.FSharp." then
-            let memberName = getMemberName 1 false fullMemberName
+    let externalDocsLink simple (typeName: string) (memberName: string) =
+        if memberName.StartsWith "FSharp." || memberName.StartsWith "Microsoft.FSharp." then
+            let simple = getMemberName 2 false memberName
             let noParen = removeParen typeName
             let docs = noParen.Replace("``", "").Replace("`", "-").Replace(".", "-").Replace("microsoft-","").ToLower()
-            let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s#%s" docs memberName
+            let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s" docs
             { IsInternal = false
               ReferenceLink = link
               NiceName = simple
               HasModuleSuffix = false}
         else
-            let noParen = removeParen fullMemberName
+            let noParen = removeParen memberName
             let docs = noParen.Replace("``", "").Replace("`", "-").ToLower()
             let link = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
             { IsInternal = false

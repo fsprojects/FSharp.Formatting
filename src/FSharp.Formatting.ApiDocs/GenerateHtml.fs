@@ -52,8 +52,8 @@ type HtmlRender(model: ApiDocModel) =
 
   let copyXmlSigIcon xmlDocSig =
       div [ Class"fsdocs-source-link"; OnClick (sprintf "Clipboard_CopyTo('%s')" xmlDocSig) ] [
-            img [Src (sprintf "../content/img/copy.png"); Class "normal"]
-            img [Src (sprintf "../content/img/copy-blue.png"); Class "hover"]
+            img [Src (sprintf "%scontent/img/copy.png" root); Class "normal"]
+            img [Src (sprintf "%scontent/img/copy-blue.png" root); Class "hover"]
           ] 
 
   let copyXmlSigIconForSymbol (symbol: FSharpSymbol) =
@@ -249,56 +249,57 @@ type HtmlRender(model: ApiDocModel) =
         | _ -> entity.Name
 
     [ h2 [] [!! (usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
-      p [Class "fsdocs-metadata"] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!info.Namespace .Name]]
-      p [Class "fsdocs-metadata"] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
+      dl [Class "fsdocs-metadata"] [
+         dt [] [!! "Namespace: "; a [Href (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!info.Namespace .Name]]
+         dt [] [!! ("Assembly: " + entity.Assembly.Name + ".dll")]
 
-      match info.ParentModule with
-      | None -> ()
-      | Some parentModule ->
-        p [Class "fsdocs-metadata"] [!! ("Parent Module: "); a [Href (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! parentModule.Name ]]
+         match info.ParentModule with
+         | None -> ()
+         | Some parentModule ->
+           dt [] [!! "Parent Module: "; a [Href (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!! parentModule.Name ]]
   
 
-      match entity.AbbreviatedType with
-      | Some abbreviatedTyp ->
-         p [Class "fsdocs-metadata"] [!! "Abbreviation For: "; embed abbreviatedTyp]
+         match entity.AbbreviatedType with
+         | Some abbreviatedTyp ->
+            dt [] [!! "Abbreviation For: "; embed abbreviatedTyp]
           
-      | None ->  ()
+         | None ->  ()
 
-      match entity.BaseType with
-      | Some baseType ->
-         p [Class "fsdocs-metadata"] [!! "Base Type: "; embed baseType]
-      | None -> ()
+         match entity.BaseType with
+         | Some baseType ->
+            dt [] [!! "Base Type: "; embed baseType]
+         | None -> ()
 
-      match entity.AllInterfaces with
-      | [] -> ()
-      | l ->
-         p [Class "fsdocs-metadata"] [
+         match entity.AllInterfaces with
+         | [] -> ()
+         | l ->
+            dt [] [
                !! ("All Interfaces: ")
                for (i, ity) in Seq.indexed l do
                   if i <> 0 then
                      !! ", "
                   embed ity ]
-         
-      if entity.Symbol.IsValueType then
-         p [Class "fsdocs-metadata"] [!! ("Kind: Struct")]
+          
+         if entity.Symbol.IsValueType then
+            dt [] [!! ("Kind: Struct")]
+  
+         match entity.DelegateSignature with
+         | Some d ->
+             dt [] [!! ("Delegate Signature: "); embed d]
+         | None -> ()
 
-      match entity.DelegateSignature with
-      | Some d ->
-          p [Class "fsdocs-metadata"] [!! ("Delegate Signature: "); embed d]
-      | None -> ()
+         if entity.Symbol.IsProvided then
+            dt [] [!! ("This is a provided type definition")]
 
-      if entity.Symbol.IsProvided then
-         p [Class "fsdocs-metadata"] [!! ("This is a provided type definition")]
+         if entity.Symbol.IsAttributeType then
+            dt [] [!! ("This is an attribute type definition")]
 
-      if entity.Symbol.IsAttributeType then
-         p [Class "fsdocs-metadata"] [!! ("This is an attribute type definition")]
-
-      if entity.Symbol.IsEnum then
-         p [Class "fsdocs-metadata"] [!! ("This is an enum type definition")]
+         if entity.Symbol.IsEnum then
+            dt [] [!! ("This is an enum type definition")]
 
       //if info.Entity.IsObsolete then
       //    obsoleteMessage entity.ObsoleteMessage
-  
+      ]
       // Show the summary (and sectioned docs without any members)
       div [Class "fsdocs-xmldoc" ] [
           div [] [
