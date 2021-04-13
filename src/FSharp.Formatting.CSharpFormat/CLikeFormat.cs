@@ -30,6 +30,10 @@ namespace FSharp.Formatting.CSharpFormat
 	/// <summary>
 	/// Provides a base class for formatting languages similar to C.
 	/// </summary>
+	///
+	/// <namespacedoc>
+	///   <summary>Functionality for formatting code in various languages</summary>
+	/// </namespacedoc>
 	public abstract class CLikeFormat : CodeFormat
 	{
 		/// <summary>

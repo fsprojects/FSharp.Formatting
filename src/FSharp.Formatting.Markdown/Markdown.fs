@@ -14,8 +14,13 @@ open FSharp.Patterns
 open FSharp.Formatting.Markdown.Parser
 open FSharp.Formatting.Common
 
+/// <summary>
 /// Representation of a Markdown document - the representation of Paragraphs
 /// uses an F# discriminated union type and so is best used from F#.
+/// </summary>
+/// <namespacedoc>
+///   <summary>Functionality for processing markdown documents, converting to HTML, LaTeX, ipynb and scripts</summary>
+/// </namespacedoc>
 type MarkdownDocument(paragraphs, links) =
   /// Returns a list of paragraphs in the document
   member x.Paragraphs : MarkdownParagraphs = paragraphs

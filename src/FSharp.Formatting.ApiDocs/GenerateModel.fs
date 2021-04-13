@@ -701,7 +701,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                 noNamespaceParts
         let res = String.concat "." noNamespaceParts
         let noGenerics =
-            match res.Split('`') with
+            match res.Split([| '`' |],StringSplitOptions.RemoveEmptyEntries) with
             | [| |] -> ""
             | [| s |] -> s
             | arr -> String.Join("`", arr.[0..arr.Length-2])
@@ -731,6 +731,11 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                 | "FSharpVar" -> "Var"
                 | "FSharpExpr" -> "Expr"
                 | "FSharpSet" -> "Set"
+                | "StringModule" -> "String"
+                | "OptionModule" -> "Option"
+                | "SeqModule" -> "Seq"
+                | "ArrayModule" -> "Array"
+                | "ListModule" -> "List"
                 | _ -> simple
             { IsInternal = false
               ReferenceLink = link
