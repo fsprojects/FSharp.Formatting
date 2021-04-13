@@ -1,3 +1,6 @@
+## 10.0.3
+* Minor fixes
+
 ## 10.0.2
 * Permit `cref:T:System.Console` code references in markdown content
 
