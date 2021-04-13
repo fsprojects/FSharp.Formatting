@@ -1,4 +1,4 @@
-F# Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/workflows/Build%20and%20Test/badge.svg?branch=master)
+F# Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/actions/workflows/push-master.yml/badge.svg)
 =================================
 
 The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
