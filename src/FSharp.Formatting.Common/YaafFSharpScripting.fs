@@ -315,22 +315,14 @@ type internal InteractionOutputs =
   { Output: OutputData; Error: OutputData }
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
-type internal FsiEvaluationException =
-    inherit Exception
-    val private result: InteractionOutputs
-    val private input: string
-    val private arguments: string list option
-    new (msg:string, input:string, args: string list option, result: InteractionOutputs, inner:System.Exception) = {
-      inherit System.Exception(msg, inner)
-      input = input
-      result = result
-      arguments = args }
+type internal FsiEvaluationException(msg:string, input:string, args: string list option, result: InteractionOutputs, inner:System.Exception) =
+    inherit Exception(msg, inner)
 
-    member x.Result with get () = x.result
-    member x.Input with get () = x.input
+    member x.Result = result
+    member x.Input = input
     override x.ToString () =
       let nl (s:string) = s.Replace("\n", "\n\t")
-      match x.arguments with
+      match args with
       | None ->
         sprintf
           "FsiEvaluationException:\n\nError: %s\n\nOutput: %s\n\nInput: %s\n\nException: %s"

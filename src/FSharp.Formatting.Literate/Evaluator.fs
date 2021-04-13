@@ -452,7 +452,12 @@ module __FsiSettings =
           )
       with :? FsiEvaluationException as e ->
         evalFailed.Trigger { File=file; AsExpression=asExpression; Text=text; Exception=e; StdErr = e.Result.Error.Merged }
-        if strict then exit 1
+        if strict then
+            printfn $"Evaluation failed and --strict is on"
+            printfn $"  file={file}, asExpression={asExpression}, text={text}, stderr={e.Result.Error.Merged}"
+            printfn $"  stderr={e.Result.Error.Merged}"
+            printfn $"  inner exception: {e.InnerException}"
+            exit 1
         { Output = None
           FsiOutput = None
           FsiMergedOutput = None
