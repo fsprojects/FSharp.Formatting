@@ -707,11 +707,12 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             | arr -> String.Join("`", arr.[0..arr.Length-2])
         noGenerics
 
-    let externalDocsLink simple (typeName: string) (fullName: string) =
+    let externalDocsLink isMember simple (typeName: string) (fullName: string) =
         if fullName.StartsWith "FSharp." || fullName.StartsWith "Microsoft.FSharp." then
             let noParen = removeParen typeName
-            let docs = noParen.Replace("``", "").Replace("`", "-").Replace(".", "-").Replace("microsoft-","").ToLower()
+            let docs = noParen.Replace("Microsoft.FSharp.","FSharp.").Replace("``", "-").Replace("`", "-").Replace(".", "-").ToLower()
             let link = sprintf "https://fsharp.github.io/fsharp-core-docs/reference/%s" docs
+            let link = if isMember then link+"#"+(getMemberName 1 false fullName) else link
             let niceName =
                 match simple with
                 | "FSharpAsync" -> "Async"
@@ -759,7 +760,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
         | _ -> 
             match entity.TryFullName with
             | None -> None
-            | Some nm -> Some (externalDocsLink entity.DisplayName nm nm)
+            | Some nm -> Some (externalDocsLink false entity.DisplayName nm nm)
 
     let resolveCrossReferenceForTypeByXmlSig (typeXmlSig: string) =
         assert (typeXmlSig.StartsWith("T:"))
@@ -783,7 +784,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
             | _ ->
                 // A reference to something external, currently assumed to be in .NET
                 let simple = getMemberName 1 false typeName
-                externalDocsLink simple typeName typeName
+                externalDocsLink false simple typeName typeName
 
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
         assert (memberXmlSig.StartsWith("M:") || memberXmlSig.StartsWith("P:") || memberXmlSig.StartsWith("F:") || memberXmlSig.StartsWith("E:"))
@@ -810,7 +811,7 @@ type internal CrossReferenceResolver (root, collectionName, qualify, extensions)
                 | _ ->
                     // A reference to something external, currently assumed to be in .NET
                     let simple = getMemberName 2 false memberName
-                    Some (externalDocsLink simple typeName memberName)
+                    Some (externalDocsLink true simple typeName memberName)
             | None ->
                 Log.errorf "Assumed '%s' was a member but we cannot extract a type!" memberXmlSig
                 None
