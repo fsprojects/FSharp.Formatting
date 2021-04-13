@@ -423,9 +423,9 @@ type CoreBuildOptions(watch) =
             for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
 
-            printfn "Comand lines for API Docs:"
-            for (_, runArguments, _, _, _, _, _, _, _, _) in crackedProjects do
-                printfn "    %O" runArguments
+            //printfn "Comand lines for API Docs:"
+            //for (_, runArguments, _, _, _, _, _, _, _, _) in crackedProjects do
+            //    printfn "    %O" runArguments
 
         for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
             if not (File.Exists dllFile) then
