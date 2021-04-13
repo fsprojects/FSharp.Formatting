@@ -218,8 +218,7 @@ module internal CompilerServiceExtensions =
           x.FullName.Substring(0, match x.FullName.IndexOf("[") with | -1 -> x.FullName.Length | _ as i -> i)
 
   type FSharpAssembly with
-      static member LoadFiles (dllFiles: string list, ?libDirs: string list, ?otherFlags, ?manualResolve) =
-        let resolveDirs = defaultArg manualResolve true
+      static member LoadFiles (dllFiles: string list, ?libDirs: string list, ?otherFlags) =
         let libDirs = defaultArg libDirs []
         let findReferences libDir =
           Directory.EnumerateFiles(libDir, "*.dll")
@@ -237,25 +236,11 @@ module internal CompilerServiceExtensions =
 
         // See https://github.com/tpetricek/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
         let _dllFiles, _libDirs =
-          if resolveDirs then
             libDirs |> List.collect findReferences |> List.append dllFiles, List.empty
-          else
-            dllFiles, libDirs |> List.map Path.GetFullPath
         let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
         let refs = FSharpAssemblyHelper.getProjectReferences frameworkVersion otherFlags (Some _libDirs) _dllFiles
         let result = FSharpAssemblyHelper.resolve dllFiles refs
         result
-
-      static member FromAssembly (assembly:Assembly) =
-          let loc =
-              if assembly.GetName().Name =? "FSharp.Core" then
-                  FSharpAssemblyHelper.findFSCore [assembly.Location] []
-              else
-                  assembly.Location
-          if isNull loc then None
-          else
-              let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
-              FSharpAssemblyHelper.getProjectReferenceFromFile frameworkVersion loc
 
       member x.FindType (t:Type) =
           x.Contents.Entities
@@ -266,47 +251,6 @@ module internal CompilerServiceExtensions =
                   | Some fullName when namespaceName = fullName ->
                       Some entity
                   | _ -> None)
-
-  module internal TypeNameHelper =
-      let rec fallbackName (t:System.Type) =
-          t.Name
-      and getFSharpTypeName (t:System.Type) =
-          let optFsharpName =
-              match FSharpAssembly.FromAssembly t.Assembly with
-              | Some fsAssembly ->
-                  match fsAssembly.FindType t with
-                  | Some entity -> Some entity.DisplayName
-                  | None -> None
-              | None -> None
-          match optFsharpName with
-          | Some fsharpName -> fsharpName
-          | None -> fallbackName t
-
-  type Type with
-      /// The name of the current type instance in F# source code.
-      member x.FSharpName = TypeNameHelper.getFSharpTypeName x
-      /// Gets the FullName of the current type in F# source code.
-      member x.FSharpFullName = x.Namespace + "." + x.FSharpName
-
-  module internal TypeParamHelper =
-      let rec getFSharpTypeParameterList (t:System.Type) =
-          let builder = new System.Text.StringBuilder()
-          if t.IsGenericType then
-              let args = t.GetGenericArguments()
-              builder.Append "<" |> ignore
-              if t.IsGenericTypeDefinition then
-                  args |> Seq.iter (fun _ -> builder.Append "_," |> ignore)
-              else
-                  args |> Seq.iter (fun t -> builder.Append (sprintf "%s," (t.FSharpFullName + getFSharpTypeParameterList t)) |> ignore)
-              builder.Length <- builder.Length - 1
-              builder.Append ">" |> ignore
-          builder.ToString()
-
-  type Type with
-      /// The parameter list of the current type, sets "_" if the current instance is a generic definition.
-      member x.FSharpParamList = TypeParamHelper.getFSharpTypeParameterList x
-      /// Gets a string that can be used in F# source code to reference the current type instance.
-      member x.FSharpFullNameWithTypeArgs = x.FSharpFullName + x.FSharpParamList
 
 type internal OutputData =
   { FsiOutput: string; ScriptOutput: string; Merged: string }

@@ -2146,25 +2146,6 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
         let dllFiles = projects |> List.map (fun p -> Path.GetFullPath p.Path)
         let urlRangeHighlight = defaultArg urlRangeHighlight (fun url start stop -> String.Format("{0}#L{1}-{2}", url, start, stop))
 
-        // When resolving assemblies, look in folders where all DLLs live
-        AppDomain.CurrentDomain.add_AssemblyResolve(System.ResolveEventHandler(fun o e ->
-          Log.verbf "Resolving assembly: %s" e.Name
-          let asmName = System.Reflection.AssemblyName(e.Name)
-          let asmOpt =
-            dllFiles |> Seq.tryPick (fun dll ->
-              let root = Path.GetDirectoryName(dll)
-              let file = root @@ (asmName.Name + ".dll")
-              if File.Exists(file) then
-                try
-                    let bytes = File.ReadAllBytes(file)
-                    Some(System.Reflection.Assembly.Load(bytes))
-                with e ->
-                  printfn "Couldn't load Assembly\n%s\n%s" e.Message e.StackTrace
-                  None
-              else None )
-          defaultArg asmOpt null
-        ))
-
         // Compiler arguments used when formatting code snippets inside Markdown comments
         let codeFormatCompilerArgs =
           [ for dir in libDirs do yield sprintf "-I:\"%s\"" dir
@@ -2173,8 +2154,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
 
         printfn "  loading %d assemblies..." dllFiles.Length
         let resolvedList =
-            //FSharpAssembly.LoadFiles(projects, libDirs, otherFlags = otherFlags)
-            FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags, manualResolve=true)
+            FSharpAssembly.LoadFiles(dllFiles, libDirs, otherFlags = otherFlags)
             |> List.zip projects
 
         // generate the names for the html files beforehand so we can resolve <see cref=""/> links.
