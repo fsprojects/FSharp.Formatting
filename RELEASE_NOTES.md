@@ -1,4 +1,4 @@
-## 10.0.16
+## 10.0.17
 * Fix generated cref for generics
 
 ## 10.0.15
