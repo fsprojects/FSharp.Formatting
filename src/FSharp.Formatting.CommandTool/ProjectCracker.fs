@@ -12,6 +12,8 @@ open Ionide.ProjInfo.Types
 
 [<AutoOpen>]
 module Utils =
+    // Needs to be done before anything else?!?
+    let msbuildExe = Ionide.ProjInfo.Init.init()
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
         if not dir.Exists then dir.Create()
@@ -191,7 +193,6 @@ module Crack =
             //printfn "done..."
             res
 
-        let msbuildExe = Ionide.ProjInfo.Init.init()
 
         let result = ProjectLoader.getProjectInfo file msbuildExe false gp
         //file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
