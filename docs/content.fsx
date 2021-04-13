@@ -117,21 +117,27 @@ markdown code snippets of the special form `` `cref:T:MyNamespace.MyType` `` whe
 is a method, property or type xml doc sig reference, see [API Docs](apidocs.html).
 This can include any cross-references resolved by fsdocs.
 
+The generated API documentation includes buttons to copy the XML and Markdown forms of API doc references.
+
 For example, within this project,
 
 - the text `` `cref:T:FSharp.Formatting.Markdown.MarkdownParagraph` `` resolves to the link `cref:T:FSharp.Formatting.Markdown.MarkdownParagraph`
 
-- the text ``` ``cref:T:System.Console`` ``` resolves to the link ``cref:T:System.Console``
+- the text ``` `cref:T:System.Console` ``` resolves to the link `cref:T:System.Console`
 
-- the text ``` ``cref:M:System.Console.WriteLine`` ``` resolves to the link ``cref:M:System.Console.WriteLine``
+- the text ``` `cref:M:System.Console.WriteLine` ``` resolves to the link `cref:M:System.Console.WriteLine`
 
-- the text ``` ``cref:M:System.Console.WriteLine(System.String)`` ``` resolves to the link ``cref:M:System.Console.WriteLine(System.String)``
+- the text ``` `cref:M:System.Console.WriteLine(System.String)` ``` resolves to the link `cref:M:System.Console.WriteLine(System.String)`
 
 - the text ``` ``cref:T:FSharp.Control.FSharpAsync`1`` ``` resolves to the link ``cref:T:FSharp.Control.FSharpAsync`1``
 
-- the text ``` ``cref:T:FSharp.Control.FSharpAsync`` ``` resolves to the link `cref:T:FSharp.Control.FSharpAsync`
+- the text ``` `cref:T:FSharp.Control.FSharpAsync` ``` resolves to the link `cref:T:FSharp.Control.FSharpAsync`
 
-- the text ``` ``cref:T:Microsoft.FSharp.Core.array`1`` ``` resolves to the link ``cref:T:Microsoft.FSharp.Core.array`1``
+- the text ``` ``cref:T:FSharp.Core.array`1`` ``` resolves to the link ``cref:T:FSharp.Core.array`1``
+
+- the text ``` `cref:T:FSharp.Core.OptionModule` ``` resolves to the link `cref:T:FSharp.Core.OptionModule`
+
+- the text ```` ```cref:M:FSharp.Collections.ListModule.Append``1``` ```` resolves to the link ```cref:M:FSharp.Collections.ListModule.Append``1```
 
 > NOTE: These cases act as tests - if the links above do not work, then that indicates a bug or a change in the
 > external link. [Please report it](https://github.com/fsprojects/FSharp.Formatting/issues/new).
