@@ -1,3 +1,6 @@
+## 10.0.2
+* Permit `cref:T:System.Console` code references in markdown content
+
 ## 10.0.1
 * Apply substitutions to content
 * Add `fsdocs-source-filename` and `fsdocs-source-basename` substitutions

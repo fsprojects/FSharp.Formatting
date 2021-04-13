@@ -131,10 +131,10 @@ type HtmlRender(model: ApiDocModel) =
                ]
             
                td [Class "fsdocs-xmldoc"] [
-                  p [Class "fsdocs-summary"]
+                  div [Class "fsdocs-summary"]
                      [ yield! copyXmlSigIconForSymbol m.Symbol
                        yield! sourceLink m.SourceLocation
-                       embed m.Comment.Summary; ]
+                       p [Class "fsdocs-summary"] [ embed m.Comment.Summary ]; ]
 
                   match m.Comment.Remarks with
                   | Some r ->
@@ -226,10 +226,10 @@ type HtmlRender(model: ApiDocModel) =
                  p [] [a [Name nm] [a [Href (e.Url(root, collectionName, qualify, model.FileExtensions.InUrl))] [!!nmWithSiffix]]]
                ]
                td [Class "fsdocs-xmldoc" ] [
-                   p [Class "fsdocs-summary"] [
+                   div [] [
                        yield! copyXmlSigIconForSymbol e.Symbol
                        yield! sourceLink e.SourceLocation
-                       embed e.Comment.Summary;
+                       p [Class "fsdocs-summary" ] [ embed e.Comment.Summary ];
                    ]
                ]
             ]
@@ -300,10 +300,10 @@ type HtmlRender(model: ApiDocModel) =
   
       // Show the summary (and sectioned docs without any members)
       div [Class "fsdocs-xmldoc" ] [
-          p [Class "fsdocs-summary"] [
+          div [] [
               yield! copyXmlSigIconForSymbol entity.Symbol
               yield! sourceLink entity.SourceLocation
-              embed entity.Comment.Summary;
+              p [Class "fsdocs-summary" ] [ embed entity.Comment.Summary ];
           ]
           // Show the remarks etc.
           match entity.Comment.Remarks with
