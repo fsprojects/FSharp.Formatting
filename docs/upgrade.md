@@ -43,9 +43,9 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
 7. Consider creating `docs\_template.fsx` and `docs\_template.ipynb` to enable co-generation of F# scripts and F# notebooks.
 
-   If you add support for notebooks and scripts, consider adding mybinder links to each of your literate executable content pages. [For example like this](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L19).
+   If you add support for notebooks and scripts, consider adding mybinder links to each of your literate executable content pages. For example [like this](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L19).
 
-   Also add load sections to make sure your notebooks and scripts contain the right content to load packages out of repo.  [For example like this](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L1)
+   Also add load sections to make sure your notebooks and scripts contain the right content to load packages out of repo.  For example [like this](https://github.com/fsprojects/FSharp.Formatting/blob/master/docs/literate.fsx#L1).
 
 Sample commands: 
 
