@@ -1,2 +1,3 @@
 
-Temporary copies of Ionide.ProjInfo until https://github.com/ionide/proj-info/pull/107 is merged and published
+Local copy of Ionide.ProjInfo awaiting https://github.com/ionide/proj-info/pull/107
+

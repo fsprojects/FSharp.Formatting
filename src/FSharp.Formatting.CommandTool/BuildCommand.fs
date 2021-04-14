@@ -415,7 +415,17 @@ type CoreBuildOptions(watch) =
               (projects |> List.map getTime |> List.toArray))
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
-           (fun () -> Crack.crackProjects (this.strict, this.extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects), key1)
+           (fun () ->
+               let props =
+                   this.extraMsbuildProperties
+                   |> Seq.toList
+                   |> List.map (fun s ->
+                       let arr = s.Split("=")
+                       if arr.Length > 1 then
+                           arr.[0], String.concat "=" arr.[1..]
+                       else
+                           failwith "properties must be of the form 'PropName=PropValue'")
+               Crack.crackProjects (this.strict, props, userRoot, userCollectionName, userParameters, projects), key1)
 
         if crackedProjects.Length > 0 then
             printfn ""
