@@ -33,8 +33,8 @@ open System.Reflection
 Starting a background agent
 ---------------------------
 
-The `FSharp.Formatting.CodeFormat` namespace contains `CodeFormat` type which is the
-entry point. The static method `CreateAgent` starts a background worker that
+The `FSharp.Formatting.CodeFormat` namespace contains `cref:T:FSharp.Formatting.CodeFormat.CodeFormat` type which is the
+entry point. The static method `cref:M:FSharp.Formatting.CodeFormat.CodeFormat.CreateAgent` starts a background worker that
 can be called to format snippets repeatedly:
 *)
 
@@ -43,13 +43,12 @@ let formattingAgent = CodeFormat.CreateAgent()
 (**
 If you want to process multiple snippets, it is a good idea to keep the 
 formatting agent around if possible. The agent needs to load the F# compiler
-(which needs to load various files itself) and so this takes a long time. As the above
-example shows, you can specify which version of `FSharp.Compiler.dll` to use.
+(which needs to load various files itself) and so this takes a long time. 
 
 Processing F# source
 --------------------
 
-The formatting agent provides a `ParseAndCheckSource` method (together with an asynchronous
+The formatting agent provides a `cref:M:FSharp.Formatting.CodeFormat.CodeFormatAgent.ParseAndCheckSource` method (together with an asynchronous
 version for use from F# and also a version that returns a .NET `Task` for C#).
 To call the method, we define a simple F# code as a string:
 *)
@@ -118,7 +117,7 @@ underlined with a red squiggle if the code contains an error.
 Generating HTML output
 ----------------------
 
-Finally, the `CodeFormat` type also includes a method `FormatHtml` that can be used
+Finally, the `CodeFormat` type also includes a method `cref:M:FSharp.Formatting.CodeFormat.CodeFormat.FormatHtml` that can be used
 to generate nice HTML output from an F# snippet. This is used, for example, on 
 [F# Snippets](http://www.fssnip.net). The following example shows how to call it:
 *)

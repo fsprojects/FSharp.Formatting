@@ -198,7 +198,7 @@ A header may be needed to get the code to load, a typical example is this:
 ### Processing literate files programatically
 
 To process file Use the two static methods to turn single documents into HTML
-as follows:
+as follows using functionality from the `cref:T:FSharp.Formatting.Literate.Literate` type:
 *)
 open System.IO
 open FSharp.Formatting.Literate
@@ -228,7 +228,7 @@ let projInfo =
 
 (**
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile`) 
+The methods used above (`cref:M:FSharp.Formatting.Literate.Literate.ConvertScriptFile`, `cref:M:FSharp.Formatting.Literate.Literate.ConvertMarkdownFile`) 
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:
@@ -258,25 +258,6 @@ Literate.ConvertMarkdownFile(docPynb, outputKind=OutputKind.Pynb)
 (**
 
 All of the three methods discussed in the previous two sections take a number of optional
-parameters that can be used to tweak how the formatting works or even to specify a different
-version of the F# compiler:
-
- - `prefix` - a string that is added to all automatically generated `id` attributes
-   in the generated HTML document (to avoid collisions with other HTML elements)
- - `fscOptions` - this can be used to pass any additional command line 
-   parameters to the F# compiler (you can use any standard parameters of `fsc.exe`)
- - `lineNumbers` - if `true` then the generated F# snippets include line numbers.
- - `references` - if `true` then the script automatically adds a "References" 
-   section with all indirect links that are defined and used in the document.
- - `parameters` - a list of key-value pairs containing additional parameters
-   that should be replaced in the tempalte HTML file.
- - `errorHandler` - a function that is used to report errors from the F# compiler 
-   (if not specified, errors are printed to the standard output)
- - `generateAnchors` - when `true`, the generated HTML will automatically include
-   anchors for all headings (and so you can click on headings to get a link
-   to a section). The default value is `false`.
- - `customizeDocument` - Allows you to customize the document before writing it 
-   to the output file. This gives you the opportunity to use your own
-   code formatting code, for example to support syntax highlighting for another language. 
+parameters that can be used to tweak how the formatting works
 
 *)

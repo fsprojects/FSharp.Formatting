@@ -36,7 +36,7 @@ Parsing documents
 The F# Markdown parser recognizes the standard [Markdown syntax](http://daringfireball.net/projects/markdown/)
 and it is not the aim of this tutorial to fully document it. 
 The following snippet creates a simple string containing a document
-with several elements and then parses it using the `Markdown.Parse` method:
+with several elements and then parses it using the `cref:M:FSharp.Formatting.Markdown.Markdown.Parse` method:
 *)
 
 let document = """
@@ -64,7 +64,7 @@ Working with parsed documents
 
 The F# Markdown processor does not turn the document directly into HTML.
 Instead, it builds a nice F# data structure that we can use to analyze, 
-transform and process the document. First of all the `DefinedLinks` property
+transform and process the document. First of all the `cref:P:FSharp.Formatting.Markdown.MarkdownDocument.DefinedLinks` property
 returns all indirect link definitions:
 *)
 
@@ -73,7 +73,7 @@ parsed.DefinedLinks
 // [fsi:  dict [("fsorg", ("http://fsharp.org", Some "The F# organization."))]]
 
 (**
-The document content can be accessed using the `Paragraphs` property that returns
+The document content can be accessed using the `cref:P:FSharp.Formatting.Markdown.MarkdownDocument.Paragraphs` property that returns
 a sequence of paragraphs or other first-level elements (headings, quotes, code snippets, etc.).
 The following snippet prints the heading of the document:
 *)
@@ -101,7 +101,7 @@ all paragraph-style elements and one that will process all inline formattings (i
 paragraphs, headings etc.).
 
 To avoid pattern matching on every single kind of span and every single kind of 
-paragraph, we can use active patterns from the `MarkdownPatterns` module. These can be use
+paragraph, we can use active patterns from the `cref:T:FSharp.Formatting.Markdown.MarkdownPatterns` module. These can be use
 to recognize any paragraph or span that can contain child elements:
 
 *)
@@ -132,7 +132,7 @@ Seq.collect collectParLinks parsed.Paragraphs
 
 (**
 The `collectSpanLinks` function works on individual span elements that contain inline
-formatting (emphasis, strong) and also links. The `DirectLink` node represents an inline
+formatting (emphasis, strong) and also links. The `DirectLink` node from `cref:T:FSharp.Formatting.Markdown.MarkdownSpan` represents an inline
 link like the one pointing to <http://fsharp.net> while `IndirectLink` represents a
 link that uses one of the link definitions. The function simply returns the URL associated
 with the link.
@@ -154,12 +154,11 @@ paragraphs that contain normal text - here we call `collectSpanLinks` on all nes
 Generating HTML output
 ----------------------
 
-Finally, the `Markdown` type also includes a method `ToHtml` that can be used
+Finally, the `cref:T:FSharp.Formatting.Markdown.Markdown` type also includes a method `cref:M:FSharp.Formatting.Markdown.Markdown.ToHtml` that can be used
 to generate an HTML document from the Markdown input. The following example shows how to call it:
 *)
 let html = Markdown.ToHtml(parsed)
 
 (**
-In addition, you can also use `Markdown.TransformHtml` to directly turn an input document
-in the Markdown format into an HTML document (without the intermediate step).
+There are also methods to generate `.fsx`, `.ipynb`, `.md` and `.tex`.
 *)

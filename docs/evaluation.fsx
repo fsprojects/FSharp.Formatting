@@ -91,7 +91,7 @@ F# Formatting as a Library:  Specifying the Evaluator and Formatting
 If using F# Formatting as a library the embedding of F# output requires specifying an additional parameter to the 
 parsing functions discussed in [literate programming documentation](literate.html).
 Assuming you have all the references in place, you can now create an instance of
-`FsiEvaluator` that represents a wrapper for F# interactive and pass it to all the
+`cref:T:FSharp.Formatting.Literate.Evaluation.FsiEvaluator` that represents a wrapper for F# interactive and pass it to all the
 functions that parse script files or process script files:
 
 *)
@@ -118,7 +118,7 @@ If you specify the `fsiEvaluator` parameter, but don't want a specific snippet t
 (because it might throw an exception, for example), you can use the `(*** do-not-eval ***)` 
 command.
 
-The constructor of `FsiEvaluator` takes command line parameters for `fsi.exe` that can
+The constructor of `cref:T:FSharp.Formatting.Literate.Evaluation.FsiEvaluator` takes command line parameters for `fsi.exe` that can
 be used to specify, for example, defined symbols and other attributes for F# Interactive.
 
 You can also subscribe to the `EvaluationFailed` event which is fired whenever the evaluation
@@ -133,7 +133,7 @@ However, you can specify a formatting function that provides a nicer formatting 
 of certain types. For example, let's say that we would want to format F# lists such as
 `[1; 2; 3]` as HTML ordered lists `<ol>`. 
 
-This can be done by calling `RegisterTransformation` on the `FsiEvaluator` instance:
+This can be done by calling `cref:M:FSharp.Formatting.Literate.Evaluation.FsiEvaluator.RegisterTransformation` on the `FsiEvaluator` instance:
 
 *)
 // Create evaluator & register simple formatter for lists
