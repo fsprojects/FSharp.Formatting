@@ -1,3 +1,6 @@
+## 11.0.2
+* add favicon.ico to template and use F# logo as default favicon for generated sites
+
 ## 11.0.1
 * update to Ionide.ProjInfo
 * use computed args for references in API doc generation
