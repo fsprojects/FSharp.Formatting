@@ -62,7 +62,7 @@ For example:
     <FsDocsTheme>default</FsDocsTheme>
 ```
 
-As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-left`](templates/leftside/styling.html).
+As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-right`](templates/leftside/styling.html).
 
 ## Customizing via CSS
 
@@ -98,7 +98,7 @@ Some generated elements are given specific HTML ids:
 | `#fsdocs-content`              |    The generated content |  
 | `#fsdocs-searchbox `      |   The search box |
 | `#fsdocs-logo `      |  The logo |
-| `#fsdocs-menu `      |  The navigation-bar |
+| `#fsdocs-nav `      |  The navigation-bar |
 
 If you write a new theme by CSS styling please contribute it back to FSharp.Formatting.
 

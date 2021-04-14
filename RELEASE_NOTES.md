@@ -5,56 +5,15 @@
 * Fix #662
 * Fix #646
 
-## 10.0.19
-* Better diagnostics on exit
-
-## 10.0.18
-* Better diagnostics on exit
-
-## 10.0.18
-* Better diagnostics on exit
-
-## 10.0.17
-* Fix generated cref for generics
-
-## 10.0.15
-* Fix generated cref for generics
-
-## 10.0.14
-* Fiddle with defaults
-
-## 10.0.13
-* Fiddle with defaults
-
-## 10.0.12
-* Fiddle with defaults
-
-## 10.0.11
-* Update default fonts
-
-## 10.0.10
-* Fix nice name
-
-## 10.0.9
-* Fix nice name
+## 10.1.1
+* Switch to cleaner default styling based on DiffSharp styles
+* Change `fsdocs-menu` to `fsdocs-nav`
 
 ## 10.0.8
-* Fix cref copy
+* Add cref copy buttons by default
 
 ## 10.0.7
 * Fix more formatting and switch to `fsdocs-member-usage` instead of `fsdocs-member-name`
-
-## 10.0.6
-* Fix cref copy
-
-## 10.0.5
-* Fix some formatting in HTML
-
-## 10.0.4
-* Fix some formatting in HTML
-
-## 10.0.3
-* Minor fixes
 
 ## 10.0.2
 * Permit `cref:T:System.Console` code references in markdown content

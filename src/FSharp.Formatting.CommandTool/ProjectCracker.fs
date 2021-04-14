@@ -7,13 +7,13 @@ open System.Xml
 
 open FSharp.Formatting.Templating
 
-open Ionide.ProjInfo
-open Ionide.ProjInfo.Types
+open Ionide2.ProjInfo
+open Ionide2.ProjInfo.Types
 
 [<AutoOpen>]
 module Utils =
     // Needs to be done before anything else?!?
-    let msbuildExe = Ionide.ProjInfo.Init.init()
+    let msbuildExe = Ionide2.ProjInfo.Init.init()
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
         if not dir.Exists then dir.Create()
@@ -176,25 +176,9 @@ module Crack =
         let gp = ("TargetPath" :: additionalInfo)
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
-        let runCmd exePath args =
-            let args =
-                [ yield! args
-                  yield "/p:ProvideCommandLineArgs=true";
-                  yield "/p:DesignTimeBuild=true";
-                  yield "/p:SkipCompilerExecution=true";
-                  yield "/p:GeneratePackageOnBuild=false";
-                  yield "/p:DefineExplicitDefaults=true";
-                  yield "/p:BuildProjectReferences=false";
-                  yield "/p:UseCommonOutputDirectory=false";
-                  yield "/p:DotnetProjInfo=true";
-                  yield! Seq.map ((+) "/p:") extraMsbuildProperties]
-            //printfn "%s, args = %A" exePath args
-            let res = runProcess loggedMessages.Enqueue slnDir exePath (args |> String.concat " ")
-            //printfn "done..."
-            res
 
 
-        let result = ProjectLoader.getProjectInfo file msbuildExe false gp
+        let result = ProjectLoader.getProjectInfo file msbuildExe extraMsbuildProperties false gp
         //file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
@@ -257,7 +241,7 @@ module Crack =
         | Ok (Some targetFrameworks,crackedProjectInfo) when crackedProjectInfo.TargetPath.IsNone && targetFrameworks.Length > 1 ->
             // no targetpath and there are multiple target frameworks
             // let us retry with first target framework specified:
-            let extraMsbuildPropertiesAndFirstTargetFramework = Seq.append extraMsbuildProperties [sprintf "TargetFramework=%s" targetFrameworks.[0]]
+            let extraMsbuildPropertiesAndFirstTargetFramework = List.append extraMsbuildProperties [("TargetFramework", targetFrameworks.[0])]
             let result2 = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildPropertiesAndFirstTargetFramework file
             match result2 with
             | Ok (_,crackedProjectInfo) ->
@@ -421,7 +405,7 @@ module Crack =
                 param None ParamKeys.``fsdocs-collection-name-link`` (Some (info.FsDocsCollectionNameLink |> Option.defaultValue projectUrl))
                 param None ParamKeys.``fsdocs-copyright`` info.Copyright
                 param None ParamKeys.``fsdocs-logo-src`` (Some (defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png"  root)))
-                param None ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-right"))
+                param None ParamKeys.``fsdocs-navbar-position`` (Some (defaultArg info.FsDocsNavbarPosition "fixed-left"))
                 param None ParamKeys.``fsdocs-theme`` (Some (defaultArg info.FsDocsTheme "default"))
                 param None ParamKeys.``fsdocs-logo-link`` (Some (info.FsDocsLogoLink |> Option.defaultValue projectUrl))
                 param (Some "<FsDocsLicenseLink>") ParamKeys.``fsdocs-license-link`` (info.FsDocsLicenseLink |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") repoUrl))
