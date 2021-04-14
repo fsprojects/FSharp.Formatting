@@ -4,7 +4,7 @@ F# Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/
 The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
 for documentation generation.
 
-See http://fsprojects.github.io/FSharp.Formatting/
+See https://fsprojects.github.io/FSharp.Formatting/
 
 
 ## Development

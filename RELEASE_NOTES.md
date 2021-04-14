@@ -322,7 +322,7 @@
  - Fix some links on the website - https://github.com/fsprojects/FSharp.Formatting/pull/458
  - Another link on the website - https://github.com/fsprojects/FSharp.Formatting/pull/454
  - Support highlighting for paket.dependencies `storage` keyword - https://github.com/fsprojects/FSharp.Formatting/pull/451
- - In order to upgrade follow instructions at http://fsprojects.github.io/FSharp.Formatting/upgrade_from_v2_to_v3.html
+ - In order to upgrade follow instructions at https://fsprojects.github.io/FSharp.Formatting/upgrade_from_v2_to_v3.html
 
 ## 3.0.0-beta08 (03 December, 2017)
  - Improve Stacktrace on Script file processing
