@@ -231,7 +231,8 @@ module Bar =
 
 ## Building library documentation programmatically
 
-You can build library documentation programatically. To do this, load the assembly and open necessary namespaces:
+You can build library documentation programatically using the functionality
+in the `cref:T:FSharp.Formatting.ApiDocs.ApiDocs` type. To do this, load the assembly and open necessary namespaces:
 *)
 
 #r "FSharp.Formatting.ApiDocs.dll"
@@ -239,9 +240,7 @@ open FSharp.Formatting.ApiDocs
 open System.IO
 
 (**
-Building the library documentation is easy - you just need to call
-`ApiDocs.Generate` from your FAKE script or from F# Interactive.
-Assuming `root` is the root directory for your project, you can write:
+For example the `cref:M:FSharp.Formatting.ApiDocs.ApiDocs.GenerateHtml` method:
 *)
 
 let file = Path.Combine(root, "bin/YourLibrary.dll")
