@@ -1,3 +1,10 @@
+## 11.0.1
+* update to Ionide.ProjInfo
+* use computed args for references in API doc generation
+* Fix #616
+* Fix #662
+* Fix #646
+
 ## 10.1.1
 * Switch to cleaner default styling based on DiffSharp styles
 * Change `fsdocs-menu` to `fsdocs-nav`

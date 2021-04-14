@@ -10,8 +10,8 @@ nuget CommandLineParser ~> 2.8
 nuget Microsoft.Build.Framework
 nuget Microsoft.Build.Tasks.Core
 nuget Microsoft.Build.Utilities.Core
-nuget Dotnet.ProjInfo
-nuget Dotnet.ProjInfo.Workspace
+nuget Ionide.ProjInfo
+nuget Ionide.ProjInfo.Sln
 nuget Newtonsoft.Json
 nuget Suave
 nuget System.Memory

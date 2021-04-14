@@ -1,5 +1,5 @@
 FSharp.Core
 CommandLineParser
-Dotnet.ProjInfo
-Dotnet.ProjInfo.Workspace
+Ionide.ProjInfo
+Ionide.ProjInfo.Sln
 Suave

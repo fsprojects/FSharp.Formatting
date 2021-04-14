@@ -9,9 +9,15 @@
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <UsesMarkdownComments>true</UsesMarkdownComments>
+    <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
   </PropertyGroup>
     
   <ItemGroup>
+    <Compile Include="external\InspectSln.fs" />
+    <Compile Include="external\Types.fs" />
+    <Compile Include="external\Utils.fs" />
+    <Compile Include="external\VisualTree.fs" />
+    <Compile Include="external\Library.fs" />
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
