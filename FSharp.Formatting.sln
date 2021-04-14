@@ -22,12 +22,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{194B
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "literate", "literate", "{57C28077-FFFE-4F57-B31D-344A9288076B}"
-	ProjectSection(SolutionItems) = preProject
-		misc\literate\demo.fsx = misc\literate\demo.fsx
-		misc\literate\demo.md = misc\literate\demo.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1068-4804-89E7-0AFBAD5F885F}"
 	ProjectSection(SolutionItems) = preProject
 		docs\_template.html = docs\_template.html
