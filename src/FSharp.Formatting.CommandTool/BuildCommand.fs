@@ -415,15 +415,29 @@ type CoreBuildOptions(watch) =
               (projects |> List.map getTime |> List.toArray))
           Utils.cacheBinary cacheFile
            (fun (_, key2) -> key1 = key2)
-           (fun () -> Crack.crackProjects (this.strict, this.extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects), key1)
+           (fun () ->
+               let props =
+                   this.extraMsbuildProperties
+                   |> Seq.toList
+                   |> List.map (fun s ->
+                       let arr = s.Split("=")
+                       if arr.Length > 1 then
+                           arr.[0], String.concat "=" arr.[1..]
+                       else
+                           failwith "properties must be of the form 'PropName=PropValue'")
+               Crack.crackProjects (this.strict, props, userRoot, userCollectionName, userParameters, projects), key1)
 
         if crackedProjects.Length > 0 then
             printfn ""
             printfn "Inputs for API Docs:"
-            for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
                 printfn "    %s" dllFile
 
-        for (dllFile, _, _, _, _, _, _, _, _) in crackedProjects do
+            //printfn "Comand lines for API Docs:"
+            //for (_, runArguments, _, _, _, _, _, _, _, _) in crackedProjects do
+            //    printfn "    %O" runArguments
+
+        for (dllFile, _, _, _, _, _, _, _, _, _) in crackedProjects do
             if not (File.Exists dllFile) then
                 let msg = sprintf "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release." dllFile
                 if this.strict then
@@ -440,13 +454,13 @@ type CoreBuildOptions(watch) =
 
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
             let pd = dict docsParameters
-            for (dllFile, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
+            for (dllFile, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
                 for (((ParamKey pkv2) as pk2) , p2) in projectParameters do
                 if pd.ContainsKey pk2 &&  pd.[pk2] <> p2 then
                     printfn "  (%s) %s --> %s" (Path.GetFileNameWithoutExtension(dllFile)) pkv2 p2
 
         let apiDocInputs =
-            [ for (dllFile, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectWarn, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects ->
+            [ for (dllFile, _, repoUrlOption, repoBranchOption, repoTypeOption, projectMarkdownComments, projectWarn, projectSourceFolder, projectSourceRepo, projectParameters) in crackedProjects ->
                 let sourceRepo =
                     match projectSourceRepo with
                     | Some s -> Some s
@@ -481,6 +495,22 @@ type CoreBuildOptions(watch) =
                   MarkdownComments = this.mdcomments || projectMarkdownComments;
                   Warn = projectWarn;
                   PublicOnly = not this.nonpublic } ]
+
+        // Compute the merge of all referenced DLLs across all projects
+        // so they can be resolved during API doc generation.
+        //
+        // TODO: This is inaccurate: the different projects might not be referencing the same DLLs.
+        // We should do doc generation for each output of each proejct separately
+        let apiDocOtherFlags =
+            [ for (_dllFile, otherFlags,  _, _, _, _, _, _, _, _) in crackedProjects do
+                for otherFlag in otherFlags do
+                    if otherFlag.StartsWith("-r:") then
+                        if File.Exists(otherFlag.[3..]) then
+                            yield otherFlag
+                        else
+                           printfn "NOTE: the reference '%s' was not seen on disk, ignoring" otherFlag ]
+            // TODO: This 'distinctBy' is merging references that may be inconsistent across the project set
+            |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
 
         let output =
             if this.output = "" then
@@ -584,7 +614,7 @@ type CoreBuildOptions(watch) =
                         printfn ""
                         printfn "API docs:"
                         printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
-                        
+
                         let model, globals, index, phase2 =
                             match outputKind with 
                              | OutputKind.Html -> 
@@ -595,7 +625,7 @@ type CoreBuildOptions(watch) =
                                     substitutions = docsParameters,
                                     qualify = this.qualify,
                                     ?template = initialTemplate2,
-                                    otherFlags = Seq.toList this.fscoptions,
+                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
                                     root = root,
                                     libDirs = paths,
                                     strict = this.strict
@@ -608,7 +638,7 @@ type CoreBuildOptions(watch) =
                                     substitutions = docsParameters,
                                     qualify = this.qualify,
                                     ?template = initialTemplate2,
-                                    otherFlags = Seq.toList this.fscoptions,
+                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
                                     root = root,
                                     libDirs = paths,
                                     strict = this.strict
