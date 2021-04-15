@@ -97,24 +97,10 @@ let test = 42"""
   let doc = Literate.ParseScriptString(content, "C" </> "comment.fsx", getFormatAgent())
   doc.Diagnostics |> Seq.length |> shouldEqual 0
   doc.Paragraphs |> Seq.length |> shouldEqual 3
-  doc.Paragraphs.[0..0] |> shouldMatchPar (function| YamlFrontmatter([_;_], _) -> true | _ -> false)
-  doc.Paragraphs.[1..1] |> shouldMatchPar (function| Heading _ -> true | _ -> false)
+  doc.Paragraphs.[0..0] |> shouldMatchPar (function YamlFrontmatter([_;_], _) -> true | _ -> false)
+  doc.Paragraphs.[1..1] |> shouldMatchPar (function Heading _ -> true | _ -> false)
   doc.Paragraphs.[2..2] |> shouldMatchPar (function MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
 
-[<Test>]
-let ``Can parse literate F# script with incomplete frontmatter`` () =
-  let content = """
-(**
----
-key1: value1
-key2: value2
-*)
-let test = 42"""
-  let doc = Literate.ParseScriptString(content, "C" </> "comment.fsx", getFormatAgent())
-  doc.Diagnostics |> Seq.length |> shouldEqual 0
-  doc.Paragraphs |> Seq.length |> shouldEqual 2
-  doc.Paragraphs.[0..0] |> shouldMatchPar (function YamlFrontmatter([_;_], _) -> true | _ -> false)
-  doc.Paragraphs.[1..1] |> shouldMatchPar (function MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true | _ -> false)
 
 [<Test>]
 let ``Can parse literate F# script with empty frontmatter`` () =
