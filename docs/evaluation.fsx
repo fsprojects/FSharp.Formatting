@@ -15,6 +15,10 @@
 #endif // IPYNB
 
 (**
+[![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/diffsharp/diffsharp.github.io/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
+[![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
+[![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
+
 # Embedding script output
 
 
