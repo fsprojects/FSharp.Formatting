@@ -1,3 +1,11 @@
+(**
+---
+title: Generating API Docs
+category: Documentation
+categoryindex: 1
+index: 5
+---
+*)
 (*** condition: prepare ***)
 #nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
@@ -22,7 +30,7 @@ let root = "C:\\"
 [![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
 [![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
 
-API Docs
+API Documentation Generation
 ====================================
 
 The [command-line tool `fsdocs`](commandline.html) can be used to generate documentation 

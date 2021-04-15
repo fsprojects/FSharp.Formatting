@@ -29,7 +29,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 		docs\codeformat.fsx = docs\codeformat.fsx
 		docs\commandline.md = docs\commandline.md
 		docs\content.fsx = docs\content.fsx
-		docs\diagnostics.md = docs\diagnostics.md
 		docs\evaluation.fsx = docs\evaluation.fsx
 		docs\index.md = docs\index.md
 		docs\literate.fsx = docs\literate.fsx

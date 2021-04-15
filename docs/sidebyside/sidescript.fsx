@@ -1,5 +1,11 @@
 (**
-# Example: Script
+---
+title: Literate Script
+category: Examples
+categoryindex: 2
+index: 1
+---
+# Example: Using Literate Script Content
 
 This file demonstrates how to write literate F# script
 files (`*.fsx`) that can be transformed into nice HTML

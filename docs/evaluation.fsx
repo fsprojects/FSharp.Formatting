@@ -1,3 +1,10 @@
+(**
+---
+category: Documentation
+categoryindex: 1
+index: 6
+---
+*)
 (*** condition: prepare ***)
 #nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"

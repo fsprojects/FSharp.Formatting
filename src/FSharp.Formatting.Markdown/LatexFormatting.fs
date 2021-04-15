@@ -217,6 +217,7 @@ let rec formatParagraph (ctx:FormattingContext) paragraph =
       ctx.LineBreak()
       ctx.Writer.Write(@"\end{lstlisting}")
       ctx.LineBreak()
+  | YamlFrontmatter (lines, _) -> ()
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagraph values to a TextWriter

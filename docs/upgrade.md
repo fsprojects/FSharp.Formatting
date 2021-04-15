@@ -1,4 +1,8 @@
-
+---
+category: Advanced
+categoryindex: 3
+index: 1
+---
 
 # Upgrading to fsdocs
 

@@ -171,10 +171,12 @@ let (|HtmlEntity|_|) input =
 type ParsingContext =
   { Links : Dictionary<string, string * option<string>>
     Newline : string
+    IsFirst : bool
     CurrentRange : MarkdownRange option
     ParseOptions: MarkdownParseOptions }
   member x.ParseCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseCodeAsOther) <> enum 0
   member x.ParseNonCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseNonCodeAsOther) <> enum 0
+  member x.AllowYamlFrontMatter = (x.ParseOptions &&& MarkdownParseOptions.AllowYamlFrontMatter) <> enum 0
 
 /// Parses a body of a paragraph and recognizes all inline tags.
 let rec parseChars acc input (ctx:ParsingContext) = seq {
@@ -339,6 +341,15 @@ let (|Heading|_|) lines =
       Some(n, (header, ln), [line1], rest)
   | _rest ->
       None
+
+let (|YamlFrontmatter|_|) lines =
+    match lines with
+    | ("---",p) :: rest ->
+        let yaml = rest |> List.takeWhile (fun (l,_) -> l <> "---")
+        let yamlTextLines = yaml |> List.map fst 
+        let rest = rest |> List.skipWhile (fun (l,_) -> l <> "---") |> (function (("---",_)::t) -> t | l -> l) 
+        Some(yamlTextLines, MarkdownRange.mergeRanges (p::List.map snd yaml), rest)
+    | _ -> None
 
 /// Recognizes a horizontal rule written using *, _ or -
 let (|HorizontalRule|_|) (line:string, _n:MarkdownRange) =
@@ -777,7 +788,20 @@ let updateCurrentRange lines =
 /// Parse a list of lines into a sequence of markdown paragraphs
 let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) list) = seq {
   let ctx = { ctx with CurrentRange = updateCurrentRange lines }
-  match lines with
+  let frontMatter, (Lines.TrimBlankStart(_, moreLines)) =
+      if ctx.IsFirst && ctx.AllowYamlFrontMatter then
+          match lines with
+          | YamlFrontmatter(yaml, loc, rest) -> Some (YamlFrontmatter(yaml, Some loc)), rest
+          | _ -> None, lines
+      else
+          None, lines
+  match frontMatter with
+  | None -> ()
+  | Some p -> yield p
+  let ctx = { ctx with CurrentRange = updateCurrentRange moreLines }
+
+  let ctx = { ctx with IsFirst = false }
+  match moreLines with
   // Recognize various kinds of standard paragraphs
   | LinkDefinition ((key, link), takenLines, Lines.TrimBlankStart (takenLines2, lines)) ->
       if ctx.ParseNonCodeAsOther then
@@ -902,4 +926,4 @@ let rec parseParagraphs (ctx:ParsingContext) (lines:(string * MarkdownRange) lis
 
   | Lines.TrimBlankStart (_takenLines2, []) -> ()
 
-  | _ -> failwithf "Unexpectedly stopped!\n%A" lines }
+  | _ -> failwithf "Unexpectedly stopped!\n%A" moreLines }

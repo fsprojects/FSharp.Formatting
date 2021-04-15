@@ -99,7 +99,7 @@ type Literate private () =
 
         doc.With(paragraphs = pars)
 
-  /// Parse F# Script file
+  /// Parse F# Script file to LiterateDocument
   static member ParseAndCheckScriptFile (path: string, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     let rootInputFolder = Some (defaultArg rootInputFolder (Path.GetDirectoryName(path)))
@@ -108,7 +108,7 @@ type Literate private () =
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
-  /// Parse F# Script file
+  /// Parse string as F# Script to LiterateDocument
   static member ParseScriptString (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     let filePath =
@@ -123,7 +123,17 @@ type Literate private () =
     |> Transformations.formatCodeSnippets filePath ctx
     |> Transformations.evaluateCodeSnippets ctx
 
-  /// Parse Markdown document
+  /// <summary>
+  ///  Parse Markdown document to LiterateDocument
+  /// </summary>
+  /// <param name="path"></param>
+  /// <param name="formatAgent"></param>
+  /// <param name="fscOptions"></param>
+  /// <param name="definedSymbols"></param>
+  /// <param name="references"></param>
+  /// <param name="fsiEvaluator"></param>
+  /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
+  /// <param name="rootInputFolder"></param>
   static member ParseMarkdownFile(path: string, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     let rootInputFolder = Some (defaultArg rootInputFolder (Path.GetDirectoryName(path)))
@@ -132,7 +142,18 @@ type Literate private () =
     |> Transformations.formatCodeSnippets path ctx
     |> Transformations.evaluateCodeSnippets ctx
 
-  /// Parse Markdown document
+  /// <summary>
+  ///  Parse string as a markdown document
+  /// </summary>
+  /// <param name="content"></param>
+  /// <param name="path">optional file path for debugging purposes</param>
+  /// <param name="formatAgent"></param>
+  /// <param name="fscOptions"></param>
+  /// <param name="definedSymbols"></param>
+  /// <param name="references"></param>
+  /// <param name="fsiEvaluator"></param>
+  /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
+  /// <param name="rootInputFolder"></param>
   static member ParseMarkdownString (content, ?path, ?formatAgent, ?fscOptions, ?definedSymbols, ?references, ?fsiEvaluator, ?parseOptions, ?rootInputFolder) =
     let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
     let filePath =
@@ -212,15 +233,17 @@ type Literate private () =
   static member internal ParseAndTransformMarkdownFile
     (input, ?output, ?outputKind, ?formatAgent, ?prefix, ?fscOptions,
       ?lineNumbers, ?references, ?substitutions, ?generateAnchors,
-      ?customizeDocument, ?tokenKindToCss, ?imageSaver, ?rootInputFolder, ?crefResolver) =
+      ?customizeDocument, ?tokenKindToCss, ?imageSaver, ?rootInputFolder,
+      ?crefResolver, ?parseOptions) =
 
     let crefResolver = defaultArg crefResolver (fun _ -> None)
     let outputKind = defaultArg outputKind OutputKind.Html
+    let parseOptions = defaultArg parseOptions MarkdownParseOptions.AllowYamlFrontMatter
     let parseOptions =
         match outputKind with
         | OutputKind.Fsx 
-        | OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
-        | _ -> MarkdownParseOptions.None
+        | OutputKind.Pynb -> parseOptions ||| MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
+        | _ -> parseOptions
 
     let doc = Literate.ParseMarkdownFile (input, ?formatAgent=formatAgent, ?fscOptions=fscOptions, ?references=references, parseOptions=parseOptions, ?rootInputFolder=rootInputFolder)
     let ctx = formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss crefResolver

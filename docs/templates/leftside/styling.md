@@ -1,6 +1,11 @@
-﻿
-Example: Right-Side NavBar
-==================================
+﻿---
+# Example: Right-Side NavBar
+category: Examples
+categoryindex: 2
+index: 4
+---
+
+# Example: Styling for Right-Side Navigation Bar
 
 The sidebar can be moved to the right by using 
 

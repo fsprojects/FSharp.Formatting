@@ -1,3 +1,10 @@
+(**
+---
+category: Advanced
+categoryindex: 3
+index: 2
+---
+*)
 (*** condition: prepare ***)
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
 #r "FSharp.Formatting.Common.dll"
@@ -20,7 +27,7 @@
 Markdown parser
 ==============================
 
-This page demonstrates how to use `FSharp.Formatting.Markdown.dll` to parse a Markdown
+This page demonstrates how to use `FSharp.Formatting.Markdown` to parse a Markdown
 document, process the obtained document representation and
 how to turn the code into a nicely formatted HTML.
 

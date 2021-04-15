@@ -1,4 +1,10 @@
-﻿Example: LaTeX
+﻿---
+title: Markdown LaTeX
+category: Examples
+categoryindex: 2
+index: 3
+---
+Example: Using the Markdown Extensions for LaTeX
 ===================
 
 To use LaTex extension, you need add javascript

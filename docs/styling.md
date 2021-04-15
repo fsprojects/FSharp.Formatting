@@ -1,3 +1,8 @@
+---
+category: Documentation
+categoryindex: 1
+index: 7
+---
 # Customization and Styling 
 
 When using `fsdocs`, there are six levels of extra content development and styling.

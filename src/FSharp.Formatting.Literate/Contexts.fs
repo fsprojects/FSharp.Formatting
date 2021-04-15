@@ -49,7 +49,7 @@ type OutputKind =
 /// Defines the output of processing a literate doc
 type internal LiterateDocModel =
   {
-     /// The extracted title of the document (first h1 header)
+     /// The extracted title of the document (first h1 header if not in front matter)
      Title: string
 
      /// The replacement paramaters
@@ -57,6 +57,15 @@ type internal LiterateDocModel =
 
      /// The text for search index generation (empty for notebooks and latex)
      IndexText: string option
+
+     /// The category in the front matter
+     Category: string option
+
+     /// The category index in the front matter (determines the order of categories)
+     CategoryIndex: string option
+
+     /// The index in the front matter (Determines the order of files within a category)
+     Index: string option
 
      /// The relative output path 
      OutputPath: string

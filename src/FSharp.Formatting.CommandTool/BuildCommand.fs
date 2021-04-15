@@ -231,13 +231,35 @@ type internal DocContent(outputDirectory, previous: Map<_,_>, lineNumbers, fsiEv
                          model.OutputKind = OutputKind.Html &&
                          not (Path.GetFileNameWithoutExtension(inputFile) = "index") -> model
                 | _ -> () ]
-
+        let modelsByCategory =
+            modelsForList
+            |> List.groupBy (fun model -> model.Category)
+            |> List.sortBy (fun (_,ms) ->
+                match ms.[0].CategoryIndex with
+                | Some s -> (try int32 s with _ -> Int32.MaxValue)
+                | None -> Int32.MaxValue)
         [
-            if modelsForList.Length > 0 then
+            // No categories specified
+            if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                 li [Class "nav-header"] [!! "Documentation"]
-            for model in modelsForList do
-                let link = model.Uri(root)
-                li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
+                for model in snd modelsByCategory.[0] do
+                    let link = model.Uri(root)
+                    li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
+            else 
+                // At least one category has been specified. Sort each category by index and emit
+                // Use 'Other' as a header for uncategorised things
+                for (cat, modelsInCategory) in modelsByCategory do
+                    let modelsInCategory =
+                        modelsInCategory |> List.sortBy (fun model ->
+                            match model.Index with
+                            | Some s -> (try int32 s with _ -> Int32.MaxValue)
+                            | None -> Int32.MaxValue)
+                    match cat with
+                    | Some c -> li [Class "nav-header"] [!! c]
+                    | None -> li [Class "nav-header"] [!! "Other"]
+                    for model in modelsInCategory do
+                        let link = model.Uri(root)
+                        li [Class "nav-item"] [ a [Class "nav-link"; (Href link)] [encode model.Title ] ]
         ]
         |> List.map (fun html -> html.ToString()) |> String.concat "             \n"
 

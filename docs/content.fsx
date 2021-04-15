@@ -1,3 +1,10 @@
+(**
+---
+category: Documentation
+categoryindex: 1
+index: 3
+---
+*)
 (*** condition: prepare ***)
 #nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
@@ -60,6 +67,37 @@ copy of this content in your `content` directory.
 ## Ignored Content
 
 Any file or directory beginning with `.` is ignored.
+
+## Front matter
+
+Each content file can have frontmatter.  This determines the navigation bar title, categorization and ordering.
+
+For markdown, the format is:
+```
+---
+title: Some Title
+category: Some Category
+categoryindex: 2
+index: 3
+---
+```
+For F# scripts the frontmatter is in this form:
+```fsharp
+(**
+---
+title: Literate Script
+category: Examples
+categoryindex: 2
+index: 1
+---
+*)
+```
+All entries are optional and the frontmatter is optional.
+The `categoryindex` determines the ordering of categories.
+The `index` determines the ordering of within each category.
+The `title` is used in the navigation bar instead of any title inferred from the document.
+
+
 
 ## Multi-language Content
 
