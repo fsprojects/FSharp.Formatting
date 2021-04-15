@@ -50,6 +50,7 @@ type Markdown internal () =
     //let (Lines.TrimBlank lines) = lines
     let ctx : ParsingContext =
         { Newline = newline
+          IsFirst = true
           Links = links
           CurrentRange = Some(MarkdownRange.zero)
           ParseOptions=parseOptions }

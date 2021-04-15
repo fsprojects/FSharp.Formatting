@@ -70,6 +70,23 @@ module internal Formatting =
 
   let transformDocument (doc: LiterateDocument) (outputPath: string) ctx =
 
+    let findInFrontMatter key =
+        match doc.Paragraphs with
+        | YamlFrontmatter (lines, _) :: _ ->
+            lines |> List.tryPick (fun line ->
+                let line = line.Trim()
+                if line.StartsWith(key+":") then
+                    let line = line.[(key+":").Length..]
+                    let line = line.Trim()
+                    Some line
+                else None)
+        | _ -> None
+    let category = findInFrontMatter "category"
+
+    let categoryIndex = findInFrontMatter "categoryindex"
+    let index = findInFrontMatter "index"
+    let titleFromFrontMatter = findInFrontMatter "title"
+
     // If we want to include the source code of the script, then process
     // the entire source and generate replacement {source} => ...some html...
     let sourceSubstitutions =
@@ -90,8 +107,11 @@ module internal Formatting =
 
     // Get page title (either heading or file name)
     let pageTitle =
-      let name = Path.GetFileNameWithoutExtension(outputPath)
-      defaultArg (findHeadings doc.Paragraphs ctx.GenerateHeaderAnchors ctx.OutputKind) name
+      match titleFromFrontMatter with
+      | Some text -> text
+      | _ ->
+          let name = Path.GetFileNameWithoutExtension(outputPath)
+          defaultArg (findHeadings doc.Paragraphs ctx.GenerateHeaderAnchors ctx.OutputKind) name
 
     // Replace all special elements with ordinary Html/Latex Markdown
     let doc = Transformations.replaceLiterateParagraphs ctx doc
@@ -114,6 +134,9 @@ module internal Formatting =
       OutputPath = outputPath
       OutputKind = ctx.OutputKind
       Title = pageTitle
+      Category=category
+      CategoryIndex=categoryIndex
+      Index=index
       IndexText = indexText
       Substitutions = substitutions
     }

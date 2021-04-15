@@ -1,3 +1,6 @@
+## 11.1.0
+* Add frontmatter, category, categoryindex, index, title
+
 ## 11.0.4
 * testing package publish
 

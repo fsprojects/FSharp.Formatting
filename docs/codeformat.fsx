@@ -1,3 +1,10 @@
+(**
+---
+category: Advanced
+categoryindex: 3
+index: 1
+---
+*)
 (*** condition: prepare ***)
 #nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
@@ -22,7 +29,7 @@
 Code formatting
 ==============================
 
-This page demonstrates how to use `FSharp.Formatting.CodeFormat.dll` to tokenize 
+This page demonstrates how to use `FSharp.Formatting.CodeFormat` to tokenize 
 F# source code, obtain information about the source code (mainly tooltips
 from the type-checker) and how to turn the code into a nicely formatted HTML.
 

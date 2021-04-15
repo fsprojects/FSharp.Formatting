@@ -221,6 +221,8 @@ module internal MarkdownUtils =
             LatexBlock (env, List.map (mapText f) body, range)
         | HorizontalRule (character, range) ->
             HorizontalRule (character, range)
+        | YamlFrontmatter (lines, range) ->
+            YamlFrontmatter (List.map (mapText f) lines, range)
         | TableBlock (headers, alignments, rows, range) ->
             TableBlock (Option.map (List.map (mapParagraphs f)) headers,
                 alignments,

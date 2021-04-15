@@ -276,6 +276,7 @@ let rec internal formatParagraph (ctx:FormattingContext) paragraph =
       for (code, _) in lines do
           ctx.Writer.Write(htmlEncode code)
       ctx.Writer.Write("</code></pre>")
+  | YamlFrontmatter (lines, _) -> ()
   ctx.LineBreak()
 
 /// Write a list of MarkdownParagraph values to a TextWriter

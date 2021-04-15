@@ -1,4 +1,10 @@
-﻿# Example: Markdown
+﻿---
+title: Markdown Content
+category: Examples
+categoryindex: 2
+index: 2
+---
+# Example: Using Markdown Content
 
 This file demonstrates how to write Markdown document with 
 embedded F# snippets that can be transformed into nice HTML 

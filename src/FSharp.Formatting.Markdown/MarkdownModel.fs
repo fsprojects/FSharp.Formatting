@@ -87,6 +87,9 @@ type MarkdownParagraph =
   /// A special addition for computing paragraphs
   | EmbedParagraphs of customParagraphs:MarkdownEmbedParagraphs * range:MarkdownRange option
 
+  /// A special addition for YAML-style frontmatter
+  | YamlFrontmatter of yaml: string list * range:MarkdownRange option
+
   /// A special addition for inserted outputs
   | OutputBlock of output:string * kind: string * executionCount: int option 
 
@@ -171,6 +174,7 @@ module MarkdownPatterns =
     | InlineHtmlBlock _ 
     | EmbedParagraphs _
     | LatexBlock _
+    | YamlFrontmatter _
     | HorizontalRule _ ->
         ParagraphLeaf(PL par)
     | ListBlock(_, pars, _) ->
@@ -213,4 +217,5 @@ type MarkdownParseOptions =
   | None = 0
   | ParseCodeAsOther = 1
   | ParseNonCodeAsOther = 2
+  | AllowYamlFrontMatter = 4
 

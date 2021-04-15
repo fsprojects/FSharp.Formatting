@@ -1,4 +1,9 @@
-﻿# Command line
+﻿---
+category: Documentation
+categoryindex: 1
+index: 1
+---
+# Command line
 
 To use F# Formatting tools via the command line, you can use the `fsdocs` dotnet tool.
 
