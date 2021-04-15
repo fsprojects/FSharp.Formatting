@@ -1,5 +1,5 @@
 ﻿
-Styling: Right-Side Example
+Example: Right-Side NavBar
 ==================================
 
 The sidebar can be moved to the right by using 

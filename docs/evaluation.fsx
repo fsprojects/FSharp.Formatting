@@ -15,7 +15,7 @@
 #endif // IPYNB
 
 (**
-# Embedding literate script output
+# Embedding script output
 
 
 For literate F# scripts, you may embed the result of running the script as part of the literate output.

@@ -43,7 +43,7 @@ The output goes in `output/` by default.  Processing is recursive, making this a
 
 ## Literate Scripts and Markdown Content
 
-The input directory may contain [literate scripts and markdown](literate.html).
+The input directory may contain [literate scripts](literate.html) and markdown content.
 
 ## Other Content
 

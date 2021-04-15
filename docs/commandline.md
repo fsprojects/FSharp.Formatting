@@ -1,4 +1,4 @@
-﻿# Command line tool
+﻿# Command line
 
 To use F# Formatting tools via the command line, you can use the `fsdocs` dotnet tool.
 

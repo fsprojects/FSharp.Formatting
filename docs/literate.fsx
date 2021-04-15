@@ -18,8 +18,8 @@
 (**
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath={{fsdocs-source-basename}}.ipynb)
 
-Literate Scripts and Markdown
-===================================
+Literate Scripts
+================
 
 The following example shows most of the features that can be used in a literate
 F# script file with `.fsx` extension. Most of the features should be quite self-explanatory:

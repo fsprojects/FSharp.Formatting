@@ -18,7 +18,7 @@
 let root = "C:\\"
 
 (**
-API Documentation generation 
+API Docs
 ====================================
 
 The [command-line tool `fsdocs`](commandline.html) can be used to generate documentation 
