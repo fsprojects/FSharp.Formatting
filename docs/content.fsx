@@ -70,7 +70,7 @@ Any file or directory beginning with `.` is ignored.
 
 ## Front matter
 
-Each content file can have frontmatter.  This determines the navigation bar title, categorization and ordering.
+Each content file can have optional frontmatter.  This determines the navigation bar title, categorization and ordering.
 
 For markdown, the format is:
 ```
@@ -82,17 +82,17 @@ index: 3
 ---
 ```
 For F# scripts the frontmatter is in this form:
-```fsharp
-(**
----
-title: Literate Script
-category: Examples
-categoryindex: 2
-index: 1
----
-*)
-```
-All entries are optional and the frontmatter is optional.
+
+    (**
+    ---
+    title: A Literate Script
+    category: Examples
+    categoryindex: 2
+    index: 1
+    ---
+    *)
+
+All entries are optional.
 The `categoryindex` determines the ordering of categories.
 The `index` determines the ordering of within each category.
 The `title` is used in the navigation bar instead of any title inferred from the document.
