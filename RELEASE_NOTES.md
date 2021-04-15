@@ -1,3 +1,6 @@
+## 11.0.3
+* testing package publish key
+
 ## 11.0.2
 * add favicon.ico to template and use F# logo as default favicon for generated sites
 
