@@ -7,13 +7,13 @@ open System.Xml
 
 open FSharp.Formatting.Templating
 
-open Ionide2.ProjInfo
-open Ionide2.ProjInfo.Types
+open Ionide.ProjInfo
+open Ionide.ProjInfo.Types
 
 [<AutoOpen>]
 module Utils =
     // Needs to be done before anything else?!?
-    let msbuildExe = Ionide2.ProjInfo.Init.init()
+    let msbuildExe = Ionide.ProjInfo.Init.init()
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
         if not dir.Exists then dir.Create()
