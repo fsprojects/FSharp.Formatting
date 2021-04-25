@@ -339,6 +339,9 @@ type CoreBuildOptions(watch) =
     [<Option("noapidocs", Default= false, Required = false, HelpText = "Disable generation of API docs.")>]
     member val noapidocs = false with get, set
 
+    [<Option("ignoreprojects", Default= false, Required = false, HelpText = "Disable project cracking.")>]
+    member val ignoreprojects = false with get, set
+
     [<Option("strict", Default= false, Required = false, HelpText = "Fail if there is a problem generating docs.")>]
     member val strict = false with get, set
 
@@ -447,7 +450,7 @@ type CoreBuildOptions(watch) =
                            arr.[0], String.concat "=" arr.[1..]
                        else
                            failwith "properties must be of the form 'PropName=PropValue'")
-               Crack.crackProjects (this.strict, props, userRoot, userCollectionName, userParameters, projects), key1)
+               Crack.crackProjects (this.strict, props, userRoot, userCollectionName, userParameters, projects, this.ignoreprojects), key1)
 
         if crackedProjects.Length > 0 then
             printfn ""
