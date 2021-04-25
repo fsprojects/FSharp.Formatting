@@ -293,10 +293,9 @@ module Crack =
                 let collectionName = Path.GetFileName(slnDir)
                 collectionName, projectFiles
             | _, true ->
-                if userCollectionName.IsNone then
-                    printfn "Warning: Parameter `fsdocs-collection-name` not set, defaulting to `Project`"
-                let collectionName = defaultArg userCollectionName "Project"
+                let collectionName = defaultArg userCollectionName (Path.GetFileName slnDir)
                 collectionName, []
+
           //printfn "projects = %A" projectFiles
         let projectFiles =
             projectFiles |> List.choose (fun s ->
