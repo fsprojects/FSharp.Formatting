@@ -344,8 +344,7 @@ module Crack =
         //printfn "projectInfos = %A" projectInfos
 
         if projectInfos.Length = 0 && projectFiles.Length > 0 then
-            printfn "Error while cracking project files, no project files succeeded, exiting."
-            exit 1
+            printfn "Warning: While cracking project files, no project files succeeded."
 
         let param setting key v =
             match v with
