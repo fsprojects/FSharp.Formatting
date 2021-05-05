@@ -131,7 +131,7 @@ type HtmlRender(model: ApiDocModel) =
                         match m.ReturnInfo.ReturnType with
                         | None -> ()
                         | Some rty ->
-                            span [] [!! "Returns: "; embed rty ]
+                            span [] [!! (if m.Kind <> ApiDocMemberKind.RecordField then "Returns: " else "Field type: "); embed rty ]
                             match m.ReturnInfo.ReturnDocs with
                             | None -> ()
                             | Some d -> embed d
