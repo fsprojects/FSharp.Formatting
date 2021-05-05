@@ -1,6 +1,3 @@
-## 11.1.1
-* [ApiDocs: Show type denotation for record fields](https://github.com/fsprojects/FSharp.Formatting/issues/674)
-
 ## 11.1.0
 * Add frontmatter, category, categoryindex, index, title
 
