@@ -1311,7 +1311,7 @@ module internal SymbolReader =
 
         let retType = field.FieldType
         let retTypeHtml = retType |> (formatTypeAsHtml ctx.UrlMap >> codeHtml)
-        let returnType = None
+        let returnType =
             if isUnitType retType then None else Some retTypeHtml
             
         let loc = tryGetLocation field
