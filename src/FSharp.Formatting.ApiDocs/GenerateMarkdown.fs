@@ -84,7 +84,7 @@ type MarkdownRender(model: ApiDocModel) =
                 match m.ReturnInfo.ReturnType with
                  | None -> ()
                  | Some t -> p [
-                       !! "Returns: "
+                       !! (if m.Kind <> ApiDocMemberKind.RecordField then "Returns: " else "Field type: ")
                        embedSafe t
                        br
                        match m.ReturnInfo.ReturnDocs with
