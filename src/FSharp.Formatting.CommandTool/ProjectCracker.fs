@@ -260,13 +260,13 @@ module Crack =
         | Error e ->
             raise (exn("cannot load the sln", e))
 
-    let crackProjects (strict, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects) =
+    let crackProjects (strict, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects) =
         let slnDir = Path.GetFullPath "."
 
         //printfn "x.projects = %A" x.projects
         let collectionName, projectFiles =
-            match projects with
-            | [] ->
+            match projects, ignoreProjects with
+            | [], false ->
                 match Directory.GetFiles(slnDir, "*.sln") with
                 | [| sln |] ->
                     printfn "getting projects from solution file %s" sln
@@ -289,9 +289,12 @@ module Crack =
 
                     collectionName, projectFiles
 
-            | projectFiles ->
+            | projectFiles, false ->
                 let collectionName = Path.GetFileName(slnDir)
                 collectionName, projectFiles
+            | _, true ->
+                let collectionName = defaultArg userCollectionName (Path.GetFileName slnDir)
+                collectionName, []
 
           //printfn "projects = %A" projectFiles
         let projectFiles =
@@ -303,8 +306,11 @@ module Crack =
                     Some s)
 
         //printfn "filtered projects = %A" projectFiles
-        if projectFiles.Length = 0 then
+        if projectFiles.Length = 0 && (ignoreProjects |> not) then
             printfn "no project files found, no API docs will be generated"
+
+        if ignoreProjects then
+            printfn "project files are ignored, no API docs will be generated"
 
         printfn "cracking projects..."
         let projectInfos =
@@ -315,7 +321,7 @@ module Crack =
                     Some (crackProjectFile slnDir extraMsbuildProperties p)
                 with e ->
                     printfn "  skipping project '%s' because an error occurred while cracking it: %O" (Path.GetFileName p) e
-                    if strict then
+                    if strict && (ignoreProjects |> not) then
                         printfn "Project cracking failed and --strict is on, exiting"
                         exit 1
                     None)
