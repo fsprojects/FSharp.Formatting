@@ -131,7 +131,7 @@ type HtmlRender(model: ApiDocModel) =
                         match m.ReturnInfo.ReturnType with
                         | None -> ()
                         | Some rty ->
-                            span [] [!! "Returns: "; embed rty ]
+                            span [] [!! (if m.Kind <> ApiDocMemberKind.RecordField then "Returns: " else "Field type: "); embed rty ]
                             match m.ReturnInfo.ReturnDocs with
                             | None -> ()
                             | Some d -> embed d
@@ -191,7 +191,7 @@ type HtmlRender(model: ApiDocModel) =
                   | Some t ->
                       dl [Class "fsdocs-returns"] [
                           dt [] [
-                              span [Class "fsdocs-return-name"] [!! "Returns:"]
+                              span [Class "fsdocs-return-name"] [!! (if m.Kind <> ApiDocMemberKind.RecordField then "Returns: " else "Field type: ")]
                               embed t
                           ]
                           dd [Class "fsdocs-return-docs"] [

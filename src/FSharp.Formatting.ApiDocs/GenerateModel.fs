@@ -1309,8 +1309,11 @@ module internal SymbolReader =
         //let signatureTooltip = formatTypeAsText field.FieldType
         let paramTypes = []
 
-        let returnType = None
-           //if isUnitType retType then None else Some retTypeText 
+        let retType = field.FieldType
+        let retTypeHtml = retType |> (formatTypeAsHtml ctx.UrlMap >> codeHtml)
+        let returnType =
+            if isUnitType retType then None else Some retTypeHtml
+            
         let loc = tryGetLocation field
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
         ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typeParams, None, location, if field.Name <> field.DisplayName then Some field.Name else None)
