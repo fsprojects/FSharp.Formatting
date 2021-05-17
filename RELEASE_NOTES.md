@@ -1,3 +1,9 @@
+## 11.2.0
+
+* scrollable navbar #677 by nhirschey 
+* Show field type for record fields #674
+* Add --ignoreprojects flag  #676 by chengh42 
+
 ## 11.1.0
 * Add frontmatter, category, categoryindex, index, title
 
