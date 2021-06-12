@@ -379,6 +379,8 @@ body {
     .fsdocs-source-link img {
         border-style: none;
         margin-left: 10px;
+        width: auto;
+        height: 1.4em;
     }
 
     .fsdocs-source-link .hover {
@@ -409,7 +411,7 @@ body {
 }
 
 /*--------------------------------------------------------------------------
-  
+
 /*--------------------------------------------------------------------------*/
 
 #fsdocs-content table.pre pre {
