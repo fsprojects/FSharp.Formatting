@@ -41,7 +41,7 @@ type HtmlRender(model: ApiDocModel) =
       [ match url with
         | None -> ()
         | Some href ->
-          a [Href href; Class"fsdocs-source-link" ] [
+          a [Href href; Class"fsdocs-source-link"; Title "Source on GitHub" ] [
             img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/github-hover.png" root); Class "hover"]
           ] ]
