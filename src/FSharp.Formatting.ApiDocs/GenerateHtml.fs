@@ -41,7 +41,7 @@ type HtmlRender(model: ApiDocModel) =
       [ match url with
         | None -> ()
         | Some href ->
-          a [Href href; Class"fsdocs-source-link"; Title"Source on GitHub" ] [
+          a [Href href; Class"fsdocs-source-link"; HtmlProperties.Title "Source on GitHub" ] [
             img [Src (sprintf "%scontent/img/github.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/github-hover.png" root); Class "hover"]
           ] ]
@@ -52,7 +52,7 @@ type HtmlRender(model: ApiDocModel) =
 
   // Copy XML sig for use in `cref` XML
   let copyXmlSigIcon xmlDocSig =
-      div [ Class"fsdocs-source-link"; Title"Copy signature (XML)"; OnClick (sprintf "Clipboard_CopyTo('<see cref=\\\'%s\\\'/>')" xmlDocSig) ] [
+      div [ Class"fsdocs-source-link"; HtmlProperties.Title "Copy signature (XML)"; OnClick (sprintf "Clipboard_CopyTo('<see cref=\\\'%s\\\'/>')" xmlDocSig) ] [
             img [Src (sprintf "%scontent/img/copy-xml.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/copy-xml-hover.png" root); Class "hover"]
           ]
@@ -75,7 +75,7 @@ type HtmlRender(model: ApiDocModel) =
           if xmlDocSig.Contains("``") then "```"
           elif xmlDocSig.Contains("`") then "``"
           else "`"
-      div [ Class"fsdocs-source-link"; Title"Copy signature (Markdown)"; OnClick (sprintf "Clipboard_CopyTo('%scref:%s%s')" delim xmlDocSig delim) ] [
+      div [ Class"fsdocs-source-link"; HtmlProperties.Title "Copy signature (Markdown)"; OnClick (sprintf "Clipboard_CopyTo('%scref:%s%s')" delim xmlDocSig delim) ] [
             img [Src (sprintf "%scontent/img/copy-md.png" root); Class "normal"]
             img [Src (sprintf "%scontent/img/copy-md-hover.png" root); Class "hover"]
           ]
