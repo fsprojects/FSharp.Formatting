@@ -154,7 +154,7 @@ type CodeFormatAgent() =
     | SemanticClassificationType.TypeArgument -> Some TokenKind.TypeArgument
     | SemanticClassificationType.Operator -> Some TokenKind.Operator
     | SemanticClassificationType.IntrinsicFunction -> Some TokenKind.Keyword
-    | n -> None
+    | _ -> None
 
 
     // Processes a single line of the snippet

@@ -2146,8 +2146,6 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
     static member internal Generate(projects: ApiDocInput list, collectionName, libDirs, otherFlags,
          qualify, urlRangeHighlight, root, substitutions, strict, extensions) =
 
-        let (@@) a b = Path.Combine(a, b)
-
         // Default template file names
 
         let otherFlags = defaultArg otherFlags []

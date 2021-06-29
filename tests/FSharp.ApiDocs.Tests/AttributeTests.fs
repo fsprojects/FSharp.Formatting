@@ -27,12 +27,7 @@ let configuration =
     "Release"
 #endif
 
-let tfm =
-#if NETCOREAPP
-    "netstandard2.1"
-#else
-    "net472"
-#endif
+let tfm = "netstandard2.1"
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below
