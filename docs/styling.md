@@ -71,7 +71,7 @@ As an example, here is [a page with `fsdocs-navbar-position` set to `fixed-right
 
 ## Customizing via CSS
 
-You can start styling by creating a file `docs/fsdocs-custom.css` and adding entries to it.  It is loaded by
+You can start styling by creating a file `docs/content/fsdocs-custom.css` and adding entries to it.  It is loaded by
 the standard template.  The CSS classes of generated content are:
 
 |  CSS class   | Corresponding Content|  
