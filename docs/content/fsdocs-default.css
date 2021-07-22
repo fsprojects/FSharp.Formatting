@@ -325,7 +325,7 @@ body {
     white-space: pre;
     font: 0.85rem 'Roboto Mono', monospace;
     width: 90%;
-    /* margin: 10px 20px 20px 20px; */
+    margin-bottom: 1em;
     background-color: #f3f4f7;
     padding: 10px;
     /* border-radius: 5px; */
