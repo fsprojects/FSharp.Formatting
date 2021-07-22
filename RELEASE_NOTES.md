@@ -1,3 +1,7 @@
+## 11.4.0
+
+* [Fixed some CSS](https://github.com/fsprojects/FSharp.Formatting/pull/688/)
+
 ## 11.3.0
 
 * [Bump to FSharp.Compiler.Service 40.0](https://github.com/fsprojects/FSharp.Formatting/pull/682)
