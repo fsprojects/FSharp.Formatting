@@ -1,3 +1,10 @@
+## 11.3.0
+
+* [Bump to FSharp.Compiler.Service 40.0](https://github.com/fsprojects/FSharp.Formatting/pull/682)
+* [Fix bottom margin in default CSS](https://github.com/fsprojects/FSharp.Formatting/pull/687)
+* [Improve github and signature links](https://github.com/fsprojects/FSharp.Formatting/pull/681)
+* [Fix typo in location for custom CSS](https://github.com/fsprojects/FSharp.Formatting/pull/684)
+
 ## 11.2.0
 
 * scrollable navbar #677 by nhirschey 
