@@ -1,3 +1,7 @@
+## 11.4.1
+
+* [Fixed navbar scrolling](https://github.com/fsprojects/FSharp.Formatting/issues/672#issuecomment-885532640)
+
 ## 11.4.0
 
 * [Fixed some CSS](https://github.com/fsprojects/FSharp.Formatting/pull/688/)
