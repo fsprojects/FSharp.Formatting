@@ -24,8 +24,8 @@ index: 3
 
 (**
 [![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/diffsharp/diffsharp.github.io/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
+[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
 
 Literate Scripts
 ================
@@ -37,14 +37,14 @@ F# script file with `.fsx` extension. Most of the features should be quite self-
     # First-level heading
     Some more documentation using `Markdown`.
     *)
-    
+
     let helloWorld() = printfn "Hello world!"
 
-    (** 
+    (**
     ## Second-level heading
     With some more documentation
     *)
-    
+
     let numbers = [ 0 .. 99 ]
     (*** include-value: numbers ***)
 
@@ -53,12 +53,12 @@ F# script file with `.fsx` extension. Most of the features should be quite self-
 
 The F# script files is processed as follows:
 
-- A multi-line comment starting with `(**` and ending with `*)` is 
-  turned into text and is processed using the F# Markdown processor 
+- A multi-line comment starting with `(**` and ending with `*)` is
+  turned into text and is processed using the F# Markdown processor
   (which supports standard Markdown commands).
 
-- A single-line comment starting with `(***` and ending with `***)` 
-  is treated as a special command. The command can consist of 
+- A single-line comment starting with `(***` and ending with `***)`
+  is treated as a special command. The command can consist of
   `key`, `key: value` or `key=value` pairs.
 
 |  Literate Command     | Description               |
@@ -79,7 +79,7 @@ The F# script files is processed as follows:
 
 ### Named snippets
 
-The command `define` defines a named snippet (such as `final-sample`) and removes the command together with 
+The command `define` defines a named snippet (such as `final-sample`) and removes the command together with
 the following F# code block from the main document. The snippet can then
 be referred to using these variations. This makes it
 possible to write documents without the ordering requirements of the
@@ -97,7 +97,7 @@ F# language.
 
 #### Hiding code snippets
 
-The command `hide` specifies that the following F# code block (until the next comment or command) should be 
+The command `hide` specifies that the following F# code block (until the next comment or command) should be
 omitted from the output.
 
 #### Evaluating and formatting results
@@ -114,7 +114,7 @@ Substitutions are applied to content, see [content](content.html).
 For files with `.md` extension, the entire file is a Markdown document, which may
 contain F# code snippets (but also other code snippets). As usual, snippets are
 indented with four spaces. In addition, the snippets can be annotated with special
-commands. Some of them are demonstrated in the following example: 
+commands. Some of them are demonstrated in the following example:
 
     [lang=text]
     # First-level heading
@@ -158,7 +158,7 @@ Literate Scripts may contain LaTeX sections in Markdown using these forms:
 
 1. Single line latex starting with `$$`.
 
-2. A block delimited by `\begin{equation}...\end{equation}` or `\begin{align}...\end{align}`. 
+2. A block delimited by `\begin{equation}...\end{equation}` or `\begin{align}...\end{align}`.
 
 3. An indented paragraph starting with `$$$`.  This is F#-literate-specific and corresponds to
    `\begin{equation}...\end{equation}`.
@@ -237,7 +237,7 @@ let projInfo =
 
 (**
 
-The methods used above (`cref:M:FSharp.Formatting.Literate.Literate.ConvertScriptFile`, `cref:M:FSharp.Formatting.Literate.Literate.ConvertMarkdownFile`) 
+The methods used above (`cref:M:FSharp.Formatting.Literate.Literate.ConvertScriptFile`, `cref:M:FSharp.Formatting.Literate.Literate.ConvertMarkdownFile`)
 produce HTML output by default, but they can be also used to produce LaTeX output. This is done
 by setting the output kind. The following
 example shows how to call the methods to generate LaTeX documents:
@@ -252,7 +252,7 @@ Literate.ConvertMarkdownFile(docTex, templateTex, outputKind=OutputKind.Latex)
 
 (**
 
-The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile`) 
+The methods used above (`ConvertScriptFile`, `ConvertMarkdownFile`)
 can also produce iPython Notebook output. This is done
 by setting the named parameter `format` to `OutputKind.Pynb`:
 *)

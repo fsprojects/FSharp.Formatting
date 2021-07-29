@@ -21,8 +21,8 @@ index: 2
 
 (**
 [![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/diffsharp/diffsharp.github.io/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
+[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
 
 Markdown parser
 ==============================
@@ -43,7 +43,7 @@ Parsing documents
 -----------------
 
 The F# Markdown parser recognizes the standard [Markdown syntax](http://daringfireball.net/projects/markdown/)
-and it is not the aim of this tutorial to fully document it. 
+and it is not the aim of this tutorial to fully document it.
 The following snippet creates a simple string containing a document
 with several elements and then parses it using the `cref:M:FSharp.Formatting.Markdown.Markdown.Parse` method:
 *)
@@ -61,9 +61,9 @@ For more see [fsharp.org][fsorg].
 let parsed = Markdown.Parse(document)
 
 (**
-The sample document consists of a first-level heading (written using 
-one of the two alternative styles) followed by a paragraph with a 
-_direct_ link, code snippet and one more paragraph that includes an 
+The sample document consists of a first-level heading (written using
+one of the two alternative styles) followed by a paragraph with a
+_direct_ link, code snippet and one more paragraph that includes an
 _indirect_ link. The URLs of indirect links are defined by a separate
 block as demonstrated on the last line (and they can then be easily used repeatedly
 from multiple places in the document).
@@ -72,7 +72,7 @@ Working with parsed documents
 -----------------------------
 
 The F# Markdown processor does not turn the document directly into HTML.
-Instead, it builds a nice F# data structure that we can use to analyze, 
+Instead, it builds a nice F# data structure that we can use to analyze,
 transform and process the document. First of all the `cref:P:FSharp.Formatting.Markdown.MarkdownDocument.DefinedLinks` property
 returns all indirect link definitions:
 *)
@@ -90,7 +90,7 @@ The following snippet prints the heading of the document:
 // Iterate over all the paragraph elements
 for par in parsed.Paragraphs do
   match par with
-  | Heading(size=1; body=[Literal(text=text)]) -> 
+  | Heading(size=1; body=[Literal(text=text)]) ->
       // Recognize heading that has a simple content
       // containing just a literal (no other formatting)
       printfn "%s" text
@@ -103,13 +103,13 @@ in the book [F# Deep Dives](http://manning.com/petricek2/).
 Processing the document recursively
 -----------------------------------
 
-The library provides active patterns that can be used to easily process the Markdown 
+The library provides active patterns that can be used to easily process the Markdown
 document recursively. The example in this section shows how to extract all links from the
 document. To do that, we need to write two recursive functions. One that will process
 all paragraph-style elements and one that will process all inline formattings (inside
 paragraphs, headings etc.).
 
-To avoid pattern matching on every single kind of span and every single kind of 
+To avoid pattern matching on every single kind of span and every single kind of
 paragraph, we can use active patterns from the `cref:T:FSharp.Formatting.Markdown.MarkdownPatterns` module. These can be use
 to recognize any paragraph or span that can contain child elements:
 
@@ -123,14 +123,14 @@ let rec collectSpanLinks span = seq {
   | MarkdownPatterns.SpanLeaf _ -> ()
   | MarkdownPatterns.SpanNode(_, spans) ->
       for s in spans do yield! collectSpanLinks s }
-      
+
 /// Returns all links in the specified paragraph node
 let rec collectParLinks par = seq {
   match par with
   | MarkdownPatterns.ParagraphLeaf _ -> ()
-  | MarkdownPatterns.ParagraphNested(_, pars) -> 
-      for ps in pars do 
-        for p in ps do yield! collectParLinks p 
+  | MarkdownPatterns.ParagraphNested(_, pars) ->
+      for ps in pars do
+        for p in ps do yield! collectParLinks p
   | MarkdownPatterns.ParagraphSpans(_, spans) ->
       for s in spans do yield! collectSpanLinks s }
 
@@ -150,11 +150,11 @@ Some span nodes (like emphasis) can contain other formatting, so we need to recu
 process children. This is done by matching against `MarkdownPatterns.SpanNodes` which is an active
 pattern that recognizes any node with children. The library also provides a _function_
 named `MarkdownPatterns.SpanNode` that can be used to reconstruct the same node (when you want
-to transform document). This is similar to how the `ExprShape` module for working with 
+to transform document). This is similar to how the `ExprShape` module for working with
 F# quotations works.
 
-The function `collectParLinks` processes paragraphs - a paragraph cannot directly be a 
-link so we just need to process all spans. This time, there are three options. 
+The function `collectParLinks` processes paragraphs - a paragraph cannot directly be a
+link so we just need to process all spans. This time, there are three options.
 `ParagraphLeaf` represents a case where the paragraph does not contain any spans
 (a code block or, for example, a `<hr>` line); the `ParagraphNested` case is used for paragraphs
 that contain other paragraphs (quotation) and `ParagraphSpans` is used for all other

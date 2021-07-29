@@ -24,8 +24,8 @@ index: 3
 
 (**
 [![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/diffsharp/diffsharp.github.io/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
+[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
 
 Creating Content
 ===================================
@@ -123,30 +123,30 @@ generated outputs.
 
 See [Styling](styling.html) for information about template parameters and styling beyond the default template.
 
-|  Substitution name            | Generated content |  
+|  Substitution name            | Generated content |
 |:------------------------------|:--------------------------------------------------------------|
-| `root`                        | `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`    |  
-| `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |  
-| `fsdocs-content`              | Main page content                                             |   
-| `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |  
-| `fsdocs-list-of-documents`    | HTML `<li>` list of documents with  titles and links          |  
-| `fsdocs-page-title`           | First h1 heading in literate file. Generated for API docs     | 
-| `fsdocs-source`               | Original literate script or markdown source                   | 
-| `fsdocs-source-filename`      | Name of original input source, relative to the `docs` root           | 
-| `fsdocs-source-basename`      | Name of original input source, excluding its extensions, relative to the `docs` root  | 
-| `fsdocs-tooltips`             | Generated hidden div elements for tooltips                    | 
+| `root`                        | `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`    |
+| `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |
+| `fsdocs-content`              | Main page content                                             |
+| `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |
+| `fsdocs-list-of-documents`    | HTML `<li>` list of documents with  titles and links          |
+| `fsdocs-page-title`           | First h1 heading in literate file. Generated for API docs     |
+| `fsdocs-source`               | Original literate script or markdown source                   |
+| `fsdocs-source-filename`      | Name of original input source, relative to the `docs` root           |
+| `fsdocs-source-basename`      | Name of original input source, excluding its extensions, relative to the `docs` root  |
+| `fsdocs-tooltips`             | Generated hidden div elements for tooltips                    |
 | `fsdocs-watch-script`         | The websocket script used in watch mode to trigger hot reload |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:
 
-|  Substitution name                   | Value                          | 
-|:-------------------------------------|:-------------------------------| 
-| `fsdocs-copyright`                   | `<Copyright>`                  |  
-| `fsdocs-package-project-url`         | `<PackageProjectUrl>`          | 
+|  Substitution name                   | Value                          |
+|:-------------------------------------|:-------------------------------|
+| `fsdocs-copyright`                   | `<Copyright>`                  |
+| `fsdocs-package-project-url`         | `<PackageProjectUrl>`          |
 | `fsdocs-package-license-expression`  | `<PackageLicenseExpression>`   |
-| `fsdocs-package-tags`                | `<PackageTags>`                |  
-| `fsdocs-package-version`             | `<Version>`                    |  
+| `fsdocs-package-tags`                | `<PackageTags>`                |
+| `fsdocs-package-version`             | `<Version>`                    |
 
 For the `fsdocs` tool, additional substitutions can be specified using `--parameters`.
 
@@ -196,7 +196,7 @@ If a file `_template.html` exists then is used as the template for HTML generati
 
 To generate .tex output for each script and markdown file, add a `_template.tex`. Substitutions are
 applied to this template. The file is either empty of contains `{{fsdocs-content}}` as the key where the body
-of the document is placed. 
+of the document is placed.
 
 ## Generating iPython Notebook output
 
@@ -207,11 +207,11 @@ To add a `mybinder` badge to your generated notebook, ensure you have a `Dockerf
 in your `docs` directory and use text like this:
 
     [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fsprojects/FSharp.Formatting/gh-pages?filepath=literate.ipynb)
-    
+
 ## Generating Script outputs
 
 To generate .fsx output for each script and markdown file, add a `_template.fsx`, usually empty. Substitutions are
 applied to this template. It is either empty of contains `{{fsdocs-content}}` as the key where the body
-of the script is placed. 
+of the script is placed.
 
 *)

@@ -27,13 +27,13 @@ let root = "C:\\"
 
 (**
 [![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/diffsharp/diffsharp.github.io/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
+[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
 
 API Documentation Generation
 ====================================
 
-The [command-line tool `fsdocs`](commandline.html) can be used to generate documentation 
+The [command-line tool `fsdocs`](commandline.html) can be used to generate documentation
 for F# libraries with XML comments.  The documentation is normally built using `fsdocs build` and developed using `fsdocs watch`. For
 the former the output will be placed in `output\reference` by default.
 
@@ -41,7 +41,7 @@ the former the output will be placed in `output\reference` by default.
 
 The HTML is built by instantiating a template. The template used is the first of:
 
-* `docs/reference/_template.html` 
+* `docs/reference/_template.html`
 
 * `docs/_template.html`
 
@@ -57,11 +57,11 @@ The tags that form the core of the XML doc specification are:
 
 ```
 <c>	<para>	<see>*	<value>
-<code>	<param>*	<seealso>*	
-<example>	<paramref>	<summary>	
-<exception>*	<permission>*	<typeparam>*	
-<include>*	<remarks>	<typeparamref>	
-<list>	<inheritdoc>	<returns>	
+<code>	<param>*	<seealso>*
+<example>	<paramref>	<summary>
+<exception>*	<permission>*	<typeparam>*
+<include>*	<remarks>	<typeparamref>
+<list>	<inheritdoc>	<returns>
 ```
 
 In addition, you may also use the [Recommended XML doc extensions for F# documentation tooling](https://github.com/fsharp/fslang-design/blob/master/tooling/FST-1031-xmldoc-extensions.md).
@@ -75,7 +75,7 @@ In addition, you may also use the [Recommended XML doc extensions for F# documen
 * `<exclude>` to exclude from XML docs
 
 * `<category>` to give a category for an entity or member. An optional `index` attribute can be specified
-  to help sort the list of categories. 
+  to help sort the list of categories.
 
 * `\(...\)` for inline math and `$$...$$` and `\[...\]`for math environments, see http://docs.mathjax.org.
   Some escaping of characters (e.g. `&lt;`, `&gt;`) may be needed to form valid XML
@@ -92,7 +92,7 @@ An example of an XML documentation comment, assuming the code is in namespace `T
 ///   <remarks>More on that</remarks>
 /// </namespacedoc>
 ///
-module SomeModule = 
+module SomeModule =
     /// <summary>
     ///   Some actual comment
     ///   <para>Another paragraph, see  <see cref="T:TheNamespace.SomeType"/>. </para>
@@ -115,7 +115,7 @@ module SomeModule =
 
 /// <summary>
 ///   A type, see  <see cref="T:TheNamespace.SomeModule"/> and
-///  <see cref="M:TheNamespace.SomeModule.someFunction"/>. 
+///  <see cref="M:TheNamespace.SomeModule.someFunction"/>.
 /// </summary>
 ///
 type SomeType() =
@@ -127,7 +127,7 @@ Like types, members are referred to by xml doc sig.  These must currently be pre
 compiler doesn't elaborate these references from simpler names:
 *)
 
-type Class2() = 
+type Class2() =
     member this.Property = "more"
     member this.Method0() = "more"
     member this.Method1(c: string) = "more"
@@ -143,7 +143,7 @@ let referringFunction1 () = "result"
 Generic types are referred to by .NET compiled name, e.g.
 *)
 
-type GenericClass2<'T>() = 
+type GenericClass2<'T>() =
     member this.Property = "more"
 
     member this.NonGenericMethod(_c: 'T) = "more"
@@ -171,7 +171,7 @@ This is normally done automatically based on the following settings:
 If your source is not built from the same project where you are building documentation then
 you may need these settings:
 
-    <FsDocsSourceRepository>...</FsDocsSourceRepository> -- the URL for the root of the source 
+    <FsDocsSourceRepository>...</FsDocsSourceRepository> -- the URL for the root of the source
     <FsDocsSourceFolder>...</FsDocsSourceFolder>         -- the root soure folder at time of build
 
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
@@ -204,25 +204,25 @@ If a type with the given name is not found in the same assembly the link will no
 *)
 
 /// Contains two types [Bar] and [Foo.Baz]
-module Foo = 
-    
+module Foo =
+
     /// Bar is just an `int` and belongs to module [Foo]
     type Bar = int
-    
+
     /// Baz contains a `Foo.Bar` as its `id`
     type Baz = { id: Bar }
 
     /// This function operates on `Baz` types.
-    let f (b:Baz) = 
+    let f (b:Baz) =
         b.id * 42
 
 /// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`
 module Foo3 =
-    
+
     /// This is not the same type as `Foo.Bar`
     type Bar = double
 
-    /// Using the simple name for [Bar] will fail to create a link because the name is duplicated in 
+    /// Using the simple name for [Bar] will fail to create a link because the name is duplicated in
     /// [Foo.Bar] and in [Foo3.Bar]. In this case, using the full name works.
     let f2 b =
          b * 50
@@ -236,7 +236,7 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 *)
 /// [omit]
 /// Some actual comment
-module Bar = 
+module Bar =
    let a = 42
 (**
 
@@ -256,9 +256,9 @@ For example the `cref:M:FSharp.Formatting.ApiDocs.ApiDocs.GenerateHtml` method:
 *)
 
 let file = Path.Combine(root, "bin/YourLibrary.dll")
-let input = ApiDocInput.FromFile(file) 
+let input = ApiDocInput.FromFile(file)
 ApiDocs.GenerateHtml
-    ( [ input ], 
+    ( [ input ],
       output=Path.Combine(root, "output"),
       collectionName="YourLibrary",
       template=Path.Combine(root, "templates", "template.html"),
