@@ -698,9 +698,9 @@ let (|TakeParagraphLines|_|) input =
 /// TODO: This is too simple - takes paragraph that starts with <
 let (|HtmlBlock|_|) (lines: (string * MarkdownRange) list) =
   match lines with
-  | ((first, _n) as takenLine) :: rest when first.StartsWith("<") ->
-      match rest with
-      | TakeParagraphLines(html, rest) -> Some(takenLine::html, takenLine::html, rest)
+  | (first, _n) :: _ when first.StartsWith("<") ->
+      match lines with
+      | TakeParagraphLines(html, rest) -> Some(html, html, rest)
       | _ -> None
   | _ -> None
 
