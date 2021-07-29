@@ -69,31 +69,37 @@ The F# script files is processed as follows:
 |   `(*** condition: tex ***)`       | Include a code snippet when making a .tex output   |
 |   `(*** condition: html ***)`       | Include a code snippet when making HTML output   |
 |   `(*** hide ***)`       | Hide the subsequent snippet  |
-|   `(*** include-output ***)`       | The output of the preceeding snippet   |
-|   `(*** include-fsi-output ***)`       | The F# Interactive output of the preceeding snippet   |
-|   `(*** include-fsi-merged-output ***)`       | The merge of console output and F# Interactive output of the preceeding snippet   |
-|   `(*** include-it ***)`       | The formatted result of the preceeding snippet |
-|   `(*** include-it-raw ***)`       | The unformatted result of the preceeding snippet |
-|   `(*** include-value: value-name ***)`       | The formatted value  |
 |   `(*** raw ***)`       | The subsequent code is treated as raw text |
 
-### Named snippets
+### Naming and including snippets
 
 The command `define` defines a named snippet (such as `final-sample`) and removes the command together with
 the following F# code block from the main document. The snippet can then
-be referred to using these variations. This makes it
+be referred to in 'include'. This makes it
 possible to write documents without the ordering requirements of the
 F# language.
 
 |  Literate Command     | Description               |
 |:-----------------------|:----------------------------|
 |   `(*** define: snippet-name ***)`       | Define a named snippet  |
-|   `(*** include-output: snippet-name ***)`       | The output of the named snippet  |
-|   `(*** include-fsi-output: snippet-name ***)`       | The F# Interactive output of the named snippet  |
-|   `(*** include-fsi-merged-output: snippet-name ***)`       | The merge of console output and F# Interactive output of the named snippet  |
-|   `(*** include-it: snippet-name ***)`       | The formatted result of the named snippet  |
-|   `(*** include-it-raw: snippet-name ***)`       | The unformatted result of the named snippet  |
-|   `(*** include: snippet-name ***)`       | Include the code of the named snippet |
+|   `(*** include: snippet-name ***)`                  | Include the code of the named snippet |
+
+### Naming and including outputs
+
+|  Literate Command     | Description               |
+|:-----------------------|:----------------------------|
+|   `(*** define-output: output-name ***)`             | Define a name for the outputs of the preceeding snippet |
+|   `(*** include-output ***)`                         | The console output of the preceeding snippet   |
+|   `(*** include-output: output-name ***)`            | The console output of the snippet (named with define-output)  |
+|   `(*** include-fsi-output ***)`                     | The F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-output: output-name ***)`        | The F# Interactive output of the snippet (named with define-output)   |
+|   `(*** include-fsi-merged-output ***)`              | The merge of console output and F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-merged-output: output-name ***)` | The merge of console output and F# Interactive output of the snippet (named with define-output)  |
+|   `(*** include-it ***)`                             | The formatted result of the preceeding snippet |
+|   `(*** include-it: output-name ***)    `            | The formatted result of the snippet (named with define-output)   |
+|   `(*** include-it-raw ***)`                         | The unformatted result of the preceeding snippet |
+|   `(*** include-it-raw: output-name ***)`            | The unformatted result of the snippet (named with define-output)   |
+|   `(*** include-value: value-name ***)`              | The formatted value, an F# identifier name  |
 
 #### Hiding code snippets
 
