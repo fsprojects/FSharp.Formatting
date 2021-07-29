@@ -56,7 +56,6 @@ code and get correct tool tips:
 
     let answer = Hidden.answer
 
-
 ## Including other snippets
 
 When writing literate programs as Markdown documents, 
@@ -69,3 +68,5 @@ code samples:
 
 This snippet is turned into a `pre` element with the
 `lang` attribute set to `csharp`.
+
+<br />

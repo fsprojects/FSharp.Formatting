@@ -22,9 +22,9 @@ index: 6
 #endif // IPYNB
 
 (**
-[![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/diffsharp/diffsharp.github.io/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
-[![Script](img/badge-script.svg)]({{fsdocs-source-basename}}.fsx)&emsp;
-[![Notebook](img/badge-notebook.svg)]({{fsdocs-source-basename}}.ipynb)
+[![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/fsprojects/fsharp.formatting/master?filepath={{fsdocs-source-basename}}.ipynb)&emsp;
+[![Script](img/badge-script.svg)]({{root}}/{{fsdocs-source-basename}}.fsx)&emsp;
+[![Notebook](img/badge-notebook.svg)]({{root}}/{{fsdocs-source-basename}}.ipynb)
 
 # Embedding script output
 
@@ -96,10 +96,10 @@ Some raw text.
 
 directly into the document.
 
-F# Formatting as a Library:  Specifying the Evaluator and Formatting 
+F# Formatting as a Library:  Specifying the Evaluator and Formatting
 ---------------------------------------
 
-If using F# Formatting as a library the embedding of F# output requires specifying an additional parameter to the 
+If using F# Formatting as a library the embedding of F# output requires specifying an additional parameter to the
 parsing functions discussed in [literate programming documentation](literate.html).
 Assuming you have all the references in place, you can now create an instance of
 `cref:T:FSharp.Formatting.Literate.Evaluation.FsiEvaluator` that represents a wrapper for F# interactive and pass it to all the
@@ -126,7 +126,7 @@ it is not created automatically and so the functionality is not available (this 
 you won't accidentally run unexpected code!)
 
 If you specify the `fsiEvaluator` parameter, but don't want a specific snippet to be evaluated
-(because it might throw an exception, for example), you can use the `(*** do-not-eval ***)` 
+(because it might throw an exception, for example), you can use the `(*** do-not-eval ***)`
 command.
 
 The constructor of `cref:T:FSharp.Formatting.Literate.Evaluation.FsiEvaluator` takes command line parameters for `fsi.exe` that can
@@ -142,7 +142,7 @@ F# Formatting as a Library: Custom formatting functions
 As mentioned earlier, values are formatted using a simple `"%A"` formatter by default.
 However, you can specify a formatting function that provides a nicer formatting for values
 of certain types. For example, let's say that we would want to format F# lists such as
-`[1; 2; 3]` as HTML ordered lists `<ol>`. 
+`[1; 2; 3]` as HTML ordered lists `<ol>`.
 
 This can be done by calling `cref:M:FSharp.Formatting.Literate.Evaluation.FsiEvaluator.RegisterTransformation` on the `FsiEvaluator` instance:
 
@@ -152,9 +152,9 @@ let fsiOl = FsiEvaluator()
 fsiOl.RegisterTransformation(fun (o, ty, _executionCount) ->
   // If the type of value is an F# list, format it nicely
   if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
-    let items = 
+    let items =
       // Get items as objects and create paragraph for each item
-      [ for it in Seq.cast<obj> (unbox o) -> 
+      [ for it in Seq.cast<obj> (unbox o) ->
           [ Paragraph([Literal(it.ToString(), None)], None) ] ]
     // Return option value (success) with ordered list
     Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
@@ -163,7 +163,7 @@ fsiOl.RegisterTransformation(fun (o, ty, _executionCount) ->
 
 The function is called with two arguments - `o` is the value to be formatted and `ty`
 is the static type of the value (as inferred by the F# compiler). The sample checks
-that the type of the value is a list (containing values of any type) and then it 
+that the type of the value is a list (containing values of any type) and then it
 casts all values in the list to `obj` (for simplicity). Then we generate Markdown
 blocks representing an ordered list. This means that the code will work for both
 LaTeX and HTML formatting - but if you only need one, you can simply produce HTML and

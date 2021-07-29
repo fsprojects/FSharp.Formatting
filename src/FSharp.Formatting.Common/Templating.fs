@@ -165,8 +165,8 @@ module internal SimpleTemplating =
         sb.ToString()
 
     // Replace '{{xyz}}' in text
-    let ApplySubstitutions (substitutions: seq<ParamKey * string>) templateTextOpt =
-        match templateTextOpt with
+    let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
+        match templateTextOpt |> Option.map (fun s -> s.Trim()) with
         | None | Some "" ->
             // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
             let lookup = readOnlyDict substitutions
