@@ -1,3 +1,8 @@
+## 11.4.2
+
+* [Download links broken](https://github.com/fsprojects/FSharp.Formatting/issues/696)
+* [Duplicating HTML tags for FSX and IPYNB output](https://github.com/fsprojects/FSharp.Formatting/issues/695)
+
 ## 11.4.1
 
 * [Fixed navbar scrolling](https://github.com/fsprojects/FSharp.Formatting/issues/672#issuecomment-885532640)
