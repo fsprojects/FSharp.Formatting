@@ -700,7 +700,7 @@ let (|HtmlBlock|_|) (lines: (string * MarkdownRange) list) =
   match lines with
   | ((first, _n) as takenLine) :: rest when first.StartsWith("<") ->
       match rest with
-      | TakeParagraphLines(html, rest) -> Some(html, takenLine::html, rest)
+      | TakeParagraphLines(html, rest) -> Some(takenLine::html, takenLine::html, rest)
       | _ -> None
   | _ -> None
 
