@@ -71,6 +71,9 @@ module Crack =
         | ConditionEquals "True" -> Some true
         | _ -> Some false
 
+    let makeTimestamp file =
+        file, try File.GetLastWriteTimeUtc(file) with _ -> DateTime.MinValue
+
     let runProcess (log: string -> unit) (workingDir: string) (exePath: string) (args: string) =
         let psi = System.Diagnostics.ProcessStartInfo()
         psi.FileName <- exePath
@@ -443,6 +446,12 @@ module Crack =
 
         let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
 
+        let timestamps =
+            projectInfos
+            |> List.map (fun info ->
+                info.ProjectFileName |> makeTimestamp
+            )
+
         let docsParameters = parametersForProjectInfo projectInfoForDocs
 
-        root, collectionName, crackedProjects, paths, docsParameters
+        root, collectionName, crackedProjects, paths, docsParameters, timestamps

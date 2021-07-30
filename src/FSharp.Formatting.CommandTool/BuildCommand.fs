@@ -430,7 +430,7 @@ type CoreBuildOptions(watch) =
             | true, v -> Some v
             | _ -> None
 
-        let (root, collectionName, crackedProjects, paths, docsParameters), _key =
+        let (root, collectionName, crackedProjects, paths, docsParameters, _), _key =
           let projects = Seq.toList this.projects
           let cacheFile = ".fsdocs/cache"
           let getTime p = try File.GetLastWriteTimeUtc(p) with _ -> DateTime.Now
@@ -438,8 +438,15 @@ type CoreBuildOptions(watch) =
              (userRoot, this.parameters, projects,
               getTime (typeof<CoreBuildOptions>.Assembly.Location),
               (projects |> List.map getTime |> List.toArray))
+
+          // Ideally, timestamps would be part of the key, but we'd have to call the
+          // project cracker to find the input files, and this would defeat the purpose
+          // of the cache. Instead, we pull them out of the cached value and recalculate.
+
           Utils.cacheBinary cacheFile
-           (fun (_, key2) -> key1 = key2)
+           (fun ((_, _, _, _, _, timestamps2), key2) ->
+               let timestamps1 =  timestamps2 |> List.map (fst >> Crack.makeTimestamp)
+               key1 = key2 && timestamps1 = timestamps2)
            (fun () ->
                let props =
                    this.extraMsbuildProperties
