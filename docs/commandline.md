@@ -48,10 +48,24 @@ settings in your .fsproj project files:
 | `--sourcerepo`         |       Source repository for github links (`<FsDocsSourceRepository>`) |
 | `--mdcomments`           |     Assume comments in F# code are markdown (`<UsesMarkdownComments>`) |
 
+The command will report on any `.fsproj` files that it finds, telling you if it decides to skip a particular file and why.
+
+For example, a project will be skipped if:
+
+* The project name contains ".Tests" or "test" (because it looks like a test project)
+
+* The project does not contain
+```
+  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+```
+
 ## The watch command
 
 This command does the same as `fsdocs build` but in "watch" mode, waiting for changes. Only the files in the input
-directory (e.g. `docs`) are watched.
+directory (e.g. `docs`) are watched. A browser will be launched automatically (unless `--nolaunch` is specified).
+
+You will need to ensure that the input directory exists, and contains at least `index.md`, otherwise the browser will
+report an error (e.g. "Problem loading...", "Connection was reset").
 
     [lang=text]
     fsdocs watch
