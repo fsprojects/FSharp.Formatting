@@ -1,3 +1,7 @@
+## 11.4.3
+
+* Style blockquotes
+
 ## 11.4.2
 
 * [Download links broken](https://github.com/fsprojects/FSharp.Formatting/issues/696)
