@@ -1,8 +1,8 @@
-F# Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/actions/workflows/push-master.yml/badge.svg)
+fsdocs and FSharp.Formatting ![Build and Test](https://github.com/fsprojects/FSharp.Formatting/actions/workflows/push-master.yml/badge.svg)
 =================================
 
 The FSharp.Formatting package includes libraries and tools for processing F# script files, markdown and components
-for documentation generation.
+for documentation generation. The primary tool is "fsdocs".
 
 See https://fsprojects.github.io/FSharp.Formatting/
 
