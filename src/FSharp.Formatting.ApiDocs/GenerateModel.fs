@@ -78,6 +78,13 @@ module internal Utils =
     module Html =
         let sepWith s l = l |> List.sepWith (!! s) |> span []
 
+    type System.Xml.Linq.XElement with
+        member x.TryAttr (attr: string) =
+            let a = x.Attribute (XName.Get attr)
+            if a = null then None
+            else if String.IsNullOrEmpty a.Value then None
+            else Some a.Value
+
 /// Represents some HTML formatted by model generation
 type ApiDocHtml(html: string) =
 
@@ -1560,8 +1567,12 @@ module internal SymbolReader =
             let exampleNodes = doc.Elements(XName.Get "example") |> Seq.toList
             [ for (id, e) in List.indexed exampleNodes do
                 let html = new StringBuilder()
-                let n = if id = 0 then "example" else "example-" + string id
-                rawData.[n] <- e.Value
+                let exampleId =
+                    match e.TryAttr "id" with
+                    | None ->
+                        if id = 0 then "example" else "example-" + string id
+                    | Some attrId -> attrId
+                rawData.[exampleId] <- e.Value
                 readXmlElementAsHtml true urlMap cmds html e
                 ApiDocHtml(html.ToString()) ]
 
