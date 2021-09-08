@@ -215,7 +215,7 @@ type HtmlRender(model: ApiDocModel) =
 
                   for e in m.Comment.Examples do
                       h5 [Class "fsdocs-example-header"] [!! "Example"]
-                      p [Class "fsdocs-example"] [embed e]
+                      p [Class "fsdocs-example"; if e.Id.IsSome then Id e.Id.Value ] [embed e]
 
                   //if m.IsObsolete then
                   //    obsoleteMessage m.ObsoleteMessage

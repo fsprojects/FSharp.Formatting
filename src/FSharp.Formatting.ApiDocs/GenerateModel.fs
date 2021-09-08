@@ -86,10 +86,12 @@ module internal Utils =
             else Some a.Value
 
 /// Represents some HTML formatted by model generation
-type ApiDocHtml(html: string) =
+type ApiDocHtml(html: string, id: string option) =
 
     /// Get the HTML text of the HTML section
     member _.HtmlText = html
+    /// Get the Id of the element when rendered to html, if any
+    member _.Id= id
 
 /// Represents a documentation comment attached to source code
 type ApiDocComment(summary, remarks, parameters, returns, examples, notes, exceptions, rawData) =
@@ -117,7 +119,7 @@ type ApiDocComment(summary, remarks, parameters, returns, examples, notes, excep
     /// The raw data of the comment
   member _.RawData: KeyValuePair<string, string> list = rawData
 
-  static member internal Empty = ApiDocComment(ApiDocHtml(""), None, [], None, [], [], [],  [])
+  static member internal Empty = ApiDocComment(ApiDocHtml("", None), None, [], None, [], [], [],  [])
 
 /// Represents a custom attribute attached to source code
 type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments) =
@@ -864,7 +866,7 @@ module internal TypeFormatter =
 
     type TypeFormatterParams = CrossReferenceResolver
 
-    let convHtml (html: HtmlElement) = ApiDocHtml(html.ToString())
+    let convHtml (html: HtmlElement) = ApiDocHtml(html.ToString(), None)
 
     /// We squeeze the spaces out of anything where whitespace layout must be exact - any deliberate
     /// whitespace must use &#32;
@@ -873,7 +875,7 @@ module internal TypeFormatter =
     /// adding spaces which are actually significant when formatting F# type information.
     let codeHtml html =
         let html = code [] [html]
-        ApiDocHtml(html.ToString().Replace(" ", "").Replace("\n","").Replace("\r","").Replace("<ahref", "<a href"))
+        ApiDocHtml(html.ToString().Replace(" ", "").Replace("\n","").Replace("\r","").Replace("<ahref", "<a href"), None)
 
     let formatSourceLocation (urlRangeHighlight : Uri -> int -> int -> string) (sourceFolderRepo : (string * string) option) (location : range option) =
         location |> Option.bind (fun location ->
@@ -1392,12 +1394,12 @@ module internal SymbolReader =
             (remarks |> List.collect (snd >> List.rev)  |> List.tailOrEmpty) @
             (rest |> List.collect (snd >> List.rev))
 
-        let summary = ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=summary )))
-        let remarks = if remarks.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=remarks))))
+        let summary = ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=summary )), None)
+        let remarks = if remarks.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=remarks)), None))
         //let exceptions = [ for e in exceptions -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=[e]))) ]
-        let notes = [ for e in notes -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e))) ]
-        let examples = [ for e in examples -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e))) ]
-        let returns = if returns.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=returns))))
+        let notes = [ for e in notes -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e)), None) ]
+        let examples = [ for e in examples -> ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=e)), None) ]
+        let returns = if returns.IsEmpty then None else Some (ApiDocHtml(Literate.ToHtml(doc.With(paragraphs=returns)), None))
 
         ApiDocComment(summary=summary, remarks=remarks, parameters=[], returns=returns, examples=examples, notes=notes,
             exceptions=[], rawData=raw)
@@ -1486,11 +1488,11 @@ module internal SymbolReader =
                      let n = if id = 0 then "summary" else "summary-" + string id
                      rawData.[n] <- e.Value
                      readXmlElementAsHtml true urlMap cmds html e
-                ApiDocHtml(html.ToString())
+                ApiDocHtml(html.ToString(), None)
             else
                 let html = new StringBuilder()
                 readXmlElementAsHtml false urlMap cmds html doc
-                ApiDocHtml(html.ToString())
+                ApiDocHtml(html.ToString(), None)
 
         let paramNodes = doc.Elements(XName.Get "param")  |> Seq.toList
         let parameters =
@@ -1498,7 +1500,7 @@ module internal SymbolReader =
                  let paramName = e.Attribute(XName.Get "name").Value
                  let phtml = new StringBuilder()
                  readXmlElementAsHtml true urlMap cmds phtml e
-                 let paramHtml = ApiDocHtml(phtml.ToString())
+                 let paramHtml = ApiDocHtml(phtml.ToString(), None)
                  paramName, paramHtml ]
 
         for e in doc.Elements(XName.Get "exclude") do
@@ -1522,7 +1524,7 @@ module internal SymbolReader =
                     let n = if id = 0 then "remarks" else "remarks-" + string id
                     rawData.[n] <- e.Value
                     readXmlElementAsHtml true urlMap cmds html e
-                ApiDocHtml(html.ToString()) |> Some
+                ApiDocHtml(html.ToString(), None) |> Some
             else
                 None
 
@@ -1534,7 +1536,7 @@ module internal SymbolReader =
                     let n = if id = 0 then "returns" else "returns-" + string id
                     rawData.[n] <- e.Value
                     readXmlElementAsHtml true urlMap cmds html e
-                Some (ApiDocHtml(html.ToString()))
+                Some (ApiDocHtml(html.ToString(), None))
             else
                 None
 
@@ -1554,13 +1556,14 @@ module internal SymbolReader =
                             match urlMap.ResolveCref cname with
                             | Some reference ->
                                 let html = new StringBuilder()
-                                rawData.["exception-" + reference.NiceName] <- reference.ReferenceLink
+                                let referenceLinkId = "exception-" + reference.NiceName
+                                rawData.[referenceLinkId] <- reference.ReferenceLink
                                 readXmlElementAsHtml true urlMap cmds html e
-                                reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString())
+                                reference.NiceName, Some reference.ReferenceLink, ApiDocHtml(html.ToString(), None)
                             | _ ->
                                 let html = new StringBuilder()
                                 readXmlElementAsHtml true urlMap cmds html e
-                                cname, None, ApiDocHtml(html.ToString())
+                                cname, None, ApiDocHtml(html.ToString(), None)
                            ]
 
         let examples =
@@ -1574,7 +1577,7 @@ module internal SymbolReader =
                     | Some attrId -> attrId
                 rawData.[exampleId] <- e.Value
                 readXmlElementAsHtml true urlMap cmds html e
-                ApiDocHtml(html.ToString()) ]
+                ApiDocHtml(html.ToString(), Some exampleId) ]
 
         let notes =
             let noteNodes = doc.Elements(XName.Get "note") |> Seq.toList
@@ -1584,7 +1587,7 @@ module internal SymbolReader =
                 let n = if id = 0 then "note" else "note-" + string id
                 rawData.[n] <- e.Value
                 readXmlElementAsHtml true urlMap cmds html e
-                ApiDocHtml(html.ToString()) ]
+                ApiDocHtml(html.ToString(), None) ]
 
         // put the non-xmldoc sections into rawData
         doc.Descendants ()
@@ -1613,7 +1616,7 @@ module internal SymbolReader =
         comment, nsels
 
     let combineHtml (h1: ApiDocHtml) (h2: ApiDocHtml) =
-        ApiDocHtml(String.concat "\n" [h1.HtmlText; h2.HtmlText])
+        ApiDocHtml(String.concat "\n" [h1.HtmlText; h2.HtmlText], None)
 
     let combineHtmlOptions (h1: ApiDocHtml option) (h2: ApiDocHtml option) =
         match h1, h2 with
