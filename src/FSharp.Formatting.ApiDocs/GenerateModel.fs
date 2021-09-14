@@ -264,7 +264,7 @@ type ApiDocMember (displayName: string, attributes: ApiDocAttribute list, entity
          comment: ApiDocComment, symbol: FSharpSymbol, warn) =
 
   let (ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, baseType, location, compiledName)) = details
-
+  let m = defaultArg symbol.DeclarationLocation range0
   // merge the parameter docs and parameter types
   let parameters =
       let paramTypes =
@@ -276,7 +276,7 @@ type ApiDocMember (displayName: string, attributes: ApiDocAttribute list, entity
                   (psym, pnm, _pnameText, _pty) ]
       let tnames = Set.ofList [ for (_psym, pnm, _pnameText, _pty) in paramTypes -> pnm ]
       let tdocs = Map.ofList [ for pnm, doc in comment.Parameters -> Some pnm, doc ]
-      let m = defaultArg symbol.DeclarationLocation range0
+
       if warn then
          for (pn, _pdoc) in comment.Parameters do
             if not (tnames.Contains (Some pn)) then
@@ -294,6 +294,30 @@ type ApiDocMember (displayName: string, attributes: ApiDocAttribute list, entity
               ParameterNameText=pn
               ParameterType=pty
               ParameterDocs=tdocs.TryFind pnm |} ]
+
+  do
+    let knownExampleIds =
+        comment.Examples
+        |> List.choose (fun x -> x.Id)
+        |> List.countBy id
+    for (id, count) in knownExampleIds do
+        if count > 1 then
+            if warn
+            then
+                printfn "%s(%d,%d): warning: duplicate id for example '%s'" m.FileName m.StartLine m.StartColumn id
+            else
+                printfn "%s(%d,%d): error: duplicate id for example '%s'" m.FileName m.StartLine m.StartColumn id
+    for (id, _count) in knownExampleIds do
+        if id.StartsWith "example-" then
+            let potentialInteger = id.["example-".Length..]
+            match System.Int32.TryParse potentialInteger with
+            | true, id ->
+                if warn
+                then
+                    printfn "%s(%d,%d): warning: automatic identifer generated for example '%d'. Consider adding an explicit example id attribute." m.FileName m.StartLine m.StartColumn id
+                else
+                    printfn "%s(%d,%d): error: automatic identifer generated for example '%d'. Consider adding an explicit example id attribute." m.FileName m.StartLine m.StartColumn id
+            | _ -> ()
 
 
     /// The member's modifiers
@@ -1053,7 +1077,7 @@ module internal SymbolReader =
 
         static member internal Create
             (publicOnly, assembly, map, sourceFolderRepo, urlRangeHighlight, mdcomments, urlMap,
-             assemblyPath, fscOptions, formatAgent, substitutions, warn ) =
+             assemblyPath, fscOptions, formatAgent, substitutions, warn) =
 
           { PublicOnly=publicOnly
             Assembly = assembly
@@ -1066,7 +1090,7 @@ module internal SymbolReader =
             AssemblyPath = assemblyPath
             CompilerOptions = fscOptions
             FormatAgent = formatAgent
-            Substitutions = substitutions}
+            Substitutions = substitutions }
 
     let inline private getCompiledName (s : ^a when ^a :> FSharpSymbol) =
         let compiledName = (^a : (member CompiledName : string) (s))
@@ -1471,7 +1495,6 @@ module internal SymbolReader =
 
     let readXmlCommentAsHtmlAux summaryExpected (urlMap: CrossReferenceResolver) (doc: XElement) (cmds: IDictionary<_, _>) =
         let rawData = new Dictionary<string, string>()
-
         // not part of the XML doc standard
         let nsels =
             let ds = doc.Elements(XName.Get "namespacedoc")

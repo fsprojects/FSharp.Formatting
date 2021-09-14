@@ -617,6 +617,19 @@ let ``ApiDocs test FsLib1`` (format:OutputFormat) =
 
   files.ContainsKey (sprintf "fslib-test_omit.%s" format.Extension) |> shouldEqual false
 
+[<Test>]
+let ``ApiDocs test examples`` () =
+  let library = testBin </> "FsLib2.dll" |> fullpath
+
+  let files = generateApiDocs [library] OutputFormat.Html false "FsLib2_examples"
+
+  let testFile = sprintf "fslib-commentexamples.%s" OutputFormat.Html.Extension
+
+  files.ContainsKey testFile |> shouldEqual true
+  let content = files.[testFile]
+  content.Contains "has-id" |> shouldEqual true
+
+
 // -------------------Indirect links----------------------------------
 [<Test>]
 [<TestCaseSource("formats")>]
