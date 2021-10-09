@@ -290,21 +290,15 @@ module Serve =
         tag.Replace("{{PORT}}", string port)
 
 
-    let mutable signalHotReload = false
+
+    let signalHotReload = new System.Threading.ManualResetEvent(false);
 
     let socketHandler (webSocket : WebSocket) _ = socket {
-        while true do
+            signalHotReload.WaitOne() |> ignore
+            signalHotReload.Reset() |> ignore
             let emptyResponse = [||] |> ByteSegment
-            //not sure what this was needed for
-            //do!
-            //    refreshEvent.Publish
-            //    |> Control.Async.AwaitEvent
-            //    |> Suave.Sockets.SocketOp.ofAsync
-            //do! webSocket.send Text (ByteSegment (Encoding.UTF8.GetBytes "refreshed")) true
-            if signalHotReload then
-                printfn "Triggering hot reload on the client"
-                do! webSocket.send Close emptyResponse true
-                signalHotReload <- false
+            printfn "Triggering hot reload on the client"
+            do! webSocket.send Close emptyResponse true
     }
 
     let startWebServer outputDirectory localPort =
@@ -842,7 +836,7 @@ type CoreBuildOptions(watch) =
                                 if runDocContentPhase2() then
                                     regenerateSearchIndex()
                         )
-                        Serve.signalHotReload <- true
+                        Serve.signalHotReload.Set() |> ignore
                     }
                     |> Async.Start
                 )
@@ -860,7 +854,7 @@ type CoreBuildOptions(watch) =
                                 if runGeneratePhase2() then
                                     regenerateSearchIndex()
                         )
-                        Serve.signalHotReload <- true
+                        Serve.signalHotReload.Set() |> ignore
                     }
                     |> Async.Start
                 )
