@@ -1,3 +1,7 @@
+## 11.4.4
+
+* [Websocket CPU efficiency improvements](https://github.com/fsprojects/FSharp.Formatting/pull/711)
+
 ## 11.4.3
 
 * Style blockquotes
