@@ -10,8 +10,6 @@
     <!-- Loader script -->
     <Content Include="FSharp.Formatting.fsx" PackagePath="FSharp.Formatting.fsx" />
 
-    <!-- Assembly dependencies -->
-    <Content Include="bin\$(Configuration)\$(TargetFramework)\Microsoft.*.dll" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
 
   <ItemGroup>
