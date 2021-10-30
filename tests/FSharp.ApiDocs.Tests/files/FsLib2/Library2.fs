@@ -127,4 +127,22 @@ module ``Space-Missing`` =
   /// Implicit cast operator test
   type ``Implicit-Cast``(value: int) = class end
   with static member op_Implicit (source: int) :  ``Implicit-Cast`` = ``Implicit-Cast``(source)
-    
+
+
+module CommentExamples =
+    /// <summary>this does the thing</summary>
+    /// <example>this is an example
+    /// </example>
+    let dothing() = ()
+
+    /// <summary>this does the thing</summary>
+    /// <example id="has-id">this is an example with an id
+    /// </example>
+    let dothing2() = ()
+
+    /// <summary>this does the thing</summary>
+    /// <example id="double-id">this is an example with an id
+    /// </example>
+    /// <example id="double-id">this is an example with an id
+    /// </example>
+    let doubleExampleId() = ()
