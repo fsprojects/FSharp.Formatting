@@ -1,3 +1,7 @@
+## 11.5.1
+
+* [Allow user-set ids for xmldoc example nodes](https://github.com/fsprojects/FSharp.Formatting/pull/704)
+
 ## 11.5.0
 
 * [Remove MSBuild assemblies from library nugets](https://github.com/fsprojects/FSharp.Formatting/pull/715)
