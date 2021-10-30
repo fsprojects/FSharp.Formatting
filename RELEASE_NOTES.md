@@ -1,3 +1,7 @@
+## 11.5.0
+
+* [Remove MSBuild assemblies from library nugets](https://github.com/fsprojects/FSharp.Formatting/pull/715)
+
 ## 11.4.4
 
 * [Websocket CPU efficiency improvements](https://github.com/fsprojects/FSharp.Formatting/pull/711)
