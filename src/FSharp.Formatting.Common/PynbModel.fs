@@ -72,7 +72,7 @@ type Cell =
                  ""
              else
                  (sprintf
-                     """ "execution_count": %s, "outputs": [%s], """
+                     """ "execution_count": %s, "outputs": [%s],"""
                      (match this.execution_count with
                       | None -> "null"
                       | Some (x) -> string x)

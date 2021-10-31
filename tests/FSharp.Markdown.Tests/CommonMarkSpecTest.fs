@@ -167,7 +167,7 @@ indented with spaces</p>
 [<Test>]
 let ``manual markdown test: test if we can handle paragraph ending with two spaces`` () =
     let markdown =
-        "this is a paragraph ending with two spaces\t
+        "this is a paragraph ending with two spaces\t\032\032
 with a continuation line
 "
 

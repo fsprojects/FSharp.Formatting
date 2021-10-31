@@ -1060,7 +1060,7 @@ With some [hyperlink](http://tomasp.net)
 
     pynb |> shouldContainText """ "cell_type": "code","""
 
-    pynb |> shouldContainText """ "execution_count": null, "outputs": [], """
+    pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
 
     pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
 
@@ -1245,7 +1245,7 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """ "cell_type": "code","""
 
-    pynb |> shouldContainText """ "execution_count": null, "outputs": [], """
+    pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
 
     pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
 
