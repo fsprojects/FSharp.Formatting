@@ -13,6 +13,12 @@
       "commands": [
         "paket"
       ]
+    },
+    "fantomas-tool": {
+      "version": "4.6.0-alpha-005",
+      "commands": [
+        "fantomas"
+      ]
     }
   }
 }

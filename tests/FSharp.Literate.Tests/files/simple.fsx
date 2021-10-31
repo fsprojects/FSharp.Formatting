@@ -13,4 +13,5 @@ substitute-in-markdown: {{fsdocs-source-basename}}
 *)
 let hello = "Code sample"
 
-let goodbye = "substitute-in-fsx-code: {{fsdocs-source-basename}}"
+let goodbye =
+    "substitute-in-fsx-code: {{fsdocs-source-basename}}"

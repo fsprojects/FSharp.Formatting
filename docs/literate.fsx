@@ -88,16 +88,16 @@ F# language.
 
 |  Literate Command     | Description               |
 |:-----------------------|:----------------------------|
-|   `(*** define-output: output-name ***)`             | Define a name for the outputs of the preceeding snippet |
-|   `(*** include-output ***)`                         | The console output of the preceeding snippet   |
+|   `(*** define-output: output-name ***)`             | Define a name for the outputs of the preceding snippet |
+|   `(*** include-output ***)`                         | The console output of the preceding snippet   |
 |   `(*** include-output: output-name ***)`            | The console output of the snippet (named with define-output)  |
-|   `(*** include-fsi-output ***)`                     | The F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-output ***)`                     | The F# Interactive output of the preceding snippet   |
 |   `(*** include-fsi-output: output-name ***)`        | The F# Interactive output of the snippet (named with define-output)   |
-|   `(*** include-fsi-merged-output ***)`              | The merge of console output and F# Interactive output of the preceeding snippet   |
+|   `(*** include-fsi-merged-output ***)`              | The merge of console output and F# Interactive output of the preceding snippet   |
 |   `(*** include-fsi-merged-output: output-name ***)` | The merge of console output and F# Interactive output of the snippet (named with define-output)  |
-|   `(*** include-it ***)`                             | The formatted result of the preceeding snippet |
+|   `(*** include-it ***)`                             | The formatted result of the preceding snippet |
 |   `(*** include-it: output-name ***)    `            | The formatted result of the snippet (named with define-output)   |
-|   `(*** include-it-raw ***)`                         | The unformatted result of the preceeding snippet |
+|   `(*** include-it-raw ***)`                         | The unformatted result of the preceding snippet |
 |   `(*** include-it-raw: output-name ***)`            | The unformatted result of the snippet (named with define-output)   |
 |   `(*** include-value: value-name ***)`              | The formatted value, an F# identifier name  |
 
