@@ -44,12 +44,19 @@ type ToolTip private (str) =
                 for s in lines do
                     let ts = s.TrimStart [| ' ' |]
 
-                    if ts <> "" then yield s.Length - ts.Length
+                    if ts <> "" then
+                        yield s.Length - ts.Length
             }
             |> Seq.min
 
         if remove > 0 then
-            seq { for s in lines -> if s.TrimStart [| ' ' |] = "" then s else s.Substring(remove) }
+            seq {
+                for s in lines ->
+                    if s.TrimStart [| ' ' |] = "" then
+                        s
+                    else
+                        s.Substring(remove)
+            }
         else
             lines
 
@@ -90,17 +97,30 @@ type ToolTip private (str) =
 
 
 /// Stores information about a single token (including tip & color)
-type TokenInfo = { Token: TokenInformation; Text: string; Color: string option; Tip: ToolTip option }
+type TokenInfo =
+    { Token: TokenInformation
+      Text: string
+      Color: string option
+      Tip: ToolTip option }
 
 
 /// Stores information about line in the source code
-type LineInfo = { Index: int; LineNumber: int; Tokens: TokenInfo list }
+type LineInfo =
+    { Index: int
+      LineNumber: int
+      Tokens: TokenInfo list }
 
 /// Stores information about source code snippet
 type SnippetInfo = { Lines: LineInfo list; Title: string }
 
 /// Represents information about error message
-type ErrorInfo = { StartColumn: int; StartLine: int; EndColumn: int; EndLine: int; IsError: bool; Message: string }
+type ErrorInfo =
+    { StartColumn: int
+      StartLine: int
+      EndColumn: int
+      EndLine: int
+      IsError: bool
+      Message: string }
 
 // --------------------------------------------------------------------------------------
 // Main type that implements parsing and uses F# services
@@ -127,7 +147,10 @@ type SourceFile(file, source, lines: string [], ?options, ?defines) =
     // enclosed in double quotes "..." then ignore spaces in the quoted text
     let rec parseOptions (str: string) i opts current =
         let opts =
-            if i < str.Length && str.[i] <> ' ' then opts else (String(current |> List.rev |> Array.ofSeq)) :: opts
+            if i < str.Length && str.[i] <> ' ' then
+                opts
+            else
+                (String(current |> List.rev |> Array.ofSeq)) :: opts
 
         if i = str.Length then
             opts
@@ -184,7 +207,8 @@ type SourceFile(file, source, lines: string [], ?options, ?defines) =
         }
 
     /// Runs type checking and allows specifying a timeout
-    member x.RunTypeCheck(?timeout) = Async.RunSynchronously(getTypeCheckInfo (), ?timeout = timeout)
+    member x.RunTypeCheck(?timeout) =
+        Async.RunSynchronously(getTypeCheckInfo (), ?timeout = timeout)
     // [/snippet]
 
     /// Parse source file into a list of lines consisting of tokens
@@ -192,7 +216,8 @@ type SourceFile(file, source, lines: string [], ?options, ?defines) =
         let defines =
             defines
             |> Option.map (fun (s: string) ->
-                s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries) |> List.ofSeq)
+                s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries)
+                |> List.ofSeq)
 
         let sourceTok = SourceTokenizer(defaultArg defines [], file)
 
@@ -274,11 +299,18 @@ type SourceFile(file, source, lines: string [], ?options, ?defines) =
 
                               // Find color for the current token
                               let color =
-                                  if tok.TokenName = "FSI" then Some("fsi")
-                                  elif tok.TokenName.StartsWith("OMIT") then Some("omitted")
-                                  else Colors.colorMap.TryFind(tok.ColorClass)
+                                  if tok.TokenName = "FSI" then
+                                      Some("fsi")
+                                  elif tok.TokenName.StartsWith("OMIT") then
+                                      Some("omitted")
+                                  else
+                                      Colors.colorMap.TryFind(tok.ColorClass)
                               // Return all information about token and continue
-                              yield { Token = tok; Text = str; Color = color; Tip = tip }
+                              yield
+                                  { Token = tok
+                                    Text = str
+                                    Color = color
+                                    Tip = tip }
 
                               yield! processLine island rest
                       }
@@ -287,7 +319,10 @@ type SourceFile(file, source, lines: string [], ?options, ?defines) =
                   // Process the current line & return info about it
                   let lineInfos = processLine [] (List.ofSeq lineTokens) |> List.ofSeq
 
-                  yield { Index = i; LineNumber = line; Tokens = lineInfos } ]
+                  yield
+                      { Index = i
+                        LineNumber = line
+                        Tokens = lineInfos } ]
 
         // Generate a list of snippets
         [ for title, lines in snippets do

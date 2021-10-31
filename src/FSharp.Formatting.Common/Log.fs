@@ -24,9 +24,11 @@ module internal Log =
 
     let AddListener listener (source: TraceSource) = source.Listeners.Add listener |> ignore
 
-    let traceEventf t f = Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
+    let traceEventf t f =
+        Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
 
-    let infof f = traceEventf TraceEventType.Information f
+    let infof f =
+        traceEventf TraceEventType.Information f
 
     let errorf f = traceEventf TraceEventType.Error f
     let warnf f = traceEventf TraceEventType.Warning f

@@ -29,7 +29,10 @@ let benchmark file count =
     printfn "input string length: %d" text.Length
     printfn "%d iteration(s) in %d ms" count sw.ElapsedMilliseconds
 
-    if count = 1 then printfn "" else printfn " (%f ms per iteration)\n" (float sw.ElapsedMilliseconds / float count)
+    if count = 1 then
+        printfn ""
+    else
+        printfn " (%f ms per iteration)\n" (float sw.ElapsedMilliseconds / float count)
 
 let benchmarks () =
     benchmark "markdown-example-short-1.text" 4000
@@ -57,7 +60,10 @@ let transformAndCompare transFunc (source: string) (target: string) (verify: str
             let targetHtml = File.ReadAllText(target)
             let verifyHtml = File.ReadAllText(verify)
 
-            if targetHtml = verifyHtml then File.Delete(target) else printfn " - %s" (target.Substring(testdir.Length))
+            if targetHtml = verifyHtml then
+                File.Delete(target)
+            else
+                printfn " - %s" (target.Substring(testdir.Length))
     with
     | e -> printfn " - %s (failed)\n %A" (target.Substring(testdir.Length)) e
 

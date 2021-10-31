@@ -18,7 +18,10 @@ open FsUnit
 open NUnit.Framework
 open FSharp.Formatting.Markdown
 
-let properNewLines (text: string) = text.Replace("\r\n", "\n").Replace("\n", System.Environment.NewLine)
+let properNewLines (text: string) =
+    text
+        .Replace("\r\n", "\n")
+        .Replace("\n", System.Environment.NewLine)
 
 let enabledSections = [ "Fenced code blocks"; "Indented code blocks"; "Paragraphs"; "Precedence"; "Tabs" ]
 

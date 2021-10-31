@@ -208,9 +208,12 @@ module MarkdownPatterns =
     let ParagraphNested (PN (par), pars) =
         let splitEach n list =
             let rec loop n left ansList curList items =
-                if List.isEmpty items && List.isEmpty curList then List.rev ansList
-                elif left = 0 || List.isEmpty items then loop n n ((List.rev curList) :: ansList) [] items
-                else loop n (left - 1) ansList ((List.head items) :: curList) (List.tail items)
+                if List.isEmpty items && List.isEmpty curList then
+                    List.rev ansList
+                elif left = 0 || List.isEmpty items then
+                    loop n n ((List.rev curList) :: ansList) [] items
+                else
+                    loop n (left - 1) ansList ((List.head items) :: curList) (List.tail items)
 
             loop n n [] [] list
 

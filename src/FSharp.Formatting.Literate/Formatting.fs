@@ -56,7 +56,8 @@ module internal Formatting =
 
             let paragraphs =
                 [ for Snippet (name, lines) in snippets do
-                      if snippets.Length > 1 then yield Heading(3, [ Literal(name, None) ], None)
+                      if snippets.Length > 1 then
+                          yield Heading(3, [ Literal(name, None) ], None)
 
                       let id =
                           count <- count + 1

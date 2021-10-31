@@ -15,24 +15,36 @@ open FSharp.Formatting.Markdown
 
 module String =
     /// Matches when a string is a whitespace or null
-    let (|WhiteSpace|_|) (s) = if String.IsNullOrWhiteSpace(s) then Some() else None
+    let (|WhiteSpace|_|) (s) =
+        if String.IsNullOrWhiteSpace(s) then
+            Some()
+        else
+            None
 
     /// Returns a string trimmed from both start and end
     let (|TrimBoth|) (text: string) = text.Trim()
 
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string) =
-        if text.StartsWith(start) then Some(text.Substring(start.Length)) else None
+        if text.StartsWith(start) then
+            Some(text.Substring(start.Length))
+        else
+            None
 
     /// Matches when a string starts with the specified sub-string
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithTrim|_|) (start: string) (text: string) =
-        if text.StartsWith(start) then Some(text.Substring(start.Length).Trim()) else None
+        if text.StartsWith(start) then
+            Some(text.Substring(start.Length).Trim())
+        else
+            None
 
     /// Matches when a string starts with the given value and ends
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string) =
-        if s.StartsWith(starts) && s.EndsWith(ends) && s.Length >= starts.Length + ends.Length then
+        if s.StartsWith(starts)
+           && s.EndsWith(ends)
+           && s.Length >= starts.Length + ends.Length then
             Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
         else
             None
@@ -97,15 +109,27 @@ module String =
             |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
             |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
 
-        lines |> List.map (fun line -> if String.IsNullOrWhiteSpace(line) then "" else line.Substring(spaces))
+        lines
+        |> List.map (fun line ->
+            if String.IsNullOrWhiteSpace(line) then
+                ""
+            else
+                line.Substring(spaces))
 
 module StringPosition =
     /// Matches when a string is a whitespace or null
-    let (|WhiteSpace|_|) (s, _n: MarkdownRange) = if String.IsNullOrWhiteSpace(s) then Some() else None
+    let (|WhiteSpace|_|) (s, _n: MarkdownRange) =
+        if String.IsNullOrWhiteSpace(s) then
+            Some()
+        else
+            None
 
     /// Matches when a string does starts with non-whitespace
     let (|Unindented|_|) (s: string, _n: MarkdownRange) =
-        if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then Some() else None
+        if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then
+            Some()
+        else
+            None
 
     /// Returns a string trimmed from both start and end
     let (|TrimBoth|) (text: string, n: MarkdownRange) =
@@ -137,12 +161,19 @@ module StringPosition =
         let len = text.Length - trimmed.Length
 
         len,
-        text.Substring(0, len).Replace("\t", "    ").Length,
+        text.Substring(0, len).Replace(
+            "\t",
+            "    "
+        )
+            .Length,
         (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Matches when a string starts with any of the specified sub-strings
     let (|StartsWithAny|_|) (starts: seq<string>) (text: string, _n: MarkdownRange) =
-        if starts |> Seq.exists (text.StartsWith) then Some() else None
+        if starts |> Seq.exists (text.StartsWith) then
+            Some()
+        else
+            None
 
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string, n: MarkdownRange) =
@@ -180,7 +211,9 @@ module StringPosition =
                 Some(
                     startNum,
                     beforeStart.Length,
-                    text.Substring(beforeStart.Length + (start.Length * startNum)).Trim()
+                    text
+                        .Substring(beforeStart.Length + (start.Length * startNum))
+                        .Trim()
                 )
             else
                 None
@@ -190,7 +223,9 @@ module StringPosition =
     /// Matches when a string starts with the given value and ends
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string, n: MarkdownRange) =
-        if s.StartsWith(starts) && s.EndsWith(ends) && s.Length >= starts.Length + ends.Length then
+        if s.StartsWith(starts)
+           && s.EndsWith(ends)
+           && s.Length >= starts.Length + ends.Length then
             Some(
                 s.Substring(starts.Length, s.Length - starts.Length - ends.Length),
                 { n with
@@ -215,9 +250,12 @@ module StringPosition =
     ///
     let (|StartsWithRepeated|_|) (repeated: string) (text: string, ln: MarkdownRange) =
         let rec loop i =
-            if i = text.Length then i
-            elif text.[i] <> repeated.[i % repeated.Length] then i
-            else loop (i + 1)
+            if i = text.Length then
+                i
+            elif text.[i] <> repeated.[i % repeated.Length] then
+                i
+            else
+                loop (i + 1)
 
         let n = loop 0
 
@@ -264,7 +302,11 @@ module List =
             None
 
     /// Matches a list if it starts with a sub-list. Returns the list.
-    let inline (|StartsWith|_|) startl input = if List.startsWith startl input then Some input else None
+    let inline (|StartsWith|_|) startl input =
+        if List.startsWith startl input then
+            Some input
+        else
+            None
 
     /// Matches a list if it starts with a sub-list that is delimited
     /// using the specified delimiter. Returns a wrapped list and the rest.
@@ -310,7 +352,9 @@ module Lines =
     /// either empty (or whitespace) or start with the specified string.
     /// Returns all such lines from the beginning until a different line.
     let (|TakeStartingWithOrBlank|_|) (start: string) (input: string list) =
-        match input |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start)) with
+        match input
+              |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start))
+            with
         | matching, rest when matching <> [] -> Some(matching, rest)
         | _ -> None
 
@@ -329,7 +373,8 @@ module Lines =
         let startsWithSpaces (s: string) =
             let normalized = s.Replace("\t", "    ")
 
-            normalized.Length >= spaceNum && normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
+            normalized.Length >= spaceNum
+            && normalized.Substring(0, spaceNum) = System.String(' ', spaceNum)
 
         match List.partitionWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s || startsWithSpaces s) input with
         | matching, rest when matching <> [] && spaceNum >= 4 -> Some(spaceNum, matching, rest)
@@ -375,12 +420,19 @@ let (|ParseCommands|_|) (str: string) =
         [ for cmd in str.Split(',') do
               let kv = cmd.Split([| '='; ':' |])
 
-              if kv.Length = 2 then yield kv.[0].Trim(), kv.[1].Trim()
-              elif kv.Length = 1 then yield kv.[0].Trim(), "" ]
+              if kv.Length = 2 then
+                  yield kv.[0].Trim(), kv.[1].Trim()
+              elif kv.Length = 1 then
+                  yield kv.[0].Trim(), "" ]
 
-    let allKeysValid = kvs |> Seq.forall (fst >> Seq.forall (fun c -> Char.IsLetter c || c = '_' || c = '-'))
+    let allKeysValid =
+        kvs
+        |> Seq.forall (fst >> Seq.forall (fun c -> Char.IsLetter c || c = '_' || c = '-'))
 
-    if allKeysValid && kvs <> [] then Some(dict kvs) else None
+    if allKeysValid && kvs <> [] then
+        Some(dict kvs)
+    else
+        None
 
 /// Utility for parsing commands - this deals with a single command.
 /// The key of the command should be identifier with just
@@ -388,10 +440,14 @@ let (|ParseCommands|_|) (str: string) =
 let (|ParseCommand|_|) (cmd: string) =
     let kv = cmd.Split([| '='; ':' |])
 
-    if kv.Length >= 1 && not (Seq.forall Char.IsLetter kv.[0]) then None
-    elif kv.Length = 2 then Some(kv.[0].Trim(), kv.[1].Trim())
-    elif kv.Length = 1 then Some(kv.[0].Trim(), "")
-    else None
+    if kv.Length >= 1 && not (Seq.forall Char.IsLetter kv.[0]) then
+        None
+    elif kv.Length = 2 then
+        Some(kv.[0].Trim(), kv.[1].Trim())
+    elif kv.Length = 1 then
+        Some(kv.[0].Trim(), "")
+    else
+        None
 
 /// Lookup in a dictionary
 let (|Command|_|) k (d: IDictionary<_, _>) =

@@ -32,7 +32,8 @@ let linesFromTaggedText (tags: TaggedText []) =
             else
                 content.Append tag.Text |> ignore
         // yield any remaining text
-        if content.Length <> 0 then yield string content
+        if content.Length <> 0 then
+            yield string content
     }
 /// Turn string into a sequence of lines interleaved with line breaks
 let formatMultilineString (lines: string []) =
@@ -60,10 +61,18 @@ let private formatElement tooltip =
     //      yield! formatComment comment ]
     | ToolTipElement.Group (items) ->
         // Trim the items to at most 10 displayed in a tool tip
-        let items, trimmed = if items.Length <= 10 then items, false else items |> Seq.take 10 |> List.ofSeq, true
+        let items, trimmed =
+            if items.Length <= 10 then
+                items, false
+            else
+                items |> Seq.take 10 |> List.ofSeq, true
 
         [ for it in items do
-              yield! it.MainDescription |> linesFromTaggedText |> Seq.toArray |> formatMultilineString
+              yield!
+                  it.MainDescription
+                  |> linesFromTaggedText
+                  |> Seq.toArray
+                  |> formatMultilineString
 
               yield HardLineBreak
               yield! formatComment it.XmlDoc
@@ -99,7 +108,11 @@ let private formatTip tip =
                   yield! formatElement item ]
 
     // Remove unnecessary line breaks
-    spans |> List.skipWhile ((=) HardLineBreak) |> List.rev |> List.skipWhile ((=) HardLineBreak) |> List.rev
+    spans
+    |> List.skipWhile ((=) HardLineBreak)
+    |> List.rev
+    |> List.skipWhile ((=) HardLineBreak)
+    |> List.rev
 
 /// Format a tool tip, but first make sure that there is actually
 /// some text in the tip. Returns None if no information is available

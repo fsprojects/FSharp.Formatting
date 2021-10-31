@@ -31,7 +31,8 @@ let specialChars =
        "^", @"{\textasciicircum}" |]
 
 let latexEncode s =
-    specialChars |> Array.fold (fun (acc: string) (k, v) -> acc.Replace(k, v)) (System.Net.WebUtility.HtmlDecode s)
+    specialChars
+    |> Array.fold (fun (acc: string) (k, v) -> acc.Replace(k, v)) (System.Net.WebUtility.HtmlDecode s)
 
 /// Lookup a specified key in a dictionary, possibly
 /// ignoring newlines or spaces in the key.
@@ -208,7 +209,11 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
         ctx.LineBreak()
 
     | ListBlock (kind, items, _) ->
-        let tag = if kind = Ordered then "enumerate" else "itemize"
+        let tag =
+            if kind = Ordered then
+                "enumerate"
+            else
+                "itemize"
 
         ctx.Writer.Write(@"\begin{" + tag + "}")
         ctx.LineBreak()
@@ -265,4 +270,9 @@ let formatMarkdown writer links replacements newline crefResolver paragraphs =
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 
-    formatParagraphs { Writer = writer; Links = links; Newline = newline; LineBreak = ignore } paragraphs
+    formatParagraphs
+        { Writer = writer
+          Links = links
+          Newline = newline
+          LineBreak = ignore }
+        paragraphs

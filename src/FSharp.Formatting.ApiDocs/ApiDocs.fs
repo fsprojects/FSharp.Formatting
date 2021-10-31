@@ -67,7 +67,8 @@ type ApiDocs =
     /// </summary>
     ///
     /// <param name="model">the model for documentation</param>
-    static member SearchIndexEntriesForModel(model: ApiDocModel) = GenerateSearchIndex.searchIndexEntriesForModel model
+    static member SearchIndexEntriesForModel(model: ApiDocModel) =
+        GenerateSearchIndex.searchIndexEntriesForModel model
 
     /// Like GenerateHtml but allows for intermediate phase to insert other global substitutions
     /// and combine search index

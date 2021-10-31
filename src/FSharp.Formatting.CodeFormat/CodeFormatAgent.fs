@@ -80,7 +80,8 @@ module private Helpers =
         let defines =
             defines
             |> Option.map (fun (s: string) ->
-                s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries) |> List.ofSeq)
+                s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries)
+                |> List.ofSeq)
         // Create source tokenizer
         let sourceTok = FSharpSourceTokenizer(defaultArg defines [], file)
 
@@ -103,7 +104,12 @@ module private Helpers =
                           | None, nstate -> state := nstate
                       }
 
-                  yield { StartLine = n; StartColumn = 0; EndLine = n; EndColumn = 0 }, parseLine () |> List.ofSeq ]
+                  yield
+                      { StartLine = n
+                        StartColumn = 0
+                        EndLine = n
+                        EndColumn = 0 },
+                      parseLine () |> List.ofSeq ]
 
         indexedSnippetLines
 
@@ -122,12 +128,18 @@ module private Helpers =
 type internal Range =
     { LeftCol: int
       RightCol: int }
-    static member Create leftCol rightCol = { LeftCol = leftCol; RightCol = rightCol }
+    static member Create leftCol rightCol =
+        { LeftCol = leftCol
+          RightCol = rightCol }
 
 /// Uses agent to handle formatting requests
 type CodeFormatAgent() =
     // Create keys for query tooltips for double-backtick identifiers
-    let processDoubleBackticks (body: string) = if body.StartsWith "``" then sprintf "( %s )" <| body.Trim '`' else body
+    let processDoubleBackticks (body: string) =
+        if body.StartsWith "``" then
+            sprintf "( %s )" <| body.Trim '`'
+        else
+            body
 
     let categoryToTokenKind =
         function
@@ -264,7 +276,9 @@ type CodeFormatAgent() =
                         yield! loop island rest stringRange
                     | Some _x, None -> yield! loop island rest stringRange
 
-                    | _x, Some { LeftCol = strLeftCol; RightCol = strRightCol } ->
+                    | _x,
+                      Some { LeftCol = strLeftCol
+                             RightCol = strRightCol } ->
                         let printfOrEscapedSpans =
                             semanticRanges
                             |> Array.filter (fun item ->
@@ -342,7 +356,8 @@ type CodeFormatAgent() =
             let frameworkVersion = FSharpAssemblyHelper.defaultFrameworkVersion
 
             let fsiOptions =
-                (Option.map (Helpers.parseOptions >> FsiOptions.ofArgs) options) |> Option.defaultValue FsiOptions.Empty
+                (Option.map (Helpers.parseOptions >> FsiOptions.ofArgs) options)
+                |> Option.defaultValue FsiOptions.Empty
 
             let fsCore = FSharpAssemblyHelper.findFSCore [] fsiOptions.LibDirs
 
@@ -352,7 +367,9 @@ type CodeFormatAgent() =
                 FSharpAssemblyHelper.getCheckerArguments frameworkVersion defaultReferences false None [] [] []
             // filter invalid args
             let refCorLib =
-                args |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll") |> Option.defaultValue "-r:netstandard.dll"
+                args
+                |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll")
+                |> Option.defaultValue "-r:netstandard.dll"
 
             let args =
                 args
@@ -387,7 +404,8 @@ type CodeFormatAgent() =
                     e.ErrorNumber
                     e.Message
 
-            let formatErrors errors = System.String.Join("\n", errors |> Seq.map formatError)
+            let formatErrors errors =
+                System.String.Join("\n", errors |> Seq.map formatError)
 
             // filter duplicates
             let opts =
@@ -397,7 +415,8 @@ type CodeFormatAgent() =
                     OtherOptions =
                         [| yield sprintf "-r:%s" fsCore
                            yield refCorLib
-                           if Env.isNetCoreApp then yield "--targetprofile:netcore"
+                           if Env.isNetCoreApp then
+                               yield "--targetprofile:netcore"
 
                            yield! opts.OtherOptions |]
                         |> Array.filter (fun item ->
@@ -432,7 +451,9 @@ type CodeFormatAgent() =
             //let! results = fsChecker.ParseAndCheckProject(opts)
             //let _errors = results.Errors
 
-            if _errors |> List.filter (fun e -> e.Severity = FSharpDiagnosticSeverity.Error) |> List.length > 0 then
+            if _errors
+               |> List.filter (fun e -> e.Severity = FSharpDiagnosticSeverity.Error)
+               |> List.length > 0 then
                 Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
 
             //printfn "filePath = %A" filePath

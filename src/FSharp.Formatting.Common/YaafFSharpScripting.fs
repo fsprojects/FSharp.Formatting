@@ -28,7 +28,8 @@ module internal Env =
     let inline isNull o = obj.ReferenceEquals(null, o)
     let (++) a b = System.IO.Path.Combine(a, b)
 
-    let (=?) s1 s2 = System.String.Equals(s1, s2, System.StringComparison.OrdinalIgnoreCase)
+    let (=?) s1 s2 =
+        System.String.Equals(s1, s2, System.StringComparison.OrdinalIgnoreCase)
 
     let (<>?) s1 s2 = not (s1 =? s2)
 
@@ -39,18 +40,23 @@ open Env
 module internal Log =
     let source = new TraceSource("FSharp.Formatting.Internal")
 
-    let traceEventf t f = Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
+    let traceEventf t f =
+        Printf.kprintf (fun s -> source.TraceEvent(t, 0, s)) f
 
-    let infof f = traceEventf TraceEventType.Information f
+    let infof f =
+        traceEventf TraceEventType.Information f
 
     let errorf f = traceEventf TraceEventType.Error f
     let warnf f = traceEventf TraceEventType.Warning f
     let critf f = traceEventf TraceEventType.Critical f
     let verbf f = traceEventf TraceEventType.Verbose f
 
-    let formatArgs (args: _ seq) = System.String.Join("\n  ", args) |> sprintf "\n  %s"
+    let formatArgs (args: _ seq) =
+        System.String.Join("\n  ", args) |> sprintf "\n  %s"
 
-    let formatPaths paths = System.String.Join("\n  ", paths |> Seq.map (sprintf "\"%s\"")) |> sprintf "\n[ %s ]"
+    let formatPaths paths =
+        System.String.Join("\n  ", paths |> Seq.map (sprintf "\"%s\""))
+        |> sprintf "\n[ %s ]"
 
 [<AutoOpen>]
 module internal CompilerServiceExtensions =
@@ -88,11 +94,18 @@ module internal CompilerServiceExtensions =
               yield! libDirs
               yield System.IO.Directory.GetCurrentDirectory() ]
 
-        let tryCheckFsCore fscorePath = if File.Exists fscorePath then Some fscorePath else None
+        let tryCheckFsCore fscorePath =
+            if File.Exists fscorePath then
+                Some fscorePath
+            else
+                None
 
         let findFSCore dllFiles libDirs =
             // lets find ourself some FSharp.Core.dll
-            let tried = dllFiles @ (fscoreResolveDirs libDirs |> List.map (fun (l: string) -> getLib l "FSharp.Core"))
+            let tried =
+                dllFiles
+                @ (fscoreResolveDirs libDirs
+                   |> List.map (fun (l: string) -> getLib l "FSharp.Core"))
 
             match tried |> List.tryPick tryCheckFsCore with
             | Some s -> s
@@ -101,7 +114,8 @@ module internal CompilerServiceExtensions =
                 printfn "Could not find a FSharp.Core.dll in %s" paths
                 failwithf "Could not find a FSharp.Core.dll in %s" paths
 
-        let isAssembly asm l = l |> List.exists (fun (a: string) -> Path.GetFileNameWithoutExtension a =? asm)
+        let isAssembly asm l =
+            l |> List.exists (fun (a: string) -> Path.GetFileNameWithoutExtension a =? asm)
 
         let getCheckerArguments
             frameworkVersion
@@ -129,11 +143,13 @@ module internal CompilerServiceExtensions =
                    yield "--nooptimizationdata"
                    yield "--noframework"
 
-                   if isNetCoreApp then yield "--targetprofile:netcore"
+                   if isNetCoreApp then
+                       yield "--targetprofile:netcore"
 
                    for r in getNetCoreAppFrameworkDependencies.Value do
                        let suppressFSharpCore =
-                           ((hasFsCoreLib || fsCoreLib.IsSome) && Path.GetFileNameWithoutExtension r = "FSharp.Core")
+                           ((hasFsCoreLib || fsCoreLib.IsSome)
+                            && Path.GetFileNameWithoutExtension r = "FSharp.Core")
 
                        if not suppressFSharpCore then yield r
 
@@ -147,7 +163,8 @@ module internal CompilerServiceExtensions =
                        yield "-r:" + dllFile
                    for libDir in libDirs do
                        yield "-I:" + libDir
-                   if fsCoreLib.IsSome then yield sprintf "-r:%s" fsCoreLib.Value
+                   if fsCoreLib.IsSome then
+                       yield sprintf "-r:%s" fsCoreLib.Value
 
                    yield! otherFlags
                    yield fileName1 |]
@@ -174,7 +191,11 @@ module internal CompilerServiceExtensions =
 
             let hasFsCoreLib = hasAssembly "FSharp.Core"
 
-            let fsCoreLib = if not hasFsCoreLib then Some(findFSCore dllFiles libDirs) else None
+            let fsCoreLib =
+                if not hasFsCoreLib then
+                    Some(findFSCore dllFiles libDirs)
+                else
+                    None
 
             let projFileName, args =
                 getCheckerArguments
@@ -194,7 +215,10 @@ module internal CompilerServiceExtensions =
             let mapError (err: FSharpDiagnostic) =
                 sprintf
                     "**** %s: %s"
-                    (if err.Severity = FSharpDiagnosticSeverity.Error then "error" else "warning")
+                    (if err.Severity = FSharpDiagnosticSeverity.Error then
+                         "error"
+                     else
+                         "warning")
                     err.Message
 
             if results.HasCriticalErrors then
@@ -214,19 +238,27 @@ module internal CompilerServiceExtensions =
             references
 
         let referenceMap references =
-            references |> List.choose (fun (r: FSharpAssembly) -> r.FileName |> Option.map (fun f -> f, r))
+            references
+            |> List.choose (fun (r: FSharpAssembly) -> r.FileName |> Option.map (fun f -> f, r))
 
         let resolve (dllFiles: string list) references =
             let referenceDict = referenceMap references |> dict
 
             dllFiles
-            |> List.map (fun file -> file, (if referenceDict.ContainsKey file then Some referenceDict.[file] else None))
+            |> List.map (fun file ->
+                file,
+                (if referenceDict.ContainsKey file then
+                     Some referenceDict.[file]
+                 else
+                     None))
 
         let getProjectReferencesSimple frameworkVersion (dllFiles: string list) =
             getProjectReferences frameworkVersion None None dllFiles |> resolve dllFiles
 
         let getProjectReferenceFromFile frameworkVersion dllFile =
-            getProjectReferencesSimple frameworkVersion [ dllFile ] |> List.exactlyOne |> snd
+            getProjectReferencesSimple frameworkVersion [ dllFile ]
+            |> List.exactlyOne
+            |> snd
 
         let rec enumerateEntities (e: FSharpEntity) =
             [ yield e; yield! e.NestedEntities |> Seq.collect enumerateEntities ]
@@ -252,7 +284,9 @@ module internal CompilerServiceExtensions =
                 |> Seq.filter (fun file ->
                     let fileName = Path.GetFileName file
 
-                    dllFiles |> Seq.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName) |> not)
+                    dllFiles
+                    |> Seq.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
+                    |> not)
                 |> Seq.filter (fun file ->
                     if Path.GetFileName file =? "FSharp.Core.dll" then
                         FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
@@ -281,9 +315,14 @@ module internal CompilerServiceExtensions =
                 | Some fullName when namespaceName = fullName -> Some entity
                 | _ -> None)
 
-type internal OutputData = { FsiOutput: string; ScriptOutput: string; Merged: string }
+type internal OutputData =
+    { FsiOutput: string
+      ScriptOutput: string
+      Merged: string }
 
-type internal InteractionOutputs = { Output: OutputData; Error: OutputData }
+type internal InteractionOutputs =
+    { Output: OutputData
+      Error: OutputData }
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
 type internal FsiEvaluationException
@@ -327,7 +366,9 @@ type internal FsiExpressionTypeException =
     inherit FsiEvaluationException
 
     new(msg: string, input: string, result: InteractionOutputs, expect: System.Type, ?value: obj) =
-        { inherit FsiEvaluationException(msg, input, None, result, null); expected = expect; value = value }
+        { inherit FsiEvaluationException(msg, input, None, result, null)
+          expected = expect
+          value = value }
 
     member x.Value = x.value
     member x.ExpectedType = x.expected
@@ -423,7 +464,10 @@ module internal Shell =
 
 module internal ArgParser =
     let (|StartsWith|_|) (start: string) (s: string) =
-        if s.StartsWith(start) then StartsWith(s.Substring(start.Length)) |> Some else None
+        if s.StartsWith(start) then
+            StartsWith(s.Substring(start.Length)) |> Some
+        else
+            None
 
     let (|FsiBoolArg|_|) argName s =
         match s with
@@ -515,7 +559,9 @@ type internal FsiOptions =
         let includes = []
 
         if Env.isNetCoreApp then
-            { FsiOptions.Empty with LibDirs = includes; NonInteractive = true }
+            { FsiOptions.Empty with
+                LibDirs = includes
+                NonInteractive = true }
         else
             let fsCore = FSharpAssemblyHelper.findFSCore [] includes
 
@@ -592,9 +638,15 @@ type internal FsiOptions =
                 | _, StartsWith "--warn:" warn -> { parsed with WarnLevel = Some(int warn) }, state
                 | _, FsiBoolArg "--warnaserror" enabled -> { parsed with WarnAsError = Some enabled }, state
                 | _, StartsWith "--warnaserror" warnOpts ->
-                    let parseList (l: string) = l.Split [| ',' |] |> Seq.map int |> Seq.toList
+                    let parseList (l: string) =
+                        l.Split [| ',' |] |> Seq.map int |> Seq.toList
 
-                    match warnOpts.[0], (if warnOpts.Length > 1 then Some warnOpts.[1] else None) with
+                    match warnOpts.[0],
+                          (if warnOpts.Length > 1 then
+                               Some warnOpts.[1]
+                           else
+                               None)
+                        with
                     | ':', _ ->
                         { parsed with
                             WarnAsErrorList = (true, parseList (warnOpts.Substring 1)) :: parsed.WarnAsErrorList },
@@ -629,7 +681,8 @@ type internal FsiOptions =
         let maybeArgMap opt f = opt |> Option.map f |> maybeArg
         let getMinusPlus b = if b then "+" else "-"
 
-        let getFsiBoolArg name opt = maybeArgMap opt (getMinusPlus >> sprintf "%s%s" name)
+        let getFsiBoolArg name opt =
+            maybeArgMap opt (getMinusPlus >> sprintf "%s%s" name)
 
         let getSimpleBoolArg name b =
             if b then Some name else None
@@ -702,7 +755,10 @@ type internal FsiOptions =
            yield!
                x.WarnAsErrorList
                |> Seq.map (fun (enable, warnNums) ->
-                   warnNums |> Seq.map string |> String.concat "," |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
+                   warnNums
+                   |> Seq.map string
+                   |> String.concat ","
+                   |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
 
            match x.ScriptArgs with
            | [] -> ()
@@ -719,7 +775,8 @@ module internal Helper =
         override __.Write(c: char) = f (string c)
         override __.Write(c: string) = if isNull c |> not then f c
 
-        override __.WriteLine(c: string) = f <| sprintf "%s%s" c Environment.NewLine
+        override __.WriteLine(c: string) =
+            f <| sprintf "%s%s" c Environment.NewLine
 
         override __.WriteLine() = f Environment.NewLine
 
@@ -737,7 +794,9 @@ module internal Helper =
         override __.Flush() = doAll (fun t -> t.Flush())
         override __.Write(c: char) = doAll (fun t -> t.Write c)
 
-        override __.Write(c: string) = if not (System.String.IsNullOrEmpty c) then doAll (fun t -> t.Write c)
+        override __.Write(c: string) =
+            if not (System.String.IsNullOrEmpty c) then
+                doAll (fun t -> t.Write c)
 
         override __.WriteLine(c: string) = doAll (fun t -> t.WriteLine c)
         override __.WriteLine() = doAll (fun t -> t.WriteLine())
@@ -765,12 +824,14 @@ module internal Helper =
         let fsiOutWriter =
             CombineTextWriter.Create [ yield fsiOutStream
                                        yield mergedOutStream
-                                       if liveFsiWriter.IsSome then yield liveFsiWriter.Value ]
+                                       if liveFsiWriter.IsSome then
+                                           yield liveFsiWriter.Value ]
 
         let stdOutWriter =
             CombineTextWriter.Create [ yield stdOutStream
                                        yield mergedOutStream
-                                       if liveOutWriter.IsSome then yield liveOutWriter.Value ]
+                                       if liveOutWriter.IsSome then
+                                           yield liveOutWriter.Value ]
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
@@ -783,12 +844,15 @@ module internal Helper =
                 |> List.map (fun (global', local) ->
                     let data = local.ToString()
 
-                    if saveGlobal then global'.Append(data) |> ignore
+                    if saveGlobal then
+                        global'.Append(data) |> ignore
 
                     local.Clear() |> ignore
                     data)
 
-            { FsiOutput = fsi; ScriptOutput = std; Merged = merged }
+            { FsiOutput = fsi
+              ScriptOutput = std
+              Merged = merged }
 
     let consoleCapture out err f =
         let defOut = Console.Out
@@ -845,8 +909,10 @@ type internal FsiSession
                 let defOut = Console.Out
                 let defErr = Console.Error
 
-                (CombineTextWriter.Create [ defOut; out.StdOutWriter ]),
-                (CombineTextWriter.Create [ defErr; err.StdOutWriter ])
+                (CombineTextWriter.Create [ defOut
+                                            out.StdOutWriter ]),
+                (CombineTextWriter.Create [ defErr
+                                            err.StdOutWriter ])
 
         consoleCapture captureOut captureErr f
 
@@ -892,7 +958,8 @@ type internal FsiSession
 
     let save f =
         save_ (fun text ->
-            if reportGlobal then sbInput.AppendLine(text) |> ignore
+            if reportGlobal then
+                sbInput.AppendLine(text) |> ignore
 
             f text)
 
@@ -982,11 +1049,14 @@ type internal FsiSession
 
     member x.Open ns = x.EvalInteraction(sprintf "open %s" ns)
 
-    member x.Reference file = x.EvalInteraction(sprintf "#r @\"%s\"" file)
+    member x.Reference file =
+        x.EvalInteraction(sprintf "#r @\"%s\"" file)
 
-    member x.Include dir = x.EvalInteraction(sprintf "#I @\"%s\"" dir)
+    member x.Include dir =
+        x.EvalInteraction(sprintf "#I @\"%s\"" dir)
 
-    member x.Load file = x.EvalInteraction(sprintf "#load @\"%s\" " file)
+    member x.Load file =
+        x.EvalInteraction(sprintf "#load @\"%s\" " file)
 
     /// Change the current directory (so that relative paths within scripts work properly).
     /// Returns a handle to change the current directory back to it's initial state
@@ -994,7 +1064,8 @@ type internal FsiSession
     member x.Cd dir =
         let oldDir = System.IO.Directory.GetCurrentDirectory()
 
-        let cd dir = x.EvalInteraction(sprintf "#cd @\"%s\"" dir) |> ignore
+        let cd dir =
+            x.EvalInteraction(sprintf "#cd @\"%s\"" dir) |> ignore
 
         cd dir
         let isDisposed = ref false
@@ -1017,7 +1088,8 @@ type internal FsiSession
         let oldDir = Directory.GetCurrentDirectory()
 
         let cd dir =
-            x.EvalInteraction(sprintf "System.Environment.CurrentDirectory <- @\"%s\"" dir) |> ignore
+            x.EvalInteraction(sprintf "System.Environment.CurrentDirectory <- @\"%s\"" dir)
+            |> ignore
 
             x.EvalInteraction(sprintf "#cd @\"%s\"" dir) |> ignore
 

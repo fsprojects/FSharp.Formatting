@@ -178,7 +178,10 @@ type FsiEvaluator
     let disableFsiObj = defaultArg disableFsiObj false
     let strict = defaultArg strict false
 
-    let fsiOptions = options |> Option.map FsiOptions.ofArgs |> Option.defaultWith (fun _ -> FsiOptions.Default)
+    let fsiOptions =
+        options
+        |> Option.map FsiOptions.ofArgs
+        |> Option.defaultWith (fun _ -> FsiOptions.Default)
 
     let fsiOptions =
         if addHtmlPrinter then
@@ -449,7 +452,8 @@ module __FsiSettings =
     /// Register a function that formats (some) values that are produced by the evaluator.
     /// The specified function should return 'Some' when it knows how to format a value
     /// and it should return formatted
-    member x.RegisterTransformation(f) = valueTransformations <- f :: valueTransformations
+    member x.RegisterTransformation(f) =
+        valueTransformations <- f :: valueTransformations
 
     /// This event is fired whenever an evaluation of an expression fails
     member x.EvaluationFailed = evalFailed.Publish
@@ -477,7 +481,8 @@ module __FsiSettings =
                 let output = outputText.Trim()
                 [ OutputBlock(output, "text/plain", Some executionCount) ]
             | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItRaw ->
-                match valueTransformations |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                match valueTransformations
+                      |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
                     with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks ->
@@ -495,7 +500,8 @@ module __FsiSettings =
                         | _ -> OutputBlock("Value could not be returned raw", "text/plain", Some executionCount))
             | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItValue
             | { Result = Some (obj, ty) }, FsiEmbedKind.Value ->
-                match valueTransformations |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                match valueTransformations
+                      |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
                     with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks -> blocks
@@ -566,5 +572,9 @@ module __FsiSettings =
                     printfn "  inner exception: %O" e.InnerException
                     exit 1
 
-                { Output = None; FsiOutput = None; FsiMergedOutput = None; Result = None; ItValue = None }
+                { Output = None
+                  FsiOutput = None
+                  FsiMergedOutput = None
+                  Result = None
+                  ItValue = None }
                 :> IFsiEvaluationResult

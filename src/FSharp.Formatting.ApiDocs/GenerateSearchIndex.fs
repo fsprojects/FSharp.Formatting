@@ -2,10 +2,13 @@ module internal FSharp.Formatting.ApiDocs.GenerateSearchIndex
 
 open FSharp.Formatting.ApiDocs
 
-type AssemblyEntities = { Entities: ApiDocEntity list; GeneratorOutput: ApiDocModel }
+type AssemblyEntities =
+    { Entities: ApiDocEntity list
+      GeneratorOutput: ApiDocModel }
 
 
-let rec collectEntities (m: ApiDocEntity) = [ yield m; yield! m.NestedEntities |> List.collect collectEntities ]
+let rec collectEntities (m: ApiDocEntity) =
+    [ yield m; yield! m.NestedEntities |> List.collect collectEntities ]
 
 let searchIndexEntriesForModel (model: ApiDocModel) =
     let allEntities =
@@ -13,7 +16,9 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
               for m in n.Entities do
                   yield! collectEntities m ]
 
-    let entities = { Entities = allEntities; GeneratorOutput = model }
+    let entities =
+        { Entities = allEntities
+          GeneratorOutput = model }
 
     let doMember enclName (memb: ApiDocMember) =
         let cnt =
@@ -63,7 +68,9 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
 
                let url = e.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
 
-               { uri = url; title = e.Name; content = cnt }
+               { uri = url
+                 title = e.Name
+                 content = cnt }
 
                for memb in e.AllMembers do
                    doMember e.Name memb

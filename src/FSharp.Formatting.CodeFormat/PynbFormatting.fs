@@ -12,6 +12,7 @@ open FSharp.Formatting.CodeFormat
 let format (snippets: Snippet []) =
     [| for (Snippet (key, lines)) in snippets do
            let str =
-               [| for (Line (originalLine, _spans)) in lines -> originalLine |] |> String.concat Environment.NewLine
+               [| for (Line (originalLine, _spans)) in lines -> originalLine |]
+               |> String.concat Environment.NewLine
 
            yield key, str |]

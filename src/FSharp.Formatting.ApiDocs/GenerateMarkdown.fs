@@ -7,12 +7,16 @@ open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
 
-let encode (x: string) = HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
+let encode (x: string) =
+    HttpUtility.HtmlEncode(x).Replace("|", "&#124;")
 
 let urlEncode (x: string) = HttpUtility.UrlEncode x
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
-let htmlStringSafe (x: ApiDocHtml) = (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;")
+let htmlStringSafe (x: ApiDocHtml) =
+    (x.HtmlText.Trim())
+        .Replace("\n", "<br />")
+        .Replace("|", "&#124;")
 
 let embed (x: ApiDocHtml) = !!(htmlString x)
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
@@ -41,7 +45,8 @@ type MarkdownRender(model: ApiDocModel) =
 
                             let emptySummary = summary.HtmlText |> String.IsNullOrWhiteSpace
 
-                            if not emptySummary then p [ embedSafe m.Comment.Summary; br ]
+                            if not emptySummary then
+                                p [ embedSafe m.Comment.Summary; br ]
 
                             match m.Comment.Remarks with
                             | None -> ()
@@ -67,12 +72,18 @@ type MarkdownRender(model: ApiDocModel) =
 
                             match m.ExtendedType with
                             | None -> ()
-                            | Some s -> p [ !! "Extended Type: "; embedSafe s; br ]
+                            | Some s ->
+                                p [ !! "Extended Type: "
+                                    embedSafe s
+                                    br ]
 
                             match m.ReturnInfo.ReturnType with
                             | None -> ()
                             | Some t ->
-                                p [ !!(if m.Kind <> ApiDocMemberKind.RecordField then "Returns: " else "Field type: ")
+                                p [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
+                                           "Returns: "
+                                       else
+                                           "Field type: ")
                                     embedSafe t
                                     br
                                     match m.ReturnInfo.ReturnDocs with
@@ -105,9 +116,12 @@ type MarkdownRender(model: ApiDocModel) =
               let hasModules = entities |> List.exists (fun e -> not e.IsTypeDefinition)
 
               table
-                  [ [ p [ !!(if hasTypes && hasModules then "Type/Module"
-                             elif hasTypes then "Type"
-                             else "Modules") ]
+                  [ [ p [ !!(if hasTypes && hasModules then
+                                 "Type/Module"
+                             elif hasTypes then
+                                 "Type"
+                             else
+                                 "Modules") ]
                       p [ !! "Description" ]
                       p [ !! "Source" ] ] ]
                   [ AlignLeft; AlignLeft; AlignCenter ]
@@ -118,7 +132,10 @@ type MarkdownRender(model: ApiDocModel) =
 
                                 let nmWithSiffix =
                                     if multi then
-                                        (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)")
+                                        (if e.IsTypeDefinition then
+                                             nm + " (Type)"
+                                         else
+                                             nm + " (Module)")
                                     else
                                         nm
 
@@ -141,7 +158,11 @@ type MarkdownRender(model: ApiDocModel) =
             | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
             | _ -> entity.Name
 
-        [ ``##`` [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
+        [ ``##`` [ !!(usageName
+                      + (if entity.IsTypeDefinition then
+                             " Type"
+                         else
+                             " Module")) ]
           p [ !! "Namespace: "
               link
                   [ !!info.Namespace.Name ]
@@ -157,7 +178,9 @@ type MarkdownRender(model: ApiDocModel) =
                       (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ]
 
           match entity.AbbreviatedType with
-          | Some abbreviatedTyp -> p [ !! "Abbreviation For: "; embed abbreviatedTyp ]
+          | Some abbreviatedTyp ->
+              p [ !! "Abbreviation For: "
+                  embed abbreviatedTyp ]
           | None -> ()
 
           match entity.BaseType with
@@ -172,17 +195,23 @@ type MarkdownRender(model: ApiDocModel) =
                       if i <> 0 then !! ", "
                       embed ity ]
 
-          if entity.Symbol.IsValueType then p [ !!("Kind: Struct") ]
+          if entity.Symbol.IsValueType then
+              p [ !!("Kind: Struct") ]
 
           match entity.DelegateSignature with
-          | Some d -> p [ !!("Delegate Signature: "); embed d ]
+          | Some d ->
+              p [ !!("Delegate Signature: ")
+                  embed d ]
           | None -> ()
 
-          if entity.Symbol.IsProvided then p [ !!("This is a provided type definition") ]
+          if entity.Symbol.IsProvided then
+              p [ !!("This is a provided type definition") ]
 
-          if entity.Symbol.IsAttributeType then p [ !!("This is an attribute type definition") ]
+          if entity.Symbol.IsAttributeType then
+              p [ !!("This is an attribute type definition") ]
 
-          if entity.Symbol.IsEnum then p [ !!("This is an enum type definition") ]
+          if entity.Symbol.IsEnum then
+              p [ !!("This is an enum type definition") ]
 
           //if info.Entity.IsObsolete then
           //    obsoleteMessage entity.ObsoleteMessage
@@ -216,9 +245,12 @@ type MarkdownRender(model: ApiDocModel) =
 
           if (nestedEntities.Length > 0) then
 
-              ``###`` [ !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then "Nested modules"
-                           elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then "Types"
-                           else "Types and nested modules") ]
+              ``###`` [ !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then
+                               "Nested modules"
+                           elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then
+                               "Types"
+                           else
+                               "Types and nested modules") ]
 
               yield! renderEntities nestedEntities
 
@@ -226,7 +258,8 @@ type MarkdownRender(model: ApiDocModel) =
               // Iterate over all the categories and print members. If there are more than one
               // categories, print the category heading (as <h2>) and add XML comment from the type
               // that is related to this specific category.
-              if (byCategory.Length > 1) then ``##`` [ !!name ]
+              if (byCategory.Length > 1) then
+                  ``##`` [ !!name ]
 
               yield!
                   renderMembers
@@ -325,7 +358,8 @@ type MarkdownRender(model: ApiDocModel) =
 
               let someExist = categorise.Length > 0
 
-              if someExist && nav then p [ !! "Namespaces" ]
+              if someExist && nav then
+                  p [ !! "Namespaces" ]
 
               for allByCategory, ns in categorise do
 

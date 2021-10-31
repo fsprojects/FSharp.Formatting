@@ -69,12 +69,19 @@ module Utils =
             saveBinary res cacheFile
             res
 
-    let ensureTrailingSlash (s: string) = if s.EndsWith("/") || s.EndsWith(".html") then s else s + "/"
+    let ensureTrailingSlash (s: string) =
+        if s.EndsWith("/") || s.EndsWith(".html") then
+            s
+        else
+            s + "/"
 
 module Crack =
 
     let (|ConditionEquals|_|) (str: string) (arg: string) =
-        if System.String.Compare(str, arg, System.StringComparison.OrdinalIgnoreCase) = 0 then Some() else None
+        if System.String.Compare(str, arg, System.StringComparison.OrdinalIgnoreCase) = 0 then
+            Some()
+        else
+            None
 
     let msbuildPropBool (s: string) =
         match s.Trim() with
@@ -195,7 +202,10 @@ module Crack =
         match result with
         | Ok projOptions ->
 
-            let props = projOptions.CustomProperties |> List.map (fun p -> p.Name, p.Value) |> Map.ofList
+            let props =
+                projOptions.CustomProperties
+                |> List.map (fun p -> p.Name, p.Value)
+                |> Map.ofList
             //printfn "props = %A" (Map.toList props)
             let msbuildPropString prop =
                 props
@@ -207,12 +217,15 @@ module Crack =
             let splitTargetFrameworks =
                 function
                 | Some (s: string) ->
-                    s.Split(";", StringSplitOptions.RemoveEmptyEntries) |> Array.map (fun s' -> s'.Trim()) |> Some
+                    s.Split(";", StringSplitOptions.RemoveEmptyEntries)
+                    |> Array.map (fun s' -> s'.Trim())
+                    |> Some
                 | _ -> None
 
             let targetFrameworks = msbuildPropString "TargetFrameworks" |> splitTargetFrameworks
 
-            let msbuildPropBool prop = prop |> msbuildPropString |> Option.bind msbuildPropBool
+            let msbuildPropBool prop =
+                prop |> msbuildPropString |> Option.bind msbuildPropBool
 
             let projOptions2 =
 
@@ -258,7 +271,8 @@ module Crack =
 
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
 
-        if not (File.Exists(projectAssetsJsonPath)) then failwithf "project '%s' not restored" file
+        if not (File.Exists(projectAssetsJsonPath)) then
+            failwithf "project '%s' not restored" file
 
         let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
         //printfn "msgs = %A" msgs
@@ -351,7 +365,8 @@ module Crack =
         if projectFiles.Length = 0 && (ignoreProjects |> not) then
             printfn "no project files found, no API docs will be generated"
 
-        if ignoreProjects then printfn "project files are ignored, no API docs will be generated"
+        if ignoreProjects then
+            printfn "project files are ignored, no API docs will be generated"
 
         printfn "cracking projects..."
 
@@ -420,7 +435,9 @@ module Crack =
               IsLibrary = true
               IsPackable = true
               RepositoryUrl =
-                projectInfos |> List.tryPick (fun info -> info.RepositoryUrl) |> Option.map ensureTrailingSlash
+                projectInfos
+                |> List.tryPick (fun info -> info.RepositoryUrl)
+                |> Option.map ensureTrailingSlash
               RepositoryType = projectInfos |> List.tryPick (fun info -> info.RepositoryType)
               RepositoryBranch = projectInfos |> List.tryPick (fun info -> info.RepositoryBranch)
               FsDocsCollectionNameLink = projectInfos |> List.tryPick (fun info -> info.FsDocsCollectionNameLink)
@@ -434,7 +451,9 @@ module Crack =
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
               PackageProjectUrl =
-                projectInfos |> List.tryPick (fun info -> info.PackageProjectUrl) |> Option.map ensureTrailingSlash
+                projectInfos
+                |> List.tryPick (fun info -> info.PackageProjectUrl)
+                |> Option.map ensureTrailingSlash
               Authors = projectInfos |> List.tryPick (fun info -> info.Authors)
               GenerateDocumentationFile = true
               PackageLicenseExpression = projectInfos |> List.tryPick (fun info -> info.PackageLicenseExpression)
@@ -451,7 +470,10 @@ module Crack =
             defaultArg userRoot (defaultArg projectUrl ("/" + collectionName) |> ensureTrailingSlash)
 
         let parametersForProjectInfo (info: CrackedProjectInfo) =
-            let projectUrl = info.PackageProjectUrl |> Option.map ensureTrailingSlash |> Option.defaultValue root
+            let projectUrl =
+                info.PackageProjectUrl
+                |> Option.map ensureTrailingSlash
+                |> Option.defaultValue root
 
             let repoUrl = info.RepositoryUrl |> Option.map ensureTrailingSlash
 
@@ -481,7 +503,8 @@ module Crack =
                   param
                       (Some "<FsDocsLicenseLink>")
                       ParamKeys.``fsdocs-license-link``
-                      (info.FsDocsLicenseLink |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") repoUrl))
+                      (info.FsDocsLicenseLink
+                       |> Option.orElse (Option.map (sprintf "%sblob/master/LICENSE.md") repoUrl))
                   param
                       (Some "<FsDocsReleaseNotesLink>")
                       ParamKeys.``fsdocs-release-notes-link``

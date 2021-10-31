@@ -447,13 +447,21 @@ type internal HtmlElement =
                 else
                     ""
 
-            let attrs = if props.Length > 0 then " " + (props |> List.map string |> String.concat " ") else ""
+            let attrs =
+                if props.Length > 0 then
+                    " " + (props |> List.map string |> String.concat " ")
+                else
+                    ""
 
             sprintf "<%s%s>%s</%s>" tag attrs cnt tag
 
 
         and formatVoid tag (props: HtmlProperties list) _level =
-            let attrs = if props.Length > 0 then " " + (props |> List.map string |> String.concat " ") else ""
+            let attrs =
+                if props.Length > 0 then
+                    " " + (props |> List.map string |> String.concat " ")
+                else
+                    ""
 
             sprintf "<%s%s/>" tag attrs
 

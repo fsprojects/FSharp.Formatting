@@ -49,7 +49,8 @@ type ToolTipFormatter(prefix) =
             )
         else
             String.Format(
-                "onmouseout=\"hideTip(event, '{0}{1}', {2})\" " + "onmouseover=\"showTip(event, '{0}{1}', {2})\" ",
+                "onmouseout=\"hideTip(event, '{0}{1}', {2})\" "
+                + "onmouseover=\"showTip(event, '{0}{1}', {2})\" ",
                 prefix,
                 stringIndex,
                 uniqueId
@@ -168,7 +169,9 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
            let numberLength = lines.Length.ToString().Length
            let linesLength = lines.Length
 
-           let emitTag tag = if String.IsNullOrEmpty(tag) |> not then ctx.Writer.Write(tag)
+           let emitTag tag =
+               if String.IsNullOrEmpty(tag) |> not then
+                   ctx.Writer.Write(tag)
 
            // If we're adding lines, then generate two column table
            // (so that the body can be easily copied)

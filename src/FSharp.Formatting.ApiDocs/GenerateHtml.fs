@@ -47,22 +47,29 @@ type HtmlRender(model: ApiDocModel) =
           | None -> ()
           | Some href ->
               a [ Href href; Class "fsdocs-source-link"; HtmlProperties.Title "Source on GitHub" ] [
-                  img [ Src(sprintf "%scontent/img/github.png" root); Class "normal" ]
-                  img [ Src(sprintf "%scontent/img/github-hover.png" root); Class "hover" ]
+                  img [ Src(sprintf "%scontent/img/github.png" root)
+                        Class "normal" ]
+                  img [ Src(sprintf "%scontent/img/github-hover.png" root)
+                        Class "hover" ]
               ] ]
 
     let removeParen (memberName: string) =
         let firstParen = memberName.IndexOf("(")
 
-        if firstParen > 0 then memberName.Substring(0, firstParen) else memberName
+        if firstParen > 0 then
+            memberName.Substring(0, firstParen)
+        else
+            memberName
 
     // Copy XML sig for use in `cref` XML
     let copyXmlSigIcon xmlDocSig =
         div [ Class "fsdocs-source-link"
               HtmlProperties.Title "Copy signature (XML)"
               OnClick(sprintf "Clipboard_CopyTo('<see cref=\\\'%s\\\'/>')" xmlDocSig) ] [
-            img [ Src(sprintf "%scontent/img/copy-xml.png" root); Class "normal" ]
-            img [ Src(sprintf "%scontent/img/copy-xml-hover.png" root); Class "hover" ]
+            img [ Src(sprintf "%scontent/img/copy-xml.png" root)
+                  Class "normal" ]
+            img [ Src(sprintf "%scontent/img/copy-xml-hover.png" root)
+                  Class "hover" ]
         ]
 
     let copyXmlSigIconForSymbol (symbol: FSharpSymbol) =
@@ -84,8 +91,10 @@ type HtmlRender(model: ApiDocModel) =
             div [ Class "fsdocs-source-link"
                   HtmlProperties.Title "Copy signature (Markdown)"
                   OnClick(sprintf "Clipboard_CopyTo('%scref:%s%s')" delim xmlDocSig delim) ] [
-                img [ Src(sprintf "%scontent/img/copy-md.png" root); Class "normal" ]
-                img [ Src(sprintf "%scontent/img/copy-md-hover.png" root); Class "hover" ]
+                img [ Src(sprintf "%scontent/img/copy-md.png" root)
+                      Class "normal" ]
+                img [ Src(sprintf "%scontent/img/copy-md-hover.png" root)
+                      Class "hover" ]
             ]
 
     let copyXmlSigIconForSymbolMarkdown (symbol: FSharpSymbol) =
@@ -101,8 +110,12 @@ type HtmlRender(model: ApiDocModel) =
               table [ Class "table outer-list fsdocs-member-list" ] [
                   thead [] [
                       tr [] [
-                          td [ Class "fsdocs-member-list-header" ] [ !!tableHeader ]
-                          td [ Class "fsdocs-member-list-header" ] [ !! "Description" ]
+                          td [ Class "fsdocs-member-list-header" ] [
+                              !!tableHeader
+                          ]
+                          td [ Class "fsdocs-member-list-header" ] [
+                              !! "Description"
+                          ]
                       ]
                   ]
                   tbody [] [
@@ -114,7 +127,9 @@ type HtmlRender(model: ApiDocModel) =
                                                     // This adds #MemberName anchor. These may be ambiguous due to overloading
                                                     p [] [
                                                         a [ Id m.Name ] [
-                                                            a [ Href("#" + m.Name) ] [ embed m.UsageHtml ]
+                                                            a [ Href("#" + m.Name) ] [
+                                                                embed m.UsageHtml
+                                                            ]
                                                         ]
                                                     ] ] [
                                       div [ Class "member-tooltip" ] [
@@ -181,7 +196,9 @@ type HtmlRender(model: ApiDocModel) =
                                       yield! copyXmlSigIconForSymbolMarkdown m.Symbol
                                       yield! copyXmlSigIconForSymbol m.Symbol
                                       yield! sourceLink m.SourceLocation
-                                      p [ Class "fsdocs-summary" ] [ embed m.Comment.Summary ]
+                                      p [ Class "fsdocs-summary" ] [
+                                          embed m.Comment.Summary
+                                      ]
                                   ]
 
                                   match m.Comment.Remarks with
@@ -196,7 +213,9 @@ type HtmlRender(model: ApiDocModel) =
                                       dl [ Class "fsdocs-params" ] [
                                           for parameter in m.Parameters do
                                               dt [ Class "fsdocs-param" ] [
-                                                  span [ Class "fsdocs-param-name" ] [ !!parameter.ParameterNameText ]
+                                                  span [ Class "fsdocs-param-name" ] [
+                                                      !!parameter.ParameterNameText
+                                                  ]
                                                   !! ":"
                                                   embed parameter.ParameterType
                                               ]
@@ -243,14 +262,20 @@ type HtmlRender(model: ApiDocModel) =
                                       ]
 
                                   for e in m.Comment.Notes do
-                                      h5 [ Class "fsdocs-note-header" ] [ !! "Note" ]
+                                      h5 [ Class "fsdocs-note-header" ] [
+                                          !! "Note"
+                                      ]
 
                                       p [ Class "fsdocs-note" ] [ embed e ]
 
                                   for e in m.Comment.Examples do
-                                      h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
+                                      h5 [ Class "fsdocs-example-header" ] [
+                                          !! "Example"
+                                      ]
 
-                                      p [ Class "fsdocs-example"; if e.Id.IsSome then Id e.Id.Value ] [ embed e ]
+                                      p [ Class "fsdocs-example"; if e.Id.IsSome then Id e.Id.Value ] [
+                                          embed e
+                                      ]
 
                               //if m.IsObsolete then
                               //    obsoleteMessage m.ObsoleteMessage
@@ -272,9 +297,12 @@ type HtmlRender(model: ApiDocModel) =
                   thead [] [
                       tr [] [
                           td [] [
-                              !!(if hasTypes && hasModules then "Type/Module"
-                                 elif hasTypes then "Type"
-                                 else "Modules")
+                              !!(if hasTypes && hasModules then
+                                     "Type/Module"
+                                 elif hasTypes then
+                                     "Type"
+                                 else
+                                     "Modules")
                           ]
                           td [] [ !! "Description" ]
                       ]
@@ -289,7 +317,10 @@ type HtmlRender(model: ApiDocModel) =
 
                                   let nmWithSiffix =
                                       if multi then
-                                          (if e.IsTypeDefinition then nm + " (Type)" else nm + " (Module)")
+                                          (if e.IsTypeDefinition then
+                                               nm + " (Type)"
+                                           else
+                                               nm + " (Module)")
                                       else
                                           nm
 
@@ -307,7 +338,9 @@ type HtmlRender(model: ApiDocModel) =
                                       yield! copyXmlSigIconForSymbolMarkdown e.Symbol
                                       yield! copyXmlSigIconForSymbol e.Symbol
                                       yield! sourceLink e.SourceLocation
-                                      p [ Class "fsdocs-summary" ] [ embed e.Comment.Summary ]
+                                      p [ Class "fsdocs-summary" ] [
+                                          embed e.Comment.Summary
+                                      ]
                                   ]
                               ]
                           ]
@@ -327,7 +360,13 @@ type HtmlRender(model: ApiDocModel) =
             | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
             | _ -> entity.Name
 
-        [ h2 [] [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
+        [ h2 [] [
+              !!(usageName
+                 + (if entity.IsTypeDefinition then
+                        " Type"
+                    else
+                        " Module"))
+          ]
           dl [ Class "fsdocs-metadata" ] [
               dt [] [
                   !! "Namespace: "
@@ -335,7 +374,9 @@ type HtmlRender(model: ApiDocModel) =
                       !!info.Namespace.Name
                   ]
               ]
-              dt [] [ !!("Assembly: " + entity.Assembly.Name + ".dll") ]
+              dt [] [
+                  !!("Assembly: " + entity.Assembly.Name + ".dll")
+              ]
 
               match info.ParentModule with
               | None -> ()
@@ -349,12 +390,20 @@ type HtmlRender(model: ApiDocModel) =
 
 
               match entity.AbbreviatedType with
-              | Some abbreviatedTyp -> dt [] [ !! "Abbreviation For: "; embed abbreviatedTyp ]
+              | Some abbreviatedTyp ->
+                  dt [] [
+                      !! "Abbreviation For: "
+                      embed abbreviatedTyp
+                  ]
 
               | None -> ()
 
               match entity.BaseType with
-              | Some baseType -> dt [] [ !! "Base Type: "; embed baseType ]
+              | Some baseType ->
+                  dt [] [
+                      !! "Base Type: "
+                      embed baseType
+                  ]
               | None -> ()
 
               match entity.AllInterfaces with
@@ -367,17 +416,31 @@ type HtmlRender(model: ApiDocModel) =
                           embed ity
                   ]
 
-              if entity.Symbol.IsValueType then dt [] [ !!("Kind: Struct") ]
+              if entity.Symbol.IsValueType then
+                  dt [] [ !!("Kind: Struct") ]
 
               match entity.DelegateSignature with
-              | Some d -> dt [] [ !!("Delegate Signature: "); embed d ]
+              | Some d ->
+                  dt [] [
+                      !!("Delegate Signature: ")
+                      embed d
+                  ]
               | None -> ()
 
-              if entity.Symbol.IsProvided then dt [] [ !!("This is a provided type definition") ]
+              if entity.Symbol.IsProvided then
+                  dt [] [
+                      !!("This is a provided type definition")
+                  ]
 
-              if entity.Symbol.IsAttributeType then dt [] [ !!("This is an attribute type definition") ]
+              if entity.Symbol.IsAttributeType then
+                  dt [] [
+                      !!("This is an attribute type definition")
+                  ]
 
-              if entity.Symbol.IsEnum then dt [] [ !!("This is an enum type definition") ]
+              if entity.Symbol.IsEnum then
+                  dt [] [
+                      !!("This is an enum type definition")
+                  ]
 
           //if info.Entity.IsObsolete then
           //    obsoleteMessage entity.ObsoleteMessage
@@ -387,21 +450,29 @@ type HtmlRender(model: ApiDocModel) =
               div [] [
                   //yield! copyXmlSigIconForSymbol entity.Symbol
                   //yield! sourceLink entity.SourceLocation
-                  p [ Class "fsdocs-summary" ] [ embed entity.Comment.Summary ]
+                  p [ Class "fsdocs-summary" ] [
+                      embed entity.Comment.Summary
+                  ]
               ]
               // Show the remarks etc.
               match entity.Comment.Remarks with
               | Some r -> p [ Class "fsdocs-remarks" ] [ embed r ]
               | None -> ()
               for note in entity.Comment.Notes do
-                  h5 [ Class "fsdocs-note-header" ] [ !! "Note" ]
+                  h5 [ Class "fsdocs-note-header" ] [
+                      !! "Note"
+                  ]
 
                   p [ Class "fsdocs-note" ] [ embed note ]
 
               for example in entity.Comment.Examples do
-                  h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
+                  h5 [ Class "fsdocs-example-header" ] [
+                      !! "Example"
+                  ]
 
-                  p [ Class "fsdocs-example" ] [ embed example ]
+                  p [ Class "fsdocs-example" ] [
+                      embed example
+                  ]
 
           ]
 
@@ -411,7 +482,11 @@ type HtmlRender(model: ApiDocModel) =
 
               ul [] [
                   for (index, _, name) in byCategory do
-                      li [] [ a [ Href(sprintf "#section%d" index) ] [ !!name ] ]
+                      li [] [
+                          a [ Href(sprintf "#section%d" index) ] [
+                              !!name
+                          ]
+                      ]
               ]
 
           //<!-- Render nested types and modules, if there are any -->
@@ -421,9 +496,12 @@ type HtmlRender(model: ApiDocModel) =
           if (nestedEntities.Length > 0) then
               div [] [
                   h3 [] [
-                      !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then "Nested modules"
-                         elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then "Types"
-                         else "Types and nested modules")
+                      !!(if nestedEntities |> List.forall (fun e -> not e.IsTypeDefinition) then
+                             "Nested modules"
+                         elif nestedEntities |> List.forall (fun e -> e.IsTypeDefinition) then
+                             "Types"
+                         else
+                             "Types and nested modules")
                   ]
                   yield! renderEntities nestedEntities
               ]
@@ -432,7 +510,10 @@ type HtmlRender(model: ApiDocModel) =
               // Iterate over all the categories and print members. If there are more than one
               // categories, print the category heading (as <h2>) and add XML comment from the type
               // that is related to this specific category.
-              if (byCategory.Length > 1) then h2 [ Id(sprintf "section%d" index) ] [ !!name ]
+              if (byCategory.Length > 1) then
+                  h2 [ Id(sprintf "section%d" index) ] [
+                      !!name
+                  ]
               //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
               div
                   []
@@ -501,7 +582,9 @@ type HtmlRender(model: ApiDocModel) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
 
         [ if allByCategory.Length > 0 then
-              h2 [ Id ns.UrlHash ] [ !!(ns.Name + " Namespace") ]
+              h2 [ Id ns.UrlHash ] [
+                  !!(ns.Name + " Namespace")
+              ]
 
               div [ Class "fsdocs-xmldoc" ] [
                   match ns.NamespaceDocs with
@@ -520,7 +603,11 @@ type HtmlRender(model: ApiDocModel) =
 
                   ul [] [
                       for category in allByCategory do
-                          li [] [ a [ Href("#category-" + category.CategoryIndex) ] [ !!category.CategoryName ] ]
+                          li [] [
+                              a [ Href("#category-" + category.CategoryIndex) ] [
+                                  !!category.CategoryName
+                              ]
+                          ]
                   ]
 
               for category in allByCategory do
@@ -542,7 +629,11 @@ type HtmlRender(model: ApiDocModel) =
 
               // Generate the entry for the namespace
               tr [] [
-                  td [] [ a [ Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [ !!ns.Name ] ]
+                  td [] [
+                      a [ Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
+                          !!ns.Name
+                      ]
+                  ]
                   td [] [
                       match ns.NamespaceDocs with
                       | Some nsdocs -> embed nsdocs.Summary
@@ -556,7 +647,9 @@ type HtmlRender(model: ApiDocModel) =
           //
           // For non-FSharp.Core we only show one link "API Reference" in the nav menu
           if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
-              li [ Class "nav-header" ] [ !! "API Reference" ]
+              li [ Class "nav-header" ] [
+                  !! "API Reference"
+              ]
 
               li [ Class "nav-item" ] [
                   a [ Class "nav-link"
@@ -570,7 +663,10 @@ type HtmlRender(model: ApiDocModel) =
 
               let someExist = categorise.Length > 0
 
-              if someExist then li [ Class "nav-header" ] [ !! "Namespaces" ]
+              if someExist then
+                  li [ Class "nav-header" ] [
+                      !! "Namespaces"
+                  ]
 
               for allByCategory, ns in categorise do
 
@@ -645,8 +741,12 @@ type HtmlRender(model: ApiDocModel) =
                 table [ Class "table outer-list fsdocs-member-list" ] [
                     thead [] [
                         tr [] [
-                            td [ Class "fsdocs-member-list-header" ] [ !! "Namespace" ]
-                            td [ Class "fsdocs-member-list-header" ] [ !! "Description" ]
+                            td [ Class "fsdocs-member-list-header" ] [
+                                !! "Namespace"
+                            ]
+                            td [ Class "fsdocs-member-list-header" ] [
+                                !! "Description"
+                            ]
                         ]
                     ]
                     tbody [] (tableOfNamespacesAux ())

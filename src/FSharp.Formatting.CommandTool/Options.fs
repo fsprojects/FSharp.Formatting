@@ -27,7 +27,8 @@ module Common =
         | Some "" -> None
         | _ -> a |> pairs |> List.ofSeq |> Some
 
-    let evalPairwiseStringsNoOption a = evalPairwiseStrings a |> Option.defaultValue []
+    let evalPairwiseStringsNoOption a =
+        evalPairwiseStrings a |> Option.defaultValue []
 
     let concat a =
         let s = String.concat " " a

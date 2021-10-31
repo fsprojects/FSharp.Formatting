@@ -48,12 +48,20 @@ type Markdown internal () =
                      line.Value <> null) do
                   yield
                       (line.Value,
-                       { StartLine = lineNo; StartColumn = 0; EndLine = lineNo; EndColumn = line.Value.Length })
+                       { StartLine = lineNo
+                         StartColumn = 0
+                         EndLine = lineNo
+                         EndColumn = line.Value.Length })
 
                   lineNo <- lineNo + 1
 
               if text.EndsWith(newline) then
-                  yield ("", { StartLine = lineNo; StartColumn = 0; EndLine = lineNo; EndColumn = 0 }) ]
+                  yield
+                      ("",
+                       { StartLine = lineNo
+                         StartColumn = 0
+                         EndLine = lineNo
+                         EndColumn = 0 }) ]
         //|> Utils.replaceTabs 4
         let links = Dictionary<_, _>()
         //let (Lines.TrimBlank lines) = lines
@@ -65,7 +73,10 @@ type Markdown internal () =
               ParseOptions = parseOptions }
 
         let paragraphs =
-            lines |> List.skipWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s) |> parseParagraphs ctx |> List.ofSeq
+            lines
+            |> List.skipWhile (fun (s, _n) -> String.IsNullOrWhiteSpace s)
+            |> parseParagraphs ctx
+            |> List.ofSeq
 
         MarkdownDocument(paragraphs, links)
 

@@ -18,7 +18,11 @@ let getMembersByCategory (members: ApiDocMember list) =
     |> List.mapi (fun i (key, elems) ->
         let elems = elems |> List.sortBy (fun m -> m.Name)
 
-        let name = if String.IsNullOrEmpty(key) then "Other module members" else key
+        let name =
+            if String.IsNullOrEmpty(key) then
+                "Other module members"
+            else
+                key
 
         (i, elems, name))
 
@@ -35,7 +39,10 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
     let allByCategory =
         [ for (catIndex, (categoryName, (categoryEntities: ApiDocEntity list))) in Seq.indexed categories do
               let categoryName =
-                  (if String.IsNullOrEmpty(categoryName) then "Other namespace members" else categoryName)
+                  (if String.IsNullOrEmpty(categoryName) then
+                       "Other namespace members"
+                   else
+                       categoryName)
 
               let index = String.Format("{0}_{1}", nsIndex, catIndex)
 
@@ -84,10 +91,16 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
                       (e.Symbol.DisplayName.ToLowerInvariant(),
                        e.Symbol.GenericParameters.Count,
                        e.Name,
-                       (if e.IsTypeDefinition then e.UrlBaseName else "ZZZ")))
+                       (if e.IsTypeDefinition then
+                            e.UrlBaseName
+                        else
+                            "ZZZ")))
 
               if categoryEntities.Length > 0 then
-                  yield {| CategoryName = categoryName; CategoryIndex = index; CategoryEntites = categoryEntities |} ]
+                  yield
+                      {| CategoryName = categoryName
+                         CategoryIndex = index
+                         CategoryEntites = categoryEntities |} ]
 
     allByCategory
 
@@ -95,4 +108,5 @@ let model (apiDocModel: ApiDocModel) =
     [ for (nsIndex, ns) in Seq.indexed apiDocModel.Collection.Namespaces do
           let allByCategory = entities (nsIndex, ns, true)
 
-          if allByCategory.Length > 0 then allByCategory, ns ]
+          if allByCategory.Length > 0 then
+              allByCategory, ns ]

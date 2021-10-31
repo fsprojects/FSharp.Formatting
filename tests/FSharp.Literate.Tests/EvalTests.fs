@@ -222,7 +222,13 @@ printfn "hi"
 
     let html = Literate.ToHtml(doc)
 
-    html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length |> shouldEqual 5
+    html
+        .Split(
+            [| "<table class=\"pre\">" |],
+            System.StringSplitOptions.None
+        )
+        .Length
+    |> shouldEqual 5
 
 
 [<Test>]
@@ -463,7 +469,8 @@ printfn "GOODBYE"
     html1 |> shouldContainText "HELLO"
     html1 |> shouldContainText "GOODBYE"
 
-    html1 |> shouldContainText "val xxxxxxx : int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10]"
+    html1
+    |> shouldContainText "val xxxxxxx : int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10]"
 
     html1 |> shouldContainText "val it : unit = ()"
 
@@ -614,7 +621,9 @@ $$$
             "." </> "A.fsx",
             formatAgent = getFormatAgent (),
             fsiEvaluator = fsie,
-            parseOptions = (MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther)
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
         )
 
     let pynb = Literate.ToPynb(md)

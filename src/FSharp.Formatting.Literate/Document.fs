@@ -101,7 +101,8 @@ type LiterateParagraph =
         | RawBlock (_, popts) -> popts
 
     interface MarkdownEmbedParagraphs with
-        member x.Render() = failwith "LiterateParagraph elements cannot be directly formatted"
+        member x.Render() =
+            failwith "LiterateParagraph elements cannot be directly formatted"
 
 /// Represents the source of a literate document.
 [<RequireQualifiedAccess>]

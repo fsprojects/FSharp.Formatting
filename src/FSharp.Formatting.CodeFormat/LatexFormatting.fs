@@ -29,10 +29,15 @@ let specialChars =
        "^", @"{\textasciicircum}" |]
 
 let latexEncode s =
-    specialChars |> Array.fold (fun (acc: string) (k, v) -> acc.Replace(k, v)) (HttpUtility.HtmlDecode s)
+    specialChars
+    |> Array.fold (fun (acc: string) (k, v) -> acc.Replace(k, v)) (HttpUtility.HtmlDecode s)
 
 /// Represents context used by the formatter
-type FormattingContext = { AddLines: bool; Writer: TextWriter; OpenTag: string; CloseTag: string }
+type FormattingContext =
+    { AddLines: bool
+      Writer: TextWriter
+      OpenTag: string
+      CloseTag: string }
 
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx: FormattingContext) =
@@ -88,7 +93,8 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
            let ctx = { ctx with Writer = new StringWriter(mainStr) }
 
            // Generate <pre> tag for the snippet
-           if String.IsNullOrEmpty(ctx.OpenTag) |> not then ctx.Writer.Write(ctx.OpenTag)
+           if String.IsNullOrEmpty(ctx.OpenTag) |> not then
+               ctx.Writer.Write(ctx.OpenTag)
 
            // Line numbers belong to the tag
            if ctx.AddLines then
@@ -104,7 +110,8 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
                ctx.Writer.WriteLine())
 
            // Close the <pre> tag for this snippet
-           if String.IsNullOrEmpty(ctx.CloseTag) |> not then ctx.Writer.WriteLine(ctx.CloseTag)
+           if String.IsNullOrEmpty(ctx.CloseTag) |> not then
+               ctx.Writer.WriteLine(ctx.CloseTag)
 
            ctx.Writer.Close()
            // Title is important for dictionary lookup
@@ -113,7 +120,11 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
 /// Format snippets and return LaTEX for <pre> tags together
 /// (to be added to the end of document)
 let format addLines openTag closeTag (snippets: Snippet []) =
-    let ctx = { AddLines = addLines; Writer = null; OpenTag = openTag; CloseTag = closeTag }
+    let ctx =
+        { AddLines = addLines
+          Writer = null
+          OpenTag = openTag
+          CloseTag = closeTag }
 
     // Generate main LaTEX for snippets, tooltip isn't important to this format
     formatSnippets ctx snippets

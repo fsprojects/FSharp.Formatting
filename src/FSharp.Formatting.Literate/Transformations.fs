@@ -157,7 +157,9 @@ module internal Transformations =
                         ?defines = defines
                     )
 
-                let results = [ for (_, id), (Snippet (_, code)) in Array.zip codes snippets -> id, code ] |> dict
+                let results =
+                    [ for (_, id), (Snippet (_, code)) in Array.zip codes snippets -> id, code ]
+                    |> dict
 
                 results, diagnostics
 

@@ -133,7 +133,8 @@ let getContent = getContentAndToolTip >> fst
 let ``Simple code snippet is formatted as HTML`` () =
     let content, tooltip = getContentAndToolTip """let hello = 10"""
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">let</span>" CSS.Keyword)
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">let</span>" CSS.Keyword)
 
     content |> shouldContainText ">hello<"
 
@@ -167,9 +168,11 @@ let ``Plain string is in span of 's' class when it's the last token in the line`
 let ``Plain string is in span of 's' class, there are several other tokens next to it`` () =
     let content = getContent """let _ = "str", 1 """
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
 
-    content |> shouldNotContainText (sprintf "<span class=\"%s\">,</span>" CSS.String)
+    content
+    |> shouldNotContainText (sprintf "<span class=\"%s\">,</span>" CSS.String)
 
     content |> shouldContainText ","
 
@@ -177,11 +180,14 @@ let ``Plain string is in span of 's' class, there are several other tokens next 
 let ``Plain string is in span of 's' class, there is punctuation next to it`` () =
     let content = getContent """let _ = ("str")"""
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">(</span>" CSS.Punctuation)
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">(</span>" CSS.Punctuation)
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" CSS.String)
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">)</span>" CSS.Punctuation)
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">)</span>" CSS.Punctuation)
 
 [<Test>]
 let ``Modules and types are in spans of 't' class`` () =
@@ -194,7 +200,8 @@ module Module =
 
     content |> shouldContainText (sprintf "class=\"%s\">Module</span>" CSS.Module)
 
-    content |> shouldContainText (sprintf "class=\"%s\">Type</span>" CSS.ReferenceType)
+    content
+    |> shouldContainText (sprintf "class=\"%s\">Type</span>" CSS.ReferenceType)
 
 [<Test>]
 let ``Functions and methods are in spans of 'f' class`` () =
@@ -304,13 +311,15 @@ let ``Simple code snippet is formatted as HTML - custom CSS`` () =
 
 [<Test>]
 let ``Plain string is in span of 's' class when it's the last token in the line - custom CSS`` () =
-    getContent' """let _ = "str" """ |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
+    getContent' """let _ = "str" """
+    |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
 
 [<Test>]
 let ``Plain string is in span of 's' class, there are several other tokens next to it - custom CSS`` () =
     let content = getContent' """let _ = "str", 1 """
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
 
     content |> shouldNotContainText (sprintf "<span class=\"%s\">,</span>" "String")
 
@@ -320,11 +329,14 @@ let ``Plain string is in span of 's' class, there are several other tokens next 
 let ``Plain string is in span of 's' class, there is punctuation next to it - custom CSS`` () =
     let content = getContent' """let _ = ("str")"""
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">(</span>" "Punctuation")
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">(</span>" "Punctuation")
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
 
-    content |> shouldContainText (sprintf "<span class=\"%s\">)</span>" "Punctuation")
+    content
+    |> shouldContainText (sprintf "<span class=\"%s\">)</span>" "Punctuation")
 
 [<Test>]
 let ``Modules and types are in spans of 't' class - custom CSS`` () =
@@ -337,7 +349,8 @@ module Module =
 
     content |> shouldContainText (sprintf "class=\"%s\">Module</span>" "Module")
 
-    content |> shouldContainText (sprintf "class=\"%s\">Type</span>" "ReferenceType")
+    content
+    |> shouldContainText (sprintf "class=\"%s\">Type</span>" "ReferenceType")
 
 [<Test>]
 let ``Functions and methods are in spans of 'f' class - custom CSS`` () =

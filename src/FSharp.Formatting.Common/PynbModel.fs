@@ -4,9 +4,11 @@ open System
 open System.IO
 open System.Web
 
-let escapeAndQuote (txt: string) = HttpUtility.JavaScriptStringEncode(txt, true)
+let escapeAndQuote (txt: string) =
+    HttpUtility.JavaScriptStringEncode(txt, true)
 
-let addLineEnd (s: string) = if s.EndsWith("\n") then s else s + "\n"
+let addLineEnd (s: string) =
+    if s.EndsWith("\n") then s else s + "\n"
 
 type OutputData =
     | OutputData of kind: string * lines: string []
@@ -47,7 +49,12 @@ type Cell =
       metadata: string
       outputs: Output []
       source: string [] }
-    static member Default = { cell_type = "code"; execution_count = None; metadata = ""; outputs = [||]; source = [||] }
+    static member Default =
+        { cell_type = "code"
+          execution_count = None
+          metadata = ""
+          outputs = [||]
+          source = [||] }
 
     override this.ToString() =
         sprintf
@@ -70,13 +77,19 @@ type Cell =
                       | None -> "null"
                       | Some (x) -> string x)
                      (this.outputs |> Array.map string |> String.concat ",\n")))
-            (this.source |> Array.map addLineEnd |> Array.map escapeAndQuote |> String.concat ",\n")
+            (this.source
+             |> Array.map addLineEnd
+             |> Array.map escapeAndQuote
+             |> String.concat ",\n")
 
 type Kernelspec =
     { display_name: string
       language: string
       name: string }
-    static member Default = { display_name = ".NET (F#)"; language = "F#"; name = ".net-fsharp" }
+    static member Default =
+        { display_name = ".NET (F#)"
+          language = "F#"
+          name = ".net-fsharp" }
 
     override this.ToString() =
         sprintf
@@ -92,7 +105,11 @@ type LanguageInfo =
       pygments_lexer: string
       version: string }
     static member Default =
-        { file_extension = ".fs"; mimetype = "text/x-fsharp"; name = "C#"; pygments_lexer = "fsharp"; version = "4.5" }
+        { file_extension = ".fs"
+          mimetype = "text/x-fsharp"
+          name = "C#"
+          pygments_lexer = "fsharp"
+          version = "4.5" }
 
     override this.ToString() =
         sprintf
@@ -112,7 +129,9 @@ type LanguageInfo =
 type Metadata =
     { kernelspec: Kernelspec
       language_info: LanguageInfo }
-    static member Default = { kernelspec = Kernelspec.Default; language_info = LanguageInfo.Default }
+    static member Default =
+        { kernelspec = Kernelspec.Default
+          language_info = LanguageInfo.Default }
 
     override this.ToString() =
         sprintf
@@ -128,7 +147,11 @@ type Notebook =
       nbformat_minor: int
       metadata: Metadata
       cells: Cell [] }
-    static member Default = { nbformat = 4; nbformat_minor = 1; metadata = Metadata.Default; cells = [||] }
+    static member Default =
+        { nbformat = 4
+          nbformat_minor = 1
+          metadata = Metadata.Default
+          cells = [||] }
 
     override this.ToString() =
         sprintf
@@ -145,19 +168,29 @@ type Notebook =
             this.nbformat
             this.nbformat_minor
 
-let internal splitLines (s: string) = s.Replace("\r\n", "\n").Split([| '\n' |])
+let internal splitLines (s: string) =
+    s.Replace("\r\n", "\n").Split([| '\n' |])
 
 let codeCell (lines: string []) executionCount outputs =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
     let cell =
-        { Cell.Default with execution_count = executionCount; cell_type = "code"; source = lines; outputs = outputs }
+        { Cell.Default with
+            execution_count = executionCount
+            cell_type = "code"
+            source = lines
+            outputs = outputs }
 
     cell
 
-let rawCell (s: string) = { Cell.Default with cell_type = "raw"; source = splitLines s }
+let rawCell (s: string) =
+    { Cell.Default with
+        cell_type = "raw"
+        source = splitLines s }
 
 let markdownCell (lines: string []) =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
-    { Cell.Default with cell_type = "markdown"; source = lines }
+    { Cell.Default with
+        cell_type = "markdown"
+        source = lines }

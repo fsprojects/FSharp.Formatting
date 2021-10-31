@@ -6,7 +6,8 @@ module internal FSharp.Formatting.Markdown.MarkdownFormatting
 
 open MarkdownUtils
 
-let rec formatParagraphs ctx (paragraphs: MarkdownParagraph list) = paragraphs |> Seq.collect (formatParagraph ctx)
+let rec formatParagraphs ctx (paragraphs: MarkdownParagraph list) =
+    paragraphs |> Seq.collect (formatParagraph ctx)
 
 let formatAsMd links replacements newline crefResolver paragraphs =
     let ctx =

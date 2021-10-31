@@ -101,7 +101,8 @@ module internal MarkdownUtils =
         | Emphasis (body, _) -> "**" + formatSpans ctx body + "**"
 
     /// Format a list of MarkdownSpan
-    and formatSpans ctx spans = spans |> List.map (formatSpan ctx) |> String.concat ""
+    and formatSpans ctx spans =
+        spans |> List.map (formatSpan ctx) |> String.concat ""
 
     /// Format a MarkdownParagraph
     let rec formatParagraph (ctx: FormattingContext) paragraph =
@@ -210,7 +211,8 @@ module internal MarkdownUtils =
         let code2 = String.concat ctx.Newline lines
         code2
 
-    let applySubstitutionsInText ctx (text: string) = SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions text
+    let applySubstitutionsInText ctx (text: string) =
+        SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions text
 
     let applyCodeReferenceResolver ctx (code, range) =
         match ctx.ResolveApiDocReference code with

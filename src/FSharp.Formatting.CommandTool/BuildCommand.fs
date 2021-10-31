@@ -160,7 +160,10 @@ type internal DocContent
                               )
 
                           yield
-                              ((if mainRun then Some(inputFile, isOtherLang, model) else None),
+                              ((if mainRun then
+                                    Some(inputFile, isOtherLang, model)
+                                else
+                                    None),
                                (fun p ->
                                    printfn "  writing %s --> %s" inputFile relativeOutputFile
                                    ensureDirectory (Path.GetDirectoryName(outputFile))
@@ -192,7 +195,10 @@ type internal DocContent
                               )
 
                           yield
-                              ((if mainRun then Some(inputFile, isOtherLang, model) else None),
+                              ((if mainRun then
+                                    Some(inputFile, isOtherLang, model)
+                                else
+                                    None),
                                (fun p ->
                                    printfn "  writing %s --> %s" inputFile relativeOutputFile
                                    ensureDirectory (Path.GetDirectoryName(outputFile))
@@ -243,23 +249,43 @@ type internal DocContent
 
           let possibleNewHtmlTemplate = Path.Combine(inputFolder, "_template.html")
 
-          let htmlTemplate = if File.Exists(possibleNewHtmlTemplate) then Some possibleNewHtmlTemplate else htmlTemplate
+          let htmlTemplate =
+              if File.Exists(possibleNewHtmlTemplate) then
+                  Some possibleNewHtmlTemplate
+              else
+                  htmlTemplate
 
           let possibleNewPynbTemplate = Path.Combine(inputFolder, "_template.ipynb")
 
-          let pynbTemplate = if File.Exists(possibleNewPynbTemplate) then Some possibleNewPynbTemplate else pynbTemplate
+          let pynbTemplate =
+              if File.Exists(possibleNewPynbTemplate) then
+                  Some possibleNewPynbTemplate
+              else
+                  pynbTemplate
 
           let possibleNewFsxTemplate = Path.Combine(inputFolder, "_template.fsx")
 
-          let fsxTemplate = if File.Exists(possibleNewFsxTemplate) then Some possibleNewFsxTemplate else fsxTemplate
+          let fsxTemplate =
+              if File.Exists(possibleNewFsxTemplate) then
+                  Some possibleNewFsxTemplate
+              else
+                  fsxTemplate
 
           let possibleNewMdTemplate = Path.Combine(inputFolder, "_template.md")
 
-          let mdTemplate = if File.Exists(possibleNewMdTemplate) then Some possibleNewMdTemplate else mdTemplate
+          let mdTemplate =
+              if File.Exists(possibleNewMdTemplate) then
+                  Some possibleNewMdTemplate
+              else
+                  mdTemplate
 
           let possibleNewLatexTemplate = Path.Combine(inputFolder, "_template.tex")
 
-          let texTemplate = if File.Exists(possibleNewLatexTemplate) then Some possibleNewLatexTemplate else texTemplate
+          let texTemplate =
+              if File.Exists(possibleNewLatexTemplate) then
+                  Some possibleNewLatexTemplate
+              else
+                  texTemplate
 
           ensureDirectory (Path.Combine(outputDirectory, outputPrefix))
 
@@ -308,7 +334,10 @@ type internal DocContent
         [| for (_inputFile, isOtherLang, model) in docModels do
                if not isOtherLang then
                    match model.IndexText with
-                   | Some text -> { title = model.Title; content = text; uri = model.Uri(root) }
+                   | Some text ->
+                       { title = model.Title
+                         content = text
+                         uri = model.Uri(root) }
                    | _ -> () |]
 
     member _.GetNavigationEntries(docModels: (string * bool * LiterateDocModel) list) =
@@ -338,12 +367,18 @@ type internal DocContent
         [
           // No categories specified
           if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-              li [ Class "nav-header" ] [ !! "Documentation" ]
+              li [ Class "nav-header" ] [
+                  !! "Documentation"
+              ]
 
               for model in snd modelsByCategory.[0] do
                   let link = model.Uri(root)
 
-                  li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                  li [ Class "nav-item" ] [
+                      a [ Class "nav-link"; (Href link) ] [
+                          encode model.Title
+                      ]
+                  ]
           else
               // At least one category has been specified. Sort each category by index and emit
               // Use 'Other' as a header for uncategorised things
@@ -366,7 +401,11 @@ type internal DocContent
                   for model in modelsInCategory do
                       let link = model.Uri(root)
 
-                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                      li [ Class "nav-item" ] [
+                          a [ Class "nav-link"; (Href link) ] [
+                              encode model.Title
+                          ]
+                      ] ]
         |> List.map (fun html -> html.ToString())
         |> String.concat "             \n"
 
@@ -542,7 +581,8 @@ type CoreBuildOptions(watch) =
                 printfn "The --parameters option's arguments' count has to be an even number"
                 exit 1
 
-            evalPairwiseStringsNoOption parameters |> List.map (fun (a, b) -> (ParamKey a, b))
+            evalPairwiseStringsNoOption parameters
+            |> List.map (fun (a, b) -> (ParamKey a, b))
 
         let userParametersDict = readOnlyDict userParameters
 
@@ -555,7 +595,8 @@ type CoreBuildOptions(watch) =
                     printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
 
                 let userParameters =
-                    [ ParamKeys.root, userRoot ] @ (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.root))
+                    [ ParamKeys.root, userRoot ]
+                    @ (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.root))
 
                 Some userRoot, userParameters
             else
@@ -567,7 +608,9 @@ type CoreBuildOptions(watch) =
                 r, userParameters
 
         let userCollectionName =
-            match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
+            match (dict userParameters)
+                      .TryGetValue(ParamKeys.``fsdocs-collection-name``)
+                with
             | true, v -> Some v
             | _ -> None
 
@@ -632,7 +675,10 @@ type CoreBuildOptions(watch) =
                         "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release."
                         dllFile
 
-                if this.strict then failwith msg else printfn "%s" msg
+                if this.strict then
+                    failwith msg
+                else
+                    printfn "%s" msg
 
         if crackedProjects.Length > 0 then
             printfn ""
@@ -784,7 +830,8 @@ type CoreBuildOptions(watch) =
         let mutable latestDocContentGlobalParameters = []
 
         // Actions to read out the incremental state
-        let getLatestGlobalParameters () = latestApiDocGlobalParameters @ latestDocContentGlobalParameters
+        let getLatestGlobalParameters () =
+            latestApiDocGlobalParameters @ latestDocContentGlobalParameters
 
         let regenerateSearchIndex () =
             let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
@@ -914,7 +961,10 @@ type CoreBuildOptions(watch) =
                      | _ -> None)
 
                 let fsiEvaluator =
-                    (if this.eval then Some(FsiEvaluator(strict = this.strict) :> IFsiEvaluator) else None)
+                    (if this.eval then
+                         Some(FsiEvaluator(strict = this.strict) :> IFsiEvaluator)
+                     else
+                         None)
 
                 let docContent =
                     DocContent(
@@ -976,9 +1026,13 @@ type CoreBuildOptions(watch) =
                     File.Delete file |> ignore
 
                 for subdir in Directory.EnumerateDirectories dir do
-                    if not (Path.GetFileName(subdir).StartsWith ".") then clean subdir
+                    if not (Path.GetFileName(subdir).StartsWith ".") then
+                        clean subdir
 
-            if output <> "/" && output <> "." && fullOut <> fullIn && not (String.IsNullOrEmpty output) then
+            if
+                output <> "/" && output <> "." && fullOut <> fullIn
+                && not (String.IsNullOrEmpty output)
+            then
                 try
                     clean fullOut
                 with
@@ -986,7 +1040,8 @@ type CoreBuildOptions(watch) =
             else
                 printfn "warning: skipping cleaning due to strange output path: \"%s\"" output
 
-        if watch then printfn "Building docs first time..."
+        if watch then
+            printfn "Building docs first time..."
 
         //-----------------------------------------
         // Build
@@ -1023,15 +1078,24 @@ type CoreBuildOptions(watch) =
 
         if watch then
 
-            let docsWatchers = if Directory.Exists(this.input) then [ new FileSystemWatcher(this.input) ] else []
+            let docsWatchers =
+                if Directory.Exists(this.input) then
+                    [ new FileSystemWatcher(this.input) ]
+                else
+                    []
 
-            let templateWatchers = if Directory.Exists(this.input) then [ new FileSystemWatcher(this.input) ] else []
+            let templateWatchers =
+                if Directory.Exists(this.input) then
+                    [ new FileSystemWatcher(this.input) ]
+                else
+                    []
 
             let projectOutputWatchers =
                 [ for input in apiDocInputs do
                       let dir = Path.GetDirectoryName(input.Path)
 
-                      if Directory.Exists(dir) then new FileSystemWatcher(dir), input.Path ]
+                      if Directory.Exists(dir) then
+                          new FileSystemWatcher(dir), input.Path ]
 
             use _holder =
                 { new IDisposable with
@@ -1065,7 +1129,8 @@ type CoreBuildOptions(watch) =
                             docsQueued <- false
 
                             if runDocContentPhase1 () then
-                                if runDocContentPhase2 () then regenerateSearchIndex ())
+                                if runDocContentPhase2 () then
+                                    regenerateSearchIndex ())
 
                         Serve.signalHotReload.Set() |> ignore
                     }
@@ -1085,7 +1150,8 @@ type CoreBuildOptions(watch) =
                             generateQueued <- false
 
                             if runGeneratePhase1 () then
-                                if runGeneratePhase2 () then regenerateSearchIndex ())
+                                if runGeneratePhase2 () then
+                                    regenerateSearchIndex ())
 
                         Serve.signalHotReload.Set() |> ignore
                     }

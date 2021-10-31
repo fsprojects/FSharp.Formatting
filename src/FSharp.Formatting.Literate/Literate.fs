@@ -124,7 +124,8 @@ type Literate private () =
 
         let rootInputFolder = Some(defaultArg rootInputFolder (Path.GetDirectoryName(path)))
 
-        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder)
+        ParseScript(parseOptions, ctx)
+            .ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets path ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -152,7 +153,8 @@ type Literate private () =
                 | None -> "C:\\script.fsx"
                 | Some r -> Path.Combine(r, "script.fsx")
 
-        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder)
+        ParseScript(parseOptions, ctx)
+            .ParseAndCheckScriptFile(filePath, content, rootInputFolder)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -405,7 +407,9 @@ type Literate private () =
             match outputKind with
             | OutputKind.Fsx
             | OutputKind.Pynb ->
-                parseOptions ||| MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
+                parseOptions
+                ||| MarkdownParseOptions.ParseCodeAsOther
+                ||| MarkdownParseOptions.ParseNonCodeAsOther
             | _ -> parseOptions
 
         let doc =
@@ -450,7 +454,9 @@ type Literate private () =
         let parseOptions =
             match outputKind with
             | Some OutputKind.Fsx
-            | Some OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther
+            | Some OutputKind.Pynb ->
+                MarkdownParseOptions.ParseCodeAsOther
+                ||| MarkdownParseOptions.ParseNonCodeAsOther
             | _ -> MarkdownParseOptions.None
 
         let crefResolver = defaultArg crefResolver (fun _ -> None)

@@ -18,7 +18,11 @@ let rec formatParagraphs ctx paragraphs =
             | Choice1Of2 (code, codeOutput, _executionCount) ->
                 let output = String.concat ctx.Newline (List.map fst (List.truncate 10 codeOutput))
 
-                let output = if codeOutput.Length > 10 then output + ctx.Newline + "..." else output
+                let output =
+                    if codeOutput.Length > 10 then
+                        output + ctx.Newline + "..."
+                    else
+                        output
 
                 let code2 = formatFsxCode ctx code
 

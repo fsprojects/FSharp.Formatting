@@ -29,7 +29,8 @@ module internal CodeBlockUtils =
             | _ -> false)
         |> List.ofSeq
 
-    let splitLines (s: string) = s.Replace("\r\n", "\n").Split([| '\n' |])
+    let splitLines (s: string) =
+        s.Replace("\r\n", "\n").Split([| '\n' |])
 
     /// Succeeds when a line (list of tokens) contains only Comment
     /// tokens and returns the text from the comment as a string
@@ -56,7 +57,8 @@ module internal CodeBlockUtils =
             let findCommentEnd (comment: string) =
                 let cend = comment.LastIndexOf("*)")
 
-                if cend = -1 then failwith "A (* comment was not closed"
+                if cend = -1 then
+                    failwith "A (* comment was not closed"
 
                 cend
 
@@ -80,7 +82,8 @@ module internal CodeBlockUtils =
                 let cend = findCommentEnd comment
                 yield BlockComment(comment.Substring(0, cend))
 
-                if lines <> [] then yield! collectComment text lines
+                if lines <> [] then
+                    yield! collectComment text lines
 
             | (ConcatenatedComments text) :: lines ->
                 // Continue parsing comment
@@ -91,7 +94,8 @@ module internal CodeBlockUtils =
                 let cend = findCommentEnd comment
                 yield BlockComment(comment.Substring(0, cend))
 
-                if lines <> [] then yield! collectSnippet [] lines
+                if lines <> [] then
+                    yield! collectSnippet [] lines
         }
 
     /// Collecting a block of F# snippet
@@ -137,7 +141,8 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | Command "define" name -> LiterateCodeVisibility.NamedCode name
         | _ -> LiterateCodeVisibility.VisibleCode
 
-    let getEvaluate noEval (cmds: IDictionary<_, _>) = not (noEval || cmds.ContainsKey("do-not-eval"))
+    let getEvaluate noEval (cmds: IDictionary<_, _>) =
+        not (noEval || cmds.ContainsKey("do-not-eval"))
 
     let getParaOptions cmds =
         match cmds with
@@ -346,7 +351,10 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             printfn
                 "   %s: %s(%d,%d)-(%d,%d) %s"
                 filePath
-                (if kind = ErrorKind.Error then "error" else "warning")
+                (if kind = ErrorKind.Error then
+                     "error"
+                 else
+                     "warning")
                 l0
                 c0
                 l1
@@ -355,7 +363,8 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
         let parsedBlocks =
             [ for Snippet (name, lines) in sourceSnippets do
-                  if name <> null then yield BlockComment("## " + name)
+                  if name <> null then
+                      yield BlockComment("## " + name)
 
                   yield! parseScriptFile (lines) ]
 

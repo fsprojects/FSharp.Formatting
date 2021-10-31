@@ -57,7 +57,9 @@ let rec genTestCases (dir: string) =
 
 let (++) a b = Path.Combine(a, b)
 
-let testdir = __SOURCE_DIRECTORY__ ++ Path.Combine("..", "..", "tests", "Benchmarks", "testfiles")
+let testdir =
+    __SOURCE_DIRECTORY__
+    ++ Path.Combine("..", "..", "tests", "Benchmarks", "testfiles")
 
 let getTest () = genTestCases testdir
 
@@ -92,7 +94,8 @@ let executeTest (dir: string) (source: string) (target: string) (verify: string)
 let ``Run external test`` (actualName: string) (expectedName: string) (actual: string) (expected: string) =
     match executeTest actualName expectedName actual expected with
     | Some (actualName, expectedName, actual, expected) ->
-        if actual = expected then File.Delete(expectedName)
+        if actual = expected then
+            File.Delete(expectedName)
 
         Assert.That(
             actual,

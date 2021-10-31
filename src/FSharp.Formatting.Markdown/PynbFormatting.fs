@@ -10,7 +10,10 @@ open MarkdownUtils
 let formatCodeOutput executionCount (output: string, kind) : Output =
     let lines = output.Split([| '\n'; '\r' |])
 
-    { data = OutputData(kind, lines); execution_count = executionCount; metadata = ""; output_type = "execute_result" }
+    { data = OutputData(kind, lines)
+      execution_count = executionCount
+      metadata = ""
+      output_type = "execute_result" }
 
 /// Write a list of MarkdownParagraph values to a TextWriter
 let rec formatParagraphs ctx paragraphs =

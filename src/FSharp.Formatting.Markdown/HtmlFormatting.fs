@@ -19,10 +19,15 @@ open MarkdownUtils
 // --------------------------------------------------------------------------------------
 
 /// Basic escaping as done by Markdown
-let internal htmlEncode (code: string) = code.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+let internal htmlEncode (code: string) =
+    code
+        .Replace("&", "&amp;")
+        .Replace("<", "&lt;")
+        .Replace(">", "&gt;")
 
 /// Basic escaping as done by Markdown including quotes
-let internal htmlEncodeQuotes (code: string) = (htmlEncode code).Replace("\"", "&quot;")
+let internal htmlEncodeQuotes (code: string) =
+    (htmlEncode code).Replace("\"", "&quot;")
 
 /// Lookup a specified key in a dictionary, possibly
 /// ignoring newlines or spaces in the key.
@@ -137,7 +142,8 @@ and internal formatSpans ctx = List.iter (formatSpan ctx)
 
 /// generate anchor name from Markdown text
 let internal formatAnchor (ctx: FormattingContext) (spans: MarkdownSpans) =
-    let extractWords (text: string) = Regex.Matches(text, @"\w+") |> Seq.cast<Match> |> Seq.map (fun m -> m.Value)
+    let extractWords (text: string) =
+        Regex.Matches(text, @"\w+") |> Seq.cast<Match> |> Seq.map (fun m -> m.Value)
 
     let rec gather (span: MarkdownSpan) : seq<string> =
         seq {
@@ -154,7 +160,11 @@ let internal formatAnchor (ctx: FormattingContext) (spans: MarkdownSpans) =
     spans
     |> gathers
     |> String.concat "-"
-    |> fun name -> if String.IsNullOrWhiteSpace name then "header" else name
+    |> fun name ->
+        if String.IsNullOrWhiteSpace name then
+            "header"
+        else
+            name
     |> ctx.UniqueNameGenerator.GetName
 
 let internal withInner ctx f =
@@ -195,7 +205,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("</p>")
     | HorizontalRule (_, _) -> ctx.Writer.Write("<hr />")
     | CodeBlock (code, _, language, _, _) ->
-        if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+        if ctx.WrapCodeSnippets then
+            ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
         if String.IsNullOrWhiteSpace(language) then
             ctx.Writer.Write(sprintf "<pre><code>")
@@ -206,16 +217,19 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write(htmlEncode code)
         ctx.Writer.Write("</code></pre>")
 
-        if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
+        if ctx.WrapCodeSnippets then
+            ctx.Writer.Write("</td></tr></table>")
     | OutputBlock (code, "text/html", _) -> ctx.Writer.Write(code)
     | OutputBlock (code, _, _) ->
-        if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+        if ctx.WrapCodeSnippets then
+            ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
         ctx.Writer.Write(sprintf "<pre><code>")
         ctx.Writer.Write(htmlEncode code)
         ctx.Writer.Write("</code></pre>")
 
-        if ctx.WrapCodeSnippets then ctx.Writer.Write("</td></tr></table>")
+        if ctx.WrapCodeSnippets then
+            ctx.Writer.Write("</td></tr></table>")
     | TableBlock (headers, alignments, rows, _) ->
         let aligns =
             alignments
@@ -278,7 +292,11 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
                         |> List.iterInterleaved (formatParagraph { ctx with LineBreak = noBreak ctx }) (fun () ->
                             ctx.Writer.Write(ctx.Newline)))
 
-                let wrappedInner = if inner.Contains(ctx.Newline) then ctx.Newline + inner + ctx.Newline else inner
+                let wrappedInner =
+                    if inner.Contains(ctx.Newline) then
+                        ctx.Newline + inner + ctx.Newline
+                    else
+                        inner
 
                 ctx.Writer.Write(wrappedInner)
 
@@ -298,7 +316,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
     | Span (spans, _) -> formatSpans ctx spans
     | InlineHtmlBlock (code, _, _) -> ctx.Writer.Write(code)
     | OtherBlock (lines, _) ->
-        if ctx.WrapCodeSnippets then ctx.Writer.Write("<table class=\"pre\"><tr><td>")
+        if ctx.WrapCodeSnippets then
+            ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
         ctx.Writer.Write(sprintf "<pre><code>")
 

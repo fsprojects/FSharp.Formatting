@@ -25,7 +25,8 @@ open FSharp.Formatting
 
 do TestHelpers.enableLogging ()
 
-let properNewLines (text: string) = text.Replace("\r\n", System.Environment.NewLine)
+let properNewLines (text: string) =
+    text.Replace("\r\n", System.Environment.NewLine)
 
 // --------------------------------------------------------------------------------------
 // Test embedding code from a file
@@ -352,7 +353,10 @@ var
 
     let formatted = FSharp.Formatting.CSharpFormat.SyntaxHighlighter.FormatHtml(html)
 
-    let expected = html.Replace(" lang=\"csharp\"", "").Replace("var", "<span class=\"k\">var</span>")
+    let expected =
+        html
+            .Replace(" lang=\"csharp\"", "")
+            .Replace("var", "<span class=\"k\">var</span>")
 
     formatted |> shouldEqual expected
 
@@ -600,11 +604,14 @@ let ``Correctly handles Paket coloring`` () =
 
     html |> shouldContainText "<span class=\"o\">==</span>"
 
-    html |> shouldContainText "<span class=\"o\">!</span><span class=\"o\">~&gt;</span>"
+    html
+    |> shouldContainText "<span class=\"o\">!</span><span class=\"o\">~&gt;</span>"
 
-    html |> shouldContainText "<span class=\"o\">@</span><span class=\"o\">~&gt;</span>"
+    html
+    |> shouldContainText "<span class=\"o\">@</span><span class=\"o\">~&gt;</span>"
 
-    html |> shouldContainText "<span class=\"o\">@</span><span class=\"o\">&gt;</span>"
+    html
+    |> shouldContainText "<span class=\"o\">@</span><span class=\"o\">&gt;</span>"
 
     html |> shouldContainText "<span class=\"n\">3.4</span>"
 
@@ -622,7 +629,8 @@ let ``Correctly handles Paket coloring`` () =
 
     html |> shouldContainText @"file:///C:\Users\Steffen\AskMe"
 
-    html |> shouldContainText "<span class=\"c\">// at least 1.0 including alpha versions</span>"
+    html
+    |> shouldContainText "<span class=\"c\">// at least 1.0 including alpha versions</span>"
 
 [<Test>]
 let ``Generates line numbers for F# code snippets`` () =
@@ -672,7 +680,8 @@ let ``HTML for line numbers generated for F# and non-F# is the same`` () =
 
     let html2 = Literate.ToHtml(doc2, lineNumbers = true)
 
-    html1.Substring(0, html1.IndexOf("1:")) |> shouldEqual <| html2.Substring(0, html2.IndexOf("1:"))
+    html1.Substring(0, html1.IndexOf("1:")) |> shouldEqual
+    <| html2.Substring(0, html2.IndexOf("1:"))
 
 [<Test>]
 let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
@@ -688,9 +697,21 @@ let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
     let html2 = Literate.ToHtml(doc2, lineNumbers = true)
 
     // the 'fssnip' class appears for both <pre> with lines and <pre> with code
-    html1.Split([| "fssnip" |], System.StringSplitOptions.None).Length |> shouldEqual 3
+    html1
+        .Split(
+            [| "fssnip" |],
+            System.StringSplitOptions.None
+        )
+        .Length
+    |> shouldEqual 3
 
-    html2.Split([| "fssnip" |], System.StringSplitOptions.None).Length |> shouldEqual 3
+    html2
+        .Split(
+            [| "fssnip" |],
+            System.StringSplitOptions.None
+        )
+        .Length
+    |> shouldEqual 3
 
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
@@ -761,7 +782,8 @@ let ``Substitutions apply to correct parts of inputs`` () =
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
 
-    temp.Content |> shouldContainText "dont-substitute-in-inline-code: <code>{{fsdocs-source-basename}}</code>"
+    temp.Content
+    |> shouldContainText "dont-substitute-in-inline-code: <code>{{fsdocs-source-basename}}</code>"
 
     temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
 
@@ -810,9 +832,11 @@ let ``Filename substitutions are correct with relative path 2`` () =
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File, rootInputFolder = __SOURCE_DIRECTORY__)
 
-    temp.Content |> shouldContainText "substitute-in-template filename: files/simple.fsx"
+    temp.Content
+    |> shouldContainText "substitute-in-template filename: files/simple.fsx"
 
-    temp.Content |> shouldContainText "substitute-in-template basename: files/simple"
+    temp.Content
+    |> shouldContainText "substitute-in-template basename: files/simple"
 
 // --------------------------------------------------------------------------------------
 // Test processing simple files using the NuGet included templates
@@ -859,7 +883,8 @@ let ``Gives nice error when parsing unclosed comment`` () =
 let test = 42"""
 
     try
-        Literate.ParseScriptString(content, "C" </> "A.fsx", getFormatAgent ()) |> ignore
+        Literate.ParseScriptString(content, "C" </> "A.fsx", getFormatAgent ())
+        |> ignore
 
         failwith ""
     with
@@ -993,9 +1018,11 @@ With some [hyperlink](http://tomasp.net)
 
     latex |> shouldContainText @"With some \href{http://tomasp.net}{hyperlink}"
 
-    latex |> shouldContainText @"\begin{Verbatim}[commandchars=\\\{\}, numbers=left]"
+    latex
+    |> shouldContainText @"\begin{Verbatim}[commandchars=\\\{\}, numbers=left]"
 
-    latex |> shouldContainText """\kwd{let} \id{hello} \ops{=} \str{"Code sample"}"""
+    latex
+    |> shouldContainText """\kwd{let} \id{hello} \ops{=} \str{"Code sample"}"""
 
     latex |> shouldContainText """\end{Verbatim}"""
 
@@ -1128,7 +1155,9 @@ let hello4 = 4 // Conditional code is not present in notebooks
 let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
 """,
-            parseOptions = (MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther)
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
         )
 
     let pynb = Literate.ToPynb(md)
@@ -1149,15 +1178,19 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
     pynb |> shouldContainText """|  Col1 | Col2 |"""
     pynb |> shouldContainText """|:----:|------|"""
 
-    pynb |> shouldContainText """|  Table with heading cell A1   | Table with heading cell B1    |"""
+    pynb
+    |> shouldContainText """|  Table with heading cell A1   | Table with heading cell B1    |"""
 
-    pynb |> shouldContainText """|  Table with heading cell A2   | Table with heading cell B2    |"""
+    pynb
+    |> shouldContainText """|  Table with heading cell A2   | Table with heading cell B2    |"""
 
     pynb |> shouldContainText """|:----:|------|"""
 
-    pynb |> shouldContainText """|  Table without heading cell A1   | Table without heading cell B1    |"""
+    pynb
+    |> shouldContainText """|  Table without heading cell A1   | Table without heading cell B1    |"""
 
-    pynb |> shouldContainText """|  Table without heading cell A2   | Table without heading cell B2    |"""
+    pynb
+    |> shouldContainText """|  Table without heading cell A2   | Table without heading cell B2    |"""
 
     pynb |> shouldContainText """```emptyblockcode"""
 
@@ -1197,7 +1230,8 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """With some [hyperlink](http://tomasp.net)"""
 
-    pynb |> shouldContainText """let hello1 = 1 // Conditional code is still present in notebooks"""
+    pynb
+    |> shouldContainText """let hello1 = 1 // Conditional code is still present in notebooks"""
 
     pynb |> shouldNotContainText """#if IPYNB"""
     pynb |> shouldNotContainText """#endif"""
@@ -1206,7 +1240,8 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldNotContainText """Formatting code is not present in notebooks"""
 
-    pynb |> shouldNotContainText """Doc preparation code is not present in generated notebooks"""
+    pynb
+    |> shouldNotContainText """Doc preparation code is not present in generated notebooks"""
 
     pynb |> shouldContainText """ "cell_type": "code","""
 
@@ -1238,7 +1273,9 @@ let hello = 1
 
 let goodbye = 2
 """,
-            parseOptions = (MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther)
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
         )
 
     let pynb = Literate.ToPynb(md)
@@ -1289,7 +1326,9 @@ let hello = 1
 
 let goodbye = 2
 """,
-            parseOptions = (MarkdownParseOptions.ParseCodeAsOther ||| MarkdownParseOptions.ParseNonCodeAsOther)
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
         )
 
     let fsx = Literate.ToFsx(md)

@@ -69,11 +69,15 @@ type AsyncMaybeBuilder() =
         try
             body resource
         finally
-            if not (isNull resource) then resource.Dispose()
+            if not (isNull resource) then
+                resource.Dispose()
 
     [<DebuggerStepThrough>]
     member x.While(guard, body: Async<_ option>) : Async<_ option> =
-        if guard () then x.Bind(body, (fun () -> x.While(guard, body))) else x.Zero()
+        if guard () then
+            x.Bind(body, (fun () -> x.While(guard, body)))
+        else
+            x.Zero()
 
     [<DebuggerStepThrough>]
     member x.For(sequence: seq<_>, body: 'T -> Async<unit option>) : Async<_ option> =

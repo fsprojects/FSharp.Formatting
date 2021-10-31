@@ -485,7 +485,8 @@ let ``ApiDocs formats attribute with multiple named arguments`` () =
 
     attribute.FullName |> shouldEqual "AttributeTestNamespace.TestAttribute"
 
-    attribute.Format() |> shouldEqual """[<Test(Int = 1, String = "test", Array = [|"1"; "2"|])>]"""
+    attribute.Format()
+    |> shouldEqual """[<Test(Int = 1, String = "test", Array = [|"1"; "2"|])>]"""
 
 [<Test>]
 let ``ApiDocs formats attribute with name and suffix`` () =
@@ -531,7 +532,8 @@ let ``ApiDocs formats attribute with fullName`` () =
 
     attribute.FullName |> shouldEqual "AttributeTestNamespace.BoolTestAttribute"
 
-    attribute.FormatFullName() |> shouldEqual "[<AttributeTestNamespace.BoolTest(true)>]"
+    attribute.FormatFullName()
+    |> shouldEqual "[<AttributeTestNamespace.BoolTest(true)>]"
 
 [<Test>]
 let ``ApiDocs formats attribute with fullName and suffix`` () =
@@ -554,7 +556,8 @@ let ``ApiDocs formats attribute with fullName and suffix`` () =
 
     attribute.FullName |> shouldEqual "AttributeTestNamespace.BoolTestAttribute"
 
-    attribute.FormatFullNameLongForm() |> shouldEqual "[<AttributeTestNamespace.BoolTestAttribute(true)>]"
+    attribute.FormatFullNameLongForm()
+    |> shouldEqual "[<AttributeTestNamespace.BoolTestAttribute(true)>]"
 
 [<Test>]
 let ``ApiDocs IsObsolete returns true on obsolete attribute`` () =
