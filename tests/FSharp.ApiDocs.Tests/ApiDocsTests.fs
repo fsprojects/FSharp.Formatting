@@ -26,8 +26,31 @@ type OutputFormat =
         | Markdown -> ""
 
 type DocsGenerator(format: OutputFormat) =
-    class
-    end
+    member _.Run(input, output, collectionName, template, substitutions, ?libDirs, ?root) =
+        let root = defaultArg root "/"
+        let libDirs = defaultArg libDirs []
+
+        match format with
+        | Html ->
+            ApiDocs.GenerateHtml(
+                input,
+                output,
+                collectionName = collectionName,
+                template = template,
+                substitutions = substitutions,
+                libDirs = libDirs,
+                root = root
+            )
+        | Markdown ->
+            ApiDocs.GenerateMarkdown(
+                input,
+                output,
+                collectionName = collectionName,
+                template = template,
+                substitutions = substitutions,
+                libDirs = libDirs,
+                root = root
+            )
 
 let formats = [ Html; Markdown ]
 
