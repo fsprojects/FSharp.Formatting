@@ -28,4 +28,4 @@ jobs:
     - name: Build and test
       run: dotnet fake run build.fsx
     - name: Check format
-      run: dotnet fantomas src tests -r --check
+      run: dotnet fantomas src tests docs build.fsx -r --check

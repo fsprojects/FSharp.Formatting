@@ -48,7 +48,8 @@ The following snippet creates a simple string containing a document
 with several elements and then parses it using the `cref:M:FSharp.Formatting.Markdown.Markdown.Parse` method:
 *)
 
-let document = """
+let document =
+    """
 # F# Hello world
 Hello world in [F#](http://fsharp.net) looks like this:
 
@@ -89,12 +90,12 @@ The following snippet prints the heading of the document:
 
 // Iterate over all the paragraph elements
 for par in parsed.Paragraphs do
-  match par with
-  | Heading(size=1; body=[Literal(text=text)]) ->
-      // Recognize heading that has a simple content
-      // containing just a literal (no other formatting)
-      printfn "%s" text
-  | _ -> ()
+    match par with
+    | Heading (size = 1; body = [ Literal (text = text) ]) ->
+        // Recognize heading that has a simple content
+        // containing just a literal (no other formatting)
+        printfn "%s" text
+    | _ -> ()
 
 (**
 You can find more detailed information about the document structure and how to process it
@@ -116,23 +117,30 @@ to recognize any paragraph or span that can contain child elements:
 *)
 
 /// Returns all links in a specified span node
-let rec collectSpanLinks span = seq {
-  match span with
-  | DirectLink(link=url) -> yield url
-  | IndirectLink(key=key) -> yield fst (parsed.DefinedLinks.[key])
-  | MarkdownPatterns.SpanLeaf _ -> ()
-  | MarkdownPatterns.SpanNode(_, spans) ->
-      for s in spans do yield! collectSpanLinks s }
+let rec collectSpanLinks span =
+    seq {
+        match span with
+        | DirectLink (link = url) -> yield url
+        | IndirectLink (key = key) -> yield fst (parsed.DefinedLinks.[key])
+        | MarkdownPatterns.SpanLeaf _ -> ()
+        | MarkdownPatterns.SpanNode (_, spans) ->
+            for s in spans do
+                yield! collectSpanLinks s
+    }
 
 /// Returns all links in the specified paragraph node
-let rec collectParLinks par = seq {
-  match par with
-  | MarkdownPatterns.ParagraphLeaf _ -> ()
-  | MarkdownPatterns.ParagraphNested(_, pars) ->
-      for ps in pars do
-        for p in ps do yield! collectParLinks p
-  | MarkdownPatterns.ParagraphSpans(_, spans) ->
-      for s in spans do yield! collectSpanLinks s }
+let rec collectParLinks par =
+    seq {
+        match par with
+        | MarkdownPatterns.ParagraphLeaf _ -> ()
+        | MarkdownPatterns.ParagraphNested (_, pars) ->
+            for ps in pars do
+                for p in ps do
+                    yield! collectParLinks p
+        | MarkdownPatterns.ParagraphSpans (_, spans) ->
+            for s in spans do
+                yield! collectSpanLinks s
+    }
 
 /// Collect links in the entire document
 Seq.collect collectParLinks parsed.Paragraphs

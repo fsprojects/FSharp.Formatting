@@ -11,6 +11,6 @@ This repository uses the Fantomas source code formatter and this is checked on c
 
 Run
 
-    dotnet fantomas src tests -r
+    dotnet fantomas src tests docs build.fsx -r
 
 to format the code you've written.
