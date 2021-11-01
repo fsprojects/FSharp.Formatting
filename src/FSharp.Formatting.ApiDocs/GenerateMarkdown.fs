@@ -261,59 +261,25 @@ type MarkdownRender(model: ApiDocModel) =
               if (byCategory.Length > 1) then
                   ``##`` [ !!name ]
 
-              yield!
-                  renderMembers
-                      "Functions and values"
-                      "Function or value"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction))
+              let functionsOrValues = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)
+              let extensions = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)
+              let activePatterns = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)
+              let unionCases = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)
+              let recordFields = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)
+              let staticParameters = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)
+              let constructors = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)
+              let instanceMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)
+              let staticMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)
 
-              yield!
-                  renderMembers
-                      "Type extensions"
-                      "Type extension"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension))
-
-              yield!
-                  renderMembers
-                      "Active patterns"
-                      "Active pattern"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern))
-
-              yield!
-                  renderMembers
-                      "Union cases"
-                      "Union case"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase))
-
-              yield!
-                  renderMembers
-                      "Record fields"
-                      "Record Field"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField))
-
-              yield!
-                  renderMembers
-                      "Static parameters"
-                      "Static parameters"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter))
-
-              yield!
-                  renderMembers
-                      "Constructors"
-                      "Constructor"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor))
-
-              yield!
-                  renderMembers
-                      "Instance members"
-                      "Instance member"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember))
-
-              yield!
-                  renderMembers
-                      "Static members"
-                      "Static member"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)) ]
+              yield! renderMembers "Functions and values" "Function or value" functionsOrValues
+              yield! renderMembers "Type extensions" "Type extension" extensions
+              yield! renderMembers "Active patterns" "Active pattern" activePatterns
+              yield! renderMembers "Union cases" "Union case" unionCases
+              yield! renderMembers "Record fields" "Record Field" recordFields
+              yield! renderMembers "Static parameters" "Static parameters" staticParameters
+              yield! renderMembers "Constructors" "Constructor" constructors
+              yield! renderMembers "Instance members" "Instance member" instanceMembers
+              yield! renderMembers "Static members" "Static member" staticMembers ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)

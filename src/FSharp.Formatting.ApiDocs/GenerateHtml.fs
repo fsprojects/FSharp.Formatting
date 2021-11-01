@@ -515,68 +515,24 @@ type HtmlRender(model: ApiDocModel) =
                       !!name
                   ]
               //<a name="@(" section" + g.Index.ToString())">&#160;</a></h2>
-              div
-                  []
-                  (renderMembers
-                      "Functions and values"
-                      "Function or value"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)))
-
-              div
-                  []
-                  (renderMembers
-                      "Type extensions"
-                      "Type extension"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)))
-
-              div
-                  []
-                  (renderMembers
-                      "Active patterns"
-                      "Active pattern"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)))
-
-              div
-                  []
-                  (renderMembers
-                      "Union cases"
-                      "Union case"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)))
-
-              div
-                  []
-                  (renderMembers
-                      "Record fields"
-                      "Record Field"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)))
-
-              div
-                  []
-                  (renderMembers
-                      "Static parameters"
-                      "Static parameters"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)))
-
-              div
-                  []
-                  (renderMembers
-                      "Constructors"
-                      "Constructor"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)))
-
-              div
-                  []
-                  (renderMembers
-                      "Instance members"
-                      "Instance member"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)))
-
-              div
-                  []
-                  (renderMembers
-                      "Static members"
-                      "Static member"
-                      (ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember))) ]
+              let functionsOrValues = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ValueOrFunction)
+              let extensions = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.TypeExtension)
+              let activePatterns = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.ActivePattern)
+              let unionCases = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.UnionCase)
+              let recordFields = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.RecordField)
+              let staticParameters = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticParameter)
+              let constructors = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)
+              let instanceMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)
+              let staticMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)
+              div [] (renderMembers "Functions and values" "Function or value" functionsOrValues)
+              div [] (renderMembers "Type extensions" "Type extension" extensions)
+              div [] (renderMembers "Active patterns" "Active pattern" activePatterns)
+              div [] (renderMembers "Union cases" "Union case" unionCases)
+              div [] (renderMembers "Record fields" "Record Field" recordFields)
+              div [] (renderMembers "Static parameters" "Static parameters" staticParameters)
+              div [] (renderMembers "Constructors" "Constructor" constructors)
+              div [] (renderMembers "Instance members" "Instance member" instanceMembers)
+              div [] (renderMembers "Static members" "Static member" staticMembers) ]
 
     let namespaceContent (nsIndex, ns: ApiDocNamespace) =
         let allByCategory = Categorise.entities (nsIndex, ns, false)
