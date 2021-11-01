@@ -152,9 +152,9 @@ This can be done by calling `cref:M:FSharp.Formatting.Literate.Evaluation.FsiEva
 
 *)
 // Create evaluator & register simple formatter for lists
-let fsiOl = FsiEvaluator()
+let fsiEvaluator = FsiEvaluator()
 
-fsiOl.RegisterTransformation (fun (o, ty, _executionCount) ->
+fsiEvaluator.RegisterTransformation (fun (o, ty, _executionCount) ->
     // If the type of value is an F# list, format it nicely
     if ty.IsGenericType
        && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
@@ -185,7 +185,7 @@ let test = ["one";"two";"three"]
 (*** include-value:test ***)"""
 
 let docOl =
-    Literate.ParseScriptString(listy, fsiEvaluator = fsiOl)
+    Literate.ParseScriptString(listy, fsiEvaluator = fsiEvaluator)
 
 Literate.ToHtml(docOl)
 (**
