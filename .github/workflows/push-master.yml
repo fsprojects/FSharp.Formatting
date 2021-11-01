@@ -25,10 +25,10 @@ jobs:
       run: dotnet tool restore
     - name: Restore packages
       run: dotnet paket restore
+    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build.fsx' to repair)
+      run: dotnet fantomas src tests docs build.fsx -r --check
     - name: Build and test
       run: dotnet fake run build.fsx
-    - name: Check format
-      run: dotnet fantomas src tests docs build.fsx -r --check
     - name: Deploy docs
       uses: peaceiris/actions-gh-pages@v3
       with:
