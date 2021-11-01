@@ -11,12 +11,15 @@ open System.Reflection
 let (</>) a b = Path.Combine(a, b)
 
 type TempFile() =
-  let file = Path.GetTempFileName()
-  member x.File = file
-  member x.Content = File.ReadAllText(file)
-  interface IDisposable with
-    member x.Dispose() = File.Delete(file)
+    let file = Path.GetTempFileName()
+    member x.File = file
+    member x.Content = File.ReadAllText(file)
 
-let getFormatAgent() = FSharp.Formatting.CodeFormat.CodeFormat.CreateAgent()
+    interface IDisposable with
+        member x.Dispose() = File.Delete(file)
 
-let getFsiEvaluator() = FSharp.Formatting.Literate.Evaluation.FsiEvaluator()
+let getFormatAgent () =
+    FSharp.Formatting.CodeFormat.CodeFormat.CreateAgent()
+
+let getFsiEvaluator () =
+    FSharp.Formatting.Literate.Evaluation.FsiEvaluator()

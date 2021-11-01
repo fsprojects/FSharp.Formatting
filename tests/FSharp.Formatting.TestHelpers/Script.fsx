@@ -5,4 +5,3 @@
 open FSharp.Formatting.TestHelpers
 
 // Define your library scripting code here
-

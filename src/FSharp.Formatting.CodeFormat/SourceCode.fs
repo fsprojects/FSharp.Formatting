@@ -49,8 +49,8 @@ type TokenKind =
 /// Represents a kind of error reported from the F# compiler (warning or error)
 [<RequireQualifiedAccess>]
 type ErrorKind =
-  | Error
-  | Warning
+    | Error
+    | Warning
 
 /// A token in a parsed F# code snippet. Aside from standard tokens reported from
 /// the compiler (Token), this also includes Error (wrapping the underlined
@@ -58,10 +58,10 @@ type ErrorKind =
 /// [output:...] tag
 [<RequireQualifiedAccess>]
 type TokenSpan =
-  | Token of TokenKind * string * ToolTipSpans option
-  | Error of ErrorKind * string * TokenSpans
-  | Omitted of string * string
-  | Output of string
+    | Token of TokenKind * string * ToolTipSpans option
+    | Error of ErrorKind * string * TokenSpans
+    | Omitted of string * string
+    | Output of string
 
 /// A type alias representing a list of TokenSpan values
 type TokenSpans = TokenSpan list

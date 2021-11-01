@@ -1,7 +1,7 @@
 namespace FSharp.Formatting.ApiDocs
 
 [<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("fsdocs")>]
-do()
+do ()
 
 /// <summary>
 ///  This type exposes the functionality for producing documentation model from `dll` files with associated `xml` files
@@ -30,19 +30,37 @@ type ApiDocs =
     /// <param name="strict">Fail if any assembly is missing XML docs or can't be resolved</param>
     /// <param name="extension">The extensions used for files and URLs</param>
     ///
-    static member GenerateModel(inputs: ApiDocInput list, collectionName, substitutions, ?qualify, ?libDirs, ?otherFlags, ?root, ?urlRangeHighlight, ?strict, ?extension) =
+    static member GenerateModel
+        (
+            inputs: ApiDocInput list,
+            collectionName,
+            substitutions,
+            ?qualify,
+            ?libDirs,
+            ?otherFlags,
+            ?root,
+            ?urlRangeHighlight,
+            ?strict,
+            ?extension
+        ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extensions = defaultArg extension { InFile = ".html"; InUrl = ".html"}
-        ApiDocModel.Generate(inputs, collectionName=collectionName,
-            libDirs=libDirs, qualify=qualify,
-            otherFlags=otherFlags,
-            urlRangeHighlight=urlRangeHighlight, root=root,
-            substitutions=substitutions,
-            strict=strict,
-            extensions=extensions
-            ) 
+
+        let extensions = defaultArg extension { InFile = ".html"; InUrl = ".html" }
+
+        ApiDocModel.Generate(
+            inputs,
+            collectionName = collectionName,
+            libDirs = libDirs,
+            qualify = qualify,
+            otherFlags = otherFlags,
+            urlRangeHighlight = urlRangeHighlight,
+            root = root,
+            substitutions = substitutions,
+            strict = strict,
+            extensions = extensions
+        )
 
     /// <summary>
     /// Generates the search index from the given documentation model
@@ -50,23 +68,51 @@ type ApiDocs =
     ///
     /// <param name="model">the model for documentation</param>
     static member SearchIndexEntriesForModel(model: ApiDocModel) =
-        GenerateSearchIndex.searchIndexEntriesForModel model 
+        GenerateSearchIndex.searchIndexEntriesForModel model
 
     /// Like GenerateHtml but allows for intermediate phase to insert other global substitutions
     /// and combine search index
-    static member internal GenerateHtmlPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
+    static member internal GenerateHtmlPhased
+        (
+            inputs,
+            output,
+            collectionName,
+            substitutions,
+            ?template,
+            ?root,
+            ?qualify,
+            ?libDirs,
+            ?otherFlags,
+            ?urlRangeHighlight,
+            ?strict
+        ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extensions = { InFile = ".html"; InUrl = ".html"}
+        let extensions = { InFile = ".html"; InUrl = ".html" }
+
         let model =
-            ApiDocModel.Generate(inputs, collectionName=collectionName,
-                libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
+            ApiDocModel.Generate(
+                inputs,
+                collectionName = collectionName,
+                libDirs = libDirs,
+                qualify = qualify,
+                otherFlags = otherFlags,
+                urlRangeHighlight = urlRangeHighlight,
+                root = root,
+                substitutions = substitutions,
+                strict = strict,
+                extensions = extensions
+            )
+
         let renderer = GenerateHtml.HtmlRender(model)
+
         let index = GenerateSearchIndex.searchIndexEntriesForModel model
-        model, renderer.GlobalSubstitutions, index, (fun globalParameters ->
-            renderer.Generate(output, template, collectionName, globalParameters))
+
+        model,
+        renderer.GlobalSubstitutions,
+        index,
+        (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
 
     /// <summary>
     /// Generates default HTML pages for the assemblies specified by the `inputs` parameter
@@ -83,36 +129,90 @@ type ApiDocs =
     /// <param name="otherFlags">Additional flags that are passed to the F# compiler to specify references explicitly etc.</param>
     /// <param name="urlRangeHighlight">A function that can be used to override the default way of generating GitHub links</param>
     /// <param name="strict">Fail if any assembly is missing XML docs or can't be resolved</param>
-    static member GenerateHtml(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
+    static member GenerateHtml
+        (
+            inputs,
+            output,
+            collectionName,
+            substitutions,
+            ?template,
+            ?root,
+            ?qualify,
+            ?libDirs,
+            ?otherFlags,
+            ?urlRangeHighlight,
+            ?strict
+        ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extensions = { InFile = ".html"; InUrl = ".html"}
+        let extensions = { InFile = ".html"; InUrl = ".html" }
+
         let model =
-            ApiDocModel.Generate(inputs, collectionName=collectionName,
-                libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
+            ApiDocModel.Generate(
+                inputs,
+                collectionName = collectionName,
+                libDirs = libDirs,
+                qualify = qualify,
+                otherFlags = otherFlags,
+                urlRangeHighlight = urlRangeHighlight,
+                root = root,
+                substitutions = substitutions,
+                strict = strict,
+                extensions = extensions
+            )
+
         let renderer = GenerateHtml.HtmlRender(model)
-        let index = GenerateSearchIndex.searchIndexEntriesForModel model 
+
+        let index = GenerateSearchIndex.searchIndexEntriesForModel model
+
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
-        model,index
-    
+        model, index
+
     /// Like GenerateMarkdown but allows for intermediate phase to insert other global substitutions
     /// and combine search index
-    static member internal GenerateMarkdownPhased(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
+    static member internal GenerateMarkdownPhased
+        (
+            inputs,
+            output,
+            collectionName,
+            substitutions,
+            ?template,
+            ?root,
+            ?qualify,
+            ?libDirs,
+            ?otherFlags,
+            ?urlRangeHighlight,
+            ?strict
+        ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extensions = { InFile = ".md"; InUrl = ""}
+        let extensions = { InFile = ".md"; InUrl = "" }
+
         let model =
-            ApiDocModel.Generate(inputs, collectionName=collectionName,
-                libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
+            ApiDocModel.Generate(
+                inputs,
+                collectionName = collectionName,
+                libDirs = libDirs,
+                qualify = qualify,
+                otherFlags = otherFlags,
+                urlRangeHighlight = urlRangeHighlight,
+                root = root,
+                substitutions = substitutions,
+                strict = strict,
+                extensions = extensions
+            )
+
         let renderer = GenerateMarkdown.MarkdownRender(model)
+
         let index = GenerateSearchIndex.searchIndexEntriesForModel model
-        model, renderer.GlobalSubstitutions, index, (fun globalParameters ->
-            renderer.Generate(output, template, collectionName, globalParameters))
-    
+
+        model,
+        renderer.GlobalSubstitutions,
+        index,
+        (fun globalParameters -> renderer.Generate(output, template, collectionName, globalParameters))
+
     /// <summary>
     /// Generates default Markdown pages for the assemblies specified by the `inputs` parameter
     /// </summary>
@@ -129,17 +229,42 @@ type ApiDocs =
     /// <param name="urlRangeHighlight">A function that can be used to override the default way of generating GitHub links</param>
     /// <param name="strict">Fail if any assembly is missing XML docs or can't be resolved</param>
     ///
-    static member GenerateMarkdown(inputs, output, collectionName, substitutions, ?template, ?root, ?qualify, ?libDirs, ?otherFlags, ?urlRangeHighlight, ?strict) =
+    static member GenerateMarkdown
+        (
+            inputs,
+            output,
+            collectionName,
+            substitutions,
+            ?template,
+            ?root,
+            ?qualify,
+            ?libDirs,
+            ?otherFlags,
+            ?urlRangeHighlight,
+            ?strict
+        ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
         let strict = defaultArg strict false
-        let extensions = { InFile = ".md"; InUrl = ""}
+        let extensions = { InFile = ".md"; InUrl = "" }
 
         let model =
-            ApiDocModel.Generate(inputs, collectionName=collectionName,
-                    libDirs=libDirs, qualify=qualify, otherFlags=otherFlags, 
-                    urlRangeHighlight=urlRangeHighlight, root=root, substitutions=substitutions, strict=strict, extensions=extensions) 
+            ApiDocModel.Generate(
+                inputs,
+                collectionName = collectionName,
+                libDirs = libDirs,
+                qualify = qualify,
+                otherFlags = otherFlags,
+                urlRangeHighlight = urlRangeHighlight,
+                root = root,
+                substitutions = substitutions,
+                strict = strict,
+                extensions = extensions
+            )
+
         let renderer = GenerateMarkdown.MarkdownRender(model)
+
         let index = GenerateSearchIndex.searchIndexEntriesForModel model
+
         renderer.Generate(output, template, collectionName, renderer.GlobalSubstitutions)
-        model,index
+        model, index

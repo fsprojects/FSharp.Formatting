@@ -68,5 +68,3 @@ code samples:
 
 This snippet is turned into a `pre` element with the
 `lang` attribute set to `csharp`.
-
-<br />

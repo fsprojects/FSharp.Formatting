@@ -13,10 +13,11 @@ open System.Text
 ///   <summary>Functionality relating to templating (mostly internal)</summary>
 /// </namespacedoc>
 [<Struct>]
-type ParamKey = ParamKey of string
-with
+type ParamKey =
+    | ParamKey of string
     override x.ToString() =
-        match x with ParamKey x -> x
+        match x with
+        | ParamKey x -> x
 
 /// A list of parameters for substituting in templates, indexed by parameter keys
 type Substitutions = (ParamKey * string) list
@@ -28,7 +29,7 @@ type Substitutions = (ParamKey * string) list
 module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting
-    let ``root`` = ParamKey "root"
+    let root = ParamKey "root"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-authors`` = ParamKey "fsdocs-authors"
@@ -118,67 +119,83 @@ module internal SimpleTemplating =
 
 #if NETSTANDARD2_0
     type StringBuilder with
-        member this.Append(span: ReadOnlySpan<char>) =
-            this.Append(span.ToString())
+        member this.Append(span: ReadOnlySpan<char>) = this.Append(span.ToString())
 #endif
 
     // Replace '{{xyz}}' in template text
     let ApplySubstitutionsInText (substitutions: seq<ParamKey * string>) (text: string) =
-      if not (text.Contains "{{") then text
-      else
-        let substitutions = readOnlyDict substitutions
-        let sb = StringBuilder(text.Length)
-        let mutable span = text.AsSpan()
-        while not span.IsEmpty do
-            // We try to find the first double curly bracket.
-            match span.IndexOf("{{".AsSpan(), StringComparison.Ordinal) with
-            | -1 ->
-                // If it's not found, there are no more tags in the template.
-                // We simply append all the remaining text.
-                sb.Append(span) |> ignore
-                span <- ReadOnlySpan.Empty
-            | curlyBraceBegin ->
-                // If we found two beginning curly brackets,
-                // we first append all the text before and
-                // then advance our span until just after them.
-                sb.Append(span.Slice(0, curlyBraceBegin)) |> ignore
-                span <- span.Slice(curlyBraceBegin + "{{".Length)
-                // Now we try to find the first double ending curly
-                // bracket after the beginning ones we previously found.
-                match span.IndexOf("}}".AsSpan(), StringComparison.Ordinal) with
+        if not (text.Contains "{{") then
+            text
+        else
+            let substitutions = readOnlyDict substitutions
+            let sb = StringBuilder(text.Length)
+            let mutable span = text.AsSpan()
+
+            while not span.IsEmpty do
+                // We try to find the first double curly bracket.
+                match span.IndexOf("{{".AsSpan(), StringComparison.Ordinal) with
                 | -1 ->
-                    // If the whole tag had not been closed, we add the beginning
-                    // double curly brackets we had previously discarded and then
-                    // add the rest of the text.
-                    sb.Append("{{").Append(span) |> ignore
+                    // If it's not found, there are no more tags in the template.
+                    // We simply append all the remaining text.
+                    sb.Append(span) |> ignore
                     span <- ReadOnlySpan.Empty
-                | curlyBraceEnd ->
-                    // Otherwise we extract the tag's
-                    // content, i.e. the parameter key.
-                    let key = span.Slice(0, curlyBraceEnd).ToString()
-                    match substitutions.TryGetValue(ParamKey key) with
-                    | true, value ->
-                        sb.Append(value) |> ignore
-                    | false, _ ->
-                        sb.Append("{{").Append(key).Append("}}") |> ignore
-                    span <- span.Slice(curlyBraceEnd + "}}".Length)
-        sb.ToString()
+                | curlyBraceBegin ->
+                    // If we found two beginning curly brackets,
+                    // we first append all the text before and
+                    // then advance our span until just after them.
+                    sb.Append(span.Slice(0, curlyBraceBegin)) |> ignore
+
+                    span <- span.Slice(curlyBraceBegin + "{{".Length)
+                    // Now we try to find the first double ending curly
+                    // bracket after the beginning ones we previously found.
+                    match span.IndexOf("}}".AsSpan(), StringComparison.Ordinal) with
+                    | -1 ->
+                        // If the whole tag had not been closed, we add the beginning
+                        // double curly brackets we had previously discarded and then
+                        // add the rest of the text.
+                        sb.Append("{{").Append(span) |> ignore
+                        span <- ReadOnlySpan.Empty
+                    | curlyBraceEnd ->
+                        // Otherwise we extract the tag's
+                        // content, i.e. the parameter key.
+                        let key = span.Slice(0, curlyBraceEnd).ToString()
+
+                        match substitutions.TryGetValue(ParamKey key) with
+                        | true, value -> sb.Append(value) |> ignore
+                        | false, _ -> sb.Append("{{").Append(key).Append("}}") |> ignore
+
+                        span <- span.Slice(curlyBraceEnd + "}}".Length)
+
+            sb.ToString()
 
     // Replace '{{xyz}}' in text
     let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
         match templateTextOpt |> Option.map (fun s -> s.Trim()) with
-        | None | Some "" ->
+        | None
+        | Some "" ->
             // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
             let lookup = readOnlyDict substitutions
-            (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then lookup.[ParamKeys.``fsdocs-content``] else "") +
-            (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``] else "")
+
+            (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then
+                 lookup.[ParamKeys.``fsdocs-content``]
+             else
+                 "")
+            + (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then
+                   "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``]
+               else
+                   "")
         | Some templateText -> ApplySubstitutionsInText substitutions templateText
 
     let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =
         let templateTextOpt = templateOpt |> Option.map System.IO.File.ReadAllText
+
         let outputText = ApplySubstitutions substitutions templateTextOpt
+
         try
             let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
+
             Directory.CreateDirectory(path) |> ignore
-        with _ -> ()
+        with
+        | _ -> ()
+
         File.WriteAllText(outputFile, outputText)

@@ -3,7 +3,7 @@ namespace crefLib2
 /// <summary>
 /// <see cref="Class2" />
 /// </summary>
-type Class1() = 
+type Class1() =
     /// <summary>
     /// None
     /// </summary>
@@ -12,7 +12,7 @@ type Class1() =
 /// <summary>
 /// <see cref="T:crefLib1.Class1" />
 /// </summary>
-type Class2() = 
+type Class2() =
     /// <summary>
     /// <see cref="Unknown__Reference" />
     /// </summary>
@@ -33,8 +33,8 @@ type Class2() =
     /// </summary>
     member this.Method2(_c: string, _o: obj) = "more"
 
-    
-type GenericClass2<'T>() = 
+
+type GenericClass2<'T>() =
     /// This is a property in GenericClass2 called Property
     member this.Property = "more"
 
@@ -44,8 +44,8 @@ type GenericClass2<'T>() =
     /// This is a method in GenericClass2 called GenericMethod
     member this.GenericMethod(_c: 'T, _o: 'U) = "more"
 
-    
-type MathTest() = 
+
+type MathTest() =
     /// <summary>
     ///  This is XmlMath1 \(f(x)\)
     /// </summary>
@@ -62,20 +62,20 @@ type MathTest() =
     ///     \left\lceil \frac{\text{end} - \text{start}}{\text{step}} \right\rceil
     ///   \]
     /// </summary>
-    member this.XmlMath3  = "more"
-    
+    member this.XmlMath3 = "more"
+
     /// <summary>
     ///   <para>XmlMath4</para>
     ///   \[
     ///     1 &lt; 2 &lt; 3 &gt; 0
     ///   \]
     /// </summary>
-    member this.XmlMath4  = "more"
-    
+    member this.XmlMath4 = "more"
+
 /// <summary>
 /// Test
 /// </summary>
-type Class3() = 
+type Class3() =
     /// <summary>
     /// <see cref="P:crefLib2.Class2.Other" />
     /// and <see cref="M:crefLib2.Class2.Method0" />
@@ -95,18 +95,18 @@ type Class3() =
 /// <summary>
 /// Test
 /// </summary>
-type Class4() = 
+type Class4() =
     /// <summary>
     /// <see cref="T:System.Reflection.Assembly" />
     /// </summary>
     member this.X = "F#"
 
 
-    
+
 /// <summary>
 /// <see cref="T:crefLib2.Class2" />
 /// </summary>
-type Class5() = 
+type Class5() =
     /// <summary>
     /// None
     /// </summary>
@@ -115,17 +115,17 @@ type Class5() =
 /// <summary>
 /// <see cref="T:crefLib1.Class1" />
 /// </summary>
-type Class6() = 
+type Class6() =
     /// <summary>
     /// <see cref="!:Unknown__Reference" />
     /// </summary>
     member this.Other = "more"
 
-    
+
 /// <summary>
 /// Test
 /// </summary>
-type Class7() = 
+type Class7() =
     /// <summary>
     /// <see cref="P:crefLib2.Class2.Other" />
     /// </summary>
@@ -134,7 +134,7 @@ type Class7() =
 /// <summary>
 /// Test
 /// </summary>
-type Class8() = 
+type Class8() =
     /// <summary>
     /// <see cref="T:System.Reflection.Assembly" />
     /// </summary>
