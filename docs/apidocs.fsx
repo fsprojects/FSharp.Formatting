@@ -111,7 +111,7 @@ module SomeModule =
     /// </example>
     ///
     /// <category>Foo</category>
-   let someFunction x = 42 + x
+    let someFunction x = 42 + x
 
 /// <summary>
 ///   A type, see  <see cref="T:TheNamespace.SomeModule"/> and
@@ -119,7 +119,7 @@ module SomeModule =
 /// </summary>
 ///
 type SomeType() =
-   member x.P = 1
+    member x.P = 1
 
 (**
 
@@ -213,8 +213,7 @@ module Foo =
     type Baz = { id: Bar }
 
     /// This function operates on `Baz` types.
-    let f (b:Baz) =
-        b.id * 42
+    let f (b: Baz) = b.id * 42
 
 /// Referencing [Foo3] will not generate a link as there is no type with the name `Foo3`
 module Foo3 =
@@ -224,8 +223,7 @@ module Foo3 =
 
     /// Using the simple name for [Bar] will fail to create a link because the name is duplicated in
     /// [Foo.Bar] and in [Foo3.Bar]. In this case, using the full name works.
-    let f2 b =
-         b * 50
+    let f2 b = b * 50
 
 (**
 ### Markdown Comments: Excluding APIs from the docs
@@ -237,7 +235,7 @@ It needs to be set on a separate tripple-slashed line, but it could be either th
 /// [omit]
 /// Some actual comment
 module Bar =
-   let a = 42
+    let a = 42
 (**
 
 
@@ -248,6 +246,7 @@ in the `cref:T:FSharp.Formatting.ApiDocs.ApiDocs` type. To do this, load the ass
 *)
 
 #r "FSharp.Formatting.ApiDocs.dll"
+
 open FSharp.Formatting.ApiDocs
 open System.IO
 
@@ -255,12 +254,15 @@ open System.IO
 For example the `cref:M:FSharp.Formatting.ApiDocs.ApiDocs.GenerateHtml` method:
 *)
 
-let file = Path.Combine(root, "bin/YourLibrary.dll")
-let input = ApiDocInput.FromFile(file)
-ApiDocs.GenerateHtml
-    ( [ input ],
-      output=Path.Combine(root, "output"),
-      collectionName="YourLibrary",
-      template=Path.Combine(root, "templates", "template.html"),
-      substitutions=[])
+let file =
+    Path.Combine(root, "bin/YourLibrary.dll")
 
+let input = ApiDocInput.FromFile(file)
+
+ApiDocs.GenerateHtml(
+    [ input ],
+    output = Path.Combine(root, "output"),
+    collectionName = "YourLibrary",
+    template = Path.Combine(root, "templates", "template.html"),
+    substitutions = []
+)

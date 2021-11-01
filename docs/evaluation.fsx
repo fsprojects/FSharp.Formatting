@@ -111,13 +111,17 @@ open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Markdown
 
 // Sample literate content
-let content = """
+let content =
+    """
 let a = 10
 (*** include-value:a ***)"""
 
 // Create evaluator and parse script
 let fsi = FsiEvaluator()
-let doc = Literate.ParseScriptString(content, fsiEvaluator = fsi)
+
+let doc =
+    Literate.ParseScriptString(content, fsiEvaluator = fsi)
+
 Literate.ToHtml(doc)
 (**
 When the `fsiEvaluator` parameter is specified, the script is evaluated and so you
@@ -148,17 +152,19 @@ This can be done by calling `cref:M:FSharp.Formatting.Literate.Evaluation.FsiEva
 
 *)
 // Create evaluator & register simple formatter for lists
-let fsiOl = FsiEvaluator()
-fsiOl.RegisterTransformation(fun (o, ty, _executionCount) ->
-  // If the type of value is an F# list, format it nicely
-  if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
-    let items =
-      // Get items as objects and create paragraph for each item
-      [ for it in Seq.cast<obj> (unbox o) ->
-          [ Paragraph([Literal(it.ToString(), None)], None) ] ]
-    // Return option value (success) with ordered list
-    Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
-  else None)
+let fsiEvaluator = FsiEvaluator()
+
+fsiEvaluator.RegisterTransformation (fun (o, ty, _executionCount) ->
+    // If the type of value is an F# list, format it nicely
+    if ty.IsGenericType
+       && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
+        let items =
+            // Get items as objects and create paragraph for each item
+            [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([ Literal(it.ToString(), None) ], None) ] ]
+        // Return option value (success) with ordered list
+        Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
+    else
+        None)
 (**
 
 The function is called with two arguments - `o` is the value to be formatted and `ty`
@@ -172,12 +178,15 @@ embed it in `InlineHtmlBlock`.
 To use the new `FsiEvaluator`, we can use the same style as earlier. This time, we format
 a simple list containing strings:
 *)
-let listy = """
+let listy =
+    """
 ### Formatting demo
 let test = ["one";"two";"three"]
 (*** include-value:test ***)"""
 
-let docOl = Literate.ParseScriptString(listy, fsiEvaluator = fsiOl)
+let docOl =
+    Literate.ParseScriptString(listy, fsiEvaluator = fsiEvaluator)
+
 Literate.ToHtml(docOl)
 (**
 The resulting HTML formatting of the document contains the snippet that defines `test`,

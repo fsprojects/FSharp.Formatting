@@ -202,13 +202,13 @@ A header may be needed to get the code to load, a typical example is this:
     #r "FSharp.Formatting.CodeFormat.dll"
     #r "FSharp.Formatting.Literate.dll"
     (*** condition: fsx ***)
-    #if FSX
+#if FSX
     #r "nuget: FSharp.Formatting,{{package-version}}"
-    #endif // FSX
+#endif // FSX
     (*** condition: ipynb ***)
-    #if IPYNB
+#if IPYNB
     #r "nuget: FSharp.Formatting,{{package-version}}"
-    #endif // IPYNB
+#endif // IPYNB
 
 ### Processing literate files programatically
 
@@ -221,10 +221,14 @@ open FSharp.Formatting.Literate
 let source = __SOURCE_DIRECTORY__
 let template = Path.Combine(source, "template.html")
 
-let script = Path.Combine(source, "../docs/script.fsx")
+let script =
+    Path.Combine(source, "../docs/script.fsx")
+
 Literate.ConvertScriptFile(script, template)
 
-let doc = Path.Combine(source, "../docs/document.md")
+let doc =
+    Path.Combine(source, "../docs/document.md")
+
 Literate.ConvertMarkdownFile(doc, template)
 
 (**
@@ -236,10 +240,11 @@ file which is included as a sample in the package):
 
 // Load the template & specify project information
 let projTemplate = source + "template-project.html"
+
 let projInfo =
-  [ "fsdocs-authors", "Tomas Petricek"
-    "fsdocs-source-link", "https://github.com/fsprojects/FSharp.Formatting"
-    "fsdocs-collection-name", "F# Formatting" ]
+    [ "fsdocs-authors", "Tomas Petricek"
+      "fsdocs-source-link", "https://github.com/fsprojects/FSharp.Formatting"
+      "fsdocs-collection-name", "F# Formatting" ]
 
 (**
 
@@ -250,11 +255,15 @@ example shows how to call the methods to generate LaTeX documents:
 *)
 let templateTex = Path.Combine(source, "template.tex")
 
-let scriptTex = Path.Combine(source, "../docs/script.fsx")
-Literate.ConvertScriptFile(scriptTex, templateTex, outputKind=OutputKind.Latex)
+let scriptTex =
+    Path.Combine(source, "../docs/script.fsx")
 
-let docTex = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdownFile(docTex, templateTex, outputKind=OutputKind.Latex)
+Literate.ConvertScriptFile(scriptTex, templateTex, outputKind = OutputKind.Latex)
+
+let docTex =
+    Path.Combine(source, "../docs/document.md")
+
+Literate.ConvertMarkdownFile(docTex, templateTex, outputKind = OutputKind.Latex)
 
 (**
 
@@ -264,11 +273,15 @@ by setting the named parameter `format` to `OutputKind.Pynb`:
 *)
 
 // Process script file, Markdown document and a directory
-let scriptPynb = Path.Combine(source, "../docs/script.fsx")
-Literate.ConvertScriptFile(scriptPynb, outputKind=OutputKind.Pynb)
+let scriptPynb =
+    Path.Combine(source, "../docs/script.fsx")
 
-let docPynb = Path.Combine(source, "../docs/document.md")
-Literate.ConvertMarkdownFile(docPynb, outputKind=OutputKind.Pynb)
+Literate.ConvertScriptFile(scriptPynb, outputKind = OutputKind.Pynb)
+
+let docPynb =
+    Path.Combine(source, "../docs/document.md")
+
+Literate.ConvertMarkdownFile(docPynb, outputKind = OutputKind.Pynb)
 
 (**
 

@@ -64,11 +64,14 @@ version for use from F# and also a version that returns a .NET `Task` for C#).
 To call the method, we define a simple F# code as a string:
 *)
 
-let source = """
+let source =
+    """
     let hello () =
       printfn "Hello world"
   """
-let snippets, errors = formattingAgent.ParseAndCheckSource("C:\\snippet.fsx", source)
+
+let snippets, errors =
+    formattingAgent.ParseAndCheckSource("C:\\snippet.fsx", source)
 
 (**
 When calling the method, you need to specify a file name and the actual content
@@ -96,20 +99,22 @@ about the tokens of our sample snippet:
 *)
 
 // Get the first snippet and obtain list of lines
-let (Snippet(title, lines)) = snippets |> Seq.head
+let (Snippet (title, lines)) = snippets |> Seq.head
 
 // Iterate over all lines and all tokens on each line
-for (Line(_, tokens)) in lines do
-  for token in tokens do
-    match token with
-    | TokenSpan.Token(kind, code, tip) ->
-        printf "%s" code
-        tip |> Option.iter (fun spans ->
-          printfn "%A" spans)
-    | TokenSpan.Omitted _
-    | TokenSpan.Output _
-    | TokenSpan.Error _ -> ()
-  printfn ""
+for (Line (_, tokens)) in lines do
+    for token in tokens do
+        match token with
+        | TokenSpan.Token (kind, code, tip) ->
+            printf "%s" code
+
+            tip
+            |> Option.iter (fun spans -> printfn "%A" spans)
+        | TokenSpan.Omitted _
+        | TokenSpan.Output _
+        | TokenSpan.Error _ -> ()
+
+    printfn ""
 
 (**
 The `TokenSpan.Token` is the most important kind of token. It consists of a kind
@@ -138,7 +143,7 @@ let html = CodeFormat.FormatHtml(snippets, prefix)
 
 // Print all snippets, in case there is more of them
 for snip in html.Snippets do
-  printfn "%s" snip.Content
+    printfn "%s" snip.Content
 
 // Print HTML code that is generated for ToolTips
 printfn "%s" html.ToolTip
