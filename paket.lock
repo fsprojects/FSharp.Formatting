@@ -43,7 +43,7 @@ NUGET
       Microsoft.Build (>= 16.10) - restriction: || (== net5.0) (&& (== netstandard2.1) (>= net5.0))
       Microsoft.Build.Framework (>= 16.10) - restriction: || (== net5.0) (&& (== netstandard2.1) (>= net5.0))
       Microsoft.Build.Locator (>= 1.4.1) - restriction: || (== net5.0) (&& (== netstandard2.1) (>= net5.0))
-    Ionide.ProjInfo.Sln (0.55)
+    Ionide.ProjInfo.Sln (0.53.1)
     Microsoft.Build (16.11) - restriction: || (== net5.0) (&& (== netstandard2.1) (>= net5.0))
       Microsoft.Build.Framework (>= 16.11) - restriction: || (== net5.0) (&& (== netstandard2.1) (>= net472)) (&& (== netstandard2.1) (>= net5.0))
       Microsoft.NET.StringTools (>= 1.0) - restriction: || (== net5.0) (&& (== netstandard2.1) (>= net472)) (&& (== netstandard2.1) (>= net5.0))
