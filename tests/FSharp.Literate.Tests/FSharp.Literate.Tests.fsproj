@@ -7,8 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
-    <None Include="files/simple.md" />
-    <None Include="files/simple.fsx" />
+    <None Include="files/simple1.fsx" />
+    <None Include="files/simple2.md" />
     <None Include="files/template.html" />
     <None Include="files/docpage.html" />
     <Compile Include="..\Common\MarkdownUnit.fs">
@@ -17,8 +17,10 @@
     <Compile Include="Setup.fs" />
     <Compile Include="LiterateTests.fs" />
     <Compile Include="EvalTests.fs" />
+    <Compile Include="DocContentTests.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\fsdocs-tool\fsdocs-tool.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.TestHelpers\FSharp.Formatting.TestHelpers.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />

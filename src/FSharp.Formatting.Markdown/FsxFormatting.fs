@@ -41,12 +41,13 @@ let rec formatParagraphs ctx paragraphs =
         let cells = cell :: others
         cells
 
-let formatAsFsx links substitutions newline crefResolver paragraphs =
+let formatAsFsx links substitutions newline crefResolver mdlinkResolver paragraphs =
     let ctx =
         { Links = links
           Substitutions = substitutions
           Newline = newline
-          ResolveApiDocReference = crefResolver
+          CodeReferenceResolver = crefResolver
+          MarkdownDirectLinkResolver = mdlinkResolver
           DefineSymbol = "FSX" }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs

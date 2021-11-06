@@ -9,12 +9,13 @@ open MarkdownUtils
 let rec formatParagraphs ctx (paragraphs: MarkdownParagraph list) =
     paragraphs |> Seq.collect (formatParagraph ctx)
 
-let formatAsMd links replacements newline crefResolver paragraphs =
+let formatAsMarkdown links replacements newline crefResolver mdlinkResolver paragraphs =
     let ctx =
         { Links = links
           Substitutions = replacements
           Newline = newline
-          ResolveApiDocReference = crefResolver
+          CodeReferenceResolver = crefResolver
+          MarkdownDirectLinkResolver = mdlinkResolver
           DefineSymbol = "MD" }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs

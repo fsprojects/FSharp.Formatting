@@ -8,7 +8,7 @@ index: 1
 To use F# Formatting tools via the command line, you can use the `fsdocs` dotnet tool.
 
     [lang=text]
-    dotnet tool install FSharp.Formatting.CommandTool
+    dotnet tool install fsdocs-tool
     dotnet fsdocs [command] [options]
 
 ## The build command

@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>fsdocs</AssemblyName>
     <TargetFramework>net5.0</TargetFramework>
-    <PackageId>FSharp.Formatting.CommandTool</PackageId>
+    <PackageId>fsdocs-tool</PackageId>
     <RollForward>LatestMajor</RollForward>
     <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>

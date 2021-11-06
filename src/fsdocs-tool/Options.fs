@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.CommandTool
+namespace fsdocs
 
 module Common =
 

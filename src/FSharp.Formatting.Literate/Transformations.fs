@@ -201,7 +201,6 @@ module internal Transformations =
 
         loop
 
-
     /// Given Markdown document, add a number using the given index to all indirect
     /// references. For example, [article][ref] becomes [article][ref] [1](#rfxyz)
     let replaceReferences (refIndex: IDictionary<string, int>) =
@@ -230,10 +229,9 @@ module internal Transformations =
 
         loop
 
-
     /// Given all links defined in the Markdown document and a list of all links
     /// that are accessed somewhere from the document, generate References paragraph
-    let generateRefParagraphs (definedLinks: IDictionary<_, string * string option>) refs =
+    let generateReferenceParagraphs (definedLinks: IDictionary<_, string * string option>) refs =
         // For all unique references in the document,
         // get the link & title from definitions
         let refs =
@@ -289,7 +287,7 @@ module internal Transformations =
         if references then
             let refs = doc.Paragraphs |> Seq.collect collectReferences
 
-            let refPars, refLookup = generateRefParagraphs doc.DefinedLinks refs
+            let refPars, refLookup = generateReferenceParagraphs doc.DefinedLinks refs
 
             let newDoc = doc.Paragraphs |> List.choose (replaceReferences refLookup)
 
@@ -457,7 +455,7 @@ module internal Transformations =
           | _ -> () ]
 
 
-    /// Replace all sporiginalLineecial 'LiterateParagraph' elements recursively using the given lookup dictionary
+    /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
     let rec replaceLiterateParagraph (ctx: LiterateProcessingContext) (formatted: IDictionary<_, _>) para =
         match para with
         | MarkdownPatterns.LiterateParagraph (special) ->

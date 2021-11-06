@@ -1,6 +1,9 @@
-module FSharp.Formatting.CommandTool.Main
+module fsdocs.Main
 
 open CommandLine
+
+[<assembly: System.Runtime.CompilerServices.InternalsVisibleTo("FSharp.Literate.Tests")>]
+do ()
 
 [<EntryPoint>]
 let main argv =

@@ -12,7 +12,7 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 
        [lang=text]
        dotnet new tool
-       dotnet tool install FSharp.Formatting.CommandTool
+       dotnet tool install fsdocs-tool
 
 2. Delete all of `docs\tools` particularly `docs\tool\generate.fsx`.  Keep a copy of any templates for reference as you'll have to copy some bits across to the new template.
 
@@ -54,7 +54,7 @@ Here are the typical steps to upgrade a repo based on `ProjectScaffold` to use `
 Sample commands: 
 
     [lang=text]
-    dotnet tool install FSharp.Formatting.CommandTool --local
+    dotnet tool install fsdocs-tool --local
     git add dotnet-tools.json   
     git rm -fr docs/tools
     git mv docs/input/* docs

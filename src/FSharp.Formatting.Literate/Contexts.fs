@@ -102,8 +102,11 @@ type internal LiterateProcessingContext =
       /// The output format
       OutputKind: OutputKind
 
+      /// Helper to resolve URL referenecs in markdown, e.g. 'index.md' --> 'index.html' when doing HTML output
+      MarkdownDirectLinkResolver: string -> string option
+
       /// Helper to resolve `cref:T:TypeName` references in markdown
-      ResolveApiDocReference: string -> (string * string) option
+      CodeReferenceResolver: string -> (string * string) option
 
       /// Conditional defines for the processing
       ConditionalDefines: string list

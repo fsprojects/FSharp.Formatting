@@ -124,7 +124,7 @@ Target.create "GenerateDocs" (fun _ ->
          + artifactsDir
          + " --tool-path "
          + artifactsDir
-         + " FSharp.Formatting.CommandTool")
+         + " fsdocs-tool")
     |> ignore
 
     CreateProcess.fromRawCommand
@@ -138,7 +138,7 @@ Target.create "GenerateDocs" (fun _ ->
     |> Proc.run
     |> ignore
     // DotNet.exec id "fsdocs" "build --strict --clean --properties Configuration=Release" |> ignore
-    // DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
+    // DotNet.exec id "tool" "uninstall --local fsdocs-tool" |> ignore
     Shell.cleanDir ".packages")
 
 Target.create "All" ignore
