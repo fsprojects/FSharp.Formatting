@@ -52,7 +52,7 @@ let ``Can build doc content`` () =
     ipynb1 |> shouldContainText "simple2.ipynb"
     ipynb2 |> shouldContainText "simple1.ipynb"
 
-    // Check fsx contents
+    // Check fsx exists
     let _fsx1 = File.ReadAllText(rootOutputFolderAsGiven </> "simple1.fsx")
     let _fsx2 = File.ReadAllText(rootOutputFolderAsGiven </> "simple2.fsx")
 
@@ -61,3 +61,26 @@ let ``Can build doc content`` () =
     let md2 = File.ReadAllText(rootOutputFolderAsGiven </> "simple2.md")
     md1 |> shouldContainText "simple2.md"
     md2 |> shouldContainText "simple1.md"
+
+
+    // Check in-folder1.fsx --> in-folder1.html substititions
+    let f1html1 = File.ReadAllText(rootOutputFolderAsGiven </> "folder1" </> "in-folder1.html")
+    let f2html2 = File.ReadAllText(rootOutputFolderAsGiven </> "folder2" </> "in-folder2.html")
+    f1html1 |> shouldContainText """href="../folder2/in-folder2.html">"""
+    f2html2 |> shouldContainText """href="../folder1/in-folder1.html">"""
+
+    // Check in-folder1.fsx --> in-folder1.ipynb substititions
+    let f1ipynb1 = File.ReadAllText(rootOutputFolderAsGiven </> "folder1" </> "in-folder1.ipynb")
+    let f2ipynb2 = File.ReadAllText(rootOutputFolderAsGiven </> "folder2" </> "in-folder2.ipynb")
+    f1ipynb1 |> shouldContainText """../folder2/in-folder2.ipynb"""
+    f2ipynb2 |> shouldContainText """../folder1/in-folder1.ipynb"""
+
+    // Check fsx exists
+    let _f1fsx1 = File.ReadAllText(rootOutputFolderAsGiven </> "folder1" </> "in-folder1.fsx")
+    let _f2fsx2 = File.ReadAllText(rootOutputFolderAsGiven </> "folder2" </> "in-folder2.fsx")
+
+    // Check md contents
+    let f1md1 = File.ReadAllText(rootOutputFolderAsGiven </> "folder1" </> "in-folder1.md")
+    let f2md2 = File.ReadAllText(rootOutputFolderAsGiven </> "folder2" </> "in-folder2.md")
+    f1md1 |> shouldContainText """../folder2/in-folder2.md"""
+    f2md2 |> shouldContainText """../folder1/in-folder1.md"""
