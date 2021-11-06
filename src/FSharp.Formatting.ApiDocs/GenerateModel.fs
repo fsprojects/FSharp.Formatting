@@ -1406,7 +1406,7 @@ module internal SymbolReader =
               Substitutions = substitutions }
 
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
-        let compiledName = (^a: (member CompiledName : string) (s))
+        let compiledName = (^a: (member CompiledName: string) (s))
 
         match compiledName = s.DisplayName with
         | true -> None

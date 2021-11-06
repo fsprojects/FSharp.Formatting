@@ -48,7 +48,7 @@ type MarkdownSpans = MarkdownSpan list
 /// Provides an extensibility point for adding custom kinds of spans into a document
 /// (MarkdownEmbedSpans values can be embedded using MarkdownSpan.EmbedSpans)
 type MarkdownEmbedSpans =
-    abstract Render : unit -> MarkdownSpans
+    abstract Render: unit -> MarkdownSpans
 
 /// A paragraph represents a (possibly) multi-line element of a Markdown document.
 /// Paragraphs are headings, inline paragraphs, code blocks, lists, quotations, tables and
@@ -111,7 +111,7 @@ type MarkdownTableRow = list<MarkdownParagraphs>
 /// Provides an extensibility point for adding custom kinds of paragraphs into a document
 /// (MarkdownEmbedParagraphs values can be embedded using MarkdownParagraph.EmbedParagraphs)
 type MarkdownEmbedParagraphs =
-    abstract Render : unit -> MarkdownParagraphs
+    abstract Render: unit -> MarkdownParagraphs
 
 module Dsl =
     let ``#`` value = Heading(1, value, None)

@@ -1390,16 +1390,16 @@ type CoreBuildOptions(watch) =
 
         if ok then 0 else 1
 
-    abstract noserver_option : bool
+    abstract noserver_option: bool
     default x.noserver_option = false
 
-    abstract nolaunch_option : bool
+    abstract nolaunch_option: bool
     default x.nolaunch_option = false
 
-    abstract open_option : string
+    abstract open_option: string
     default x.open_option = ""
 
-    abstract port_option : int
+    abstract port_option: int
     default x.port_option = 0
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]

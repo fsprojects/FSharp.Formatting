@@ -37,8 +37,7 @@ let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
-let projectRepo =
-    "https://github.com/fsprojects/FSharp.Formatting"
+let projectRepo = "https://github.com/fsprojects/FSharp.Formatting"
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
