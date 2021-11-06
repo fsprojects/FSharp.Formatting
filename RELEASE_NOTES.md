@@ -1,3 +1,7 @@
+## 12.0.0
+
+* [Allow input-->output link translation](https://github.com/fsprojects/FSharp.Formatting/pull/718)
+
 ## 11.5.1
 
 * [Allow user-set ids for xmldoc example nodes](https://github.com/fsprojects/FSharp.Formatting/pull/704)
