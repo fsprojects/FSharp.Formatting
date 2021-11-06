@@ -11,10 +11,34 @@ module internal Formatting =
     /// Format document with the specified output kind
     let format (doc: MarkdownDocument) generateAnchors outputKind substitutions crefResolver mdlinkResolver =
         match outputKind with
-        | OutputKind.Fsx -> Markdown.ToFsx(doc, substitutions = substitutions, crefResolver = crefResolver, mdlinkResolver=mdlinkResolver)
-        | OutputKind.Md -> Markdown.ToMd(doc, substitutions = substitutions, crefResolver = crefResolver, mdlinkResolver=mdlinkResolver)
-        | OutputKind.Pynb -> Markdown.ToPynb(doc, substitutions = substitutions, crefResolver = crefResolver, mdlinkResolver=mdlinkResolver)
-        | OutputKind.Latex -> Markdown.ToLatex(doc, substitutions = substitutions, crefResolver = crefResolver, mdlinkResolver=mdlinkResolver)
+        | OutputKind.Fsx ->
+            Markdown.ToFsx(
+                doc,
+                substitutions = substitutions,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver
+            )
+        | OutputKind.Md ->
+            Markdown.ToMd(
+                doc,
+                substitutions = substitutions,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver
+            )
+        | OutputKind.Pynb ->
+            Markdown.ToPynb(
+                doc,
+                substitutions = substitutions,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver
+            )
+        | OutputKind.Latex ->
+            Markdown.ToLatex(
+                doc,
+                substitutions = substitutions,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver
+            )
         | OutputKind.Html ->
             let sb = new System.Text.StringBuilder()
             use wr = new StringWriter(sb)
@@ -124,7 +148,8 @@ module internal Formatting =
 
             let doc = getSourceDocument doc |> Transformations.replaceLiterateParagraphs ctx
 
-            let source = format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind [] (fun _ -> None) (fun _ -> None)
+            let source =
+                format doc.MarkdownDocument ctx.GenerateHeaderAnchors ctx.OutputKind [] (fun _ -> None) (fun _ -> None)
 
             [ ParamKeys.``fsdocs-source-filename``, relativeSourceFileName
               ParamKeys.``fsdocs-source-basename``, relativeSourceFileBaseName

@@ -962,7 +962,16 @@ let test = 42
 
     let doc2 = Literate.FormatLiterateNodes(doc, outputKind = OutputKind.Html)
 
-    let html = Literate.ToHtml(doc2.With(formattedTips = ""), mdlinkResolver=(fun s -> if s = "A.fsx" then Some "A.html" else None))
+    let html =
+        Literate.ToHtml(
+            doc2.With(formattedTips = ""),
+            mdlinkResolver =
+                (fun s ->
+                    if s = "A.fsx" then
+                        Some "A.html"
+                    else
+                        None)
+        )
 
     html |> shouldContainText "A.html"
 
@@ -975,7 +984,16 @@ let ``Formatted markdown transforms markdown links`` () =
 
     let doc = Literate.ParseMarkdownString(content, "." </> "A.md", getFormatAgent ())
 
-    let html = Literate.ToHtml(doc.With(formattedTips = ""), mdlinkResolver=(fun s -> if s = "A.md" then Some "A.html" else None))
+    let html =
+        Literate.ToHtml(
+            doc.With(formattedTips = ""),
+            mdlinkResolver =
+                (fun s ->
+                    if s = "A.md" then
+                        Some "A.html"
+                    else
+                        None)
+        )
 
     html |> shouldContainText "A.html"
 

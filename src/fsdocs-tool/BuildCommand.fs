@@ -74,6 +74,7 @@ type internal DocContent
                 Path.Combine(outputFolderRelativeToRoot, sprintf "%s.%s" basename ext)
             else
                 Path.Combine(outputFolderRelativeToRoot, inputFileName)
+
         let outputFileFullPath = Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFileRelativeToRoot))
         outputFileRelativeToRoot, outputFileFullPath
 
@@ -82,21 +83,38 @@ type internal DocContent
         |> Array.map (fun x -> x.TwoLetterISOLanguageName)
         |> Array.filter (fun x -> x.Length = 2)
         |> Array.distinct
-    
-    let makeMarkdownLinkResolver (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap: Map<(string * OutputKind),string>, outputKind) (markdownReference: string) =
-        let markdownReferenceAsFullInputPathOpt = try Path.GetFullPath(markdownReference, inputFolderAsGiven) |> Some with _ -> None
+
+    let makeMarkdownLinkResolver
+        (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap: Map<(string * OutputKind), string>, outputKind)
+        (markdownReference: string)
+        =
+        let markdownReferenceAsFullInputPathOpt =
+            try
+                Path.GetFullPath(markdownReference, inputFolderAsGiven) |> Some
+            with
+            | _ -> None
+
         match markdownReferenceAsFullInputPathOpt with
         | None -> None
         | Some markdownReferenceFullInputPath ->
-            match fullPathFileMap.TryFind (markdownReferenceFullInputPath, outputKind) with
+            match fullPathFileMap.TryFind(markdownReferenceFullInputPath, outputKind) with
             | None -> None
             | Some markdownReferenceFullOutputPath ->
                 try
-                    let outputFolderFullPath = Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
-                    let uri = Uri(outputFolderFullPath+"/").MakeRelativeUri(Uri(markdownReferenceFullOutputPath)).ToString()
+                    let outputFolderFullPath =
+                        Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
+
+                    let uri =
+                        Uri(outputFolderFullPath + "/")
+                            .MakeRelativeUri(Uri(markdownReferenceFullOutputPath))
+                            .ToString()
+
                     Some uri
-                with _ ->
-                    printfn $"Couldn't map markdown reference {markdownReference} that seemed to correspond to an input file"
+                with
+                | _ ->
+                    printfn
+                        $"Couldn't map markdown reference {markdownReference} that seemed to correspond to an input file"
+
                     None
 
     /// Prepare the map of input file to output file. This map is used to make substitutions through markdown
@@ -104,9 +122,15 @@ type internal DocContent
     let prepFile (inputFileFullPath: string) (outputKind: OutputKind) outputFolderRelativeToRoot =
         [ let inputFileName = Path.GetFileName(inputFileFullPath)
 
-          if not (inputFileName.StartsWith(".")) && not (inputFileName.StartsWith "_template") then
+          if
+              not (inputFileName.StartsWith("."))
+              && not (inputFileName.StartsWith "_template")
+          then
               let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
-              let _relativeOutputFile, outputFileFullPath = getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
+
+              let _relativeOutputFile, outputFileFullPath =
+                  getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
+
               yield ((inputFileFullPath, outputKind), outputFileFullPath) ]
 
     /// Likewise prepare the map of input files to output files
@@ -129,7 +153,16 @@ type internal DocContent
                           (Path.Combine(inputFolderAsGiven, subFolderName))
                           (Path.Combine(outputFolderRelativeToRoot, subFolderName)) ]
 
-    let processFile rootInputFolder (isOtherLang: bool) (inputFileFullPath: string) outputKind template outputFolderRelativeToRoot imageSaver mdlinkResolver =
+    let processFile
+        rootInputFolder
+        (isOtherLang: bool)
+        (inputFileFullPath: string)
+        outputKind
+        template
+        outputFolderRelativeToRoot
+        imageSaver
+        mdlinkResolver
+        =
         [ let name = Path.GetFileName(inputFileFullPath)
 
           if name.StartsWith(".") then
@@ -156,7 +189,8 @@ type internal DocContent
                       | OutputKind.Md when saveImages = Some true -> Some imageSaver
                       | _ -> None
 
-                  let outputFileRelativeToRoot, outputFileFullPath = getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
+                  let outputFileRelativeToRoot, outputFileFullPath =
+                      getOutputFileNames inputFileFullPath outputKind outputFolderRelativeToRoot
 
                   // Update only when needed - template or file or tool has changed
 
@@ -351,11 +385,85 @@ type internal DocContent
 
           // Look for the four different kinds of content
           for input in inputs do
-              yield! processFile rootInputFolder isOtherLang input OutputKind.Html htmlTemplate outputFolderRelativeToRoot imageSaver (makeMarkdownLinkResolver (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap, OutputKind.Html))
-              yield! processFile rootInputFolder isOtherLang input OutputKind.Latex texTemplate outputFolderRelativeToRoot imageSaver (makeMarkdownLinkResolver (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap, OutputKind.Latex))
-              yield! processFile rootInputFolder isOtherLang input OutputKind.Pynb pynbTemplate outputFolderRelativeToRoot imageSaver (makeMarkdownLinkResolver (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap, OutputKind.Pynb))
-              yield! processFile rootInputFolder isOtherLang input OutputKind.Fsx fsxTemplate outputFolderRelativeToRoot imageSaver (makeMarkdownLinkResolver (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap, OutputKind.Fsx))
-              yield! processFile rootInputFolder isOtherLang input OutputKind.Md mdTemplate outputFolderRelativeToRoot imageSaver (makeMarkdownLinkResolver (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap, OutputKind.Md))
+              yield!
+                  processFile
+                      rootInputFolder
+                      isOtherLang
+                      input
+                      OutputKind.Html
+                      htmlTemplate
+                      outputFolderRelativeToRoot
+                      imageSaver
+                      (makeMarkdownLinkResolver (
+                          inputFolderAsGiven,
+                          outputFolderRelativeToRoot,
+                          fullPathFileMap,
+                          OutputKind.Html
+                      ))
+
+              yield!
+                  processFile
+                      rootInputFolder
+                      isOtherLang
+                      input
+                      OutputKind.Latex
+                      texTemplate
+                      outputFolderRelativeToRoot
+                      imageSaver
+                      (makeMarkdownLinkResolver (
+                          inputFolderAsGiven,
+                          outputFolderRelativeToRoot,
+                          fullPathFileMap,
+                          OutputKind.Latex
+                      ))
+
+              yield!
+                  processFile
+                      rootInputFolder
+                      isOtherLang
+                      input
+                      OutputKind.Pynb
+                      pynbTemplate
+                      outputFolderRelativeToRoot
+                      imageSaver
+                      (makeMarkdownLinkResolver (
+                          inputFolderAsGiven,
+                          outputFolderRelativeToRoot,
+                          fullPathFileMap,
+                          OutputKind.Pynb
+                      ))
+
+              yield!
+                  processFile
+                      rootInputFolder
+                      isOtherLang
+                      input
+                      OutputKind.Fsx
+                      fsxTemplate
+                      outputFolderRelativeToRoot
+                      imageSaver
+                      (makeMarkdownLinkResolver (
+                          inputFolderAsGiven,
+                          outputFolderRelativeToRoot,
+                          fullPathFileMap,
+                          OutputKind.Fsx
+                      ))
+
+              yield!
+                  processFile
+                      rootInputFolder
+                      isOtherLang
+                      input
+                      OutputKind.Md
+                      mdTemplate
+                      outputFolderRelativeToRoot
+                      imageSaver
+                      (makeMarkdownLinkResolver (
+                          inputFolderAsGiven,
+                          outputFolderRelativeToRoot,
+                          fullPathFileMap,
+                          OutputKind.Md
+                      ))
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
@@ -1094,7 +1202,9 @@ type CoreBuildOptions(watch) =
                         clean subdir
 
             let isOutputPathOK =
-                rootOutputFolderAsGiven <> "/" && rootOutputFolderAsGiven <> "." && rootOutputFolderFullPath <> rootInputFolderFullPath
+                rootOutputFolderAsGiven <> "/"
+                && rootOutputFolderAsGiven <> "."
+                && rootOutputFolderFullPath <> rootInputFolderFullPath
                 && not (String.IsNullOrEmpty rootOutputFolderAsGiven)
 
             if isOutputPathOK then
@@ -1259,7 +1369,11 @@ type CoreBuildOptions(watch) =
             docsQueued <- false
 
             if not this.noserver_option then
-                printfn "starting server on http://localhost:%d for content in %s" this.port_option rootOutputFolderFullPath
+                printfn
+                    "starting server on http://localhost:%d for content in %s"
+                    this.port_option
+                    rootOutputFolderFullPath
+
                 Serve.startWebServer rootOutputFolderFullPath this.port_option
 
             if not this.nolaunch_option then

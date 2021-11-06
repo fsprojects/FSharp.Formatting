@@ -250,7 +250,16 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        let ctx = makeFormattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss crefResolver mdlinkResolver
+        let ctx =
+            makeFormattingContext
+                OutputKind.Html
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -290,7 +299,16 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        let ctx = makeFormattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss crefResolver mdlinkResolver
+        let ctx =
+            makeFormattingContext
+                OutputKind.Html
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -322,7 +340,18 @@ type Literate private () =
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let ctx = makeFormattingContext OutputKind.Latex prefix lineNumbers generateAnchors None None crefResolver mdlinkResolver
+
+        let ctx =
+            makeFormattingContext
+                OutputKind.Latex
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                None
+                crefResolver
+                mdlinkResolver
+
         let doc = Transformations.replaceLiterateParagraphs ctx doc
         Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
 
@@ -340,7 +369,18 @@ type Literate private () =
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let ctx = makeFormattingContext OutputKind.Latex prefix lineNumbers generateAnchors None None crefResolver mdlinkResolver
+
+        let ctx =
+            makeFormattingContext
+                OutputKind.Latex
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                None
+                crefResolver
+                mdlinkResolver
+
         let doc = Transformations.replaceLiterateParagraphs ctx doc
         Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer, ?substitutions = substitutions)
 
@@ -376,7 +416,16 @@ type Literate private () =
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let outputKind = defaultArg outputKind OutputKind.Html
 
-        let ctx = makeFormattingContext outputKind prefix lineNumbers generateAnchors None tokenKindToCss crefResolver mdlinkResolver
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         Transformations.replaceLiterateParagraphs ctx doc
 
@@ -411,10 +460,8 @@ type Literate private () =
         let parseOptions =
             match outputKind with
             | OutputKind.Fsx
-            | OutputKind.Pynb ->
-                parseOptions
-                ||| MarkdownParseOptions.ParseCodeAsOther
-                //||| MarkdownParseOptions.ParseNonCodeAsOther
+            | OutputKind.Pynb -> parseOptions ||| MarkdownParseOptions.ParseCodeAsOther
+            //||| MarkdownParseOptions.ParseNonCodeAsOther
             | _ -> parseOptions
 
         let doc =
@@ -428,7 +475,15 @@ type Literate private () =
             )
 
         let ctx =
-            makeFormattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss crefResolver mdlinkResolver
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = customizeDoc customizeDocument ctx doc
         let doc = downloadImagesForDoc imageSaver doc
@@ -479,7 +534,15 @@ type Literate private () =
             )
 
         let ctx =
-            makeFormattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss crefResolver mdlinkResolver
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = customizeDoc customizeDocument ctx doc
         let doc = downloadImagesForDoc imageSaver doc
@@ -502,7 +565,18 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let outputKind = defaultArg outputKind OutputKind.Html
-        let ctx = makeFormattingContext outputKind prefix lineNumbers generateAnchors substitutions None crefResolver mdlinkResolver
+
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                None
+                crefResolver
+                mdlinkResolver
+
         let res = Formatting.transformDocument doc output ctx
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
