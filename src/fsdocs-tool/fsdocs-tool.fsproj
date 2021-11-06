@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>fsdocs</AssemblyName>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <PackageId>fsdocs-tool</PackageId>
     <RollForward>LatestMajor</RollForward>
     <IsPackable>true</IsPackable>
@@ -11,7 +11,6 @@
     <UsesMarkdownComments>true</UsesMarkdownComments>
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
   </PropertyGroup>
-    
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
@@ -22,7 +21,6 @@
     <Compile Include="BuildCommand.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- NuGet package content -->
     <Content Include="..\..\docs\_template.html" PackagePath="templates" />
@@ -33,7 +31,6 @@
     <Content Include="..\..\docs\content\*" PackagePath="extras\content" />
     <Content Include="..\..\docs\content\img\*" PackagePath="extras\content\img" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj" />
     <ProjectReference Include="..\FSharp.Formatting.CodeFormat\FSharp.Formatting.CodeFormat.fsproj" />
@@ -41,6 +38,15 @@
     <ProjectReference Include="..\FSharp.Formatting.Literate\FSharp.Formatting.Literate.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />
+    <PackageReference Include="Microsoft.Build" Version="16.11" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="16.11" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.11" />
+    <PackageReference Include="CommandLineParser" Version="2.8" />
+    <PackageReference Include="Ionide.ProjInfo" Version="0.55" />
+    <PackageReference Include="Ionide.ProjInfo.Sln" Version="0.55" />
+    <PackageReference Include="Suave" Version="2.6.1" />
   </ItemGroup>
+  <!-- <Import Project="..\..\.paket\Paket.Restore.targets" /> -->
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

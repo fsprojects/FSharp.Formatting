@@ -2,6 +2,7 @@ namespace fsdocs
 
 open System
 open System.IO
+open System.Runtime.InteropServices
 open System.Runtime.Serialization
 open System.Xml
 
@@ -13,7 +14,62 @@ open Ionide.ProjInfo.Types
 [<AutoOpen>]
 module Utils =
     // Needs to be done before anything else?!?
-    let msbuildExe = Ionide.ProjInfo.Init.init ()
+    //let toolsPath = Ionide.ProjInfo.Init.init (DirectoryInfo(Directory.GetCurrentDirectory())) None
+
+    let isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+
+    let dotnet = if isWindows then "dotnet.exe" else "dotnet"
+
+    let fileExists pathToFile =
+        try
+            File.Exists(pathToFile)
+        with | _ -> false
+
+    // Look for global install of dotnet sdk
+    let getDotnetGlobalHostPath() =
+        let pf = Environment.GetEnvironmentVariable("ProgramW6432")
+        let pf = if String.IsNullOrEmpty(pf) then Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) else pf
+        let candidate = Path.Combine(pf, "dotnet", dotnet)
+        if fileExists candidate then
+            Some candidate
+        else
+            // Can't find it --- give up
+            None
+
+    // from dotnet/fsharp
+    let getDotnetHostPath() =
+        // How to find dotnet.exe --- woe is me; probing rules make me sad.
+        // Algorithm:
+        // 1. Look for DOTNET_HOST_PATH environment variable
+        //    this is the main user programable override .. provided by user to find a specific dotnet.exe
+        // 2. Probe for are we part of an .NetSDK install
+        //    In an sdk install we are always installed in:   sdk\3.0.100-rc2-014234\FSharp
+        //    dotnet or dotnet.exe will be found in the directory that contains the sdk directory
+        // 3. We are loaded in-process to some other application ... Eg. try .net
+        //    See if the host is dotnet.exe ... from net5.0 on this is fairly unlikely
+        // 4. If it's none of the above we are going to have to rely on the path containing the way to find dotnet.exe
+        // Use the path to search for dotnet.exe
+        let probePathForDotnetHost() =
+            let paths =
+                let p = Environment.GetEnvironmentVariable("PATH")
+                if not(isNull p) then p.Split(Path.PathSeparator) 
+                else [||]
+            paths |> Array.tryFind (fun f -> fileExists (Path.Combine(f, dotnet)))
+
+        match (Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")) with
+        // Value set externally
+        | value when not (String.IsNullOrEmpty(value)) && fileExists value -> Some value
+        | _ ->
+            // Probe for netsdk install, dotnet. and dotnet.exe is a constant offset from the location of System.Int32
+            let candidate =
+                let assemblyLocation = Path.GetDirectoryName(typeof<Int32>.Assembly.Location)
+                Path.GetFullPath(Path.Combine(assemblyLocation, "..", "..", "..", dotnet))
+            if fileExists candidate then
+                Some candidate
+            else
+                match probePathForDotnetHost () with
+                | Some f -> Some (Path.Combine(f, dotnet))
+                | None -> getDotnetGlobalHostPath()
 
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
@@ -154,7 +210,7 @@ module Crack =
           //PackageReleaseNotes : string option
           RepositoryCommit: string option }
 
-    let private crackProjectFileAndIncludeTargetFrameworks _slnDir extraMsbuildProperties (file: string) =
+    let private crackProjectFileAndIncludeTargetFrameworks _slnDir extraMsbuildProperties (projectFile: string) =
         let additionalInfo =
             [ "OutputType"
               "IsTestProject"
@@ -189,13 +245,30 @@ module Crack =
               "TargetFrameworks"
               "RunArguments" ]
 
-        let gp = ("TargetPath" :: additionalInfo)
+        let customProperties = ("TargetPath" :: additionalInfo)
 
         let loggedMessages = System.Collections.Concurrent.ConcurrentQueue<string>()
 
+        let parseProject (path: string) =
+            try
+                let dotnetExe = getDotnetHostPath()
+                let cwd = Path.GetDirectoryName path |> System.IO.DirectoryInfo
+                let toolsPath = Ionide.ProjInfo.Init.init cwd (dotnetExe |> Option.map FileInfo)
+                let tfm = ProjectLoader.getTfm path (dict extraMsbuildProperties)
+                let readingProps =
+                    Ionide.ProjInfo.ProjectLoader.getGlobalProps path tfm extraMsbuildProperties
+                    |> Seq.toList
+                    |> List.map (fun (KeyValue(k,v)) -> (k,v))
+                let loader = WorkspaceLoader.Create(toolsPath, readingProps)
+                loader.LoadProjects([ path ], customProperties, BinaryLogGeneration.Within cwd)
+                |> Seq.tryHead
+                |> function
+                    | None -> Error (Exception $"no result returned for loading {path}")
+                    | Some p -> Ok p
+            with err -> Error err
 
-        let result = ProjectLoader.getProjectInfo file msbuildExe extraMsbuildProperties false gp
-        //file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
+        let result = parseProject projectFile // ProjectLoader.getProjectInfo file extraMsbuildProperties BinaryLogGeneration.Off customProperties
+        //file |> Inspect.getProjectInfos loggedMessages.Enqueue toolsPath [gp] []
 
         let msgs = (loggedMessages.ToArray() |> Array.toList)
 
@@ -229,7 +302,7 @@ module Crack =
 
             let projOptions2 =
 
-                { ProjectFileName = file
+                { ProjectFileName = projectFile
                   ProjectOptions = Some projOptions
                   TargetPath = msbuildPropString "TargetPath"
                   IsTestProject = msbuildPropBool "IsTestProject" |> Option.defaultValue false
