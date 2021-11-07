@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>fsdocs</AssemblyName>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <PackageId>fsdocs-tool</PackageId>
     <RollForward>LatestMajor</RollForward>
     <IsPackable>true</IsPackable>

@@ -195,20 +195,20 @@ Literate scripts and markdown can by turned into LaTex, Python Notebooks and F# 
 A header may be needed to get the code to load, a typical example is this:
 
 ```text
-(*** condition: prepare ***)
-#nowarn "211"
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.Formatting.Markdown.dll"
-#r "FSharp.Formatting.CodeFormat.dll"
-#r "FSharp.Formatting.Literate.dll"
-(*** condition: fsx ***)
+    (*** condition: prepare ***)
+    #nowarn "211"
+    #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
+    #r "FSharp.Formatting.Common.dll"
+    #r "FSharp.Formatting.Markdown.dll"
+    #r "FSharp.Formatting.CodeFormat.dll"
+    #r "FSharp.Formatting.Literate.dll"
+    (*** condition: fsx ***)
 #if FSX
-#r "nuget: FSharp.Formatting,{{package-version}}"
+    #r "nuget: FSharp.Formatting,{{package-version}}"
 #endif // FSX
-(*** condition: ipynb ***)
+    (*** condition: ipynb ***)
 #if IPYNB
-#r "nuget: FSharp.Formatting,{{package-version}}"
+    #r "nuget: FSharp.Formatting,{{package-version}}"
 #endif // IPYNB
 ```
 
