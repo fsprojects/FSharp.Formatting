@@ -203,13 +203,13 @@ A header may be needed to get the code to load, a typical example is this:
     #r "FSharp.Formatting.CodeFormat.dll"
     #r "FSharp.Formatting.Literate.dll"
     (*** condition: fsx ***)
-    #if FSX
+#if FSX
     #r "nuget: FSharp.Formatting,{{package-version}}"
-    #endif // FSX
+#endif // FSX
     (*** condition: ipynb ***)
-    #if IPYNB
+#if IPYNB
     #r "nuget: FSharp.Formatting,{{package-version}}"
-    #endif // IPYNB
+#endif // IPYNB
 ```
 
 ### Processing literate files programatically
