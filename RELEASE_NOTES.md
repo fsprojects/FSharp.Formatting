@@ -1,3 +1,7 @@
+## 12.0.1
+
+* Improve package description
+
 ## 12.0.0
 
 * [Allow input-->output link translation](https://github.com/fsprojects/FSharp.Formatting/pull/718)
