@@ -50,7 +50,7 @@ let ``Simple code snippet is formatted with tool tips`` () =
 
     snips
     |> containsSpan (function
-        | TokenSpan.Token (_, "hello", Some (ToolTipWithLiteral "val hello: int")) -> true
+        | TokenSpan.Token (_, "hello", Some (ToolTipWithLiteral "val hello : int")) -> true
         | _ -> false)
     |> shouldEqual true
 
@@ -69,7 +69,7 @@ nameof x
 
     snips
     |> containsSpan (function
-        | TokenSpan.Token (_, "nameof", Some (ToolTipWithLiteral "val nameof: 'T -> string")) -> true
+        | TokenSpan.Token (_, "nameof", Some (ToolTipWithLiteral "val nameof : 'T -> string")) -> true
         | _ -> false)
     |> shouldEqual true
 
@@ -140,7 +140,7 @@ let ``Simple code snippet is formatted as HTML`` () =
 
     content |> shouldContainText (sprintf "<span class=\"%s\">10</span>" CSS.Number)
 
-    tooltip |> shouldContainText "val hello: int"
+    tooltip |> shouldContainText "val hello : int"
 
 [<Test>]
 let ``Non-unicode characters do not cause exception`` () =
@@ -306,7 +306,7 @@ let ``Simple code snippet is formatted as HTML - custom CSS`` () =
 
     content |> shouldContainText (sprintf "<span class=\"%s\">10</span>" "Number")
 
-    tooltip |> shouldContainText "val hello: int"
+    tooltip |> shouldContainText "val hello : int"
 
 
 [<Test>]

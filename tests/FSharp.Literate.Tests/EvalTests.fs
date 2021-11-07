@@ -388,7 +388,7 @@ let xxxxxxx = 1
         Literate.ParseScriptString(content, "." </> "A.fsx", formatAgent = getFormatAgent (), fsiEvaluator = fsie)
 
     let html1 = Literate.ToHtml(doc1)
-    html1 |> shouldContainText "val xxxxxxx: int = 1"
+    html1 |> shouldContainText "val xxxxxxx : int = 1"
 
 [<Test>]
 let ``Can include-html-output`` () =
@@ -470,9 +470,9 @@ printfn "GOODBYE"
     html1 |> shouldContainText "GOODBYE"
 
     html1
-    |> shouldContainText "val xxxxxxx: int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10]"
+    |> shouldContainText "val xxxxxxx : int list = [0; 1; 2; 3; 4; 5; 6; 7; 8; 9; 10]"
 
-    html1 |> shouldContainText "val it: unit = ()"
+    html1 |> shouldContainText "val it : unit = ()"
 
 [<Test>]
 let ``Can hide and include-it`` () =
@@ -528,7 +528,7 @@ let xxxx = 1+1
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "helloworld"
-    html1 |> shouldContainText "val xxxx: int"
+    html1 |> shouldContainText "val xxxx : int"
 
     html1 |> shouldContainText """<span class="k">let</span>""" // formatted code
 
@@ -552,7 +552,7 @@ let xxxx = 1+1
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "helloworld"
-    html1 |> shouldContainText "val xxxx: int"
+    html1 |> shouldContainText "val xxxx : int"
 
     html1 |> shouldNotContainText """<span class="k">let</span>""" // formatted code
 
@@ -575,7 +575,7 @@ let xxxx = 1+1
 
     let html1 = Literate.ToHtml(doc1)
     html1 |> shouldContainText "helloworld"
-    html1 |> shouldContainText "val xxxx: int"
+    html1 |> shouldContainText "val xxxx : int"
     html1 |> shouldContainText "2000"
 
 [<Test>]

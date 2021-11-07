@@ -755,7 +755,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using substitut
     Literate.ConvertMarkdownFile(simpleMd, templateHtml, temp.File)
     temp.Content |> shouldContainText "</a>"
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> shouldContainText "val hello : string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -769,7 +769,7 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using substitu
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
     temp.Content |> shouldContainText "</a>"
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> shouldContainText "val hello : string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -858,7 +858,7 @@ let ``Can process fsx file using HTML template`` () =
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, docPageTemplate, temp.File, substitutions = info)
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> shouldContainText "val hello : string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -871,7 +871,7 @@ let ``Can process md file using HTML template`` () =
     use temp = new TempFile()
     Literate.ConvertMarkdownFile(simpleMd, docPageTemplate, temp.File, substitutions = info)
 
-    temp.Content |> shouldContainText "val hello: string"
+    temp.Content |> shouldContainText "val hello : string"
 
     temp.Content |> shouldContainText "<title>Heading"
 
@@ -945,8 +945,8 @@ let test = 42
     let html = Literate.ToHtml(doc2.With(formattedTips = ""))
 
     let tips = doc2.FormattedTips
-    tips |> shouldContainText "test: int"
-    html |> shouldNotContainText "test: int"
+    tips |> shouldContainText "test : int"
+    html |> shouldNotContainText "test : int"
     html |> shouldContainText "hello"
 
 [<Test>]
