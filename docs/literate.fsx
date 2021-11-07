@@ -195,20 +195,20 @@ Literate scripts and markdown can by turned into LaTex, Python Notebooks and F# 
 A header may be needed to get the code to load, a typical example is this:
 
 ```text
-(*** condition: prepare ***)
-#nowarn "211"
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
-#r "FSharp.Formatting.Common.dll"
-#r "FSharp.Formatting.Markdown.dll"
-#r "FSharp.Formatting.CodeFormat.dll"
-#r "FSharp.Formatting.Literate.dll"
-(*** condition: fsx ***)
+    (*** condition: prepare ***)
+    #nowarn "211"
+    #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
+    #r "FSharp.Formatting.Common.dll"
+    #r "FSharp.Formatting.Markdown.dll"
+    #r "FSharp.Formatting.CodeFormat.dll"
+    #r "FSharp.Formatting.Literate.dll"
+    (*** condition: fsx ***)
 #if FSX
-#r "nuget: FSharp.Formatting,{{package-version}}"
+    #r "nuget: FSharp.Formatting,{{package-version}}"
 #endif // FSX
-(*** condition: ipynb ***)
+    (*** condition: ipynb ***)
 #if IPYNB
-#r "nuget: FSharp.Formatting,{{package-version}}"
+    #r "nuget: FSharp.Formatting,{{package-version}}"
 #endif // IPYNB
 ```
 
@@ -223,13 +223,11 @@ open FSharp.Formatting.Literate
 let source = __SOURCE_DIRECTORY__
 let template = Path.Combine(source, "template.html")
 
-let script =
-    Path.Combine(source, "../docs/script.fsx")
+let script = Path.Combine(source, "../docs/script.fsx")
 
 Literate.ConvertScriptFile(script, template)
 
-let doc =
-    Path.Combine(source, "../docs/document.md")
+let doc = Path.Combine(source, "../docs/document.md")
 
 Literate.ConvertMarkdownFile(doc, template)
 
@@ -257,13 +255,11 @@ example shows how to call the methods to generate LaTeX documents:
 *)
 let templateTex = Path.Combine(source, "template.tex")
 
-let scriptTex =
-    Path.Combine(source, "../docs/script.fsx")
+let scriptTex = Path.Combine(source, "../docs/script.fsx")
 
 Literate.ConvertScriptFile(scriptTex, templateTex, outputKind = OutputKind.Latex)
 
-let docTex =
-    Path.Combine(source, "../docs/document.md")
+let docTex = Path.Combine(source, "../docs/document.md")
 
 Literate.ConvertMarkdownFile(docTex, templateTex, outputKind = OutputKind.Latex)
 
@@ -275,13 +271,11 @@ by setting the named parameter `format` to `OutputKind.Pynb`:
 *)
 
 // Process script file, Markdown document and a directory
-let scriptPynb =
-    Path.Combine(source, "../docs/script.fsx")
+let scriptPynb = Path.Combine(source, "../docs/script.fsx")
 
 Literate.ConvertScriptFile(scriptPynb, outputKind = OutputKind.Pynb)
 
-let docPynb =
-    Path.Combine(source, "../docs/document.md")
+let docPynb = Path.Combine(source, "../docs/document.md")
 
 Literate.ConvertMarkdownFile(docPynb, outputKind = OutputKind.Pynb)
 

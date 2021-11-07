@@ -45,7 +45,7 @@ module MultipleAttributesModule =
 [<TestAttribute>]
 type AttributeInterface =
     [<TestAttribute>]
-    abstract TestMember : int -> int -> int
+    abstract TestMember: int -> int -> int
 
 [<TestAttribute>]
 type AttributeClass() =

@@ -97,7 +97,17 @@ The `categoryindex` determines the ordering of categories.
 The `index` determines the ordering of within each category.
 The `title` is used in the navigation bar instead of any title inferred from the document.
 
+## Link Translation for Inputs
 
+If an input is used in markdown as a target of a markdown direct link then that is replaced by the output file. For example:
+
+    [Some Text](some-file.md)
+
+becomes
+
+    [Some Text](some-file.html)
+
+if `some-file.md` is one of the inputs.
 
 ## Multi-language Content
 

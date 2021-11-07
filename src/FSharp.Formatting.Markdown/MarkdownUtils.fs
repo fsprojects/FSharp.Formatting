@@ -76,7 +76,9 @@ module internal MarkdownUtils =
           /// Additional replacements to be made in content
           Substitutions: Substitutions
           /// Helper to resolve `cref:T:TypeName` references in markdown
-          ResolveApiDocReference: string -> (string * string) option
+          CodeReferenceResolver: string -> (string * string) option
+          /// Helper to resolve `[foo](file.md)` references in markdown (where file.md is producing file.fsx)
+          MarkdownDirectLinkResolver: string -> string option
           DefineSymbol: string }
 
     /// Format a MarkdownSpan
@@ -215,28 +217,34 @@ module internal MarkdownUtils =
         SimpleTemplating.ApplySubstitutionsInText ctx.Substitutions text
 
     let applyCodeReferenceResolver ctx (code, range) =
-        match ctx.ResolveApiDocReference code with
+        match ctx.CodeReferenceResolver code with
         | None -> InlineCode(code, range)
         | Some (niceName, link) -> DirectLink([ Literal(niceName, range) ], link, None, range)
 
-    let mapText (f, _) text = f text
-    let mapInlineCode (_, f) (code, range) = f (code, range)
+    let applyDirectLinkResolver ctx link =
+        match ctx.MarkdownDirectLinkResolver link with
+        | None -> link
+        | Some newLink -> newLink
 
-    let rec mapSpans f (md: MarkdownSpans) =
+    let mapText (f, _, _) text = f text
+    let mapInlineCode (_, f, _) (code, range) = f (code, range)
+    let mapDirectLink (fText, _, fLink) text = fLink (fText text)
+
+    let rec mapSpans fs (md: MarkdownSpans) =
         md
         |> List.map (function
-            | Literal (text, range) -> Literal(mapText f text, range)
-            | Strong (spans, range) -> Strong(mapSpans f spans, range)
-            | Emphasis (spans, range) -> Emphasis(mapSpans f spans, range)
-            | AnchorLink (link, range) -> AnchorLink(mapText f link, range)
+            | Literal (text, range) -> Literal(mapText fs text, range)
+            | Strong (spans, range) -> Strong(mapSpans fs spans, range)
+            | Emphasis (spans, range) -> Emphasis(mapSpans fs spans, range)
+            | AnchorLink (link, range) -> AnchorLink(mapText fs link, range)
             | DirectLink (spans, link, title, range) ->
-                DirectLink(mapSpans f spans, mapText f link, Option.map (mapText f) title, range)
-            | IndirectLink (spans, original, key, range) -> IndirectLink(mapSpans f spans, original, key, range)
+                DirectLink(mapSpans fs spans, mapDirectLink fs link, Option.map (mapText fs) title, range)
+            | IndirectLink (spans, original, key, range) -> IndirectLink(mapSpans fs spans, original, key, range)
             | DirectImage (body, link, title, range) ->
-                DirectImage(mapText f body, mapText f link, Option.map (mapText f) title, range)
-            | IndirectImage (body, original, key, range) -> IndirectImage(mapText f body, original, key, range)
+                DirectImage(mapText fs body, mapText fs link, Option.map (mapText fs) title, range)
+            | IndirectImage (body, original, key, range) -> IndirectImage(mapText fs body, original, key, range)
             | HardLineBreak (range) -> HardLineBreak(range)
-            | InlineCode (code, range) -> mapInlineCode f (code, range)
+            | InlineCode (code, range) -> mapInlineCode fs (code, range)
 
             // NOTE: substitutions not applied to Latex math, embedded spans or inline code
             | LatexInlineMath (code, range) -> LatexInlineMath(code, range)
@@ -275,4 +283,4 @@ module internal MarkdownUtils =
                 EmbedParagraphs(customParagraphs, range))
 
     let applySubstitutionsInMarkdown ctx md =
-        mapParagraphs (applySubstitutionsInText ctx, applyCodeReferenceResolver ctx) md
+        mapParagraphs (applySubstitutionsInText ctx, applyCodeReferenceResolver ctx, applyDirectLinkResolver ctx) md

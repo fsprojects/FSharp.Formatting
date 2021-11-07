@@ -58,7 +58,7 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.Literate"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FSharp.Formatting.CSharpFormat", "src\FSharp.Formatting.CSharpFormat\FSharp.Formatting.CSharpFormat.csproj", "{9AB3650B-CC24-4404-A175-A573DA928475}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "FSharp.Formatting.CommandTool", "src\FSharp.Formatting.CommandTool\FSharp.Formatting.CommandTool.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "fsdocs-tool", "src\fsdocs-tool\fsdocs-tool.fsproj", "{D30F7F2B-A4E3-4A07-A1BD-ED3EB21768F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{8D44B659-E9F7-4CE4-B5DA-D37CDDCD2525}"
 	ProjectSection(SolutionItems) = preProject

@@ -53,7 +53,7 @@ module Nested =
     let f4 x : OtherType = x * 5
 
 type ITest_Issue229 =
-    abstract member Name : string
+    abstract member Name: string
 
 type Test_Issue229(name) =
     /// instance comment
@@ -65,7 +65,7 @@ type Test_Issue229(name) =
 
 type Test_Issue287() =
     /// Function Foo!
-    abstract member Foo : int -> unit
+    abstract member Foo: int -> unit
     /// Empty function for signature
     default x.Foo a = ()
 

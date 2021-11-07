@@ -37,8 +37,7 @@ let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
 
-let projectRepo =
-    "https://github.com/fsprojects/FSharp.Formatting"
+let projectRepo = "https://github.com/fsprojects/FSharp.Formatting"
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
@@ -124,7 +123,7 @@ Target.create "GenerateDocs" (fun _ ->
          + artifactsDir
          + " --tool-path "
          + artifactsDir
-         + " FSharp.Formatting.CommandTool")
+         + " fsdocs-tool")
     |> ignore
 
     CreateProcess.fromRawCommand
@@ -138,7 +137,7 @@ Target.create "GenerateDocs" (fun _ ->
     |> Proc.run
     |> ignore
     // DotNet.exec id "fsdocs" "build --strict --clean --properties Configuration=Release" |> ignore
-    // DotNet.exec id "tool" "uninstall --local FSharp.Formatting.CommandTool" |> ignore
+    // DotNet.exec id "tool" "uninstall --local fsdocs-tool" |> ignore
     Shell.cleanDir ".packages")
 
 Target.create "All" ignore

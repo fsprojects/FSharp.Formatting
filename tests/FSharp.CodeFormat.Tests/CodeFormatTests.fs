@@ -56,7 +56,7 @@ let ``Simple code snippet is formatted with tool tips`` () =
 
 // Note: 'nameof' will not be in preview forever, so this test may need to be updated in the future
 [<Test>]
-let ``Preview language feature from FSharp Core is supported`` () =
+let ``nameof language feature from FSharp Core is supported`` () =
     let source =
         """
 let x = 12

@@ -254,8 +254,7 @@ open System.IO
 For example the `cref:M:FSharp.Formatting.ApiDocs.ApiDocs.GenerateHtml` method:
 *)
 
-let file =
-    Path.Combine(root, "bin/YourLibrary.dll")
+let file = Path.Combine(root, "bin/YourLibrary.dll")
 
 let input = ApiDocInput.FromFile(file)
 

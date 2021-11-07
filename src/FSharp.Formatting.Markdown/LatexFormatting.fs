@@ -260,12 +260,13 @@ and formatParagraphs ctx paragraphs =
 /// Format Markdown document and write the result to
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatMarkdown writer links replacements newline crefResolver paragraphs =
+let formatAsLatex writer links replacements newline crefResolver mdlinkResolver paragraphs =
     let ctx =
         { Links = links
           Substitutions = replacements
           Newline = newline
-          ResolveApiDocReference = crefResolver
+          CodeReferenceResolver = crefResolver
+          MarkdownDirectLinkResolver = mdlinkResolver
           DefineSymbol = "LATEX" }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs

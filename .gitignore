@@ -43,3 +43,5 @@ tmp
 *.binlog
 version.props
 src/Common/AssemblyInfo.?s
+tests/FSharp.Literate.Tests/output1/
+.vscode/

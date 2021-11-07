@@ -35,12 +35,13 @@ let rec formatParagraphs ctx paragraphs =
         let cells = cell :: others
         cells
 
-let formatAsPynb links replacements newline crefResolver paragraphs =
+let formatAsPynb links replacements newline crefResolver mdlinkResolver paragraphs =
     let ctx =
         { Links = links
           Substitutions = replacements
           Newline = newline
-          ResolveApiDocReference = crefResolver
+          CodeReferenceResolver = crefResolver
+          MarkdownDirectLinkResolver = mdlinkResolver
           DefineSymbol = "IPYNB" }
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs

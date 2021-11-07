@@ -1,4 +1,4 @@
-namespace FSharp.Formatting.CommandTool
+namespace fsdocs
 
 open System
 open System.IO

@@ -749,7 +749,7 @@ let ``Parsing simple script and markdown produces the same result`` () =
 let ``Code and HTML is formatted with a tooltip in Markdown file using substitution in HTML template`` () =
     let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
-    let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
+    let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple2.md"
 
     use temp = new TempFile()
     Literate.ConvertMarkdownFile(simpleMd, templateHtml, temp.File)
@@ -763,7 +763,7 @@ let ``Code and HTML is formatted with a tooltip in Markdown file using substitut
 let ``Code and HTML is formatted with a tooltip in F# Script file using substitution in HTML template`` () =
     let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
-    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple1.fsx"
 
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
@@ -777,7 +777,7 @@ let ``Code and HTML is formatted with a tooltip in F# Script file using substitu
 let ``Substitutions apply to correct parts of inputs`` () =
     let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
-    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple1.fsx"
 
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
@@ -785,58 +785,58 @@ let ``Substitutions apply to correct parts of inputs`` () =
     temp.Content
     |> shouldContainText "dont-substitute-in-inline-code: <code>{{fsdocs-source-basename}}</code>"
 
-    temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
+    temp.Content |> shouldContainText "substitute-in-template filename: simple1.fsx"
 
-    temp.Content |> shouldContainText "substitute-in-template basename: simple"
+    temp.Content |> shouldContainText "substitute-in-template basename: simple1"
 
-    temp.Content |> shouldContainText "substitute-in-markdown: simple" // check substitutions are made in markdown
+    temp.Content |> shouldContainText "substitute-in-markdown: simple1" // check substitutions are made in markdown
 
-    temp.Content |> shouldContainText "http://substitute-in-link: simple" // check substitutions are made in links
+    temp.Content |> shouldContainText "http://substitute-in-link: simple1" // check substitutions are made in links
 
-    temp.Content |> shouldContainText "substitute-in-href-text: simple" // check substitutions are made in href text
+    temp.Content |> shouldContainText "substitute-in-href-text: simple1" // check substitutions are made in href text
 
-    temp.Content |> shouldContainText "substitute-in-fsx-code: simple" // check substitutions are made in FSX code
+    temp.Content |> shouldContainText "substitute-in-fsx-code: simple1" // check substitutions are made in FSX code
 
 [<Test>]
 let ``Filename substitutions are correct`` () =
     let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
-    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple1.fsx"
 
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File)
 
-    temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
+    temp.Content |> shouldContainText "substitute-in-template filename: simple1.fsx"
 
-    temp.Content |> shouldContainText "substitute-in-template basename: simple"
+    temp.Content |> shouldContainText "substitute-in-template basename: simple1"
 
 [<Test>]
 let ``Filename substitutions are correct with relative path`` () =
     let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
-    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple1.fsx"
 
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File, rootInputFolder = (__SOURCE_DIRECTORY__ </> "files"))
 
-    temp.Content |> shouldContainText "substitute-in-template filename: simple.fsx"
+    temp.Content |> shouldContainText "substitute-in-template filename: simple1.fsx"
 
-    temp.Content |> shouldContainText "substitute-in-template basename: simple"
+    temp.Content |> shouldContainText "substitute-in-template basename: simple1"
 
 [<Test>]
 let ``Filename substitutions are correct with relative path 2`` () =
     let templateHtml = __SOURCE_DIRECTORY__ </> "files/template.html"
 
-    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple1.fsx"
 
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, templateHtml, temp.File, rootInputFolder = __SOURCE_DIRECTORY__)
 
     temp.Content
-    |> shouldContainText "substitute-in-template filename: files/simple.fsx"
+    |> shouldContainText "substitute-in-template filename: files/simple1.fsx"
 
     temp.Content
-    |> shouldContainText "substitute-in-template basename: files/simple"
+    |> shouldContainText "substitute-in-template basename: files/simple1"
 
 // --------------------------------------------------------------------------------------
 // Test processing simple files using the NuGet included templates
@@ -853,7 +853,7 @@ let info =
 let ``Can process fsx file using HTML template`` () =
     let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../docs/_template.html"
 
-    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple.fsx"
+    let simpleFsx = __SOURCE_DIRECTORY__ </> "files/simple1.fsx"
 
     use temp = new TempFile()
     Literate.ConvertScriptFile(simpleFsx, docPageTemplate, temp.File, substitutions = info)
@@ -866,7 +866,7 @@ let ``Can process fsx file using HTML template`` () =
 let ``Can process md file using HTML template`` () =
     let docPageTemplate = __SOURCE_DIRECTORY__ </> "../../docs/_template.html"
 
-    let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple.md"
+    let simpleMd = __SOURCE_DIRECTORY__ </> "files/simple2.md"
 
     use temp = new TempFile()
     Literate.ConvertMarkdownFile(simpleMd, docPageTemplate, temp.File, substitutions = info)
@@ -948,6 +948,54 @@ let test = 42
     tips |> shouldContainText "test : int"
     html |> shouldNotContainText "test : int"
     html |> shouldContainText "hello"
+
+[<Test>]
+let ``Formatted script transforms markdown links`` () =
+    let content =
+        """(**
+[hello](A.fsx)
+*)
+let test = 42
+"""
+
+    let doc = Literate.ParseScriptString(content, "." </> "A.fsx", getFormatAgent ())
+
+    let doc2 = Literate.FormatLiterateNodes(doc, outputKind = OutputKind.Html)
+
+    let html =
+        Literate.ToHtml(
+            doc2.With(formattedTips = ""),
+            mdlinkResolver =
+                (fun s ->
+                    if s = "A.fsx" then
+                        Some "A.html"
+                    else
+                        None)
+        )
+
+    html |> shouldContainText "A.html"
+
+[<Test>]
+let ``Formatted markdown transforms markdown links`` () =
+    let content =
+        """
+[hello](A.md)
+"""
+
+    let doc = Literate.ParseMarkdownString(content, "." </> "A.md", getFormatAgent ())
+
+    let html =
+        Literate.ToHtml(
+            doc.With(formattedTips = ""),
+            mdlinkResolver =
+                (fun s ->
+                    if s = "A.md" then
+                        Some "A.html"
+                    else
+                        None)
+        )
+
+    html |> shouldContainText "A.html"
 
 
 [<Test>]

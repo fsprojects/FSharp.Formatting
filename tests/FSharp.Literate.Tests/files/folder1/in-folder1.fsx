@@ -10,8 +10,10 @@ substitute-in-markdown: {{fsdocs-source-basename}}
 
 [ABC](http://substitute-in-link: {{fsdocs-source-basename}})
 [substitute-in-href-text: {{fsdocs-source-basename}}](http://google.com)
+
+Another [hyperlink](../folder2/in-folder2.md)
+
 *)
 let hello = "Code sample"
 
-let goodbye =
-    "substitute-in-fsx-code: {{fsdocs-source-basename}}"
+let goodbye = "substitute-in-fsx-code: {{fsdocs-source-basename}}"

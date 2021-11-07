@@ -7,11 +7,11 @@ storage: none
 nuget FSharp.Core >= 4.7 lowest_matching:true
 nuget FSharp.Compiler.Service 40.0.0
 nuget CommandLineParser ~> 2.8
-nuget Microsoft.Build.Framework copy_local: false
-nuget Microsoft.Build.Tasks.Core copy_local: false
-nuget Microsoft.Build.Utilities.Core copy_local: false
-nuget Ionide.ProjInfo
-nuget Ionide.ProjInfo.Sln
+nuget Microsoft.Build.Framework
+nuget Microsoft.Build.Tasks.Core
+nuget Microsoft.Build.Utilities.Core
+nuget Ionide.ProjInfo 0.53.1
+nuget Ionide.ProjInfo.Sln 0.53.1
 nuget Newtonsoft.Json
 nuget Suave
 nuget System.Memory

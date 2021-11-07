@@ -1406,7 +1406,7 @@ module internal SymbolReader =
               Substitutions = substitutions }
 
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
-        let compiledName = (^a: (member CompiledName : string) (s))
+        let compiledName = (^a: (member CompiledName: string) (s))
 
         match compiledName = s.DisplayName with
         | true -> None
@@ -1506,7 +1506,7 @@ module internal SymbolReader =
                 ]
 
             // op_XYZ operators
-            | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
+            | _, false, _, name, _ when PrettyNaming.IsOperatorName v.CompiledName ->
                 match argInfos with
                 // binary operators (taking a tuple)
                 | [ [ x; y ] ] ->

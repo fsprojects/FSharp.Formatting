@@ -82,12 +82,13 @@ type Markdown internal () =
 
     /// Transform the provided MarkdownDocument into HTML
     /// format and write the result to a given writer.
-    static member WriteHtml(doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver) =
+    static member WriteHtml(doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        HtmlFormatting.formatMarkdown
+        HtmlFormatting.formatAsHtml
             writer
             false
             false
@@ -95,11 +96,20 @@ type Markdown internal () =
             substitutions
             newline
             crefResolver
+            mdlinkResolver
             doc.Paragraphs
 
     /// Transform Markdown text into HTML format. The result
     /// will be written to the provided TextWriter.
-    static member WriteHtml(markdownText: string, writer: TextWriter, ?newline, ?substitutions, ?crefResolver) =
+    static member WriteHtml
+        (
+            markdownText: string,
+            writer: TextWriter,
+            ?newline,
+            ?substitutions,
+            ?crefResolver,
+            ?mdlinkResolver
+        ) =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
         Markdown.WriteHtml(
@@ -107,35 +117,68 @@ type Markdown internal () =
             writer,
             ?newline = newline,
             ?substitutions = substitutions,
-            ?crefResolver = crefResolver
+            ?crefResolver = crefResolver,
+            ?mdlinkResolver = mdlinkResolver
         )
 
     /// Transform the provided MarkdownDocument into HTML
     /// format and return the result as a string.
-    static member ToHtml(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver) =
+    static member ToHtml(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
-        Markdown.WriteHtml(doc, wr, ?newline = newline, ?substitutions = substitutions, ?crefResolver = crefResolver)
+
+        Markdown.WriteHtml(
+            doc,
+            wr,
+            ?newline = newline,
+            ?substitutions = substitutions,
+            ?crefResolver = crefResolver,
+            ?mdlinkResolver = mdlinkResolver
+        )
+
         sb.ToString()
 
     /// Transform Markdown document into HTML format.
     /// The result will be returned as a string.
-    static member ToHtml(markdownText: string, ?newline, ?substitutions, ?crefResolver) =
+    static member ToHtml(markdownText: string, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
-        Markdown.ToHtml(doc, ?newline = newline, ?substitutions = substitutions, ?crefResolver = crefResolver)
+        Markdown.ToHtml(
+            doc,
+            ?newline = newline,
+            ?substitutions = substitutions,
+            ?crefResolver = crefResolver,
+            ?mdlinkResolver = mdlinkResolver
+        )
 
     /// Transform the provided MarkdownDocument into LaTeX
     /// format and write the result to a given writer.
-    static member WriteLatex(doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver) =
+    static member WriteLatex(doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
-        LatexFormatting.formatMarkdown writer doc.DefinedLinks substitutions newline crefResolver doc.Paragraphs
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+
+        LatexFormatting.formatAsLatex
+            writer
+            doc.DefinedLinks
+            substitutions
+            newline
+            crefResolver
+            mdlinkResolver
+            doc.Paragraphs
 
     /// Transform Markdown document into LaTeX format. The result
     /// will be written to the provided TextWriter.
-    static member WriteLatex(markdownText, writer: TextWriter, ?newline, ?substitutions, ?crefResolver) =
+    static member WriteLatex
+        (
+            markdownText,
+            writer: TextWriter,
+            ?newline,
+            ?substitutions,
+            ?crefResolver,
+            ?mdlinkResolver
+        ) =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
         Markdown.WriteLatex(
@@ -143,40 +186,66 @@ type Markdown internal () =
             writer,
             ?newline = newline,
             ?substitutions = substitutions,
-            ?crefResolver = crefResolver
+            ?crefResolver = crefResolver,
+            ?mdlinkResolver = mdlinkResolver
         )
 
     /// Transform the provided MarkdownDocument into LaTeX
     /// format and return the result as a string.
-    static member ToLatex(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver) =
+    static member ToLatex(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
-        Markdown.WriteLatex(doc, wr, ?newline = newline, ?substitutions = substitutions, ?crefResolver = crefResolver)
+
+        Markdown.WriteLatex(
+            doc,
+            wr,
+            ?newline = newline,
+            ?substitutions = substitutions,
+            ?crefResolver = crefResolver,
+            ?mdlinkResolver = mdlinkResolver
+        )
+
         sb.ToString()
 
     /// Transform Markdown text into LaTeX format. The result will be returned as a string.
-    static member ToLatex(markdownText: string, ?newline, ?substitutions, ?crefResolver) =
+    static member ToLatex(markdownText: string, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
-        Markdown.ToLatex(doc, ?newline = newline, ?substitutions = substitutions, ?crefResolver = crefResolver)
+        Markdown.ToLatex(
+            doc,
+            ?newline = newline,
+            ?substitutions = substitutions,
+            ?crefResolver = crefResolver,
+            ?mdlinkResolver = mdlinkResolver
+        )
 
     /// Transform the provided MarkdownDocument into Pynb and return the result as a string.
-    static member ToPynb(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver) =
+    static member ToPynb(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
-        PynbFormatting.formatAsPynb doc.DefinedLinks substitutions newline crefResolver doc.Paragraphs
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        PynbFormatting.formatAsPynb doc.DefinedLinks substitutions newline crefResolver mdlinkResolver doc.Paragraphs
 
     /// Transform the provided MarkdownDocument into Fsx and return the result as a string.
-    static member ToFsx(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver) =
+    static member ToFsx(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
-        FsxFormatting.formatAsFsx doc.DefinedLinks substitutions newline crefResolver doc.Paragraphs
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        FsxFormatting.formatAsFsx doc.DefinedLinks substitutions newline crefResolver mdlinkResolver doc.Paragraphs
 
     /// Transform the provided MarkdownDocument into Md and return the result as a string.
-    static member ToMd(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver) =
+    static member ToMd(doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
-        MarkdownFormatting.formatAsMd doc.DefinedLinks substitutions newline crefResolver doc.Paragraphs
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+
+        MarkdownFormatting.formatAsMarkdown
+            doc.DefinedLinks
+            substitutions
+            newline
+            crefResolver
+            mdlinkResolver
+            doc.Paragraphs

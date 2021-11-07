@@ -6,7 +6,7 @@ generating API documentation. F# Formatting package is used by this project and 
 To use the tool, install and use the [fsdocs](commandline.html) tool in a typical F# project with
 F# project files plus markdown and script content in the `docs` directory:
 
-    dotnet tool install FSharp.Formatting.CommandTool
+    dotnet tool install fsdocs-tool
     dotnet fsdocs build 
     dotnet fsdocs watch
 

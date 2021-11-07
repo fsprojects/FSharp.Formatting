@@ -21,7 +21,7 @@ open FSharp.Formatting.Templating
 type Literate private () =
 
     /// Build default options context for formatting literate document
-    static let formattingContext
+    static let makeFormattingContext
         (outputKind: OutputKind)
         prefix
         lineNumbers
@@ -29,6 +29,7 @@ type Literate private () =
         substitutions
         tokenKindToCss
         crefResolver
+        mdlinkResolver
         =
         let defines = [ outputKind.Extension ]
 
@@ -39,8 +40,8 @@ type Literate private () =
           OutputKind = outputKind
           GenerateHeaderAnchors = defaultArg generateAnchors false
           TokenKindToCss = tokenKindToCss
-          ResolveApiDocReference = crefResolver }
-
+          MarkdownDirectLinkResolver = mdlinkResolver
+          CodeReferenceResolver = crefResolver }
 
     /// Lookup a specified key in a dictionary, possibly
     /// ignoring newlines or spaces in the key.
@@ -242,12 +243,23 @@ type Literate private () =
             ?generateAnchors,
             ?tokenKindToCss,
             ?substitutions,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss crefResolver
+        let ctx =
+            makeFormattingContext
+                OutputKind.Html
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -257,7 +269,7 @@ type Literate private () =
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
 
-        HtmlFormatting.formatMarkdown
+        HtmlFormatting.formatAsHtml
             wr
             ctx.GenerateHeaderAnchors
             true
@@ -265,6 +277,7 @@ type Literate private () =
             substitutions
             Environment.NewLine
             crefResolver
+            mdlinkResolver
             doc.Paragraphs
 
         sb.ToString()
@@ -279,12 +292,23 @@ type Literate private () =
             ?generateAnchors,
             ?tokenKindToCss,
             ?substitutions,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        let ctx = formattingContext OutputKind.Html prefix lineNumbers generateAnchors None tokenKindToCss crefResolver
+        let ctx =
+            makeFormattingContext
+                OutputKind.Html
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -292,7 +316,7 @@ type Literate private () =
 
         let doc = MarkdownDocument(paragraphs)
 
-        HtmlFormatting.formatMarkdown
+        HtmlFormatting.formatAsHtml
             writer
             ctx.GenerateHeaderAnchors
             true
@@ -300,6 +324,7 @@ type Literate private () =
             substitutions
             Environment.NewLine
             crefResolver
+            mdlinkResolver
             doc.Paragraphs
 
     /// Format the literate document as Latex without using a template
@@ -310,14 +335,24 @@ type Literate private () =
             ?lineNumbers,
             ?generateAnchors,
             ?substitutions,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        let ctx = formattingContext OutputKind.Latex prefix lineNumbers generateAnchors None None crefResolver
+        let ctx =
+            makeFormattingContext
+                OutputKind.Latex
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                None
+                crefResolver
+                mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-
         Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
 
     /// Write the literate document as Latex without using a template
@@ -329,34 +364,40 @@ type Literate private () =
             ?lineNumbers,
             ?generateAnchors,
             ?substitutions,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
-        let ctx = formattingContext OutputKind.Latex prefix lineNumbers generateAnchors None None crefResolver
+        let ctx =
+            makeFormattingContext
+                OutputKind.Latex
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                None
+                crefResolver
+                mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-
         Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer, ?substitutions = substitutions)
 
     /// Formate the literate document as an iPython notebook
-    static member ToPynb(doc: LiterateDocument, ?substitutions, ?crefResolver) =
+    static member ToPynb(doc: LiterateDocument, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
-
-        let ctx = formattingContext OutputKind.Pynb None None None substitutions None crefResolver
-
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        let ctx = makeFormattingContext OutputKind.Pynb None None None substitutions None crefResolver mdlinkResolver
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-
         Markdown.ToPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
 
     /// Formate the literate document as an .fsx script
-    static member ToFsx(doc: LiterateDocument, ?substitutions, ?crefResolver) =
+    static member ToFsx(doc: LiterateDocument, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
-
-        let ctx = formattingContext OutputKind.Fsx None None None substitutions None crefResolver
-
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        let ctx = makeFormattingContext OutputKind.Fsx None None None substitutions None crefResolver mdlinkResolver
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-
         Markdown.ToFsx(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
 
     /// Replace literate paragraphs with plain paragraphs
@@ -368,12 +409,23 @@ type Literate private () =
             ?lineNumbers,
             ?generateAnchors,
             ?tokenKindToCss,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let outputKind = defaultArg outputKind OutputKind.Html
 
-        let ctx = formattingContext outputKind prefix lineNumbers generateAnchors None tokenKindToCss crefResolver
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                None
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         Transformations.replaceLiterateParagraphs ctx doc
 
@@ -395,10 +447,12 @@ type Literate private () =
             ?imageSaver,
             ?rootInputFolder,
             ?crefResolver,
+            ?mdlinkResolver,
             ?parseOptions
         ) =
 
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let outputKind = defaultArg outputKind OutputKind.Html
 
         let parseOptions = defaultArg parseOptions MarkdownParseOptions.AllowYamlFrontMatter
@@ -406,10 +460,8 @@ type Literate private () =
         let parseOptions =
             match outputKind with
             | OutputKind.Fsx
-            | OutputKind.Pynb ->
-                parseOptions
-                ||| MarkdownParseOptions.ParseCodeAsOther
-                ||| MarkdownParseOptions.ParseNonCodeAsOther
+            | OutputKind.Pynb -> parseOptions ||| MarkdownParseOptions.ParseCodeAsOther
+            //||| MarkdownParseOptions.ParseNonCodeAsOther
             | _ -> parseOptions
 
         let doc =
@@ -423,7 +475,15 @@ type Literate private () =
             )
 
         let ctx =
-            formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss crefResolver
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = customizeDoc customizeDocument ctx doc
         let doc = downloadImagesForDoc imageSaver doc
@@ -448,18 +508,18 @@ type Literate private () =
             ?tokenKindToCss,
             ?imageSaver,
             ?rootInputFolder,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
 
         let parseOptions =
             match outputKind with
             | Some OutputKind.Fsx
-            | Some OutputKind.Pynb ->
-                MarkdownParseOptions.ParseCodeAsOther
-                ||| MarkdownParseOptions.ParseNonCodeAsOther
+            | Some OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther
             | _ -> MarkdownParseOptions.None
 
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let outputKind = defaultArg outputKind OutputKind.Html
 
         let doc =
@@ -474,7 +534,15 @@ type Literate private () =
             )
 
         let ctx =
-            formattingContext outputKind prefix lineNumbers generateAnchors substitutions tokenKindToCss crefResolver
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                tokenKindToCss
+                crefResolver
+                mdlinkResolver
 
         let doc = customizeDoc customizeDocument ctx doc
         let doc = downloadImagesForDoc imageSaver doc
@@ -491,15 +559,25 @@ type Literate private () =
             ?lineNumbers,
             ?generateAnchors,
             ?substitutions,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let outputKind = defaultArg outputKind OutputKind.Html
 
-        let ctx = formattingContext outputKind prefix lineNumbers generateAnchors substitutions None crefResolver
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                None
+                crefResolver
+                mdlinkResolver
 
         let res = Formatting.transformDocument doc output ctx
-
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
     /// Convert a markdown file into HTML or another output kind
@@ -517,7 +595,8 @@ type Literate private () =
             ?substitutions,
             ?generateAnchors,
             ?rootInputFolder,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -536,7 +615,8 @@ type Literate private () =
                 ?generateAnchors = generateAnchors,
                 ?substitutions = substitutions (* ?customizeDocument=customizeDocument, *) ,
                 ?rootInputFolder = rootInputFolder,
-                ?crefResolver = crefResolver
+                ?crefResolver = crefResolver,
+                ?mdlinkResolver = mdlinkResolver
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
@@ -562,7 +642,8 @@ type Literate private () =
             ?substitutions,
             ?generateAnchors,
             ?rootInputFolder,
-            ?crefResolver
+            ?crefResolver,
+            ?mdlinkResolver
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -582,7 +663,8 @@ type Literate private () =
                 ?substitutions = substitutions (* ?customizeDocument=customizeDocument, *) ,
                 ?fsiEvaluator = fsiEvaluator,
                 ?rootInputFolder = rootInputFolder,
-                ?crefResolver = crefResolver
+                ?crefResolver = crefResolver,
+                ?mdlinkResolver = mdlinkResolver
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
