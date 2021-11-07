@@ -10,6 +10,9 @@
     <PackAsTool>true</PackAsTool>
     <UsesMarkdownComments>true</UsesMarkdownComments>
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
+    <Description>
+      The 'dotnet fsdocs' documentation generation tool for F# projects. Install use 'dotnet tool add fsdocs-tool'. See the project site for documentation.
+    </Description>
   </PropertyGroup>
     
   <ItemGroup>

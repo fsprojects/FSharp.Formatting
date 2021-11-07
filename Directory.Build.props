@@ -20,7 +20,7 @@
       F# code snippets, including tool tip type information and a tool for generating
       documentation from library metadata.
     </Description>
-    <Authors>Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich</Authors>
+    <Authors>Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme</Authors>
     <Copyright>Copyright 2014</Copyright>
     <PackageTags>F# fsharp formatting markdown code fssnip literate programming</PackageTags>
     <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting</RepositoryUrl>
