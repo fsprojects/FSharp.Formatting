@@ -14,11 +14,11 @@ index: 6
 #r "FSharp.Formatting.Literate.dll"
 (*** condition: fsx ***)
 #if FSX
-#r "nuget: FSharp.Formatting,{{package-version}}"
+#r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
 #endif // FSX
 (*** condition: ipynb ***)
 #if IPYNB
-#r "nuget: FSharp.Formatting,{{package-version}}"
+#r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
 #endif // IPYNB
 
 (**
