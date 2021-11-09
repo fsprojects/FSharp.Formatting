@@ -194,7 +194,7 @@ module internal MarkdownUtils =
           | OtherBlock (lines, _) -> yield! List.map fst lines
           //yield ""
           | _ ->
-              yield (sprintf "// can't yet format %0A to pynb markdown" paragraph)
+              printfn "// can't yet format %0A to pynb markdown" paragraph
               yield "" ]
 
     let formatFsxCode ctx (code: string) =
