@@ -1,3 +1,7 @@
+## 12.0.2
+
+* Remove front-matter output from notebooks
+
 ## 12.0.1
 
 * Improve package description
