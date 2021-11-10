@@ -1,3 +1,7 @@
+## 14.0.0
+
+* Fix [Getting ReturnType from ApiDocMember without Html already embedded](https://github.com/fsprojects/FSharp.Formatting/issues/708)
+
 ## 13.0.1
 
 * Skip the output folder when processing

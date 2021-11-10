@@ -159,7 +159,7 @@ type HtmlRender(model: ApiDocModel) =
                                               br []
                                           match m.ReturnInfo.ReturnType with
                                           | None -> ()
-                                          | Some rty ->
+                                          | Some (_, rty) ->
                                               span [] [
                                                   !!(if m.Kind <> ApiDocMemberKind.RecordField then
                                                          "Returns: "
@@ -206,7 +206,11 @@ type HtmlRender(model: ApiDocModel) =
                                   | None -> ()
 
                                   match m.ExtendedType with
-                                  | Some s -> p [] [ !! "Extended Type: "; embed s ]
+                                  | Some (_, extendedTypeHtml) ->
+                                      p [] [
+                                          !! "Extended Type: "
+                                          embed extendedTypeHtml
+                                      ]
                                   | _ -> ()
 
                                   if not m.Parameters.IsEmpty then
@@ -229,7 +233,7 @@ type HtmlRender(model: ApiDocModel) =
 
                                   match m.ReturnInfo.ReturnType with
                                   | None -> ()
-                                  | Some t ->
+                                  | Some (_, returnTypeHtml) ->
                                       dl [ Class "fsdocs-returns" ] [
                                           dt [] [
                                               span [ Class "fsdocs-return-name" ] [
@@ -238,7 +242,7 @@ type HtmlRender(model: ApiDocModel) =
                                                      else
                                                          "Field type: ")
                                               ]
-                                              embed t
+                                              embed returnTypeHtml
                                           ]
                                           dd [ Class "fsdocs-return-docs" ] [
                                               match m.ReturnInfo.ReturnDocs with
@@ -390,19 +394,19 @@ type HtmlRender(model: ApiDocModel) =
 
 
               match entity.AbbreviatedType with
-              | Some abbreviatedTyp ->
+              | Some (_, abbreviatedTypHtml) ->
                   dt [] [
                       !! "Abbreviation For: "
-                      embed abbreviatedTyp
+                      embed abbreviatedTypHtml
                   ]
 
               | None -> ()
 
               match entity.BaseType with
-              | Some baseType ->
+              | Some (_, baseTypeHtml) ->
                   dt [] [
                       !! "Base Type: "
-                      embed baseType
+                      embed baseTypeHtml
                   ]
               | None -> ()
 
@@ -411,19 +415,19 @@ type HtmlRender(model: ApiDocModel) =
               | l ->
                   dt [] [
                       !!("All Interfaces: ")
-                      for (i, ity) in Seq.indexed l do
+                      for (i, (_, ityHtml)) in Seq.indexed l do
                           if i <> 0 then !! ", "
-                          embed ity
+                          embed ityHtml
                   ]
 
               if entity.Symbol.IsValueType then
                   dt [] [ !!("Kind: Struct") ]
 
               match entity.DelegateSignature with
-              | Some d ->
+              | Some (_, delegateSigHtml) ->
                   dt [] [
                       !!("Delegate Signature: ")
-                      embed d
+                      embed delegateSigHtml
                   ]
               | None -> ()
 
