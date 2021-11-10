@@ -3,7 +3,7 @@ name: Build and Test and Publish (master)
 on:
   push:
     branches:
-    - master
+    - main
 
 jobs:
   build:
