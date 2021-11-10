@@ -72,19 +72,19 @@ type MarkdownRender(model: ApiDocModel) =
 
                             match m.ExtendedType with
                             | None -> ()
-                            | Some s ->
+                            | Some (_, extendedTypeHtml) ->
                                 p [ !! "Extended Type: "
-                                    embedSafe s
+                                    embedSafe extendedTypeHtml
                                     br ]
 
                             match m.ReturnInfo.ReturnType with
                             | None -> ()
-                            | Some t ->
+                            | Some (_, returnTypeHtml) ->
                                 p [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
                                            "Returns: "
                                        else
                                            "Field type: ")
-                                    embedSafe t
+                                    embedSafe returnTypeHtml
                                     br
                                     match m.ReturnInfo.ReturnDocs with
                                     | None -> ()
@@ -178,30 +178,30 @@ type MarkdownRender(model: ApiDocModel) =
                       (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ]
 
           match entity.AbbreviatedType with
-          | Some abbreviatedTyp ->
+          | Some (_, abbreviatedTyp) ->
               p [ !! "Abbreviation For: "
                   embed abbreviatedTyp ]
           | None -> ()
 
           match entity.BaseType with
-          | Some baseType -> p [ !! "Base Type: "; embed baseType ]
+          | Some (_, baseType) -> p [ !! "Base Type: "; embed baseType ]
           | None -> ()
 
           match entity.AllInterfaces with
           | [] -> ()
           | l ->
               p [ !! "All Interfaces: "
-                  for (i, ity) in Seq.indexed l do
+                  for (i, (_, interfaceTyHtml)) in Seq.indexed l do
                       if i <> 0 then !! ", "
-                      embed ity ]
+                      embed interfaceTyHtml ]
 
           if entity.Symbol.IsValueType then
               p [ !!("Kind: Struct") ]
 
           match entity.DelegateSignature with
-          | Some d ->
+          | Some (_, delegateSigHtml) ->
               p [ !!("Delegate Signature: ")
-                  embed d ]
+                  embed delegateSigHtml ]
           | None -> ()
 
           if entity.Symbol.IsProvided then

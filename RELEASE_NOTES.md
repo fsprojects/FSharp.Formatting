@@ -1,3 +1,7 @@
+## 13.0.2
+
+* Fix [Getting ReturnType from ApiDocMember without Html already embedded](https://github.com/fsprojects/FSharp.Formatting/issues/708)
+
 ## 13.0.0
 
 * Remove unused TransformAndOutputDocument from API

@@ -280,10 +280,10 @@ type ApiDocMemberDetails =
     | ApiDocMemberDetails of
         usageHtml: ApiDocHtml *
         paramTypes: (Choice<FSharpParameter, FSharpField> * string * ApiDocHtml) list *
-        returnType: ApiDocHtml option *
+        returnType: (FSharpType * ApiDocHtml) option *
         modifiers: string list *
         typars: string list *
-        baseType: ApiDocHtml option *
+        extendedType: (FSharpEntity * ApiDocHtml) option *
         location: string option *
         compiledName: string option
 
@@ -304,7 +304,7 @@ type ApiDocMember
         warn
     ) =
 
-    let (ApiDocMemberDetails (usageHtml, paramTypes, returnType, modifiers, typars, baseType, location, compiledName)) =
+    let (ApiDocMemberDetails (usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, compiledName)) =
         details
 
     let m = defaultArg symbol.DeclarationLocation range0
@@ -409,7 +409,7 @@ type ApiDocMember
     member x.SourceLocation: string option = location
 
     /// The type extended by an extension member, if any
-    member x.ExtendedType: ApiDocHtml option = baseType
+    member x.ExtendedType: (FSharpEntity * ApiDocHtml) option = extendedType
 
     /// The members details
     member x.Details = details
@@ -602,16 +602,16 @@ type ApiDocEntity
                       pats ]
 
     /// All interfaces of the type, formatted
-    member x.AllInterfaces: ApiDocHtml list = allInterfaces
+    member x.AllInterfaces: (FSharpType * ApiDocHtml) list = allInterfaces
 
     /// The base type of the type, formatted
-    member x.BaseType: ApiDocHtml option = baseType
+    member x.BaseType: (FSharpType * ApiDocHtml) option = baseType
 
     /// If this is a type abbreviation, then the abbreviated type
-    member x.AbbreviatedType: ApiDocHtml option = abbreviatedType
+    member x.AbbreviatedType: (FSharpType * ApiDocHtml) option = abbreviatedType
 
     /// If this is a delegate, then e formatted signature
-    member x.DelegateSignature: ApiDocHtml option = delegateSignature
+    member x.DelegateSignature: (FSharpDelegateSignature * ApiDocHtml) option = delegateSignature
 
     /// The constuctorsof the type
     member x.Constructors: ApiDocMember list = ctors
@@ -1644,7 +1644,10 @@ module internal SymbolReader =
                 if isUnitType retType then
                     None
                 else
-                    retTypeHtml
+                    match retTypeHtml with
+                    | None -> None
+                    | Some html -> Some (retType, html)
+
 
         //let signatureTooltip =
         //  match argInfos with
@@ -1652,10 +1655,10 @@ module internal SymbolReader =
         //  | [[x]] when (v.IsPropertyGetterMethod || v.HasGetterMethod) && x.Name.IsNone && isUnitType x.Type -> retTypeText
         //  | _  -> (formatArgsUsageAsText true v argInfos) + " -> " + retTypeText
 
-        let baseType =
+        let extendedType =
             if v.IsExtensionMember then
                 try
-                    Some(formatTyconRefAsHtml ctx.UrlMap v.ApparentEnclosingEntity |> codeHtml)
+                    Some(v.ApparentEnclosingEntity, formatTyconRefAsHtml ctx.UrlMap v.ApparentEnclosingEntity |> codeHtml)
                 with
                 | _ -> None
             else
@@ -1666,7 +1669,7 @@ module internal SymbolReader =
 
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
 
-        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, baseType, location, getCompiledName v)
+        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, getCompiledName v)
 
     let readUnionCase (ctx: ReadingContext) (_typ: FSharpEntity) (case: FSharpUnionCase) =
 
@@ -1762,7 +1765,7 @@ module internal SymbolReader =
             if isUnitType retType then
                 None
             else
-                Some retTypeHtml
+                Some (retType, retTypeHtml)
 
         let loc = tryGetLocation field
 
@@ -2695,19 +2698,19 @@ module internal SymbolReader =
 
             let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
 
-            let baseType = typ.BaseType |> Option.map (formatTypeAsHtml ctx.UrlMap >> codeHtml)
+            let baseType = typ.BaseType |> Option.map (fun bty -> bty, bty |> formatTypeAsHtml ctx.UrlMap |> codeHtml)
 
-            let allInterfaces = [ for i in typ.AllInterfaces -> formatTypeAsHtml ctx.UrlMap i |> codeHtml ]
+            let allInterfaces = [ for i in typ.AllInterfaces -> (i, formatTypeAsHtml ctx.UrlMap i |> codeHtml) ]
 
             let abbreviatedType =
                 if typ.IsFSharpAbbreviation then
-                    Some(formatTypeAsHtml ctx.UrlMap typ.AbbreviatedType |> codeHtml)
+                    Some(typ.AbbreviatedType, formatTypeAsHtml ctx.UrlMap typ.AbbreviatedType |> codeHtml)
                 else
                     None
 
             let delegateSignature =
                 if typ.IsDelegate then
-                    Some(
+                    Some(typ.FSharpDelegateSignature, 
                         formatDelegateSignatureAsHtml ctx.UrlMap typ.DisplayName typ.FSharpDelegateSignature
                         |> codeHtml
                     )
