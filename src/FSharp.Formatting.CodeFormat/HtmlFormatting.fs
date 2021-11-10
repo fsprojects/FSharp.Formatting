@@ -65,7 +65,7 @@ type ToolTipFormatter(prefix) =
 
 /// Represents context used by the formatter
 type FormattingContext =
-    { AddLines: bool
+    { GenerateLineNumbers: bool
       GenerateErrors: bool
       Writer: TextWriter
       OpenTag: string
@@ -175,7 +175,7 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
 
            // If we're adding lines, then generate two column table
            // (so that the body can be easily copied)
-           if ctx.AddLines then
+           if ctx.GenerateLineNumbers then
                ctx.Writer.Write("<table class=\"pre\">")
                ctx.Writer.Write("<tr>")
                ctx.Writer.Write("<td class=\"lines\">")
@@ -204,7 +204,7 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
 
            emitTag ctx.CloseTag
 
-           if ctx.AddLines then
+           if ctx.GenerateLineNumbers then
                // Close the table if we are adding lines
                ctx.Writer.WriteLine("</td>")
                ctx.Writer.WriteLine("</tr>")
@@ -215,11 +215,21 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
-let format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag (snippets: Snippet []) tokenKindToCss =
+let formatSnippetsAsHtml
+    lineNumbers
+    addErrors
+    prefix
+    openTag
+    closeTag
+    openLinesTag
+    closeLinesTag
+    (snippets: Snippet [])
+    tokenKindToCss
+    =
     let tipf = ToolTipFormatter prefix
 
     let ctx =
-        { AddLines = addLines
+        { GenerateLineNumbers = lineNumbers
           GenerateErrors = addErrors
           Writer = null
           FormatTip = tipf.FormatTip

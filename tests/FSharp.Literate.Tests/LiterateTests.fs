@@ -13,6 +13,8 @@
 module FSharp.Literate.Tests.Simple
 #endif
 
+open System
+open System.IO
 open FsUnit
 open FSharp.Formatting.Literate
 open FSharp.Formatting.Markdown
@@ -26,7 +28,7 @@ open FSharp.Formatting
 do TestHelpers.enableLogging ()
 
 let properNewLines (text: string) =
-    text.Replace("\r\n", System.Environment.NewLine)
+    text.Replace("\r\n", Environment.NewLine)
 
 // --------------------------------------------------------------------------------------
 // Test embedding code from a file
@@ -413,7 +415,7 @@ let ``Correctly handles Norwegian letters in SQL code block (#249)`` () =
 
     let html = Literate.ToHtml(doc)
 
-    html |> shouldContainText (sprintf ">Æøå%s<" System.Environment.NewLine)
+    html |> shouldContainText (sprintf ">Æøå%s<" Environment.NewLine)
 
 [<Test>]
 let ``Correctly handles code starting with whitespace`` () =
@@ -700,7 +702,7 @@ let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
     html1
         .Split(
             [| "fssnip" |],
-            System.StringSplitOptions.None
+            StringSplitOptions.None
         )
         .Length
     |> shouldEqual 3
@@ -708,7 +710,7 @@ let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
     html2
         .Split(
             [| "fssnip" |],
-            System.StringSplitOptions.None
+            StringSplitOptions.None
         )
         .Length
     |> shouldEqual 3
@@ -1066,13 +1068,29 @@ With some [hyperlink](http://tomasp.net)
 
     latex |> shouldContainText @"With some \href{http://tomasp.net}{hyperlink}"
 
-    latex
-    |> shouldContainText @"\begin{Verbatim}[commandchars=\\\{\}, numbers=left]"
+    latex |> shouldContainText @"\begin{lstlisting}[numbers=left]"
 
     latex
     |> shouldContainText """\kwd{let} \id{hello} \ops{=} \str{"Code sample"}"""
 
-    latex |> shouldContainText """\end{Verbatim}"""
+    latex |> shouldContainText """\end{lstlisting}"""
+
+[<Test>]
+let ``Markdown is formatted as Latex without line numbers`` () =
+    let md =
+        Literate.ParseMarkdownString(
+            """Heading
+=======
+
+```fsharp
+let hello = "Code sample"
+```
+"""
+        )
+
+    let latex = Literate.ToLatex(md, lineNumbers = false)
+    latex |> shouldNotContainText @"\begin{lstlisting}[numbers=left]"
+    latex |> shouldContainText @"\begin{lstlisting}"
 
 
 [<Test>]
@@ -1394,3 +1412,22 @@ let goodbye = 2"""
     let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
 
     fsx2 |> shouldEqual expected2
+
+[<Test>]
+let ``Script transforms to markdown`` () =
+    let outputFile = __SOURCE_DIRECTORY__ </> "output2" </> "simple1.md"
+
+    Literate.ConvertScriptFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "simple1.fsx",
+        outputKind = OutputKind.Markdown,
+        output = outputFile
+    )
+
+    let md = File.ReadAllText outputFile
+    md |> shouldContainText "# Heading"
+    md |> shouldContainText "```fsharp"
+    md |> shouldContainText "substitute-in-markdown: simple1"
+    md |> shouldContainText "[ABC](http://substitute-in-link: simple1)"
+    md |> shouldContainText "[substitute-in-href-text: simple1](http://google.com)"
+    md |> shouldContainText "Another [hyperlink](simple2.md)"
+    md |> shouldContainText "let hello ="

@@ -22,7 +22,7 @@ module internal Transformations =
     let rec collectCodeSnippets par =
         seq {
             match par with
-            | CodeBlock (code, _executionCount, language, _, _) ->
+            | CodeBlock (code, _executionCount, _fence, language, _, _) ->
                 match code with
                 | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine _code) when
                     (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp")
@@ -52,7 +52,7 @@ module internal Transformations =
     /// Note: this processes snipppets within markdown, not snippets coming from .fsx
     let rec replaceCodeSnippets (path: string) (codeLookup: IDictionary<_, _>) para =
         match para with
-        | CodeBlock (code, _executionCount, language, _, range) ->
+        | CodeBlock (code, _executionCount, _fence, language, _, range) ->
             match code with
             | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)
             | Let (dict []) (cmds, code) ->
@@ -456,6 +456,46 @@ module internal Transformations =
 
 
     /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
+    let replaceHtmlTaggedCode (ctx: LiterateProcessingContext) (lang: string) (code: string) =
+        let sb = new System.Text.StringBuilder()
+        let writer = new System.IO.StringWriter(sb)
+        writer.Write("<table class=\"pre\">")
+        writer.Write("<tr>")
+
+        if ctx.GenerateLineNumbers then
+            // Split the formatted code into lines & emit line numbers in <td>
+            // (Similar to formatSnippets in FSharp.Formatting.CodeFormat\HtmlFormatting.fs)
+            let lines =
+                code
+                    .Trim('\r', '\n')
+                    .Replace("\r\n", "\n")
+                    .Replace("\n\r", "\n")
+                    .Replace("\r", "\n")
+                    .Split('\n')
+
+            let numberLength = lines.Length.ToString().Length
+            let linesLength = lines.Length
+            writer.Write("<td class=\"lines\"><pre class=\"fssnip\">")
+
+            for index in 0 .. linesLength - 1 do
+                let lineStr = (index + 1).ToString().PadLeft(numberLength)
+
+                writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
+
+            writer.Write("</pre>")
+            writer.WriteLine("</td>")
+
+        writer.Write("<td class=\"snippet\">")
+
+        match SyntaxHighlighter.FormatCode(lang, code) with
+        | true, code ->
+            Printf.fprintf writer "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>" lang code
+        | false, code -> Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
+
+        writer.Write("</td></tr></table>")
+        sb.ToString()
+
+    /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
     let rec replaceLiterateParagraph (ctx: LiterateProcessingContext) (formatted: IDictionary<_, _>) para =
         match para with
         | MarkdownPatterns.LiterateParagraph (special) ->
@@ -488,58 +528,11 @@ module internal Transformations =
                         | LanguageTaggedCode (lang, code, _) ->
                             let inlined =
                                 match ctx.OutputKind with
-                                | OutputKind.Html ->
-                                    let sb = new System.Text.StringBuilder()
-                                    let writer = new System.IO.StringWriter(sb)
-                                    writer.Write("<table class=\"pre\">")
-                                    writer.Write("<tr>")
-
-                                    if ctx.GenerateLineNumbers then
-                                        // Split the formatted code into lines & emit line numbers in <td>
-                                        // (Similar to formatSnippets in FSharp.Formatting.CodeFormat\HtmlFormatting.fs)
-                                        let lines =
-                                            code
-                                                .Trim('\r', '\n')
-                                                .Replace("\r\n", "\n")
-                                                .Replace("\n\r", "\n")
-                                                .Replace("\r", "\n")
-                                                .Split('\n')
-
-                                        let numberLength = lines.Length.ToString().Length
-                                        let linesLength = lines.Length
-                                        writer.Write("<td class=\"lines\"><pre class=\"fssnip\">")
-
-                                        for index in 0 .. linesLength - 1 do
-                                            let lineStr = (index + 1).ToString().PadLeft(numberLength)
-
-                                            writer.WriteLine("<span class=\"l\">{0}: </span>", lineStr)
-
-                                        writer.Write("</pre>")
-                                        writer.WriteLine("</td>")
-
-                                    writer.Write("<td class=\"snippet\">")
-
-                                    match SyntaxHighlighter.FormatCode(lang, code) with
-                                    | true, code ->
-                                        Printf.fprintf
-                                            writer
-                                            "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>"
-                                            lang
-                                            code
-                                    | false, code ->
-                                        Printf.fprintf
-                                            writer
-                                            "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>"
-                                            lang
-                                            code
-
-                                    writer.Write("</td></tr></table>")
-                                    sb.ToString()
-
+                                | OutputKind.Html -> replaceHtmlTaggedCode ctx lang code
                                 | OutputKind.Latex -> sprintf "\\begin{lstlisting}\n%s\n\\end{lstlisting}" code
                                 | OutputKind.Pynb -> code
                                 | OutputKind.Fsx -> code
-                                | OutputKind.Md -> code
+                                | OutputKind.Markdown -> code
 
                             Some(InlineHtmlBlock(inlined, None, None))
         // Traverse all other structures recursively
@@ -573,17 +566,32 @@ module internal Transformations =
                     closeTag = closeTag,
                     openLinesTag = openLinesTag,
                     closeLinesTag = closeLinesTag,
-                    addLines = ctx.GenerateLineNumbers,
+                    lineNumbers = ctx.GenerateLineNumbers,
                     ?tokenKindToCss = ctx.TokenKindToCss
                 )
-            | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, addLines = ctx.GenerateLineNumbers)
+            | OutputKind.Latex ->
+                CodeFormat.FormatLatex(snippets, lineNumbers = ctx.GenerateLineNumbers, openTag = "", closeTag = "")
             | OutputKind.Pynb -> CodeFormat.FormatFsx(snippets)
             | OutputKind.Fsx -> CodeFormat.FormatFsx(snippets)
-            | OutputKind.Md -> CodeFormat.FormatFsx(snippets)
+            | OutputKind.Markdown -> CodeFormat.FormatFsx(snippets)
 
         let lookup =
             [ for (key, (_, executionCount)), fmtd in Seq.zip codes formatted.Snippets ->
-                  let block = InlineHtmlBlock(fmtd.Content, executionCount, None)
+                  let block =
+                      match ctx.OutputKind with
+                      | OutputKind.Html -> InlineHtmlBlock(fmtd.Content, executionCount, None)
+                      | OutputKind.Fsx
+                      | OutputKind.Markdown
+                      | OutputKind.Latex
+                      | OutputKind.Pynb ->
+                          CodeBlock(
+                              code = fmtd.Content,
+                              executionCount = executionCount,
+                              fence = Some "```",
+                              language = "fsharp",
+                              ignoredLine = "",
+                              range = None
+                          )
 
                   key, block ]
             |> dict

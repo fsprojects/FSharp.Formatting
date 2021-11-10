@@ -10,8 +10,8 @@ open FSharp.Formatting.Templating
 module internal MarkdownUtils =
     let isCode =
         (function
-        | CodeBlock (_, _, _, _, _)
-        | InlineHtmlBlock (_, _, _) -> true
+        | CodeBlock _
+        | InlineHtmlBlock _ -> true
         | _ -> false)
 
     let isCodeOutput =
@@ -21,14 +21,14 @@ module internal MarkdownUtils =
 
     let getExecutionCount =
         (function
-        | CodeBlock (_, executionCount, _, _, _)
-        | InlineHtmlBlock (_, executionCount, _) -> executionCount
+        | CodeBlock (executionCount = executionCount)
+        | InlineHtmlBlock (executionCount = executionCount) -> executionCount
         | _ -> None)
 
     let getCode =
         (function
-        | CodeBlock (code, _, _, _, _) -> code
-        | InlineHtmlBlock (code, _, _) -> code
+        | CodeBlock (code = code) -> code
+        | InlineHtmlBlock (code = code) -> code
         | _ -> failwith "unreachable")
 
     let getCodeOutput =
@@ -129,8 +129,17 @@ module internal MarkdownUtils =
           | HorizontalRule (_) ->
               yield "-----------------------"
               yield ""
-          | CodeBlock (code, _, _, _, _) ->
+          | CodeBlock (code = code; fence = fence; language = language) ->
+              match fence with
+              | None -> ()
+              | Some f -> yield f + language
+
               yield code
+
+              match fence with
+              | None -> ()
+              | Some f -> yield f
+
               yield ""
           | ListBlock (Unordered, paragraphs, _) ->
               yield
@@ -194,7 +203,7 @@ module internal MarkdownUtils =
           | OtherBlock (lines, _) -> yield! List.map fst lines
           //yield ""
           | _ ->
-              printfn "// can't yet format %0A to pynb markdown" paragraph
+              printfn "// can't yet format %0A to markdown" paragraph
               yield "" ]
 
     let formatFsxCode ctx (code: string) =
@@ -256,8 +265,8 @@ module internal MarkdownUtils =
         |> List.map (function
             | Heading (size, body, range) -> Heading(size, mapSpans f body, range)
             | Paragraph (body, range) -> Paragraph(mapSpans f body, range)
-            | CodeBlock (code, count, language, ignoredLine, range) ->
-                CodeBlock(mapText f code, count, language, ignoredLine, range)
+            | CodeBlock (code, count, fence, language, ignoredLine, range) ->
+                CodeBlock(mapText f code, count, fence, language, ignoredLine, range)
             | OutputBlock (output, kind, count) -> OutputBlock(output, kind, count)
             | ListBlock (kind, items, range) -> ListBlock(kind, List.map (mapParagraphs f) items, range)
             | QuotedBlock (paragraphs, range) -> QuotedBlock(mapParagraphs f paragraphs, range)

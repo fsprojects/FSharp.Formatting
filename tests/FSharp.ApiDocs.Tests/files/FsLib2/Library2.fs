@@ -148,3 +148,13 @@ module CommentExamples =
     /// <example id="double-id">this is an example with an id
     /// </example>
     let doubleExampleId () = ()
+
+    /// <summary>AAA</summary>
+    /// <example>
+    /// <code lang="fsharp">
+    /// [&lt;ReflectedDefinition&gt;]
+    ///  let f x = (x, x)
+    /// </code>
+    /// </example>
+    ///
+    let attribInCodeExample () = ()

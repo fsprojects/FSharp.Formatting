@@ -48,17 +48,18 @@ type FormattingContext =
     { LineBreak: unit -> unit
       Newline: string
       Writer: TextWriter
-      Links: IDictionary<string, string * option<string>> }
+      Links: IDictionary<string, string * option<string>>
+      GenerateLineNumbers: bool }
 
 let smallBreak (ctx: FormattingContext) () = ctx.Writer.Write(ctx.Newline)
 let noBreak (_ctx: FormattingContext) () = ()
 
 /// Write MarkdownSpan value to a TextWriter
-let rec formatSpan (ctx: FormattingContext) =
+let rec formatSpanAsLatex (ctx: FormattingContext) =
     function
     | LatexInlineMath (body, _) -> ctx.Writer.Write(sprintf "$%s$" body)
     | LatexDisplayMath (body, _) -> ctx.Writer.Write(sprintf "$$%s$$" body)
-    | EmbedSpans (cmd, _) -> formatSpans ctx (cmd.Render())
+    | EmbedSpans (cmd, _) -> formatSpansAsLatex ctx (cmd.Render())
     | Literal (str, _) -> ctx.Writer.Write(latexEncode str)
     | HardLineBreak (_) ->
         ctx.LineBreak()
@@ -71,7 +72,7 @@ let rec formatSpan (ctx: FormattingContext) =
         ctx.Writer.Write(@"\href{")
         ctx.Writer.Write(latexEncode link)
         ctx.Writer.Write("}{")
-        formatSpans ctx body
+        formatSpansAsLatex ctx body
         ctx.Writer.Write("}")
 
     | IndirectImage (body, _, LookupKey ctx.Links (link, _), _)
@@ -98,7 +99,7 @@ let rec formatSpan (ctx: FormattingContext) =
 
     | Strong (body, _) ->
         ctx.Writer.Write(@"\textbf{")
-        formatSpans ctx body
+        formatSpansAsLatex ctx body
         ctx.Writer.Write("}")
     | InlineCode (body, _) ->
         ctx.Writer.Write(@"\texttt{")
@@ -106,14 +107,14 @@ let rec formatSpan (ctx: FormattingContext) =
         ctx.Writer.Write("}")
     | Emphasis (body, _) ->
         ctx.Writer.Write(@"\emph{")
-        formatSpans ctx body
+        formatSpansAsLatex ctx body
         ctx.Writer.Write("}")
 
 /// Write list of MarkdownSpan values to a TextWriter
-and formatSpans ctx = List.iter (formatSpan ctx)
+and formatSpansAsLatex ctx = List.iter (formatSpanAsLatex ctx)
 
 /// Write a MarkdownParagraph value to a TextWriter
-let rec formatParagraph (ctx: FormattingContext) paragraph =
+let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
     match paragraph with
     | LatexBlock (env, lines, _) ->
         ctx.LineBreak()
@@ -129,7 +130,7 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
         ctx.LineBreak()
         ctx.LineBreak()
 
-    | EmbedParagraphs (cmd, _) -> formatParagraphs ctx (cmd.Render())
+    | EmbedParagraphs (cmd, _) -> formatParagraphsAsLatex ctx (cmd.Render())
     | Heading (n, spans, _) ->
         let level =
             match n with
@@ -141,7 +142,7 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
             | _ -> ""
 
         ctx.Writer.Write(level + "{")
-        formatSpans ctx spans
+        formatSpansAsLatex ctx spans
         ctx.Writer.Write("}")
         ctx.LineBreak()
     | Paragraph (spans, _) ->
@@ -149,15 +150,19 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
         ctx.LineBreak()
 
         for span in spans do
-            formatSpan ctx span
+            formatSpanAsLatex ctx span
 
     | HorizontalRule (_) ->
         // Reference from http://tex.stackexchange.com/q/19579/9623
         ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
         ctx.LineBreak()
 
-    | CodeBlock (code, _, _, _, _) ->
+    | CodeBlock (code, _, _, _, _, _) -> // TODO: could format output better using language
         ctx.Writer.Write(@"\begin{lstlisting}")
+
+        if ctx.GenerateLineNumbers then
+            ctx.Writer.WriteLine(@"[numbers=left]")
+
         ctx.LineBreak()
         ctx.Writer.Write(code)
         ctx.LineBreak()
@@ -166,6 +171,10 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
 
     | OutputBlock (code, _kind, _executionCount) -> // TODO: could format output better using kind
         ctx.Writer.Write(@"\begin{lstlisting}")
+
+        if ctx.GenerateLineNumbers then
+            ctx.Writer.WriteLine(@"[numbers=left]")
+
         ctx.LineBreak()
         ctx.Writer.Write(code)
         ctx.LineBreak()
@@ -192,7 +201,7 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
             |> Seq.iteri (fun i cell ->
                 if i <> 0 then ctx.Writer.Write(" & ")
                 ctx.Writer.Write(prefix)
-                cell |> List.iter (formatParagraph bodyCtx)
+                cell |> List.iter (formatParagraphAsLatex bodyCtx)
                 ctx.Writer.Write(postfix))
 
         for header in Option.toList headers do
@@ -220,7 +229,7 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
 
         for body in items do
             ctx.Writer.Write(@"\item ")
-            body |> List.iter (formatParagraph ctx)
+            body |> List.iter (formatParagraphAsLatex ctx)
             ctx.LineBreak()
 
         ctx.Writer.Write(@"\end{" + tag + "}")
@@ -229,14 +238,18 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
     | QuotedBlock (body, _) ->
         ctx.Writer.Write(@"\begin{quote}")
         ctx.LineBreak()
-        formatParagraphs ctx body
+        formatParagraphsAsLatex ctx body
         ctx.Writer.Write(@"\end{quote}")
         ctx.LineBreak()
 
-    | Span (spans, _) -> formatSpans ctx spans
+    | Span (spans, _) -> formatSpansAsLatex ctx spans
     | InlineHtmlBlock (code, _executionCount, _) -> ctx.Writer.Write(code)
     | OtherBlock (code, _) ->
         ctx.Writer.Write(@"\begin{lstlisting}")
+
+        if ctx.GenerateLineNumbers then
+            ctx.Writer.WriteLine(@"[numbers=left]")
+
         ctx.LineBreak()
 
         for (code, _) in code do
@@ -250,17 +263,17 @@ let rec formatParagraph (ctx: FormattingContext) paragraph =
     ctx.LineBreak()
 
 /// Write a list of MarkdownParagraph values to a TextWriter
-and formatParagraphs ctx paragraphs =
+and formatParagraphsAsLatex ctx paragraphs =
     let length = List.length paragraphs
     let ctx = { ctx with LineBreak = smallBreak ctx }
 
     for _last, paragraph in paragraphs |> Seq.mapi (fun i v -> (i = length - 1), v) do
-        formatParagraph ctx paragraph
+        formatParagraphAsLatex ctx paragraph
 
 /// Format Markdown document and write the result to
 /// a specified TextWriter. Parameters specify newline character
 /// and a dictionary with link keys defined in the document.
-let formatAsLatex writer links replacements newline crefResolver mdlinkResolver paragraphs =
+let formatAsLatex writer links replacements newline crefResolver mdlinkResolver lineNumbers paragraphs =
     let ctx =
         { Links = links
           Substitutions = replacements
@@ -271,9 +284,10 @@ let formatAsLatex writer links replacements newline crefResolver mdlinkResolver 
 
     let paragraphs = applySubstitutionsInMarkdown ctx paragraphs
 
-    formatParagraphs
+    formatParagraphsAsLatex
         { Writer = writer
           Links = links
           Newline = newline
-          LineBreak = ignore }
+          LineBreak = ignore
+          GenerateLineNumbers = lineNumbers }
         paragraphs

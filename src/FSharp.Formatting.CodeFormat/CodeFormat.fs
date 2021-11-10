@@ -79,7 +79,7 @@ type CodeFormat =
             prefix,
             ?openTag,
             ?closeTag,
-            ?addLines,
+            ?lineNumbers,
             ?openLinesTag,
             ?closeLinesTag,
             ?addErrors,
@@ -90,13 +90,22 @@ type CodeFormat =
         let closeTag = defaultArg closeTag "</pre>"
         let openLinesTag = defaultArg openLinesTag openTag
         let closeLinesTag = defaultArg closeLinesTag closeTag
-        let addLines = defaultArg addLines true
+        let lineNumbers = defaultArg lineNumbers true
         let addErrors = defaultArg addErrors false
 
         let tokenKindToCss = defaultArg tokenKindToCss CodeFormatHelper.defaultTokenMap
 
         let snip, tip =
-            Html.format addLines addErrors prefix openTag closeTag openLinesTag closeLinesTag snippets tokenKindToCss
+            Html.formatSnippetsAsHtml
+                lineNumbers
+                addErrors
+                prefix
+                openTag
+                closeTag
+                openLinesTag
+                closeLinesTag
+                snippets
+                tokenKindToCss
 
         let snip = [| for key, h in snip -> FormattedSnippet(key, h) |]
 
@@ -104,12 +113,12 @@ type CodeFormat =
 
     /// Formats the .fsx snippets as LaTeX. The parameters specify prefix for LaTeX tags, whether lines should
     /// be added to outputs.
-    static member FormatLatex(snippets, ?openTag, ?closeTag, ?addLines) =
-        let addLines = defaultArg addLines true
+    static member FormatLatex(snippets, ?openTag, ?closeTag, ?lineNumbers) =
+        let lineNumbers = defaultArg lineNumbers true
         let openTag = defaultArg openTag @"\begin{Verbatim}"
         let closeTag = defaultArg closeTag @"\end{Verbatim}"
 
-        let snips = Latex.format addLines openTag closeTag snippets
+        let snips = Latex.formatSnippetsAsLatex lineNumbers openTag closeTag snippets
 
         let snips = Array.map FormattedSnippet snips
         FormattedContent(snips, "")

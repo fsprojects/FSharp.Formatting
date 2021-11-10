@@ -34,7 +34,7 @@ let latexEncode s =
 
 /// Represents context used by the formatter
 type FormattingContext =
-    { AddLines: bool
+    { GenerateLineNumbers: bool
       Writer: TextWriter
       OpenTag: string
       CloseTag: string }
@@ -97,10 +97,10 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
                ctx.Writer.Write(ctx.OpenTag)
 
            // Line numbers belong to the tag
-           if ctx.AddLines then
-               ctx.Writer.WriteLine(@"[commandchars=\\\{\}, numbers=left]")
+           if ctx.GenerateLineNumbers then
+               ctx.Writer.WriteLine(@"[escapeinside=\\\{\}, numbers=left]")
            else
-               ctx.Writer.WriteLine(@"[commandchars=\\\{\}]")
+               ctx.Writer.WriteLine(@"[escapeinside=\\\{\}]")
 
            // Print all lines of the snippet
            lines
@@ -119,9 +119,9 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
 
 /// Format snippets and return LaTEX for <pre> tags together
 /// (to be added to the end of document)
-let format addLines openTag closeTag (snippets: Snippet []) =
+let formatSnippetsAsLatex lineNumbers openTag closeTag (snippets: Snippet []) =
     let ctx =
-        { AddLines = addLines
+        { GenerateLineNumbers = lineNumbers
           Writer = null
           OpenTag = openTag
           CloseTag = closeTag }

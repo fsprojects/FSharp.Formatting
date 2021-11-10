@@ -486,7 +486,7 @@ let (|NestedCodeBlock|_|) lines =
                   else
                       trimSpaces 4 l ]
 
-        Some(code @ [ "" ], takenLines, rest, "", "")
+        Some(code @ [ "" ], takenLines, rest, None, "", "")
     | _ -> None
 
 /// Recognizes a fenced code block - starting and ending with at least ``` or ~~~
@@ -497,7 +497,7 @@ let (|FencedCodeBlock|_|) lines =
     | (StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace "`" (Let "`" (start, num), indent, header) as takenLine) :: lines when
         num > 2
         ->
-        let mutable endStr = String.replicate num start
+        let mutable fenceString = String.replicate num start
 
         if header.Contains(start) then
             None // info string cannot contain backspaces
@@ -511,19 +511,22 @@ let (|FencedCodeBlock|_|) lines =
                     | StringPosition.StartsWithNTimesTrimIgnoreStartWhitespace start (n, i, h) :: _ when
                         n >= num && i < 4 && String.IsNullOrWhiteSpace h
                         ->
-                        endStr <- String.replicate n start
+                        fenceString <- String.replicate n start
                         true
                     | _ -> false)
 
-            let handleIndent (l: string) =
-                if l.Length <= indent && String.IsNullOrWhiteSpace l then
+            let handleIndent (codeLine: string) =
+                if codeLine.Length <= indent && String.IsNullOrWhiteSpace codeLine then
                     ""
-                elif l.Length > indent && String.IsNullOrWhiteSpace(l.Substring(0, indent)) then
-                    l.Substring(indent, l.Length - indent)
+                elif
+                    codeLine.Length > indent
+                    && String.IsNullOrWhiteSpace(codeLine.Substring(0, indent))
+                then
+                    codeLine.Substring(indent, codeLine.Length - indent)
                 else
-                    l.TrimStart()
+                    codeLine.TrimStart()
 
-            let codeWithoutIndent = [ for (l, _n) in codeLines -> handleIndent l ]
+            let codeWithoutIndent = [ for (codeLine, _n) in codeLines -> handleIndent codeLine ]
 
             // langString is the part after ``` and ignoredString is the rest until the line ends.
             let langString, ignoredString =
@@ -544,14 +547,14 @@ let (|FencedCodeBlock|_|) lines =
                              ignoredString)
 
             // Handle the ending line
-            let takenLines2, codeWithoutEnding, rest =
+            let takenLines2, codeWithoutIndent, rest =
                 match rest with
                 | ((hd, n) as takenLine2) :: tl ->
-                    let idx = hd.IndexOf(endStr)
+                    let idx = hd.IndexOf(fenceString)
 
-                    if idx > -1 && idx + endStr.Length <= hd.Length then
+                    if idx > -1 && idx + fenceString.Length <= hd.Length then
                         let _pre = hd.Substring(0, idx)
-                        let after = hd.Substring(idx + endStr.Length)
+                        let after = hd.Substring(idx + fenceString.Length)
 
                         [ takenLine2 ],
                         codeWithoutIndent @ [ "" ],
@@ -563,7 +566,14 @@ let (|FencedCodeBlock|_|) lines =
                         [ takenLine2 ], codeWithoutIndent @ [ "" ], tl
                 | _ -> [], codeWithoutIndent, rest
 
-            Some(codeWithoutEnding, (takenLine :: codeLines @ takenLines2), rest, langString, ignoredString)
+            Some(
+                codeWithoutIndent,
+                (takenLine :: codeLines @ takenLines2),
+                rest,
+                Some fenceString,
+                langString,
+                ignoredString
+            )
     | _ -> None
 
 /// Matches when the input starts with a number. Returns the
@@ -1071,13 +1081,23 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | NestedCodeBlock (code, takenLines, Lines.TrimBlankStart (takenLines2, lines), langString, ignoredLine)
-        | FencedCodeBlock (code, takenLines, Lines.TrimBlankStart (takenLines2, lines), langString, ignoredLine) ->
+        | NestedCodeBlock (code,
+                           takenLines,
+                           Lines.TrimBlankStart (takenLines2, lines),
+                           fenceString,
+                           langString,
+                           ignoredLine)
+        | FencedCodeBlock (code,
+                           takenLines,
+                           Lines.TrimBlankStart (takenLines2, lines),
+                           fenceString,
+                           langString,
+                           ignoredLine) ->
             if ctx.ParseCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
                 let code = code |> String.concat ctx.Newline
-                yield CodeBlock(code, None, langString, ignoredLine, ctx.CurrentRange)
+                yield CodeBlock(code, None, fenceString, langString, ignoredLine, ctx.CurrentRange)
 
             yield! parseParagraphs ctx lines
 

@@ -5,6 +5,7 @@ open System.Reflection
 open System.Collections.Generic
 open System.Text
 open System.IO
+open System.Web
 open System.Xml
 open System.Xml.Linq
 
@@ -1953,9 +1954,10 @@ module internal SymbolReader =
                     html.Append("</p>") |> ignore
                 | "paramref" ->
                     let name = elem.Attribute(XName.Get "name")
+                    let nameAsHtml = HttpUtility.HtmlEncode name.Value
 
                     if name <> null then
-                        html.AppendFormat("<span class=\"fsdocs-param-name\">{0}</span>", name.Value)
+                        html.AppendFormat("<span class=\"fsdocs-param-name\">{0}</span>", nameAsHtml)
                         |> ignore
                 | "see"
                 | "seealso" ->
@@ -1980,17 +1982,22 @@ module internal SymbolReader =
                             |> ignore
                         | _ ->
                             urlMap.ResolveCref cname |> ignore
-                            html.AppendFormat("{0}", cref.Value) |> ignore
+                            //let crefAsHtml = HttpUtility.HtmlEncode cref.Value
+                            html.Append(cref.Value) |> ignore
                 | "c" ->
                     html.Append("<code>") |> ignore
 
-                    html.Append(elem.Value.TrimEnd('\r', '\n', ' ')) |> ignore
+                    let code = elem.Value.TrimEnd('\r', '\n', ' ')
+                    let codeAsHtml = HttpUtility.HtmlEncode code
+                    html.Append(codeAsHtml) |> ignore
 
                     html.Append("</code>") |> ignore
                 | "code" ->
                     html.Append("<pre>") |> ignore
 
-                    html.Append(elem.Value.TrimEnd('\r', '\n', ' ')) |> ignore
+                    let code = elem.Value.TrimEnd('\r', '\n', ' ')
+                    let codeAsHtml = HttpUtility.HtmlEncode code
+                    html.Append(codeAsHtml) |> ignore
 
                     html.Append("</pre>") |> ignore
                 // 'a' is not part of the XML doc standard but is widely used
@@ -1998,7 +2005,8 @@ module internal SymbolReader =
                 // This allows any HTML to be transferred through
                 | _ ->
                     if anyTagsOK then
-                        html.Append(elem.ToString()) |> ignore
+                        let elemAsXml = elem.ToString()
+                        html.Append(elemAsXml) |> ignore
 
     let readXmlCommentAsHtmlAux
         summaryExpected

@@ -18,7 +18,7 @@ module internal Formatting =
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver
             )
-        | OutputKind.Md ->
+        | OutputKind.Markdown ->
             Markdown.ToMd(
                 doc,
                 substitutions = substitutions,
@@ -75,7 +75,7 @@ module internal Formatting =
     /// entire source code of the specified document (with possible fsx formatting)
     let getSourceDocument (doc: LiterateDocument) =
         match doc.Source with
-        | LiterateSource.Markdown text -> doc.With(paragraphs = [ CodeBlock(text, None, "", "", None) ])
+        | LiterateSource.Markdown text -> doc.With(paragraphs = [ CodeBlock(text, None, None, "", "", None) ])
         | LiterateSource.Script snippets ->
             let mutable count = 0
 
