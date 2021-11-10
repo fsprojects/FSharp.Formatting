@@ -2244,7 +2244,10 @@ module internal SymbolReader =
 
     let combineComments (c1: ApiDocComment) (c2: ApiDocComment) =
         ApiDocComment(
-            xmldoc = (match c1.Xml with None -> c2.Xml | v -> v),
+            xmldoc =
+                (match c1.Xml with
+                 | None -> c2.Xml
+                 | v -> v),
             summary = combineHtml c1.Summary c2.Summary,
             remarks = combineHtmlOptions c1.Remarks c2.Remarks,
             parameters = c1.Parameters @ c2.Parameters,
