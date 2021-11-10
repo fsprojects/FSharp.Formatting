@@ -1,8 +1,12 @@
+## 13.0.1
+
+* Skip the output folder when processing
+
 ## 13.0.0
 
 * Remove unused TransformAndOutputDocument from API
 * Fixes Can't yet format InlineHtmlBlock #723
-* Fixes `<code>` blocks are emitting <pre> blocks with escapes no longer escaped #712
+* Fixes `<code>` blocks are emitting `<pre>` blocks with escapes no longer escaped #712
 
 ## 12.0.2
 

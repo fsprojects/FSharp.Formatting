@@ -78,6 +78,12 @@ type internal DocContent
         let outputFileFullPath = Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFileRelativeToRoot))
         outputFileRelativeToRoot, outputFileFullPath
 
+    // Check if a sub-folder is actually the output directory
+    let subFolderIsOutput subInputFolderFullPath =
+        let subFolderFullPath = Path.GetFullPath(subInputFolderFullPath)
+        let rootOutputFolderFullPath = Path.GetFullPath(rootOutputFolderAsGiven)
+        (subFolderFullPath = rootOutputFolderFullPath)
+
     let allCultures =
         System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.AllCultures)
         |> Array.map (fun x -> x.TwoLetterISOLanguageName)
@@ -144,14 +150,16 @@ type internal DocContent
               yield! prepFile input OutputKind.Fsx outputFolderRelativeToRoot
               yield! prepFile input OutputKind.Markdown outputFolderRelativeToRoot
 
-          for subdir in Directory.EnumerateDirectories(inputFolderAsGiven) do
-              let subFolderName = Path.GetFileName(subdir)
+          for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
+              let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
+              let subFolderIsSkipped = subInputFolderName.StartsWith "."
+              let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
-              if not (subFolderName.StartsWith ".") then
+              if not subFolderIsOutput && not subFolderIsSkipped then
                   yield!
                       prepFolder
-                          (Path.Combine(inputFolderAsGiven, subFolderName))
-                          (Path.Combine(outputFolderRelativeToRoot, subFolderName)) ]
+                          (Path.Combine(inputFolderAsGiven, subInputFolderName))
+                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName)) ]
 
     let processFile
         rootInputFolder
@@ -467,8 +475,11 @@ type internal DocContent
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
+              let subFolderIsSkipped = subInputFolderName.StartsWith "."
+              let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
-              if subInputFolderName.StartsWith "." then
+              if subFolderIsOutput || subFolderIsSkipped then
+
                   printfn "  skipping directory %s" subInputFolderFullPath
               else
                   yield!
