@@ -206,7 +206,11 @@ type HtmlRender(model: ApiDocModel) =
                                   | None -> ()
 
                                   match m.ExtendedType with
-                                  | Some (_, extendedTypeHtml) -> p [] [ !! "Extended Type: "; embed extendedTypeHtml ]
+                                  | Some (_, extendedTypeHtml) ->
+                                      p [] [
+                                          !! "Extended Type: "
+                                          embed extendedTypeHtml
+                                      ]
                                   | _ -> ()
 
                                   if not m.Parameters.IsEmpty then

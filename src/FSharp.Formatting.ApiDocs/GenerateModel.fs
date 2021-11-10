@@ -1646,7 +1646,7 @@ module internal SymbolReader =
                 else
                     match retTypeHtml with
                     | None -> None
-                    | Some html -> Some (retType, html)
+                    | Some html -> Some(retType, html)
 
 
         //let signatureTooltip =
@@ -1658,7 +1658,10 @@ module internal SymbolReader =
         let extendedType =
             if v.IsExtensionMember then
                 try
-                    Some(v.ApparentEnclosingEntity, formatTyconRefAsHtml ctx.UrlMap v.ApparentEnclosingEntity |> codeHtml)
+                    Some(
+                        v.ApparentEnclosingEntity,
+                        formatTyconRefAsHtml ctx.UrlMap v.ApparentEnclosingEntity |> codeHtml
+                    )
                 with
                 | _ -> None
             else
@@ -1669,7 +1672,16 @@ module internal SymbolReader =
 
         let location = formatSourceLocation ctx.UrlRangeHighlight ctx.SourceFolderRepository loc
 
-        ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, getCompiledName v)
+        ApiDocMemberDetails(
+            usageHtml,
+            paramTypes,
+            returnType,
+            modifiers,
+            typars,
+            extendedType,
+            location,
+            getCompiledName v
+        )
 
     let readUnionCase (ctx: ReadingContext) (_typ: FSharpEntity) (case: FSharpUnionCase) =
 
@@ -1765,7 +1777,7 @@ module internal SymbolReader =
             if isUnitType retType then
                 None
             else
-                Some (retType, retTypeHtml)
+                Some(retType, retTypeHtml)
 
         let loc = tryGetLocation field
 
@@ -2698,7 +2710,9 @@ module internal SymbolReader =
 
             let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
 
-            let baseType = typ.BaseType |> Option.map (fun bty -> bty, bty |> formatTypeAsHtml ctx.UrlMap |> codeHtml)
+            let baseType =
+                typ.BaseType
+                |> Option.map (fun bty -> bty, bty |> formatTypeAsHtml ctx.UrlMap |> codeHtml)
 
             let allInterfaces = [ for i in typ.AllInterfaces -> (i, formatTypeAsHtml ctx.UrlMap i |> codeHtml) ]
 
@@ -2710,7 +2724,8 @@ module internal SymbolReader =
 
             let delegateSignature =
                 if typ.IsDelegate then
-                    Some(typ.FSharpDelegateSignature, 
+                    Some(
+                        typ.FSharpDelegateSignature,
                         formatDelegateSignatureAsHtml ctx.UrlMap typ.DisplayName typ.FSharpDelegateSignature
                         |> codeHtml
                     )
