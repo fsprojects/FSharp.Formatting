@@ -518,7 +518,10 @@ let (|FencedCodeBlock|_|) lines =
             let handleIndent (codeLine: string) =
                 if codeLine.Length <= indent && String.IsNullOrWhiteSpace codeLine then
                     ""
-                elif codeLine.Length > indent && String.IsNullOrWhiteSpace(codeLine.Substring(0, indent)) then
+                elif
+                    codeLine.Length > indent
+                    && String.IsNullOrWhiteSpace(codeLine.Substring(0, indent))
+                then
                     codeLine.Substring(indent, codeLine.Length - indent)
                 else
                     codeLine.TrimStart()
@@ -563,7 +566,14 @@ let (|FencedCodeBlock|_|) lines =
                         [ takenLine2 ], codeWithoutIndent @ [ "" ], tl
                 | _ -> [], codeWithoutIndent, rest
 
-            Some(codeWithoutIndent, (takenLine :: codeLines @ takenLines2), rest, Some fenceString, langString, ignoredString)
+            Some(
+                codeWithoutIndent,
+                (takenLine :: codeLines @ takenLines2),
+                rest,
+                Some fenceString,
+                langString,
+                ignoredString
+            )
     | _ -> None
 
 /// Matches when the input starts with a number. Returns the
@@ -1071,8 +1081,18 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | NestedCodeBlock (code, takenLines, Lines.TrimBlankStart (takenLines2, lines), fenceString, langString, ignoredLine)
-        | FencedCodeBlock (code, takenLines, Lines.TrimBlankStart (takenLines2, lines), fenceString, langString, ignoredLine) ->
+        | NestedCodeBlock (code,
+                           takenLines,
+                           Lines.TrimBlankStart (takenLines2, lines),
+                           fenceString,
+                           langString,
+                           ignoredLine)
+        | FencedCodeBlock (code,
+                           takenLines,
+                           Lines.TrimBlankStart (takenLines2, lines),
+                           fenceString,
+                           langString,
+                           ignoredLine) ->
             if ctx.ParseCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else

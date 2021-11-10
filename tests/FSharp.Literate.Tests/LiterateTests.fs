@@ -1068,8 +1068,7 @@ With some [hyperlink](http://tomasp.net)
 
     latex |> shouldContainText @"With some \href{http://tomasp.net}{hyperlink}"
 
-    latex
-    |> shouldContainText @"\begin{lstlisting}[numbers=left]"
+    latex |> shouldContainText @"\begin{lstlisting}[numbers=left]"
 
     latex
     |> shouldContainText """\kwd{let} \id{hello} \ops{=} \str{"Code sample"}"""
@@ -1089,7 +1088,7 @@ let hello = "Code sample"
 """
         )
 
-    let latex = Literate.ToLatex(md, lineNumbers=false)
+    let latex = Literate.ToLatex(md, lineNumbers = false)
     latex |> shouldNotContainText @"\begin{lstlisting}[numbers=left]"
     latex |> shouldContainText @"\begin{lstlisting}"
 
@@ -1417,7 +1416,13 @@ let goodbye = 2"""
 [<Test>]
 let ``Script transforms to markdown`` () =
     let outputFile = __SOURCE_DIRECTORY__ </> "output2" </> "simple1.md"
-    Literate.ConvertScriptFile(__SOURCE_DIRECTORY__ </> "files" </> "simple1.fsx", outputKind = OutputKind.Markdown, output = outputFile)
+
+    Literate.ConvertScriptFile(
+        __SOURCE_DIRECTORY__ </> "files" </> "simple1.fsx",
+        outputKind = OutputKind.Markdown,
+        output = outputFile
+    )
+
     let md = File.ReadAllText outputFile
     md |> shouldContainText "# Heading"
     md |> shouldContainText "```fsharp"

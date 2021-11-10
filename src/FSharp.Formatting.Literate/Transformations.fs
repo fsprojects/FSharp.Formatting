@@ -489,17 +489,8 @@ module internal Transformations =
 
         match SyntaxHighlighter.FormatCode(lang, code) with
         | true, code ->
-            Printf.fprintf
-                writer
-                "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>"
-                lang
-                code
-        | false, code ->
-            Printf.fprintf
-                writer
-                "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>"
-                lang
-                code
+            Printf.fprintf writer "<pre class=\"fssnip highlighted\"><code lang=\"%s\">%s</code></pre>" lang code
+        | false, code -> Printf.fprintf writer "<pre class=\"fssnip\"><code lang=\"%s\">%s</code></pre>" lang code
 
         writer.Write("</td></tr></table>")
         sb.ToString()
@@ -578,30 +569,31 @@ module internal Transformations =
                     lineNumbers = ctx.GenerateLineNumbers,
                     ?tokenKindToCss = ctx.TokenKindToCss
                 )
-            | OutputKind.Latex -> CodeFormat.FormatLatex(snippets, lineNumbers = ctx.GenerateLineNumbers, openTag="", closeTag="")
+            | OutputKind.Latex ->
+                CodeFormat.FormatLatex(snippets, lineNumbers = ctx.GenerateLineNumbers, openTag = "", closeTag = "")
             | OutputKind.Pynb -> CodeFormat.FormatFsx(snippets)
             | OutputKind.Fsx -> CodeFormat.FormatFsx(snippets)
             | OutputKind.Markdown -> CodeFormat.FormatFsx(snippets)
 
         let lookup =
             [ for (key, (_, executionCount)), fmtd in Seq.zip codes formatted.Snippets ->
-                let block =
-                    match ctx.OutputKind with
-                    | OutputKind.Html ->
-                        InlineHtmlBlock(fmtd.Content, executionCount, None)
-                    | OutputKind.Fsx
-                    | OutputKind.Markdown
-                    | OutputKind.Latex
-                    | OutputKind.Pynb ->
-                        CodeBlock(
-                            code=fmtd.Content,
-                            executionCount=executionCount,
-                            fence=Some "```",
-                            language="fsharp",
-                            ignoredLine="",
-                            range=None
-                        )
-                key, block ]
+                  let block =
+                      match ctx.OutputKind with
+                      | OutputKind.Html -> InlineHtmlBlock(fmtd.Content, executionCount, None)
+                      | OutputKind.Fsx
+                      | OutputKind.Markdown
+                      | OutputKind.Latex
+                      | OutputKind.Pynb ->
+                          CodeBlock(
+                              code = fmtd.Content,
+                              executionCount = executionCount,
+                              fence = Some "```",
+                              language = "fsharp",
+                              ignoredLine = "",
+                              range = None
+                          )
+
+                  key, block ]
             |> dict
 
         // Replace original snippets with formatted HTML/Latex and return document

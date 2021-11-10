@@ -215,7 +215,17 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
 
 /// Format snippets and return HTML for <pre> tags together
 /// wtih HTML for ToolTips (to be added to the end of document)
-let formatSnippetsAsHtml lineNumbers addErrors prefix openTag closeTag openLinesTag closeLinesTag (snippets: Snippet []) tokenKindToCss =
+let formatSnippetsAsHtml
+    lineNumbers
+    addErrors
+    prefix
+    openTag
+    closeTag
+    openLinesTag
+    closeLinesTag
+    (snippets: Snippet [])
+    tokenKindToCss
+    =
     let tipf = ToolTipFormatter prefix
 
     let ctx =

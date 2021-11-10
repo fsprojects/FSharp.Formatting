@@ -156,5 +156,5 @@ module CommentExamples =
     ///  let f x = (x, x)
     /// </code>
     /// </example>
-    /// 
-    let attribInCodeExample() = ()
+    ///
+    let attribInCodeExample () = ()

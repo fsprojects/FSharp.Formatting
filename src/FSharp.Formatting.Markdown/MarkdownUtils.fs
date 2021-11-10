@@ -21,14 +21,14 @@ module internal MarkdownUtils =
 
     let getExecutionCount =
         (function
-        | CodeBlock (executionCount=executionCount)
-        | InlineHtmlBlock (executionCount=executionCount) -> executionCount
+        | CodeBlock (executionCount = executionCount)
+        | InlineHtmlBlock (executionCount = executionCount) -> executionCount
         | _ -> None)
 
     let getCode =
         (function
-        | CodeBlock (code=code) -> code
-        | InlineHtmlBlock (code=code) -> code
+        | CodeBlock (code = code) -> code
+        | InlineHtmlBlock (code = code) -> code
         | _ -> failwith "unreachable")
 
     let getCodeOutput =
@@ -129,14 +129,17 @@ module internal MarkdownUtils =
           | HorizontalRule (_) ->
               yield "-----------------------"
               yield ""
-          | CodeBlock (code=code; fence=fence; language=language) ->
+          | CodeBlock (code = code; fence = fence; language = language) ->
               match fence with
               | None -> ()
               | Some f -> yield f + language
+
               yield code
+
               match fence with
               | None -> ()
               | Some f -> yield f
+
               yield ""
           | ListBlock (Unordered, paragraphs, _) ->
               yield

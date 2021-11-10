@@ -96,7 +96,16 @@ type CodeFormat =
         let tokenKindToCss = defaultArg tokenKindToCss CodeFormatHelper.defaultTokenMap
 
         let snip, tip =
-            Html.formatSnippetsAsHtml lineNumbers addErrors prefix openTag closeTag openLinesTag closeLinesTag snippets tokenKindToCss
+            Html.formatSnippetsAsHtml
+                lineNumbers
+                addErrors
+                prefix
+                openTag
+                closeTag
+                openLinesTag
+                closeLinesTag
+                snippets
+                tokenKindToCss
 
         let snip = [| for key, h in snip -> FormattedSnippet(key, h) |]
 

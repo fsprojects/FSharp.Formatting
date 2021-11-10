@@ -49,7 +49,7 @@ type FormattingContext =
       Newline: string
       Writer: TextWriter
       Links: IDictionary<string, string * option<string>>
-      GenerateLineNumbers: bool}
+      GenerateLineNumbers: bool }
 
 let smallBreak (ctx: FormattingContext) () = ctx.Writer.Write(ctx.Newline)
 let noBreak (_ctx: FormattingContext) () = ()
@@ -159,8 +159,10 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
 
     | CodeBlock (code, _, _, _, _, _) -> // TODO: could format output better using language
         ctx.Writer.Write(@"\begin{lstlisting}")
+
         if ctx.GenerateLineNumbers then
             ctx.Writer.WriteLine(@"[numbers=left]")
+
         ctx.LineBreak()
         ctx.Writer.Write(code)
         ctx.LineBreak()
@@ -169,8 +171,10 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
 
     | OutputBlock (code, _kind, _executionCount) -> // TODO: could format output better using kind
         ctx.Writer.Write(@"\begin{lstlisting}")
+
         if ctx.GenerateLineNumbers then
             ctx.Writer.WriteLine(@"[numbers=left]")
+
         ctx.LineBreak()
         ctx.Writer.Write(code)
         ctx.LineBreak()
@@ -242,8 +246,10 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
     | InlineHtmlBlock (code, _executionCount, _) -> ctx.Writer.Write(code)
     | OtherBlock (code, _) ->
         ctx.Writer.Write(@"\begin{lstlisting}")
+
         if ctx.GenerateLineNumbers then
             ctx.Writer.WriteLine(@"[numbers=left]")
+
         ctx.LineBreak()
 
         for (code, _) in code do
