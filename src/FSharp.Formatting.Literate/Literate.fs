@@ -27,21 +27,21 @@ type Literate private () =
         lineNumbers
         generateAnchors
         substitutions
-        tokenKindToCss
         crefResolver
         mdlinkResolver
+        tokenKindToCss
         =
         let defines = [ outputKind.Extension ]
 
-        { Substitutions = defaultArg substitutions []
+        { Substitutions = substitutions
           GenerateLineNumbers = defaultArg lineNumbers true
           Prefix = defaultArg prefix "fs"
           ConditionalDefines = defines
           OutputKind = outputKind
           GenerateHeaderAnchors = defaultArg generateAnchors false
-          TokenKindToCss = tokenKindToCss
           MarkdownDirectLinkResolver = mdlinkResolver
-          CodeReferenceResolver = crefResolver }
+          CodeReferenceResolver = crefResolver
+          TokenKindToCss = tokenKindToCss }
 
     /// Lookup a specified key in a dictionary, possibly
     /// ignoring newlines or spaces in the key.
@@ -71,7 +71,7 @@ type Literate private () =
             | MarkdownPatterns.ParagraphLeaf p -> MarkdownPatterns.ParagraphLeaf p)
 
 
-    static let parsingContext formatAgent evaluator fscOptions definedSymbols =
+    static let parsingContext evaluator fscOptions definedSymbols onError =
         let definedSymbols = defaultArg definedSymbols []
 
         let extraDefines =
@@ -80,26 +80,16 @@ type Literate private () =
               // when formatting or executing.
               "prepare" ]
 
-        let agent =
-            match formatAgent with
-            | Some agent -> agent
-            | _ -> CodeFormat.CreateAgent()
-
-        { FormatAgent = agent
-          CompilerOptions = fscOptions
+        { CompilerOptions = fscOptions
           Evaluator = evaluator
-          ConditionalDefines = (definedSymbols @ extraDefines) }
+          ConditionalDefines = (definedSymbols @ extraDefines)
+          OnError = onError }
 
     /// Get default output file name, given various information
     static let defaultOutput outputPath input (outputKind: OutputKind) =
         match outputPath with
         | Some out -> out
         | None -> Path.ChangeExtension(input, outputKind.Extension)
-
-    static let customizeDoc customizeDocument ctx doc =
-        match customizeDocument with
-        | Some c -> c ctx doc
-        | None -> doc
 
     static let downloadImagesForDoc imageSaver (doc: LiterateDocument) =
         match imageSaver with
@@ -113,20 +103,21 @@ type Literate private () =
     static member ParseAndCheckScriptFile
         (
             path: string,
-            ?formatAgent,
             ?fscOptions,
             ?definedSymbols,
             ?references,
             ?fsiEvaluator,
             ?parseOptions,
-            ?rootInputFolder
+            ?rootInputFolder,
+            ?onError
         ) =
-        let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext fsiEvaluator fscOptions definedSymbols onError
 
         let rootInputFolder = Some(defaultArg rootInputFolder (Path.GetDirectoryName(path)))
 
         ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder)
+            .ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets path ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -136,15 +127,16 @@ type Literate private () =
         (
             content,
             ?path,
-            ?formatAgent,
             ?fscOptions,
             ?definedSymbols,
             ?references,
             ?fsiEvaluator,
             ?parseOptions,
-            ?rootInputFolder
+            ?rootInputFolder,
+            ?onError
         ) =
-        let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext fsiEvaluator fscOptions definedSymbols onError
 
         let filePath =
             match path with
@@ -155,7 +147,7 @@ type Literate private () =
                 | Some r -> Path.Combine(r, "script.fsx")
 
         ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(filePath, content, rootInputFolder)
+            .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -164,7 +156,6 @@ type Literate private () =
     ///  Parse Markdown document to LiterateDocument
     /// </summary>
     /// <param name="path"></param>
-    /// <param name="formatAgent"></param>
     /// <param name="fscOptions"></param>
     /// <param name="definedSymbols"></param>
     /// <param name="references"></param>
@@ -174,15 +165,16 @@ type Literate private () =
     static member ParseMarkdownFile
         (
             path: string,
-            ?formatAgent,
             ?fscOptions,
             ?definedSymbols,
             ?references,
             ?fsiEvaluator,
             ?parseOptions,
-            ?rootInputFolder
+            ?rootInputFolder,
+            ?onError
         ) =
-        let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext fsiEvaluator fscOptions definedSymbols onError
 
         let rootInputFolder = Some(defaultArg rootInputFolder (Path.GetDirectoryName(path)))
 
@@ -196,7 +188,6 @@ type Literate private () =
     /// </summary>
     /// <param name="content"></param>
     /// <param name="path">optional file path for debugging purposes</param>
-    /// <param name="formatAgent"></param>
     /// <param name="fscOptions"></param>
     /// <param name="definedSymbols"></param>
     /// <param name="references"></param>
@@ -207,15 +198,16 @@ type Literate private () =
         (
             content,
             ?path,
-            ?formatAgent,
             ?fscOptions,
             ?definedSymbols,
             ?references,
             ?fsiEvaluator,
             ?parseOptions,
-            ?rootInputFolder
+            ?rootInputFolder,
+            ?onError
         ) =
-        let ctx = parsingContext formatAgent fsiEvaluator fscOptions definedSymbols
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext fsiEvaluator fscOptions definedSymbols onError
 
         let filePath =
             match path with
@@ -241,10 +233,10 @@ type Literate private () =
             ?prefix,
             ?lineNumbers,
             ?generateAnchors,
-            ?tokenKindToCss,
             ?substitutions,
             ?crefResolver,
-            ?mdlinkResolver
+            ?mdlinkResolver,
+            ?tokenKindToCss
         ) =
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
@@ -256,10 +248,10 @@ type Literate private () =
                 prefix
                 lineNumbers
                 generateAnchors
-                None
-                tokenKindToCss
+                []
                 crefResolver
                 mdlinkResolver
+                tokenKindToCss
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -290,10 +282,10 @@ type Literate private () =
             ?prefix,
             ?lineNumbers,
             ?generateAnchors,
-            ?tokenKindToCss,
             ?substitutions,
             ?crefResolver,
-            ?mdlinkResolver
+            ?mdlinkResolver,
+            ?tokenKindToCss
         ) =
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
@@ -305,10 +297,10 @@ type Literate private () =
                 prefix
                 lineNumbers
                 generateAnchors
-                None
-                tokenKindToCss
+                []
                 crefResolver
                 mdlinkResolver
+                tokenKindToCss
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -336,7 +328,8 @@ type Literate private () =
             ?generateAnchors,
             ?substitutions,
             ?crefResolver,
-            ?mdlinkResolver
+            ?mdlinkResolver,
+            ?tokenKindToCss
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
@@ -347,10 +340,10 @@ type Literate private () =
                 prefix
                 lineNumbers
                 generateAnchors
-                None
-                None
+                []
                 crefResolver
                 mdlinkResolver
+                tokenKindToCss
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -370,7 +363,8 @@ type Literate private () =
             ?generateAnchors,
             ?substitutions,
             ?crefResolver,
-            ?mdlinkResolver
+            ?mdlinkResolver,
+            ?tokenKindToCss
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
@@ -381,10 +375,10 @@ type Literate private () =
                 prefix
                 lineNumbers
                 generateAnchors
-                None
-                None
+                []
                 crefResolver
                 mdlinkResolver
+                tokenKindToCss
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -399,74 +393,39 @@ type Literate private () =
     static member ToPynb(doc: LiterateDocument, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let ctx = makeFormattingContext OutputKind.Pynb None None None substitutions None crefResolver mdlinkResolver
+        let substitutions = defaultArg substitutions []
+        let ctx = makeFormattingContext OutputKind.Pynb None None None substitutions crefResolver mdlinkResolver None
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-        Markdown.ToPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
+        Markdown.ToPynb(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), substitutions = substitutions)
 
     /// Formate the literate document as an .fsx script
     static member ToFsx(doc: LiterateDocument, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let ctx = makeFormattingContext OutputKind.Fsx None None None substitutions None crefResolver mdlinkResolver
+        let substitutions = defaultArg substitutions []
+        let ctx = makeFormattingContext OutputKind.Fsx None None None substitutions crefResolver mdlinkResolver None
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-        Markdown.ToFsx(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
-
-    /// Replace literate paragraphs with plain paragraphs
-    static member internal FormatLiterateNodes
-        (
-            doc: LiterateDocument,
-            ?outputKind,
-            ?prefix,
-            ?lineNumbers,
-            ?generateAnchors,
-            ?tokenKindToCss,
-            ?crefResolver,
-            ?mdlinkResolver
-        ) =
-        let crefResolver = defaultArg crefResolver (fun _ -> None)
-        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let outputKind = defaultArg outputKind OutputKind.Html
-
-        let ctx =
-            makeFormattingContext
-                outputKind
-                prefix
-                lineNumbers
-                generateAnchors
-                None
-                tokenKindToCss
-                crefResolver
-                mdlinkResolver
-
-        Transformations.replaceLiterateParagraphs ctx doc
+        Markdown.ToFsx(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), substitutions = substitutions)
 
     /// Parse and transform a markdown document
     static member internal ParseAndTransformMarkdownFile
         (
             input,
-            ?output,
-            ?outputKind,
-            ?formatAgent,
-            ?prefix,
-            ?fscOptions,
-            ?lineNumbers,
-            ?references,
-            ?substitutions,
-            ?generateAnchors,
-            ?customizeDocument,
-            ?tokenKindToCss,
-            ?imageSaver,
-            ?rootInputFolder,
-            ?crefResolver,
-            ?mdlinkResolver,
-            ?parseOptions
+            output,
+            outputKind,
+            prefix,
+            fscOptions,
+            lineNumbers,
+            references,
+            substitutions,
+            generateAnchors,
+            imageSaver,
+            rootInputFolder,
+            crefResolver,
+            mdlinkResolver,
+            parseOptions,
+            onError
         ) =
-
-        let crefResolver = defaultArg crefResolver (fun _ -> None)
-        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let outputKind = defaultArg outputKind OutputKind.Html
-
-        let parseOptions = defaultArg parseOptions MarkdownParseOptions.AllowYamlFrontMatter
 
         let parseOptions =
             match outputKind with
@@ -479,11 +438,11 @@ type Literate private () =
         let doc =
             Literate.ParseMarkdownFile(
                 input,
-                ?formatAgent = formatAgent,
                 ?fscOptions = fscOptions,
                 ?references = references,
                 parseOptions = parseOptions,
-                ?rootInputFolder = rootInputFolder
+                ?rootInputFolder = rootInputFolder,
+                ?onError = onError
             )
 
         let ctx =
@@ -493,56 +452,49 @@ type Literate private () =
                 lineNumbers
                 generateAnchors
                 substitutions
-                tokenKindToCss
                 crefResolver
                 mdlinkResolver
+                None
 
-        let doc = customizeDoc customizeDocument ctx doc
         let doc = downloadImagesForDoc imageSaver doc
-        let outputPath = defaultOutput output input outputKind
-        Formatting.transformDocument doc outputPath ctx
+        let docModel = Formatting.transformDocument doc output ctx
+        docModel
 
     /// Parse and transform an F# script file
     static member internal ParseAndTransformScriptFile
         (
             input,
-            ?output,
-            ?outputKind,
-            ?formatAgent,
-            ?prefix,
-            ?fscOptions,
-            ?lineNumbers,
-            ?references,
-            ?fsiEvaluator,
-            ?substitutions,
-            ?generateAnchors,
-            ?customizeDocument,
-            ?tokenKindToCss,
-            ?imageSaver,
-            ?rootInputFolder,
-            ?crefResolver,
-            ?mdlinkResolver
+            output,
+            outputKind,
+            prefix,
+            fscOptions,
+            lineNumbers,
+            references,
+            fsiEvaluator,
+            substitutions,
+            generateAnchors,
+            imageSaver,
+            rootInputFolder,
+            crefResolver,
+            mdlinkResolver,
+            onError
         ) =
 
         let parseOptions =
             match outputKind with
-            | Some OutputKind.Fsx
-            | Some OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther
+            | OutputKind.Fsx
+            | OutputKind.Pynb -> MarkdownParseOptions.ParseCodeAsOther
             | _ -> MarkdownParseOptions.None
-
-        let crefResolver = defaultArg crefResolver (fun _ -> None)
-        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let outputKind = defaultArg outputKind OutputKind.Html
 
         let doc =
             Literate.ParseAndCheckScriptFile(
                 input,
-                ?formatAgent = formatAgent,
                 ?fscOptions = fscOptions,
                 ?references = references,
                 ?fsiEvaluator = fsiEvaluator,
                 parseOptions = parseOptions,
-                ?rootInputFolder = rootInputFolder
+                ?rootInputFolder = rootInputFolder,
+                ?onError = onError
             )
 
         let ctx =
@@ -552,14 +504,13 @@ type Literate private () =
                 lineNumbers
                 generateAnchors
                 substitutions
-                tokenKindToCss
                 crefResolver
                 mdlinkResolver
+                None
 
-        let doc = customizeDoc customizeDocument ctx doc
         let doc = downloadImagesForDoc imageSaver doc
-        let outputPath = defaultOutput output input outputKind
-        Formatting.transformDocument doc outputPath ctx
+        let docModel = Formatting.transformDocument doc output ctx
+        docModel
 
     /// Convert a markdown file into HTML or another output kind
     static member ConvertMarkdownFile
@@ -568,36 +519,42 @@ type Literate private () =
             ?template,
             ?output,
             ?outputKind,
-            ?formatAgent,
             ?prefix,
             ?fscOptions,
             ?lineNumbers,
             ?references,
             ?substitutions,
             ?generateAnchors,
+            ?imageSaver,
             ?rootInputFolder,
             ?crefResolver,
-            ?mdlinkResolver
+            ?mdlinkResolver,
+            ?onError
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
         let output = defaultOutput output input outputKind
+        let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        let substitutions = defaultArg substitutions []
 
         let res =
             Literate.ParseAndTransformMarkdownFile(
                 input,
                 output = output,
                 outputKind = outputKind,
-                ?formatAgent = formatAgent,
-                ?prefix = prefix,
-                ?fscOptions = fscOptions,
-                ?lineNumbers = lineNumbers,
-                ?references = references,
-                ?generateAnchors = generateAnchors,
-                ?substitutions = substitutions (* ?customizeDocument=customizeDocument, *) ,
-                ?rootInputFolder = rootInputFolder,
-                ?crefResolver = crefResolver,
-                ?mdlinkResolver = mdlinkResolver
+                prefix = prefix,
+                fscOptions = fscOptions,
+                lineNumbers = lineNumbers,
+                references = references,
+                generateAnchors = generateAnchors,
+                imageSaver = imageSaver,
+                substitutions = substitutions,
+                rootInputFolder = rootInputFolder,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver,
+                parseOptions=MarkdownParseOptions.AllowYamlFrontMatter,
+                onError = onError
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
@@ -614,7 +571,6 @@ type Literate private () =
             ?template,
             ?output,
             ?outputKind,
-            ?formatAgent,
             ?prefix,
             ?fscOptions,
             ?lineNumbers,
@@ -622,30 +578,36 @@ type Literate private () =
             ?fsiEvaluator,
             ?substitutions,
             ?generateAnchors,
+            ?imageSaver,
             ?rootInputFolder,
             ?crefResolver,
-            ?mdlinkResolver
+            ?mdlinkResolver,
+            ?onError
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
         let output = defaultOutput output input outputKind
+        let crefResolver = defaultArg crefResolver (fun _ -> None)
+        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
+        let substitutions = defaultArg substitutions []
 
         let res =
             Literate.ParseAndTransformScriptFile(
                 input,
                 output = output,
                 outputKind = outputKind,
-                ?formatAgent = formatAgent,
-                ?prefix = prefix,
-                ?fscOptions = fscOptions,
-                ?lineNumbers = lineNumbers,
-                ?references = references,
-                ?generateAnchors = generateAnchors,
-                ?substitutions = substitutions (* ?customizeDocument=customizeDocument, *) ,
-                ?fsiEvaluator = fsiEvaluator,
-                ?rootInputFolder = rootInputFolder,
-                ?crefResolver = crefResolver,
-                ?mdlinkResolver = mdlinkResolver
+                prefix = prefix,
+                fscOptions = fscOptions,
+                lineNumbers = lineNumbers,
+                references = references,
+                fsiEvaluator = fsiEvaluator,
+                substitutions = substitutions,
+                generateAnchors = generateAnchors,
+                imageSaver = imageSaver,
+                rootInputFolder = rootInputFolder,
+                crefResolver = crefResolver,
+                mdlinkResolver = mdlinkResolver,
+                onError=onError
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)

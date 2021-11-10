@@ -40,12 +40,12 @@ type ApiDocs =
             ?otherFlags,
             ?root,
             ?urlRangeHighlight,
-            ?strict,
+            ?onError,
             ?extension
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
-        let strict = defaultArg strict false
+        let onError = defaultArg onError ignore
 
         let extensions = defaultArg extension { InFile = ".html"; InUrl = ".html" }
 
@@ -58,7 +58,7 @@ type ApiDocs =
             urlRangeHighlight = urlRangeHighlight,
             root = root,
             substitutions = substitutions,
-            strict = strict,
+            onError = onError,
             extensions = extensions
         )
 
@@ -84,11 +84,11 @@ type ApiDocs =
             ?libDirs,
             ?otherFlags,
             ?urlRangeHighlight,
-            ?strict
+            ?onError
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
-        let strict = defaultArg strict false
+        let onError = defaultArg onError ignore
         let extensions = { InFile = ".html"; InUrl = ".html" }
 
         let model =
@@ -101,7 +101,7 @@ type ApiDocs =
                 urlRangeHighlight = urlRangeHighlight,
                 root = root,
                 substitutions = substitutions,
-                strict = strict,
+                onError = onError,
                 extensions = extensions
             )
 
@@ -141,11 +141,11 @@ type ApiDocs =
             ?libDirs,
             ?otherFlags,
             ?urlRangeHighlight,
-            ?strict
+            ?onError
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
-        let strict = defaultArg strict false
+        let onError = defaultArg onError ignore
         let extensions = { InFile = ".html"; InUrl = ".html" }
 
         let model =
@@ -158,7 +158,7 @@ type ApiDocs =
                 urlRangeHighlight = urlRangeHighlight,
                 root = root,
                 substitutions = substitutions,
-                strict = strict,
+                onError = onError,
                 extensions = extensions
             )
 
@@ -183,11 +183,11 @@ type ApiDocs =
             ?libDirs,
             ?otherFlags,
             ?urlRangeHighlight,
-            ?strict
+            ?onError
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
-        let strict = defaultArg strict false
+        let onError = defaultArg onError ignore
         let extensions = { InFile = ".md"; InUrl = "" }
 
         let model =
@@ -200,7 +200,7 @@ type ApiDocs =
                 urlRangeHighlight = urlRangeHighlight,
                 root = root,
                 substitutions = substitutions,
-                strict = strict,
+                onError = onError,
                 extensions = extensions
             )
 
@@ -241,11 +241,11 @@ type ApiDocs =
             ?libDirs,
             ?otherFlags,
             ?urlRangeHighlight,
-            ?strict
+            ?onError
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
-        let strict = defaultArg strict false
+        let onError = defaultArg onError ignore
         let extensions = { InFile = ".md"; InUrl = "" }
 
         let model =
@@ -258,7 +258,7 @@ type ApiDocs =
                 urlRangeHighlight = urlRangeHighlight,
                 root = root,
                 substitutions = substitutions,
-                strict = strict,
+                onError = onError,
                 extensions = extensions
             )
 

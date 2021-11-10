@@ -14,10 +14,8 @@ open FSharp.Formatting.CodeFormat.Constants
 open FsUnitTyped
 
 // --------------------------------------------------------------------------------------
-// Initialization - find F# compiler dll, setup formatting agent
+// Initialization - find F# compiler dll, setup formatting CodeFormatter
 // --------------------------------------------------------------------------------------
-
-let agent = CodeFormat.CreateAgent()
 
 // Check that snippet constains a specific span
 let containsSpan f snips =
@@ -44,7 +42,7 @@ let (|ToolTipWithLiteral|_|) text tips =
 let ``Simple code snippet is formatted with tool tips`` () =
     let source = """let hello = 10"""
 
-    let snips, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let snips, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     errors |> shouldEqual [||]
 
@@ -63,7 +61,7 @@ let x = 12
 nameof x
 """
 
-    let snips, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let snips, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     errors |> shouldEqual [||]
 
@@ -117,12 +115,12 @@ let printApplicatives () =
 printApplicatives()
 """
 
-    let _, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let _, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     errors |> shouldEqual [||]
 
 let getContentAndToolTip (source: string) =
-    let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let snips, _errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     let res = CodeFormat.FormatHtml(snips, "fstips")
     (Seq.head res.Snippets).Content, res.ToolTip
@@ -153,7 +151,7 @@ let ``Non-unicode characters do not cause exception`` () =
 ✘ let add I J = I+J
 // [/snippet]"""
 
-    let _snips, errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let _snips, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     errors.Length |> shouldBeGreaterThan 0
     let (SourceError (_, _, _, msg)) = errors.[0]
@@ -258,47 +256,19 @@ let ``Escaped characters are in spans of 'esc' class`` () =
 // Test with custom css
 // --------------------------------------------------------------------------------------
 
-let customCss kind =
-    match kind with
-    | TokenKind.Comment -> "Comment"
-    | TokenKind.Default -> "Default"
-    | TokenKind.Identifier -> "Identifier"
-    | TokenKind.Inactive -> "Inactive"
-    | TokenKind.Keyword -> "Keyword"
-    | TokenKind.Number -> "Number"
-    | TokenKind.Operator -> "Operator"
-    | TokenKind.Preprocessor -> "Preprocessor"
-    | TokenKind.String -> "String"
-    | TokenKind.Module -> "Module"
-    | TokenKind.ReferenceType -> "ReferenceType"
-    | TokenKind.ValueType -> "ValueType"
-    | TokenKind.Function -> "Function"
-    | TokenKind.Pattern -> "Pattern"
-    | TokenKind.MutableVar -> "MutableVar"
-    | TokenKind.Printf -> "Printf"
-    | TokenKind.Escaped -> "Escaped"
-    | TokenKind.Disposable -> "Disposable"
-    | TokenKind.TypeArgument -> "TypeArgument"
-    | TokenKind.Punctuation -> "Punctuation"
-    | TokenKind.Enumeration -> "Enumeration"
-    | TokenKind.Interface -> "Interface"
-    | TokenKind.Property -> "Property"
-    | TokenKind.UnionCase -> "UnionCase"
 
+let getContentAndToolTipCustom (source: string) =
+    let snips, _errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
-
-let getContentAndToolTip' (source: string) =
-    let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
-
-    let res = CodeFormat.FormatHtml(snips, "fstips", tokenKindToCss = customCss)
+    let res = CodeFormat.FormatHtml(snips, "fstips")
 
     (Seq.head res.Snippets).Content, res.ToolTip
 
-let getContent' = getContentAndToolTip' >> fst
+let getContentCustom = getContentAndToolTipCustom >> fst
 
 [<Test>]
 let ``Simple code snippet is formatted as HTML - custom CSS`` () =
-    let content, tooltip = getContentAndToolTip' """let hello = 10"""
+    let content, tooltip = getContentAndToolTipCustom """let hello = 10"""
 
     content |> shouldContainText (sprintf "<span class=\"%s\">let</span>" "Keyword")
 
@@ -311,12 +281,12 @@ let ``Simple code snippet is formatted as HTML - custom CSS`` () =
 
 [<Test>]
 let ``Plain string is in span of 's' class when it's the last token in the line - custom CSS`` () =
-    getContent' """let _ = "str" """
+    getContentCustom """let _ = "str" """
     |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
 
 [<Test>]
 let ``Plain string is in span of 's' class, there are several other tokens next to it - custom CSS`` () =
-    let content = getContent' """let _ = "str", 1 """
+    let content = getContentCustom """let _ = "str", 1 """
 
     content
     |> shouldContainText (sprintf "<span class=\"%s\">&quot;str&quot;</span>" "String")
@@ -327,7 +297,7 @@ let ``Plain string is in span of 's' class, there are several other tokens next 
 
 [<Test>]
 let ``Plain string is in span of 's' class, there is punctuation next to it - custom CSS`` () =
-    let content = getContent' """let _ = ("str")"""
+    let content = getContentCustom """let _ = ("str")"""
 
     content
     |> shouldContainText (sprintf "<span class=\"%s\">(</span>" "Punctuation")
@@ -341,7 +311,7 @@ let ``Plain string is in span of 's' class, there is punctuation next to it - cu
 [<Test>]
 let ``Modules and types are in spans of 't' class - custom CSS`` () =
     let content =
-        getContent'
+        getContentCustom
             """
 module Module =
   type Type() = class end
@@ -355,7 +325,7 @@ module Module =
 [<Test>]
 let ``Functions and methods are in spans of 'f' class - custom CSS`` () =
     let content =
-        getContent'
+        getContentCustom
             """
 module M =
     type T() =
@@ -372,7 +342,7 @@ module M =
 
 [<Test>]
 let ``Printf formatters are in spans of 'pf' class - custom CSS`` () =
-    let content = getContent' """let _ = sprintf "a %A b %0.3fD" """
+    let content = getContentCustom """let _ = sprintf "a %A b %0.3fD" """
 
     content |> shouldContainText (sprintf "class=\"%s\">&quot;a </span>" "String")
 
@@ -387,7 +357,7 @@ let ``Printf formatters are in spans of 'pf' class - custom CSS`` () =
 [<Test>]
 [<Ignore "FCS doesn't currently have semantic highlighting for escaped chars in a string">]
 let ``Escaped characters are in spans of 'esc' class - custom CSS`` () =
-    let content = getContent' """let _ = sprintf "a \n\tD\uA0A0 \t" """
+    let content = getContentCustom """let _ = sprintf "a \n\tD\uA0A0 \t" """
 
     content |> shouldContainText (sprintf "class=\"%s\">&quot;a </span>" "String")
 
@@ -404,7 +374,7 @@ let ``Escaped characters are in spans of 'esc' class - custom CSS`` () =
     content |> shouldContainText (sprintf "class=\"%s\">\\t</span>" "Escaped")
 
 let getLatex (source: string) =
-    let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let snips, _errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     let res = CodeFormat.FormatLatex(snips)
     (Seq.head res.Snippets).Content
@@ -420,7 +390,7 @@ let ``Simple code snippet is formatted as Latex`` () =
     content |> shouldContainText (sprintf @"\end{Verbatim}")
 
 let getFsx (source: string) =
-    let snips, _errors = agent.ParseAndCheckSource("/somewhere/test.fsx", source.Trim())
+    let snips, _errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     let res = CodeFormat.FormatFsx(snips)
     (Seq.head res.Snippets).Content

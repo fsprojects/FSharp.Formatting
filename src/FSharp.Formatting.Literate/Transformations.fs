@@ -150,11 +150,12 @@ module internal Transformations =
                     | l -> Some(String.concat "," l)
 
                 let snippets, diagnostics =
-                    ctx.FormatAgent.ParseAndCheckSource(
+                    CodeFormatter.ParseAndCheckSource(
                         Path.ChangeExtension(path, ".fsx"),
                         source,
-                        ?options = ctx.CompilerOptions,
-                        ?defines = defines
+                        ctx.CompilerOptions,
+                        defines,
+                        ctx.OnError
                     )
 
                 let results =

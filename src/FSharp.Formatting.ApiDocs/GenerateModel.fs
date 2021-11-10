@@ -1373,7 +1373,6 @@ module internal SymbolReader =
           SourceFolderRepository: (string * string) option
           AssemblyPath: string
           CompilerOptions: string
-          FormatAgent: CodeFormatAgent
           Substitutions: Substitutions }
 
         member x.XmlMemberLookup(key) =
@@ -1392,7 +1391,6 @@ module internal SymbolReader =
                 urlMap,
                 assemblyPath,
                 fscOptions,
-                formatAgent,
                 substitutions,
                 warn
             ) =
@@ -1407,7 +1405,6 @@ module internal SymbolReader =
               SourceFolderRepository = sourceFolderRepo
               AssemblyPath = assemblyPath
               CompilerOptions = fscOptions
-              FormatAgent = formatAgent
               Substitutions = substitutions }
 
     let inline private getCompiledName (s: ^a :> FSharpSymbol) =
@@ -2383,7 +2380,6 @@ module internal SymbolReader =
             Literate.ParseMarkdownString(
                 text,
                 path = Path.Combine(ctx.AssemblyPath, "docs.fsx"),
-                formatAgent = ctx.FormatAgent,
                 fscOptions = ctx.CompilerOptions
             )
 
@@ -2939,8 +2935,6 @@ module internal SymbolReader =
         // Code formatting agent & options used when processing inline code snippets in comments
         let asmPath = Path.GetDirectoryName(defaultArg assembly.FileName xmlFile)
 
-        let formatAgent = CodeFormatAgent()
-
         let ctx =
             ReadingContext.Create(
                 publicOnly,
@@ -2952,7 +2946,6 @@ module internal SymbolReader =
                 urlMap,
                 asmPath,
                 codeFormatCompilerArgs,
-                formatAgent,
                 substitutions,
                 warn
             )
@@ -3072,7 +3065,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
             urlRangeHighlight,
             root,
             substitutions,
-            strict,
+            onError,
             extensions
         ) =
 
@@ -3130,11 +3123,8 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
 
                 match asmOpt with
                 | None ->
-                    if strict then
-                        failwithf "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
-                    else
-                        printfn "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
-
+                    printfn "**** Skipping assembly '%s' because was not found in resolved assembly list" dllFile
+                    onError "exiting"
                     None
                 | Some asm ->
                     printfn "  reading XML doc for %s..." dllFile
