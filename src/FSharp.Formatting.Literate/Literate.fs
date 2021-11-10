@@ -328,8 +328,7 @@ type Literate private () =
             ?generateAnchors,
             ?substitutions,
             ?crefResolver,
-            ?mdlinkResolver,
-            ?tokenKindToCss
+            ?mdlinkResolver
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
@@ -343,7 +342,7 @@ type Literate private () =
                 []
                 crefResolver
                 mdlinkResolver
-                tokenKindToCss
+                None
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -363,8 +362,7 @@ type Literate private () =
             ?generateAnchors,
             ?substitutions,
             ?crefResolver,
-            ?mdlinkResolver,
-            ?tokenKindToCss
+            ?mdlinkResolver
         ) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
@@ -378,7 +376,7 @@ type Literate private () =
                 []
                 crefResolver
                 mdlinkResolver
-                tokenKindToCss
+                None
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
@@ -553,7 +551,7 @@ type Literate private () =
                 rootInputFolder = rootInputFolder,
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver,
-                parseOptions=MarkdownParseOptions.AllowYamlFrontMatter,
+                parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
                 onError = onError
             )
 
@@ -607,7 +605,7 @@ type Literate private () =
                 rootInputFolder = rootInputFolder,
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver,
-                onError=onError
+                onError = onError
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)

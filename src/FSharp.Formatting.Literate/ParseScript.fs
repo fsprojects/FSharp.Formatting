@@ -348,6 +348,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             CodeFormatter.ParseAndCheckSource(filePath, content, ctx.CompilerOptions, defines, onError)
 
         let mutable fail = false
+
         for (SourceError ((l0, c0), (l1, c1), kind, msg)) in diagnostics do
             printfn
                 "   %s: %s(%d,%d)-(%d,%d) %s"
@@ -362,7 +363,9 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                 l1
                 c1
                 msg
-        if fail then ctx.OnError "errors parsing script"
+
+        if fail then
+            ctx.OnError "errors parsing or checking script"
 
         let parsedBlocks =
             [ for Snippet (name, lines) in sourceSnippets do

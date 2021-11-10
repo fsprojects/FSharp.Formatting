@@ -237,7 +237,7 @@ let formatSnippetsAsHtml
           CloseLinesTag = closeLinesTag
           OpenTag = openTag
           CloseTag = closeTag
-          TokenKindToCss = tokenKindToCss}
+          TokenKindToCss = tokenKindToCss }
     // Generate main HTML for snippets
     let snippets = formatSnippets ctx snippets
     // Generate HTML with ToolTip tags

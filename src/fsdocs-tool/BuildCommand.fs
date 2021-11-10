@@ -297,7 +297,7 @@ type internal DocContent
                                   rootInputFolder = rootInputFolder,
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
-                                  parseOptions=MarkdownParseOptions.AllowYamlFrontMatter,
+                                  parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
                                   onError = Some onError
                               )
 
@@ -1149,7 +1149,7 @@ type CoreBuildOptions(watch) =
 
                 let fsiEvaluator =
                     (if this.eval then
-                         Some(FsiEvaluator(onError=onError) :> IFsiEvaluator)
+                         Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
                      else
                          None)
 

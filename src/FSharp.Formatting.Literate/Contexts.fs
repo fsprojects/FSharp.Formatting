@@ -17,8 +17,7 @@ type internal CompilerContext =
       ConditionalDefines: string list
 
       /// Reporting errors
-      OnError: string -> unit
-    }
+      OnError: string -> unit }
 
 /// Defines the possible output types from literate script (HTML, Latex, Pynb)
 [<RequireQualifiedAccess>]

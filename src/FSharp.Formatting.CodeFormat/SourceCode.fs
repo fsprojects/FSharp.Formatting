@@ -111,4 +111,3 @@ module internal CodeFormatHelper =
         | TokenKind.Interface -> CSS.Interface
         | TokenKind.Property -> CSS.Property
         | TokenKind.UnionCase -> CSS.UnionCase
-

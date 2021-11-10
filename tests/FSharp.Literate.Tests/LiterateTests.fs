@@ -737,9 +737,7 @@ let ``Parsing simple script and markdown produces the same result`` () =
         Literate.ParseMarkdownString(simpleMd, path = "/usr/File.fsx")
         |> Literate.ToHtml
 
-    let doc2 =
-        Literate.ParseScriptString(simpleFsx, path = "/usr/File.fsx")
-        |> Literate.ToHtml
+    let doc2 = Literate.ParseScriptString(simpleFsx, path = "/usr/File.fsx") |> Literate.ToHtml
 
     doc1 |> shouldEqual doc2
 
@@ -885,8 +883,7 @@ let ``Gives nice error when parsing unclosed comment`` () =
 let test = 42"""
 
     try
-        Literate.ParseScriptString(content, "C" </> "A.fsx")
-        |> ignore
+        Literate.ParseScriptString(content, "C" </> "A.fsx") |> ignore
 
         failwith ""
     with

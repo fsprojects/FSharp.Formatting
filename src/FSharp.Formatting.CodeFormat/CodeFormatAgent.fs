@@ -400,9 +400,6 @@ module CodeFormatter =
                     e.ErrorNumber
                     e.Message
 
-            let formatDiagnostics errors =
-                System.String.Join("\n", errors |> Seq.map formatDiagnostic)
-
             // filter duplicates
             let opts =
                 let mutable known = Set.empty
@@ -447,16 +444,12 @@ module CodeFormatter =
             //let! results = fsChecker.ParseAndCheckProject(opts)
             //let _errors = results.Errors
 
-            if diagnostics
-               |> List.filter (fun e -> e.Severity = FSharpDiagnosticSeverity.Error)
-               |> List.length > 0 then
-                printfn "errors from GetProjectOptionsFromScript '%s'" (formatDiagnostics diagnostics)
-                onError "exiting due to errors in script"
+            for diagnostic in diagnostics do
+                printfn "error from GetProjectOptionsFromScript '%s'" (formatDiagnostic diagnostic)
 
-            //printfn "filePath = %A" filePath
-            ////printfn "opts = %A" opts
-            //for o in opts.OtherOptions do
-            //   printfn "opt: %s" o
+            if diagnostics
+               |> List.exists (fun e -> e.Severity = FSharpDiagnosticSeverity.Error) then
+                onError "exiting due to errors in script"
 
             // Run the second phase - perform type checking
             Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
@@ -468,7 +461,7 @@ module CodeFormatter =
 
                 let _symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile()
 
-                let errors = checkResults.Diagnostics
+                let diagnostics = checkResults.Diagnostics
 
                 let classifications =
                     checkResults.GetSemanticClassification(Some parsedInput.Range)
@@ -516,27 +509,27 @@ module CodeFormatter =
                             // Return parsed snippet as 'Snippet' value
                             Snippet(title, parsed))
 
-                let sourceErrors =
-                    [| for errInfo in errors do
-                           if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+                let sourceDiagnostics =
+                    [| for diagnostic in diagnostics do
+                           if diagnostic.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
                                yield
                                    SourceError(
-                                       (errInfo.StartLine - 1, errInfo.StartColumn),
-                                       (errInfo.EndLine - 1, errInfo.EndColumn),
-                                       (if errInfo.Severity = FSharpDiagnosticSeverity.Error then
+                                       (diagnostic.StartLine - 1, diagnostic.StartColumn),
+                                       (diagnostic.EndLine - 1, diagnostic.EndColumn),
+                                       (if diagnostic.Severity = FSharpDiagnosticSeverity.Error then
                                             ErrorKind.Error
                                         else
                                             ErrorKind.Warning),
-                                       errInfo.Message
+                                       diagnostic.Message
                                    ) |]
 
-                return (Array.ofList parsedSnippets, sourceErrors)
-            | None ->
-                return! failwith "No result from source code processing"
+                return (Array.ofList parsedSnippets, sourceDiagnostics)
+            | None -> return! failwith "No result from source code processing"
         }
 
     /// Parse, check and annotate the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    let ParseAndCheckSource(file, source, options, defines, onError) =
-        processSourceCode (file, source, options, defines, onError) |> Async.RunSynchronously
+    let ParseAndCheckSource (file, source, options, defines, onError) =
+        processSourceCode (file, source, options, defines, onError)
+        |> Async.RunSynchronously

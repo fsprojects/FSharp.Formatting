@@ -256,11 +256,38 @@ let ``Escaped characters are in spans of 'esc' class`` () =
 // Test with custom css
 // --------------------------------------------------------------------------------------
 
+let customCss kind =
+    match kind with
+    | TokenKind.Comment -> "Comment"
+    | TokenKind.Default -> "Default"
+    | TokenKind.Identifier -> "Identifier"
+    | TokenKind.Inactive -> "Inactive"
+    | TokenKind.Keyword -> "Keyword"
+    | TokenKind.Number -> "Number"
+    | TokenKind.Operator -> "Operator"
+    | TokenKind.Preprocessor -> "Preprocessor"
+    | TokenKind.String -> "String"
+    | TokenKind.Module -> "Module"
+    | TokenKind.ReferenceType -> "ReferenceType"
+    | TokenKind.ValueType -> "ValueType"
+    | TokenKind.Function -> "Function"
+    | TokenKind.Pattern -> "Pattern"
+    | TokenKind.MutableVar -> "MutableVar"
+    | TokenKind.Printf -> "Printf"
+    | TokenKind.Escaped -> "Escaped"
+    | TokenKind.Disposable -> "Disposable"
+    | TokenKind.TypeArgument -> "TypeArgument"
+    | TokenKind.Punctuation -> "Punctuation"
+    | TokenKind.Enumeration -> "Enumeration"
+    | TokenKind.Interface -> "Interface"
+    | TokenKind.Property -> "Property"
+    | TokenKind.UnionCase -> "UnionCase"
+
 
 let getContentAndToolTipCustom (source: string) =
     let snips, _errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
-    let res = CodeFormat.FormatHtml(snips, "fstips")
+    let res = CodeFormat.FormatHtml(snips, "fstips", tokenKindToCss = customCss)
 
     (Seq.head res.Snippets).Content, res.ToolTip
 
