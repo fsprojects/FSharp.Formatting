@@ -114,7 +114,11 @@ type ApiDocHtml(html: string, id: string option) =
     member _.Id = id
 
 /// Represents a documentation comment attached to source code
-type ApiDocComment(summary, remarks, parameters, returns, examples, notes, exceptions, rawData) =
+type ApiDocComment(xmldoc, summary, remarks, parameters, returns, examples, notes, exceptions, rawData) =
+
+    /// The XElement for the XML doc if available
+    member _.Xml: XElement option = xmldoc
+
     /// The summary for the comment
     member _.Summary: ApiDocHtml = summary
 
@@ -139,7 +143,7 @@ type ApiDocComment(summary, remarks, parameters, returns, examples, notes, excep
     /// The raw data of the comment
     member _.RawData: KeyValuePair<string, string> list = rawData
 
-    static member internal Empty = ApiDocComment(ApiDocHtml("", None), None, [], None, [], [], [], [])
+    static member internal Empty = ApiDocComment(None, ApiDocHtml("", None), None, [], None, [], [], [], [])
 
 /// Represents a custom attribute attached to source code
 type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArguments) =
@@ -1854,7 +1858,7 @@ module internal SymbolReader =
 
         String.removeSpaces lines
 
-    let readMarkdownCommentAsHtml (doc: LiterateDocument) =
+    let readMarkdownCommentAsHtml el (doc: LiterateDocument) =
         let groups = System.Collections.Generic.List<(_ * _)>()
 
         let mutable current = "<default>"
@@ -1922,6 +1926,7 @@ module internal SymbolReader =
                 Some(ApiDocHtml(Literate.ToHtml(doc.With(paragraphs = returns)), None))
 
         ApiDocComment(
+            xmldoc = Some el,
             summary = summary,
             remarks = remarks,
             parameters = [],
@@ -2215,6 +2220,7 @@ module internal SymbolReader =
 
         let comment =
             ApiDocComment(
+                xmldoc = Some doc,
                 summary = summary,
                 remarks = remarks,
                 parameters = parameters,
@@ -2238,6 +2244,7 @@ module internal SymbolReader =
 
     let combineComments (c1: ApiDocComment) (c2: ApiDocComment) =
         ApiDocComment(
+            xmldoc = (match c1.Xml with None -> c2.Xml | v -> v),
             summary = combineHtml c1.Summary c2.Summary,
             remarks = combineHtmlOptions c1.Remarks c2.Remarks,
             parameters = c1.Parameters @ c2.Parameters,
@@ -2353,7 +2360,7 @@ module internal SymbolReader =
 
         doc.With(paragraphs = replacedParagraphs)
 
-    let readMarkdownCommentAndCommands (ctx: ReadingContext) text (cmds: IDictionary<_, _>) =
+    let readMarkdownCommentAndCommands (ctx: ReadingContext) text el (cmds: IDictionary<_, _>) =
         let lines = removeSpaces text |> List.map (fun s -> (s, MarkdownRange.zero))
 
         let text =
@@ -2378,7 +2385,7 @@ module internal SymbolReader =
             )
 
         let doc = doc |> addMissingLinkToTypes ctx
-        let html = readMarkdownCommentAsHtml doc
+        let html = readMarkdownCommentAsHtml el doc
         // TODO: namespace summaries for markdown comments
         let nsdocs = None
         cmds, html, nsdocs
@@ -2433,7 +2440,7 @@ module internal SymbolReader =
                 cmds, doc, nsdocs
             | sum ->
                 if ctx.MarkdownComments then
-                    readMarkdownCommentAndCommands ctx sum.Value cmds
+                    readMarkdownCommentAndCommands ctx sum.Value el cmds
                 else
                     readXmlCommentAndCommands ctx sum.Value el cmds
 
