@@ -142,7 +142,7 @@ type internal DocContent
               yield! prepFile input OutputKind.Latex outputFolderRelativeToRoot
               yield! prepFile input OutputKind.Pynb outputFolderRelativeToRoot
               yield! prepFile input OutputKind.Fsx outputFolderRelativeToRoot
-              yield! prepFile input OutputKind.Md outputFolderRelativeToRoot
+              yield! prepFile input OutputKind.Markdown outputFolderRelativeToRoot
 
           for subdir in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subFolderName = Path.GetFileName(subdir)
@@ -177,7 +177,7 @@ type internal DocContent
               | OutputKind.Pynb, None -> ()
               | OutputKind.Latex, None -> ()
               | OutputKind.Fsx, None -> ()
-              | OutputKind.Md, None -> ()
+              | OutputKind.Markdown, None -> ()
               | _ ->
 
                   let imageSaverOpt =
@@ -186,7 +186,7 @@ type internal DocContent
                       | OutputKind.Latex when saveImages <> Some false -> Some imageSaver
                       | OutputKind.Fsx when saveImages = Some true -> Some imageSaver
                       | OutputKind.Html when saveImages = Some true -> Some imageSaver
-                      | OutputKind.Md when saveImages = Some true -> Some imageSaver
+                      | OutputKind.Markdown when saveImages = Some true -> Some imageSaver
                       | _ -> None
 
                   let outputFileRelativeToRoot, outputFileFullPath =
@@ -454,7 +454,7 @@ type internal DocContent
                       rootInputFolder
                       isOtherLang
                       input
-                      OutputKind.Md
+                      OutputKind.Markdown
                       mdTemplate
                       outputFolderRelativeToRoot
                       imageSaver
@@ -462,7 +462,7 @@ type internal DocContent
                           inputFolderAsGiven,
                           outputFolderRelativeToRoot,
                           fullPathFileMap,
-                          OutputKind.Md
+                          OutputKind.Markdown
                       ))
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
@@ -1031,8 +1031,8 @@ type CoreBuildOptions(watch) =
                             let templates =
                                 [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
                                   OutputKind.Html, Path.Combine(this.input, "_template.html")
-                                  OutputKind.Md, Path.Combine(this.input, "reference", "_template.md")
-                                  OutputKind.Md, Path.Combine(this.input, "_template.md") ]
+                                  OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
                             match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
                             | Some (kind, path) -> kind, Some path
@@ -1074,7 +1074,7 @@ type CoreBuildOptions(watch) =
                                     libDirs = paths,
                                     strict = this.strict
                                 )
-                            | OutputKind.Md ->
+                            | OutputKind.Markdown ->
                                 ApiDocs.GenerateMarkdownPhased(
                                     inputs = apiDocInputs,
                                     output = rootOutputFolderAsGiven,

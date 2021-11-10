@@ -35,15 +35,14 @@ type OutputKind =
     | Fsx
 
     /// Requests Markdown output
-    | Md
+    | Markdown
     member x.Extension =
         match x with
         | Fsx -> "fsx"
         | Latex -> "tex"
-        | Md -> "md"
+        | Markdown -> "md"
         | Html -> "html"
         | Pynb -> "ipynb"
-
 
 /// Defines the output of processing a literate doc
 type internal LiterateDocModel =

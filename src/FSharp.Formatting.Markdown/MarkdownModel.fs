@@ -61,6 +61,7 @@ type MarkdownParagraph =
     | CodeBlock of
         code: string *
         executionCount: int option *
+        fence: string option *
         language: string *
         ignoredLine: string *
         range: MarkdownRange option

@@ -353,7 +353,7 @@ type Literate private () =
                 mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-        Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions)
+        Markdown.ToLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), ?substitutions = substitutions, ?lineNumbers=lineNumbers)
 
     /// Write the literate document as Latex without using a template
     static member WriteLatex
@@ -382,7 +382,7 @@ type Literate private () =
                 mdlinkResolver
 
         let doc = Transformations.replaceLiterateParagraphs ctx doc
-        Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer, ?substitutions = substitutions)
+        Markdown.WriteLatex(MarkdownDocument(doc.Paragraphs, doc.DefinedLinks), writer, ?substitutions = substitutions, ?lineNumbers=lineNumbers)
 
     /// Formate the literate document as an iPython notebook
     static member ToPynb(doc: LiterateDocument, ?substitutions, ?crefResolver, ?mdlinkResolver) =
@@ -459,6 +459,7 @@ type Literate private () =
 
         let parseOptions =
             match outputKind with
+            | OutputKind.Markdown
             | OutputKind.Fsx
             | OutputKind.Pynb -> parseOptions ||| MarkdownParseOptions.ParseCodeAsOther
             //||| MarkdownParseOptions.ParseNonCodeAsOther
@@ -548,37 +549,6 @@ type Literate private () =
         let doc = downloadImagesForDoc imageSaver doc
         let outputPath = defaultOutput output input outputKind
         Formatting.transformDocument doc outputPath ctx
-
-    static member TransformAndOutputDocument
-        (
-            doc,
-            output,
-            ?template,
-            ?outputKind,
-            ?prefix,
-            ?lineNumbers,
-            ?generateAnchors,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver
-        ) =
-        let crefResolver = defaultArg crefResolver (fun _ -> None)
-        let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
-        let outputKind = defaultArg outputKind OutputKind.Html
-
-        let ctx =
-            makeFormattingContext
-                outputKind
-                prefix
-                lineNumbers
-                generateAnchors
-                substitutions
-                None
-                crefResolver
-                mdlinkResolver
-
-        let res = Formatting.transformDocument doc output ctx
-        SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
 
     /// Convert a markdown file into HTML or another output kind
     static member ConvertMarkdownFile

@@ -204,7 +204,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
         ctx.Writer.Write("</p>")
     | HorizontalRule (_, _) -> ctx.Writer.Write("<hr />")
-    | CodeBlock (code, _, language, _, _) ->
+    | CodeBlock (code, _, _fence, language, _, _) ->
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
