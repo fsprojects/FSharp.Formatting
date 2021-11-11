@@ -25,10 +25,6 @@ open FSharp.Compiler.Diagnostics
 
 module private Helpers =
 
-    let inline ediRaise (e: exn) : 'T =
-        ExceptionDispatchInfo.Capture(e).Throw()
-        Unchecked.defaultof<_>
-
     /// Mapping table that translates F# compiler representation to our union
     let getTokenKind =
         function
@@ -133,7 +129,7 @@ type internal Range =
           RightCol = rightCol }
 
 /// Uses agent to handle formatting requests
-type CodeFormatAgent() =
+module CodeFormatter =
     // Create keys for query tooltips for double-backtick identifiers
     let processDoubleBackticks (body: string) =
         if body.StartsWith "``" then
@@ -339,7 +335,7 @@ type CodeFormatAgent() =
 
     // ------------------------------------------------------------------------------------
 
-    let processSourceCode (filePath, source, options, defines) =
+    let processSourceCode (filePath, source, options, defines, onError) =
         async {
             Log.verbf "starting to process source code from '%s'" filePath
             // Read the source code into an array of lines
@@ -383,7 +379,7 @@ type CodeFormatAgent() =
             //Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
             let filePath = Path.GetFullPath(filePath)
 
-            let! (opts, _errors) =
+            let! (opts, diagnostics) =
                 fsChecker.GetProjectOptionsFromScript(
                     filePath,
                     SourceText.ofString source,
@@ -392,7 +388,7 @@ type CodeFormatAgent() =
                     assumeDotNetFramework = false
                 )
 
-            let formatError (e: FSharpDiagnostic) =
+            let formatDiagnostic (e: FSharpDiagnostic) =
                 sprintf
                     "%s (%d,%d)-(%d,%d): %A FS%04d: %s"
                     e.FileName
@@ -403,9 +399,6 @@ type CodeFormatAgent() =
                     e.Severity
                     e.ErrorNumber
                     e.Message
-
-            let formatErrors errors =
-                System.String.Join("\n", errors |> Seq.map formatError)
 
             // filter duplicates
             let opts =
@@ -451,36 +444,29 @@ type CodeFormatAgent() =
             //let! results = fsChecker.ParseAndCheckProject(opts)
             //let _errors = results.Errors
 
-            if _errors
-               |> List.filter (fun e -> e.Severity = FSharpDiagnosticSeverity.Error)
-               |> List.length > 0 then
-                Log.warnf "errors from GetProjectOptionsFromScript '%s'" (formatErrors _errors)
+            for diagnostic in diagnostics do
+                printfn "error from GetProjectOptionsFromScript '%s'" (formatDiagnostic diagnostic)
 
-            //printfn "filePath = %A" filePath
-            ////printfn "opts = %A" opts
-            //for o in opts.OtherOptions do
-            //   printfn "opt: %s" o
+            if diagnostics
+               |> List.exists (fun e -> e.Severity = FSharpDiagnosticSeverity.Error) then
+                onError "exiting due to errors in script"
 
             // Run the second phase - perform type checking
             Log.verbf "starting to ParseAndCheckDocument from '%s'" filePath
             let! res = fsChecker.ParseAndCheckDocument(filePath, source, opts, false)
 
-            //printfn "source = %A" source
-            //fsChecker.InvalidateConfiguration(opts)
-            //results.
             match res with
             | Some (_parseResults, parsedInput, checkResults) ->
                 Log.verbf "starting to GetAllUsesOfAllSymbolsInFile from '%s'" filePath
 
                 let _symbolUses = checkResults.GetAllUsesOfAllSymbolsInFile()
 
-                let errors = checkResults.Diagnostics
+                let diagnostics = checkResults.Diagnostics
 
                 let classifications =
                     checkResults.GetSemanticClassification(Some parsedInput.Range)
                     |> Seq.groupBy (fun item -> item.Range.StartLine)
                     |> Map.ofSeq
-
 
                 /// Parse source file into a list of lines consisting of tokens
                 let tokens = Helpers.getTokens (Some filePath) defines sourceLines
@@ -523,64 +509,27 @@ type CodeFormatAgent() =
                             // Return parsed snippet as 'Snippet' value
                             Snippet(title, parsed))
 
-                let sourceErrors =
-                    [| for errInfo in errors do
-                           if errInfo.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
+                let sourceDiagnostics =
+                    [| for diagnostic in diagnostics do
+                           if diagnostic.Message <> "Multiple references to 'mscorlib.dll' are not permitted" then
                                yield
                                    SourceError(
-                                       (errInfo.StartLine - 1, errInfo.StartColumn),
-                                       (errInfo.EndLine - 1, errInfo.EndColumn),
-                                       (if errInfo.Severity = FSharpDiagnosticSeverity.Error then
+                                       (diagnostic.StartLine - 1, diagnostic.StartColumn),
+                                       (diagnostic.EndLine - 1, diagnostic.EndColumn),
+                                       (if diagnostic.Severity = FSharpDiagnosticSeverity.Error then
                                             ErrorKind.Error
                                         else
                                             ErrorKind.Warning),
-                                       errInfo.Message
+                                       diagnostic.Message
                                    ) |]
 
-                return Some(parsedSnippets, sourceErrors)
-            | None ->
-                // TODO: Return something better than None, we probably should return the info in _errors somehow.
-                return None
-        }
-
-    // ------------------------------------------------------------------------------------
-    // Agent that implements the parsing & formatting
-
-    let agent =
-        MailboxProcessor.Start (fun agent ->
-            async {
-                while true do
-                    // Receive parameters for the next parsing request
-                    let! request, (chnl: AsyncReplyChannel<_>) = agent.Receive()
-
-                    try
-                        let! result = processSourceCode request
-
-                        match result with
-                        | Some (res, errs) -> chnl.Reply(Choice1Of2(res |> Array.ofList, errs))
-                        | None -> chnl.Reply(Choice2Of2(exn "No result from source code processing")) // new Exception(Utilities.formatException e, e)))
-                    with
-                    | e -> chnl.Reply(Choice2Of2(e)) // new Exception(Utilities.formatException e, e)))
-            })
-
-    /// Parse, check and annotate the source code specified by 'source', assuming that it
-    /// is located in a specified 'file'. Optional arguments can be used
-    /// to give compiler command line options and preprocessor definitions
-    member __.AsyncParseAndCheckSource(filePath, source, ?options, ?defines) =
-        async {
-            let! res = agent.PostAndAsyncReply(fun chnl -> (filePath, source, options, defines), chnl)
-
-            match res with
-            | Choice1Of2 res -> return res
-            | Choice2Of2 exn -> return Helpers.ediRaise exn
+                return (Array.ofList parsedSnippets, sourceDiagnostics)
+            | None -> return! failwith "No result from source code processing"
         }
 
     /// Parse, check and annotate the source code specified by 'source', assuming that it
     /// is located in a specified 'file'. Optional arguments can be used
     /// to give compiler command line options and preprocessor definitions
-    member __.ParseAndCheckSource(file, source, ?options, ?defines) =
-        let res = agent.PostAndReply(fun chnl -> (file, source, options, defines), chnl)
-
-        match res with
-        | Choice1Of2 res -> res
-        | Choice2Of2 exn -> Helpers.ediRaise exn
+    let ParseAndCheckSource (file, source, options, defines, onError) =
+        processSourceCode (file, source, options, defines, onError)
+        |> Async.RunSynchronously

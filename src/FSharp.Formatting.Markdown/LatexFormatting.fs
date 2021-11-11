@@ -3,7 +3,6 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-/// [omit]
 module internal FSharp.Formatting.Markdown.LatexFormatting
 
 open System.IO
@@ -49,7 +48,8 @@ type FormattingContext =
       Newline: string
       Writer: TextWriter
       Links: IDictionary<string, string * option<string>>
-      GenerateLineNumbers: bool }
+      GenerateLineNumbers: bool
+      DefineSymbol: string }
 
 let smallBreak (ctx: FormattingContext) () = ctx.Writer.Write(ctx.Newline)
 let noBreak (_ctx: FormattingContext) () = ()
@@ -157,8 +157,14 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
         ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
         ctx.LineBreak()
 
-    | CodeBlock (code, _, _, _, _, _) -> // TODO: could format output better using language
+    | CodeBlock (code = code; language = language) -> // TODO: could format output better using language
         ctx.Writer.Write(@"\begin{lstlisting}")
+
+        let code =
+            if language = "fsharp" then
+                adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code
+            else
+                code
 
         if ctx.GenerateLineNumbers then
             ctx.Writer.WriteLine(@"[numbers=left]")
@@ -289,5 +295,6 @@ let formatAsLatex writer links replacements newline crefResolver mdlinkResolver 
           Links = links
           Newline = newline
           LineBreak = ignore
-          GenerateLineNumbers = lineNumbers }
+          GenerateLineNumbers = lineNumbers
+          DefineSymbol = "LATEX" }
         paragraphs

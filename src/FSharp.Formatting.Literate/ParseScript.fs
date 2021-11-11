@@ -338,20 +338,23 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
     /// Parse script file with specified name and content
     /// and return LiterateDocument with the content
-    member _.ParseAndCheckScriptFile(filePath, content, rootInputFolder) =
+    member _.ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError) =
         let defines =
             match ctx.ConditionalDefines with
             | [] -> None
             | l -> Some(String.concat "," l)
 
         let sourceSnippets, diagnostics =
-            ctx.FormatAgent.ParseAndCheckSource(filePath, content, ?options = ctx.CompilerOptions, ?defines = defines)
+            CodeFormatter.ParseAndCheckSource(filePath, content, ctx.CompilerOptions, defines, onError)
+
+        let mutable fail = false
 
         for (SourceError ((l0, c0), (l1, c1), kind, msg)) in diagnostics do
             printfn
                 "   %s: %s(%d,%d)-(%d,%d) %s"
                 filePath
                 (if kind = ErrorKind.Error then
+                     fail <- true
                      "error"
                  else
                      "warning")
@@ -360,6 +363,9 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                 l1
                 c1
                 msg
+
+        if fail then
+            ctx.OnError "errors parsing or checking script"
 
         let parsedBlocks =
             [ for Snippet (name, lines) in sourceSnippets do

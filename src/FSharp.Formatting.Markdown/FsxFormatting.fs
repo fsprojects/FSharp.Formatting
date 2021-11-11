@@ -24,7 +24,7 @@ let rec formatParagraphs ctx paragraphs =
                     else
                         output
 
-                let code2 = formatFsxCode ctx code
+                let code2 = adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code
 
                 code2
                 + (match codeOutput with

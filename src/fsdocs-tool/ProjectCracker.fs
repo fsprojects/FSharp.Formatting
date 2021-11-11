@@ -305,7 +305,7 @@ module Crack =
 
     let crackProjects
         (
-            strict,
+            onError,
             extraMsbuildProperties,
             userRoot,
             userCollectionName,
@@ -383,9 +383,8 @@ module Crack =
                         (Path.GetFileName p)
                         e
 
-                    if strict && (ignoreProjects |> not) then
-                        printfn "Project cracking failed and --strict is on, exiting"
-                        exit 1
+                    if not ignoreProjects then
+                        onError "Project cracking failed and --strict is on, exiting"
 
                     None)
             |> Array.toList

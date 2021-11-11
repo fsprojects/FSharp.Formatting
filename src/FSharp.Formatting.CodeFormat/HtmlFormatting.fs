@@ -73,7 +73,7 @@ type FormattingContext =
       OpenLinesTag: string
       CloseLinesTag: string
       FormatTip: ToolTipSpans -> bool -> (ToolTipSpans -> string) -> string
-      TokenKindToCss: TokenKind -> string }
+      TokenKindToCss: (TokenKind -> string) }
 
 // --------------------------------------------------------------------------------------
 // Formats various types from 'SourceCode.fs' as HTML
@@ -223,8 +223,8 @@ let formatSnippetsAsHtml
     closeTag
     openLinesTag
     closeLinesTag
-    (snippets: Snippet [])
     tokenKindToCss
+    (snippets: Snippet [])
     =
     let tipf = ToolTipFormatter prefix
 

@@ -4,6 +4,8 @@
 // --------------------------------------------------------------------------------------
 namespace rec FSharp.Formatting.CodeFormat
 
+open FSharp.Formatting.CodeFormat.Constants
+
 // --------------------------------------------------------------------------------------
 // Abstract Syntax representation of formatted source code
 // --------------------------------------------------------------------------------------
@@ -54,8 +56,7 @@ type ErrorKind =
 
 /// A token in a parsed F# code snippet. Aside from standard tokens reported from
 /// the compiler (Token), this also includes Error (wrapping the underlined
-/// tokens), Omitted for the special [omit:...] tags and Output for the special
-/// [output:...] tag
+/// tokens), Omitted for the special [omit:...] tags and Output for the special [output:...] tag
 [<RequireQualifiedAccess>]
 type TokenSpan =
     | Token of TokenKind * string * ToolTipSpans option
@@ -80,3 +81,32 @@ type SourceError =
     /// Error reported from the F# compiler consists of location (start and end),
     /// error kind and the message
     | SourceError of start: (int * int) * finish: (int * int) * errorKind: ErrorKind * message: string
+
+module internal CodeFormatHelper =
+
+    let defaultTokenMap kind =
+        match kind with
+        | TokenKind.Comment -> CSS.Comment
+        | TokenKind.Default -> CSS.Default
+        | TokenKind.Identifier -> CSS.Identifier
+        | TokenKind.Inactive -> CSS.Inactive
+        | TokenKind.Keyword -> CSS.Keyword
+        | TokenKind.Number -> CSS.Number
+        | TokenKind.Operator -> CSS.Operator
+        | TokenKind.Preprocessor -> CSS.Preprocessor
+        | TokenKind.String -> CSS.String
+        | TokenKind.Module -> CSS.Module
+        | TokenKind.ReferenceType -> CSS.ReferenceType
+        | TokenKind.ValueType -> CSS.ValueType
+        | TokenKind.Function -> CSS.Function
+        | TokenKind.Pattern -> CSS.Pattern
+        | TokenKind.MutableVar -> CSS.MutableVar
+        | TokenKind.Printf -> CSS.Printf
+        | TokenKind.Escaped -> CSS.Escaped
+        | TokenKind.Disposable -> CSS.Disposable
+        | TokenKind.TypeArgument -> CSS.TypeArgument
+        | TokenKind.Punctuation -> CSS.Punctuation
+        | TokenKind.Enumeration -> CSS.Enumeration
+        | TokenKind.Interface -> CSS.Interface
+        | TokenKind.Property -> CSS.Property
+        | TokenKind.UnionCase -> CSS.UnionCase

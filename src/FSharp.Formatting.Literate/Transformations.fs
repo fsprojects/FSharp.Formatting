@@ -150,11 +150,12 @@ module internal Transformations =
                     | l -> Some(String.concat "," l)
 
                 let snippets, diagnostics =
-                    ctx.FormatAgent.ParseAndCheckSource(
+                    CodeFormatter.ParseAndCheckSource(
                         Path.ChangeExtension(path, ".fsx"),
                         source,
-                        ?options = ctx.CompilerOptions,
-                        ?defines = defines
+                        ctx.CompilerOptions,
+                        defines,
+                        ctx.OnError
                     )
 
                 let results =
@@ -544,7 +545,7 @@ module internal Transformations =
 
     /// Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
     let replaceLiterateParagraphs ctx (doc: LiterateDocument) =
-        let codes = List.collect collectLiterateCode doc.Paragraphs
+        let codes = doc.Paragraphs |> List.collect collectLiterateCode
 
         let snippets = [| for _, (lines, _) in codes -> Snippet("", lines) |]
 

@@ -31,7 +31,8 @@ let ``Can build doc content`` () =
             saveImages = None,
             watch = false,
             root = "https://github.com",
-            crefResolver = (fun _ -> None)
+            crefResolver = (fun _ -> None),
+            onError = failwith
         )
 
     let docModels = content.Convert(rootInputFolderAsGiven, None, [])

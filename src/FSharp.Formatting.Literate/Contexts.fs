@@ -7,17 +7,17 @@ open FSharp.Formatting.Templating
 /// Specifies a context that is passed to functions
 /// that need to use the F# compiler
 type internal CompilerContext =
-    { /// An instance of the F# code formatting agent
-      FormatAgent: CodeFormatAgent
-
-      /// F# interactive evaluator
+    { /// F# interactive evaluator
       Evaluator: IFsiEvaluator option
 
       /// Command line options for the F# compiler
       CompilerOptions: string option
 
       /// Defined symbols for the F# compiler
-      ConditionalDefines: string list }
+      ConditionalDefines: string list
+
+      /// Reporting errors
+      OnError: string -> unit }
 
 /// Defines the possible output types from literate script (HTML, Latex, Pynb)
 [<RequireQualifiedAccess>]
@@ -110,5 +110,4 @@ type internal LiterateProcessingContext =
       /// Conditional defines for the processing
       ConditionalDefines: string list
 
-      /// Function assigning CSS class to given token kind. If not specified, default mapping will be used
       TokenKindToCss: (TokenKind -> string) option }

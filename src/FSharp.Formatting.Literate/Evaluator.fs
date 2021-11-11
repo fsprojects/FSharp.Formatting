@@ -167,7 +167,7 @@ type FsiEvaluator
         ?addHtmlPrinter: bool,
         ?discardStdOut: bool,
         ?disableFsiObj: bool,
-        ?strict: bool
+        ?onError: (string -> unit)
     ) =
 
     let discardStdOut = defaultArg discardStdOut true
@@ -176,7 +176,7 @@ type FsiEvaluator
 
     let addHtmlPrinter = defaultArg addHtmlPrinter true
     let disableFsiObj = defaultArg disableFsiObj false
-    let strict = defaultArg strict false
+    let onError = defaultArg onError ignore
 
     let fsiOptions =
         options
@@ -564,13 +564,10 @@ module __FsiSettings =
                       Exception = e
                       StdErr = e.Result.Error.Merged }
 
-                if strict then
-                    printfn "Evaluation failed and --strict is on"
-                    printfn "  file=%O, asExpression=%O, text=%O" file asExpression text
-                    printfn "  stdout=%O" e.Result.Output.Merged
-                    printfn "  stderr=%O" e.Result.Error.Merged
-                    printfn "  inner exception: %O" e.InnerException
-                    exit 1
+                let msg =
+                    $"Evaluation failed and --strict is on\n    file={file}\n    asExpression={asExpression}, text={text}\n    stdout={e.Result.Output.Merged}\n\    stderr={e.Result.Error.Merged}\n    inner exception={e.InnerException}"
+
+                onError msg
 
                 { Output = None
                   FsiOutput = None

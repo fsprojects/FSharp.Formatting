@@ -25,6 +25,7 @@ open Suave.Sockets.Control
 open Suave.WebSocket
 open Suave.Operators
 open Suave.Filters
+open FSharp.Formatting.Markdown
 
 /// Convert markdown, script and other content into a static site
 type internal DocContent
@@ -37,7 +38,8 @@ type internal DocContent
         saveImages,
         watch,
         root,
-        crefResolver
+        crefResolver,
+        onError
     ) =
 
     let createImageSaver (rootOutputFolderAsGiven) =
@@ -248,18 +250,18 @@ type internal DocContent
                                   inputFileFullPath,
                                   output = outputFileRelativeToRoot,
                                   outputKind = outputKind,
-                                  ?formatAgent = None,
-                                  ?prefix = None,
-                                  ?fscOptions = None,
-                                  ?lineNumbers = lineNumbers,
-                                  references = false,
-                                  ?fsiEvaluator = fsiEvaluator,
+                                  prefix = None,
+                                  fscOptions = None,
+                                  lineNumbers = lineNumbers,
+                                  references = Some false,
+                                  fsiEvaluator = fsiEvaluator,
                                   substitutions = substitutions,
-                                  generateAnchors = true,
-                                  ?imageSaver = imageSaverOpt,
-                                  ?rootInputFolder = rootInputFolder,
+                                  generateAnchors = Some true,
+                                  imageSaver = imageSaverOpt,
+                                  rootInputFolder = rootInputFolder,
                                   crefResolver = crefResolver,
-                                  mdlinkResolver = mdlinkResolver
+                                  mdlinkResolver = mdlinkResolver,
+                                  onError = Some onError
                               )
 
                           yield
@@ -285,17 +287,18 @@ type internal DocContent
                                   inputFileFullPath,
                                   output = outputFileRelativeToRoot,
                                   outputKind = outputKind,
-                                  ?formatAgent = None,
-                                  ?prefix = None,
-                                  ?fscOptions = None,
-                                  ?lineNumbers = lineNumbers,
-                                  references = false,
+                                  prefix = None,
+                                  fscOptions = None,
+                                  lineNumbers = lineNumbers,
+                                  references = Some false,
                                   substitutions = substitutions,
-                                  generateAnchors = true,
-                                  ?imageSaver = imageSaverOpt,
-                                  ?rootInputFolder = rootInputFolder,
+                                  generateAnchors = Some true,
+                                  imageSaver = imageSaverOpt,
+                                  rootInputFolder = rootInputFolder,
                                   crefResolver = crefResolver,
-                                  mdlinkResolver = mdlinkResolver
+                                  mdlinkResolver = mdlinkResolver,
+                                  parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
+                                  onError = Some onError
                               )
 
                           yield
@@ -740,19 +743,21 @@ type CoreBuildOptions(watch) =
     member val clean = false with get, set
 
     member this.Execute() =
+
+        let onError msg =
+            if this.strict then
+                printfn "%s" msg
+                exit 1
+
         let protect phase f =
             try
                 f ()
                 true
             with
             | ex ->
-                Log.errorf "received exception :\n %A" ex
                 printfn "Error : \n%O" ex
 
-                if this.strict then
-                    printfn "%s failed, and --strict is on : \n%O" phase ex
-                    exit 1
-
+                onError (sprintf "%s failed, and --strict is on : \n%O" phase ex)
                 false
 
         /// The substitutions as given by the user
@@ -796,7 +801,10 @@ type CoreBuildOptions(watch) =
             | true, v -> Some v
             | _ -> None
 
-        let (root, collectionName, crackedProjects, paths, docsParameters), _key =
+        // See https://github.com/ionide/proj-info/issues/123
+        let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
+
+        let (root, collectionName, crackedProjects, paths, docsSubstitutions), _key =
             let projects = Seq.toList this.projects
             let cacheFile = ".fsdocs/cache"
 
@@ -829,7 +837,7 @@ type CoreBuildOptions(watch) =
                                 failwith "properties must be of the form 'PropName=PropValue'")
 
                     Crack.crackProjects (
-                        this.strict,
+                        onError,
                         props,
                         userRoot,
                         userCollectionName,
@@ -838,6 +846,9 @@ type CoreBuildOptions(watch) =
                         this.ignoreprojects
                     ),
                     key1)
+
+        // See https://github.com/ionide/proj-info/issues/123
+        System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
 
         if crackedProjects.Length > 0 then
             printfn ""
@@ -866,11 +877,11 @@ type CoreBuildOptions(watch) =
             printfn ""
             printfn "Substitutions/parameters:"
             // Print the substitutions
-            for (ParamKey pk, p) in docsParameters do
+            for (ParamKey pk, p) in docsSubstitutions do
                 printfn "  %s --> %s" pk p
 
             // The substitutions may differ for some projects due to different settings in the project files, if so show that
-            let pd = dict docsParameters
+            let pd = dict docsSubstitutions
 
             for (dllFile, _, _, _, _, _, _, _, _, projectParameters) in crackedProjects do
                 for (((ParamKey pkv2) as pk2), p2) in projectParameters do
@@ -1077,26 +1088,26 @@ type CoreBuildOptions(watch) =
                                     inputs = apiDocInputs,
                                     output = rootOutputFolderAsGiven,
                                     collectionName = collectionName,
-                                    substitutions = docsParameters,
+                                    substitutions = docsSubstitutions,
                                     qualify = this.qualify,
                                     ?template = initialTemplate2,
                                     otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
                                     root = root,
                                     libDirs = paths,
-                                    strict = this.strict
+                                    onError = onError
                                 )
                             | OutputKind.Markdown ->
                                 ApiDocs.GenerateMarkdownPhased(
                                     inputs = apiDocInputs,
                                     output = rootOutputFolderAsGiven,
                                     collectionName = collectionName,
-                                    substitutions = docsParameters,
+                                    substitutions = docsSubstitutions,
                                     qualify = this.qualify,
                                     ?template = initialTemplate2,
                                     otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
                                     root = root,
                                     libDirs = paths,
-                                    strict = this.strict
+                                    onError = onError
                                 )
                             | _ -> failwithf "API Docs format '%A' is not supported" outputKind
 
@@ -1144,7 +1155,7 @@ type CoreBuildOptions(watch) =
 
                 let fsiEvaluator =
                     (if this.eval then
-                         Some(FsiEvaluator(strict = this.strict) :> IFsiEvaluator)
+                         Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
                      else
                          None)
 
@@ -1154,11 +1165,12 @@ type CoreBuildOptions(watch) =
                         latestDocContentResults,
                         Some this.linenumbers,
                         fsiEvaluator,
-                        docsParameters,
+                        docsSubstitutions,
                         saveImages,
                         watch,
                         root,
-                        latestApiDocCodeReferenceResolver
+                        latestApiDocCodeReferenceResolver,
+                        onError
                     )
 
                 let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
