@@ -1,3 +1,6 @@
+## 14.0.1
+* Fixes 703, 700 - `--strict` is now considerably stricter, and more diagnostics being shown
+
 ## 14.0.0
 
 * Fix [Getting ReturnType from ApiDocMember without Html already embedded](https://github.com/fsprojects/FSharp.Formatting/issues/708)
