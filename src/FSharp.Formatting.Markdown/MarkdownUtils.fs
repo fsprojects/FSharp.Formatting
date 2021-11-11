@@ -119,11 +119,11 @@ module internal MarkdownUtils =
               yield ""
 
           | Heading (n, spans, _) ->
-              yield (String.replicate n "#") + " " + formatSpans ctx spans
+              yield String.replicate n "#" + " " + formatSpans ctx spans
 
               yield ""
           | Paragraph (spans, _) ->
-              yield (String.concat "" [ for span in spans -> formatSpan ctx span ])
+              yield String.concat "" [ for span in spans -> formatSpan ctx span ]
               yield ""
 
           | HorizontalRule (_) ->
@@ -141,32 +141,43 @@ module internal MarkdownUtils =
               | Some f -> yield f
 
               yield ""
-          | ListBlock (Unordered, paragraphs, _) ->
-              yield
-                  (String.concat
-                      "\n"
-                      (paragraphs
-                       |> List.collect (fun ps -> [ for p in ps -> String.concat "" (formatParagraph ctx p) ])))
+          | ListBlock (Unordered, paragraphsl, _) ->
+              for paragraphs in paragraphsl do
+                  for (i, paragraph) in List.indexed paragraphs do
+                      let lines = formatParagraph ctx paragraph
+                      let lines = if lines.IsEmpty then [""] else lines
+                      for (j, line) in List.indexed lines do
+                          if i = 0 && j = 0 then yield "* " + line
+                          else yield "  " + line
+                      yield ""
+          | ListBlock (Ordered, paragraphsl, _) ->
+              for (n,paragraphs) in List.indexed paragraphsl do
+                  for (i, paragraph) in List.indexed paragraphs do
+                      let lines = formatParagraph ctx paragraph
+                      let lines = if lines.IsEmpty then [""] else lines
+                      for (j, line) in List.indexed lines do
+                          if i = 0 && j = 0 then yield $"{n} " + line
+                          else yield "  " + line
+                      yield ""
           | TableBlock (headers, alignments, rows, _) ->
 
               match headers with
               | Some headers ->
                   yield
-                      (String.concat
-                          " | "
-                          (headers
-                           |> List.collect (fun hs -> [ for h in hs -> String.concat "" (formatParagraph ctx h) ])))
+                      headers
+                      |> List.collect (fun hs -> [ for h in hs -> String.concat "" (formatParagraph ctx h) ])
+                      |> String.concat " | "
+
               | None -> ()
 
               yield
-                  (String.concat
-                      " | "
                       [ for a in alignments ->
                             match a with
                             | AlignLeft -> ":---"
                             | AlignCenter -> ":---:"
                             | AlignRight -> "---:"
-                            | AlignDefault -> "---" ])
+                            | AlignDefault -> "---" ]
+                      |> String.concat " | "
 
               let replaceEmptyWith x s =
                   match s with
@@ -175,8 +186,6 @@ module internal MarkdownUtils =
                   | s -> Some s
 
               yield
-                  String.concat
-                      "\n"
                       [ for r in rows do
                             [ for ps in r do
                                   let x =
@@ -189,6 +198,7 @@ module internal MarkdownUtils =
                                   yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
                             |> Seq.choose (replaceEmptyWith (Some "&#32;"))
                             |> String.concat " | " ]
+                      |> String.concat "\n"
 
               yield "\n"
 
@@ -201,25 +211,37 @@ module internal MarkdownUtils =
               yield "```"
               yield ""
           | OtherBlock (lines, _) -> yield! List.map fst lines
+          | InlineHtmlBlock(code, _, _) -> 
+              let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
+              yield! lines
           //yield ""
+          | YamlFrontmatter _ ->
+              ()
+          | Span (body=body) ->
+              yield formatSpans ctx body
+          | QuotedBlock(paragraphs=paragraphs) ->
+              for paragraph in paragraphs do
+                  let lines = formatParagraph ctx paragraph
+                  for line in lines do
+                      yield "> " + line
+                  yield ""
           | _ ->
               printfn "// can't yet format %0A to markdown" paragraph
               yield "" ]
 
-    let formatFsxCode ctx (code: string) =
+    let adjustFsxCodeForConditionalDefines (defineSymbol, newLine) (code: string) =
         // Inside literate code blocks we conditionally remove some special lines to get nicer output for
         // load sections for different formats. We remove this:
         //   #if IPYNB
         //   #endif // IPYNB
-        let sym = ctx.DefineSymbol
-        let sym1 = sprintf "#if %s" sym
-        let sym2 = sprintf "#endif // %s" sym
+        let sym1 = sprintf "#if %s" defineSymbol
+        let sym2 = sprintf "#endif // %s" defineSymbol
 
         let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
 
         let lines = lines |> List.filter (fun line -> line.Trim() <> sym1 && line.Trim() <> sym2)
 
-        let code2 = String.concat ctx.Newline lines
+        let code2 = String.concat newLine lines
         code2
 
     let applySubstitutionsInText ctx (text: string) =

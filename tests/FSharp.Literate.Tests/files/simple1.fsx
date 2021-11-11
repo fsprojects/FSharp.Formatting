@@ -17,3 +17,9 @@ Another [hyperlink](simple2.md)
 let hello = "Code sample"
 
 let goodbye = "substitute-in-fsx-code: {{fsdocs-source-basename}}"
+
+#if HTML
+
+let test = 1
+
+#endif

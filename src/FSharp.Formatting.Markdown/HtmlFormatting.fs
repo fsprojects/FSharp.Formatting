@@ -3,7 +3,6 @@
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
 
-/// [omit]
 module FSharp.Formatting.Markdown.HtmlFormatting
 
 open System
@@ -61,7 +60,8 @@ type internal FormattingContext =
       WrapCodeSnippets: bool
       GenerateHeaderAnchors: bool
       UniqueNameGenerator: UniqueNameGenerator
-      ParagraphIndent: unit -> unit }
+      ParagraphIndent: unit -> unit
+      DefineSymbol: string }
 
 let internal bigBreak (ctx: FormattingContext) () = ctx.Writer.Write(ctx.Newline)
 
@@ -205,6 +205,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("</p>")
     | HorizontalRule (_, _) -> ctx.Writer.Write("<hr />")
     | CodeBlock (code, _, _fence, language, _, _) ->
+        let code = if language = "fsharp" then adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code else code
+
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
@@ -360,5 +362,6 @@ let formatAsHtml writer generateAnchors wrap links substitutions newline crefRes
           WrapCodeSnippets = wrap
           GenerateHeaderAnchors = generateAnchors
           UniqueNameGenerator = new UniqueNameGenerator()
-          ParagraphIndent = ignore }
+          ParagraphIndent = ignore
+          DefineSymbol = "HTML" }
         paragraphs

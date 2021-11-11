@@ -40,18 +40,6 @@ open FSharp.Formatting.CodeFormat
 open System.Reflection
 
 (**
-
-Starting a background agent
----------------------------
-
-The `FSharp.Formatting.CodeFormat` namespace contains `cref:T:FSharp.Formatting.CodeFormat.CodeFormat` type which is the
-entry point. The static method `cref:M:FSharp.Formatting.CodeFormat.CodeFormat.CreateAgent` starts a background worker that
-can be called to format snippets repeatedly:
-*)
-
-let formattingAgent = CodeFormat.CreateAgent()
-
-(**
 If you want to process multiple snippets, it is a good idea to keep the
 formatting agent around if possible. The agent needs to load the F# compiler
 (which needs to load various files itself) and so this takes a long time.
@@ -70,8 +58,8 @@ let source =
       printfn "Hello world"
   """
 
-let snippets, errors =
-    formattingAgent.ParseAndCheckSource("C:\\snippet.fsx", source)
+let snippets, diagnostics =
+    CodeFormatter.ParseAndCheckSource("C:\\snippet.fsx", source, None, None, ignore)
 
 (**
 When calling the method, you need to specify a file name and the actual content

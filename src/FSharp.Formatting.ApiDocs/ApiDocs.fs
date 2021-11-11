@@ -29,6 +29,7 @@ type ApiDocs =
     /// <param name="urlRangeHighlight">A function that can be used to override the default way of generating GitHub links</param>
     /// <param name="strict">Fail if any assembly is missing XML docs or can't be resolved</param>
     /// <param name="extension">The extensions used for files and URLs</param>
+    /// <param name="onError"></param>
     ///
     static member GenerateModel
         (

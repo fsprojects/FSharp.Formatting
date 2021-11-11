@@ -927,6 +927,21 @@ let First = 0
 
     html.IndexOf("First") < html.IndexOf("Second") |> shouldEqual true
 
+//[<Test>]
+//let ``Can use HTML define`` () =
+//    let outputFile = __SOURCE_DIRECTORY__ </> "output4" </> "simple1.html"
+//    Literate.ConvertScriptFile(
+//        __SOURCE_DIRECTORY__ </> "files" </> "simple1.fsx",
+//        outputKind = OutputKind.Html,
+//        output = outputFile
+//    )
+
+//    let html = File.ReadAllText outputFile
+
+//    html |> shouldContainText ">test<"
+//    html |> shouldNotContainText "HTML"
+//    html |> shouldNotContainText "endif"
+
 
 [<Test>]
 let ``Formatted markdown transforms markdown links`` () =

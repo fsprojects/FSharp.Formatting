@@ -801,6 +801,9 @@ type CoreBuildOptions(watch) =
             | true, v -> Some v
             | _ -> None
 
+        // See https://github.com/ionide/proj-info/issues/123
+        let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
+
         let (root, collectionName, crackedProjects, paths, docsSubstitutions), _key =
             let projects = Seq.toList this.projects
             let cacheFile = ".fsdocs/cache"
@@ -843,6 +846,9 @@ type CoreBuildOptions(watch) =
                         this.ignoreprojects
                     ),
                     key1)
+
+        // See https://github.com/ionide/proj-info/issues/123
+        System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
 
         if crackedProjects.Length > 0 then
             printfn ""

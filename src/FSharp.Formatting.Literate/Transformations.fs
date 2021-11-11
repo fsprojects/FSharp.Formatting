@@ -545,7 +545,7 @@ module internal Transformations =
 
     /// Replace all special 'LiterateParagraph' elements with ordinary HTML/Latex
     let replaceLiterateParagraphs ctx (doc: LiterateDocument) =
-        let codes = List.collect collectLiterateCode doc.Paragraphs
+        let codes = doc.Paragraphs |> List.collect collectLiterateCode
 
         let snippets = [| for _, (lines, _) in codes -> Snippet("", lines) |]
 

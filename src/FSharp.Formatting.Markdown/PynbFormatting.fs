@@ -26,7 +26,7 @@ let rec formatParagraphs ctx paragraphs =
             match k with
             | Choice1Of2 (code, codeOutput, executionCount) ->
                 codeCell
-                    [| formatFsxCode ctx code |]
+                    [| adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code |]
                     executionCount
                     (List.map (formatCodeOutput executionCount) codeOutput |> Array.ofList)
             | Choice2Of2 markdown -> markdownCell (Array.ofList (List.collect (formatParagraph ctx) markdown))

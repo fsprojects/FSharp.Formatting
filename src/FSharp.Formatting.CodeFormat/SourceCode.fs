@@ -56,8 +56,7 @@ type ErrorKind =
 
 /// A token in a parsed F# code snippet. Aside from standard tokens reported from
 /// the compiler (Token), this also includes Error (wrapping the underlined
-/// tokens), Omitted for the special [omit:...] tags and Output for the special
-/// [output:...] tag
+/// tokens), Omitted for the special [omit:...] tags and Output for the special [output:...] tag
 [<RequireQualifiedAccess>]
 type TokenSpan =
     | Token of TokenKind * string * ToolTipSpans option

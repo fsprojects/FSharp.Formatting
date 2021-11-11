@@ -162,6 +162,7 @@ type Literate private () =
     /// <param name="fsiEvaluator"></param>
     /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
     /// <param name="rootInputFolder"></param>
+    /// <param name="onError"></param>
     static member ParseMarkdownFile
         (
             path: string,
@@ -194,6 +195,7 @@ type Literate private () =
     /// <param name="fsiEvaluator"></param>
     /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
     /// <param name="rootInputFolder"></param>
+/// <param name="onError"></param>
     static member ParseMarkdownString
         (
             content,

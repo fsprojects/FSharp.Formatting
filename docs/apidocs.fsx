@@ -232,7 +232,6 @@ If you want to exclude modules or functions from the API docs you can use the `[
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:
 
 *)
-/// [omit]
 /// Some actual comment
 module Bar =
     let a = 42
