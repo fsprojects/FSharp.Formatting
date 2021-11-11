@@ -37,6 +37,19 @@ The [command-line tool `fsdocs`](commandline.html) can be used to generate docum
 for F# libraries with XML comments.  The documentation is normally built using `fsdocs build` and developed using `fsdocs watch`. For
 the former the output will be placed in `output\reference` by default.
 
+## Selected projects
+
+`fsdocs` automatically selects the projects and "cracks" the project files for information
+
+* Projects with `GenerateDocumentationFile` and without `IsTestProject` are selected.
+* Projects must not use `TargetFrameworks` (only `TargetFramework`, singular).
+
+```text
+    <PropertyGroup>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+```
+
 ## Templates
 
 The HTML is built by instantiating a template. The template used is the first of:
