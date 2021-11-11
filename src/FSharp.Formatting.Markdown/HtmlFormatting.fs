@@ -205,7 +205,11 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("</p>")
     | HorizontalRule (_, _) -> ctx.Writer.Write("<hr />")
     | CodeBlock (code, _, _fence, language, _, _) ->
-        let code = if language = "fsharp" then adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code else code
+        let code =
+            if language = "fsharp" then
+                adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code
+            else
+                code
 
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")

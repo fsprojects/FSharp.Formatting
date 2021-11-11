@@ -145,19 +145,27 @@ module internal MarkdownUtils =
               for paragraphs in paragraphsl do
                   for (i, paragraph) in List.indexed paragraphs do
                       let lines = formatParagraph ctx paragraph
-                      let lines = if lines.IsEmpty then [""] else lines
+                      let lines = if lines.IsEmpty then [ "" ] else lines
+
                       for (j, line) in List.indexed lines do
-                          if i = 0 && j = 0 then yield "* " + line
-                          else yield "  " + line
+                          if i = 0 && j = 0 then
+                              yield "* " + line
+                          else
+                              yield "  " + line
+
                       yield ""
           | ListBlock (Ordered, paragraphsl, _) ->
-              for (n,paragraphs) in List.indexed paragraphsl do
+              for (n, paragraphs) in List.indexed paragraphsl do
                   for (i, paragraph) in List.indexed paragraphs do
                       let lines = formatParagraph ctx paragraph
-                      let lines = if lines.IsEmpty then [""] else lines
+                      let lines = if lines.IsEmpty then [ "" ] else lines
+
                       for (j, line) in List.indexed lines do
-                          if i = 0 && j = 0 then yield $"{n} " + line
-                          else yield "  " + line
+                          if i = 0 && j = 0 then
+                              yield $"{n} " + line
+                          else
+                              yield "  " + line
+
                       yield ""
           | TableBlock (headers, alignments, rows, _) ->
 
@@ -171,13 +179,13 @@ module internal MarkdownUtils =
               | None -> ()
 
               yield
-                      [ for a in alignments ->
-                            match a with
-                            | AlignLeft -> ":---"
-                            | AlignCenter -> ":---:"
-                            | AlignRight -> "---:"
-                            | AlignDefault -> "---" ]
-                      |> String.concat " | "
+                  [ for a in alignments ->
+                        match a with
+                        | AlignLeft -> ":---"
+                        | AlignCenter -> ":---:"
+                        | AlignRight -> "---:"
+                        | AlignDefault -> "---" ]
+                  |> String.concat " | "
 
               let replaceEmptyWith x s =
                   match s with
@@ -186,19 +194,19 @@ module internal MarkdownUtils =
                   | s -> Some s
 
               yield
-                      [ for r in rows do
-                            [ for ps in r do
-                                  let x =
-                                      [ for p in ps do
-                                            yield
-                                                formatParagraph ctx p
-                                                |> Seq.choose (replaceEmptyWith (Some ""))
-                                                |> String.concat "" ]
+                  [ for r in rows do
+                        [ for ps in r do
+                              let x =
+                                  [ for p in ps do
+                                        yield
+                                            formatParagraph ctx p
+                                            |> Seq.choose (replaceEmptyWith (Some ""))
+                                            |> String.concat "" ]
 
-                                  yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
-                            |> Seq.choose (replaceEmptyWith (Some "&#32;"))
-                            |> String.concat " | " ]
-                      |> String.concat "\n"
+                              yield x |> Seq.choose (replaceEmptyWith (Some "")) |> String.concat "<br />" ]
+                        |> Seq.choose (replaceEmptyWith (Some "&#32;"))
+                        |> String.concat " | " ]
+                  |> String.concat "\n"
 
               yield "\n"
 
@@ -211,19 +219,19 @@ module internal MarkdownUtils =
               yield "```"
               yield ""
           | OtherBlock (lines, _) -> yield! List.map fst lines
-          | InlineHtmlBlock(code, _, _) -> 
+          | InlineHtmlBlock (code, _, _) ->
               let lines = code.Replace("\r\n", "\n").Split('\n') |> Array.toList
               yield! lines
           //yield ""
-          | YamlFrontmatter _ ->
-              ()
-          | Span (body=body) ->
-              yield formatSpans ctx body
-          | QuotedBlock(paragraphs=paragraphs) ->
+          | YamlFrontmatter _ -> ()
+          | Span (body = body) -> yield formatSpans ctx body
+          | QuotedBlock (paragraphs = paragraphs) ->
               for paragraph in paragraphs do
                   let lines = formatParagraph ctx paragraph
+
                   for line in lines do
                       yield "> " + line
+
                   yield ""
           | _ ->
               printfn "// can't yet format %0A to markdown" paragraph

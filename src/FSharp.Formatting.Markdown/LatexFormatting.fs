@@ -157,10 +157,15 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
         ctx.Writer.Write(@"\noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}\medskip")
         ctx.LineBreak()
 
-    | CodeBlock (code=code; language=language) -> // TODO: could format output better using language
+    | CodeBlock (code = code; language = language) -> // TODO: could format output better using language
         ctx.Writer.Write(@"\begin{lstlisting}")
 
-        let code = if language = "fsharp" then adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code else code
+        let code =
+            if language = "fsharp" then
+                adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code
+            else
+                code
+
         if ctx.GenerateLineNumbers then
             ctx.Writer.WriteLine(@"[numbers=left]")
 
