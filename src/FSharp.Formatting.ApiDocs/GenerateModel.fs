@@ -1329,11 +1329,11 @@ module internal TypeFormatter =
 
     let formatCurriedArgsUsageAsHtml preferNoParens isItemIndexer curriedArgs =
         let counter =
-            let n = ref 0 in
+            let mutable n = 0
 
             fun () ->
-                incr n
-                !n
+                n <- n + 1
+                n
 
         curriedArgs
         |> List.map (List.map (fun x -> formatArgNameAndType (counter ()) x |> fst))
@@ -1472,7 +1472,7 @@ module internal SymbolReader =
             customOpName.IsSome
             || isItemIndexer
             || not v.IsMember
-            || PrettyNaming.IsOperatorName v.CompiledName
+            || PrettyNaming.IsMangledOpName v.CompiledName
             || Char.IsLower(v.DisplayName.[0])
 
         let fullArgUsage =
@@ -1508,7 +1508,7 @@ module internal SymbolReader =
                 ]
 
             // op_XYZ operators
-            | _, false, _, name, _ when PrettyNaming.IsOperatorName v.CompiledName ->
+            | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
                 match argInfos with
                 // binary operators (taking a tuple)
                 | [ [ x; y ] ] ->
@@ -1847,11 +1847,11 @@ module internal SymbolReader =
         use reader = new StringReader(comment)
 
         let lines =
-            [ let line = ref ""
+            [ let mutable line = ""
 
-              while (line := reader.ReadLine()
-                     line.Value <> null) do
-                  yield line.Value ]
+              while (line <- reader.ReadLine()
+                     line <> null) do
+                  yield line ]
 
         String.removeSpaces lines
 

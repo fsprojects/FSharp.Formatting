@@ -27,6 +27,8 @@ open Suave.Operators
 open Suave.Filters
 open FSharp.Formatting.Markdown
 
+#nowarn "44" // Obsolete WebClient
+
 /// Convert markdown, script and other content into a static site
 type internal DocContent
     (
@@ -956,7 +958,7 @@ type CoreBuildOptions(watch) =
                 this.output
 
         // This is in-package
-        //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net5.0\any
+        //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
         //   to .nuget\packages\fsdocs-tool\7.1.7\templates
         let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
 
@@ -985,7 +987,7 @@ type CoreBuildOptions(watch) =
         let extraInputs =
             [ if not this.nodefaultcontent then
                   // The "extras" content goes in "."
-                  //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net5.0\any
+                  //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
                   //   to .nuget\packages\fsdocs-tool\7.1.7\extras
                   let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
 
@@ -997,8 +999,8 @@ type CoreBuildOptions(watch) =
                       (attempt1, ".")
                   else
                       // This is for in-repo use only, assuming we are executing directly from
-                      //   src\fsdocs-tool\bin\Debug\net5.0\fsdocs.exe
-                      //   src\fsdocs-tool\bin\Release\net5.0\fsdocs.exe
+                      //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
+                      //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
                       let attempt2 =
                           Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
 
@@ -1297,7 +1299,7 @@ type CoreBuildOptions(watch) =
 
             use _holder =
                 { new IDisposable with
-                    member __.Dispose() =
+                    member _.Dispose() =
                         for p in docsWatchers do
                             p.Dispose()
 

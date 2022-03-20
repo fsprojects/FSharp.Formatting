@@ -915,7 +915,7 @@ let ``ApiDocs highlights code snippets in Markdown comments`` (format: OutputFor
     |> shouldContainText """<span class="k">var</span>"""
 
     files.[(sprintf "fslib-myclass.%s" format.Extension)]
-    |> shouldContainText """val a : FsLib.MyClass"""
+    |> shouldContainText """val a: FsLib.MyClass"""
 
 [<Test>]
 [<TestCaseSource("formats")>]
