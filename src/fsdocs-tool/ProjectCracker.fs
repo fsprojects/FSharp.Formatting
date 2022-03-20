@@ -2,6 +2,7 @@ namespace fsdocs
 
 open System
 open System.IO
+open System.Runtime.InteropServices
 open System.Runtime.Serialization
 open System.Xml
 
