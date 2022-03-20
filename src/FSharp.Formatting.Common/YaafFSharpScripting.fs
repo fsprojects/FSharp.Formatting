@@ -548,8 +548,6 @@ type internal FsiOptions =
           TailCalls = None
           Uses = []
           Utf8Output = false
-          /// Sets a warning level (0 to 5). The default level is 3. Each warning is given a level based on its severity. Level 5 gives more, but less severe, warnings than level 1.
-          /// Level 5 warnings are: 21 (recursive use checked at runtime), 22 (let rec evaluated out of order), 45 (full abstraction), and 52 (defensive copy). All other warnings are level 2.
           WarnLevel = None
           WarnAsError = None
           WarnAsErrorList = []

@@ -845,10 +845,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         let xmlsig = getXmlDocSigForMember memb
 
         if (not (System.String.IsNullOrEmpty xmlsig)) then
-            assert (xmlsig.StartsWith("M:")
-                    || xmlsig.StartsWith("P:")
-                    || xmlsig.StartsWith("F:")
-                    || xmlsig.StartsWith("E:"))
+            assert
+                (xmlsig.StartsWith("M:")
+                 || xmlsig.StartsWith("P:")
+                 || xmlsig.StartsWith("F:")
+                 || xmlsig.StartsWith("E:"))
 
             xmlDocNameToSymbol.[xmlsig] <- memb
 
@@ -1036,10 +1037,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 externalDocsLink false simple typeName typeName
 
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
-        assert (memberXmlSig.StartsWith("M:")
-                || memberXmlSig.StartsWith("P:")
-                || memberXmlSig.StartsWith("F:")
-                || memberXmlSig.StartsWith("E:"))
+        assert
+            (memberXmlSig.StartsWith("M:")
+             || memberXmlSig.StartsWith("P:")
+             || memberXmlSig.StartsWith("F:")
+             || memberXmlSig.StartsWith("E:"))
 
         match xmlDocNameToSymbol.TryGetValue(memberXmlSig) with
         | true, (:? FSharpMemberOrFunctionOrValue as memb) when memb.DeclaringEntity.IsSome ->
@@ -2963,8 +2965,7 @@ module internal SymbolReader =
 
 /// Represents an input assembly for API doc generation
 type ApiDocInput =
-    {
-      /// The path to the assembly
+    { /// The path to the assembly
       Path: string
 
       /// Override the default XML file (normally assumed to live alongside)

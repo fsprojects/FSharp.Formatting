@@ -46,8 +46,7 @@ type OutputKind =
 
 /// Defines the output of processing a literate doc
 type internal LiterateDocModel =
-    {
-      /// The extracted title of the document (first h1 header if not in front matter)
+    { /// The extracted title of the document (first h1 header if not in front matter)
       Title: string
 
       /// The replacement paramaters

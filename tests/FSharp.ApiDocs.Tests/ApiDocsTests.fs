@@ -480,18 +480,19 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
 
     files.[(sprintf "creflib4-class2.%s" format.Extension)]
     |> shouldContainText (sprintf "creflib1-class1%s" format.ExtensionInUrl)
-    /// + no crash on unresolved reference.
+    // + no crash on unresolved reference.
+
     files.[(sprintf "creflib4-class2.%s" format.Extension)]
     |> shouldContainText "Unknown__Reference"
 
-    /// reference to a member works.
+    // reference to a member works.
     files.[(sprintf "creflib4-class3.%s" format.Extension)]
     |> shouldContainText "Class2.Other"
 
     files.[(sprintf "creflib4-class3.%s" format.Extension)]
     |> shouldContainText (sprintf "creflib4-class2%s" format.ExtensionInUrl)
 
-    /// references to members work and give correct links
+    // references to members work and give correct links
     files.[(sprintf "creflib2-class3.%s" format.Extension)]
     |> shouldContainText (
         sprintf "<a href=\"/reference/creflib2-class2%s#Other\">Class2.Other</a>" format.ExtensionInUrl
@@ -538,7 +539,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
             format.ExtensionInUrl
     )
 
-    /// references to non-existent members where the type resolves give an approximation
+    // references to non-existent members where the type resolves give an approximation
     files.[(sprintf "creflib2-class3.%s" format.Extension)]
     |> shouldContainText (
         sprintf "and <a href=\"/reference/creflib2-class2%s\">Class2.NotExistsProperty</a>" format.ExtensionInUrl
@@ -549,7 +550,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
         sprintf "and <a href=\"/reference/creflib2-class2%s\">Class2.NotExistsMethod</a>" format.ExtensionInUrl
     )
 
-    /// reference to a corelib class works.
+    // reference to a corelib class works.
     files.[(sprintf "creflib4-class4.%s" format.Extension)]
     |> shouldContainText "Assembly"
 
@@ -565,11 +566,9 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     files.[(sprintf "creflib2-class2.%s" format.Extension)]
     |> shouldContainText "Class1"
     //files.[(sprintf "creflib2-class2.%s" format.Extension)] |> shouldContainText (sprintf "creflib1-class1%s" format.ExtensionInUrl)
-    /// + no crash on unresolved reference.
     files.[(sprintf "creflib2-class2.%s" format.Extension)]
     |> shouldContainText "Unknown__Reference"
 
-    /// reference to a corelib class works.
     files.[(sprintf "creflib2-class4.%s" format.Extension)]
     |> shouldContainText "Assembly"
     //files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
@@ -587,17 +586,16 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
 
     files.[(sprintf "creflib2-class6.%s" format.Extension)]
     |> shouldContainText (sprintf "creflib1-class1%s" format.ExtensionInUrl)
-    /// + no crash on unresolved reference.
+
     files.[(sprintf "creflib2-class6.%s" format.Extension)]
     |> shouldContainText "Unknown__Reference"
-    /// reference to a member works.
+
     files.[(sprintf "creflib2-class7.%s" format.Extension)]
     |> shouldContainText "Class2.Other"
 
     files.[(sprintf "creflib2-class7.%s" format.Extension)]
     |> shouldContainText (sprintf "creflib2-class2%s" format.ExtensionInUrl)
 
-    /// reference to a corelib class works.
     files.[(sprintf "creflib2-class8.%s" format.Extension)]
     |> shouldContainText "Assembly"
 
@@ -636,7 +634,7 @@ let ``Math in XML generated ok`` (format: OutputFormat) =
 
     let files = dict [ for f in fileNames -> Path.GetFileName(f), File.ReadAllText(f) ]
 
-    /// math is emitted ok
+    // math is emitted ok
     files.[(sprintf "creflib2-mathtest.%s" format.Extension)]
     |> shouldContainText """This is XmlMath1 \(f(x)\)"""
 

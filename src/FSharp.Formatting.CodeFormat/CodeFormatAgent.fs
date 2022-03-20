@@ -97,8 +97,7 @@ module private Helpers =
                               yield str, tok
                               state <- nstate
                               yield! parseLine ()
-                          | None, nstate ->
-                              state <- nstate
+                          | None, nstate -> state <- nstate
                       }
 
                   yield
