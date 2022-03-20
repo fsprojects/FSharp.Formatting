@@ -13,9 +13,6 @@ open Ionide.ProjInfo.Types
 
 [<AutoOpen>]
 module Utils =
-    // Needs to be done before anything else?!?
-    let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
-    let msbuildExe = Ionide.ProjInfo.Init.init cwd
 
     let isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
 
@@ -269,6 +266,10 @@ module Crack =
 
 
         let result =
+            // Needs to be done before anything else?!?
+            let cwd = System.Environment.CurrentDirectory |> System.IO.DirectoryInfo
+            let dotnetExe = getDotnetHostPath() |> Option.map System.IO.FileInfo
+            let _toolsPath = Ionide.ProjInfo.Init.init cwd dotnetExe
             ProjectLoader.getProjectInfo projectFile extraMsbuildProperties BinaryLogGeneration.Off customProperties
         //file |> Inspect.getProjectInfos loggedMessages.Enqueue msbuildExec [gp] []
 
