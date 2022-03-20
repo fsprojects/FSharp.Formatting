@@ -15,22 +15,22 @@ do ()
 type AsyncMaybeBuilder() =
 
     [<DebuggerStepThrough>]
-    member __.Return value : Async<'T option> = Some value |> async.Return
+    member _.Return value : Async<'T option> = Some value |> async.Return
 
     [<DebuggerStepThrough>]
-    member __.ReturnFrom value : Async<'T option> = value
+    member _.ReturnFrom value : Async<'T option> = value
 
     [<DebuggerStepThrough>]
-    member __.ReturnFrom(value: 'T option) : Async<'T option> = async.Return value
+    member _.ReturnFrom(value: 'T option) : Async<'T option> = async.Return value
 
     [<DebuggerStepThrough>]
-    member __.Zero() : Async<unit option> = Some() |> async.Return
+    member _.Zero() : Async<unit option> = Some() |> async.Return
 
     [<DebuggerStepThrough>]
-    member __.Delay(f: unit -> Async<'T option>) : Async<'T option> = async.Delay f
+    member _.Delay(f: unit -> Async<'T option>) : Async<'T option> = async.Delay f
 
     [<DebuggerStepThrough>]
-    member __.Combine(r1, r2: Async<'T Option>) : Async<'T option> =
+    member _.Combine(r1, r2: Async<'T Option>) : Async<'T option> =
         async {
             let! r1' = r1
 
@@ -40,7 +40,7 @@ type AsyncMaybeBuilder() =
         }
 
     [<DebuggerStepThrough>]
-    member __.Bind(value: Async<'T option>, f: 'T -> Async<'U option>) : Async<'U option> =
+    member _.Bind(value: Async<'T option>, f: 'T -> Async<'U option>) : Async<'U option> =
         async {
             let! value' = value
 
@@ -50,14 +50,14 @@ type AsyncMaybeBuilder() =
         }
 
     [<DebuggerStepThrough>]
-    member __.Bind(value: System.Threading.Tasks.Task<'T>, f: 'T -> Async<'U option>) : Async<'U option> =
+    member _.Bind(value: System.Threading.Tasks.Task<'T>, f: 'T -> Async<'U option>) : Async<'U option> =
         async {
             let! value' = Async.AwaitTask value
             return! f value'
         }
 
     [<DebuggerStepThrough>]
-    member __.Bind(value: 'T option, f: 'T -> Async<'U option>) : Async<'U option> =
+    member _.Bind(value: 'T option, f: 'T -> Async<'U option>) : Async<'U option> =
         async {
             match value with
             | None -> return None
@@ -65,7 +65,7 @@ type AsyncMaybeBuilder() =
         }
 
     [<DebuggerStepThrough>]
-    member __.Using(resource: ('T :> IDisposable), body: _ -> Async<_ option>) : Async<_ option> =
+    member _.Using(resource: ('T :> IDisposable), body: _ -> Async<_ option>) : Async<_ option> =
         try
             body resource
         finally

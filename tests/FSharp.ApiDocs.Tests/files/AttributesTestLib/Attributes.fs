@@ -53,7 +53,7 @@ type AttributeClass() =
     new(i: int) = AttributeClass()
 
     [<TestAttribute>]
-    member __.TestMember = 1
+    member _.TestMember = 1
 
     [<TestAttribute>]
     static member TestStaticMember = 2

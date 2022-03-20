@@ -83,21 +83,21 @@ module private Helpers =
 
         // Parse lines using the tokenizer
         let indexedSnippetLines =
-            [ let state = ref FSharpTokenizerLexState.Initial
+            [ let mutable state = FSharpTokenizerLexState.Initial
 
               for n, line in lines |> Seq.zip [ 0 .. lines.Length ] do
                   let tokenizer = sourceTok.CreateLineTokenizer(line)
 
                   let rec parseLine () =
                       seq {
-                          match tokenizer.ScanToken(!state) with
+                          match tokenizer.ScanToken(state) with
                           | Some (tok), nstate ->
                               let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
 
                               yield str, tok
-                              state := nstate
+                              state <- nstate
                               yield! parseLine ()
-                          | None, nstate -> state := nstate
+                          | None, nstate -> state <- nstate
                       }
 
                   yield

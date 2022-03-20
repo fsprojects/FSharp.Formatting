@@ -41,7 +41,7 @@ let internal (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
 type internal UniqueNameGenerator() =
     let generated = new System.Collections.Generic.Dictionary<string, int>()
 
-    member __.GetName(name: string) =
+    member _.GetName(name: string) =
         let ok, i = generated.TryGetValue name
 
         if ok then

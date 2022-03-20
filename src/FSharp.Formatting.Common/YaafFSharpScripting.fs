@@ -381,9 +381,9 @@ type internal HandledResult<'a> =
 module internal Shell =
     /// Represents a simple (fake) event loop for the 'fsi' object
     type SimpleEventLoop() =
-        member __.Run() = ()
-        member __.Invoke<'T>(f: unit -> 'T) = f ()
-        member __.ScheduleRestart() = ()
+        member _.Run() = ()
+        member _.Invoke<'T>(f: unit -> 'T) = f ()
+        member _.ScheduleRestart() = ()
 
     /// Implements a simple 'fsi' object to be passed to the FSI evaluator
     [<Sealed>]
@@ -404,62 +404,62 @@ module internal Shell =
         let mutable showProperties = true
         let mutable addedPrinters = []
 
-        member __.FloatingPointFormat
+        member _.FloatingPointFormat
             with get () = fpfmt
             and set v = fpfmt <- v
 
-        member __.FormatProvider
+        member _.FormatProvider
             with get () = fp
             and set v = fp <- v
 
-        member __.PrintWidth
+        member _.PrintWidth
             with get () = printWidth
             and set v = printWidth <- v
 
-        member __.PrintDepth
+        member _.PrintDepth
             with get () = printDepth
             and set v = printDepth <- v
 
-        member __.PrintLength
+        member _.PrintLength
             with get () = printLength
             and set v = printLength <- v
 
-        member __.PrintSize
+        member _.PrintSize
             with get () = printSize
             and set v = printSize <- v
 
-        member __.ShowDeclarationValues
+        member _.ShowDeclarationValues
             with get () = showDeclarationValues
             and set v = showDeclarationValues <- v
 
-        member __.ShowProperties
+        member _.ShowProperties
             with get () = showProperties
             and set v = showProperties <- v
 
-        member __.ShowIEnumerable
+        member _.ShowIEnumerable
             with get () = showIEnumerable
             and set v = showIEnumerable <- v
 
-        member __.ShowIDictionary
+        member _.ShowIDictionary
             with get () = showIDictionary
             and set v = showIDictionary <- v
 
-        member __.AddedPrinters
+        member _.AddedPrinters
             with get () = addedPrinters
             and set v = addedPrinters <- v
 
-        member __.CommandLineArgs
+        member _.CommandLineArgs
             with get () = args
             and set v = args <- v
 
-        member __.AddPrinter(printer: 'T -> string) =
+        member _.AddPrinter(printer: 'T -> string) =
             addedPrinters <- Choice1Of2(typeof<'T>, unbox >> printer) :: addedPrinters
 
-        member __.EventLoop
+        member _.EventLoop
             with get () = evLoop
             and set (_: SimpleEventLoop) = ()
 
-        member __.AddPrintTransformer(printer: 'T -> obj) =
+        member _.AddPrintTransformer(printer: 'T -> obj) =
             addedPrinters <- Choice2Of2(typeof<'T>, unbox >> printer) :: addedPrinters
 
 module internal ArgParser =
@@ -548,8 +548,6 @@ type internal FsiOptions =
           TailCalls = None
           Uses = []
           Utf8Output = false
-          /// Sets a warning level (0 to 5). The default level is 3. Each warning is given a level based on its severity. Level 5 gives more, but less severe, warnings than level 1.
-          /// Level 5 warnings are: 21 (recursive use checked at runtime), 22 (let rec evaluated out of order), 45 (full abstraction), and 52 (defensive copy). All other warnings are level 2.
           WarnLevel = None
           WarnAsError = None
           WarnAsErrorList = []
@@ -835,10 +833,10 @@ module internal Helper =
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
-        member __.FsiOutWriter = fsiOutWriter
-        member __.StdOutWriter = stdOutWriter
+        member _.FsiOutWriter = fsiOutWriter
+        member _.StdOutWriter = stdOutWriter
 
-        member __.GetOutputAndResetLocal() =
+        member _.GetOutputAndResetLocal() =
             let [ fsi; std; merged ] =
                 all
                 |> List.map (fun (global', local) ->
@@ -963,19 +961,9 @@ type internal FsiSession
 
             f text)
 
-    let saveScript f =
-        save_ (fun path ->
-            if reportGlobal then
-                // That's how its implemented: https://github.com/fsharp/FSharp.Compiler.Service/blob/c1ca06144d8194000cf6b86f5f26bdc433ccaa7d/src/fsharp/fsi/fsi.fs#L2074
-                sbInput.AppendLine(sprintf "#load @\"%s\" " path) |> ignore
-
-            f path)
-
     let evalInteraction = save fsiSession.EvalInteractionNonThrowing
 
     let evalExpression = save fsiSession.EvalExpressionNonThrowing
-
-    let evalScript = saveScript fsiSession.EvalScriptNonThrowing
 
     let diagsToString (diags: FSharpDiagnostic []) =
         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
@@ -983,7 +971,7 @@ type internal FsiSession
     let addDiagsToFsiOutput (o: InteractionOutputs) diags =
         { o with Output = { o.Output with FsiOutput = diagsToString diags + o.Output.FsiOutput } }
 
-    member __.EvalInteraction text =
+    member _.EvalInteraction text =
         let i, (r, diags) = evalInteraction text
         let i2 = addDiagsToFsiOutput i diags
 
@@ -994,18 +982,7 @@ type internal FsiSession
 
         i2, res
 
-    member __.EvalScript path =
-        let i, (r, diags) = evalScript path
-        let i2 = addDiagsToFsiOutput i diags
-
-        let res =
-            match r with
-            | Choice1Of2 v -> Ok v
-            | Choice2Of2 exn -> Error exn
-
-        i2, res
-
-    member __.TryEvalExpression text =
+    member _.TryEvalExpression text =
         let i, (r, diags) = evalExpression text
         let i2 = addDiagsToFsiOutput i diags
 
@@ -1016,70 +993,7 @@ type internal FsiSession
 
         i2, res
 
-    member __.DynamicAssembly = fsiSession.DynamicAssembly
-
-    member __.Dispose() = (fsiSession :> IDisposable).Dispose()
-
-    /// See https://github.com/Microsoft/visualfsharp/issues/1392
-    member x.EvalScriptAsInteraction s =
-        // See https://github.com/fsharp/FSharp.Compiler.Service/issues/621
-        let scriptContents = sprintf "#line 1 @\"%s\"\n" s + System.IO.File.ReadAllText s + "\n()"
-
-        x.EvalInteraction scriptContents
-
-    //member x.EvalExpression<'a> text =
-    //  match x.TryEvalExpression text with
-    //  | int, Ok (Some (value, _typ)), diags ->
-    //    match value with
-    //    | :? 'a as v -> int, v
-    //    | o ->
-    //      let msg = sprintf "the returned value (%O) doesn't match the expected type (%A) but has type %A" o (typeof<'a>) (o.GetType())
-    //      raise <| new FsiExpressionTypeException(msg, text, int, typeof<'a>, o)
-    //  | int, Error exn, _ ->
-    //    let msg = sprintf "no value was returned by expression: %s\n%A" text exn
-    //    raise (new FsiExpressionTypeException(msg, text, int, typeof<'a>))
-
-    ///// Assigns the given object to the given name (ie "let varName = obj")
-    //member x.Let<'a> varName obj =
-    //    let typeName = typeof<'a>.FSharpFullNameWithTypeArgs
-    //    x.EvalInteraction (sprintf "let mutable __hook = ref Unchecked.defaultof<%s>" typeName) |> ignore
-    //    let __hook = x.EvalExpression<'a ref> "__hook"
-    //    __hook := obj
-    //    x.EvalInteraction (sprintf "let %s = !__hook" varName)
-
-    member x.Open ns = x.EvalInteraction(sprintf "open %s" ns)
-
-    member x.Reference file =
-        x.EvalInteraction(sprintf "#r @\"%s\"" file)
-
-    member x.Include dir =
-        x.EvalInteraction(sprintf "#I @\"%s\"" dir)
-
-    member x.Load file =
-        x.EvalInteraction(sprintf "#load @\"%s\" " file)
-
-    /// Change the current directory (so that relative paths within scripts work properly).
-    /// Returns a handle to change the current directory back to it's initial state
-    /// (Because this will change the current directory of the currently running code as well!).
-    member x.Cd dir =
-        let oldDir = System.IO.Directory.GetCurrentDirectory()
-
-        let cd dir =
-            x.EvalInteraction(sprintf "#cd @\"%s\"" dir) |> ignore
-
-        cd dir
-        let isDisposed = ref false
-
-        { new System.IDisposable with
-            member __.Dispose() =
-                if not !isDisposed then
-                    cd oldDir
-                    isDisposed := true }
-
-    /// Same as Cd but takes a function for the scope.
-    member x.WithCd dir f =
-        use __ = x.ChangeCurrentDirectory dir
-        f ()
+    member _.Dispose() = (fsiSession :> IDisposable).Dispose()
 
     /// Change the current directory (so that relative paths within scripts work properly).
     /// Returns a handle to change the current directory back to it's initial state
@@ -1097,7 +1011,7 @@ type internal FsiSession
         let isDisposed = ref false
 
         { new System.IDisposable with
-            member __.Dispose() =
+            member _.Dispose() =
                 if not !isDisposed then
                     cd oldDir
                     isDisposed := true }
@@ -1106,20 +1020,6 @@ type internal FsiSession
     member x.WithCurrentDirectory dir f =
         use __ = x.ChangeCurrentDirectory dir
         f ()
-
-    /// Handle the given evaluation function
-    member __.Handle f (text: string) =
-        try
-            Result <| f text
-        with
-        | :? FsiExpressionTypeException as e -> InvalidExpressionType e
-        | :? FsiEvaluationException as e -> InvalidCode e
-
-    // Try to get the AssemblyBuilder
-    member x.DynamicAssemblyBuilder =
-        match x.DynamicAssembly with
-        | :? AssemblyBuilder as builder -> builder
-        | _ -> failwith "The DynamicAssembly property is no AssemblyBuilder!"
 
 type internal ScriptHost() =
 

@@ -90,7 +90,7 @@ Target.create "Tests" (fun _ ->
         { opts with
             Blame = true
             NoBuild = true
-            Framework = Some "net5.0"
+            Framework = Some "net6.0"
             Configuration = configuration
             ResultsDirectory = Some "TestResults"
             Logger = Some "trx" }))

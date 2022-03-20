@@ -1,3 +1,6 @@
+## 15.0.0
+* Update to .NET 6
+
 ## 14.0.1
 * Fixes 703, 700 - `--strict` is now considerably stricter, and more diagnostics being shown
 

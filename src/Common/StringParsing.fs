@@ -140,10 +140,12 @@ module StringPosition =
          { n with
              StartColumn = n.StartColumn + text.Length - trimmedStart.Length
              EndColumn = n.EndColumn - trimmedStart.Length + trimmed.Length })
+
     /// Returns a string trimmed from the end
     let (|TrimEnd|) (text: string, n: MarkdownRange) =
         let trimmed = text.TrimEnd()
         (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
+
     /// Returns a string trimmed from the start
     let (|TrimStart|) (text: string, n: MarkdownRange) =
         let trimmed = text.TrimStart()

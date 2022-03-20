@@ -845,10 +845,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         let xmlsig = getXmlDocSigForMember memb
 
         if (not (System.String.IsNullOrEmpty xmlsig)) then
-            assert (xmlsig.StartsWith("M:")
-                    || xmlsig.StartsWith("P:")
-                    || xmlsig.StartsWith("F:")
-                    || xmlsig.StartsWith("E:"))
+            assert
+                (xmlsig.StartsWith("M:")
+                 || xmlsig.StartsWith("P:")
+                 || xmlsig.StartsWith("F:")
+                 || xmlsig.StartsWith("E:"))
 
             xmlDocNameToSymbol.[xmlsig] <- memb
 
@@ -1036,10 +1037,11 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 externalDocsLink false simple typeName typeName
 
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
-        assert (memberXmlSig.StartsWith("M:")
-                || memberXmlSig.StartsWith("P:")
-                || memberXmlSig.StartsWith("F:")
-                || memberXmlSig.StartsWith("E:"))
+        assert
+            (memberXmlSig.StartsWith("M:")
+             || memberXmlSig.StartsWith("P:")
+             || memberXmlSig.StartsWith("F:")
+             || memberXmlSig.StartsWith("E:"))
 
         match xmlDocNameToSymbol.TryGetValue(memberXmlSig) with
         | true, (:? FSharpMemberOrFunctionOrValue as memb) when memb.DeclaringEntity.IsSome ->
@@ -1329,11 +1331,11 @@ module internal TypeFormatter =
 
     let formatCurriedArgsUsageAsHtml preferNoParens isItemIndexer curriedArgs =
         let counter =
-            let n = ref 0 in
+            let mutable n = 0
 
             fun () ->
-                incr n
-                !n
+                n <- n + 1
+                n
 
         curriedArgs
         |> List.map (List.map (fun x -> formatArgNameAndType (counter ()) x |> fst))
@@ -1472,7 +1474,7 @@ module internal SymbolReader =
             customOpName.IsSome
             || isItemIndexer
             || not v.IsMember
-            || PrettyNaming.IsOperatorName v.CompiledName
+            || PrettyNaming.IsMangledOpName v.CompiledName
             || Char.IsLower(v.DisplayName.[0])
 
         let fullArgUsage =
@@ -1508,7 +1510,7 @@ module internal SymbolReader =
                 ]
 
             // op_XYZ operators
-            | _, false, _, name, _ when PrettyNaming.IsOperatorName v.CompiledName ->
+            | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
                 match argInfos with
                 // binary operators (taking a tuple)
                 | [ [ x; y ] ] ->
@@ -1847,11 +1849,11 @@ module internal SymbolReader =
         use reader = new StringReader(comment)
 
         let lines =
-            [ let line = ref ""
+            [ let mutable line = ""
 
-              while (line := reader.ReadLine()
-                     line.Value <> null) do
-                  yield line.Value ]
+              while (line <- reader.ReadLine()
+                     line <> null) do
+                  yield line ]
 
         String.removeSpaces lines
 
@@ -2963,8 +2965,7 @@ module internal SymbolReader =
 
 /// Represents an input assembly for API doc generation
 type ApiDocInput =
-    {
-      /// The path to the assembly
+    { /// The path to the assembly
       Path: string
 
       /// Override the default XML file (normally assumed to live alongside)

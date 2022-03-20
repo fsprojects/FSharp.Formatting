@@ -35,6 +35,7 @@ let linesFromTaggedText (tags: TaggedText []) =
         if content.Length <> 0 then
             yield string content
     }
+
 /// Turn string into a sequence of lines interleaved with line breaks
 let formatMultilineString (lines: string []) =
     [ for line in lines do
