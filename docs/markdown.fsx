@@ -142,7 +142,7 @@ let rec collectParLinks par =
                 yield! collectSpanLinks s
     }
 
-/// Collect links in the entire document
+// Collect links in the entire document
 Seq.collect collectParLinks parsed.Paragraphs
 // [fsi:val it : seq<string> =]
 // [fsi:  seq ["http://fsharp.net"; "http://fsharp.org"]]
