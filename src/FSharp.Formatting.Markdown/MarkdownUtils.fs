@@ -71,15 +71,17 @@ module internal MarkdownUtils =
 
     /// Context passed around while formatting
     type FormattingContext =
-        { Links: IDictionary<string, string * option<string>>
-          Newline: string
-          /// Additional replacements to be made in content
-          Substitutions: Substitutions
-          /// Helper to resolve `cref:T:TypeName` references in markdown
-          CodeReferenceResolver: string -> (string * string) option
-          /// Helper to resolve `[foo](file.md)` references in markdown (where file.md is producing file.fsx)
-          MarkdownDirectLinkResolver: string -> string option
-          DefineSymbol: string }
+        {
+            Links: IDictionary<string, string * option<string>>
+            Newline: string
+            /// Additional replacements to be made in content
+            Substitutions: Substitutions
+            /// Helper to resolve `cref:T:TypeName` references in markdown
+            CodeReferenceResolver: string -> (string * string) option
+            /// Helper to resolve `[foo](file.md)` references in markdown (where file.md is producing file.fsx)
+            MarkdownDirectLinkResolver: string -> string option
+            DefineSymbol: string
+        }
 
     /// Format a MarkdownSpan
     let rec formatSpan (ctx: FormattingContext) span =

@@ -37,23 +37,24 @@ let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
     let doc = """<a href="mailto:a@b.c">hi</a>""" |> Markdown.Parse
 
     doc.Paragraphs
-    |> shouldEqual [ Paragraph(
-                         [ Literal(
-                               """<a href="mailto:a@b.c">hi</a>""",
-                               Some(
-                                   { StartLine = 1
-                                     StartColumn = 0
-                                     EndLine = 1
-                                     EndColumn = 29 }
-                               )
-                           ) ],
-                         Some(
-                             { StartLine = 1
-                               StartColumn = 0
-                               EndLine = 1
-                               EndColumn = 29 }
-                         )
-                     ) ]
+    |> shouldEqual
+        [ Paragraph(
+              [ Literal(
+                    """<a href="mailto:a@b.c">hi</a>""",
+                    Some(
+                        { StartLine = 1
+                          StartColumn = 0
+                          EndLine = 1
+                          EndColumn = 29 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 1
+                    StartColumn = 0
+                    EndLine = 1
+                    EndColumn = 29 }
+              )
+          ) ]
 
 [<Test>]
 let ``Encode '<' and '>' characters as HTML entities`` () =
@@ -71,41 +72,42 @@ Some more"""
         |> Markdown.Parse
 
     doc.Paragraphs
-    |> shouldEqual [ Heading(
-                         2,
-                         [ Literal(
-                               "Hello F#",
-                               Some(
-                                   { StartLine = 2
-                                     StartColumn = 3
-                                     EndLine = 2
-                                     EndColumn = 11 }
-                               )
-                           ) ],
-                         Some(
-                             { StartLine = 2
-                               StartColumn = 0
-                               EndLine = 2
-                               EndColumn = 11 }
-                         )
-                     )
-                     Paragraph(
-                         [ Literal(
-                               "Some more",
-                               Some(
-                                   { StartLine = 3
-                                     StartColumn = 0
-                                     EndLine = 3
-                                     EndColumn = 9 }
-                               )
-                           ) ],
-                         Some(
-                             { StartLine = 3
-                               StartColumn = 0
-                               EndLine = 3
-                               EndColumn = 9 }
-                         )
-                     ) ]
+    |> shouldEqual
+        [ Heading(
+              2,
+              [ Literal(
+                    "Hello F#",
+                    Some(
+                        { StartLine = 2
+                          StartColumn = 3
+                          EndLine = 2
+                          EndColumn = 11 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 2
+                    StartColumn = 0
+                    EndLine = 2
+                    EndColumn = 11 }
+              )
+          )
+          Paragraph(
+              [ Literal(
+                    "Some more",
+                    Some(
+                        { StartLine = 3
+                          StartColumn = 0
+                          EndLine = 3
+                          EndColumn = 9 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 3
+                    StartColumn = 0
+                    EndLine = 3
+                    EndColumn = 9 }
+              )
+          ) ]
 
 [<Test>]
 let ``Headings ending with spaces followed by # are parsed correctly`` () =
@@ -116,41 +118,42 @@ Some more"""
         |> Markdown.Parse
 
     doc.Paragraphs
-    |> shouldEqual [ Heading(
-                         2,
-                         [ Literal(
-                               "Hello",
-                               Some(
-                                   { StartLine = 2
-                                     StartColumn = 3
-                                     EndLine = 2
-                                     EndColumn = 8 }
-                               )
-                           ) ],
-                         Some(
-                             { StartLine = 2
-                               StartColumn = 0
-                               EndLine = 2
-                               EndColumn = 13 }
-                         )
-                     )
-                     Paragraph(
-                         [ Literal(
-                               "Some more",
-                               Some(
-                                   { StartLine = 3
-                                     StartColumn = 0
-                                     EndLine = 3
-                                     EndColumn = 9 }
-                               )
-                           ) ],
-                         Some(
-                             { StartLine = 3
-                               StartColumn = 0
-                               EndLine = 3
-                               EndColumn = 9 }
-                         )
-                     ) ]
+    |> shouldEqual
+        [ Heading(
+              2,
+              [ Literal(
+                    "Hello",
+                    Some(
+                        { StartLine = 2
+                          StartColumn = 3
+                          EndLine = 2
+                          EndColumn = 8 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 2
+                    StartColumn = 0
+                    EndLine = 2
+                    EndColumn = 13 }
+              )
+          )
+          Paragraph(
+              [ Literal(
+                    "Some more",
+                    Some(
+                        { StartLine = 3
+                          StartColumn = 0
+                          EndLine = 3
+                          EndColumn = 9 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 3
+                    StartColumn = 0
+                    EndLine = 3
+                    EndColumn = 9 }
+              )
+          ) ]
 
 [<Test>]
 let ``Should be able to create nested list item with two paragraphs`` () =
@@ -579,51 +582,52 @@ let ``Transform horizontal rules correctly`` () =
     let expected = "<hr />\r\n<hr />\r\n<hr />\r\n<hr />\r\n<hr />\r\n" |> properNewLines
 
     Markdown.Parse(doc).Paragraphs
-    |> shouldEqual [ HorizontalRule(
-                         '*',
-                         Some(
-                             { StartLine = 1
-                               StartColumn = 0
-                               EndLine = 1
-                               EndColumn = 5 }
-                         )
-                     )
-                     HorizontalRule(
-                         '*',
-                         Some(
-                             { StartLine = 3
-                               StartColumn = 0
-                               EndLine = 3
-                               EndColumn = 3 }
-                         )
-                     )
-                     HorizontalRule(
-                         '*',
-                         Some(
-                             { StartLine = 5
-                               StartColumn = 0
-                               EndLine = 5
-                               EndColumn = 5 }
-                         )
-                     )
-                     HorizontalRule(
-                         '-',
-                         Some(
-                             { StartLine = 7
-                               StartColumn = 0
-                               EndLine = 7
-                               EndColumn = 5 }
-                         )
-                     )
-                     HorizontalRule(
-                         '-',
-                         Some(
-                             { StartLine = 9
-                               StartColumn = 0
-                               EndLine = 9
-                               EndColumn = 39 }
-                         )
-                     ) ]
+    |> shouldEqual
+        [ HorizontalRule(
+              '*',
+              Some(
+                  { StartLine = 1
+                    StartColumn = 0
+                    EndLine = 1
+                    EndColumn = 5 }
+              )
+          )
+          HorizontalRule(
+              '*',
+              Some(
+                  { StartLine = 3
+                    StartColumn = 0
+                    EndLine = 3
+                    EndColumn = 3 }
+              )
+          )
+          HorizontalRule(
+              '*',
+              Some(
+                  { StartLine = 5
+                    StartColumn = 0
+                    EndLine = 5
+                    EndColumn = 5 }
+              )
+          )
+          HorizontalRule(
+              '-',
+              Some(
+                  { StartLine = 7
+                    StartColumn = 0
+                    EndLine = 7
+                    EndColumn = 5 }
+              )
+          )
+          HorizontalRule(
+              '-',
+              Some(
+                  { StartLine = 9
+                    StartColumn = 0
+                    EndLine = 9
+                    EndColumn = 39 }
+              )
+          ) ]
 
     Markdown.ToHtml doc |> shouldEqual expected
 

@@ -28,7 +28,7 @@ type FormattedSnippet(key: string, content: string) =
 
 
 /// Represents formatted snippets
-type FormattedContent(snippets: FormattedSnippet [], tips: string) =
+type FormattedContent(snippets: FormattedSnippet[], tips: string) =
     /// Returns the processed snippets as an array
     member x.Snippets = snippets
 

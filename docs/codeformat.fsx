@@ -15,11 +15,11 @@ index: 1
 (*** condition: fsx ***)
 #if FSX
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
-#endif // FSX
+#endif
 (*** condition: ipynb ***)
 #if IPYNB
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
-#endif // IPYNB
+#endif
 
 (**
 [![Binder](img/badge-binder.svg)](https://mybinder.org/v2/gh/fsprojects/fsharp.formatting/gh-pages?filepath={{fsdocs-source-basename}}.ipynb)&emsp;

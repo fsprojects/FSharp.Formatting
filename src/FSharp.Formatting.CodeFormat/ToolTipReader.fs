@@ -21,7 +21,7 @@ open FSharp.Compiler.Text
 // Implements formatting of tool tips
 // --------------------------------------------------------------------------------------
 
-let linesFromTaggedText (tags: TaggedText []) =
+let linesFromTaggedText (tags: TaggedText[]) =
     seq {
         let content = StringBuilder()
 
@@ -37,7 +37,7 @@ let linesFromTaggedText (tags: TaggedText []) =
     }
 
 /// Turn string into a sequence of lines interleaved with line breaks
-let formatMultilineString (lines: string []) =
+let formatMultilineString (lines: string[]) =
     [ for line in lines do
           yield HardLineBreak
           yield Literal line ]

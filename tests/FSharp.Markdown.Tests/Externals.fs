@@ -33,7 +33,8 @@ let removeWhitespace (s: string) =
     s
 
 let failingTests =
-    set [ "Auto_links.text"
+    set
+        [ "Auto_links.text"
           "Inline_HTML_comments.text"
           "Ordered_and_unordered_lists.text"
           "markdown-readme.text"

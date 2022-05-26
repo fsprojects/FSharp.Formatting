@@ -404,7 +404,7 @@ type ApiDocMember
            ReturnType = returnType |}
 
     //    /// The full signature section in a typical tooltip
-//  member x.SignatureTooltip : ApiDocHtml = signatureTooltip
+    //  member x.SignatureTooltip : ApiDocHtml = signatureTooltip
 
     /// The member's parameters and associated documentation
     member x.Parameters = parameters
@@ -595,15 +595,7 @@ type ApiDocEntity
 
     /// All members of the type
     member x.AllMembers: ApiDocMember list =
-        List.concat [ ctors
-                      inst
-                      stat
-                      cases
-                      fields
-                      statParams
-                      vals
-                      exts
-                      pats ]
+        List.concat [ ctors; inst; stat; cases; fields; statParams; vals; exts; pats ]
 
     /// All interfaces of the type, formatted
     member x.AllInterfaces: (FSharpType * ApiDocHtml) list = allInterfaces
@@ -1192,44 +1184,23 @@ module internal TypeFormatter =
         if prefix then
             match args with
             | [] -> typeName
-            | [ arg ] ->
-                span [] [
-                    typeName
-                    !! "&lt;"
-                    (formatTypeWithPrecAsHtml ctx 4 arg)
-                    !! "&gt;"
-                ]
+            | [ arg ] -> span [] [ typeName; !! "&lt;"; (formatTypeWithPrecAsHtml ctx 4 arg); !! "&gt;" ]
             | args ->
                 bracketHtmlIf
                     (prec <= 1)
-                    (span [] [
-                        typeName
-                        !! "&lt;"
-                        formatTypesWithPrecAsHtml ctx 2 ",&#32;" args
-                        !! "&gt;"
-                     ])
+                    (span [] [ typeName; !! "&lt;"; formatTypesWithPrecAsHtml ctx 2 ",&#32;" args; !! "&gt;" ])
         else
             match args with
             | [] -> typeName
             | [ arg ] ->
                 if tcref.DisplayName.StartsWith "[" then
-                    span [] [
-                        formatTypeWithPrecAsHtml ctx 2 arg
-                        !!tcref.DisplayName
-                    ]
+                    span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !!tcref.DisplayName ]
                 else
-                    span [] [
-                        formatTypeWithPrecAsHtml ctx 2 arg
-                        !! "&#32;"
-                        typeName
-                    ]
+                    span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !! "&#32;"; typeName ]
             | args ->
                 bracketHtmlIf
                     (prec <= 1)
-                    (span [] [
-                        bracketNonAtomicHtml (formatTypesWithPrecAsHtml ctx 2 ",&#32;" args)
-                        typeName
-                     ])
+                    (span [] [ bracketNonAtomicHtml (formatTypesWithPrecAsHtml ctx 2 ",&#32;" args); typeName ])
 
     and formatTypesWithPrecAsHtml ctx prec sep typs =
         typs |> List.map (formatTypeWithPrecAsHtml ctx prec) |> Html.sepWith sep
@@ -1243,23 +1214,11 @@ module internal TypeFormatter =
         | MeasureProd (MeasureOne, ty) -> formatTypeWithPrecAsHtml ctx prec ty
         | MeasureProd (ty1, MeasureInv ty2)
         | MeasureProd (ty1, MeasureProd (MeasureInv ty2, MeasureOne)) ->
-            span [] [
-                formatTypeWithPrecAsHtml ctx 2 ty1
-                !! "/"
-                formatTypeWithPrecAsHtml ctx 2 ty2
-            ]
+            span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !! "/"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
         | MeasureProd (ty1, MeasureProd (ty2, MeasureOne))
         | MeasureProd (ty1, ty2) ->
-            span [] [
-                formatTypeWithPrecAsHtml ctx 2 ty1
-                !! "*"
-                formatTypeWithPrecAsHtml ctx 2 ty2
-            ]
-        | MeasureInv ty ->
-            span [] [
-                !! "/"
-                formatTypeWithPrecAsHtml ctx 1 ty
-            ]
+            span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !! "*"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
+        | MeasureInv ty -> span [] [ !! "/"; formatTypeWithPrecAsHtml ctx 1 ty ]
         | MeasureOne -> !! "1"
         | _ when typ.HasTypeDefinition ->
             let tcref = typ.TypeDefinition
@@ -1322,12 +1281,12 @@ module internal TypeFormatter =
         !!argName
 
     let formatArgNameAndTypePairUsageAsHtml ctx (argName0, argType) =
-        span [] [
-            !!(match argName0 with
-               | None -> ""
-               | Some argName -> argName + ":&#32;")
-            formatTypeWithPrecAsHtml ctx 2 argType
-        ]
+        span
+            []
+            [ !!(match argName0 with
+                 | None -> ""
+                 | Some argName -> argName + ":&#32;")
+              formatTypeWithPrecAsHtml ctx 2 argType ]
 
     let formatCurriedArgsUsageAsHtml preferNoParens isItemIndexer curriedArgs =
         let counter =
@@ -1486,28 +1445,19 @@ module internal SymbolReader =
 
             match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName, customOpName with
             // Constructors
-            | _, _, ".ctor", _, _ ->
-                span [] [
-                    !!v.ApparentEnclosingEntity.DisplayName
-                    fullArgUsage
-                ]
+            | _, _, ".ctor", _, _ -> span [] [ !!v.ApparentEnclosingEntity.DisplayName; fullArgUsage ]
 
             // Indexers
-            | _, true, _, "Item", _ ->
-                span [] [
-                    !! "this.["
-                    fullArgUsage
-                    !! "]"
-                ]
+            | _, true, _, "Item", _ -> span [] [ !! "this.["; fullArgUsage; !! "]" ]
 
             // Custom operators
             | _, _, _, _, Some name ->
-                span [] [
-                    !!name
-                    if preferNoParens then
-                        !! "&#32;"
-                        fullArgUsage
-                ]
+                span
+                    []
+                    [ !!name
+                      if preferNoParens then
+                          !! "&#32;"
+                          fullArgUsage ]
 
             // op_XYZ operators
             | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
@@ -1520,13 +1470,7 @@ module internal SymbolReader =
 
                     let right = formatCurriedArgsUsageAsHtml true false [ [ y ] ]
 
-                    span [] [
-                        left
-                        !! "&#32;"
-                        !!nm
-                        !! "&#32;"
-                        right
-                    ]
+                    span [] [ left; !! "&#32;"; !!nm; !! "&#32;"; right ]
 
                 // binary operators (curried, like in FSharp.Core.Operators)
                 | [ args1; args2 ] ->
@@ -1536,13 +1480,7 @@ module internal SymbolReader =
 
                     let right = formatCurriedArgsUsageAsHtml true false [ args2 ]
 
-                    span [] [
-                        left
-                        !! "&#32;"
-                        !!nm
-                        !! "&#32;"
-                        right
-                    ]
+                    span [] [ left; !! "&#32;"; !!nm; !! "&#32;"; right ]
 
                 // unary operators
                 | [ [ x ] ] ->
@@ -1552,48 +1490,48 @@ module internal SymbolReader =
 
                     span [] [ !!nm; right ]
                 | _ ->
-                    span [] [
-                        !!name
-                        if preferNoParens then
-                            !! "&#32;"
-                            fullArgUsage
-                    ]
+                    span
+                        []
+                        [ !!name
+                          if preferNoParens then
+                              !! "&#32;"
+                              fullArgUsage ]
 
             // Ordinary instance members
             | _, true, _, name, _ ->
-                span [] [
-                    !! "this."
-                    !!name
-                    if preferNoParens then
-                        !! "&#32;"
-                        fullArgUsage
-                ]
+                span
+                    []
+                    [ !! "this."
+                      !!name
+                      if preferNoParens then
+                          !! "&#32;"
+                          fullArgUsage ]
 
             // A hack for Array.Parallel.map in FSharp.Core. TODO: generalise this
             | _, false, _, name, _ when specialCase1 ->
-                span [] [
-                    !!("Array.Parallel." + name)
-                    if preferNoParens then
-                        !! "&#32;"
-                        fullArgUsage
-                ]
+                span
+                    []
+                    [ !!("Array.Parallel." + name)
+                      if preferNoParens then
+                          !! "&#32;"
+                          fullArgUsage ]
 
             // Ordinary functions or values
             | false, _, _, name, _ when not requireQualifiedAccess ->
-                span [] [
-                    !!name
-                    if preferNoParens then
-                        !! "&#32;"
-                        fullArgUsage
-                ]
+                span
+                    []
+                    [ !!name
+                      if preferNoParens then
+                          !! "&#32;"
+                          fullArgUsage ]
 
             // Ordinary static members or things (?) that require fully qualified access
             | _, false, _, name, _ ->
-                span [] [
-                    !!(v.ApparentEnclosingEntity.DisplayName + "." + name)
-                    if preferNoParens then !! "&#32;"
-                    fullArgUsage
-                ]
+                span
+                    []
+                    [ !!(v.ApparentEnclosingEntity.DisplayName + "." + name)
+                      if preferNoParens then !! "&#32;"
+                      fullArgUsage ]
 
         let usageHtml = codeHtml usageHtml
 
@@ -1705,13 +1643,7 @@ module internal SymbolReader =
             let fieldsHtmls = fields |> List.map formatFieldUsage
 
             if case.Name = "op_ColonColon" then
-                span [] [
-                    fieldsHtmls.[0]
-                    !! "&#32;"
-                    !!nm
-                    fieldsHtmls.[1]
-                ]
-                |> codeHtml
+                span [] [ fieldsHtmls.[0]; !! "&#32;"; !!nm; fieldsHtmls.[1] ] |> codeHtml
             else
                 match fieldsHtmls with
                 | [] -> span [] [ !!nm ]
@@ -1719,12 +1651,7 @@ module internal SymbolReader =
                 | _ ->
                     let fieldHtml = fieldsHtmls |> Html.sepWith ",&#32;"
 
-                    span [] [
-                        !!nm
-                        !! "("
-                        fieldHtml
-                        !! ")"
-                    ]
+                    span [] [ !!nm; !! "("; fieldHtml; !! ")" ]
                 |> codeHtml
 
         let paramTypes =
@@ -1810,15 +1737,15 @@ module internal SymbolReader =
 
     let readFSharpStaticParam (ctx: ReadingContext) (staticParam: FSharpStaticParameter) =
         let usageHtml =
-            span [] [
-                !!staticParam.Name
-                !! ":&#32;"
-                formatTypeAsHtml ctx.UrlMap staticParam.Kind
-                !!(if staticParam.IsOptional then
-                       sprintf " (optional, default = %A)" staticParam.DefaultValue
-                   else
-                       "")
-            ]
+            span
+                []
+                [ !!staticParam.Name
+                  !! ":&#32;"
+                  formatTypeAsHtml ctx.UrlMap staticParam.Kind
+                  !!(if staticParam.IsOptional then
+                         sprintf " (optional, default = %A)" staticParam.DefaultValue
+                     else
+                         "") ]
             |> codeHtml
 
         let modifiers = List.empty
@@ -2755,13 +2682,7 @@ module internal SymbolReader =
 
             let rqa = hasAttrib<RequireQualifiedAccessAttribute> typ.Attributes
 
-            let nsdocs =
-                combineNamespaceDocs [ nsdocs1
-                                       nsdocs2
-                                       nsdocs3
-                                       nsdocs4
-                                       nsdocs5
-                                       nsdocs6 ]
+            let nsdocs = combineNamespaceDocs [ nsdocs1; nsdocs2; nsdocs3; nsdocs4; nsdocs5; nsdocs6 ]
 
             if nsdocs.IsSome then
                 printfn "ignoring namespace summary on nested position"
@@ -2827,11 +2748,7 @@ module internal SymbolReader =
                 || (modul.Namespace = Some "Microsoft.FSharp.Core"
                     && modul.DisplayName = "ValueOption")
 
-            let nsdocs =
-                combineNamespaceDocs [ nsdocs1
-                                       nsdocs2
-                                       nsdocs3
-                                       nsdocs4 ]
+            let nsdocs = combineNamespaceDocs [ nsdocs1; nsdocs2; nsdocs3; nsdocs4 ]
 
             if nsdocs.IsSome then
                 printfn "ignoring namespace summary on nested position"
@@ -2875,9 +2792,7 @@ module internal SymbolReader =
 
         let typs, nsdocs2 = readChildren ctx entities readType (fun x -> not x.IsFSharpModule)
 
-        (modifiers @ typs),
-        combineNamespaceDocs [ nsdocs1
-                               nsdocs2 ]
+        (modifiers @ typs), combineNamespaceDocs [ nsdocs1; nsdocs2 ]
 
     // ----------------------------------------------------------------------------------------------
     // Reading namespace and assembly details
@@ -2965,31 +2880,33 @@ module internal SymbolReader =
 
 /// Represents an input assembly for API doc generation
 type ApiDocInput =
-    { /// The path to the assembly
-      Path: string
+    {
+        /// The path to the assembly
+        Path: string
 
-      /// Override the default XML file (normally assumed to live alongside)
-      XmlFile: string option
+        /// Override the default XML file (normally assumed to live alongside)
+        XmlFile: string option
 
-      /// The compile-time source folder
-      SourceFolder: string option
+        /// The compile-time source folder
+        SourceFolder: string option
 
-      /// The URL the the source repo where the source code lives
-      SourceRepo: string option
+        /// The URL the the source repo where the source code lives
+        SourceRepo: string option
 
-      /// The substitutionss active for this input. If specified these
-      /// are used instead of the overall substitutions.  This allows different parameters (e.g.
-      /// different authors) for each assembly in a collection.
-      Substitutions: Substitutions option
+        /// The substitutionss active for this input. If specified these
+        /// are used instead of the overall substitutions.  This allows different parameters (e.g.
+        /// different authors) for each assembly in a collection.
+        Substitutions: Substitutions option
 
-      /// Whether the input uses markdown comments
-      MarkdownComments: bool
+        /// Whether the input uses markdown comments
+        MarkdownComments: bool
 
-      /// Whether doc processing should warn on missing comments
-      Warn: bool
+        /// Whether doc processing should warn on missing comments
+        Warn: bool
 
-      /// Whether to generate only public things
-      PublicOnly: bool }
+        /// Whether to generate only public things
+        PublicOnly: bool
+    }
     static member FromFile
         (
             assemblyPath: string,
@@ -3184,10 +3101,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                 match namespaces.TryGetValue(ns.Name) with
                 | true, (entities, summary, substitutions) ->
                     namespaces.[ns.Name] <-
-                        (entities @ ns.Entities,
-                         combineNamespaceDocs [ ns.NamespaceDocs
-                                                summary ],
-                         substitutions)
+                        (entities @ ns.Entities, combineNamespaceDocs [ ns.NamespaceDocs; summary ], substitutions)
                 | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
 
         let namespaces =

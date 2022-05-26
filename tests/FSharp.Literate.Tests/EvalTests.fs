@@ -150,7 +150,7 @@ let test = [1;2;3]
     // Create evaluator & register simple formatter for lists
     let fsiEvaluator = FSharp.Formatting.Literate.Evaluation.FsiEvaluator()
 
-    fsiEvaluator.RegisterTransformation (fun (o, ty, _executionCount) ->
+    fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
         if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
             let items = [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([ Literal(it.ToString(), None) ], None) ] ]
 
