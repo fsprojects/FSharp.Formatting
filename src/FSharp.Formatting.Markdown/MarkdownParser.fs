@@ -819,7 +819,7 @@ let (|PipeTableBlock|_|) input =
 /// Passed function is used to check whether all parts within grid are valid.
 /// Retuns tuple (position of grid columns, text between grid columns).
 let (|EmacsTableLine|_|)
-    (grid: option<int []>)
+    (grid: option<int[]>)
     (c: char)
     (check: string * MarkdownRange -> bool)
     (line: string, _n: MarkdownRange)

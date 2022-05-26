@@ -154,7 +154,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
                 ctx.Writer.Write(HttpUtility.HtmlEncode(body)))
 
 /// Generate HTML with the specified snippets
-let formatSnippets (ctx: FormattingContext) (snippets: Snippet []) =
+let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
     [| for (Snippet (key, lines)) in snippets do
            // Skip empty lines at the beginning and at the end
            let skipEmptyLines = Seq.skipWhile (fun (Line (_, spans)) -> List.isEmpty spans) >> List.ofSeq
@@ -224,7 +224,7 @@ let formatSnippetsAsHtml
     openLinesTag
     closeLinesTag
     tokenKindToCss
-    (snippets: Snippet [])
+    (snippets: Snippet[])
     =
     let tipf = ToolTipFormatter prefix
 

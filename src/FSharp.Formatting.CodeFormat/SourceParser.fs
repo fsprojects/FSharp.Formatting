@@ -130,7 +130,7 @@ type ErrorInfo =
 /// performs type checking (using 'RunTypeCheck') and then creates information
 /// for the formatter (using 'ProcessSourceTokens')
 // [snippet:Async]
-type SourceFile(file, source, lines: string [], ?options, ?defines) =
+type SourceFile(file, source, lines: string[], ?options, ?defines) =
     (*[omit:(construction of interactive checker and compiler options omitted)]*)
 
     // Create an instance of an InteractiveChecker (which does background analysis

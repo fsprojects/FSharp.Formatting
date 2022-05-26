@@ -162,7 +162,7 @@ type FsiEvaluatorConfig() =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator
     (
-        ?options: string [],
+        ?options: string[],
         ?fsiObj: obj,
         ?addHtmlPrinter: bool,
         ?discardStdOut: bool,

@@ -70,7 +70,7 @@ module private Helpers =
 
     /// Use the F# compiler's SourceTokenizer to split a snippet (array of strings)
     /// into a snippet with token information and line numbers.
-    let getTokens file defines (lines: string []) : Snippet =
+    let getTokens file defines (lines: string[]) : Snippet =
 
         // Get defined directives
         let defines =
@@ -182,8 +182,8 @@ module CodeFormatter =
     // Processes a single line of the snippet
     let processSnippetLine
         (checkResults: FSharpCheckFileResults)
-        (semanticRanges: SemanticClassificationItem [])
-        (lines: string [])
+        (semanticRanges: SemanticClassificationItem[])
+        (lines: string[])
         (line: int, lineTokens: SnippetLine)
         =
         let lineStr = lines.[line]

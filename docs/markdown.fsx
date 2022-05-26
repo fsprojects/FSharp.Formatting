@@ -12,11 +12,11 @@ index: 2
 (*** condition: fsx ***)
 #if FSX
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
-#endif // FSX
+#endif
 (*** condition: ipynb ***)
 #if IPYNB
 #r "nuget: FSharp.Formatting,{{fsdocs-package-version}}"
-#endif // IPYNB
+#endif
 
 
 (**

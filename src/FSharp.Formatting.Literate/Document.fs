@@ -20,8 +20,10 @@ type LiterateCodeVisibility =
 
 /// Specifies the options for a literate paragraph
 type LiterateParagraphOptions =
-    { /// Specifies a conditional for inclusion of the snippet paragraph
-      Condition: string option }
+    {
+        /// Specifies a conditional for inclusion of the snippet paragraph
+        Condition: string option
+    }
 
 /// <summary>
 /// Additional properties of a literate code snippet, embedded in a
@@ -29,22 +31,24 @@ type LiterateParagraphOptions =
 /// a snippet be evaluated and formatted.
 /// </summary>
 type LiterateCodeOptions =
-    { /// <summary>
-      /// Specifies whether the snippet is evalauted while processing
-      /// Use (*** do-not-eval ***) command to set this to <c>false</c>
-      /// </summary>
-      Evaluate: bool
+    {
+        /// <summary>
+        /// Specifies whether the snippet is evalauted while processing
+        /// Use (*** do-not-eval ***) command to set this to <c>false</c>
+        /// </summary>
+        Evaluate: bool
 
-      /// Specifies the name of the output produced by this snippet
-      /// Use the (*** define-output:foo ***) command to set this value
-      /// Other outputs are named cell1, cell2 etc.
-      OutputName: string
+        /// Specifies the name of the output produced by this snippet
+        /// Use the (*** define-output:foo ***) command to set this value
+        /// Other outputs are named cell1, cell2 etc.
+        OutputName: string
 
-      /// Indiciates the execution sequence number of the cell if it has been evaluated
-      ExecutionCount: int option
+        /// Indiciates the execution sequence number of the cell if it has been evaluated
+        ExecutionCount: int option
 
-      /// Specifies the visibility of the snippet in the generated HTML
-      Visibility: LiterateCodeVisibility }
+        /// Specifies the visibility of the snippet in the generated HTML
+        Visibility: LiterateCodeVisibility
+    }
 
 /// <summary>
 /// Extends <c>MarkdownParagrap</c> using the <c>MarkdownEmbedParagraphs</c> case with
@@ -111,7 +115,7 @@ type LiterateSource =
     | Markdown of string
 
     /// A parsed F# script file consisting of snippets.
-    | Script of Snippet []
+    | Script of Snippet[]
 
 /// Representation of a literate document - the representation of Paragraphs
 /// uses an F# discriminated union type and so is best used from F#.
@@ -127,7 +131,7 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, root
     member _.DefinedLinks: IDictionary<string, string * option<string>> = links
 
     /// Errors
-    member _.Diagnostics: SourceError [] = diagnostics
+    member _.Diagnostics: SourceError[] = diagnostics
 
     /// Original document source code
     member _.Source: LiterateSource = source

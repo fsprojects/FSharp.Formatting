@@ -11,7 +11,7 @@ let addLineEnd (s: string) =
     if s.EndsWith("\n") then s else s + "\n"
 
 type OutputData =
-    | OutputData of kind: string * lines: string []
+    | OutputData of kind: string * lines: string[]
     override this.ToString() =
         let (OutputData (kind, lines)) = this
 
@@ -47,8 +47,8 @@ type Cell =
     { cell_type: string
       execution_count: int option
       metadata: string
-      outputs: Output []
-      source: string [] }
+      outputs: Output[]
+      source: string[] }
     static member Default =
         { cell_type = "code"
           execution_count = None
@@ -146,7 +146,7 @@ type Notebook =
     { nbformat: int
       nbformat_minor: int
       metadata: Metadata
-      cells: Cell [] }
+      cells: Cell[] }
     static member Default =
         { nbformat = 4
           nbformat_minor = 1
@@ -171,7 +171,7 @@ type Notebook =
 let internal splitLines (s: string) =
     s.Replace("\r\n", "\n").Split([| '\n' |])
 
-let codeCell (lines: string []) executionCount outputs =
+let codeCell (lines: string[]) executionCount outputs =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
     let cell =
@@ -188,7 +188,7 @@ let rawCell (s: string) =
         cell_type = "raw"
         source = splitLines s }
 
-let markdownCell (lines: string []) =
+let markdownCell (lines: string[]) =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
     { Cell.Default with

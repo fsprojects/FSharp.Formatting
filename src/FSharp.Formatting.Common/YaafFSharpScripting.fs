@@ -497,34 +497,36 @@ type internal OptimizationType =
 
 /// See https://msdn.microsoft.com/en-us/library/dd233172.aspx
 type internal FsiOptions =
-    { Checked: bool option
-      Codepage: int option
-      CrossOptimize: bool option
-      Debug: DebugMode option
-      Defines: string list
-      Exec: bool
-      FullPaths: bool
-      Gui: bool option
-      LibDirs: string list
-      Loads: string list
-      NoFramework: bool
-      NoLogo: bool
-      NonInteractive: bool
-      NoWarns: int list
-      Optimize: (bool * OptimizationType list) list
-      Quiet: bool
-      QuotationsDebug: bool
-      ReadLine: bool option
-      References: string list
-      TailCalls: bool option
-      Uses: string list
-      Utf8Output: bool
-      /// Sets a warning level (0 to 5). The default level is 3. Each warning is given a level based on its severity. Level 5 gives more, but less severe, warnings than level 1.
-      /// Level 5 warnings are: 21 (recursive use checked at runtime), 22 (let rec evaluated out of order), 45 (full abstraction), and 52 (defensive copy). All other warnings are level 2.
-      WarnLevel: int option
-      WarnAsError: bool option
-      WarnAsErrorList: (bool * int list) list
-      ScriptArgs: string list }
+    {
+        Checked: bool option
+        Codepage: int option
+        CrossOptimize: bool option
+        Debug: DebugMode option
+        Defines: string list
+        Exec: bool
+        FullPaths: bool
+        Gui: bool option
+        LibDirs: string list
+        Loads: string list
+        NoFramework: bool
+        NoLogo: bool
+        NonInteractive: bool
+        NoWarns: int list
+        Optimize: (bool * OptimizationType list) list
+        Quiet: bool
+        QuotationsDebug: bool
+        ReadLine: bool option
+        References: string list
+        TailCalls: bool option
+        Uses: string list
+        Utf8Output: bool
+        /// Sets a warning level (0 to 5). The default level is 3. Each warning is given a level based on its severity. Level 5 gives more, but less severe, warnings than level 1.
+        /// Level 5 warnings are: 21 (recursive use checked at runtime), 22 (let rec evaluated out of order), 45 (full abstraction), and 52 (defensive copy). All other warnings are level 2.
+        WarnLevel: int option
+        WarnAsError: bool option
+        WarnAsErrorList: (bool * int list) list
+        ScriptArgs: string list
+    }
     static member Empty =
         { Checked = None
           Codepage = None
@@ -820,16 +822,18 @@ module internal Helper =
         let mergedOutStream = new StringWriter(mergedOut) :> TextWriter
 
         let fsiOutWriter =
-            CombineTextWriter.Create [ yield fsiOutStream
-                                       yield mergedOutStream
-                                       if liveFsiWriter.IsSome then
-                                           yield liveFsiWriter.Value ]
+            CombineTextWriter.Create
+                [ yield fsiOutStream
+                  yield mergedOutStream
+                  if liveFsiWriter.IsSome then
+                      yield liveFsiWriter.Value ]
 
         let stdOutWriter =
-            CombineTextWriter.Create [ yield stdOutStream
-                                       yield mergedOutStream
-                                       if liveOutWriter.IsSome then
-                                           yield liveOutWriter.Value ]
+            CombineTextWriter.Create
+                [ yield stdOutStream
+                  yield mergedOutStream
+                  if liveOutWriter.IsSome then
+                      yield liveOutWriter.Value ]
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
@@ -907,10 +911,8 @@ type internal FsiSession
                 let defOut = Console.Out
                 let defErr = Console.Error
 
-                (CombineTextWriter.Create [ defOut
-                                            out.StdOutWriter ]),
-                (CombineTextWriter.Create [ defErr
-                                            err.StdOutWriter ])
+                (CombineTextWriter.Create [ defOut; out.StdOutWriter ]),
+                (CombineTextWriter.Create [ defErr; err.StdOutWriter ])
 
         consoleCapture captureOut captureErr f
 
@@ -965,7 +967,7 @@ type internal FsiSession
 
     let evalExpression = save fsiSession.EvalExpressionNonThrowing
 
-    let diagsToString (diags: FSharpDiagnostic []) =
+    let diagsToString (diags: FSharpDiagnostic[]) =
         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
     let addDiagsToFsiOutput (o: InteractionOutputs) diags =

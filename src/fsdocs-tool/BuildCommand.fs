@@ -554,18 +554,12 @@ type internal DocContent
         [
           // No categories specified
           if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-              li [ Class "nav-header" ] [
-                  !! "Documentation"
-              ]
+              li [ Class "nav-header" ] [ !! "Documentation" ]
 
               for model in snd modelsByCategory.[0] do
                   let link = model.Uri(root)
 
-                  li [ Class "nav-item" ] [
-                      a [ Class "nav-link"; (Href link) ] [
-                          encode model.Title
-                      ]
-                  ]
+                  li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
           else
               // At least one category has been specified. Sort each category by index and emit
               // Use 'Other' as a header for uncategorised things
@@ -588,11 +582,7 @@ type internal DocContent
                   for model in modelsInCategory do
                       let link = model.Uri(root)
 
-                      li [ Class "nav-item" ] [
-                          a [ Class "nav-link"; (Href link) ] [
-                              encode model.Title
-                          ]
-                      ] ]
+                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
         |> List.map (fun html -> html.ToString())
         |> String.concat "             \n"
 
@@ -648,12 +638,13 @@ module Serve =
                 homeFolder = Some rootOutputFolderAsGiven }
 
         let app =
-            choose [ path "/" >=> Redirection.redirect "/index.html"
-                     path "/websocket" >=> handShake socketHandler
-                     Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
-                     >=> Writers.setHeader "Pragma" "no-cache"
-                     >=> Writers.setHeader "Expires" "0"
-                     >=> Files.browseHome ]
+            choose
+                [ path "/" >=> Redirection.redirect "/index.html"
+                  path "/websocket" >=> handShake socketHandler
+                  Writers.setHeader "Cache-Control" "no-cache, no-store, must-revalidate"
+                  >=> Writers.setHeader "Pragma" "no-cache"
+                  >=> Writers.setHeader "Expires" "0"
+                  >=> Files.browseHome ]
 
         startWebServerAsync serverConfig app |> snd |> Async.Start
 
@@ -1184,10 +1175,11 @@ type CoreBuildOptions(watch) =
                 let navEntries = docContent.GetNavigationEntries(actualDocModels)
 
                 let results =
-                    Map.ofList [ for (thing, _action) in docModels do
-                                     match thing with
-                                     | Some (file, _isOtherLang, model) -> (file, model)
-                                     | None -> () ]
+                    Map.ofList
+                        [ for (thing, _action) in docModels do
+                              match thing with
+                              | Some (file, _isOtherLang, model) -> (file, model)
+                              | None -> () ]
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
@@ -1317,7 +1309,7 @@ type CoreBuildOptions(watch) =
 
             let docsDependenciesChanged = Event<_>()
 
-            docsDependenciesChanged.Publish.Add (fun () ->
+            docsDependenciesChanged.Publish.Add(fun () ->
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..." this.input
@@ -1338,7 +1330,7 @@ type CoreBuildOptions(watch) =
 
             let apiDocsDependenciesChanged = Event<_>()
 
-            apiDocsDependenciesChanged.Publish.Add (fun () ->
+            apiDocsDependenciesChanged.Publish.Add(fun () ->
                 if not generateQueued then
                     generateQueued <- true
                     printfn "Detected change in built outputs, scheduling rebuild of API docs..."
@@ -1369,7 +1361,7 @@ type CoreBuildOptions(watch) =
                 templateWatcher.Filter <- "_template.html"
                 templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
 
-                templateWatcher.Changed.Add (fun _ ->
+                templateWatcher.Changed.Add(fun _ ->
                     docsDependenciesChanged.Trigger()
                     apiDocsDependenciesChanged.Trigger())
 

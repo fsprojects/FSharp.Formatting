@@ -11,10 +11,12 @@ type Union =
 
 /// Record sample
 type Record =
-    { /// This is name
-      Name: string
-      /// This is age
-      Age: int }
+    {
+        /// This is name
+        Name: string
+        /// This is age
+        Age: int
+    }
     /// Additional members
     member x.Foo = 0
     member x.Foo2() = 0

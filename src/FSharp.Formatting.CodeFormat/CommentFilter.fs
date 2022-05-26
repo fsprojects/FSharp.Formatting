@@ -43,7 +43,7 @@ let rec getSnippets
     (state: NamedSnippet option)
     (snippets: NamedSnippet list)
     (source: IndexedSnippetLine list)
-    (lines: string [])
+    (lines: string[])
     =
     match source with
     | [] -> snippets
