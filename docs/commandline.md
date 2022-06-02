@@ -72,12 +72,13 @@ report an error (e.g. "Problem loading...", "Connection was reset").
 
  Restarting may be necesssary on changes to project files. The same parameters are accepted, plus these:
 
-| Command Line Option                 |  Description    |
-|:-----------------------|:-----------------------------------------|
-| `--noserver`     |   Do not serve content when watching.  |
-| `--nolaunch`     |   Do not launch a browser window. |
-| `--open`     |   URL extension to launch http://localhost:<port>/%s. |
-| `--port`     |   Port to serve content for http://localhost serving. |
+| Command Line Option                 | Description                                                     |
+|:-----------------------|:----------------------------------------------------------------|
+| `--noserver`     | Do not serve content when watching.                             |
+| `--nolaunch`     | Do not launch a browser window.                                 |
+| `--open`     | URL extension to launch http://localhost:<port>/%s.             |
+| `--port`     | Port to serve content for http://localhost serving.             |
+| `--mime-types`     | Add additional MIME types to serve. Example ".avi=video/avi".   |
 
 
 

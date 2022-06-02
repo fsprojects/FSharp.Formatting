@@ -627,15 +627,31 @@ module Serve =
             do! webSocket.send Close emptyResponse true
         }
 
-    let startWebServer rootOutputFolderAsGiven localPort =
+    let startWebServer rootOutputFolderAsGiven localPort mimeTypes =
         let defaultBinding = defaultConfig.bindings.[0]
 
         let withPort = { defaultBinding.socketBinding with port = uint16 localPort }
 
+        let mimeTypes =
+            if Seq.isEmpty mimeTypes then
+                defaultConfig.mimeTypesMap
+            else
+                Writers.defaultMimeTypesMap
+                @@ (fun ext ->
+                    Seq.tryFind (fun (mt: string) -> mt.StartsWith(ext)) mimeTypes
+                    |> Option.bind (fun mt ->
+                        let parts = mt.Split('=')
+
+                        if parts.Length <> 2 then
+                            None
+                        else
+                            Writers.createMimeType parts.[1] false))
+
         let serverConfig =
             { defaultConfig with
                 bindings = [ { defaultBinding with socketBinding = withPort } ]
-                homeFolder = Some rootOutputFolderAsGiven }
+                homeFolder = Some rootOutputFolderAsGiven
+                mimeTypesMap = mimeTypes }
 
         let app =
             choose
@@ -1391,7 +1407,7 @@ type CoreBuildOptions(watch) =
                     this.port_option
                     rootOutputFolderFullPath
 
-                Serve.startWebServer rootOutputFolderFullPath this.port_option
+                Serve.startWebServer rootOutputFolderFullPath this.port_option this.mimeTypes_option
 
             if not this.nolaunch_option then
                 let url = sprintf "http://localhost:%d/%s" this.port_option this.open_option
@@ -1418,6 +1434,9 @@ type CoreBuildOptions(watch) =
 
     abstract port_option: int
     default x.port_option = 0
+
+    abstract mimeTypes_option: string seq
+    default x.mimeTypes_option = Seq.empty
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
@@ -1446,3 +1465,10 @@ type WatchCommand() =
 
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
+
+    override x.mimeTypes_option = x.mimeTypes
+
+    [<Option("mime-types",
+             Required = false,
+             HelpText = "Add additional MIME types to serve. Example \".avi=video/avi\".")>]
+    member val mimeTypes: string seq = Seq.empty with get, set
