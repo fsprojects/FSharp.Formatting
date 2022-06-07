@@ -731,8 +731,8 @@ module internal CrossReferences =
         | "" ->
             try
                 defaultArg (Option.map (sprintf "T:%s") typ.TryFullName) ""
-            with
-            | _ -> ""
+            with _ ->
+                ""
         | n -> n
 
     let getMemberXmlDocsSigPrefix (memb: FSharpMemberOrFunctionOrValue) =
@@ -784,8 +784,7 @@ module internal CrossReferences =
                             ""
 
                     sprintf "%s%s%s" name typeArgs paramList
-                with
-                | exn ->
+                with exn ->
                     printfn "Error while building fsdocs-member-name for %s because: %s" memb.FullName exn.Message
                     Log.verbf "Full Exception details of previous message: %O" exn
                     memb.CompiledName
@@ -1603,8 +1602,8 @@ module internal SymbolReader =
                         v.ApparentEnclosingEntity,
                         formatTyconRefAsHtml ctx.UrlMap v.ApparentEnclosingEntity |> codeHtml
                     )
-                with
-                | _ -> None
+                with _ ->
+                    None
             else
                 None
 
@@ -2387,8 +2386,8 @@ module internal SymbolReader =
                 | Let "1000" (idx, _) ->
                     (try
                         int idx
-                     with
-                     | _ -> Int32.MaxValue)
+                     with _ ->
+                         Int32.MaxValue)
 
             let exclude =
                 match cmds with
@@ -2398,17 +2397,14 @@ module internal SymbolReader =
 
             try
                 Some(f cat catindex exclude cmds comment, nsdocs)
-            with
-            | e ->
+            with e ->
                 let name =
                     try
                         sym.FullName
-                    with
-                    | _ ->
+                    with _ ->
                         try
                             sym.DisplayName
-                        with
-                        | _ ->
+                        with _ ->
                             let part =
                                 try
                                     let ass = sym.Assembly
@@ -2416,8 +2412,8 @@ module internal SymbolReader =
                                     match ass.FileName with
                                     | Some file -> file
                                     | None -> ass.QualifiedName
-                                with
-                                | _ -> "unknown"
+                                with _ ->
+                                    "unknown"
 
                             sprintf "unknown, part of %s" part
 

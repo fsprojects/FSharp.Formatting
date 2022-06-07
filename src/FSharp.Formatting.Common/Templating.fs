@@ -195,7 +195,7 @@ module internal SimpleTemplating =
             let path = Path.GetFullPath(outputFile) |> Path.GetDirectoryName
 
             Directory.CreateDirectory(path) |> ignore
-        with
-        | _ -> ()
+        with _ ->
+            ()
 
         File.WriteAllText(outputFile, outputText)

@@ -25,8 +25,8 @@ module Utils =
     let fileExists pathToFile =
         try
             File.Exists(pathToFile)
-        with
-        | _ -> false
+        with _ ->
+            false
 
     // Look for global install of dotnet sdk
     let getDotnetGlobalHostPath () =
@@ -93,8 +93,8 @@ module Utils =
     let saveBinary (object: 'T) (fileName: string) =
         try
             Directory.CreateDirectory(Path.GetDirectoryName(fileName)) |> ignore
-        with
-        | _ -> ()
+        with _ ->
+            ()
 
         let formatter = DataContractSerializer(typeof<'T>)
         use fs = File.Create(fileName)
@@ -113,8 +113,8 @@ module Utils =
         try
             let object = formatter.ReadObject(xw) :?> 'T
             Some object
-        with
-        | _ -> None
+        with _ ->
+            None
 
     let cacheBinary cacheFile cacheValid (f: unit -> 'T) : 'T =
         let attempt =
@@ -452,8 +452,7 @@ module Crack =
             |> Array.choose (fun p ->
                 try
                     Some(crackProjectFile slnDir extraMsbuildProperties p)
-                with
-                | e ->
+                with e ->
                     printfn
                         "  skipping project '%s' because an error occurred while cracking it: %O"
                         (Path.GetFileName p)

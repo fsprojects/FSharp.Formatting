@@ -101,8 +101,8 @@ type internal DocContent
         let markdownReferenceAsFullInputPathOpt =
             try
                 Path.GetFullPath(markdownReference, inputFolderAsGiven) |> Some
-            with
-            | _ -> None
+            with _ ->
+                None
 
         match markdownReferenceAsFullInputPathOpt with
         | None -> None
@@ -120,8 +120,7 @@ type internal DocContent
                             .ToString()
 
                     Some uri
-                with
-                | _ ->
+                with _ ->
                     printfn
                         $"Couldn't map markdown reference {markdownReference} that seemed to correspond to an input file"
 
@@ -210,31 +209,31 @@ type internal DocContent
                       let fileChangeTime =
                           try
                               File.GetLastWriteTime(inputFileFullPath)
-                          with
-                          | _ -> DateTime.MaxValue
+                          with _ ->
+                              DateTime.MaxValue
 
                       let templateChangeTime =
                           match template with
                           | Some t when isFsx || isMd ->
                               try
                                   File.GetLastWriteTime(t)
-                              with
-                              | _ -> DateTime.MaxValue
+                              with _ ->
+                                  DateTime.MaxValue
                           | _ -> DateTime.MinValue
 
                       let toolChangeTime =
                           try
                               File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location)
-                          with
-                          | _ -> DateTime.MaxValue
+                          with _ ->
+                              DateTime.MaxValue
 
                       let changeTime = fileChangeTime |> max templateChangeTime |> max toolChangeTime
 
                       let generateTime =
                           try
                               File.GetLastWriteTime(outputFileFullPath)
-                          with
-                          | _ -> System.DateTime.MinValue
+                          with _ ->
+                              System.DateTime.MinValue
 
                       changeTime > generateTime
 
@@ -330,8 +329,8 @@ type internal DocContent
                                        try
                                            File.Copy(inputFileFullPath, outputFileFullPath, true)
                                            File.SetLastWriteTime(outputFileFullPath, DateTime.Now)
-                                       with
-                                       | _ when watch -> ()))
+                                       with _ when watch ->
+                                           ()))
                   else if mainRun && watch then
                       //printfn "skipping unchanged file %s" inputFileFullPath
                       yield (Some(inputFileFullPath, isOtherLang, haveModel.Value), (fun _ -> ())) ]
@@ -547,8 +546,8 @@ type internal DocContent
                 | Some s ->
                     (try
                         int32 s
-                     with
-                     | _ -> Int32.MaxValue)
+                     with _ ->
+                         Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
         [
@@ -571,8 +570,8 @@ type internal DocContent
                           | Some s ->
                               (try
                                   int32 s
-                               with
-                               | _ -> Int32.MaxValue)
+                               with _ ->
+                                   Int32.MaxValue)
                           | None -> Int32.MaxValue)
 
                   match cat with
@@ -746,8 +745,7 @@ type CoreBuildOptions(watch) =
             try
                 f ()
                 true
-            with
-            | ex ->
+            with ex ->
                 printfn "Error : \n%O" ex
 
                 onError (sprintf "%s failed, and --strict is on : \n%O" phase ex)
@@ -804,8 +802,8 @@ type CoreBuildOptions(watch) =
             let getTime p =
                 try
                     File.GetLastWriteTimeUtc(p)
-                with
-                | _ -> DateTime.Now
+                with _ ->
+                    DateTime.Now
 
             let key1 =
                 (userRoot,
@@ -964,13 +962,13 @@ type CoreBuildOptions(watch) =
                 None
             else if (try
                          File.Exists(defaultTemplateAttempt1)
-                     with
-                     | _ -> false) then
+                     with _ ->
+                         false) then
                 Some defaultTemplateAttempt1
             elif (try
                       File.Exists(defaultTemplateAttempt2)
-                  with
-                  | _ -> false) then
+                  with _ ->
+                      false) then
                 Some defaultTemplateAttempt2
             else
                 None
@@ -984,8 +982,8 @@ type CoreBuildOptions(watch) =
 
                   if (try
                           Directory.Exists(attempt1)
-                      with
-                      | _ -> false) then
+                      with _ ->
+                          false) then
                       printfn "using extra content from %s" attempt1
                       (attempt1, ".")
                   else
@@ -997,8 +995,8 @@ type CoreBuildOptions(watch) =
 
                       if (try
                               Directory.Exists(attempt2)
-                          with
-                          | _ -> false) then
+                          with _ ->
+                              false) then
                           printfn "using extra content from %s" attempt2
                           (attempt2, "content")
                       else
@@ -1227,8 +1225,8 @@ type CoreBuildOptions(watch) =
             if isOutputPathOK then
                 try
                     clean rootOutputFolderFullPath
-                with
-                | e -> printfn "warning: error during cleaning, continuing: %s" e.Message
+                with e ->
+                    printfn "warning: error during cleaning, continuing: %s" e.Message
             else
                 printfn "warning: skipping cleaning due to strange output path: \"%s\"" rootOutputFolderAsGiven
 
@@ -1400,8 +1398,8 @@ type CoreBuildOptions(watch) =
 
                 try
                     Process.Start(new ProcessStartInfo(url, UseShellExecute = true)) |> ignore
-                with
-                | ex -> printfn "Warning, unable to launch browser(%s), try manually browsing to %s" ex.Message url
+                with ex ->
+                    printfn "Warning, unable to launch browser(%s), try manually browsing to %s" ex.Message url
 
             waitForKey watch
 

@@ -85,8 +85,7 @@ let executeTest (dir: string) (source: string) (target: string) (verify: string)
                 None
         else
             None
-    with
-    | e ->
+    with e ->
         printfn " - %s (failed)\n %A" (target.Substring(dir.Length)) e
         None
 

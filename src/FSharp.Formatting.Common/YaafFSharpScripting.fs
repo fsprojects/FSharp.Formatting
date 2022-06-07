@@ -925,8 +925,7 @@ type internal FsiSession
 
                 saveOutput () |> ignore
                 session)
-        with
-        | e ->
+        with e ->
             let err, out, _ = getMessages ()
 
             raise
@@ -943,8 +942,7 @@ type internal FsiSession
             redirectOut (fun () ->
                 let res = f text
                 saveOutput (), res)
-        with
-        | e ->
+        with e ->
             let err, out, inp = getMessages ()
 
             raise

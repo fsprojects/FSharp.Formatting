@@ -70,8 +70,8 @@ let getOutputDir (format: OutputFormat) (uniq: string) =
 
     while (try
                Directory.Exists outDir
-           with
-           | _ -> false) do
+           with _ ->
+               false) do
         Directory.Delete(outDir, true)
 
     Directory.CreateDirectory(outDir).FullName
@@ -114,16 +114,15 @@ let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComment
 
         files
 
-    with
-    | e ->
+    with e ->
         printfn "Failed to Generate API Docs -\n%s\n\n%s\n" e.Message e.StackTrace
 
         System.AppDomain.CurrentDomain.GetAssemblies()
         |> Seq.iter (fun x ->
             try
                 sprintf "%s\n - %s" x.FullName x.Location |> System.Console.WriteLine
-            with
-            | e -> sprintf "\nError On - %A\n -- %s\n" x e.Message |> System.Console.WriteLine)
+            with e ->
+                sprintf "\nError On - %A\n -- %s\n" x e.Message |> System.Console.WriteLine)
 
         reraise ()
 
@@ -1170,8 +1169,8 @@ let ``Metadata generates cross-type links for Inline Code`` (format: OutputForma
 let runtest testfn =
     try
         testfn ()
-    with
-    | e -> printfn "Error -\n%s\n\nStackTrace -\n%s\n\n\TargetSite -\n%s\n" e.Message e.StackTrace e.TargetSite.Name
+    with e ->
+        printfn "Error -\n%s\n\nStackTrace -\n%s\n\n\TargetSite -\n%s\n" e.Message e.StackTrace e.TargetSite.Name
 #if INTERACTIVE
 printfn "Metadata generates cross-type links for Inline Code"
 runtest ``Metadata generates cross-type links for Inline Code``
