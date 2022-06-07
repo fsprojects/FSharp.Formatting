@@ -64,8 +64,8 @@ let transformAndCompare transFunc (source: string) (target: string) (verify: str
                 File.Delete(target)
             else
                 printfn " - %s" (target.Substring(testdir.Length))
-    with
-    | e -> printfn " - %s (failed)\n %A" (target.Substring(testdir.Length)) e
+    with e ->
+        printfn " - %s (failed)\n %A" (target.Substring(testdir.Length)) e
 
 let rec runTests dir =
     for file in Directory.GetFiles(dir, "*.text") do

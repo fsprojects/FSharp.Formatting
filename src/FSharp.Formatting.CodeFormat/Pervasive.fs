@@ -157,8 +157,8 @@ type FSharpChecker with
                     let! worker = Async.StartChild(parseAndCheckFile, 2000)
                     let! result = worker
                     return Ready result
-                with
-                | :? TimeoutException -> return StillRunning parseAndCheckFile
+                with :? TimeoutException ->
+                    return StillRunning parseAndCheckFile
             }
 
         let bindParsedInput (results: (FSharpParseFileResults * FSharpCheckFileResults) option) =

@@ -377,8 +377,8 @@ module __FsiSettings =
         if depth > 20 then
             try
                 sprintf "%A" v
-            with
-            | e -> e.ToString()
+            with e ->
+                e.ToString()
         else
             plainTextPrinters
             // Try to find a printer or print transformer
@@ -387,21 +387,21 @@ module __FsiSettings =
                 | Choice1Of2 addedPrinter ->
                     try
                         addedPrinter v
-                    with
-                    | _ -> None
+                    with _ ->
+                        None
                 | Choice2Of2 addedPrintTransformer ->
                     (try
                         addedPrintTransformer v
-                     with
-                     | _ -> None)
+                     with _ ->
+                         None)
                     |> Option.map (plainTextPrint (depth + 1)))
             |> function
                 | None ->
                     // no printer found
                     try
                         sprintf "%A" v
-                    with
-                    | e -> e.ToString()
+                    with e ->
+                        e.ToString()
                 | Some t -> t
 
     let rec tryHtmlPrint depth (v: obj) =
@@ -415,13 +415,13 @@ module __FsiSettings =
                 | Choice1Of2 addedPrinter ->
                     try
                         addedPrinter v
-                    with
-                    | _ -> None
+                    with _ ->
+                        None
                 | Choice2Of2 addedPrintTransformer ->
                     (try
                         addedPrintTransformer v
-                     with
-                     | _ -> None)
+                     with _ ->
+                         None)
                     |> Option.bind (tryHtmlPrint (depth + 1)))
 
     /// Registered transformations for pretty printing values
@@ -555,8 +555,7 @@ module __FsiSettings =
                           Result = value
                           ItValue = itvalue }
                         :> IFsiEvaluationResult)
-            with
-            | :? FsiEvaluationException as e ->
+            with :? FsiEvaluationException as e ->
                 evalFailed.Trigger
                     { File = file
                       AsExpression = asExpression

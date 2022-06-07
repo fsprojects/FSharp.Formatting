@@ -27,5 +27,5 @@ let enableLogging () =
         // Test that everything works
         Logging.infof "FSharp.Formatting Logging setup!"
         FSharp.Formatting.Internal.Log.infof "FSharp.Formatting.Internal Logging setup!"
-    with
-    | e -> printfn "FSharp.Formatting Logging setup failed: %A" e
+    with e ->
+        printfn "FSharp.Formatting Logging setup failed: %A" e
