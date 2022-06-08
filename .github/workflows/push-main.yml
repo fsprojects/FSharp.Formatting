@@ -12,15 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        dotnet: [6.0.203]
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v1
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ matrix.dotnet }}
+      uses: actions/setup-dotnet@v2
     - name: Restore .NET local tools
       run: dotnet tool restore
     - name: Restore packages
