@@ -1,3 +1,6 @@
+## 15.0.1
+* fix https://github.com/fsprojects/FSharp.Formatting/issues/749
+
 ## 15.0.0
 * Update to .NET 6
 
