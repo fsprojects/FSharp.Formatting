@@ -244,10 +244,23 @@ module Foo3 =
 If you want to exclude modules or functions from the API docs you can use the `[omit]` tag.
 It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:
 
+Example as last line:
 *)
+
 /// Some actual comment
+/// [omit]
 module Bar =
     let a = 42
+    
+(**
+Example as first line:
+*)
+
+/// [omit]
+/// Some actual comment
+module Bar` =
+    let a = 42
+
 (**
 
 
