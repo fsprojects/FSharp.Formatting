@@ -22,7 +22,7 @@ let embed (x: ApiDocHtml) = !!(htmlString x)
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
 let br = !! "<br />"
 
-type MarkdownRender(model: ApiDocModel) =
+type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
@@ -362,9 +362,17 @@ type MarkdownRender(model: ApiDocModel) =
                       | _ -> () ]
 
     let listOfNamespaces otherDocs nav (nsOpt: ApiDocNamespace option) =
-        listOfNamespacesAux otherDocs nav nsOpt
-        |> List.map (fun html -> html.ToString())
-        |> String.concat "             \n"
+        let isTemplatingAvailable =
+            match menuTemplateFolder with
+            | None -> false
+            | Some input -> FSharp.Formatting.Menu.isTemplatingAvailable input
+
+        if isTemplatingAvailable then
+            "TODO!"
+        else
+            listOfNamespacesAux otherDocs nav nsOpt
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
 
     /// Get the substitutions relevant to all
     member _.GlobalSubstitutions: Substitutions =

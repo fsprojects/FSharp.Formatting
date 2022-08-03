@@ -85,7 +85,8 @@ type ApiDocs =
             ?libDirs,
             ?otherFlags,
             ?urlRangeHighlight,
-            ?onError
+            ?onError,
+            ?menuTemplateFolder
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
@@ -106,7 +107,7 @@ type ApiDocs =
                 extensions = extensions
             )
 
-        let renderer = GenerateHtml.HtmlRender(model)
+        let renderer = GenerateHtml.HtmlRender(model, ?menuTemplateFolder = menuTemplateFolder)
 
         let index = GenerateSearchIndex.searchIndexEntriesForModel model
 
@@ -184,7 +185,8 @@ type ApiDocs =
             ?libDirs,
             ?otherFlags,
             ?urlRangeHighlight,
-            ?onError
+            ?onError,
+            ?menuTemplateFolder
         ) =
         let root = defaultArg root "/"
         let qualify = defaultArg qualify false
@@ -205,7 +207,7 @@ type ApiDocs =
                 extensions = extensions
             )
 
-        let renderer = GenerateMarkdown.MarkdownRender(model)
+        let renderer = GenerateMarkdown.MarkdownRender(model, ?menuTemplateFolder = menuTemplateFolder)
 
         let index = GenerateSearchIndex.searchIndexEntriesForModel model
 

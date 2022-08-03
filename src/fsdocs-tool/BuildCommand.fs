@@ -527,7 +527,8 @@ type internal DocContent
                    | _ -> () |]
 
     member _.GetNavigationEntries(docModels: (string * bool * LiterateDocModel) list) =
-        let _ = FSharp.Formatting.Menu.createMenu ()
+        let _ = FSharp.Formatting.Menu.createMenu "fake header" []
+
         let modelsForList =
             [ for thing in docModels do
                   match thing with
@@ -1490,7 +1491,8 @@ type CoreBuildOptions(watch) =
                                     otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
                                     root = root,
                                     libDirs = paths,
-                                    onError = onError
+                                    onError = onError,
+                                    menuTemplateFolder = this.input
                                 )
                             | OutputKind.Markdown ->
                                 ApiDocs.GenerateMarkdownPhased(
