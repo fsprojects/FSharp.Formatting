@@ -615,6 +615,7 @@ type HtmlRender(model: ApiDocModel) =
                   | _ -> () ]
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
+        let _ = FSharp.Formatting.Menu.createMenu ()
         listOfNamespacesNavAux otherDocs nsOpt
         |> List.map (fun html -> html.ToString())
         |> String.concat "             \n"

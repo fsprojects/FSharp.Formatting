@@ -527,6 +527,7 @@ type internal DocContent
                    | _ -> () |]
 
     member _.GetNavigationEntries(docModels: (string * bool * LiterateDocModel) list) =
+        let _ = FSharp.Formatting.Menu.createMenu ()
         let modelsForList =
             [ for thing in docModels do
                   match thing with
@@ -551,13 +552,23 @@ type internal DocContent
                 | None -> Int32.MaxValue)
 
         [
+          (*
+         Goal:  if _menu_template.html exists, generate custom sidebar which contains
+          {{fsdocs-menu-header-content}} , {{fsdocs-menu-items}} variables. That currently dont exist.
+
+          Similarly, if menu-item_template.html exists, generate custom item which contains {{fsdocs-menu-item-content}}
+          *)
+
           // No categories specified
           if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-              li [ Class "nav-header" ] [ !! "Documentation" ]
+              //verify if _menu_template exists, and if it does substitute with 'ApplySubstitutions' using our models properties.
+              li [ Class "nav-header" ] [ !! "Documentation" ] // define this substitution in a way that we can reuse it
+                                                                //in case its needed below for the other cases
 
               for model in snd modelsByCategory.[0] do
                   let link = model.Uri(root)
 
+              //verify if _menu_template exists, and if it does substitute with 'ApplySubstitutions' using our models properties.
                   li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
           else
               // At least one category has been specified. Sort each category by index and emit
@@ -575,7 +586,7 @@ type internal DocContent
                           | None -> Int32.MaxValue)
 
                   match cat with
-                  | Some c -> li [ Class "nav-header" ] [ !!c ]
+                  | Some c -> li [ Class "nav-header" ] [ !!c ] //dont understand what this case is for
                   | None -> li [ Class "nav-header" ] [ !! "Other" ]
 
                   for model in modelsInCategory do
