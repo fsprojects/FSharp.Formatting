@@ -2985,7 +2985,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
 
         // Default template file names
 
-        let otherFlags = defaultArg otherFlags []
+        let otherFlags = defaultArg otherFlags [] |> List.map (fun (o: string) -> o.Trim())
 
         let libDirs = defaultArg libDirs [] |> List.map Path.GetFullPath
 
