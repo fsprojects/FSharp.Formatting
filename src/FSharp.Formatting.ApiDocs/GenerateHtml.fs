@@ -13,7 +13,7 @@ open FSharp.Formatting.HtmlModel.Html
 /// Embed some HTML generateed in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
 
-type HtmlRender(model: ApiDocModel) =
+type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
@@ -615,10 +615,17 @@ type HtmlRender(model: ApiDocModel) =
                   | _ -> () ]
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
-        let _ = FSharp.Formatting.Menu.createMenu ()
-        listOfNamespacesNavAux otherDocs nsOpt
-        |> List.map (fun html -> html.ToString())
-        |> String.concat "             \n"
+        let isTemplatingAvailable =
+            match menuTemplateFolder with
+            | None -> false
+            | Some input -> FSharp.Formatting.Menu.isTemplatingAvailable input
+
+        if isTemplatingAvailable then
+            "TODO!"
+        else
+            listOfNamespacesNavAux otherDocs nsOpt
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
 
     /// Get the substitutions relevant to all
     member _.GlobalSubstitutions: Substitutions =
