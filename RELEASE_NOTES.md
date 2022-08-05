@@ -1,3 +1,6 @@
+## 15.0.2
+* Trim the `--fscoptions` before passing them as `otherflags`. ([comment #616](https://github.com/fsprojects/FSharp.Formatting/issues/616#issuecomment-1200877765))
+
 ## 15.0.1
 * fix https://github.com/fsprojects/FSharp.Formatting/issues/749
 

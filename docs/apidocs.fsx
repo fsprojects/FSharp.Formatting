@@ -251,14 +251,14 @@ Example as last line:
 /// [omit]
 module Bar =
     let a = 42
-    
+
 (**
 Example as first line:
 *)
 
 /// [omit]
 /// Some actual comment
-module Bar` =
+module Bar2 =
     let a = 42
 
 (**
