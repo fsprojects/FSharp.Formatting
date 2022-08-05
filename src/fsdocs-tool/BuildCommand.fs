@@ -525,78 +525,78 @@ type internal DocContent
                          content = text
                          uri = model.Uri(root) }
                    | _ -> () |]
+    member _.GetNavigationEntries(input, docModels: (string * bool * LiterateDocModel) list) =
+            let modelsForList =
+                [ for thing in docModels do
+                      match thing with
+                      | (inputFileFullPath, isOtherLang, model) when
+                          not isOtherLang
+                          && model.OutputKind = OutputKind.Html
+                          && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
+                          ->
+                          model
+                      | _ -> () ]
 
-    member _.GetNavigationEntries(docModels: (string * bool * LiterateDocModel) list) =
-        let _ = FSharp.Formatting.Menu.createMenu "fake header" []
+            let modelsByCategory =
+                modelsForList
+                |> List.groupBy (fun model -> model.Category)
+                |> List.sortBy (fun (_, ms) ->
+                    match ms.[0].CategoryIndex with
+                    | Some s ->
+                        (try
+                            int32 s
+                         with _ ->
+                             Int32.MaxValue)
+                    | None -> Int32.MaxValue)
 
-        let modelsForList =
-            [ for thing in docModels do
-                  match thing with
-                  | (inputFileFullPath, isOtherLang, model) when
-                      not isOtherLang
-                      && model.OutputKind = OutputKind.Html
-                      && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
-                      ->
-                      model
-                  | _ -> () ]
+            if FSharp.Formatting.Menu.isTemplatingAvailable input then
+                let createGroup (header: string) (items: LiterateDocModel list) : string =
+                    FSharp.Formatting.Menu.createMenu input header items // dont know yet how to convert to MenuItem
+                // No categories specified
+                if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                    let _, items = modelsByCategory.[0]
+                    createGroup "Documentation" items
+                else
+                    modelsByCategory
+                    |> List.map (fun (header, items) ->
+                        let header = Option.defaultValue "Other" header
+                        createGroup header items)
+                    |> String.concat "\n"
+            else
+                [
+                  // No categories specified
+                  if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                      li [ Class "nav-header" ] [ !! "Documentation" ]
 
-        let modelsByCategory =
-            modelsForList
-            |> List.groupBy (fun model -> model.Category)
-            |> List.sortBy (fun (_, ms) ->
-                match ms.[0].CategoryIndex with
-                | Some s ->
-                    (try
-                        int32 s
-                     with _ ->
-                         Int32.MaxValue)
-                | None -> Int32.MaxValue)
+                      for model in snd modelsByCategory.[0] do
+                          let link = model.Uri(root)
 
-        [
-          (*
-         Goal:  if _menu_template.html exists, generate custom sidebar which contains
-          {{fsdocs-menu-header-content}} , {{fsdocs-menu-items}} variables. That currently dont exist.
+                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                  else
+                      // At least one category has been specified. Sort each category by index and emit
+                      // Use 'Other' as a header for uncategorised things
+                      for (cat, modelsInCategory) in modelsByCategory do
+                          let modelsInCategory =
+                              modelsInCategory
+                              |> List.sortBy (fun model ->
+                                  match model.Index with
+                                  | Some s ->
+                                      (try
+                                          int32 s
+                                       with _ ->
+                                           Int32.MaxValue)
+                                  | None -> Int32.MaxValue)
 
-          Similarly, if menu-item_template.html exists, generate custom item which contains {{fsdocs-menu-item-content}}
-          *)
+                          match cat with
+                          | Some c -> li [ Class "nav-header" ] [ !!c ]
+                          | None -> li [ Class "nav-header" ] [ !! "Other" ]
 
-          // No categories specified
-          if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-              //verify if _menu_template exists, and if it does substitute with 'ApplySubstitutions' using our models properties.
-              li [ Class "nav-header" ] [ !! "Documentation" ] // define this substitution in a way that we can reuse it
-                                                                //in case its needed below for the other cases
+                          for model in modelsInCategory do
+                              let link = model.Uri(root)
 
-              for model in snd modelsByCategory.[0] do
-                  let link = model.Uri(root)
-
-              //verify if _menu_template exists, and if it does substitute with 'ApplySubstitutions' using our models properties.
-                  li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-          else
-              // At least one category has been specified. Sort each category by index and emit
-              // Use 'Other' as a header for uncategorised things
-              for (cat, modelsInCategory) in modelsByCategory do
-                  let modelsInCategory =
-                      modelsInCategory
-                      |> List.sortBy (fun model ->
-                          match model.Index with
-                          | Some s ->
-                              (try
-                                  int32 s
-                               with _ ->
-                                   Int32.MaxValue)
-                          | None -> Int32.MaxValue)
-
-                  match cat with
-                  | Some c -> li [ Class "nav-header" ] [ !!c ] //dont understand what this case is for
-                  | None -> li [ Class "nav-header" ] [ !! "Other" ]
-
-                  for model in modelsInCategory do
-                      let link = model.Uri(root)
-
-                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
-        |> List.map (fun html -> html.ToString())
-        |> String.concat "             \n"
-
+                              li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                |> List.map (fun html -> html.ToString())
+                |> String.concat "             \n"
 /// Processes and runs Suave server to host them on localhost
 module Serve =
     //not sure what this was needed for
@@ -1577,7 +1577,7 @@ type CoreBuildOptions(watch) =
 
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
-                let navEntries = docContent.GetNavigationEntries(actualDocModels)
+                let navEntries = docContent.GetNavigationEntries(this.input,actualDocModels)
 
                 let results =
                     Map.ofList
