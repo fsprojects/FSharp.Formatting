@@ -1,5 +1,4 @@
-module FSharp.Formatting.Menu
-
+module FSharp.Formatting.Common.Menu
 open System.IO
 open FSharp.Formatting.Templating
 
@@ -8,6 +7,7 @@ type MenuItem =
         Link: string
         Content: string
     }
+//am I suppose to have this global lets?
 let fsdocsMenuHeaderContentKey = ParamKey "fsdocs-menu-header-content"
 let fsdocsMenuItemsKey = ParamKey "fsdocs-menu-items"
 let fsdocsMenuItemLinkKey = ParamKey "fsdocs-menu-item-link"

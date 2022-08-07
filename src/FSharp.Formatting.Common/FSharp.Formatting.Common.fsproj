@@ -16,5 +16,10 @@
     <Compile Include="Templating.fs" />
     <Compile Include="Menu.fs" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Formatting.Literate">
+      <HintPath>..\FSharp.Formatting\bin\Release\netstandard2.1\FSharp.Formatting.Literate.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

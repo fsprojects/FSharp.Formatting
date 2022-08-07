@@ -11,6 +11,7 @@ open System.Reflection
 open System.Text
 
 open FSharp.Formatting.Common
+open FSharp.Formatting.Common.Menu
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 open FSharp.Formatting.Literate
@@ -70,7 +71,6 @@ type internal DocContent
         let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
         let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
         let ext = outputKind.Extension
-
         let outputFileRelativeToRoot =
             if isFsx || isMd then
                 let basename = Path.GetFileNameWithoutExtension(inputFileFullPath)
@@ -548,10 +548,19 @@ type internal DocContent
                          with _ ->
                              Int32.MaxValue)
                     | None -> Int32.MaxValue)
-
-            if FSharp.Formatting.Menu.isTemplatingAvailable input then
+            if FSharp.Formatting.Common.Menu.isTemplatingAvailable input then
                 let createGroup (header: string) (items: LiterateDocModel list) : string =
-                    FSharp.Formatting.Menu.createMenu input header items // dont know yet how to convert to MenuItem
+                //convert items into menuitem list
+                    let menuItems =
+                          items
+                        |> List.map (fun (model: LiterateDocModel) ->
+                            let link = model.Uri(root)
+                            let title = System.Web.HttpUtility.HtmlEncode model.Title
+                            { FSharp.Formatting.Common.Menu.MenuItem.Link = link
+                              FSharp.Formatting.Common.Menu.MenuItem.Content = title }
+                            )
+
+                    FSharp.Formatting.Common.Menu.createMenu input header menuItems
                 // No categories specified
                 if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                     let _, items = modelsByCategory.[0]

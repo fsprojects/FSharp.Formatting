@@ -365,7 +365,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let isTemplatingAvailable =
             match menuTemplateFolder with
             | None -> false
-            | Some input -> FSharp.Formatting.Menu.isTemplatingAvailable input
+            | Some input -> FSharp.Formatting.Common.Menu.isTemplatingAvailable input
 
         if isTemplatingAvailable then
             "TODO!"
