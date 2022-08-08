@@ -79,7 +79,21 @@ let (|DelimitedMarkdown|_|) bracket input =
     let rec loop acc =
         function
         | EscapedChar (x, xs) -> loop (x :: '\\' :: acc) xs
-        | input when List.startsWith endl input -> Some(List.rev acc, input)
+        | input when List.startsWith endl input ->
+            let rest = List.skip bracket.Length input
+
+            match rest with
+            | []
+            | (' '
+            | '\r'
+            | '\n'
+            | '.'
+            | '?'
+            | '!') :: _ -> Some(List.rev acc, input)
+            | rest ->
+                let head = List.take bracket.Length input
+                loop [ yield! head; yield! acc ] rest
+
         | x :: xs -> loop (x :: acc) xs
         | [] -> None
     // If it starts with 'startl', let's search for 'endl'
@@ -89,7 +103,6 @@ let (|DelimitedMarkdown|_|) bracket input =
         | None -> None
     else
         None
-
 
 /// This is similar to `List.Delimited`, but it skips over Latex inline math characters.
 let (|DelimitedLatexDisplayMath|_|) bracket input =
