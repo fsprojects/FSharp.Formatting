@@ -368,7 +368,9 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             | Some input -> FSharp.Formatting.Common.Menu.isTemplatingAvailable input
 
         if isTemplatingAvailable then
-            "TODO!"
+            listOfNamespacesAux otherDocs nav nsOpt
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
         else
             listOfNamespacesAux otherDocs nav nsOpt
             |> List.map (fun html -> html.ToString())

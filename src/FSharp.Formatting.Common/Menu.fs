@@ -14,8 +14,8 @@ let fsdocsMenuItemLinkKey = ParamKey "fsdocs-menu-item-link"
 let fsdocsMenuItemContentKey = ParamKey "fsdocs-menu-item-content"
 let pwd = Directory.GetCurrentDirectory()
 let createMenu (input: string) (header : string) (items : MenuItem list) : string =
-     let menuTemplate = Path.Combine(pwd, input, "_menu_template.html") //repeated lets, dont know yet how to avoid these :(
-     let menuItemTemplate = Path.Combine(pwd, input, "_menu-item_template.html")
+     let menuTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu_template.html")) //repeated lets, dont know yet how to avoid these :(
+     let menuItemTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu-item_template.html"))
      let menuItems =
          items
          |> List.map (fun (model: MenuItem) ->
