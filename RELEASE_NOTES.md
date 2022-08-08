@@ -1,3 +1,6 @@
+## 15.0.3
+* Fixes Markdown parser gets multiple-underscores-inside-italics wrong [#389](https://github.com/fsprojects/FSharp.Formatting/issues/389)
+
 ## 15.0.2
 * Trim the `--fscoptions` before passing them as `otherflags`. ([comment #616](https://github.com/fsprojects/FSharp.Formatting/issues/616#issuecomment-1200877765))
 
