@@ -867,3 +867,13 @@ Always use a bar before every case in the declaration of a discriminated union.
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
+
+[<Test>]
+let ``Underscore inside italic and bold near punctuation is preserved`` () =
+    let doc = "This is **bold_bold**, and this _italic_; and _this_too_: again."
+
+    let expected =
+        "<p>This is <strong>bold_bold</strong>, and this <em>italic</em>; and <em>this_too</em>: again.</p>\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml doc |> shouldEqual expected

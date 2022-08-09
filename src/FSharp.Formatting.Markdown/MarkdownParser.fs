@@ -69,6 +69,18 @@ let inline (|EscapedLatexInlineMathChar|_|) input =
     | '\\' :: (('$') as c) :: rest -> Some(c, rest)
     | _ -> None
 
+/// Succeeds when the specified character list starts with a letter or number
+let inline (|AlphaNum|_|) input =
+    let re = """^[a-zA-Z0-9]"""
+    let match' = Regex.Match(Array.ofList input |> String, re)
+
+    if match'.Success then
+        let entity = match'.Value
+        let _, rest = List.splitAt entity.Length input
+        Some(char entity, rest)
+    else
+        None
+
 /// Matches a list if it starts with a sub-list that is delimited
 /// using the specified delimiters. Returns a wrapped list and the rest.
 ///
@@ -83,17 +95,8 @@ let (|DelimitedMarkdown|_|) bracket input =
             let rest = List.skip bracket.Length input
 
             match rest with
-            | []
-            | (' '
-            | '\r'
-            | '\n'
-            | '.'
-            | '?'
-            | '!') :: _ -> Some(List.rev acc, input)
-            | rest ->
-                let head = List.take bracket.Length input
-                loop [ yield! head; yield! acc ] rest
-
+            | AlphaNum (x, xs) -> loop (x :: endl @ acc) xs
+            | _ -> Some(List.rev acc, input)
         | x :: xs -> loop (x :: acc) xs
         | [] -> None
     // If it starts with 'startl', let's search for 'endl'
