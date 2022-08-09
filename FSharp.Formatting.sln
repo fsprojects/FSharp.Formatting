@@ -36,6 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{312E452A-1
 		docs\styling.md = docs\styling.md
 		docs\upgrade.md = docs\upgrade.md
 		docs\_menu-item_template.html = docs\_menu-item_template.html
+		docs\_menu_template.html = docs\_menu_template.html
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{D0550510-0DCE-4B40-B4FB-091668E1C5FD}"

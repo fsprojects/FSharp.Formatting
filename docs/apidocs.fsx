@@ -258,7 +258,7 @@ Example as first line:
 
 /// [omit]
 /// Some actual comment
-module Baz =
+module Bar2 =
     let a = 42
 
 (**

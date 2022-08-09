@@ -114,6 +114,10 @@ module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-watch-script`` = ParamKey "fsdocs-watch-script"
+    let ``fsdocsMenuHeaderContentKey`` = ParamKey "fsdocs-menu-header-content"
+    let ``fsdocsMenuItemsKey`` = ParamKey "fsdocs-menu-items"
+    let ``fsdocsMenuItemLinkKey`` = ParamKey "fsdocs-menu-item-link"
+    let ``fsdocsMenuItemContentKey`` = ParamKey "fsdocs-menu-item-content"
 
 module internal SimpleTemplating =
 

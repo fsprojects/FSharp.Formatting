@@ -11,7 +11,6 @@ open System.Reflection
 open System.Text
 
 open FSharp.Formatting.Common
-open FSharp.Formatting.Common.Menu
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 open FSharp.Formatting.Literate
@@ -556,11 +555,11 @@ type internal DocContent
                         |> List.map (fun (model: LiterateDocModel) ->
                             let link = model.Uri(root)
                             let title = System.Web.HttpUtility.HtmlEncode model.Title
-                            { FSharp.Formatting.Common.Menu.MenuItem.Link = link
-                              FSharp.Formatting.Common.Menu.MenuItem.Content = title }
+                            { Menu.MenuItem.Link = link
+                              Menu.MenuItem.Content = title }
                             )
 
-                    FSharp.Formatting.Common.Menu.createMenu input header menuItems
+                    Menu.createMenu input header menuItems
                 // No categories specified
                 if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                     let _, items = modelsByCategory.[0]

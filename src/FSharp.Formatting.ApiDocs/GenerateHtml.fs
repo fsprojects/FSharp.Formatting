@@ -618,10 +618,27 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let isTemplatingAvailable =
             match menuTemplateFolder with
             | None -> false
-            | Some input -> FSharp.Formatting.Common.Menu.isTemplatingAvailable input
+            | Some input -> Menu.isTemplatingAvailable input
 
         if isTemplatingAvailable then
-            "TODO!"
+                 if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+                    let menuItems =
+                     let title = "All Namespaces"
+                     let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
+                     [{Menu.MenuItem.Link = link
+                       Menu.MenuItem.Content = title }]
+                    Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
+                 else
+                    let headerName =
+                        let categorise = Categorise.model model
+                        let someExist = categorise.Length > 0
+                        if someExist then
+                            "Namespaces"
+                         else
+                             "" //Clarify if this would be empty?
+                    let menuItems =
+                        []
+                    Menu.createMenu menuTemplateFolder.Value headerName menuItems
         else
             listOfNamespacesNavAux otherDocs nsOpt
             |> List.map (fun html -> html.ToString())

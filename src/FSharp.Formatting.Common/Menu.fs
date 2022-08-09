@@ -7,14 +7,9 @@ type MenuItem =
         Link: string
         Content: string
     }
-//am I suppose to have this global lets?
-let fsdocsMenuHeaderContentKey = ParamKey "fsdocs-menu-header-content"
-let fsdocsMenuItemsKey = ParamKey "fsdocs-menu-items"
-let fsdocsMenuItemLinkKey = ParamKey "fsdocs-menu-item-link"
-let fsdocsMenuItemContentKey = ParamKey "fsdocs-menu-item-content"
-let pwd = Directory.GetCurrentDirectory()
 let createMenu (input: string) (header : string) (items : MenuItem list) : string =
-     let menuTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu_template.html")) //repeated lets, dont know yet how to avoid these :(
+     let pwd = Directory.GetCurrentDirectory()
+     let menuTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu_template.html"))
      let menuItemTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu-item_template.html"))
      let menuItems =
          items
@@ -23,15 +18,16 @@ let createMenu (input: string) (header : string) (items : MenuItem list) : strin
              let title = System.Web.HttpUtility.HtmlEncode model.Content
 
              SimpleTemplating.ApplySubstitutionsInText
-                 [| fsdocsMenuItemLinkKey, link; fsdocsMenuItemContentKey, title |]
+                 [| ParamKeys.fsdocsMenuItemLinkKey, link; ParamKeys.fsdocsMenuItemContentKey, title |]
                  menuItemTemplate)
          |> String.concat "\n"
 
      SimpleTemplating.ApplySubstitutionsInText
-         [| fsdocsMenuHeaderContentKey, header; fsdocsMenuItemsKey, menuItems |]
+         [| ParamKeys.fsdocsMenuHeaderContentKey, header; ParamKeys.fsdocsMenuItemsKey, menuItems |]
          menuTemplate
 
 let isTemplatingAvailable (input:string) : bool =
+     let pwd = Directory.GetCurrentDirectory()
      let menuTemplate = Path.Combine(pwd, input, "_menu_template.html")
      let menuItemTemplate = Path.Combine(pwd, input, "_menu-item_template.html")
      File.Exists(menuTemplate) && File.Exists(menuItemTemplate)
