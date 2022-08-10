@@ -70,6 +70,7 @@ type internal DocContent
         let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
         let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
         let ext = outputKind.Extension
+
         let outputFileRelativeToRoot =
             if isFsx || isMd then
                 let basename = Path.GetFileNameWithoutExtension(inputFileFullPath)
@@ -524,87 +525,90 @@ type internal DocContent
                          content = text
                          uri = model.Uri(root) }
                    | _ -> () |]
+
     member _.GetNavigationEntries(input, docModels: (string * bool * LiterateDocModel) list) =
-            let modelsForList =
-                [ for thing in docModels do
-                      match thing with
-                      | (inputFileFullPath, isOtherLang, model) when
-                          not isOtherLang
-                          && model.OutputKind = OutputKind.Html
-                          && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
-                          ->
-                          model
-                      | _ -> () ]
+        let modelsForList =
+            [ for thing in docModels do
+                  match thing with
+                  | (inputFileFullPath, isOtherLang, model) when
+                      not isOtherLang
+                      && model.OutputKind = OutputKind.Html
+                      && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
+                      ->
+                      model
+                  | _ -> () ]
 
-            let modelsByCategory =
-                modelsForList
-                |> List.groupBy (fun model -> model.Category)
-                |> List.sortBy (fun (_, ms) ->
-                    match ms.[0].CategoryIndex with
-                    | Some s ->
-                        (try
-                            int32 s
-                         with _ ->
-                             Int32.MaxValue)
-                    | None -> Int32.MaxValue)
-            if FSharp.Formatting.Common.Menu.isTemplatingAvailable input then
-                let createGroup (header: string) (items: LiterateDocModel list) : string =
+        let modelsByCategory =
+            modelsForList
+            |> List.groupBy (fun model -> model.Category)
+            |> List.sortBy (fun (_, ms) ->
+                match ms.[0].CategoryIndex with
+                | Some s ->
+                    (try
+                        int32 s
+                     with _ ->
+                         Int32.MaxValue)
+                | None -> Int32.MaxValue)
+
+        if FSharp.Formatting.Common.Menu.isTemplatingAvailable input then
+            let createGroup (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
-                    let menuItems =
-                          items
-                        |> List.map (fun (model: LiterateDocModel) ->
-                            let link = model.Uri(root)
-                            let title = System.Web.HttpUtility.HtmlEncode model.Title
-                            { Menu.MenuItem.Link = link
-                              Menu.MenuItem.Content = title }
-                            )
+                let menuItems =
+                    items
+                    |> List.map (fun (model: LiterateDocModel) ->
+                        let link = model.Uri(root)
+                        let title = System.Web.HttpUtility.HtmlEncode model.Title
 
-                    Menu.createMenu input header menuItems
-                // No categories specified
-                if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                    let _, items = modelsByCategory.[0]
-                    createGroup "Documentation" items
-                else
-                    modelsByCategory
-                    |> List.map (fun (header, items) ->
-                        let header = Option.defaultValue "Other" header
-                        createGroup header items)
-                    |> String.concat "\n"
+                        { Menu.MenuItem.Link = link
+                          Menu.MenuItem.Content = title })
+
+                Menu.createMenu input header menuItems
+            // No categories specified
+            if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                let _, items = modelsByCategory.[0]
+                createGroup "Documentation" items
             else
-                [
-                  // No categories specified
-                  if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                      li [ Class "nav-header" ] [ !! "Documentation" ]
+                modelsByCategory
+                |> List.map (fun (header, items) ->
+                    let header = Option.defaultValue "Other" header
+                    createGroup header items)
+                |> String.concat "\n"
+        else
+            [
+              // No categories specified
+              if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                  li [ Class "nav-header" ] [ !! "Documentation" ]
 
-                      for model in snd modelsByCategory.[0] do
+                  for model in snd modelsByCategory.[0] do
+                      let link = model.Uri(root)
+
+                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+              else
+                  // At least one category has been specified. Sort each category by index and emit
+                  // Use 'Other' as a header for uncategorised things
+                  for (cat, modelsInCategory) in modelsByCategory do
+                      let modelsInCategory =
+                          modelsInCategory
+                          |> List.sortBy (fun model ->
+                              match model.Index with
+                              | Some s ->
+                                  (try
+                                      int32 s
+                                   with _ ->
+                                       Int32.MaxValue)
+                              | None -> Int32.MaxValue)
+
+                      match cat with
+                      | Some c -> li [ Class "nav-header" ] [ !!c ]
+                      | None -> li [ Class "nav-header" ] [ !! "Other" ]
+
+                      for model in modelsInCategory do
                           let link = model.Uri(root)
 
-                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-                  else
-                      // At least one category has been specified. Sort each category by index and emit
-                      // Use 'Other' as a header for uncategorised things
-                      for (cat, modelsInCategory) in modelsByCategory do
-                          let modelsInCategory =
-                              modelsInCategory
-                              |> List.sortBy (fun model ->
-                                  match model.Index with
-                                  | Some s ->
-                                      (try
-                                          int32 s
-                                       with _ ->
-                                           Int32.MaxValue)
-                                  | None -> Int32.MaxValue)
+                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
 
-                          match cat with
-                          | Some c -> li [ Class "nav-header" ] [ !!c ]
-                          | None -> li [ Class "nav-header" ] [ !! "Other" ]
-
-                          for model in modelsInCategory do
-                              let link = model.Uri(root)
-
-                              li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
-                |> List.map (fun html -> html.ToString())
-                |> String.concat "             \n"
 /// Processes and runs Suave server to host them on localhost
 module Serve =
     //not sure what this was needed for
@@ -1585,7 +1589,7 @@ type CoreBuildOptions(watch) =
 
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
-                let navEntries = docContent.GetNavigationEntries(this.input,actualDocModels)
+                let navEntries = docContent.GetNavigationEntries(this.input, actualDocModels)
 
                 let results =
                     Map.ofList

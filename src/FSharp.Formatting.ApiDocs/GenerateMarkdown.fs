@@ -3,6 +3,7 @@ module internal FSharp.Formatting.ApiDocs.GenerateMarkdown
 open System
 open System.IO
 open System.Web
+open FSharp.Formatting.Common
 open FSharp.Formatting.Markdown
 open FSharp.Formatting.Markdown.Dsl
 open FSharp.Formatting.Templating
@@ -365,12 +366,35 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
         let isTemplatingAvailable =
             match menuTemplateFolder with
             | None -> false
-            | Some input -> FSharp.Formatting.Common.Menu.isTemplatingAvailable input
+            | Some input -> Menu.isTemplatingAvailable input
 
         if isTemplatingAvailable then
-            listOfNamespacesAux otherDocs nav nsOpt
-            |> List.map (fun html -> html.ToString())
-            |> String.concat "             \n"
+            if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
+                let menuItems =
+                    let title = "All Namespaces"
+                    let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
+
+                    [ { Menu.MenuItem.Link = link
+                        Menu.MenuItem.Content = title } ]
+
+                Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
+
+            else
+                let categorise = Categorise.model model
+
+                if categorise.Length = 0 then
+                    ""
+                else
+                    let menuItems =
+                        categorise
+                        |> List.map (fun (_, ns) ->
+                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                            let name = ns.Name
+
+                            { Menu.MenuItem.Link = link
+                              Menu.MenuItem.Content = name })
+
+                    Menu.createMenu menuTemplateFolder.Value "Namespaces" menuItems
         else
             listOfNamespacesAux otherDocs nav nsOpt
             |> List.map (fun html -> html.ToString())

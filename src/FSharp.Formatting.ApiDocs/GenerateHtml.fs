@@ -621,24 +621,32 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             | Some input -> Menu.isTemplatingAvailable input
 
         if isTemplatingAvailable then
-                 if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+            if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+                let menuItems =
+                    let title = "All Namespaces"
+                    let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
+
+                    [ { Menu.MenuItem.Link = link
+                        Menu.MenuItem.Content = title } ]
+
+                Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
+
+            else
+                let categorise = Categorise.model model
+
+                if categorise.Length = 0 then
+                    ""
+                else
                     let menuItems =
-                     let title = "All Namespaces"
-                     let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
-                     [{Menu.MenuItem.Link = link
-                       Menu.MenuItem.Content = title }]
-                    Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
-                 else
-                    let headerName =
-                        let categorise = Categorise.model model
-                        let someExist = categorise.Length > 0
-                        if someExist then
-                            "Namespaces"
-                         else
-                             "" //Clarify if this would be empty?
-                    let menuItems =
-                        []
-                    Menu.createMenu menuTemplateFolder.Value headerName menuItems
+                        categorise
+                        |> List.map (fun (_, ns) ->
+                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                            let name = ns.Name
+
+                            { Menu.MenuItem.Link = link
+                              Menu.MenuItem.Content = name })
+
+                    Menu.createMenu menuTemplateFolder.Value "Namespaces" menuItems
         else
             listOfNamespacesNavAux otherDocs nsOpt
             |> List.map (fun html -> html.ToString())
