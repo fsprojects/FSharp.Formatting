@@ -216,7 +216,13 @@ type internal DocContent
                           match template with
                           | Some t when isFsx || isMd ->
                               try
-                                  File.GetLastWriteTime(t)
+                                  let fi = FileInfo(t)
+                                  let input = fi.Directory.Name
+
+                                  [ yield File.GetLastWriteTime(t)
+                                    if Menu.isTemplatingAvailable input then
+                                        yield! Menu.getLastWriteTimes input ]
+                                  |> List.max
                               with _ ->
                                   DateTime.MaxValue
                           | _ -> DateTime.MinValue
@@ -1775,7 +1781,8 @@ type CoreBuildOptions(watch) =
             // When _template.* change rebuild everything
             for templateWatcher in templateWatchers do
                 templateWatcher.IncludeSubdirectories <- true
-                templateWatcher.Filter <- "_template.html"
+                // _menu_template.html or _menu-item_template.html could be changed as well.
+                templateWatcher.Filter <- "*template.html"
                 templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
 
                 templateWatcher.Changed.Add(fun _ ->

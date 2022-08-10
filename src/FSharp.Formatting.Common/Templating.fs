@@ -114,10 +114,24 @@ module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-watch-script`` = ParamKey "fsdocs-watch-script"
-    let ``fsdocs-menu-header-content-key`` = ParamKey "fsdocs-menu-header-content"
-    let ``fsdocs-menu-items-key`` = ParamKey "fsdocs-menu-items"
-    let ``fsdocs-menu-item-link-key`` = ParamKey "fsdocs-menu-item-link"
-    let ``fsdocs-menu-item-content-key`` = ParamKey "fsdocs-menu-item-content"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    let ``fsdocs-menu-header-content`` = ParamKey "fsdocs-menu-header-content"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    let ``fsdocs-menu-header-id`` = ParamKey "fsdocs-menu-header-id"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    let ``fsdocs-menu-items`` = ParamKey "fsdocs-menu-items"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    let ``fsdocs-menu-item-link`` = ParamKey "fsdocs-menu-item-link"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    let ``fsdocs-menu-item-content`` = ParamKey "fsdocs-menu-item-content"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
 
 module internal SimpleTemplating =
 
