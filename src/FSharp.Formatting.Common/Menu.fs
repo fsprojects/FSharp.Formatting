@@ -12,7 +12,7 @@ let private snakeCase (v: string) =
         .RegularExpressions
         .Regex
         .Replace(v, "[A-Z]", "_$0")
-        .Replace(" ","")
+        .Replace(" ", "")
         .ToLower()
 
 let createMenu (input: string) (header: string) (items: MenuItem list) : string =
