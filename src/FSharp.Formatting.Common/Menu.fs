@@ -7,7 +7,8 @@ open FSharp.Formatting.Templating
 type MenuItem = { Link: string; Content: string }
 
 let private snakeCase (v: string) =
-    let replace = v.Replace(" ","")
+    let replace = v.Replace(" ", "")
+
     System
         .Text
         .RegularExpressions
