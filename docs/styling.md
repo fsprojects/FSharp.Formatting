@@ -121,11 +121,11 @@ with the existing default template.
 ## Customizing menu items by template
 
 You can add advanced stylings to the sidebar generated menu items by creating a new template for it.
-For adding a template via command line you can use the `--input` option or alternatively add them to the docs/ folder.
+`fsdoc` will look for menu templates in the `--input` folder which defaults to the docs folder.
 
-To customize the generated headers, use file `_menu_template.html` with starting template:
+To customize the generated menu-item headers, use file `_menu_template.html` with starting template:
 
-```
+```html
 <li class="nav-header">
     {{fsdocs-menu-header-content}}
 </li>
@@ -134,10 +134,10 @@ To customize the generated headers, use file `_menu_template.html` with starting
 
 Similarly, to customize the individual menu item list, use file `_menu_item_template.html` with starting template:
 
-```
+```html
 <li class="nav-item"><a href="{{fsdocs-menu-item-link}}" class="nav-link">{{fsdocs-menu-item-content}}</a></li>
 ```
-
+Do note that files need to be added prior running or won't be generated.
 In case you want to get a unique identifier for a header or menu item, you can use `{{fsdocs-menu-header-id}}` and `{{fsdocs-menu-item-id}}`, respectively.
 
 ## Customizing by generating your own site using your own code
