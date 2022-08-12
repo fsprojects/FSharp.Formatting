@@ -556,7 +556,7 @@ type internal DocContent
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
-        if FSharp.Formatting.Common.Menu.isTemplatingAvailable input then
+        if Menu.isTemplatingAvailable input then
             let createGroup (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
                 let menuItems =
