@@ -555,12 +555,21 @@ type internal DocContent
                      with _ ->
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
-
+        let orderList list =
+            list
+            |> List.sortBy (fun model ->
+                              match model.Index with
+                              | Some s ->
+                                  (try
+                                      int32 s
+                                   with _ ->
+                                       Int32.MaxValue)
+                              | None -> Int32.MaxValue)
         if Menu.isTemplatingAvailable input then
             let createGroup (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
                 let menuItems =
-                    items
+                    orderList items
                     |> List.map (fun (model: LiterateDocModel) ->
                         let link = model.Uri(root)
                         let title = System.Web.HttpUtility.HtmlEncode model.Title
@@ -594,16 +603,7 @@ type internal DocContent
                   // Use 'Other' as a header for uncategorised things
                   for (cat, modelsInCategory) in modelsByCategory do
                       let modelsInCategory =
-                          modelsInCategory
-                          |> List.sortBy (fun model ->
-                              match model.Index with
-                              | Some s ->
-                                  (try
-                                      int32 s
-                                   with _ ->
-                                       Int32.MaxValue)
-                              | None -> Int32.MaxValue)
-
+                          orderList modelsInCategory
                       match cat with
                       | Some c -> li [ Class "nav-header" ] [ !!c ]
                       | None -> li [ Class "nav-header" ] [ !! "Other" ]
