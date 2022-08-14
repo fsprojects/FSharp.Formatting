@@ -555,16 +555,18 @@ type internal DocContent
                      with _ ->
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
+
         let orderList list =
             list
             |> List.sortBy (fun model ->
-                              match model.Index with
-                              | Some s ->
-                                  (try
-                                      int32 s
-                                   with _ ->
-                                       Int32.MaxValue)
-                              | None -> Int32.MaxValue)
+                match model.Index with
+                | Some s ->
+                    (try
+                        int32 s
+                     with _ ->
+                         Int32.MaxValue)
+                | None -> Int32.MaxValue)
+
         if Menu.isTemplatingAvailable input then
             let createGroup (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
@@ -602,8 +604,8 @@ type internal DocContent
                   // At least one category has been specified. Sort each category by index and emit
                   // Use 'Other' as a header for uncategorised things
                   for (cat, modelsInCategory) in modelsByCategory do
-                      let modelsInCategory =
-                          orderList modelsInCategory
+                      let modelsInCategory = orderList modelsInCategory
+
                       match cat with
                       | Some c -> li [ Class "nav-header" ] [ !!c ]
                       | None -> li [ Class "nav-header" ] [ !! "Other" ]
