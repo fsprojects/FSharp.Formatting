@@ -1938,12 +1938,20 @@ module internal SymbolReader =
 
                     html.Append("</code>") |> ignore
                 | "code" ->
+                    let lang =
+                        match elem.Attributes("lang") |> Seq.isEmpty with
+                        | true -> ""
+                        | false ->
+                            let lang = elem.Attribute("lang").Value
+                            $"{lang} language-{lang}"
                     html.Append("<pre>") |> ignore
+                    html.Append($"<code class=\"{lang}\">") |> ignore
 
                     let code = elem.Value.TrimEnd('\r', '\n', ' ')
                     let codeAsHtml = HttpUtility.HtmlEncode code
                     html.Append(codeAsHtml) |> ignore
 
+                    html.Append("</code>") |> ignore
                     html.Append("</pre>") |> ignore
                 // 'a' is not part of the XML doc standard but is widely used
                 | "a" -> html.Append(elem.ToString()) |> ignore
