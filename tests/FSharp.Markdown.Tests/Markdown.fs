@@ -790,3 +790,90 @@ let ``Parse blockquote with three leading spaces`` () =
           ) ]
 
     (Markdown.Parse doc).Paragraphs |> shouldEqual expected
+
+[<Test>]
+let ``Underscore inside italic is preserved`` () =
+    let doc = "_fsharp_space_after_comma_"
+
+    let expected =
+        [ Paragraph(
+              [ Emphasis(
+                    [ Literal(
+                          "fsharp_space_after_comma",
+                          Some(
+                              { StartLine = 1
+                                StartColumn = 0
+                                EndLine = 1
+                                EndColumn = 24 }
+                          )
+                      ) ],
+                    Some(
+                        { StartLine = 1
+                          StartColumn = 0
+                          EndLine = 1
+                          EndColumn = 26 }
+                    )
+                ) ],
+              Some(
+                  { StartLine = 1
+                    StartColumn = 0
+                    EndLine = 1
+                    EndColumn = 26 }
+              )
+          ) ]
+
+    (Markdown.Parse doc).Paragraphs |> shouldEqual expected
+
+[<Test>]
+let ``Underscores inside word in heading`` () =
+    let doc =
+        """
+### fsharp_bar_before_discriminated_union_declaration
+
+Always use a bar before every case in the declaration of a discriminated union.
+"""
+
+    let expected =
+        [ Heading(
+              3,
+              [ Literal(
+                    "fsharp_bar_before_discriminated_union_declaration",
+                    Some
+                        { StartLine = 2
+                          StartColumn = 4
+                          EndLine = 2
+                          EndColumn = 53 }
+                ) ],
+              Some
+                  { StartLine = 2
+                    StartColumn = 0
+                    EndLine = 2
+                    EndColumn = 53 }
+          )
+          Paragraph(
+              [ Literal(
+                    "Always use a bar before every case in the declaration of a discriminated union.",
+                    Some
+                        { StartLine = 4
+                          StartColumn = 0
+                          EndLine = 4
+                          EndColumn = 79 }
+                ) ],
+              Some
+                  { StartLine = 4
+                    StartColumn = 0
+                    EndLine = 4
+                    EndColumn = 79 }
+          ) ]
+
+    (Markdown.Parse doc).Paragraphs |> shouldEqual expected
+
+[<Test>]
+let ``Underscore inside italic and bold near punctuation is preserved`` () =
+    let doc = "This is **bold_bold**, and this _italic_; and _this_too_: again."
+
+    let expected =
+        "<p>This is <strong>bold_bold</strong>, and this <em>italic</em>; and <em>this_too</em>: again.</p>\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml doc |> shouldEqual expected
