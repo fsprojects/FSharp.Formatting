@@ -216,7 +216,13 @@ type internal DocContent
                           match template with
                           | Some t when isFsx || isMd ->
                               try
-                                  File.GetLastWriteTime(t)
+                                  let fi = FileInfo(t)
+                                  let input = fi.Directory.Name
+
+                                  [ yield File.GetLastWriteTime(t)
+                                    if Menu.isTemplatingAvailable input then
+                                        yield! Menu.getLastWriteTimes input ]
+                                  |> List.max
                               with _ ->
                                   DateTime.MaxValue
                           | _ -> DateTime.MinValue
@@ -526,7 +532,7 @@ type internal DocContent
                          uri = model.Uri(root) }
                    | _ -> () |]
 
-    member _.GetNavigationEntries(docModels: (string * bool * LiterateDocModel) list) =
+    member _.GetNavigationEntries(input, docModels: (string * bool * LiterateDocModel) list) =
         let modelsForList =
             [ for thing in docModels do
                   match thing with
@@ -550,40 +556,66 @@ type internal DocContent
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
-        [
-          // No categories specified
-          if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-              li [ Class "nav-header" ] [ !! "Documentation" ]
+        let orderList list =
+            list
+            |> List.sortBy (fun model ->
+                match model.Index with
+                | Some s ->
+                    (try
+                        int32 s
+                     with _ ->
+                         Int32.MaxValue)
+                | None -> Int32.MaxValue)
 
-              for model in snd modelsByCategory.[0] do
-                  let link = model.Uri(root)
+        if Menu.isTemplatingAvailable input then
+            let createGroup (header: string) (items: LiterateDocModel list) : string =
+                //convert items into menuitem list
+                let menuItems =
+                    orderList items
+                    |> List.map (fun (model: LiterateDocModel) ->
+                        let link = model.Uri(root)
+                        let title = System.Web.HttpUtility.HtmlEncode model.Title
 
-                  li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
-          else
-              // At least one category has been specified. Sort each category by index and emit
-              // Use 'Other' as a header for uncategorised things
-              for (cat, modelsInCategory) in modelsByCategory do
-                  let modelsInCategory =
-                      modelsInCategory
-                      |> List.sortBy (fun model ->
-                          match model.Index with
-                          | Some s ->
-                              (try
-                                  int32 s
-                               with _ ->
-                                   Int32.MaxValue)
-                          | None -> Int32.MaxValue)
+                        { Menu.MenuItem.Link = link
+                          Menu.MenuItem.Content = title })
 
-                  match cat with
-                  | Some c -> li [ Class "nav-header" ] [ !!c ]
-                  | None -> li [ Class "nav-header" ] [ !! "Other" ]
+                Menu.createMenu input header menuItems
+            // No categories specified
+            if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                let _, items = modelsByCategory.[0]
+                createGroup "Documentation" items
+            else
+                modelsByCategory
+                |> List.map (fun (header, items) ->
+                    let header = Option.defaultValue "Other" header
+                    createGroup header items)
+                |> String.concat "\n"
+        else
+            [
+              // No categories specified
+              if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
+                  li [ Class "nav-header" ] [ !! "Documentation" ]
 
-                  for model in modelsInCategory do
+                  for model in snd modelsByCategory.[0] do
                       let link = model.Uri(root)
 
-                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
-        |> List.map (fun html -> html.ToString())
-        |> String.concat "             \n"
+                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+              else
+                  // At least one category has been specified. Sort each category by index and emit
+                  // Use 'Other' as a header for uncategorised things
+                  for (cat, modelsInCategory) in modelsByCategory do
+                      let modelsInCategory = orderList modelsInCategory
+
+                      match cat with
+                      | Some c -> li [ Class "nav-header" ] [ !!c ]
+                      | None -> li [ Class "nav-header" ] [ !! "Other" ]
+
+                      for model in modelsInCategory do
+                          let link = model.Uri(root)
+
+                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
@@ -1479,7 +1511,8 @@ type CoreBuildOptions(watch) =
                                     otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
                                     root = root,
                                     libDirs = paths,
-                                    onError = onError
+                                    onError = onError,
+                                    menuTemplateFolder = this.input
                                 )
                             | OutputKind.Markdown ->
                                 ApiDocs.GenerateMarkdownPhased(
@@ -1564,7 +1597,7 @@ type CoreBuildOptions(watch) =
 
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
-                let navEntries = docContent.GetNavigationEntries(actualDocModels)
+                let navEntries = docContent.GetNavigationEntries(this.input, actualDocModels)
 
                 let results =
                     Map.ofList
@@ -1750,7 +1783,8 @@ type CoreBuildOptions(watch) =
             // When _template.* change rebuild everything
             for templateWatcher in templateWatchers do
                 templateWatcher.IncludeSubdirectories <- true
-                templateWatcher.Filter <- "_template.html"
+                // _menu_template.html or _menu-item_template.html could be changed as well.
+                templateWatcher.Filter <- "*template.html"
                 templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
 
                 templateWatcher.Changed.Add(fun _ ->

@@ -13,7 +13,7 @@ open FSharp.Formatting.HtmlModel.Html
 /// Embed some HTML generateed in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
 
-type HtmlRender(model: ApiDocModel) =
+type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
     let collectionName = model.Collection.CollectionName
     let qualify = model.Qualify
@@ -615,9 +615,42 @@ type HtmlRender(model: ApiDocModel) =
                   | _ -> () ]
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
-        listOfNamespacesNavAux otherDocs nsOpt
-        |> List.map (fun html -> html.ToString())
-        |> String.concat "             \n"
+        let isTemplatingAvailable =
+            match menuTemplateFolder with
+            | None -> false
+            | Some input -> Menu.isTemplatingAvailable input
+
+        if isTemplatingAvailable then
+            if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+                let menuItems =
+                    let title = "All Namespaces"
+                    let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
+
+                    [ { Menu.MenuItem.Link = link
+                        Menu.MenuItem.Content = title } ]
+
+                Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
+
+            else
+                let categorise = Categorise.model model
+
+                if categorise.Length = 0 then
+                    ""
+                else
+                    let menuItems =
+                        categorise
+                        |> List.map (fun (_, ns) ->
+                            let link = ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)
+                            let name = ns.Name
+
+                            { Menu.MenuItem.Link = link
+                              Menu.MenuItem.Content = name })
+
+                    Menu.createMenu menuTemplateFolder.Value "Namespaces" menuItems
+        else
+            listOfNamespacesNavAux otherDocs nsOpt
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
 
     /// Get the substitutions relevant to all
     member _.GlobalSubstitutions: Substitutions =

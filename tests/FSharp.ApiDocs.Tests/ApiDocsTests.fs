@@ -1,6 +1,7 @@
 [<NUnit.Framework.TestFixture>]
 module ApiDocs.Tests
 
+open System
 open FsUnit
 open System.IO
 open NUnit.Framework
@@ -1165,6 +1166,66 @@ let ``Metadata generates cross-type links for Inline Code`` (format: OutputForma
             format.ExtensionInUrl
     )
 
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``Phased generation allows a custom menu template folder`` (format: OutputFormat) =
+    let library = testBin </> "FsLib1.dll" |> fullpath
+    let inputs = ApiDocInput.FromFile(library)
+    let output = getOutputDir format "Phased"
+    let templateFolder = DirectoryInfo(Directory.GetCurrentDirectory() </> "menu")
+    templateFolder.Create()
+
+    File.WriteAllText(
+        templateFolder.FullName </> "_menu_template.html",
+        """
+HEADER: {{fsdocs-menu-header-content}}
+HEADER ID: {{fsdocs-menu-header-id}}
+ITEMS: {{fsdocs-menu-items}}
+"""
+    )
+
+    File.WriteAllText(
+        templateFolder.FullName </> "_menu-item_template.html",
+        """
+LINK: {{fsdocs-menu-item-link}}
+LINK ID: {{fsdocs-menu-item-id}}
+CONTENT: {{fsdocs-menu-item-content}}
+"""
+    )
+
+    let _, substitutions, _, _ =
+        match format with
+        | OutputFormat.Html ->
+            ApiDocs.GenerateHtmlPhased([ inputs ], output, "Collection", [], menuTemplateFolder = "menu")
+        | OutputFormat.Markdown ->
+            ApiDocs.GenerateMarkdownPhased([ inputs ], output, "Collection", [], menuTemplateFolder = "menu")
+
+    let listOfNamespaces =
+        substitutions
+        |> Seq.choose (function
+            | key, content ->
+                if key = ParamKeys.``fsdocs-list-of-namespaces`` then
+                    Some content
+                else
+                    None)
+        |> Seq.head
+        |> fun s ->
+            s
+                .Replace("\r", "")
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            |> Array.map (fun s -> s.Trim())
+            |> String.concat "\n"
+
+    Assert.AreEqual(
+        $"""HEADER: API Reference
+HEADER ID: api_reference
+ITEMS:
+LINK: /reference/index{format.ExtensionInUrl}
+LINK ID: all_namespaces
+CONTENT: All Namespaces"""
+            .Replace("\r", ""),
+        listOfNamespaces
+    )
 
 let runtest testfn =
     try

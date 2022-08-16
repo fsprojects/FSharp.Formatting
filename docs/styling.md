@@ -118,6 +118,27 @@ with the existing default template.
 > NOTE: There is no guarantee that your template will continue to work with future versions of F# Formatting.
 > If you do develop a good template please consider contributing it back to F# Formatting.
 
+## Customizing menu items by template
+
+You can add advanced styling to the sidebar generated menu items by creating a new template for it.
+`fsdoc` will look for menu templates in the `--input` folder which defaults to the docs folder.
+
+To customize the generated menu-item headers, use file `_menu_template.html` with starting template:
+
+```html
+<li class="nav-header">
+    {{fsdocs-menu-header-content}}
+</li>
+{{fsdocs-menu-items}}
+```
+
+Similarly, to customize the individual menu item list, use file `_menu-item_template.html` with starting template:
+
+```html
+<li class="nav-item"><a href="{{fsdocs-menu-item-link}}" class="nav-link">{{fsdocs-menu-item-content}}</a></li>
+```
+Do note that files need to be added prior running or won't be generated.
+In case you want to get a unique identifier for a header or menu item, you can use `{{fsdocs-menu-header-id}}` and `{{fsdocs-menu-item-id}}`, respectively.
 
 ## Customizing by generating your own site using your own code
 

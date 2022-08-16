@@ -115,6 +115,24 @@ module ParamKeys =
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-watch-script`` = ParamKey "fsdocs-watch-script"
 
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    let ``fsdocs-menu-header-content`` = ParamKey "fsdocs-menu-header-content"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    let ``fsdocs-menu-header-id`` = ParamKey "fsdocs-menu-header-id"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    let ``fsdocs-menu-items`` = ParamKey "fsdocs-menu-items"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    let ``fsdocs-menu-item-link`` = ParamKey "fsdocs-menu-item-link"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    let ``fsdocs-menu-item-content`` = ParamKey "fsdocs-menu-item-content"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
+
 module internal SimpleTemplating =
 
 #if NETSTANDARD2_0
