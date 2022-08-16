@@ -1,3 +1,7 @@
+## 16.0.1
+
+* Custom templaying for menus 
+
 ## 15.0.3
 * Fixes Markdown parser gets multiple-underscores-inside-italics wrong [#389](https://github.com/fsprojects/FSharp.Formatting/issues/389)
 
