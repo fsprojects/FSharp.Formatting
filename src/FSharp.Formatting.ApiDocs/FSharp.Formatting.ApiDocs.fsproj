@@ -20,6 +20,7 @@
     <Compile Include="GenerateMarkdown.fs" />
     <Compile Include="GenerateSearchIndex.fs" />
     <Compile Include="ApiDocs.fs" />
+    <InternalsVisibleTo Include="FSharp.ApiDocs.Tests" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" />
