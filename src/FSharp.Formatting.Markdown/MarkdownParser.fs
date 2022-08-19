@@ -73,10 +73,13 @@ let inline (|EscapedLatexInlineMathChar|_|) input =
 let inline (|Punctuation|_|) input =
     match input with
     | EscapedChar _ -> None
-    | _ -> 
+    | _ ->
         // from https://github.com/commonmark/commonmark.js/blob/master/lib/inlines.js#L38
-        let re = """^[!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E42\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDF3C-\uDF3E]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]"""
+        let re =
+            """^[!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~\xA1\xA7\xAB\xB6\xB7\xBB\xBF\u037E\u0387\u055A-\u055F\u0589\u058A\u05BE\u05C0\u05C3\u05C6\u05F3\u05F4\u0609\u060A\u060C\u060D\u061B\u061E\u061F\u066A-\u066D\u06D4\u0700-\u070D\u07F7-\u07F9\u0830-\u083E\u085E\u0964\u0965\u0970\u0AF0\u0DF4\u0E4F\u0E5A\u0E5B\u0F04-\u0F12\u0F14\u0F3A-\u0F3D\u0F85\u0FD0-\u0FD4\u0FD9\u0FDA\u104A-\u104F\u10FB\u1360-\u1368\u1400\u166D\u166E\u169B\u169C\u16EB-\u16ED\u1735\u1736\u17D4-\u17D6\u17D8-\u17DA\u1800-\u180A\u1944\u1945\u1A1E\u1A1F\u1AA0-\u1AA6\u1AA8-\u1AAD\u1B5A-\u1B60\u1BFC-\u1BFF\u1C3B-\u1C3F\u1C7E\u1C7F\u1CC0-\u1CC7\u1CD3\u2010-\u2027\u2030-\u2043\u2045-\u2051\u2053-\u205E\u207D\u207E\u208D\u208E\u2308-\u230B\u2329\u232A\u2768-\u2775\u27C5\u27C6\u27E6-\u27EF\u2983-\u2998\u29D8-\u29DB\u29FC\u29FD\u2CF9-\u2CFC\u2CFE\u2CFF\u2D70\u2E00-\u2E2E\u2E30-\u2E42\u3001-\u3003\u3008-\u3011\u3014-\u301F\u3030\u303D\u30A0\u30FB\uA4FE\uA4FF\uA60D-\uA60F\uA673\uA67E\uA6F2-\uA6F7\uA874-\uA877\uA8CE\uA8CF\uA8F8-\uA8FA\uA8FC\uA92E\uA92F\uA95F\uA9C1-\uA9CD\uA9DE\uA9DF\uAA5C-\uAA5F\uAADE\uAADF\uAAF0\uAAF1\uABEB\uFD3E\uFD3F\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE61\uFE63\uFE68\uFE6A\uFE6B\uFF01-\uFF03\uFF05-\uFF0A\uFF0C-\uFF0F\uFF1A\uFF1B\uFF1F\uFF20\uFF3B-\uFF3D\uFF3F\uFF5B\uFF5D\uFF5F-\uFF65]|\uD800[\uDD00-\uDD02\uDF9F\uDFD0]|\uD801\uDD6F|\uD802[\uDC57\uDD1F\uDD3F\uDE50-\uDE58\uDE7F\uDEF0-\uDEF6\uDF39-\uDF3F\uDF99-\uDF9C]|\uD804[\uDC47-\uDC4D\uDCBB\uDCBC\uDCBE-\uDCC1\uDD40-\uDD43\uDD74\uDD75\uDDC5-\uDDC9\uDDCD\uDDDB\uDDDD-\uDDDF\uDE38-\uDE3D\uDEA9]|\uD805[\uDCC6\uDDC1-\uDDD7\uDE41-\uDE43\uDF3C-\uDF3E]|\uD809[\uDC70-\uDC74]|\uD81A[\uDE6E\uDE6F\uDEF5\uDF37-\uDF3B\uDF44]|\uD82F\uDC9F|\uD836[\uDE87-\uDE8B]"""
+
         let match' = Regex.Match(Array.ofList input |> String, re)
+
         if match'.Success then
             let entity = match'.Value
             let _, rest = List.splitAt entity.Length input
@@ -84,7 +87,7 @@ let inline (|Punctuation|_|) input =
         else
             None
 
-let inline (|NotPunctuation|_|) input=
+let inline (|NotPunctuation|_|) input =
     match input with
     | Punctuation _ -> None
     | _ -> Some input
@@ -93,10 +96,10 @@ module Char =
     let inline (|WhiteSpace|_|) input =
         match input with
         | [] -> Some input
-        | x :: _xs -> 
-            if String.IsNullOrWhiteSpace(string x) then 
-                Some input 
-            else 
+        | x :: _xs ->
+            if String.IsNullOrWhiteSpace(string x) then
+                Some input
+            else
                 None
 
     let inline (|NotWhiteSpace|_|) input =
@@ -107,9 +110,10 @@ module Char =
 /// Succeeds when the specificed character list starts with a delimeter run.
 let inline (|DelimiterRun|_|) input =
     match input with
-    | ('*'|'_') :: _tail as (h :: t) ->
+    | ('*'
+    | '_') :: _tail as (h :: t) ->
         let run, rest = List.partitionWhile (fun x -> x = h) (h :: t)
-        Some (run, rest)
+        Some(run, rest)
     | _ -> None
 
 /// Succeeds when there's a match to a string of * or _ that could
@@ -122,30 +126,25 @@ let inline (|LeftDelimiterRun|_|) input =
     // preceded by [Unicode whitespace] or a [Unicode punctuation character].
     //
     // Passes 1 and 2a.
-    | DelimiterRun(_, Char.NotWhiteSpace _) &
-      DelimiterRun(run, NotPunctuation xs) ->
-        Some([], run, xs)
-    | _ :: DelimiterRun(_, Char.NotWhiteSpace _) &
-      h :: DelimiterRun(run, NotPunctuation xs) ->
-        Some([h], run, xs)
+    | DelimiterRun (_, Char.NotWhiteSpace _) & DelimiterRun (run, NotPunctuation xs) -> Some([], run, xs)
+    | _ :: DelimiterRun (_, Char.NotWhiteSpace _) & h :: DelimiterRun (run, NotPunctuation xs) -> Some([ h ], run, xs)
     // Passes 1 and 2b
-    | h :: DelimiterRun(run, Punctuation(x, xs)) ->
-        match [h] with
+    | h :: DelimiterRun (run, Punctuation (x, xs)) ->
+        match [ h ] with
         | Char.WhiteSpace _
-        | Punctuation _ -> Some ([h], run, x :: xs)
+        | Punctuation _ -> Some([ h ], run, x :: xs)
         | _ -> None
     // Passes 1 and 2b when the run is at the start of the line.
     // |CannotStartEmphasis| ensures that we don't match this
     // when we've previously discarded a leading character.
-    | DelimiterRun(run, Punctuation(x, xs)) ->
-        Some ([], run, x :: xs)
+    | DelimiterRun (run, Punctuation (x, xs)) -> Some([], run, x :: xs)
     | _ -> None
 
 /// Succeeds when there's a match to a string of * or _ that could
 /// close emphasis.
 let inline (|RightDelimiterRun|_|) input =
     match input with
-    // A right-flanking delimiter run is 
+    // A right-flanking delimiter run is
     // 1. not preceded by [Unicode whitepace]
     // 2. And either
     //    a. not preceded by a [Unicode punctuation character], or
@@ -153,22 +152,16 @@ let inline (|RightDelimiterRun|_|) input =
     //       followed by [Unicode whitespace] or a [Unicode punctuation character]
     //
     // An escaped character followed by delimiter run matches 1 and 2a.
-    | EscapedChar(x, DelimiterRun(run, xs)) ->
-        Some (['\\'; x], run, xs)
-    | EscapedChar _ ->
-        None
-    | Char.NotWhiteSpace _ &
-      x :: DelimiterRun (run, xs) ->
+    | EscapedChar (x, DelimiterRun (run, xs)) -> Some([ '\\'; x ], run, xs)
+    | EscapedChar _ -> None
+    | Char.NotWhiteSpace _ & x :: DelimiterRun (run, xs) ->
         match input with
         // 1 and 2a
-        | NotPunctuation _ -> 
-            Some ([x], run, xs)
+        | NotPunctuation _ -> Some([ x ], run, xs)
         // 1 and 2b
-        | Punctuation(x, DelimiterRun(run, Char.WhiteSpace ys)) ->
-            Some ([x], run, ys)
+        | Punctuation (x, DelimiterRun (run, Char.WhiteSpace ys)) -> Some([ x ], run, ys)
         // 1 and 2b
-        | Punctuation(x, DelimiterRun(run, Punctuation(y, ys))) -> 
-            Some ([x], run, y :: ys)
+        | Punctuation (x, DelimiterRun (run, Punctuation (y, ys))) -> Some([ x ], run, y :: ys)
         | _ -> None
     | _ -> None
 
@@ -185,18 +178,17 @@ let inline (|CannotOpenEmphasis|_|) input =
     //  and either (a) not part of a [right-flanking delimiter run]
     //  or (b) part of a [right-flanking delimiter run]
     //  preceded by a [Unicode punctuation character].
-    | LeftDelimiterRun _ &
-      RightDelimiterRun(pre, ['_'], post) ->
+    | LeftDelimiterRun _ & RightDelimiterRun (pre, [ '_' ], post) ->
         match List.rev pre with
         | Punctuation _ -> None
-        | revPre-> Some ('_' :: revPre, post)
+        | revPre -> Some('_' :: revPre, post)
     // We cannot pass 1 and 2b of the left flanking rule
     // when h is neither white space nor punctuation.
-    | h :: DelimiterRun(run, Punctuation(x, xs)) ->
-        match [h] with
+    | h :: DelimiterRun (run, Punctuation (x, xs)) ->
+        match [ h ] with
         | Char.WhiteSpace _
         | Punctuation _ -> None
-        | _ -> Some (List.rev (h :: run), x :: xs)
+        | _ -> Some(List.rev (h :: run), x :: xs)
     | _ -> None
 
 /// Matches a list if it starts with a sub-list that is delimited
@@ -208,26 +200,22 @@ let (|DelimitedMarkdown|_|) bracket input =
     // Like List.partitionUntilEquals, but skip over escaped characters
     let rec loop acc count =
         function
-        | (RightDelimiterRun(pre, ['_'], post) as input)
-            when endl = ['_'] ->
+        | (RightDelimiterRun (pre, [ '_' ], post) as input) when endl = [ '_' ] ->
             match input with
-            | LeftDelimiterRun(pre, run, (Punctuation _ as post)) ->
-                if count = 0  then
-                    Some ((List.rev acc) @ pre, run @ post)
+            | LeftDelimiterRun (pre, run, (Punctuation _ as post)) ->
+                if count = 0 then
+                    Some((List.rev acc) @ pre, run @ post)
                 else
                     loop ((List.rev (pre @ run)) @ acc) (count - 1) post
-            | LeftDelimiterRun(pre, run, post) ->
-                loop ((List.rev (pre @ run)) @ acc) (count + 1) post
-            | _ -> Some ((List.rev acc) @ pre, ['_'] @ post)
-        | RightDelimiterRun(pre, run, post)
-            when endl = run ->
+            | LeftDelimiterRun (pre, run, post) -> loop ((List.rev (pre @ run)) @ acc) (count + 1) post
+            | _ -> Some((List.rev acc) @ pre, [ '_' ] @ post)
+        | RightDelimiterRun (pre, run, post) when endl = run ->
             if count = 0 then
-                Some ((List.rev acc) @ pre, run @ post)
+                Some((List.rev acc) @ pre, run @ post)
             else
                 loop ((List.rev (pre @ run)) @ acc) (count - 1) post
-        | EscapedChar(x, xs) -> loop (x :: '\\' :: acc) count xs
-        | LeftDelimiterRun(pre, run, post) when run = endl ->
-            loop ((List.rev (pre @ run)) @ acc) (count + 1) post
+        | EscapedChar (x, xs) -> loop (x :: '\\' :: acc) count xs
+        | LeftDelimiterRun (pre, run, post) when run = endl -> loop ((List.rev (pre @ run)) @ acc) (count + 1) post
         | x :: xs -> loop (x :: acc) count xs
         | [] -> None
     // If it starts with 'startl', let's search for 'endl'
@@ -314,7 +302,7 @@ let (|AutoLink|_|) input =
 /// TODO: This does not handle nested emphasis well.
 let (|Emphasised|_|) =
     function
-    | LeftDelimiterRun(pre, run, post) ->
+    | LeftDelimiterRun (pre, run, post) ->
         match run @ post with
         | DelimitedMarkdown [ '_'; '_'; '_' ] (body, rest)
         | DelimitedMarkdown [ '*'; '*'; '*' ] (body, rest) ->
@@ -526,7 +514,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
         | CannotOpenEmphasis (revPre, post) -> yield! parseChars (revPre @ acc) post ctx
         | Emphasised (pre, body, f, rest) ->
             let (value, ctx) = accLiterals.Value
-            yield! value 
+            yield! value
             yield! parseChars [] pre ctx
             let body = parseChars [] body ctx |> List.ofSeq
             yield f (body, ctx.CurrentRange)
