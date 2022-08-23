@@ -42,7 +42,7 @@ let getLinkAndTitle (StringPosition.TrimBoth (input, _n)) =
 
 /// Succeeds when the specified character list starts with an escaped
 /// character - in that case, returns the character and the tail of the list
-let inline (|EscapedChar|_|) input =
+let (|EscapedChar|_|) input =
     match input with
     | '\\' :: (('*'
     | '\\'
@@ -64,13 +64,13 @@ let inline (|EscapedChar|_|) input =
     | _ -> None
 
 /// Escape dollar inside a LaTex inline math span.
-let inline (|EscapedLatexInlineMathChar|_|) input =
+let (|EscapedLatexInlineMathChar|_|) input =
     match input with
     | '\\' :: (('$') as c) :: rest -> Some(c, rest)
     | _ -> None
 
 /// Succeeds when the specificed character list starts with non-escaped punctuation.
-let inline (|Punctuation|_|) input =
+let (|Punctuation|_|) input =
     match input with
     | EscapedChar _ -> None
     | _ ->
@@ -87,13 +87,13 @@ let inline (|Punctuation|_|) input =
         else
             None
 
-let inline (|NotPunctuation|_|) input =
+let (|NotPunctuation|_|) input =
     match input with
     | Punctuation _ -> None
     | _ -> Some input
 
 module Char =
-    let inline (|WhiteSpace|_|) input =
+    let (|WhiteSpace|_|) input =
         match input with
         | [] -> Some input
         | x :: _xs ->
@@ -102,13 +102,13 @@ module Char =
             else
                 None
 
-    let inline (|NotWhiteSpace|_|) input =
+    let (|NotWhiteSpace|_|) input =
         match input with
         | WhiteSpace _ -> None
         | _ -> Some input
 
 /// Succeeds when the specificed character list starts with a delimeter run.
-let inline (|DelimiterRun|_|) input =
+let (|DelimiterRun|_|) input =
     match input with
     | ('*'
     | '_') :: _tail as (h :: t) ->
@@ -118,7 +118,7 @@ let inline (|DelimiterRun|_|) input =
 
 /// Succeeds when there's a match to a string of * or _ that could
 /// open emphasis.
-let inline (|LeftDelimiterRun|_|) input =
+let (|LeftDelimiterRun|_|) input =
     match input with
     // (1) Not followed by [Unicode whitespace] and
     // (2a) not followed by a [Unicode punctuation character] or
@@ -142,7 +142,7 @@ let inline (|LeftDelimiterRun|_|) input =
 
 /// Succeeds when there's a match to a string of * or _ that could
 /// close emphasis.
-let inline (|RightDelimiterRun|_|) input =
+let (|RightDelimiterRun|_|) input =
     match input with
     // A right-flanking delimiter run is
     // 1. not preceded by [Unicode whitepace]
@@ -171,7 +171,7 @@ let inline (|RightDelimiterRun|_|) input =
 /// in this case we need to skip both 'c' and the LeftDelimiterRun.
 /// If we only skipped 'c' then we could match LeftDelimiterRun
 /// on the next iteration and we do not want that to happen.
-let inline (|CannotOpenEmphasis|_|) input =
+let (|CannotOpenEmphasis|_|) input =
     match input with
     // Rule #2: A single `_` character [can open emphasis] iff
     //  it is part of a [left-flanking delimiter run]
