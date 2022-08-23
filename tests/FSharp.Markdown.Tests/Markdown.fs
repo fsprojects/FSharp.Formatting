@@ -877,3 +877,109 @@ let ``Underscore inside italic and bold near punctuation is preserved`` () =
         |> properNewLines
 
     Markdown.ToHtml doc |> shouldEqual expected
+
+[<Test>]
+let ``emphasis with space`` () =
+    let doc = "*foo bar*"
+    let actual = "<p><em>foo bar</em></p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``No emphasis if opening * is followed by whitespace`` () =
+    let doc = "a * foo bar*"
+    let actual = "<p>a * foo bar*</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``No emphasis if opening * is preceded by alphanumeric and followed by punctuation`` () =
+    let doc = """a*"foo"*"""
+    let actual = """<p>a*"foo"*</p>""" + "\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``Intraword emphasis with * is permitted`` () =
+    let doc = "foo*bar*"
+    let actual = "<p>foo<em>bar</em></p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+    let doc2 = "5*6*78"
+    let actual2 = "<p>5<em>6</em>78</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc2 |> shouldEqual actual2
+
+[<Test>]
+let ``emphasis using _ with space`` () =
+    let doc = "_foo bar_"
+    let actual = "<p><em>foo bar</em></p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``No emphasis if opening _ is followed by whitespace`` () =
+    let doc = "_ foo bar_"
+    let actual = "<p>_ foo bar_</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``No emphasis if opening _ is preceded by alphanumeric and followed by punctuation`` () =
+    let doc = """a_"foo"_"""
+    let actual = """<p>a_"foo"_</p>""" + "\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``Intraword emphasis with _ is not permitted`` () =
+    let doc = "foo_bar_"
+    let actual = "<p>foo_bar_</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+    let doc2 = "5_6_78"
+    let actual2 = "<p>5_6_78</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc2 |> shouldEqual actual2
+
+    let doc3 = "пристаням_стремятся_"
+    let actual3 = "<p>пристаням_стремятся_</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc3 |> shouldEqual actual3
+
+[<Test>]
+let ``No emphasis if first _ is right flanking and second is left flanking`` () =
+    let doc = """aa_"bb"_cc"""
+    let actual = """<p>aa_"bb"_cc</p>""" + "\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``Emphasis if first _ is left and right flanking and preceded by punctuation`` () =
+    let doc = "foo-_(bar)_"
+    let actual = "<p>foo-<em>(bar)</em></p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``No emphasis if open and close delim do not match`` () =
+    let doc = "_foo*"
+    let actual = "<p>_foo*</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+[<Test>]
+let ``No emphasis if closing * is preceded by whitespace`` () =
+    let doc1 = "*foo bar *"
+    let actual1 = "<p>*foo bar *</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc1 |> shouldEqual actual1
+
+    let doc2 =
+        "*foo bar
+*"
+
+    let actual2 =
+        "<p>*foo bar
+*</p>"
+        + "\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml doc2 |> shouldEqual actual2
+
+[<Test>]
+let ``Do not close emphasis if second * is preceded by punctuation and followed by alphanumeric`` () =
+    let doc = "*(*foo)"
+    let actual = "<p>*(*foo)</p>\r\n" |> properNewLines
+    Markdown.ToHtml doc |> shouldEqual actual
+
+    let doc2 = "*(*foo*)*"
+    let actual2 = "<p><em>(<em>foo</em>)</em></p>\r\n" |> properNewLines
+    Markdown.ToHtml doc2 |> shouldEqual actual2

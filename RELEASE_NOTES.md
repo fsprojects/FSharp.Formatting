@@ -1,3 +1,6 @@
+## 16.0.2
+* [Improves markdown emphasis parsing.](https://github.com/fsprojects/FSharp.Formatting/pull/763)
+
 ## 16.0.1
 
 * Custom templaying for menus 
