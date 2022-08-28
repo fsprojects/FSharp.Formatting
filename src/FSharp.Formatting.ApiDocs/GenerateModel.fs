@@ -1463,23 +1463,23 @@ module internal SymbolReader =
                 match argInfos with
                 // binary operators (taking a tuple)
                 | [ [ x; y ] ] ->
-                    let left = formatCurriedArgsUsageAsHtml true false [ [ x ] ]
+                    let left = formatArgUsageAsHtml () 1 x
 
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatCurriedArgsUsageAsHtml true false [ [ y ] ]
+                    let right = formatArgUsageAsHtml () 2 y
 
-                    span [] [ left; !! "&#32;"; !!nm; !! "&#32;"; right ]
+                    span [] [ left; !! "&#32;"; !!HttpUtility.HtmlEncode(nm); !! "&#32;"; right ]
 
                 // binary operators (curried, like in FSharp.Core.Operators)
-                | [ args1; args2 ] ->
-                    let left = formatCurriedArgsUsageAsHtml true false [ args1 ]
+                | [ [ args1 ]; [ args2 ] ] ->
+                    let left = formatArgUsageAsHtml () 1 args1
 
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatCurriedArgsUsageAsHtml true false [ args2 ]
+                    let right = formatArgUsageAsHtml () 2 args2
 
-                    span [] [ left; !! "&#32;"; !!nm; !! "&#32;"; right ]
+                    span [] [ left; !! "&#32;"; !!HttpUtility.HtmlEncode(nm); !! "&#32;"; right ]
 
                 // unary operators
                 | [ [ x ] ] ->
