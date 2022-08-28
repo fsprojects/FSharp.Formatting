@@ -1275,7 +1275,7 @@ module internal TypeFormatter =
         argName, argType
 
     // Format each argument, including its name and type
-    let formatArgUsageAsHtml _ctx i (arg: FSharpParameter) =
+    let formatArgUsageAsHtml i (arg: FSharpParameter) =
         let argName, _argType = formatArgNameAndType i arg
         !!argName
 
@@ -1465,11 +1465,11 @@ module internal SymbolReader =
                 | [ [ x; y ] ]
                 // binary operators (curried, like in FSharp.Core.Operators)
                 | [ [ x ]; [ y ] ] ->
-                    let left = formatArgUsageAsHtml () 0 x
+                    let left = formatArgUsageAsHtml 0 x
 
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatArgUsageAsHtml () 1 y
+                    let right = formatArgUsageAsHtml 1 y
 
                     span [] [ left; !! "&#32;"; encode nm; !! "&#32;"; right ]
 
