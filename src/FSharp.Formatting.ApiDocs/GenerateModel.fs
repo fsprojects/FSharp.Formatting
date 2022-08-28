@@ -1462,22 +1462,14 @@ module internal SymbolReader =
             | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
                 match argInfos with
                 // binary operators (taking a tuple)
-                | [ [ x; y ] ] ->
-                    let left = formatArgUsageAsHtml () 1 x
-
-                    let nm = PrettyNaming.DecompileOpName v.CompiledName
-
-                    let right = formatArgUsageAsHtml () 2 y
-
-                    span [] [ left; !! "&#32;"; !!HttpUtility.HtmlEncode(nm); !! "&#32;"; right ]
-
+                | [ [ x; y ] ]
                 // binary operators (curried, like in FSharp.Core.Operators)
-                | [ [ args1 ]; [ args2 ] ] ->
-                    let left = formatArgUsageAsHtml () 1 args1
+                | [ [ x ]; [ y ] ] ->
+                    let left = formatArgUsageAsHtml () 0 x
 
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatArgUsageAsHtml () 2 args2
+                    let right = formatArgUsageAsHtml () 1 y
 
                     span [] [ left; !! "&#32;"; !!HttpUtility.HtmlEncode(nm); !! "&#32;"; right ]
 
