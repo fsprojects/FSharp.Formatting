@@ -1471,7 +1471,7 @@ module internal SymbolReader =
 
                     let right = formatArgUsageAsHtml () 1 y
 
-                    span [] [ left; !! "&#32;"; !!HttpUtility.HtmlEncode(nm); !! "&#32;"; right ]
+                    span [] [ left; !! "&#32;"; encode nm; !! "&#32;"; right ]
 
                 // unary operators
                 | [ [ x ] ] ->
