@@ -1479,7 +1479,7 @@ module internal SymbolReader =
 
                     let right = formatCurriedArgsUsageAsHtml true false [ [ x ] ]
 
-                    span [] [ !!nm; right ]
+                    span [] [ encode nm; right ]
                 | _ ->
                     span
                         []
