@@ -2,7 +2,7 @@
 // F# CodeFormat (ToolTipReader.fs)
 // (c) Tomas Petricek, 2012, Available under Apache 2.0 license.
 // --------------------------------------------------------------------------------------
-module private FSharp.Formatting.CodeFormat.ToolTipReader
+module internal FSharp.Formatting.CodeFormat.ToolTipReader
 
 open System
 open System.IO

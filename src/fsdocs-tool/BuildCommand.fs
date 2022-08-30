@@ -100,7 +100,7 @@ type internal DocContent
         =
         let markdownReferenceAsFullInputPathOpt =
             try
-                Path.GetFullPath(markdownReference, inputFolderAsGiven) |> Some
+                Path.GetFullPath(Path.Combine(inputFolderAsGiven, markdownReference)) |> Some
             with _ ->
                 None
 
