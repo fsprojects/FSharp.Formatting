@@ -103,7 +103,9 @@ let ``Can build doc content`` () =
 [<Test>]
 let ``Can build doc content using relative input path`` () =
     let rootOutputFolderAsGiven = __SOURCE_DIRECTORY__ </> "output1"
-    let relativeInputFolderAsGiven = Path.GetRelativePath(System.Environment.CurrentDirectory, __SOURCE_DIRECTORY__ </> "files")
+
+    let relativeInputFolderAsGiven =
+        Path.GetRelativePath(System.Environment.CurrentDirectory, __SOURCE_DIRECTORY__ </> "files")
 
     if Directory.Exists(rootOutputFolderAsGiven) then
         Directory.Delete(rootOutputFolderAsGiven, true)
