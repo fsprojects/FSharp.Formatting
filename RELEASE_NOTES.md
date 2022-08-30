@@ -1,3 +1,7 @@
+## 16.0.4
+
+* [Fix indexers in output](https://github.com/fsprojects/FSharp.Formatting/pull/767)
+
 ## 16.0.3
 * [Fix link translation when using relative input path](https://github.com/fsprojects/FSharp.Formatting/issues/764)
 
