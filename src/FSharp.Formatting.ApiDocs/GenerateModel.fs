@@ -1944,6 +1944,7 @@ module internal SymbolReader =
                         | false ->
                             let lang = elem.Attribute("lang").Value
                             $"{lang} language-{lang}"
+
                     html.Append("<pre>") |> ignore
                     html.Append($"<code class=\"{lang}\">") |> ignore
 
