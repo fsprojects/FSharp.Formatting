@@ -253,6 +253,17 @@ let ``ApiDocs works on two sample F# assemblies`` (format: OutputFormat) =
     files.[(sprintf "fslib-union.%s" format.Extension)]
     |> shouldContainText "<span>Naming(<span>rate,&#32;string</span>)</span>"
 
+    // Check that operators are encoded
+    files[$"fslib-operatorswithfsi.%s{format.Extension}"]
+    |> shouldContainText "&lt;&amp;&gt;"
+
+    // Check that parameters are indexed
+    files[$"fslib-operatorswithfsi.%s{format.Extension}"]
+    |> shouldContainText "arg0"
+
+    files[$"fslib-operatorswithfsi.%s{format.Extension}"]
+    |> shouldContainText "arg1"
+
     (* This may be addressed in a separate issue or removed if not an issue.
   // Check that implict cast operator is generated correctly
   files.[(sprintf "fslib-space-missing-implicit-cast.%s" format.Extension)] |> shouldContainText "<code><span>op_Implicit&#32;<span>source</span></span></code>"
