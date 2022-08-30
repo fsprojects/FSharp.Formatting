@@ -1447,7 +1447,7 @@ module internal SymbolReader =
             | _, _, ".ctor", _, _ -> span [] [ !!v.ApparentEnclosingEntity.DisplayName; fullArgUsage ]
 
             // Indexers
-            | _, true, _, "Item", _ -> span [] [ !! "this.["; fullArgUsage; !! "]" ]
+            | _, true, _, "Item", _ -> span [] [ !! "this["; fullArgUsage; !! "]" ]
 
             // Custom operators
             | _, _, _, _, Some name ->
