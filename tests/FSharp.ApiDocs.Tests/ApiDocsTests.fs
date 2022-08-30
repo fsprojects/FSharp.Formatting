@@ -254,15 +254,22 @@ let ``ApiDocs works on two sample F# assemblies`` (format: OutputFormat) =
     |> shouldContainText "<span>Naming(<span>rate,&#32;string</span>)</span>"
 
     // Check that operators are encoded
-    files[$"fslib-operatorswithfsi.%s{format.Extension}"]
-    |> shouldContainText "&lt;&amp;&gt;"
 
-    // Check that parameters are indexed
+    // arg0 <&> arg1
     files[$"fslib-operatorswithfsi.%s{format.Extension}"]
-    |> shouldContainText "arg0"
+    |> shouldContainText "arg0&#32;&lt;&amp;&gt;&#32;arg1"
 
+    // x ?<? y
     files[$"fslib-operatorswithfsi.%s{format.Extension}"]
-    |> shouldContainText "arg1"
+    |> shouldContainText "x&#32;?&lt;?&#32;y"
+
+    // -arg0
+    files[$"fslib-operatorswithfsi.%s{format.Extension}"]
+    |> shouldContainText "~-arg0"
+
+    // ?-x
+    files[$"fslib-operatorswithfsi.%s{format.Extension}"]
+    |> shouldContainText "~?-x"
 
     (* This may be addressed in a separate issue or removed if not an issue.
   // Check that implict cast operator is generated correctly

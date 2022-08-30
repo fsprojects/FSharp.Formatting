@@ -1477,7 +1477,7 @@ module internal SymbolReader =
                 | [ [ x ] ] ->
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatCurriedArgsUsageAsHtml true false [ [ x ] ]
+                    let right = formatArgUsageAsHtml 0 x
 
                     span [] [ encode nm; right ]
                 | _ ->

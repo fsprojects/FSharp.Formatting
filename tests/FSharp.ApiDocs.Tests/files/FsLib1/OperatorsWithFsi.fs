@@ -1,4 +1,6 @@
 ﻿module FsLib.OperatorsWithFsi
 
-let (<&>) (x: 'T) (y: 'T) = x < y
-
+let ( <&> ) x y = x > y
+let ( ?<? ) x y = x > y
+let (~-) x = x
+let (~?-) x = x
