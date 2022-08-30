@@ -1,3 +1,6 @@
+## 16.0.3
+* [Fix link translation when using relative input path](https://github.com/fsprojects/FSharp.Formatting/issues/764)
+
 ## 16.0.2
 * [Improves markdown emphasis parsing.](https://github.com/fsprojects/FSharp.Formatting/pull/763)
 

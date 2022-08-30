@@ -11,6 +11,7 @@ substitute-in-markdown: {{fsdocs-source-basename}}
 [ABC](http://substitute-in-link: {{fsdocs-source-basename}})
 [substitute-in-href-text: {{fsdocs-source-basename}}](http://google.com)
 
+Another [hyperlink](simple1.fsx)
 Another [hyperlink](simple2.md)
 
 *)
