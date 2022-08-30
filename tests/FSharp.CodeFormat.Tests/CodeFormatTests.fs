@@ -29,7 +29,8 @@ let (|ToolTipWithLiteral|_|) text tips =
             (function
             | Literal (tip) -> tip.Contains(text: string)
             | _ -> false)
-            tips then
+            tips
+    then
         Some()
     else
         None

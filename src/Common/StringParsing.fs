@@ -16,10 +16,7 @@ open FSharp.Formatting.Markdown
 module String =
     /// Matches when a string is a whitespace or null
     let (|WhiteSpace|_|) (s) =
-        if String.IsNullOrWhiteSpace(s) then
-            Some()
-        else
-            None
+        if String.IsNullOrWhiteSpace(s) then Some() else None
 
     /// Returns a string trimmed from both start and end
     let (|TrimBoth|) (text: string) = text.Trim()
@@ -42,9 +39,11 @@ module String =
     /// Matches when a string starts with the given value and ends
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string) =
-        if s.StartsWith(starts)
-           && s.EndsWith(ends)
-           && s.Length >= starts.Length + ends.Length then
+        if
+            s.StartsWith(starts)
+            && s.EndsWith(ends)
+            && s.Length >= starts.Length + ends.Length
+        then
             Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
         else
             None
@@ -119,10 +118,7 @@ module String =
 module StringPosition =
     /// Matches when a string is a whitespace or null
     let (|WhiteSpace|_|) (s, _n: MarkdownRange) =
-        if String.IsNullOrWhiteSpace(s) then
-            Some()
-        else
-            None
+        if String.IsNullOrWhiteSpace(s) then Some() else None
 
     /// Matches when a string does starts with non-whitespace
     let (|Unindented|_|) (s: string, _n: MarkdownRange) =
@@ -163,11 +159,7 @@ module StringPosition =
         let len = text.Length - trimmed.Length
 
         len,
-        text.Substring(0, len).Replace(
-            "\t",
-            "    "
-        )
-            .Length,
+        text.Substring(0, len).Replace("\t", "    ").Length,
         (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Matches when a string starts with any of the specified sub-strings
@@ -213,9 +205,7 @@ module StringPosition =
                 Some(
                     startNum,
                     beforeStart.Length,
-                    text
-                        .Substring(beforeStart.Length + (start.Length * startNum))
-                        .Trim()
+                    text.Substring(beforeStart.Length + (start.Length * startNum)).Trim()
                 )
             else
                 None
@@ -225,9 +215,11 @@ module StringPosition =
     /// Matches when a string starts with the given value and ends
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string, n: MarkdownRange) =
-        if s.StartsWith(starts)
-           && s.EndsWith(ends)
-           && s.Length >= starts.Length + ends.Length then
+        if
+            s.StartsWith(starts)
+            && s.EndsWith(ends)
+            && s.Length >= starts.Length + ends.Length
+        then
             Some(
                 s.Substring(starts.Length, s.Length - starts.Length - ends.Length),
                 { n with
@@ -252,12 +244,9 @@ module StringPosition =
     ///
     let (|StartsWithRepeated|_|) (repeated: string) (text: string, ln: MarkdownRange) =
         let rec loop i =
-            if i = text.Length then
-                i
-            elif text.[i] <> repeated.[i % repeated.Length] then
-                i
-            else
-                loop (i + 1)
+            if i = text.Length then i
+            elif text.[i] <> repeated.[i % repeated.Length] then i
+            else loop (i + 1)
 
         let n = loop 0
 
@@ -305,10 +294,7 @@ module List =
 
     /// Matches a list if it starts with a sub-list. Returns the list.
     let inline (|StartsWith|_|) startl input =
-        if List.startsWith startl input then
-            Some input
-        else
-            None
+        if List.startsWith startl input then Some input else None
 
     /// Matches a list if it starts with a sub-list that is delimited
     /// using the specified delimiter. Returns a wrapped list and the rest.
@@ -354,9 +340,10 @@ module Lines =
     /// either empty (or whitespace) or start with the specified string.
     /// Returns all such lines from the beginning until a different line.
     let (|TakeStartingWithOrBlank|_|) (start: string) (input: string list) =
-        match input
-              |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start))
-            with
+        match
+            input
+            |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start))
+        with
         | matching, rest when matching <> [] -> Some(matching, rest)
         | _ -> None
 
@@ -431,10 +418,7 @@ let (|ParseCommands|_|) (str: string) =
         kvs
         |> Seq.forall (fst >> Seq.forall (fun c -> Char.IsLetter c || c = '_' || c = '-'))
 
-    if allKeysValid && kvs <> [] then
-        Some(dict kvs)
-    else
-        None
+    if allKeysValid && kvs <> [] then Some(dict kvs) else None
 
 /// Utility for parsing commands - this deals with a single command.
 /// The key of the command should be identifier with just

@@ -1103,23 +1103,27 @@ type CoreBuildOptions(watch) =
     [<Option("qualify",
              Default = false,
              Required = false,
-             HelpText = "In API doc generation qualify the output by the collection name, e.g. 'reference/FSharp.Core/...' instead of 'reference/...' .")>]
+             HelpText =
+                 "In API doc generation qualify the output by the collection name, e.g. 'reference/FSharp.Core/...' instead of 'reference/...' .")>]
     member val qualify = false with get, set
 
     [<Option("saveimages",
              Default = "none",
              Required = false,
-             HelpText = "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
+             HelpText =
+                 "Save images referenced in docs (some|none|all). If 'some' then image links in formatted results are saved for latex and ipynb output docs.")>]
     member val saveImages = "none" with get, set
 
     [<Option("sourcefolder",
              Required = false,
-             HelpText = "Source folder at time of component build (defaults to value of `<FsDocsSourceFolder>` from project file, else current directory)")>]
+             HelpText =
+                 "Source folder at time of component build (defaults to value of `<FsDocsSourceFolder>` from project file, else current directory)")>]
     member val sourceFolder = "" with get, set
 
     [<Option("sourcerepo",
              Required = false,
-             HelpText = "Source repository for github links (defaults to value of `<FsDocsSourceRepository>` from project file, else `<RepositoryUrl>/tree/<RepositoryBranch>` for Git repositories)")>]
+             HelpText =
+                 "Source repository for github links (defaults to value of `<FsDocsSourceRepository>` from project file, else `<RepositoryUrl>/tree/<RepositoryBranch>` for Git repositories)")>]
     member val sourceRepo = "" with get, set
 
     [<Option("linenumbers", Default = false, Required = false, HelpText = "Add line numbers.")>]
@@ -1134,7 +1138,8 @@ type CoreBuildOptions(watch) =
     [<Option("mdcomments",
              Default = false,
              Required = false,
-             HelpText = "Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)")>]
+             HelpText =
+                 "Assume /// comments in F# code are markdown style (defaults to value of `<UsesMarkdownComments>` from project file)")>]
     member val mdcomments = false with get, set
 
     [<Option("parameters",
@@ -1212,9 +1217,7 @@ type CoreBuildOptions(watch) =
                 r, userParameters
 
         let userCollectionName =
-            match (dict userParameters)
-                      .TryGetValue(ParamKeys.``fsdocs-collection-name``)
-                with
+            match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
             | true, v -> Some v
             | _ -> None
 
@@ -1285,10 +1288,7 @@ type CoreBuildOptions(watch) =
                         "*** %s does not exist, has it been built? You may need to provide --properties Configuration=Release."
                         dllFile
 
-                if this.strict then
-                    failwith msg
-                else
-                    printfn "%s" msg
+                if this.strict then failwith msg else printfn "%s" msg
 
         if crackedProjects.Length > 0 then
             printfn ""
@@ -1386,15 +1386,19 @@ type CoreBuildOptions(watch) =
         let defaultTemplate =
             if this.nodefaultcontent then
                 None
-            else if (try
-                         File.Exists(defaultTemplateAttempt1)
-                     with _ ->
-                         false) then
+            else if
+                (try
+                    File.Exists(defaultTemplateAttempt1)
+                 with _ ->
+                     false)
+            then
                 Some defaultTemplateAttempt1
-            elif (try
-                      File.Exists(defaultTemplateAttempt2)
-                  with _ ->
-                      false) then
+            elif
+                (try
+                    File.Exists(defaultTemplateAttempt2)
+                 with _ ->
+                     false)
+            then
                 Some defaultTemplateAttempt2
             else
                 None
@@ -1406,10 +1410,12 @@ type CoreBuildOptions(watch) =
                   //   to .nuget\packages\fsdocs-tool\7.1.7\extras
                   let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
 
-                  if (try
+                  if
+                      (try
                           Directory.Exists(attempt1)
-                      with _ ->
-                          false) then
+                       with _ ->
+                           false)
+                  then
                       printfn "using extra content from %s" attempt1
                       (attempt1, ".")
                   else
@@ -1419,10 +1425,12 @@ type CoreBuildOptions(watch) =
                       let attempt2 =
                           Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
 
-                      if (try
+                      if
+                          (try
                               Directory.Exists(attempt2)
-                          with _ ->
-                              false) then
+                           with _ ->
+                               false)
+                      then
                           printfn "using extra content from %s" attempt2
                           (attempt2, "content")
                       else

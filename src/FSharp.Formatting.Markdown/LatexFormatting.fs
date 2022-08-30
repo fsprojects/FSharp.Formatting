@@ -205,7 +205,9 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
         let formatRow (prefix: string) (postfix: string) row =
             row
             |> Seq.iteri (fun i cell ->
-                if i <> 0 then ctx.Writer.Write(" & ")
+                if i <> 0 then
+                    ctx.Writer.Write(" & ")
+
                 ctx.Writer.Write(prefix)
                 cell |> List.iter (formatParagraphAsLatex bodyCtx)
                 ctx.Writer.Write(postfix))
@@ -224,11 +226,7 @@ let rec formatParagraphAsLatex (ctx: FormattingContext) paragraph =
         ctx.LineBreak()
 
     | ListBlock (kind, items, _) ->
-        let tag =
-            if kind = Ordered then
-                "enumerate"
-            else
-                "itemize"
+        let tag = if kind = Ordered then "enumerate" else "itemize"
 
         ctx.Writer.Write(@"\begin{" + tag + "}")
         ctx.LineBreak()

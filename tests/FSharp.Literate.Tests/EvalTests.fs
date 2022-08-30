@@ -192,12 +192,7 @@ printfn "hi"
 
     let html = Literate.ToHtml(doc)
 
-    html
-        .Split(
-            [| "<table class=\"pre\">" |],
-            System.StringSplitOptions.None
-        )
-        .Length
+    html.Split([| "<table class=\"pre\">" |], System.StringSplitOptions.None).Length
     |> shouldEqual 5
 
 

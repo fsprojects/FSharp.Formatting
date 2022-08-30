@@ -38,6 +38,7 @@ type OutputKind =
 
     /// Requests Markdown output
     | Markdown
+
     member x.Extension =
         match x with
         | Fsx -> "fsx"
@@ -79,11 +80,7 @@ type internal LiterateDocModel =
     member x.Uri(root) =
         let uri = x.OutputPath.Replace("\\", "/")
 
-        let uri =
-            if uri.StartsWith("./") then
-                uri.[2..]
-            else
-                uri
+        let uri = if uri.StartsWith("./") then uri.[2..] else uri
 
         sprintf "%s%s" root uri
 

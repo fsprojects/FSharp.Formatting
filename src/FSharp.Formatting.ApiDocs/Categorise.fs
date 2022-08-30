@@ -91,10 +91,7 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
                       (e.Symbol.DisplayName.ToLowerInvariant(),
                        e.Symbol.GenericParameters.Count,
                        e.Name,
-                       (if e.IsTypeDefinition then
-                            e.UrlBaseName
-                        else
-                            "ZZZ")))
+                       (if e.IsTypeDefinition then e.UrlBaseName else "ZZZ")))
 
               if categoryEntities.Length > 0 then
                   yield
