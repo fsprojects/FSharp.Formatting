@@ -263,13 +263,13 @@ let ``ApiDocs works on two sample F# assemblies`` (format: OutputFormat) =
     files[$"fslib-operatorswithfsi.%s{format.Extension}"]
     |> shouldContainText "x&#32;?&lt;?&#32;y"
 
-    // -arg0
+    // <?arg0
     files[$"fslib-operatorswithfsi.%s{format.Extension}"]
-    |> shouldContainText "~-arg0"
+    |> shouldContainText "&lt;?arg0"
 
-    // ?-x
+    // <?>x
     files[$"fslib-operatorswithfsi.%s{format.Extension}"]
-    |> shouldContainText "~?-x"
+    |> shouldContainText "&lt;?&gt;x"
 
     (* This may be addressed in a separate issue or removed if not an issue.
   // Check that implict cast operator is generated correctly

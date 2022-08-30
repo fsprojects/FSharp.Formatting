@@ -2,5 +2,5 @@
 
 let ( <&> ) x y = x > y
 let ( ?<? ) x y = x > y
-let (~-) x = x
-let (~?-) x = x
+let (<?) x = x
+let (<?>) x = x

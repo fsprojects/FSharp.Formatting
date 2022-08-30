@@ -7,8 +7,8 @@ val ( <&> ): 'T -> 'T -> bool when 'T : comparison
 val ( ?<? ): x: 'T -> y: 'T -> bool when 'T : comparison
 
 /// <summary>The unary operator 1</summary>
-val (~-): 'T -> 'T
+val (<?): 'T -> 'T
 
 /// <summary>The unary operator 2</summary>
-val (~?-): x: 'T -> 'T
+val (<?>): x: 'T -> 'T
 
