@@ -1,3 +1,8 @@
+## 16.1.0
+
+* Update to .NET 6.0.400
+* Update to Ionide.ProjInfo 0.60
+
 ## 16.0.4
 
 * [Fix indexers in output](https://github.com/fsprojects/FSharp.Formatting/pull/767)
