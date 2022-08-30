@@ -108,14 +108,18 @@ module internal CodeBlockUtils =
             match lines with
             | (ConcatenatedComments (String.StartsAndEndsWith ("(***", "***)") (ParseCommands cmds))) :: lines ->
                 // Found a special command, yield snippet, command and parse another snippet
-                if acc <> [] then yield blockSnippet acc
+                if acc <> [] then
+                    yield blockSnippet acc
+
                 yield BlockCommand cmds
                 yield! collectSnippet [] lines
 
             | (Line (_, [ TokenSpan.Token (TokenKind.Comment, String.StartsWith "(**" text, _) ])) :: lines ->
                 // Found a comment - yield snippet & switch to parsing comment state
                 // (Also trim leading spaces to support e.g.: `(** ## Hello **)`)
-                if acc <> [] then yield blockSnippet acc
+                if acc <> [] then
+                    yield blockSnippet acc
+
                 yield! collectComment (text.TrimStart()) lines
 
             | x :: xs -> yield! collectSnippet (x :: acc) xs

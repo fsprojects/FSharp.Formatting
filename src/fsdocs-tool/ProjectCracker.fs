@@ -16,11 +16,7 @@ module Utils =
 
     let isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
 
-    let dotnet =
-        if isWindows then
-            "dotnet.exe"
-        else
-            "dotnet"
+    let dotnet = if isWindows then "dotnet.exe" else "dotnet"
 
     let fileExists pathToFile =
         try
@@ -63,10 +59,7 @@ module Utils =
             let paths =
                 let p = Environment.GetEnvironmentVariable("PATH")
 
-                if not (isNull p) then
-                    p.Split(Path.PathSeparator)
-                else
-                    [||]
+                if not (isNull p) then p.Split(Path.PathSeparator) else [||]
 
             paths |> Array.tryFind (fun f -> fileExists (Path.Combine(f, dotnet)))
 
@@ -88,7 +81,9 @@ module Utils =
 
     let ensureDirectory path =
         let dir = DirectoryInfo(path)
-        if not dir.Exists then dir.Create()
+
+        if not dir.Exists then
+            dir.Create()
 
     let saveBinary (object: 'T) (fileName: string) =
         try

@@ -198,7 +198,7 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
                               IsError = e.Severity = Error
                               EndColumn = e.EndColumn
                               EndLine = e.EndLine }
-                    } (*[/omit]*)
+                    }
 
                 return res.TypeCheckInfo.Value, errs
             | _ ->
@@ -299,12 +299,9 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
 
                               // Find color for the current token
                               let color =
-                                  if tok.TokenName = "FSI" then
-                                      Some("fsi")
-                                  elif tok.TokenName.StartsWith("OMIT") then
-                                      Some("omitted")
-                                  else
-                                      Colors.colorMap.TryFind(tok.ColorClass)
+                                  if tok.TokenName = "FSI" then Some("fsi")
+                                  elif tok.TokenName.StartsWith("OMIT") then Some("omitted")
+                                  else Colors.colorMap.TryFind(tok.ColorClass)
                               // Return all information about token and continue
                               yield
                                   { Token = tok
@@ -328,7 +325,8 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
         [ for title, lines in snippets do
               // Print debug information
 
-              if trace then printfn "\n\n\n%A" lines
+              if trace then
+                  printfn "\n\n\n%A" lines
               // Count the minimal number of spaces at the beginning of lines
               // (so that we can remove spaces for indented text)
               let spaces =

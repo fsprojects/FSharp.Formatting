@@ -699,21 +699,9 @@ let ``HTML for snippets generated for F# and non-F# has 'fssnip' class`` () =
     let html2 = Literate.ToHtml(doc2, lineNumbers = true)
 
     // the 'fssnip' class appears for both <pre> with lines and <pre> with code
-    html1
-        .Split(
-            [| "fssnip" |],
-            StringSplitOptions.None
-        )
-        .Length
-    |> shouldEqual 3
+    html1.Split([| "fssnip" |], StringSplitOptions.None).Length |> shouldEqual 3
 
-    html2
-        .Split(
-            [| "fssnip" |],
-            StringSplitOptions.None
-        )
-        .Length
-    |> shouldEqual 3
+    html2.Split([| "fssnip" |], StringSplitOptions.None).Length |> shouldEqual 3
 
 // --------------------------------------------------------------------------------------
 // Test that parsed documents for Markdown and F# #scripts are the same
@@ -955,12 +943,7 @@ let ``Formatted markdown transforms markdown links`` () =
     let html =
         Literate.ToHtml(
             doc.With(formattedTips = ""),
-            mdlinkResolver =
-                (fun s ->
-                    if s = "A.md" then
-                        Some "A.html"
-                    else
-                        None)
+            mdlinkResolver = (fun s -> if s = "A.md" then Some "A.html" else None)
         )
 
     html |> shouldContainText "A.html"

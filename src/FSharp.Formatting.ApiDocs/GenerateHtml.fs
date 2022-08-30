@@ -260,7 +260,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                               h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
 
                                               p
-                                                  [ Class "fsdocs-example"; if e.Id.IsSome then Id e.Id.Value ]
+                                                  [ Class "fsdocs-example"
+                                                    if e.Id.IsSome then
+                                                        Id e.Id.Value ]
                                                   [ embed e ]
 
                                           //if m.IsObsolete then
@@ -284,12 +286,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                               []
                               [ td
                                     []
-                                    [ !!(if hasTypes && hasModules then
-                                             "Type/Module"
-                                         elif hasTypes then
-                                             "Type"
-                                         else
-                                             "Modules") ]
+                                    [ !!(if hasTypes && hasModules then "Type/Module"
+                                         elif hasTypes then "Type"
+                                         else "Modules") ]
                                 td [] [ !! "Description" ] ] ]
                     tbody
                         []
@@ -349,13 +348,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
             | _ -> entity.Name
 
-        [ h2
-              []
-              [ !!(usageName
-                   + (if entity.IsTypeDefinition then
-                          " Type"
-                      else
-                          " Module")) ]
+        [ h2 [] [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
           dl
               [ Class "fsdocs-metadata" ]
               [ dt
@@ -393,7 +386,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         []
                         [ !!("All Interfaces: ")
                           for (i, (_, ityHtml)) in Seq.indexed l do
-                              if i <> 0 then !! ", "
+                              if i <> 0 then
+                                  !! ", "
+
                               embed ityHtml ]
 
                 if entity.Symbol.IsValueType then

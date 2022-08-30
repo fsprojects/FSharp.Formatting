@@ -124,6 +124,7 @@ module private Helpers =
 type internal Range =
     { LeftCol: int
       RightCol: int }
+
     static member Create leftCol rightCol =
         { LeftCol = leftCol
           RightCol = rightCol }
@@ -447,8 +448,10 @@ module CodeFormatter =
             for diagnostic in diagnostics do
                 printfn "error from GetProjectOptionsFromScript '%s'" (formatDiagnostic diagnostic)
 
-            if diagnostics
-               |> List.exists (fun e -> e.Severity = FSharpDiagnosticSeverity.Error) then
+            if
+                diagnostics
+                |> List.exists (fun e -> e.Severity = FSharpDiagnosticSeverity.Error)
+            then
                 onError "exiting due to errors in script"
 
             // Run the second phase - perform type checking

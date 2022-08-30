@@ -16,6 +16,7 @@ open FsUnitTyped
 type OutputFormat =
     | Html
     | Markdown
+
     member x.Extension =
         match x with
         | Html -> "html"
@@ -78,10 +79,7 @@ let getOutputDir (format: OutputFormat) (uniq: string) =
     Directory.CreateDirectory(outDir).FullName
 
 let removeWhiteSpace (str: string) =
-    str
-        .Replace("\n", "")
-        .Replace("\r", "")
-        .Replace(" ", "")
+    str.Replace("\n", "").Replace("\r", "").Replace(" ", "")
 
 let docTemplate (format: OutputFormat) =
     root </> (sprintf "../../docs/_template.%s" format.Extension)
@@ -920,9 +918,7 @@ let ``ApiDocs highlights code snippets in Markdown comments`` (format: OutputFor
 let ``ApiDocs handles c# dlls`` (format: OutputFormat) =
     let library = testBin </> "FSharp.Formatting.CSharpFormat.dll" |> fullpath
 
-    let files =
-        (generateApiDocs [ library ] format false "CSharpFormat")
-            .Keys
+    let files = (generateApiDocs [ library ] format false "CSharpFormat").Keys
 
     let optIndex = files |> Seq.tryFind (fun s -> s.EndsWith(sprintf "index.%s" format.Extension))
 
@@ -1210,9 +1206,7 @@ CONTENT: {{fsdocs-menu-item-content}}
                     None)
         |> Seq.head
         |> fun s ->
-            s
-                .Replace("\r", "")
-                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            s.Replace("\r", "").Split('\n', StringSplitOptions.RemoveEmptyEntries)
             |> Array.map (fun s -> s.Trim())
             |> String.concat "\n"
 

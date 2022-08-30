@@ -43,25 +43,31 @@ module internal Utils =
         attribs |> Seq.tryFind (fun a -> isAttrib<'T> (a))
 
     let (|MeasureProd|_|) (typ: FSharpType) =
-        if typ.HasTypeDefinition
-           && typ.TypeDefinition.LogicalName = "*"
-           && typ.GenericArguments.Count = 2 then
+        if
+            typ.HasTypeDefinition
+            && typ.TypeDefinition.LogicalName = "*"
+            && typ.GenericArguments.Count = 2
+        then
             Some(typ.GenericArguments.[0], typ.GenericArguments.[1])
         else
             None
 
     let (|MeasureInv|_|) (typ: FSharpType) =
-        if typ.HasTypeDefinition
-           && typ.TypeDefinition.LogicalName = "/"
-           && typ.GenericArguments.Count = 1 then
+        if
+            typ.HasTypeDefinition
+            && typ.TypeDefinition.LogicalName = "/"
+            && typ.GenericArguments.Count = 1
+        then
             Some typ.GenericArguments.[0]
         else
             None
 
     let (|MeasureOne|_|) (typ: FSharpType) =
-        if typ.HasTypeDefinition
-           && typ.TypeDefinition.LogicalName = "1"
-           && typ.GenericArguments.Count = 0 then
+        if
+            typ.HasTypeDefinition
+            && typ.TypeDefinition.LogicalName = "1"
+            && typ.GenericArguments.Count = 0
+        then
             Some()
         else
             None
@@ -95,15 +101,13 @@ module internal Utils =
         let sepWith s l = l |> List.sepWith (!!s) |> span []
 
     type System.Xml.Linq.XElement with
+
         member x.TryAttr(attr: string) =
             let a = x.Attribute(XName.Get attr)
 
-            if a = null then
-                None
-            else if String.IsNullOrEmpty a.Value then
-                None
-            else
-                Some a.Value
+            if a = null then None
+            else if String.IsNullOrEmpty a.Value then None
+            else Some a.Value
 
 /// Represents some HTML formatted by model generation
 type ApiDocHtml(html: string, id: string option) =
@@ -173,10 +177,7 @@ type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArgum
             |> Option.map string
             |> Option.defaultValue ""
 
-        if x.IsObsoleteAttribute then
-            tryFindObsoleteMessage
-        else
-            ""
+        if x.IsObsoleteAttribute then tryFindObsoleteMessage else ""
 
     /// Gets a value indicating whether this attribute the CustomOperationAttribute
     member x.IsCustomOperationAttribute = x.FullName = "Microsoft.FSharp.Core.CustomOperationAttribute"
@@ -450,10 +451,7 @@ type ApiDocMember
         sprintf
             "%sreference/%s%s%s#%s"
             root
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
+            (if qualify then collectionName + "/" else "")
             entityUrlBaseName
             extension
             displayName
@@ -550,15 +548,7 @@ type ApiDocEntity
 
     /// Compute the URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
     static member GetUrl(urlBaseName, root, collectionName, qualify, extension) =
-        sprintf
-            "%sreference/%s%s%s"
-            root
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
-            urlBaseName
-            extension
+        sprintf "%sreference/%s%s%s" root (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The URL of the best link for the entity relative to "reference" directory (without the http://site.io/reference)
     member x.Url(root, collectionName, qualify, extension) =
@@ -566,14 +556,7 @@ type ApiDocEntity
 
     /// The name of the file generated for this entity
     member x.OutputFile(collectionName, qualify, extension) =
-        sprintf
-            "reference/%s%s%s"
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
-            urlBaseName
-            extension
+        sprintf "reference/%s%s%s" (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The attached comment
     member x.Comment: ApiDocComment = comment
@@ -662,26 +645,11 @@ type ApiDocNamespace(name: string, modifiers, substitutions: Substitutions, nsdo
 
     /// The URL of the best link documentation for the item (without the http://site.io/reference)
     member x.Url(root, collectionName, qualify, extension) =
-        sprintf
-            "%sreference/%s%s%s"
-            root
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
-            urlBaseName
-            extension
+        sprintf "%sreference/%s%s%s" root (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// The name of the file generated for this entity
     member x.OutputFile(collectionName, qualify, extension) =
-        sprintf
-            "reference/%s%s%s"
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
-            urlBaseName
-            extension
+        sprintf "reference/%s%s%s" (if qualify then collectionName + "/" else "") urlBaseName extension
 
     /// All modules in the namespace
     member x.Entities: ApiDocEntity list = modifiers
@@ -767,8 +735,10 @@ module internal CrossReferences =
                             ""
 
                     let paramList =
-                        if memb.CurriedParameterGroups.Count > 0
-                           && memb.CurriedParameterGroups.[0].Count > 0 then
+                        if
+                            memb.CurriedParameterGroups.Count > 0
+                            && memb.CurriedParameterGroups.[0].Count > 0
+                        then
                             let head = memb.CurriedParameterGroups.[0]
 
                             let paramTypeList =
@@ -857,8 +827,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             if (not (niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
                 niceNameEntityLookup.[entity.LogicalName] <- System.Collections.Generic.List<_>()
 
-            niceNameEntityLookup.[entity.LogicalName]
-                .Add(entity)
+            niceNameEntityLookup.[entity.LogicalName].Add(entity)
 
         for nested in entity.NestedEntities do
             registerEntity nested
@@ -967,11 +936,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         else
             let noParen = removeParen fullName
 
-            let docs =
-                noParen
-                    .Replace("``", "")
-                    .Replace("`", "-")
-                    .ToLower()
+            let docs = noParen.Replace("``", "").Replace("`", "-").ToLower()
 
             let link = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
 
@@ -1134,9 +1099,7 @@ module internal TypeFormatter =
             |> Option.map (fun (sourceFolder, sourceRepo) ->
                 let sourceFolderPath = Uri(Path.GetFullPath(sourceFolder)).ToString()
 
-                let docPath =
-                    Uri(Path.GetFullPath(location.FileName))
-                        .ToString()
+                let docPath = Uri(Path.GetFullPath(location.FileName)).ToString()
 
                 // Even though ignoring case might be wrong, we do that because
                 // one path might be file:///C:\... and the other file:///c:\...  :-(
@@ -1153,11 +1116,7 @@ module internal TypeFormatter =
                     urlRangeHighlight uriBuilder.Uri location.StartLine location.EndLine))
 
     let formatTypeArgumentAsText (typar: FSharpGenericParameter) =
-        (if typar.IsSolveAtCompileTime then
-             "^"
-         else
-             "'")
-        + typar.Name
+        (if typar.IsSolveAtCompileTime then "^" else "'") + typar.Name
 
     let formatTypeArgumentsAsText (typars: FSharpGenericParameter list) =
         List.map formatTypeArgumentAsText typars
@@ -1245,11 +1204,7 @@ module internal TypeFormatter =
     let formatArgNameAndTypePair i (argName, argType) =
         let argName =
             match argName with
-            | None ->
-                if isUnitType argType then
-                    "()"
-                else
-                    "arg" + string i
+            | None -> if isUnitType argType then "()" else "arg" + string i
             | Some nm -> nm
 
         argName, argType
@@ -1259,11 +1214,7 @@ module internal TypeFormatter =
 
         let isOptionalArg = arg.IsOptionalArg || hasAttrib<OptionalArgumentAttribute> arg.Attributes
 
-        let argName =
-            if isOptionalArg then
-                "?" + argName
-            else
-                argName
+        let argName = if isOptionalArg then "?" + argName else argName
 
         let argType =
             // Strip off the 'option' type for optional arguments
@@ -1305,10 +1256,7 @@ module internal TypeFormatter =
             | args ->
                 let argText = args |> List.map (!!) |> Html.sepWith ",&#32;"
 
-                if isItemIndexer then
-                    argText
-                else
-                    bracketHtml argText)
+                if isItemIndexer then argText else bracketHtml argText)
         |> Html.sepWith "&#32;"
 
     let formatDelegateSignatureAsHtml ctx nm (typ: FSharpDelegateSignature) =
@@ -1529,7 +1477,8 @@ module internal SymbolReader =
                 span
                     []
                     [ !!(v.ApparentEnclosingEntity.DisplayName + "." + name)
-                      if preferNoParens then !! "&#32;"
+                      if preferNoParens then
+                          !! "&#32;"
                       fullArgUsage ]
 
         let usageHtml = codeHtml usageHtml
@@ -1691,8 +1640,10 @@ module internal SymbolReader =
         let usageHtml = !!field.Name |> codeHtml
 
         let modifiers =
-            [ if field.IsMutable then yield "mutable"
-              if field.IsStatic then yield "static" ]
+            [ if field.IsMutable then
+                  yield "mutable"
+              if field.IsStatic then
+                  yield "static" ]
 
         let typeParams = List.empty
         //let signatureTooltip = formatTypeAsText field.FieldType
@@ -1915,11 +1866,7 @@ module internal SymbolReader =
                         // Older FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
                         let cname = cref.Value
 
-                        let cname =
-                            if cname.Contains(":") then
-                                cname
-                            else
-                                "T:" + cname
+                        let cname = if cname.Contains(":") then cname else "T:" + cname
 
                         match urlMap.ResolveCref cname with
                         | Some reference ->
@@ -1973,10 +1920,7 @@ module internal SymbolReader =
         let nsels =
             let ds = doc.Elements(XName.Get "namespacedoc")
 
-            if Seq.length ds > 0 then
-                Some(Seq.toList ds)
-            else
-                None
+            if Seq.length ds > 0 then Some(Seq.toList ds) else None
 
         let summary =
             if summaryExpected then
@@ -1985,11 +1929,7 @@ module internal SymbolReader =
                 let html = new StringBuilder()
 
                 for (id, e) in List.indexed summaries do
-                    let n =
-                        if id = 0 then
-                            "summary"
-                        else
-                            "summary-" + string id
+                    let n = if id = 0 then "summary" else "summary-" + string id
 
                     rawData.[n] <- e.Value
                     readXmlElementAsHtml true urlMap cmds html e
@@ -2030,11 +1970,7 @@ module internal SymbolReader =
                 let html = new StringBuilder()
 
                 for (id, e) in List.indexed remarkNodes do
-                    let n =
-                        if id = 0 then
-                            "remarks"
-                        else
-                            "remarks-" + string id
+                    let n = if id = 0 then "remarks" else "remarks-" + string id
 
                     rawData.[n] <- e.Value
                     readXmlElementAsHtml true urlMap cmds html e
@@ -2050,11 +1986,7 @@ module internal SymbolReader =
 
             if returnNodes.Length > 0 then
                 for (id, e) in List.indexed returnNodes do
-                    let n =
-                        if id = 0 then
-                            "returns"
-                        else
-                            "returns-" + string id
+                    let n = if id = 0 then "returns" else "returns-" + string id
 
                     rawData.[n] <- e.Value
                     readXmlElementAsHtml true urlMap cmds html e
@@ -2077,11 +2009,7 @@ module internal SymbolReader =
                           // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
                           let cname = cref.Value
 
-                          let cname =
-                              if cname.StartsWith("T:") then
-                                  cname
-                              else
-                                  "T:" + cname // FSharp.Core exception listings don't start with "T:"
+                          let cname = if cname.StartsWith("T:") then cname else "T:" + cname // FSharp.Core exception listings don't start with "T:"
 
                           match urlMap.ResolveCref cname with
                           | Some reference ->
@@ -2103,11 +2031,7 @@ module internal SymbolReader =
 
                   let exampleId =
                       match e.TryAttr "id" with
-                      | None ->
-                          if id = 0 then
-                              "example"
-                          else
-                              "example-" + string id
+                      | None -> if id = 0 then "example" else "example-" + string id
                       | Some attrId -> attrId
 
                   rawData.[exampleId] <- e.Value
@@ -2120,11 +2044,7 @@ module internal SymbolReader =
             [ for (id, e) in List.indexed noteNodes do
                   let html = new StringBuilder()
 
-                  let n =
-                      if id = 0 then
-                          "note"
-                      else
-                          "note-" + string id
+                  let n = if id = 0 then "note" else "note-" + string id
 
                   rawData.[n] <- e.Value
                   readXmlElementAsHtml true urlMap cmds html e
@@ -2249,11 +2169,7 @@ module internal SymbolReader =
     let getTypeLink (ctx: ReadingContext) undefinedLink =
         // Append 'T:' to try to get the link from urlmap
         match ctx.UrlMap.ResolveCref("T:" + undefinedLink) with
-        | Some cRef ->
-            if cRef.IsInternal then
-                Some(undefinedLink, cRef)
-            else
-                None
+        | Some cRef -> if cRef.IsInternal then Some(undefinedLink, cRef) else None
         | None -> None
 
     /// Adds a cross-type link to the document defined links
@@ -2912,6 +2828,7 @@ type ApiDocInput =
         /// Whether to generate only public things
         PublicOnly: bool
     }
+
     static member FromFile
         (
             assemblyPath: string,
@@ -2959,24 +2876,11 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
 
     /// URL of the 'index.html' for the reference documentation for the model
     member x.IndexFileUrl(root, collectionName, qualify, extension) =
-        sprintf
-            "%sreference/%sindex%s"
-            root
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
-            extension
+        sprintf "%sreference/%sindex%s" root (if qualify then collectionName + "/" else "") extension
 
     /// URL of the 'index.html' for the reference documentation for the model
     member x.IndexOutputFile(collectionName, qualify, extension) =
-        sprintf
-            "reference/%sindex%s"
-            (if qualify then
-                 collectionName + "/"
-             else
-                 "")
-            extension
+        sprintf "reference/%sindex%s" (if qualify then collectionName + "/" else "") extension
 
     static member internal Generate
         (

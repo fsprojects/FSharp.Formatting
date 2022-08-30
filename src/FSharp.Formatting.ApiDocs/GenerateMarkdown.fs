@@ -15,9 +15,7 @@ let urlEncode (x: string) = HttpUtility.UrlEncode x
 let htmlString (x: ApiDocHtml) = (x.HtmlText.Trim())
 
 let htmlStringSafe (x: ApiDocHtml) =
-    (x.HtmlText.Trim())
-        .Replace("\n", "<br />")
-        .Replace("|", "&#124;")
+    (x.HtmlText.Trim()).Replace("\n", "<br />").Replace("|", "&#124;")
 
 let embed (x: ApiDocHtml) = !!(htmlString x)
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
@@ -118,12 +116,9 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
               table
                   [ [ p
-                          [ !!(if hasTypes && hasModules then
-                                   "Type/Module"
-                               elif hasTypes then
-                                   "Type"
-                               else
-                                   "Modules") ]
+                          [ !!(if hasTypes && hasModules then "Type/Module"
+                               elif hasTypes then "Type"
+                               else "Modules") ]
                       p [ !! "Description" ]
                       p [ !! "Source" ] ] ]
                   [ AlignLeft; AlignLeft; AlignCenter ]
@@ -161,12 +156,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             | Some m when m.RequiresQualifiedAccess -> m.Name + "." + entity.Name
             | _ -> entity.Name
 
-        [ ``##``
-              [ !!(usageName
-                   + (if entity.IsTypeDefinition then
-                          " Type"
-                      else
-                          " Module")) ]
+        [ ``##`` [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
           p
               [ !! "Namespace: "
                 link
@@ -197,7 +187,9 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               p
                   [ !! "All Interfaces: "
                     for (i, (_, interfaceTyHtml)) in Seq.indexed l do
-                        if i <> 0 then !! ", "
+                        if i <> 0 then
+                            !! ", "
+
                         embed interfaceTyHtml ]
 
           if entity.Symbol.IsValueType then

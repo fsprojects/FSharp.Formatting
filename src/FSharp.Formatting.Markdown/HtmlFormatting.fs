@@ -19,10 +19,7 @@ open MarkdownUtils
 
 /// Basic escaping as done by Markdown
 let internal htmlEncode (code: string) =
-    code
-        .Replace("&", "&amp;")
-        .Replace("<", "&lt;")
-        .Replace(">", "&gt;")
+    code.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
 
 /// Basic escaping as done by Markdown including quotes
 let internal htmlEncodeQuotes (code: string) =
@@ -160,11 +157,7 @@ let internal formatAnchor (ctx: FormattingContext) (spans: MarkdownSpans) =
     spans
     |> gathers
     |> String.concat "-"
-    |> fun name ->
-        if String.IsNullOrWhiteSpace name then
-            "header"
-        else
-            name
+    |> fun name -> if String.IsNullOrWhiteSpace name then "header" else name
     |> ctx.UniqueNameGenerator.GetName
 
 let internal withInner ctx f =

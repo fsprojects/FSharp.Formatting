@@ -17,6 +17,7 @@ type Record =
         /// This is age
         Age: int
     }
+
     /// Additional members
     member x.Foo = 0
     member x.Foo2() = 0

@@ -72,8 +72,7 @@ Target.create "AssemblyInfo" (fun _ ->
 Target.create "Clean" (fun _ ->
     !!artifactsDir ++ "temp" |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
-    [ "bin"; "temp"; "tests/bin" ]
-    |> Seq.iter Directory.ensure)
+    [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure)
 
 // Build library
 // --------------------------------------------------------------------------------------
@@ -128,11 +127,7 @@ Target.create "GenerateDocs" (fun _ ->
 
     CreateProcess.fromRawCommand
         (artifactsDir @@ "fsdocs")
-        [ "build"
-          "--strict"
-          "--clean"
-          "--properties"
-          "Configuration=Release" ]
+        [ "build"; "--strict"; "--clean"; "--properties"; "Configuration=Release" ]
     |> CreateProcess.ensureExitCode
     |> Proc.run
     |> ignore

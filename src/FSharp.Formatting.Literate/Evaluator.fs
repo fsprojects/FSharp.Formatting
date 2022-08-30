@@ -44,6 +44,7 @@ type FsiEvaluationResult =
       FsiMergedOutput: string option
       ItValue: (obj * Type) option
       Result: (obj * Type) option }
+
     interface IFsiEvaluationResult
 
 /// Record that is reported by the EvaluationFailed event when something
@@ -54,6 +55,7 @@ type FsiEvaluationFailedInfo =
       File: string option
       Exception: exn
       StdErr: string }
+
     override x.ToString() =
         let indent (s: string) =
             s.Split([| '\n'; '\r' |], StringSplitOptions.RemoveEmptyEntries)
@@ -481,9 +483,10 @@ module __FsiSettings =
                 let output = outputText.Trim()
                 [ OutputBlock(output, "text/plain", Some executionCount) ]
             | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItRaw ->
-                match valueTransformations
-                      |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
-                    with
+                match
+                    valueTransformations
+                    |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks ->
                     blocks
@@ -500,9 +503,10 @@ module __FsiSettings =
                         | _ -> OutputBlock("Value could not be returned raw", "text/plain", Some executionCount))
             | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItValue
             | { Result = Some (obj, ty) }, FsiEmbedKind.Value ->
-                match valueTransformations
-                      |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
-                    with
+                match
+                    valueTransformations
+                    |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks -> blocks
 

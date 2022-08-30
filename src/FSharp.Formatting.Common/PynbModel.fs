@@ -12,6 +12,7 @@ let addLineEnd (s: string) =
 
 type OutputData =
     | OutputData of kind: string * lines: string[]
+
     override this.ToString() =
         let (OutputData (kind, lines)) = this
 
@@ -27,6 +28,7 @@ type Output =
       execution_count: int option
       metadata: string
       output_type: string }
+
     override this.ToString() =
         sprintf
             """
@@ -49,6 +51,7 @@ type Cell =
       metadata: string
       outputs: Output[]
       source: string[] }
+
     static member Default =
         { cell_type = "code"
           execution_count = None
@@ -86,6 +89,7 @@ type Kernelspec =
     { display_name: string
       language: string
       name: string }
+
     static member Default =
         { display_name = ".NET (F#)"
           language = "F#"
@@ -104,6 +108,7 @@ type LanguageInfo =
       name: string
       pygments_lexer: string
       version: string }
+
     static member Default =
         { file_extension = ".fs"
           mimetype = "text/x-fsharp"
@@ -129,6 +134,7 @@ type LanguageInfo =
 type Metadata =
     { kernelspec: Kernelspec
       language_info: LanguageInfo }
+
     static member Default =
         { kernelspec = Kernelspec.Default
           language_info = LanguageInfo.Default }
@@ -147,6 +153,7 @@ type Notebook =
       nbformat_minor: int
       metadata: Metadata
       cells: Cell[] }
+
     static member Default =
         { nbformat = 4
           nbformat_minor = 1

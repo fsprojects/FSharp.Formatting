@@ -15,6 +15,7 @@ open System.Text
 [<Struct>]
 type ParamKey =
     | ParamKey of string
+
     override x.ToString() =
         match x with
         | ParamKey x -> x
@@ -137,6 +138,7 @@ module internal SimpleTemplating =
 
 #if NETSTANDARD2_0
     type StringBuilder with
+
         member this.Append(span: ReadOnlySpan<char>) = this.Append(span.ToString())
 #endif
 

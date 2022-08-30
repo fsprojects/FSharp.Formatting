@@ -14,9 +14,7 @@ open FSharp.Formatting.Common
 open FsUnitTyped
 
 let properNewLines (text: string) =
-    text
-        .Replace("\r\n", "\n")
-        .Replace("\n", System.Environment.NewLine)
+    text.Replace("\r\n", "\n").Replace("\n", System.Environment.NewLine)
 
 let shouldEqualNoWhiteSpace (x: string) (y: string) = shouldEqual (x.Split()) (y.Split())
 

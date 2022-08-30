@@ -95,10 +95,7 @@ module internal CompilerServiceExtensions =
               yield System.IO.Directory.GetCurrentDirectory() ]
 
         let tryCheckFsCore fscorePath =
-            if File.Exists fscorePath then
-                Some fscorePath
-            else
-                None
+            if File.Exists fscorePath then Some fscorePath else None
 
         let findFSCore dllFiles libDirs =
             // lets find ourself some FSharp.Core.dll
@@ -151,7 +148,8 @@ module internal CompilerServiceExtensions =
                            ((hasFsCoreLib || fsCoreLib.IsSome)
                             && Path.GetFileNameWithoutExtension r = "FSharp.Core")
 
-                       if not suppressFSharpCore then yield r
+                       if not suppressFSharpCore then
+                           yield r
 
                    yield "--out:" + dllName
                    yield "--doc:" + xmlName
@@ -264,6 +262,7 @@ module internal CompilerServiceExtensions =
             [ yield e; yield! e.NestedEntities |> Seq.collect enumerateEntities ]
 
     type Type with
+
         /// The FullName but without any generic parameter types.
         member x.NamespaceName =
             x.FullName.Substring(
@@ -274,6 +273,7 @@ module internal CompilerServiceExtensions =
             )
 
     type FSharpAssembly with
+
         static member LoadFiles(dllFiles: string list, ?libDirs: string list, ?otherFlags) =
             let libDirs = defaultArg libDirs []
 
@@ -527,6 +527,7 @@ type internal FsiOptions =
         WarnAsErrorList: (bool * int list) list
         ScriptArgs: string list
     }
+
     static member Empty =
         { Checked = None
           Codepage = None
@@ -641,12 +642,7 @@ type internal FsiOptions =
                     let parseList (l: string) =
                         l.Split [| ',' |] |> Seq.map int |> Seq.toList
 
-                    match warnOpts.[0],
-                          (if warnOpts.Length > 1 then
-                               Some warnOpts.[1]
-                           else
-                               None)
-                        with
+                    match warnOpts.[0], (if warnOpts.Length > 1 then Some warnOpts.[1] else None) with
                     | ':', _ ->
                         { parsed with
                             WarnAsErrorList = (true, parseList (warnOpts.Substring 1)) :: parsed.WarnAsErrorList },
@@ -773,7 +769,10 @@ module internal Helper =
         inherit TextWriter()
         override __.Flush() = ()
         override __.Write(c: char) = f (string c)
-        override __.Write(c: string) = if isNull c |> not then f c
+
+        override __.Write(c: string) =
+            if isNull c |> not then
+                f c
 
         override __.WriteLine(c: string) =
             f <| sprintf "%s%s" c Environment.NewLine
@@ -782,7 +781,9 @@ module internal Helper =
 
         override __.Dispose(r) =
             base.Dispose r
-            if r then f null
+
+            if r then
+                f null
 
         override __.Encoding = Encoding.UTF8
         static member Create f = new ForwardTextWriter(f) :> TextWriter
@@ -803,7 +804,9 @@ module internal Helper =
 
         override __.Dispose(r) =
             base.Dispose r
-            if r then doAll (fun t -> t.Dispose())
+
+            if r then
+                doAll (fun t -> t.Dispose())
 
         override __.Encoding = Encoding.UTF8
         static member Create l = new CombineTextWriter(l) :> TextWriter

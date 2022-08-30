@@ -29,12 +29,7 @@ let getLinkAndTitle (StringPosition.TrimBoth (input, _n)) =
             if c = '\'' || c = '"' then
                 let start = input.IndexOf(c)
 
-                input.Substring(0, start).Trim(),
-                Some(
-                    input
-                        .Substring(start + 1, input.Length - 2 - start)
-                        .Trim()
-                )
+                input.Substring(0, start).Trim(), Some(input.Substring(start + 1, input.Length - 2 - start).Trim())
             else
                 input, None
 
@@ -44,23 +39,8 @@ let getLinkAndTitle (StringPosition.TrimBoth (input, _n)) =
 /// character - in that case, returns the character and the tail of the list
 let (|EscapedChar|_|) input =
     match input with
-    | '\\' :: (('*'
-    | '\\'
-    | '`'
-    | '_'
-    | '{'
-    | '}'
-    | '['
-    | ']'
-    | '('
-    | ')'
-    | '>'
-    | '#'
-    | '.'
-    | '!'
-    | '+'
-    | '-'
-    | '$') as c) :: rest -> Some(c, rest)
+    | '\\' :: (('*' | '\\' | '`' | '_' | '{' | '}' | '[' | ']' | '(' | ')' | '>' | '#' | '.' | '!' | '+' | '-' | '$') as c) :: rest ->
+        Some(c, rest)
     | _ -> None
 
 /// Escape dollar inside a LaTex inline math span.
@@ -110,8 +90,7 @@ module Char =
 /// Succeeds when the specificed character list starts with a delimeter run.
 let (|DelimiterRun|_|) input =
     match input with
-    | ('*'
-    | '_') :: _tail as (h :: t) ->
+    | ('*' | '_') :: _tail as (h :: t) ->
         let run, rest = List.partitionWhile (fun x -> x = h) (h :: t)
         Some(run, rest)
     | _ -> None
@@ -270,9 +249,7 @@ let (|IndirectLink|_|) =
         Some(body, link, "\r\n[" + link + "]", rest)
     | List.BracketDelimited '['
                             ']'
-                            (body,
-                             ((' '
-                             | '\n') as c) :: (List.BracketDelimited '[' ']' (List.AsString link, rest))) ->
+                            (body, ((' ' | '\n') as c) :: (List.BracketDelimited '[' ']' (List.AsString link, rest))) ->
         Some(body, link, c.ToString() + "[" + link + "]", rest)
     | List.BracketDelimited '[' ']' (body, List.BracketDelimited '[' ']' (List.AsString link, rest)) ->
         Some(body, link, "[" + link + "]", rest)
@@ -345,6 +322,7 @@ type ParsingContext =
       IsFirst: bool
       CurrentRange: MarkdownRange option
       ParseOptions: MarkdownParseOptions }
+
     member x.ParseCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseCodeAsOther) <> enum 0
 
     member x.ParseNonCodeAsOther = (x.ParseOptions &&& MarkdownParseOptions.ParseNonCodeAsOther) <> enum 0
@@ -380,8 +358,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
         match input with
         // Recognizes explicit line-break at the end of line
         | ' ' :: ' ' :: '\r' :: '\n' :: rest
-        | ' ' :: ' ' :: ('\n'
-        | '\r') :: rest ->
+        | ' ' :: ' ' :: ('\n' | '\r') :: rest ->
             let (value, ctx) = accLiterals.Value
             yield! value
             yield HardLineBreak(ctx.CurrentRange)
@@ -616,12 +593,7 @@ let (|HorizontalRule|_|) (line: string, _n: MarkdownRange) =
 let (|NestedCodeBlock|_|) lines =
     match lines with
     | Lines.TakeCodeBlock (_numspaces, (Lines.TrimBlank lines as takenLines), rest) when lines <> [] ->
-        let code =
-            [ for (l, _n) in lines ->
-                  if String.IsNullOrEmpty l then
-                      ""
-                  else
-                      trimSpaces 4 l ]
+        let code = [ for (l, _n) in lines -> if String.IsNullOrEmpty l then "" else trimSpaces 4 l ]
 
         Some(code @ [ "" ], takenLines, rest, None, "", "")
     | _ -> None
@@ -743,10 +715,7 @@ let (|ListStart|_|) =
             + 2
             +
             // Handle case of code block
-            if startIndent2 >= 5 then
-                1
-            else
-                startIndent2
+            if startIndent2 >= 5 then 1 else startIndent2
 
         Some(Unordered, startIndent, endIndent, li)
     | StringPosition.TrimStartAndCount (startIndent,
@@ -760,10 +729,7 @@ let (|ListStart|_|) =
             + skipNumCount
             +
             // Handle case of code block
-            if startIndent2 >= 5 then
-                1
-            else
-                startIndent2
+            if startIndent2 >= 5 then 1 else startIndent2
 
         Some(Ordered, startIndent, endIndent, (item, MarkdownRange.zero))
     | _ -> None
@@ -780,8 +746,7 @@ let (|LinesUntilListOrWhite|) lines =
 let (|LinesUntilListOrUnindented|) lines =
     lines
     |> List.partitionUntilLookahead (function
-        | (ListStart _
-        | StringPosition.Unindented) :: _
+        | (ListStart _ | StringPosition.Unindented) :: _
         | StringPosition.WhiteSpace :: StringPosition.WhiteSpace :: _ -> true
         | _ -> false)
 
@@ -983,10 +948,7 @@ let (|EmacsTableLine|_|)
 
                 line.Substring(p.[i - 1] + 1, p.[i] - p.[i - 1] - 1), rng)
 
-        if List.forall check parts then
-            Some(p, parts)
-        else
-            None
+        if List.forall check parts then Some(p, parts) else None
 
 /// Recognizes emacs table
 let (|EmacsTableBlock|_|) (lines) =
@@ -1076,7 +1038,7 @@ let (|TakeParagraphLines|_|) input =
             | StringPosition.WhiteSpace :: _ -> false
             | _ -> true)
             input
-        with
+    with
     | matching, rest when matching <> [] -> Some(matching, rest)
     | _ -> None
 
@@ -1172,10 +1134,16 @@ let (|LatexBlock|_|) (lines: (string * MarkdownRange) list) =
 /// Recognize a definition of a link as in `[key]: http://url ...`
 let (|LinkDefinition|_|) s =
     match s with
-    | ((StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link)
-    | StringPosition.StartsWithWrapped (" [", "]:") (wrapped, StringPosition.TrimBoth link)
-    | StringPosition.StartsWithWrapped ("  [", "]:") (wrapped, StringPosition.TrimBoth link)
-    | StringPosition.StartsWithWrapped ("   [", "]:") (wrapped, StringPosition.TrimBoth link)) as line) :: rest ->
+    | ((StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped (" [",
+                                                                                                                                 "]:")
+                                                                                                                                (wrapped,
+                                                                                                                                 StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped ("  [",
+                                                                                                                                                                                                   "]:")
+                                                                                                                                                                                                  (wrapped,
+                                                                                                                                                                                                   StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped ("   [",
+                                                                                                                                                                                                                                                                     "]:")
+                                                                                                                                                                                                                                                                    (wrapped,
+                                                                                                                                                                                                                                                                     StringPosition.TrimBoth link)) as line) :: rest ->
         Some((wrapped, link), [ line ], rest)
     | _ -> None
 
