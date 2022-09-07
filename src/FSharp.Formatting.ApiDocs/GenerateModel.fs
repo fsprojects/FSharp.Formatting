@@ -1226,7 +1226,7 @@ module internal TypeFormatter =
         argName, argType
 
     // Format each argument, including its name and type
-    let formatArgUsageAsHtml _ctx i (arg: FSharpParameter) =
+    let formatArgUsageAsHtml i (arg: FSharpParameter) =
         let argName, _argType = formatArgNameAndType i arg
         !!argName
 
@@ -1410,32 +1410,24 @@ module internal SymbolReader =
             | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
                 match argInfos with
                 // binary operators (taking a tuple)
-                | [ [ x; y ] ] ->
-                    let left = formatCurriedArgsUsageAsHtml true false [ [ x ] ]
-
-                    let nm = PrettyNaming.DecompileOpName v.CompiledName
-
-                    let right = formatCurriedArgsUsageAsHtml true false [ [ y ] ]
-
-                    span [] [ left; !! "&#32;"; !!nm; !! "&#32;"; right ]
-
+                | [ [ x; y ] ]
                 // binary operators (curried, like in FSharp.Core.Operators)
-                | [ args1; args2 ] ->
-                    let left = formatCurriedArgsUsageAsHtml true false [ args1 ]
+                | [ [ x ]; [ y ] ] ->
+                    let left = formatArgUsageAsHtml 0 x
 
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatCurriedArgsUsageAsHtml true false [ args2 ]
+                    let right = formatArgUsageAsHtml 1 y
 
-                    span [] [ left; !! "&#32;"; !!nm; !! "&#32;"; right ]
+                    span [] [ left; !! "&#32;"; encode nm; !! "&#32;"; right ]
 
                 // unary operators
                 | [ [ x ] ] ->
                     let nm = PrettyNaming.DecompileOpName v.CompiledName
 
-                    let right = formatCurriedArgsUsageAsHtml true false [ [ x ] ]
+                    let right = formatArgUsageAsHtml 0 x
 
-                    span [] [ !!nm; right ]
+                    span [] [ encode nm; right ]
                 | _ ->
                     span
                         []
