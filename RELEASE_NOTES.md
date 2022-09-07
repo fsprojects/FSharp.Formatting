@@ -1,3 +1,7 @@
+## 16.1.1
+
+* [Fix arguments naming and escape operator name in usageHtml](https://github.com/fsprojects/FSharp.Formatting/pull/765/)
+
 ## 16.1.0
 
 * Update to .NET 6.0.400
