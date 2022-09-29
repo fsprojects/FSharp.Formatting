@@ -1,3 +1,7 @@
+## 16.2.0
+
+* Resolve markdown links in raw html [#769](https://github.com/fsprojects/FSharp.Formatting/issues/769)
+
 ## 16.1.1
 
 * [Fix arguments naming and escape operator name in usageHtml](https://github.com/fsprojects/FSharp.Formatting/pull/765/)
