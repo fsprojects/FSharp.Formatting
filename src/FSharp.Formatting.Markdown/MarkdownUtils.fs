@@ -5,6 +5,8 @@
 namespace rec FSharp.Formatting.Markdown
 
 open System.Collections.Generic
+open System.Linq
+open System.Xml.Linq
 open FSharp.Formatting.Templating
 
 module internal MarkdownUtils =
@@ -315,7 +317,36 @@ module internal MarkdownUtils =
                 )
             | OtherBlock (lines: (string * MarkdownRange) list, range) ->
                 OtherBlock(lines |> List.map (fun (line, range) -> (mapText f line, range)), range)
-            | InlineHtmlBlock (code, count, range) -> InlineHtmlBlock(mapText f code, count, range)
+            | InlineHtmlBlock (code, count, range) ->
+                try
+                    let fText, _, fLink = f
+
+                    if code.StartsWith("<pre") || code.StartsWith("<table class=\"pre\"") then
+                        // Skip check for non-user html
+                        // Should be even run that code through `fText`?
+                        InlineHtmlBlock(code, count, range)
+                    else
+                        let tempRoot = "fsdocs-secret-temp-root"
+                        // We can't be sure code is a single html element, we could get multiple elements.
+                        let element = XElement.Parse($"<{tempRoot}>{code}</{tempRoot}>")
+                        // ends-with is XPath 2.0 only, https://stackoverflow.com/questions/1525299/xpath-and-xslt-2-0-for-net
+                        let attributes =
+                            match System.Xml.XPath.Extensions.XPathEvaluate(element, "//*/@*[contains(., '.md')]") with
+                            | :? System.Collections.IEnumerable as enumerable ->
+                                enumerable |> Enumerable.Cast<XAttribute> |> Seq.toArray
+                            | _ -> Array.empty
+
+                        if Array.isEmpty attributes then
+                            InlineHtmlBlock(fText code, count, range)
+                        else
+                            for attribute in attributes do
+                                if attribute.Value.EndsWith(".md") then
+                                    attribute.SetValue(fLink attribute.Value)
+
+                            let html = element.Elements() |> Seq.map string |> String.concat "" |> fText
+                            InlineHtmlBlock(html, count, range)
+                with ex ->
+                    InlineHtmlBlock(mapText f code, count, range)
 
             // NOTE: substitutions are not currently applied to embedded LiterateParagraph which are in any case eliminated
             // before substitutions are applied.
