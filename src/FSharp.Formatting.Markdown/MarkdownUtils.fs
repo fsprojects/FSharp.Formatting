@@ -324,7 +324,7 @@ module internal MarkdownUtils =
                     if code.StartsWith("<pre") || code.StartsWith("<table class=\"pre\"") then
                         // Skip check for non-user html
                         // Should be even run that code through `fText`?
-                        InlineHtmlBlock(code, count, range)
+                        InlineHtmlBlock(fText code, count, range)
                     else
                         let tempRoot = "fsdocs-secret-temp-root"
                         // We can't be sure code is a single html element, we could get multiple elements.
