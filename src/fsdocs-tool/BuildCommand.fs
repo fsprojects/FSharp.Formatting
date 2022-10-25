@@ -95,8 +95,7 @@ type internal DocContent
         |> Array.distinct
 
     let sourceFileOrFolderIsSkipped (input: string) =
-        input.StartsWith "." ||
-        input = "node_modules"
+        input.StartsWith "." || input = "node_modules"
 
     let makeMarkdownLinkResolver
         (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap: Map<(string * OutputKind), string>, outputKind)
