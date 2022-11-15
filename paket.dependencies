@@ -5,13 +5,13 @@ framework: auto-detect
 storage: none
 
 nuget FSharp.Core >= 4.7 lowest_matching:true
-nuget FSharp.Compiler.Service 42.7.100
+nuget FSharp.Compiler.Service 42.7.101
 nuget CommandLineParser ~> 2.8
 nuget Microsoft.Build.Framework
 nuget Microsoft.Build.Tasks.Core
 nuget Microsoft.Build.Utilities.Core
-nuget Ionide.ProjInfo
-nuget Ionide.ProjInfo.Sln
+nuget Ionide.ProjInfo 0.61.0
+nuget Ionide.ProjInfo.Sln 0.61.0
 nuget Newtonsoft.Json
 nuget Suave
 nuget System.Memory
