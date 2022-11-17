@@ -75,7 +75,7 @@ let tests _ =
         { opts with
             Blame = true
             NoBuild = true
-            Framework = Some "net6.0"
+            Framework = Some "net7.0"
             Configuration = configuration
             ResultsDirectory = Some "TestResults"
             Logger = Some "trx" })
