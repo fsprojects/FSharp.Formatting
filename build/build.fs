@@ -1,13 +1,3 @@
-// This is a FAKE 5.0 script, run using
-//    dotnet fake build
-
-#r "paket: groupref fake //"
-
-#if !FAKE
-#load ".fake/build.fsx/intellisense.fsx"
-#r "netstandard"
-#endif
-
 open System
 open System.Xml.Linq
 open Fake.Core
@@ -16,23 +6,21 @@ open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
 open Fake.DotNet
 open Fake.IO
-open Fake.Tools
 
-Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+let root = Path.combine __SOURCE_DIRECTORY__ ".."
+Environment.CurrentDirectory <- root
 
 // Information about the project to be used at NuGet and in AssemblyInfo files
 let project = "FSharp.Formatting"
 
-let summary =
-    "A package of libraries for building great F# documentation, samples and blogs"
+let summary = "A package of libraries for building great F# documentation, samples and blogs"
 
 let license = "Apache 2.0 License"
 
-let configuration =
-    DotNet.BuildConfiguration.fromEnvironVarOrDefault "configuration" DotNet.BuildConfiguration.Release
+let configuration = DotNet.BuildConfiguration.fromEnvironVarOrDefault "configuration" DotNet.BuildConfiguration.Release
 
 // Folder to deposit deploy artifacts
-let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
+let artifactsDir = root @@ "artifacts"
 
 // Read release notes document
 let release = ReleaseNotes.load "RELEASE_NOTES.md"
@@ -41,8 +29,7 @@ let projectRepo = "https://github.com/fsprojects/FSharp.Formatting"
 
 // --------------------------------------------------------------------------------------
 // Generate assembly info files with the right version & up-to-date information
-
-Target.create "AssemblyInfo" (fun _ ->
+let assemblyInfo _ =
     let info =
         [ AssemblyInfo.Product project
           AssemblyInfo.Description summary
@@ -64,51 +51,48 @@ Target.create "AssemblyInfo" (fun _ ->
             )
         )
 
-    versionProps.Save("version.props"))
+    versionProps.Save("version.props")
 
 // Clean build results
 // --------------------------------------------------------------------------------------
-
-Target.create "Clean" (fun _ ->
+let clean _ =
     !!artifactsDir ++ "temp" |> Shell.cleanDirs
     // in case the above pattern is empty as it only matches existing stuff
-    [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure)
+    [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure
 
 // Build library
 // --------------------------------------------------------------------------------------
 
 let solutionFile = "FSharp.Formatting.sln"
 
-Target.create "Build" (fun _ ->
+let build _ =
     solutionFile
-    |> DotNet.build (fun opts -> { opts with Configuration = configuration }))
+    |> DotNet.build (fun opts -> { opts with Configuration = configuration })
 
-Target.create "Tests" (fun _ ->
+let tests _ =
     solutionFile
     |> DotNet.test (fun opts ->
         { opts with
             Blame = true
             NoBuild = true
-            Framework = Some "net6.0"
+            Framework = Some "net7.0"
             Configuration = configuration
             ResultsDirectory = Some "TestResults"
-            Logger = Some "trx" }))
+            Logger = Some "trx" })
 
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
-
-Target.create "NuGet" (fun _ ->
+let nuget _ =
     DotNet.pack
         (fun pack ->
             { pack with
                 OutputPath = Some artifactsDir
                 Configuration = configuration })
-        solutionFile)
+        solutionFile
 
 // Generate the documentation by dogfooding the tools pacakge
 // --------------------------------------------------------------------------------------
-
-Target.create "GenerateDocs" (fun _ ->
+let generateDocs _ =
     Shell.cleanDir ".fsdocs"
     Shell.cleanDir ".packages"
     // Τhe tool has been uninstalled when the
@@ -133,17 +117,40 @@ Target.create "GenerateDocs" (fun _ ->
     |> ignore
     // DotNet.exec id "fsdocs" "build --strict --clean --properties Configuration=Release" |> ignore
     // DotNet.exec id "tool" "uninstall --local fsdocs-tool" |> ignore
-    Shell.cleanDir ".packages")
+    Shell.cleanDir ".packages"
 
-Target.create "All" ignore
+let initTargets () =
+    Target.create "AssemblyInfo" assemblyInfo
+    Target.create "Clean" clean
+    Target.create "Build" build
+    Target.create "Tests" tests
+    Target.create "NuGet" nuget
+    Target.create "GenerateDocs" generateDocs
+    Target.create "All" ignore
 
-// clean and recreate assembly inform on release
-"Clean"
-==> "AssemblyInfo"
-==> "Build"
-==> "NuGet"
-==> "Tests"
-==> "GenerateDocs"
-==> "All"
+    // clean and recreate assembly inform on release
+    "Clean"
+    ==> "AssemblyInfo"
+    ==> "Build"
+    ==> "NuGet"
+    ==> "Tests"
+    ==> "GenerateDocs"
+    ==> "All"
+    |> ignore
 
-Target.runOrDefault "All"
+//-----------------------------------------------------------------------------
+// Target Start
+//-----------------------------------------------------------------------------
+[<EntryPoint>]
+let main argv =
+    argv
+    |> Array.toList
+    |> Context.FakeExecutionContext.Create false "build.fsx"
+    |> Context.RuntimeContext.Fake
+    |> Context.setExecutionContext
+
+    initTargets ()
+
+    Target.runOrDefaultWithArguments "All"
+
+    0 // return an integer exit code
