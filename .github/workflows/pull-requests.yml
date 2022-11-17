@@ -22,7 +22,7 @@ jobs:
       run: dotnet tool restore
     - name: Restore packages
       run: dotnet paket restore
-    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build.fsx --recurse' to repair)
-      run: dotnet fantomas src tests docs build.fsx -r --check
+    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build --recurse' to repair)
+      run: dotnet fantomas src tests docs build -r --check
     - name: Build and test
-      run: dotnet fake run build.fsx
+      run: dotnet run --project ./build/build.fsproj

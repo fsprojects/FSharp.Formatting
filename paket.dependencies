@@ -34,7 +34,7 @@ nuget Microsoft.NET.Test.Sdk
 group Fake
     source https://api.nuget.org/v3/index.json
     storage: none
-    framework: net6.0
+    framework: net7.0
 
     nuget FSharp.Core
     nuget Fake.Core.Target             
@@ -45,4 +45,4 @@ group Fake
     nuget Fake.DotNet.NuGet            
     nuget Fake.DotNet.MsBuild          
     nuget Fake.Tools.Git               
-	nuget Fake.DotNet.Paket            
+    nuget Fake.DotNet.Paket            
