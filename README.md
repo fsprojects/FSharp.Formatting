@@ -24,4 +24,5 @@ Once built, you can run the command-line tool to self-build the docs for this di
 
 - [@dsyme](https://github.com/dsyme)
 - [@baronfel](https://github.com/baronfel)
+- [@nhirschey](https://github.com/nhirschey)
 - [@nojaf](https://github.com/nojaf)
