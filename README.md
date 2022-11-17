@@ -23,4 +23,5 @@ Once built, you can run the command-line tool to self-build the docs for this di
 ## Maintainer(s)
 
 - [@dsyme](https://github.com/dsyme)
-- [@eiriktsarpalis](https://github.com/eiriktsarpalis)
+- [@baronfel](https://github.com/baronfel)
+- [@nojaf](https://github.com/nojaf)
