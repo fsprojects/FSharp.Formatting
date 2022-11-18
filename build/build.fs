@@ -103,9 +103,9 @@ let generateDocs _ =
         ("install --no-cache --version "
          + release.NugetVersion
          + " --add-source "
-         + artifactsDir
+         + "\"" + artifactsDir + "\"" 
          + " --tool-path "
-         + artifactsDir
+         + "\"" + artifactsDir + "\""
          + " fsdocs-tool")
     |> ignore
 
