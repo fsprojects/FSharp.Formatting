@@ -1877,9 +1877,10 @@ module internal SymbolReader =
 
                     html.Append("</code>") |> ignore
                 | "code" ->
-                    let code = 
-                        let code = Literate.ParseMarkdownString ("```\n" + elem.Value + "\n```")
+                    let code =
+                        let code = Literate.ParseMarkdownString("```\n" + elem.Value + "\n```")
                         Literate.ToHtml(code, lineNumbers = false)
+
                     html.Append(code) |> ignore
                 // 'a' is not part of the XML doc standard but is widely used
                 | "a" -> html.Append(elem.ToString()) |> ignore
