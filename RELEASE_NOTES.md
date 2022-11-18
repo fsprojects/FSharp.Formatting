@@ -1,3 +1,6 @@
+## 17.1.0
+* [Add syntax highlighting to API docs](https://github.com/fsprojects/FSharp.Formatting/pull/780)
+
 ## 17.0.0
 
 * Update to .NET 7.0.100
