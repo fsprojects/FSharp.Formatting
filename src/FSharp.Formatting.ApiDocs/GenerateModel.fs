@@ -1878,7 +1878,7 @@ module internal SymbolReader =
                     html.Append("</code>") |> ignore
                 | "code" ->
                     let code =
-                        let code = Literate.ParseMarkdownString("```\n" + elem.Value + "\n```")
+                        let code = Literate.ParseMarkdownString("```\n" + elem.Value.TrimEnd('\r', '\n', ' ') + "\n```")
                         Literate.ToHtml(code, lineNumbers = false)
 
                     html.Append(code) |> ignore
