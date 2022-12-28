@@ -981,3 +981,61 @@ let ``Do not close emphasis if second * is preceded by punctuation and followed 
     let doc2 = "*(*foo*)*"
     let actual2 = "<p><em>(<em>foo</em>)</em></p>\r\n" |> properNewLines
     Markdown.ToHtml doc2 |> shouldEqual actual2
+
+[<Test>]
+let ``Replace relative markdown file in anchor href attribute`` () =
+    let doc = "<a href=\"./other-file.md\" target=\"_blank\">my link</a>"
+    let mdlinkResolver _ = Some "./other-file.html"
+
+    let actual =
+        "<a href=\"./other-file.html\" target=\"_blank\">my link</a>\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Replace relative markdown file in multiple anchors`` () =
+    let doc = "<a href=\"./other-file.md\">link one</a><a href=\"./other-file.md\">link two</a>"
+    let mdlinkResolver _ = Some "./other-file.html"
+
+    let actual =
+        "<a href=\"./other-file.html\">link one</a><a href=\"./other-file.html\">link two</a>\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Replace relative markdown file in multiple attributes`` () =
+    let doc = "<a b=\"./other-file.md\" c=\"./other-file.md\">d</a>"
+    let mdlinkResolver _ = Some "./other-file.html"
+    let actual = "<a b=\"./other-file.html\" c=\"./other-file.html\">d</a>\r\n" |> properNewLines
+    Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Replace relative markdown file in custom attribute`` () =
+    let doc = "<x-web-component data-attribute=\"./other-file.md\"></x-web-component>"
+    let mdlinkResolver _ = Some "./other-file.html"
+
+    let actual =
+        "<x-web-component data-attribute=\"./other-file.html\"></x-web-component>\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Don't replace links in generated code block`` () =
+    let doc = "<pre link=\"valid link though.md\">content</pre>"
+    let mdlinkResolver _ = failwith "should not be reached!"
+    let actual = "<pre link=\"valid link though.md\">content</pre>\r\n" |> properNewLines
+    Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
+
+[<Test>]
+let ``Don't replace links in generated code block in table`` () =
+    let doc = "<table class=\"pre\" link=\"valid link though.md\">content</table>"
+    let mdlinkResolver _ = failwith "should not be reached!"
+
+    let actual =
+        "<table class=\"pre\" link=\"valid link though.md\">content</table>\r\n"
+        |> properNewLines
+
+    Markdown.ToHtml(doc, mdlinkResolver = mdlinkResolver) |> shouldEqual actual
