@@ -1228,7 +1228,7 @@ type CoreBuildOptions(watch) =
             let projects = Seq.toList this.projects
             let cacheFile = ".fsdocs/cache"
 
-            let getTime p =
+            let getTime (p: string) =
                 try
                     File.GetLastWriteTimeUtc(p)
                 with _ ->

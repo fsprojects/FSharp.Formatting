@@ -15,14 +15,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
     - name: Restore .NET local tools
       run: dotnet tool restore
     - name: Restore packages
       run: dotnet paket restore
-    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build.fsx --recurse' to repair)
-      run: dotnet fantomas src tests docs build.fsx -r --check
+    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build --recurse' to repair)
+      run: dotnet fantomas src tests docs build -r --check
     - name: Build and test
-      run: dotnet fake run build.fsx
+      run: dotnet run --project ./build/build.fsproj

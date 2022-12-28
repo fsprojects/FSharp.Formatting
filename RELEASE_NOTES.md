@@ -1,6 +1,14 @@
-## 16.2.0
+## 17.2.0
 
 * Resolve markdown links in raw html [#769](https://github.com/fsprojects/FSharp.Formatting/issues/769)
+
+## 17.1.0
+
+* [Add syntax highlighting to API docs](https://github.com/fsprojects/FSharp.Formatting/pull/780)
+
+## 17.0.0
+
+* Update to .NET 7.0.100
 
 ## 16.1.1
 

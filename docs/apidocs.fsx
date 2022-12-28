@@ -169,7 +169,7 @@ type GenericClass2<'T>() =
 /// and <see cref="M:TheNamespace.GenericClass2`1.GenericMethod``1(`0,``0)" />
 let referringFunction2 () = "result"
 
-(*
+(**
 
 ## Go to Source links
 

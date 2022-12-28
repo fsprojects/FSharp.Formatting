@@ -1380,7 +1380,7 @@ module internal SymbolReader =
             customOpName.IsSome
             || isItemIndexer
             || not v.IsMember
-            || PrettyNaming.IsMangledOpName v.CompiledName
+            || PrettyNaming.IsLogicalOpName v.CompiledName
             || Char.IsLower(v.DisplayName.[0])
 
         let fullArgUsage =
@@ -1407,7 +1407,7 @@ module internal SymbolReader =
                           fullArgUsage ]
 
             // op_XYZ operators
-            | _, false, _, name, _ when PrettyNaming.IsMangledOpName v.CompiledName ->
+            | _, false, _, name, _ when PrettyNaming.IsLogicalOpName v.CompiledName ->
                 match argInfos with
                 // binary operators (taking a tuple)
                 | [ [ x; y ] ]
@@ -1415,7 +1415,7 @@ module internal SymbolReader =
                 | [ [ x ]; [ y ] ] ->
                     let left = formatArgUsageAsHtml 0 x
 
-                    let nm = PrettyNaming.DecompileOpName v.CompiledName
+                    let nm = PrettyNaming.ConvertValLogicalNameToDisplayNameCore v.CompiledName
 
                     let right = formatArgUsageAsHtml 1 y
 
@@ -1423,7 +1423,7 @@ module internal SymbolReader =
 
                 // unary operators
                 | [ [ x ] ] ->
-                    let nm = PrettyNaming.DecompileOpName v.CompiledName
+                    let nm = PrettyNaming.ConvertValLogicalNameToDisplayNameCore v.CompiledName
 
                     let right = formatArgUsageAsHtml 0 x
 
@@ -1877,22 +1877,11 @@ module internal SymbolReader =
 
                     html.Append("</code>") |> ignore
                 | "code" ->
-                    let lang =
-                        match elem.Attributes("lang") |> Seq.isEmpty with
-                        | true -> ""
-                        | false ->
-                            let lang = elem.Attribute("lang").Value
-                            $"{lang} language-{lang}"
+                    let code =
+                        let code = Literate.ParseMarkdownString("```\n" + elem.Value.TrimEnd('\r', '\n', ' ') + "\n```")
+                        Literate.ToHtml(code, lineNumbers = false)
 
-                    html.Append("<pre>") |> ignore
-                    html.Append($"<code class=\"{lang}\">") |> ignore
-
-                    let code = elem.Value.TrimEnd('\r', '\n', ' ')
-                    let codeAsHtml = HttpUtility.HtmlEncode code
-                    html.Append(codeAsHtml) |> ignore
-
-                    html.Append("</code>") |> ignore
-                    html.Append("</pre>") |> ignore
+                    html.Append(code) |> ignore
                 // 'a' is not part of the XML doc standard but is widely used
                 | "a" -> html.Append(elem.ToString()) |> ignore
                 // This allows any HTML to be transferred through

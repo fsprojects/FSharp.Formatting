@@ -1080,6 +1080,11 @@ let ``ApiDocs test examples`` () =
     let content = files.[testFile]
     content.Contains "has-id" |> shouldEqual true
 
+    // Check that the favicon href points to the root.
+    let testFile = $"fslib.{OutputFormat.Html.Extension}"
+    files.ContainsKey testFile |> shouldEqual true
+    let content = files[testFile]
+    content.Contains "href=\"/root/img/favicon.ico\"" |> shouldEqual true
 
 // -------------------Indirect links----------------------------------
 [<Test>]
