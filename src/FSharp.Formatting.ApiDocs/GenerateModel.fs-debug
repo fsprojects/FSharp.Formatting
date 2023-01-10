@@ -1896,6 +1896,7 @@ module internal SymbolReader =
         (doc: XElement)
         (cmds: IDictionary<_, _>)
         =
+        printfn "readXmlCommentAsHtmlAux %A" doc
         let rawData = new Dictionary<string, string>()
         // not part of the XML doc standard
         let nsels =
@@ -1931,10 +1932,13 @@ module internal SymbolReader =
                   let paramHtml = ApiDocHtml(phtml.ToString(), None)
                   paramName, paramHtml ]
 
+        printfn "Checking for exlucde & omit: "
         for e in doc.Elements(XName.Get "exclude") do
+            printfn "Found 'exclude': %A" e.Value
             cmds.["exclude"] <- e.Value
 
         for e in doc.Elements(XName.Get "omit") do
+            printfn "Found 'omit': %A" e.Value
             cmds.["omit"] <- e.Value
 
         for e in doc.Elements(XName.Get "category") do
@@ -2258,6 +2262,7 @@ module internal SymbolReader =
 
             cmds, ApiDocComment.Empty, None
         | Some el ->
+            printfn "readCommentAndCommands: element='%A'\nvalue='%A'  markdown=%A\n" el (el.Value) (ctx.MarkdownComments)
             let sum = el.Element(XName.Get "summary")
 
             match sum with
@@ -2284,12 +2289,14 @@ module internal SymbolReader =
                 // XML in raw F# source.
                 //
                 // 9-Jan-23: See comment above for at least one reason why we pass through here now
-
+                printfn "* sum = null '%A' nullOrEmpty=%A" sum (String.IsNullOrEmpty el.Value)
                 let doc, nsels = readXmlCommentAsHtmlAux false ctx.UrlMap el cmds
 
                 let nsdocs = readNamespaceDocs ctx.UrlMap nsels
                 cmds, doc, nsdocs
+
             | sum ->
+                printfn "* sum = %A (value=%s) node=%s" sum (sum.Value) (sum.FirstNode.ToString())
                 if ctx.MarkdownComments then
                     readMarkdownCommentAndCommands ctx sum.Value el cmds
                 else
@@ -2301,12 +2308,16 @@ module internal SymbolReader =
 
                     readXmlCommentAndCommands ctx sum.Value el cmds
 
+
     /// Reads XML documentation comments and calls the specified function
     /// to parse the rest of the entity, unless [omit] command is set.
     /// The function is called with category name, commands & comment.
     let readCommentsInto (sym: FSharpSymbol) ctx xmlDocSig f =
+        printfn "\n-- %A --------------------------------------------------------- " sym
+
         let cmds, comment, nsdocs = readCommentAndCommands ctx xmlDocSig sym.DeclarationLocation
 
+        printfn "readCommentsInto %A %s" cmds xmlDocSig
         match cmds with
         | Command "category" cat
         | Let "" (cat, _) ->
@@ -2536,6 +2547,8 @@ module internal SymbolReader =
 
         let xmlDocSig = getXmlDocSigForType typ
 
+        printfn "readType %A " typ.DisplayName
+
         readCommentsInto typ ctx xmlDocSig (fun cat catidx exclude _cmds comment ->
             let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity typ
 
@@ -2648,7 +2661,17 @@ module internal SymbolReader =
             ))
 
     and readModule (ctx: ReadingContext) (modul: FSharpEntity) =
-        readCommentsInto modul ctx modul.XmlDocSig (fun cat catidx exclude _cmd comment ->
+        printfn "readModule %A : %A" modul.DisplayName modul.XmlDocSig
+
+        match ctx.XmlMemberLookup(modul.XmlDocSig) with
+        | None -> ()
+        | Some el ->
+            printfn "doc for module %A : %A" modul.DisplayName el
+            ()
+
+        let _result = readCommentsInto modul ctx modul.XmlDocSig (fun cat catidx exclude _cmd comment ->
+
+            printfn " > readModule %A exclude=%A" modul.DisplayName exclude
 
             // Properties & value bindings in the module
             let entityUrl = ctx.UrlMap.ResolveUrlBaseNameForEntity modul
@@ -2713,8 +2736,12 @@ module internal SymbolReader =
                 ctx.Substitutions
             ))
 
+        printfn "module result: %A %A" modul.DisplayName _result
+        _result
+
     and readEntities ctx (entities: seq<_>) =
         let modifiers, nsdocs1 = readChildren ctx entities readModule (fun x -> x.IsFSharpModule)
+        printfn "readEntities"
 
         let typs, nsdocs2 = readChildren ctx entities readType (fun x -> not x.IsFSharpModule)
 

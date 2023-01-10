@@ -447,7 +447,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             printfn "  Generating %s" outFile
             SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
 
-        for info in model.EntityInfos do
+        for info in model.EntityInfos |> List.filter (fun info -> not info.Entity.Exclude) do
             let content = MarkdownDocument(entityContent info, Map.empty)
 
             let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
