@@ -164,10 +164,17 @@ let ``ApiDocs excludes items`` (format: OutputFormat) =
 
     // We can only expect a warning for "wishItWasExcluded1" & "WishItWasExcluded2"
 
-    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented1.%s" format.Extension) |> shouldEqual false
-    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented2.%s" format.Extension) |> shouldEqual false
-    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented3.%s" format.Extension) |> shouldEqual false
-    files.ContainsKey(sprintf "fslib-undocumentedmodule.%s" format.Extension) |> shouldEqual false
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented1.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented2.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented3.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-undocumentedmodule.%s" format.Extension)
+    |> shouldEqual false
 
 [<Test>]
 [<TestCaseSource("formats")>]

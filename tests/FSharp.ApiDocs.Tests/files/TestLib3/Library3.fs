@@ -4,43 +4,43 @@ module PartiallyDocumented =
 
     /// Should be omitted (but will generated a warning)
     /// [omit]
-    let shouldBeOmitted() = ()
+    let shouldBeOmitted () = ()
 
     /// <exclude/>
     /// <summary>
     /// Should be excluded
     /// </summary>
-    let shouldBeExcluded1() = ()
+    let shouldBeExcluded1 () = ()
 
     /// <summary>
     /// Should be excluded
     /// </summary>
     /// <exclude/>
-    let shouldBeExcluded2() = ()
+    let shouldBeExcluded2 () = ()
 
     // Should be excluded
     /// <exclude/>
-    let shouldBeExcluded3() = ()
+    let shouldBeExcluded3 () = ()
 
     /// <exclude/>
     // Should be excluded
-    let shouldBeExcluded4() = ()
+    let shouldBeExcluded4 () = ()
 
     /// <exclude/>
-    let shouldBeExcluded5() = ()
+    let shouldBeExcluded5 () = ()
 
     /// <exclude/>
     /// This triple-'/' comment auto-creates a summary element with the exclude tag escaped into its text
-    let shouldBeExcluded6() = ()
+    let shouldBeExcluded6 () = ()
 
     /// This triple-'/' comment auto-creates a summary element with the exclude tag escaped into its text
     /// <exclude/>
-    let shouldBeExcluded7() = ()
+    let shouldBeExcluded7 () = ()
 
     /// <summary>
     /// Returns unit
     /// </summary>
-    let returnUnit() = ()
+    let returnUnit () = ()
 
     /// <summary>
     /// Should be excluded
@@ -59,4 +59,3 @@ module PartiallyDocumented =
         let a = 10
 
     let x = 10
-

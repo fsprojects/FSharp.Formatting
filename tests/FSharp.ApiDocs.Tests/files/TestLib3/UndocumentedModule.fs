@@ -1,3 +1,3 @@
 ﻿module private FsLib.UndocumentedModule
 
-let pi() = 3.141
+let pi () = 3.141
