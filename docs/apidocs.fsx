@@ -85,7 +85,7 @@ In addition, you may also use the [Recommended XML doc extensions for F# documen
 
 * `<namespacedoc>` giving documentation for the enclosing namespace
 
-* `<exclude>` to exclude from XML docs
+* `<exclude/>` to exclude from XML docs
 
 * `<category>` to give a category for an entity or member. An optional `index` attribute can be specified
   to help sort the list of categories.
@@ -180,26 +180,26 @@ The `<exclude/>` tag can be the first or last line in these cases.
 Some examples:
 *)
 
-/// </exclude>
+/// <exclude/>
 module BottleKids1 =
     let a = 42
 
 // Ordinary comment
-/// </exclude>
+/// <exclude/>
 module BottleKids2 =
     let a = 43
 
-/// </exclude>
+/// <exclude/>
 /// BottleKids3 provides improvements over BottleKids2
 module BottleKids3 =
     let a = 44
 
 /// BottleKids4 implements several new features over BottleKids3
-/// </exclude>
+/// <exclude/>
 module BottleKids4 =
     let a = 45
 
-/// </exclude>
+/// <exclude/>
 /// <summary>
 /// BottleKids5 is all you'll ever need in terms of bottles or kids.
 /// </summary>
