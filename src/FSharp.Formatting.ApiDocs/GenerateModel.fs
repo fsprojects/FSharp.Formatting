@@ -2274,17 +2274,17 @@ module internal SymbolReader =
 
                 let nsdocs = readNamespaceDocs ctx.UrlMap nsels
                 cmds, doc, nsdocs
+            else if ctx.MarkdownComments then
+                readMarkdownCommentAndCommands ctx sum.Value el cmds
             else
-                if ctx.MarkdownComments then
-                    readMarkdownCommentAndCommands ctx sum.Value el cmds
-                else
-                    if sum.Value.Contains("<exclude") then
-                        cmds.["exclude"] <- ""
-                        printfn
-                            "Warning: detected \"<exclude/>\" in text of \"<summary>\" for \"%s\". Please see https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Classic-XML-Doc-Comments"
-                            xmlSig
+                if sum.Value.Contains("<exclude") then
+                    cmds.["exclude"] <- ""
 
-                    readXmlCommentAndCommands ctx sum.Value el cmds
+                    printfn
+                        "Warning: detected \"<exclude/>\" in text of \"<summary>\" for \"%s\". Please see https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Classic-XML-Doc-Comments"
+                        xmlSig
+
+                readXmlCommentAndCommands ctx sum.Value el cmds
 
     /// Reads XML documentation comments and calls the specified function
     /// to parse the rest of the entity, unless [omit] command is set.
