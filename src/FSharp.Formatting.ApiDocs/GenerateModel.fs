@@ -2260,8 +2260,6 @@ module internal SymbolReader =
         | Some el ->
             let sum = el.Element(XName.Get "summary")
 
-            match sum with
-
             // sum can be null with null/empty el.Value when an non-"<summary>" XML element appears
             // as the only '///' documentation command:
             //
@@ -2271,16 +2269,12 @@ module internal SymbolReader =
             //
             // 2.
             //  /// <exclude/>
-            //
-            // | null when String.IsNullOrEmpty el.Value ->
-            //     cmds, ApiDocComment.Empty, None
-
-            | null ->
+            if isNull sum then
                 let doc, nsels = readXmlCommentAsHtmlAux false ctx.UrlMap el cmds
 
                 let nsdocs = readNamespaceDocs ctx.UrlMap nsels
                 cmds, doc, nsdocs
-            | sum ->
+            else
                 if ctx.MarkdownComments then
                     readMarkdownCommentAndCommands ctx sum.Value el cmds
                 else
