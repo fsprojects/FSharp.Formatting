@@ -2272,19 +2272,10 @@ module internal SymbolReader =
             // 2.
             //  /// <exclude/>
             //
-            // So, we need to let the 'null' case handle this to extract the <exclude> if it's there
-            //
             // | null when String.IsNullOrEmpty el.Value ->
             //     cmds, ApiDocComment.Empty, None
 
             | null ->
-                // We let through XML comments without a summary tag. It's not clear
-                // why as all XML coming through here should be from F# .XML files
-                // and should have the tag.  It may be legacy of previously processing un-processed
-                // XML in raw F# source.
-                //
-                // 9-Jan-23: See comment above for at least one reason why we pass through here now
-
                 let doc, nsels = readXmlCommentAsHtmlAux false ctx.UrlMap el cmds
 
                 let nsdocs = readNamespaceDocs ctx.UrlMap nsels
@@ -2865,7 +2856,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
     member _.Collection: ApiDocCollection = collection
 
     /// The full list of all entities
-    member _.EntityInfos: ApiDocEntityInfo list = entityInfos
+    member _.EntityInfos: ApiDocEntityInfo list = entityInfos |> List.filter (fun info -> not info.Entity.Exclude)
 
     /// The root URL for the entire generation, normally '/'
     member _.Root: string = root

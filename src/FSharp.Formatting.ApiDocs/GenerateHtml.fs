@@ -707,7 +707,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             printfn "  Generating %s" outFile
             SimpleTemplating.UseFileAsSimpleTemplate(substitutions, templateOpt, outFile)
 
-        for info in model.EntityInfos |> List.filter (fun info -> not info.Entity.Exclude) do
+        for info in model.EntityInfos do
             let content = div [] (entityContent info)
 
             let pageTitle = sprintf "%s (%s)" info.Entity.Name collectionName
