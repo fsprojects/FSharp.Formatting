@@ -10,6 +10,6 @@ type DomAction =
     | Nothing
 
 /// <exclude/>
-let edit (_ : DomAction) = ()
+let edit (_: DomAction) = ()
 
-let build() = ()
+let build () = ()
