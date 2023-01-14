@@ -211,7 +211,7 @@ module BottleKids5 =
 Note that the comments for `BottleKids3` (and `BottleKids4`) will generate a warning. This is because
 the `<exclude/>` tag will be parsed as part of the `summary` text, and so the documentation generator
 can't be completely sure you meant to exclude the item, or whether it was a valid part of the documentation.
-It will treat it as an exclusion was intended, but you may want to use explicit `<summary>` tags to remove
+It will assume the exclusion was intended, but you may want to use explicit `<summary>` tags to remove
 the warning.
 
 The warning will be of the following format:
@@ -234,21 +234,25 @@ The use of `[omit]` and other commands in XML comments is deprecated, please use
 
 This is normally done automatically based on the following settings:
 
+```xml
     <RepositoryUrl>https://github.com/...</RepositoryUrl>
     <RepositoryBranch>...</RepositoryBranch>
     <RepositoryType>git</RepositoryType>
+```
 
 If your source is not built from the same project where you are building documentation then
 you may need these settings:
 
+```xml
     <FsDocsSourceRepository>...</FsDocsSourceRepository> -- the URL for the root of the source
     <FsDocsSourceFolder>...</FsDocsSourceFolder>         -- the root soure folder at time of build
+```
 
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 
 ## Markdown Comments
 
-You can use Markdown instead of XML in `///` comments. If you do, you should set `<UsesMarkdownComments>` in
+You can use Markdown instead of XML in `///` comments. If you do, you should set `<UsesMarkdownComments>true</UsesMarkdownComments>` in
 your F# project file.
 
 > Note: Markdown Comments are not supported in all F# IDE tooling.
@@ -352,12 +356,13 @@ ApiDocs.GenerateHtml(
 (**
 ## Rebasing Links
 
-The `root` parameter is used for the base of page and image links in the generated documentation, and by default is derived from the project's `<PackageProjectUrl>` property.
+The `root` parameter is used for the base of page and image links in the generated documentation. By default it is derived from the project's `<PackageProjectUrl>` property.
 
 In some instances, you may wish to override the value for `root` (perhaps for local testing). To do this, you can use the command-line argument `--parameters root <base>`.
 
 For example:
-```
-% dotnet fsdocs build --output public/docs --parameters root ../
-```
+
+    [lang=text]
+    dotnet fsdocs build --output public/docs --parameters root ../
+
 *)
