@@ -6,7 +6,7 @@ module Test.DOM
 /// <exclude/>
 type DomAction =
     | Append
-    | Replace of string
+    | Replace of int
     | Nothing
 
 /// <exclude/>
