@@ -614,7 +614,7 @@ type ApiDocEntity
     member x.RequiresQualifiedAccess: bool = rqa
 
     /// All nested modules and types
-    member x.NestedEntities: ApiDocEntity list = nested
+    member x.NestedEntities: ApiDocEntity list = nested |> List.filter (fun e -> not e.Exclude)
 
     /// Values and functions of the module
     member x.ValuesAndFuncs: ApiDocMember list = vals

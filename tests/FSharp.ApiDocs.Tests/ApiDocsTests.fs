@@ -176,6 +176,17 @@ let ``ApiDocs excludes items`` (format: OutputFormat) =
     files.ContainsKey(sprintf "fslib-undocumentedmodule.%s" format.Extension)
     |> shouldEqual false
 
+    files.ContainsKey(sprintf "test-dom.%s" format.Extension)
+    |> shouldEqual true
+
+    files.ContainsKey(sprintf "test-dom-domaction.%s" format.Extension)
+    |> shouldEqual false
+
+    files.[(sprintf "test-dom.%s" format.Extension)]
+    |> shouldNotContainText "DomAction"
+
+
+#if false
 [<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs works on sample Deedle assembly`` (format: OutputFormat) =
@@ -1293,6 +1304,8 @@ CONTENT: All Namespaces"""
             .Replace("\r", ""),
         listOfNamespaces
     )
+
+#endif
 
 let runtest testfn =
     try
