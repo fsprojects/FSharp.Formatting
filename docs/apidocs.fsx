@@ -85,7 +85,7 @@ In addition, you may also use the [Recommended XML doc extensions for F# documen
 
 * `<namespacedoc>` giving documentation for the enclosing namespace
 
-* `<exclude>` to exclude from XML docs
+* `<exclude/>` to exclude from XML docs
 
 * `<category>` to give a category for an entity or member. An optional `index` attribute can be specified
   to help sort the list of categories.
@@ -170,6 +170,63 @@ type GenericClass2<'T>() =
 let referringFunction2 () = "result"
 
 (**
+### Classic XMl Doc Comments: Excluding APIs from the docs
+
+If you want to exclude modules or functions from the API docs you can use the `<exclude/>` tag.
+It needs to be set on a separate triple-slashed line, and can either appear on its own or as part
+of an existing `<summary>` (for example, you may wish to hide existing documentation while it's in progress).
+The `<exclude/>` tag can be the first or last line in these cases.
+
+Some examples:
+*)
+
+/// <exclude/>
+module BottleKids1 =
+    let a = 42
+
+// Ordinary comment
+/// <exclude/>
+module BottleKids2 =
+    let a = 43
+
+/// <exclude/>
+/// BottleKids3 provides improvements over BottleKids2
+module BottleKids3 =
+    let a = 44
+
+/// BottleKids4 implements several new features over BottleKids3
+/// <exclude/>
+module BottleKids4 =
+    let a = 45
+
+/// <exclude/>
+/// <summary>
+/// BottleKids5 is all you'll ever need in terms of bottles or kids.
+/// </summary>
+module BottleKids5 =
+    let a = 46
+
+(**
+
+Note that the comments for `BottleKids3` (and `BottleKids4`) will generate a warning. This is because
+the `<exclude/>` tag will be parsed as part of the `summary` text, and so the documentation generator
+can't be completely sure you meant to exclude the item, or whether it was a valid part of the documentation.
+It will assume the exclusion was intended, but you may want to use explicit `<summary>` tags to remove
+the warning.
+
+The warning will be of the following format:
+```
+Warning: detected "<exclude/>" in text of "<summary>" for "M:YourLib.BottleKids4". Please see https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Classic-XML-Doc-Comments
+```
+You will find that `[omit]` also works, but is considered part of the Markdown syntax and is
+deprecated for XML Doc comments. This will also produce a warning, such as this:
+
+```
+The use of `[omit]` and other commands in XML comments is deprecated, please use XML extensions, see https://github.com/fsharp/fslang-design/blob/master/tooling/FST-1031-xmldoc-extensions.md
+```
+
+*)
+(**
 
 ## Go to Source links
 
@@ -177,21 +234,25 @@ let referringFunction2 () = "result"
 
 This is normally done automatically based on the following settings:
 
+```xml
     <RepositoryUrl>https://github.com/...</RepositoryUrl>
     <RepositoryBranch>...</RepositoryBranch>
     <RepositoryType>git</RepositoryType>
+```
 
 If your source is not built from the same project where you are building documentation then
 you may need these settings:
 
+```xml
     <FsDocsSourceRepository>...</FsDocsSourceRepository> -- the URL for the root of the source
     <FsDocsSourceFolder>...</FsDocsSourceFolder>         -- the root soure folder at time of build
+```
 
 It is assumed that `sourceRepo` and `sourceFolder` have synchronized contents.
 
 ## Markdown Comments
 
-You can use Markdown instead of XML in `///` comments. If you do, you should set `<UsesMarkdownComments>` in
+You can use Markdown instead of XML in `///` comments. If you do, you should set `<UsesMarkdownComments>true</UsesMarkdownComments>` in
 your F# project file.
 
 > Note: Markdown Comments are not supported in all F# IDE tooling.
@@ -242,7 +303,7 @@ module Foo3 =
 ### Markdown Comments: Excluding APIs from the docs
 
 If you want to exclude modules or functions from the API docs you can use the `[omit]` tag.
-It needs to be set on a separate tripple-slashed line, but it could be either the first or the last:
+It needs to be set on a separate triple-slashed line, but it could be either the first or the last:
 
 Example as last line:
 *)
@@ -290,3 +351,18 @@ ApiDocs.GenerateHtml(
     template = Path.Combine(root, "templates", "template.html"),
     substitutions = []
 )
+
+
+(**
+## Rebasing Links
+
+The `root` parameter is used for the base of page and image links in the generated documentation. By default it is derived from the project's `<PackageProjectUrl>` property.
+
+In some instances, you may wish to override the value for `root` (perhaps for local testing). To do this, you can use the command-line argument `--parameters root <base>`.
+
+For example:
+
+    [lang=text]
+    dotnet fsdocs build --output public/docs --parameters root ../
+
+*)

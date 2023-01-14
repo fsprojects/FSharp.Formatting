@@ -614,7 +614,7 @@ type ApiDocEntity
     member x.RequiresQualifiedAccess: bool = rqa
 
     /// All nested modules and types
-    member x.NestedEntities: ApiDocEntity list = nested
+    member x.NestedEntities: ApiDocEntity list = nested |> List.filter (fun e -> not e.Exclude)
 
     /// Values and functions of the module
     member x.ValuesAndFuncs: ApiDocMember list = vals
@@ -2260,22 +2260,31 @@ module internal SymbolReader =
         | Some el ->
             let sum = el.Element(XName.Get "summary")
 
-            match sum with
-            | null when String.IsNullOrEmpty el.Value -> cmds, ApiDocComment.Empty, None
-            | null ->
-                // We let through XML comments without a summary tag. It's not clear
-                // why as all XML coming through here should be from F# .XML files
-                // and should have the tag.  It may be legacy of previously processing un-processed
-                // XML in raw F# source.
+            // sum can be null with null/empty el.Value when an non-"<summary>" XML element appears
+            // as the only '///' documentation command:
+            //
+            // 1.
+            //  // Not triple-slash ccomment
+            //  /// <exclude/>
+            //
+            // 2.
+            //  /// <exclude/>
+            if isNull sum then
                 let doc, nsels = readXmlCommentAsHtmlAux false ctx.UrlMap el cmds
 
                 let nsdocs = readNamespaceDocs ctx.UrlMap nsels
                 cmds, doc, nsdocs
-            | sum ->
-                if ctx.MarkdownComments then
-                    readMarkdownCommentAndCommands ctx sum.Value el cmds
-                else
-                    readXmlCommentAndCommands ctx sum.Value el cmds
+            else if ctx.MarkdownComments then
+                readMarkdownCommentAndCommands ctx sum.Value el cmds
+            else
+                if sum.Value.Contains("<exclude") then
+                    cmds.["exclude"] <- ""
+
+                    printfn
+                        "Warning: detected \"<exclude/>\" in text of \"<summary>\" for \"%s\". Please see https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Classic-XML-Doc-Comments"
+                        xmlSig
+
+                readXmlCommentAndCommands ctx sum.Value el cmds
 
     /// Reads XML documentation comments and calls the specified function
     /// to parse the rest of the entity, unless [omit] command is set.
@@ -2841,7 +2850,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
     member _.Collection: ApiDocCollection = collection
 
     /// The full list of all entities
-    member _.EntityInfos: ApiDocEntityInfo list = entityInfos
+    member _.EntityInfos: ApiDocEntityInfo list = entityInfos |> List.filter (fun info -> not info.Entity.Exclude)
 
     /// The root URL for the entire generation, normally '/'
     member _.Root: string = root

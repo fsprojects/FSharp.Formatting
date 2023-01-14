@@ -127,6 +127,63 @@ let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComment
 
 do FSharp.Formatting.TestHelpers.enableLogging ()
 
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs excludes items`` (format: OutputFormat) =
+    let library = testBin </> "TestLib3.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] format false "TestLib3"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldContainText "Returns unit"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeOmitted"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded1"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded2"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded3"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded4"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded5"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded6"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded7"
+
+    // We can only expect a warning for "wishItWasExcluded1" & "WishItWasExcluded2"
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented1.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented2.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented3.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-undocumentedmodule.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "test-dom.%s" format.Extension) |> shouldEqual true
+
+    files.ContainsKey(sprintf "test-dom-domaction.%s" format.Extension)
+    |> shouldEqual false
+
+    files.[(sprintf "test-dom.%s" format.Extension)]
+    |> shouldNotContainText "DomAction"
+
 [<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs works on sample Deedle assembly`` (format: OutputFormat) =
@@ -915,6 +972,7 @@ let ``ApiDocs process XML comments in two sample F# assemblies`` (format: Output
     files.[(sprintf "fslib-nested-submodule.%s" format.Extension)]
     |> shouldContainText "Very nested field"
 
+
 [<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs highlights code snippets in Markdown comments`` (format: OutputFormat) =
@@ -1054,9 +1112,9 @@ let ``ApiDocs omit works without markdown`` (format: OutputFormat) =
 
     let files = generateApiDocs [ library ] format false "FsLib2_omit"
 
-    // Actually, the thing gets generated it's just not in the index
+    // Omitted items shouldn't have generated a file
     files.ContainsKey(sprintf "fslib-test_omit.%s" format.Extension)
-    |> shouldEqual true
+    |> shouldEqual false
 
 [<Test>]
 [<TestCaseSource("formats")>]

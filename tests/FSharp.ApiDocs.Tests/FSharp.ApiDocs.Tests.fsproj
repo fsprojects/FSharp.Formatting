@@ -26,6 +26,7 @@
     <ProjectReference Include="files\FsLib2\FsLib2.fsproj" />
     <ProjectReference Include="files\TestLib1\TestLib1.fsproj" />
     <ProjectReference Include="files\TestLib2\TestLib2.fsproj" />
+    <ProjectReference Include="files\TestLib3\TestLib3.fsproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

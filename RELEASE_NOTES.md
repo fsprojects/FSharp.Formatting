@@ -1,3 +1,7 @@
+## 17.2.1
+
+* Fix support for `<exclude/>` [#786](https://github.com/fsprojects/FSharp.Formatting/issues/786)
+
 ## 17.2.0
 
 * Resolve markdown links in raw html [#769](https://github.com/fsprojects/FSharp.Formatting/issues/769)
