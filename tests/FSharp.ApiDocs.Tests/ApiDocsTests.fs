@@ -127,6 +127,22 @@ let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComment
 
 do FSharp.Formatting.TestHelpers.enableLogging ()
 
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs seealso can find members`` (format: OutputFormat) =
+    let library = testBin </> "TestLib3.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] format false "TestLib3"
+
+    let (textA, textB) =
+        if format = OutputFormat.Html then
+            "seealso.html#disposeOnUnmount", "seealso.html#unsubscribeOnUnmount"
+        else
+            "seealso#disposeOnUnmount", "seealso#unsubscribeOnUnmount"
+
+    files.[(sprintf "test-seealso.%s" format.Extension)] |> shouldContainText textA
+
+    files.[(sprintf "test-seealso.%s" format.Extension)] |> shouldContainText textB
 
 [<Test>]
 [<TestCaseSource("formats")>]
