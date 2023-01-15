@@ -8,13 +8,11 @@ module Test.SeeAlso
 ///
 /// See also: <seealso cref="M:Test.SeeAlso.unsubscribeOnUnmount"/>
 /// </summary>
-let disposeOnUnmount (ds : System.IDisposable list) =
-    ignore ds
+let disposeOnUnmount (ds: System.IDisposable list) = ignore ds
 
 /// <summary>
 /// Call each function of type `(unit -> unit)` when the element is unmounted
 ///
 /// See also: <seealso cref="M:Test.SeeAlso.disposeOnUnmount"/>
 /// </summary>
-let unsubscribeOnUnmount (ds : (unit->unit) list) =
-    ignore ds
+let unsubscribeOnUnmount (ds: (unit -> unit) list) = ignore ds
