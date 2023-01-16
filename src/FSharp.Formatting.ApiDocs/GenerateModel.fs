@@ -1001,25 +1001,6 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 let simple = getMemberName 1 false typeName
                 externalDocsLink false simple typeName typeName
 
-    // If there's a quicker way to search an FSharpEntity for members then this linear
-    // search can disappear - see usage below in tryResolveCrossReferenceForMemberByXmlSig
-    // It's like writing C#...
-    let findIList (list: IList<'T>) (p: ('T -> bool)) =
-        let n = list.Count
-        let mutable i = 0
-        let mutable result: 'T option = None
-
-        while i < n do
-            let item = list.[i]
-
-            if p item then
-                i <- n
-                result <- Some item
-
-            i <- i + 1
-
-        result
-
     let mfvToCref (mfv: FSharpMemberOrFunctionOrValue) =
         let entityUrlBaseName = getUrlBaseNameForRegisteredEntity mfv.DeclaringEntity.Value
 
@@ -1051,13 +1032,16 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                     // See if we find the member that was intended, otherwise default to containing entity
                     tryGetShortMemberNameFromMemberName memberName
                     |> Option.bind (fun shortName ->
-                        findIList (entity.MembersFunctionsAndValues) (fun mfv -> mfv.DisplayName = shortName))
-                    |> Option.map mfvToCref
-                    |> Option.defaultValue
-                        { IsInternal = true
-                          ReferenceLink = internalCrossReference urlBaseName
-                          NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
-                    |> Some
+                        entity.MembersFunctionsAndValues
+                        |> Seq.tryFind (fun mfv -> mfv.DisplayName = shortName))
+                    |> function
+                        | Some mb -> Some(mfvToCref mb)
+                        | None ->
+                            Some
+                                { IsInternal = true
+                                  ReferenceLink = internalCrossReference urlBaseName
+                                  NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
+
                 | _ ->
                     // A reference to something external, currently assumed to be in .NET
                     let simple = getMemberName 2 false memberName
