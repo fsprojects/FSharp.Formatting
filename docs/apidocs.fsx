@@ -170,6 +170,44 @@ type GenericClass2<'T>() =
 let referringFunction2 () = "result"
 
 (**
+### Cross-referencing with &lt;seealso&gt;
+
+Use `<seealso cref="..."/>` within `<summary>` to create cross-references.
+
+For example:
+*)
+
+module Forest =
+
+    /// <summary>
+    /// Find at most <c>limit</c> foxes in current forest
+    ///
+    /// See also: <seealso cref="M:App.Forest.findSquirrels(System.Int32)"/>
+    /// </summary>
+    let findFoxes (limit : int) = []
+
+    /// <summary>
+    /// Find at most <c>limit</c> squirrels in current forest
+    ///
+    /// See also: <seealso cref="M:App.Forest.findFoxes(System.Int32)"/>
+    /// </summary>
+    let findSquirrels (limit : int) = []
+
+
+(** You can find the correct value for `cref` in the generated `.xml` documentation file (this will be generated alongside the assembly's `.dll``).
+
+You can also omit the `cref`'s arguments, and `fsdocs` will make an attempt to find the first member that matches.
+
+For example:
+```
+    /// See also: <seealso cref="M:App.Forest.findSquirrels"/>
+```
+
+If the member cannot be found, a link to the containing module/type will be used instead.
+*)
+
+
+(**
 ### Classic XMl Doc Comments: Excluding APIs from the docs
 
 If you want to exclude modules or functions from the API docs you can use the `<exclude/>` tag.

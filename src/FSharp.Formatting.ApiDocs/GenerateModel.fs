@@ -858,6 +858,15 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         else
             None
 
+    let tryGetShortMemberNameFromMemberName (memberName: string) =
+        let sub = removeParen memberName
+        let lastPeriod = sub.LastIndexOf(".")
+
+        if lastPeriod > 0 then
+            Some(memberName.Substring(lastPeriod + 1))
+        else
+            None
+
     let getMemberName keepParts hasModuleSuffix (memberNameNoParen: string) =
         let splits = memberNameNoParen.Split('.') |> Array.toList
 
@@ -992,6 +1001,13 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 let simple = getMemberName 1 false typeName
                 externalDocsLink false simple typeName typeName
 
+    let mfvToCref (mfv: FSharpMemberOrFunctionOrValue) =
+        let entityUrlBaseName = getUrlBaseNameForRegisteredEntity mfv.DeclaringEntity.Value
+
+        { IsInternal = true
+          ReferenceLink = internalCrossReferenceForMember entityUrlBaseName mfv
+          NiceName = mfv.DeclaringEntity.Value.DisplayName + "." + mfv.DisplayName }
+
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
         assert
             (memberXmlSig.StartsWith("M:")
@@ -1000,13 +1016,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
              || memberXmlSig.StartsWith("E:"))
 
         match xmlDocNameToSymbol.TryGetValue(memberXmlSig) with
-        | true, (:? FSharpMemberOrFunctionOrValue as memb) when memb.DeclaringEntity.IsSome ->
-            let entityUrlBaseName = getUrlBaseNameForRegisteredEntity memb.DeclaringEntity.Value
-
-            { IsInternal = true
-              ReferenceLink = internalCrossReferenceForMember entityUrlBaseName memb
-              NiceName = memb.DeclaringEntity.Value.DisplayName + "." + memb.DisplayName }
-            |> Some
+        | true, (:? FSharpMemberOrFunctionOrValue as memb) when memb.DeclaringEntity.IsSome -> memb |> mfvToCref |> Some
         | _ ->
             // If we can't find the exact symbol for the member, don't despair, look for the type
             let memberName = memberXmlSig.Substring(2) |> removeParen
@@ -1019,10 +1029,19 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
                 | true, (:? FSharpEntity as entity) ->
                     let urlBaseName = getUrlBaseNameForRegisteredEntity entity
 
-                    Some
-                        { IsInternal = true
-                          ReferenceLink = internalCrossReference urlBaseName
-                          NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
+                    // See if we find the member that was intended, otherwise default to containing entity
+                    tryGetShortMemberNameFromMemberName memberName
+                    |> Option.bind (fun shortName ->
+                        entity.MembersFunctionsAndValues
+                        |> Seq.tryFind (fun mfv -> mfv.DisplayName = shortName))
+                    |> function
+                        | Some mb -> Some(mfvToCref mb)
+                        | None ->
+                            Some
+                                { IsInternal = true
+                                  ReferenceLink = internalCrossReference urlBaseName
+                                  NiceName = getMemberName 2 entity.HasFSharpModuleSuffix memberName }
+
                 | _ ->
                     // A reference to something external, currently assumed to be in .NET
                     let simple = getMemberName 2 false memberName

@@ -1,3 +1,7 @@
+## 17.2.2
+
+* Improvement for `<seealso/>` [#789](https://github.com/fsprojects/FSharp.Formatting/issues/789)
+
 ## 17.2.1
 
 * Fix support for `<exclude/>` [#786](https://github.com/fsprojects/FSharp.Formatting/issues/786)

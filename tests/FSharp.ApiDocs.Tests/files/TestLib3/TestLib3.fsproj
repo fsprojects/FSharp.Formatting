@@ -5,6 +5,7 @@
     <OutputPath>..\bin\$(Configuration)</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="SeeAlso.fs" />
     <Compile Include="DOM.fs" />
     <Compile Include="Library3.fs" />
     <Compile Include="UndocumentedModule.fs" />
