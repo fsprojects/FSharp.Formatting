@@ -1,3 +1,7 @@
+## 18.0.0
+
+* Update FCS to 43.7.200
+
 ## 17.4.1
 
 * Update ipynb output metadata [#809](https://github.com/fsprojects/FSharp.Formatting/issues/809)
