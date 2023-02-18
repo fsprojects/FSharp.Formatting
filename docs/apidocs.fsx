@@ -64,7 +64,7 @@ Usually the same template can be used as for [other content](content.html).
 
 ## Classic XML Doc Comments
 
-XML Doc Comments may use [the normal F# and C# XML doc standards](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/).
+XML Doc Comments may use [the normal F# and C# XML doc standards](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/xmldoc/).
 
 The tags that form the core of the XML doc specification are:
 

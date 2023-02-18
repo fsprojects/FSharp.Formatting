@@ -644,7 +644,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     |> shouldContainText "Assembly"
 
     files.[(sprintf "creflib4-class4.%s" format.Extension)]
-    |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+    |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
 
     // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
     // reference class in same assembly
@@ -660,7 +660,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
 
     files.[(sprintf "creflib2-class4.%s" format.Extension)]
     |> shouldContainText "Assembly"
-    //files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+    //files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
 
     // F# tests (fully quallified)
     // reference class in same assembly
@@ -689,7 +689,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     |> shouldContainText "Assembly"
 
     files.[(sprintf "creflib2-class8.%s" format.Extension)]
-    |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+    |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
 
 [<Test>]
 [<TestCaseSource("formats")>]

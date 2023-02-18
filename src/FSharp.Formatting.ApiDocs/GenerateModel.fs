@@ -947,7 +947,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
             let docs = noParen.Replace("``", "").Replace("`", "-").ToLower()
 
-            let link = sprintf "https://docs.microsoft.com/dotnet/api/%s" docs
+            let link = sprintf "https://learn.microsoft.com/dotnet/api/%s" docs
 
             { IsInternal = false
               ReferenceLink = link
