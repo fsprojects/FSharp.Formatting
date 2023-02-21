@@ -111,7 +111,7 @@
     <MSBuild Projects="$(PaketToolsPath)paket.bootstrapper.proj" Targets="Restore" />
   </Target>
 
-  <!-- Official workaround for https://docs.microsoft.com/en-us/visualstudio/msbuild/getfilehash-task?view=vs-2019 -->
+  <!-- Official workaround for https://learn.microsoft.com/en-us/visualstudio/msbuild/getfilehash-task?view=vs-2019 -->
   <UsingTask TaskName="Microsoft.Build.Tasks.GetFileHash" AssemblyName="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(MSBuildSupportsHashing)' == 'true' And '$(DetectedMSBuildVersion)' &lt; '16.0.360' " />
   <UsingTask TaskName="Microsoft.Build.Tasks.VerifyFileHash" AssemblyName="Microsoft.Build.Tasks.Core, Version=15.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" Condition=" '$(MSBuildSupportsHashing)' == 'true' And '$(DetectedMSBuildVersion)' &lt; '16.0.360' " />
   <Target Name="PaketRestore" Condition="'$(PaketRestoreDisabled)' != 'True'" BeforeTargets="_GenerateDotnetCliToolReferenceSpecs;_GenerateProjectRestoreGraphPerFramework;_GenerateRestoreGraphWalkPerFramework;CollectPackageReferences" DependsOnTargets="SetPaketCommand;PaketBootstrapping">

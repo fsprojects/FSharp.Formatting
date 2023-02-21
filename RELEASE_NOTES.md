@@ -1,3 +1,7 @@
+## 17.2.3
+
+* Fix external docs link [#794](https://github.com/fsprojects/FSharp.Formatting/issues/794)
+
 ## 17.2.2
 
 * Improvement for `<seealso/>` [#789](https://github.com/fsprojects/FSharp.Formatting/issues/789)
