@@ -426,12 +426,12 @@ module Crack =
         let projectFiles =
             projectFiles
             |> List.choose (fun s ->
-                if s.Contains(".Tests") || s.Contains("test") then
-                    printfn "  skipping project '%s' because it looks like a test project" (Path.GetFileName s)
+                if s.Contains("FSharp.ApiDocs.Tests") || s.Contains("FSharp.Formatting.TestHelpers") then
+                    printfn "  skipping project '%s' because it looks like a FSharp.Formatting test project" (Path.GetFileName s)
                     None
                 else
                     Some s)
-
+        
         //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 && (ignoreProjects |> not) then
             printfn "no project files found, no API docs will be generated"
