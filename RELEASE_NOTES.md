@@ -1,3 +1,7 @@
+## 17.3.0
+
+* Better test project detection [#800](https://github.com/fsprojects/FSharp.Formatting/issues/800)
+
 ## 17.2.3
 
 * Fix external docs link [#794](https://github.com/fsprojects/FSharp.Formatting/issues/794)
