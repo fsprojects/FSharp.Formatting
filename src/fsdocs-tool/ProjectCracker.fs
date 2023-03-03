@@ -425,15 +425,16 @@ module Crack =
         //printfn "projects = %A" projectFiles
         let projectFiles =
             projectFiles
-            |> List.choose (fun s ->
-                // Other libraries' test projects will be filtered out by projInfos later on,
-                // but this make sure FSharp.Formatting.ApiDocs test projects get excluded.
-                if s.Contains("tests\\FSharp") then
-                    printfn "  skipping project '%s' because it looks like a test project" (Path.GetFileName s)
+            |> List.filter (fun s ->
+                let isFSharpFormattingTestProject =
+                    s.Contains $"FSharp.ApiDocs.Tests{Path.DirectorySeparatorChar}files"
+                    || s.EndsWith "FSharp.Formatting.TestHelpers.fsproj"
 
-                    None
-                else
-                    Some s)
+                if isFSharpFormattingTestProject then
+                    printfn
+                        $"  skipping project '%s{Path.GetFileName s}' because the project is part of the FSharp.Formatting test suite."
+
+                not isFSharpFormattingTestProject)
 
         //printfn "filtered projects = %A" projectFiles
         if projectFiles.Length = 0 && (ignoreProjects |> not) then
