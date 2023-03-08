@@ -254,9 +254,9 @@ type internal DocContent
 
                           let fsiEvaluator =
                               (if evaluate then
-                                  Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
+                                   Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
                                else
-                                  None)                          
+                                   None)
 
                           let model =
                               Literate.ParseAndTransformScriptFile(
