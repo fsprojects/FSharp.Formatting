@@ -35,7 +35,7 @@ type internal DocContent
         rootOutputFolderAsGiven,
         previous: Map<_, _>,
         lineNumbers,
-        fsiEvaluator,
+        evaluate,
         substitutions,
         saveImages,
         watch,
@@ -251,6 +251,12 @@ type internal DocContent
                   if changed || (watch && mainRun && haveModel.IsNone) then
                       if isFsx then
                           printfn "  generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
+
+                          let fsiEvaluator =
+                              (if evaluate then
+                                   Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
+                               else
+                                   None)
 
                           let model =
                               Literate.ParseAndTransformScriptFile(
@@ -1579,18 +1585,12 @@ type CoreBuildOptions(watch) =
                      | "all" -> Some true
                      | _ -> None)
 
-                let fsiEvaluator =
-                    (if this.eval then
-                         Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
-                     else
-                         None)
-
                 let docContent =
                     DocContent(
                         rootOutputFolderAsGiven,
                         latestDocContentResults,
                         Some this.linenumbers,
-                        fsiEvaluator,
+                        this.eval,
                         docsSubstitutions,
                         saveImages,
                         watch,

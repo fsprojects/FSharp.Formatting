@@ -1,3 +1,7 @@
+## 17.4.0
+
+* One FSI evaluator per docs file [#737](https://github.com/fsprojects/FSharp.Formatting/issues/737)
+
 ## 17.3.0
 
 * Better test project detection [#800](https://github.com/fsprojects/FSharp.Formatting/issues/800)
