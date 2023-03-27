@@ -1069,7 +1069,8 @@ With some [hyperlink](http://tomasp.net)
    "cell_type": "markdown",
    "metadata": {},"""
 
-    pynb |> shouldContainText """ "source": ["Heading\n","""
+    pynb |> shouldContainText """ "source": [
+    "Heading\n","""
 
     pynb |> shouldContainText """"=======\n","""
 
@@ -1086,7 +1087,8 @@ With some [hyperlink](http://tomasp.net)
 
     pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
 
-    pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
+    pynb |> shouldContainText """ "source": [
+    "let hello = \"Code sample"""
 
     pynb |> shouldContainText """  "kernelspec": {
    "display_name": ".NET (F#)",
@@ -1208,7 +1210,8 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """ "cell_type": "markdown","""
 
-    pynb |> shouldContainText """ "source": ["Heading"""
+    pynb |> shouldContainText """ "source": [
+    "Heading"""
 
     pynb |> shouldContainText """====="""
     pynb |> shouldContainText """```emptyblockcode"""
@@ -1294,7 +1297,8 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
    },
    "execution_count": null, "outputs": [],"""
 
-    pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
+    pynb |> shouldContainText """ "source": [
+    "let hello = \"Code sample"""
 
     pynb
     |> shouldContainText """  "kernelspec": {
