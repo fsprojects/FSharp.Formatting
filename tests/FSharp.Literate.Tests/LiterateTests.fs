@@ -1065,18 +1065,24 @@ With some [hyperlink](http://tomasp.net)
     printfn "----"
     pynb |> shouldContainText """ "cells": ["""
 
-    pynb |> shouldContainText """
+    pynb
+    |> shouldContainText
+        """
    "cell_type": "markdown",
    "metadata": {},"""
 
-    pynb |> shouldContainText """ "source": [
+    pynb
+    |> shouldContainText
+        """ "source": [
     "Heading\n","""
 
     pynb |> shouldContainText """"=======\n","""
 
     pynb |> shouldContainText """With some [hyperlink](http://tomasp.net)"""
 
-    pynb |> shouldContainText """"cell_type": "code",
+    pynb
+    |> shouldContainText
+        """"cell_type": "code",
    "metadata": {
     "dotnet_interactive": {
      "language": "fsharp"
@@ -1087,16 +1093,22 @@ With some [hyperlink](http://tomasp.net)
 
     pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
 
-    pynb |> shouldContainText """ "source": [
+    pynb
+    |> shouldContainText
+        """ "source": [
     "let hello = \"Code sample"""
 
-    pynb |> shouldContainText """  "kernelspec": {
+    pynb
+    |> shouldContainText
+        """  "kernelspec": {
    "display_name": ".NET (F#)",
    "language": "F#",
    "name": ".net-fsharp"
   },"""
 
-    pynb |> shouldContainText """"polyglot_notebook": {
+    pynb
+    |> shouldContainText
+        """"polyglot_notebook": {
    "kernelInfo": {
     "defaultKernelName": "fsharp",
     "items": [
@@ -1113,7 +1125,9 @@ With some [hyperlink](http://tomasp.net)
 
     pynb |> shouldContainText """ "mimetype": "text/x-fsharp","""
 
-    pynb |> shouldContainText """ "pygments_lexer": "fsharp"
+    pynb
+    |> shouldContainText
+        """ "pygments_lexer": "fsharp"
 """
 
     pynb |> shouldContainText """ "nbformat": 4,"""
@@ -1210,7 +1224,9 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """ "cell_type": "markdown","""
 
-    pynb |> shouldContainText """ "source": [
+    pynb
+    |> shouldContainText
+        """ "source": [
     "Heading"""
 
     pynb |> shouldContainText """====="""
@@ -1286,7 +1302,9 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
     pynb
     |> shouldNotContainText """Doc preparation code is not present in generated notebooks"""
 
-    pynb |> shouldContainText """"cell_type": "code",
+    pynb
+    |> shouldContainText
+        """"cell_type": "code",
    "metadata": {
     "dotnet_interactive": {
      "language": "fsharp"
@@ -1297,17 +1315,22 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
    },
    "execution_count": null, "outputs": [],"""
 
-    pynb |> shouldContainText """ "source": [
+    pynb
+    |> shouldContainText
+        """ "source": [
     "let hello = \"Code sample"""
 
     pynb
-    |> shouldContainText """  "kernelspec": {
+    |> shouldContainText
+        """  "kernelspec": {
    "display_name": ".NET (F#)",
    "language": "F#",
    "name": ".net-fsharp"
   },"""
 
-    pynb |> shouldContainText """  "polyglot_notebook": {
+    pynb
+    |> shouldContainText
+        """  "polyglot_notebook": {
    "kernelInfo": {
     "defaultKernelName": "fsharp",
     "items": [
@@ -1324,7 +1347,9 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """ "mimetype": "text/x-fsharp","""
 
-    pynb |> shouldContainText """ "pygments_lexer": "fsharp"
+    pynb
+    |> shouldContainText
+        """ "pygments_lexer": "fsharp"
 """
 
     pynb |> shouldContainText """ "nbformat": 4,"""
