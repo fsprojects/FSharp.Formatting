@@ -1,3 +1,7 @@
+## 17.4.1
+
+* Update ipynb output metadata [#809](https://github.com/fsprojects/FSharp.Formatting/issues/809)
+
 ## 17.4.0
 
 * One FSI evaluator per docs file [#737](https://github.com/fsprojects/FSharp.Formatting/issues/737)
