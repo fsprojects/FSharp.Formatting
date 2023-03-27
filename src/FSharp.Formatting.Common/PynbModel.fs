@@ -55,19 +55,28 @@ type Cell =
     static member Default =
         { cell_type = "code"
           execution_count = None
-          metadata = ""
+          metadata = """
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   """
           outputs = [||]
           source = [||] }
 
     override this.ToString() =
         sprintf
             """
-          {
-           "cell_type": %s,
-           "metadata": {%s},
-           %s
-           "source": [%s]
-          }"""
+  {
+   "cell_type": %s,
+   "metadata": {%s},
+   %s
+   "source": [
+    %s
+   ]
+  }"""
             (escapeAndQuote this.cell_type)
 
             this.metadata
@@ -75,7 +84,7 @@ type Cell =
                  ""
              else
                  (sprintf
-                     """ "execution_count": %s, "outputs": [%s],"""
+                     """"execution_count": %s, "outputs": [%s],"""
                      (match this.execution_count with
                       | None -> "null"
                       | Some (x) -> string x)
@@ -83,7 +92,7 @@ type Cell =
             (this.source
              |> Array.map addLineEnd
              |> Array.map escapeAndQuote
-             |> String.concat ",\n")
+             |> String.concat ",\n    ")
 
 type Kernelspec =
     { display_name: string
@@ -97,7 +106,11 @@ type Kernelspec =
 
     override this.ToString() =
         sprintf
-            """{"display_name": %s, "language": %s, "name": %s}"""
+            """{
+   "display_name": %s,
+   "language": %s,
+   "name": %s
+  }"""
             (escapeAndQuote this.display_name)
             (escapeAndQuote this.language)
             (escapeAndQuote this.name)
@@ -106,47 +119,75 @@ type LanguageInfo =
     { file_extension: string
       mimetype: string
       name: string
-      pygments_lexer: string
-      version: string }
+      pygments_lexer: string }
 
     static member Default =
         { file_extension = ".fs"
           mimetype = "text/x-fsharp"
-          name = "C#"
-          pygments_lexer = "fsharp"
-          version = "4.5" }
+          name = "polyglot-notebook"
+          pygments_lexer = "fsharp" }
 
     override this.ToString() =
         sprintf
             """{
-        "file_extension": %s,
-        "mimetype": %s,
-        "name": %s,
-        "pygments_lexer": %s,
-        "version": %s
-        }"""
+   "file_extension": %s,
+   "mimetype": %s,
+   "name": %s,
+   "pygments_lexer": %s
+  },"""
             (escapeAndQuote this.file_extension)
             (escapeAndQuote this.mimetype)
             (escapeAndQuote this.name)
             (escapeAndQuote this.pygments_lexer)
-            (escapeAndQuote this.version)
 
-type Metadata =
-    { kernelspec: Kernelspec
-      language_info: LanguageInfo }
+type DefaultKernelInfo =
+    { defaultKernelName: string
+      languageName: string
+      name: string }
 
     static member Default =
-        { kernelspec = Kernelspec.Default
-          language_info = LanguageInfo.Default }
+        { defaultKernelName = "fsharp"
+          languageName = "fsharp"
+          name = "fsharp" }
 
     override this.ToString() =
         sprintf
             """{
-            "kernelspec": %O,
-            "langauge_info": %O
-        }"""
+   "kernelInfo": {
+    "defaultKernelName": %s,
+    "items": [
+     {
+      "aliases": [],
+      "languageName": %s,
+      "name": %s
+     }
+    ]
+   }
+  }"""
+            (escapeAndQuote this.defaultKernelName)
+            (escapeAndQuote this.languageName)
+            (escapeAndQuote this.name)
+
+type Metadata =
+    { kernelspec: Kernelspec
+      language_info: LanguageInfo 
+      defaultKernelInfo: DefaultKernelInfo }
+
+    static member Default =
+        { kernelspec = Kernelspec.Default
+          language_info = LanguageInfo.Default 
+          defaultKernelInfo = DefaultKernelInfo.Default }
+
+    override this.ToString() =
+        sprintf
+            """{
+  "kernelspec": %O,
+  "language_info": %O
+  "polyglot_notebook": %O
+ }"""
             this.kernelspec
             this.language_info
+            this.defaultKernelInfo
 
 type Notebook =
     { nbformat: int
@@ -156,20 +197,20 @@ type Notebook =
 
     static member Default =
         { nbformat = 4
-          nbformat_minor = 1
+          nbformat_minor = 2
           metadata = Metadata.Default
           cells = [||] }
 
     override this.ToString() =
         sprintf
             """
-        {
-            "cells": [%s],
-            "metadata": %O,
-            "nbformat": %i,
-            "nbformat_minor": %i
-        }
-        """
+{
+ "cells": [%s
+ ],
+ "metadata": %O,
+ "nbformat": %i,
+ "nbformat_minor": %i
+}"""
             (this.cells |> Array.map string |> String.concat "\n,")
             this.metadata
             this.nbformat
@@ -200,4 +241,5 @@ let markdownCell (lines: string[]) =
 
     { Cell.Default with
         cell_type = "markdown"
+        metadata = ""
         source = lines }
