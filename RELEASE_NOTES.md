@@ -1,3 +1,7 @@
+## 17.3.1
+
+* Update ipynb output metadata [#809](https://github.com/fsprojects/FSharp.Formatting/issues/809)
+
 ## 17.3.0
 
 * Better test project detection [#800](https://github.com/fsprojects/FSharp.Formatting/issues/800)
