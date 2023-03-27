@@ -55,7 +55,8 @@ type Cell =
     static member Default =
         { cell_type = "code"
           execution_count = None
-          metadata = """
+          metadata =
+            """
     "dotnet_interactive": {
      "language": "fsharp"
     },
@@ -170,12 +171,12 @@ type DefaultKernelInfo =
 
 type Metadata =
     { kernelspec: Kernelspec
-      language_info: LanguageInfo 
+      language_info: LanguageInfo
       defaultKernelInfo: DefaultKernelInfo }
 
     static member Default =
         { kernelspec = Kernelspec.Default
-          language_info = LanguageInfo.Default 
+          language_info = LanguageInfo.Default
           defaultKernelInfo = DefaultKernelInfo.Default }
 
     override this.ToString() =
