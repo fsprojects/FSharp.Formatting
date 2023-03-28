@@ -495,7 +495,7 @@ type internal OptimizationType =
     | NoCrossOptimize
     | NoTailCalls
 
-/// See https://msdn.microsoft.com/en-us/library/dd233172.aspx
+/// See https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/fsharp-interactive-options
 type internal FsiOptions =
     {
         Checked: bool option
@@ -525,6 +525,7 @@ type internal FsiOptions =
         WarnLevel: int option
         WarnAsError: bool option
         WarnAsErrorList: (bool * int list) list
+        MultiEmit: bool option
         ScriptArgs: string list
     }
 
@@ -554,6 +555,7 @@ type internal FsiOptions =
           WarnLevel = None
           WarnAsError = None
           WarnAsErrorList = []
+          MultiEmit = None
           ScriptArgs = [] }
 
     static member Default =
@@ -656,6 +658,7 @@ type internal FsiOptions =
                             WarnAsErrorList = (false, parseList (warnOpts.Substring 2)) :: parsed.WarnAsErrorList },
                         state
                     | _ -> failwithf "invalid --warnaserror argument: %s" arg
+                | _, FsiBoolArg "--multiemit" enabled -> { parsed with MultiEmit = Some enabled }, state
                 | _, unknown -> { parsed with ScriptArgs = unknown :: parsed.ScriptArgs }, (true, None))
             (FsiOptions.Empty, (false, None))
         |> fst
@@ -747,6 +750,7 @@ type internal FsiOptions =
            yield! maybeArgMap x.WarnLevel (fun i -> sprintf "--warn:%d" i)
 
            yield! getFsiBoolArg "--warnaserror" x.WarnAsError
+           yield! getFsiBoolArg "--multiemit" x.MultiEmit
 
            yield!
                x.WarnAsErrorList
