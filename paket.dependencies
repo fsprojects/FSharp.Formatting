@@ -11,8 +11,8 @@ nuget Microsoft.Build copy_local: false
 nuget Microsoft.Build.Framework copy_local: false
 nuget Microsoft.Build.Utilities.Core copy_local: false
 nuget Microsoft.Build.Tasks.Core copy_local: false
-nuget Ionide.ProjInfo 0.61.1
-nuget Ionide.ProjInfo.Sln 0.61.1
+nuget Ionide.ProjInfo 0.61.2
+nuget Ionide.ProjInfo.Sln 0.61.2
 nuget Newtonsoft.Json
 nuget Suave
 nuget System.Memory
