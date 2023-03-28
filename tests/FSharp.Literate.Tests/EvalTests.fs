@@ -148,7 +148,7 @@ let test = [1;2;3]
 (*** include-value:test ***)"""
 
     // Create evaluator & register simple formatter for lists
-    let fsiEvaluator = FSharp.Formatting.Literate.Evaluation.FsiEvaluator()
+    let fsiEvaluator = FSharp.Formatting.Literate.Evaluation.FsiEvaluator(options = [| "--multiemit-" |])
 
     fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
         if ty.IsGenericType && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
