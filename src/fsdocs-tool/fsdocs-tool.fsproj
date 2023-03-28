@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>fsdocs</AssemblyName>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <PackageId>fsdocs-tool</PackageId>
     <RollForward>LatestMajor</RollForward>
     <IsPackable>true</IsPackable>
