@@ -9,6 +9,7 @@ index: 5
 (*** condition: prepare ***)
 #nowarn "211"
 #I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
+#r "FSharp.Compiler.Service"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 #r "FSharp.Formatting.CodeFormat.dll"

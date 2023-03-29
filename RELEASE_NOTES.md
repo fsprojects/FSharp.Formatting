@@ -1,3 +1,8 @@
+## 18.0.0
+
+* Update FCS to 43.7.200
+* Target `net6.0` for `fsdocs-tool` [#799](https://github.com/fsprojects/FSharp.Formatting/issues/799)
+
 ## 17.4.1
 
 * Update ipynb output metadata [#809](https://github.com/fsprojects/FSharp.Formatting/issues/809)
