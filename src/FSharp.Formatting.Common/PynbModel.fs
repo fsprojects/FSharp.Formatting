@@ -14,7 +14,7 @@ type OutputData =
     | OutputData of kind: string * lines: string[]
 
     override this.ToString() =
-        let (OutputData (kind, lines)) = this
+        let (OutputData(kind, lines)) = this
 
         sprintf
             """
@@ -41,7 +41,7 @@ type Output =
             (this.data.ToString())
             (match this.execution_count with
              | None -> "null"
-             | Some (x) -> string x)
+             | Some(x) -> string x)
             this.metadata
             this.output_type
 
@@ -88,7 +88,7 @@ type Cell =
                      """"execution_count": %s, "outputs": [%s],"""
                      (match this.execution_count with
                       | None -> "null"
-                      | Some (x) -> string x)
+                      | Some(x) -> string x)
                      (this.outputs |> Array.map string |> String.concat ",\n")))
             (this.source
              |> Array.map addLineEnd

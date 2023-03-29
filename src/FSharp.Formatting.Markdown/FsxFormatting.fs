@@ -15,7 +15,7 @@ let rec formatParagraphs ctx paragraphs =
 
         let cell =
             match k with
-            | Choice1Of2 (code, codeOutput, _executionCount) ->
+            | Choice1Of2(code, codeOutput, _executionCount) ->
                 let output = String.concat ctx.Newline (List.map fst (List.truncate 10 codeOutput))
 
                 let output =

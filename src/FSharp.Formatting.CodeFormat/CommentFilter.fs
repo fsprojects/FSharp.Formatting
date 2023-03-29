@@ -61,26 +61,28 @@ let rec getSnippets
         | None, _ -> getSnippets state snippets rest lines
 
         // We're inside a snippet and it ends
-        | Some (title, acc), StringPosition.StartsWithTrim "//" (StringPosition.StartsWithTrim "[/snippet]" _) ->
+        | Some(title, acc), StringPosition.StartsWithTrim "//" (StringPosition.StartsWithTrim "[/snippet]" _) ->
             getSnippets None ((title, acc |> List.rev) :: snippets) rest lines
         // We're inside snippet - add current line to it
-        | Some (title, acc), _ -> getSnippets (Some(title, (line, tokens) :: acc)) snippets rest lines
+        | Some(title, acc), _ -> getSnippets (Some(title, (line, tokens) :: acc)) snippets rest lines
 
 
 /// Preprocesses a line and merges all subsequent comments on a line
 /// into a single long comment (so that we can parse it as snippet command)
 let rec mergeComments (line: SnippetLine) (cmt: Token option) (acc: SnippetLine) =
     match line, cmt with
-    | [], Some (cmt) -> cmt :: acc |> List.rev
+    | [], Some(cmt) -> cmt :: acc |> List.rev
     | [], None -> acc |> List.rev
     | (str, tok) :: line, None when tok.TokenName = "COMMENT" || tok.TokenName = "LINE_COMMENT" ->
         mergeComments line (Some(str, tok)) acc
-    | (str, tok) :: line, Some (scmt, cmt) when tok.TokenName = "COMMENT" || tok.TokenName = "LINE_COMMENT" ->
-        let ncmt = { cmt with RightColumn = tok.RightColumn }
+    | (str, tok) :: line, Some(scmt, cmt) when tok.TokenName = "COMMENT" || tok.TokenName = "LINE_COMMENT" ->
+        let ncmt =
+            { cmt with
+                RightColumn = tok.RightColumn }
 
         mergeComments line (Some(scmt + str, ncmt)) acc
     | (str, tok) :: line, None -> mergeComments line None ((str, tok) :: acc)
-    | (str, tok) :: line, Some (cmt) -> mergeComments line None ((str, tok) :: cmt :: acc)
+    | (str, tok) :: line, Some(cmt) -> mergeComments line None ((str, tok) :: cmt :: acc)
 
 
 /// Continue reading shrinked code until we reach the end (*[/omit]*) tag
@@ -106,7 +108,11 @@ let rec shrinkLine line (content: SnippetLine) (source: Snippet) =
 
         let line, source = shrinkLine line remcontent source
 
-        (body, { tok with TokenName = "OMIT" + (text.ToString()) }) :: line, source
+        (body,
+         { tok with
+             TokenName = "OMIT" + (text.ToString()) })
+        :: line,
+        source
     | (String.StartsWithTrim "//" (String.StartsAndEndsWith ("[fsi:", "]") fsi), (tok: FSharpTokenInfo)) :: rest ->
         let line, source = shrinkLine line rest source
         (fsi, { tok with TokenName = "FSI" }) :: line, source

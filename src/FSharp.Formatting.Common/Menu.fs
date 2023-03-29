@@ -7,10 +7,7 @@ open FSharp.Formatting.Templating
 type MenuItem = { Link: string; Content: string }
 
 let private snakeCase (v: string) =
-    System
-        .Text
-        .RegularExpressions
-        .Regex
+    System.Text.RegularExpressions.Regex
         .Replace(v, "[A-Z]", "$0")
         .Replace(" ", "_")
         .ToLower()

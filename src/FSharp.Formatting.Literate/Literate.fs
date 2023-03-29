@@ -55,18 +55,18 @@ type Literate private () =
     /// When generating LaTeX, we need to save all files locally
     static let rec downloadSpanImages (saver, links) para =
         match para with
-        | IndirectImage (body, _, LookupKey links (link, title), range)
-        | DirectImage (body, link, title, range) -> DirectImage(body, saver link, title, range)
-        | MarkdownPatterns.SpanNode (s, spans) ->
+        | IndirectImage(body, _, LookupKey links (link, title), range)
+        | DirectImage(body, link, title, range) -> DirectImage(body, saver link, title, range)
+        | MarkdownPatterns.SpanNode(s, spans) ->
             MarkdownPatterns.SpanNode(s, List.map (downloadSpanImages (saver, links)) spans)
-        | MarkdownPatterns.SpanLeaf (l) -> MarkdownPatterns.SpanLeaf(l)
+        | MarkdownPatterns.SpanLeaf(l) -> MarkdownPatterns.SpanLeaf(l)
 
     static let rec downloadImages ctx (pars: MarkdownParagraphs) : MarkdownParagraphs =
         pars
         |> List.map (function
-            | MarkdownPatterns.ParagraphSpans (s, spans) ->
+            | MarkdownPatterns.ParagraphSpans(s, spans) ->
                 MarkdownPatterns.ParagraphSpans(s, List.map (downloadSpanImages ctx) spans)
-            | MarkdownPatterns.ParagraphNested (o, pars) ->
+            | MarkdownPatterns.ParagraphNested(o, pars) ->
                 MarkdownPatterns.ParagraphNested(o, List.map (downloadImages ctx) pars)
             | MarkdownPatterns.ParagraphLeaf p -> MarkdownPatterns.ParagraphLeaf p)
 

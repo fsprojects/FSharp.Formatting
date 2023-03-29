@@ -46,7 +46,7 @@ let formatMultilineString (lines: string[]) =
 /// Format comment in the tool tip
 let private formatComment xmlDoc =
     match xmlDoc with
-    | FSharpXmlDoc.FromXmlText (xmlDoc) -> [ Emphasis(formatMultilineString xmlDoc.UnprocessedLines); HardLineBreak ]
+    | FSharpXmlDoc.FromXmlText(xmlDoc) -> [ Emphasis(formatMultilineString xmlDoc.UnprocessedLines); HardLineBreak ]
     | _ ->
         // TODO: For 'XmlCommentSignature' we could get documentation
         // from 'xml' files, but we don't know where to get them...
@@ -60,7 +60,7 @@ let private formatElement tooltip =
     //    [ yield! formatMultilineString it
     //      yield HardLineBreak
     //      yield! formatComment comment ]
-    | ToolTipElement.Group (items) ->
+    | ToolTipElement.Group(items) ->
         // Trim the items to at most 10 displayed in a tool tip
         let items, trimmed =
             if items.Length <= 10 then
@@ -90,14 +90,14 @@ let private formatElement tooltip =
     //      yield ToolTipSpan.HardLineBreak
     //      yield! formatComment _doc
     //  ]
-    | ToolTipElement.CompositionError (_err) -> []
+    | ToolTipElement.CompositionError(_err) -> []
 
 /// Format entire tool tip as a value of type ToolTipSpans
 let private formatTip tip =
     let spans =
         match tip with
-        | ToolTipText ([ single ]) -> formatElement single
-        | ToolTipText (items) ->
+        | ToolTipText([ single ]) -> formatElement single
+        | ToolTipText(items) ->
             [ yield Literal "Multiple items"
               yield HardLineBreak
               for first, item in Seq.mapi (fun i it -> i = 0, it) items do
@@ -119,7 +119,7 @@ let private formatTip tip =
 /// some text in the tip. Returns None if no information is available
 let tryFormatTip =
     function
-    | ToolTipText (elems) when
+    | ToolTipText(elems) when
         elems
         |> List.forall (function
             | ToolTipElement.None -> true

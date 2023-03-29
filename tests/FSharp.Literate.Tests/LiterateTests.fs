@@ -51,19 +51,19 @@ b""",
     //[/test]
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Literal ("a", Some ({ StartLine = 2 })) ], Some ({ StartLine = 2 })) -> true
+        | Paragraph([ Literal("a", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Literal ("b", Some ({ StartLine = 6 })) ], Some ({ StartLine = 6 })) -> true
+        | Paragraph([ Literal("b", Some({ StartLine = 6 })) ], Some({ StartLine = 6 })) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | EmbedParagraphs (:? LiterateParagraph as cd, Some ({ StartLine = 4 })) ->
+        | EmbedParagraphs(:? LiterateParagraph as cd, Some({ StartLine = 4 })) ->
             match cd with
-            | LanguageTaggedCode ("csharp", text, _popts) -> text.Contains "magic"
+            | LanguageTaggedCode("csharp", text, _popts) -> text.Contains "magic"
             | _ -> false
         | _ -> false)
 
@@ -84,13 +84,13 @@ let test = 42"""
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) ],
-                     Some ({ StartLine = 1 })) -> true
+        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) ],
+                    Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -112,12 +112,12 @@ let test = 42"""
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([ _; _ ], _) -> true
+        | YamlFrontmatter([ _; _ ], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 [<Test>]
@@ -141,7 +141,7 @@ let test = 42"""
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([ _; _ ], _) -> true
+        | YamlFrontmatter([ _; _ ], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
@@ -151,7 +151,7 @@ let test = 42"""
 
     doc.Paragraphs.[2..2]
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 
@@ -172,12 +172,12 @@ let test = 42"""
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([], _) -> true
+        | YamlFrontmatter([], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 [<Test>]
@@ -201,7 +201,7 @@ let test = 42
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([ _; _ ], _) -> true
+        | YamlFrontmatter([ _; _ ], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
@@ -221,7 +221,7 @@ let test = 42"""
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (2, [ Literal ("Heading", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(2, [ Literal("Heading", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -238,13 +238,13 @@ let ``Can parse markdown with F# snippet`` () =
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", Some ({ StartLine = 2 })) ], Some ({ StartLine = 2 })) ],
-                     Some ({ StartLine = 2 })) -> true
+        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) ],
+                    Some({ StartLine = 2 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -263,13 +263,13 @@ let test = 42
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", Some ({ StartLine = 2 })) ], Some ({ StartLine = 2 })) ],
-                     Some ({ StartLine = 2 })) -> true
+        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) ],
+                    Some({ StartLine = 2 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -288,7 +288,7 @@ let test = 42
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 [<Test>]
@@ -305,17 +305,17 @@ some [link][ref] to
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | ListBlock (_, _, _) -> true
+        | ListBlock(_, _, _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchSpan (function
-        | Literal ("Article", None) -> true
+        | Literal("Article", None) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchSpan (function
-        | Literal (" - Author", None) -> true
+        | Literal(" - Author", None) -> true
         | _ -> false)
 
 [<Test>]
@@ -961,7 +961,7 @@ let add a b = a + b
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (_, [ Literal ("demo", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 
@@ -980,12 +980,12 @@ let mul a b = a * b
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (_, [ Literal ("demo1", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo1", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (_, [ Literal ("demo2", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo2", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 [<Test>]

@@ -19,7 +19,7 @@ open FSharp.Formatting.Common
 
 /// Splits a link formatted as `http://link "title"` into a link part
 /// and an optional title part (may be wrapped using quote or double-quotes)
-let getLinkAndTitle (StringPosition.TrimBoth (input, _n)) =
+let getLinkAndTitle (StringPosition.TrimBoth(input, _n)) =
     let url, title =
         if input.Length = 0 then
             "", None
@@ -105,10 +105,10 @@ let (|LeftDelimiterRun|_|) input =
     // preceded by [Unicode whitespace] or a [Unicode punctuation character].
     //
     // Passes 1 and 2a.
-    | DelimiterRun (_, Char.NotWhiteSpace _) & DelimiterRun (run, NotPunctuation xs) -> Some([], run, xs)
-    | _ :: DelimiterRun (_, Char.NotWhiteSpace _) & h :: DelimiterRun (run, NotPunctuation xs) -> Some([ h ], run, xs)
+    | DelimiterRun(_, Char.NotWhiteSpace _) & DelimiterRun(run, NotPunctuation xs) -> Some([], run, xs)
+    | _ :: DelimiterRun(_, Char.NotWhiteSpace _) & h :: DelimiterRun(run, NotPunctuation xs) -> Some([ h ], run, xs)
     // Passes 1 and 2b
-    | h :: DelimiterRun (run, Punctuation (x, xs)) ->
+    | h :: DelimiterRun(run, Punctuation(x, xs)) ->
         match [ h ] with
         | Char.WhiteSpace _
         | Punctuation _ -> Some([ h ], run, x :: xs)
@@ -116,7 +116,7 @@ let (|LeftDelimiterRun|_|) input =
     // Passes 1 and 2b when the run is at the start of the line.
     // |CannotStartEmphasis| ensures that we don't match this
     // when we've previously discarded a leading character.
-    | DelimiterRun (run, Punctuation (x, xs)) -> Some([], run, x :: xs)
+    | DelimiterRun(run, Punctuation(x, xs)) -> Some([], run, x :: xs)
     | _ -> None
 
 /// Succeeds when there's a match to a string of * or _ that could
@@ -131,16 +131,16 @@ let (|RightDelimiterRun|_|) input =
     //       followed by [Unicode whitespace] or a [Unicode punctuation character]
     //
     // An escaped character followed by delimiter run matches 1 and 2a.
-    | EscapedChar (x, DelimiterRun (run, xs)) -> Some([ '\\'; x ], run, xs)
+    | EscapedChar(x, DelimiterRun(run, xs)) -> Some([ '\\'; x ], run, xs)
     | EscapedChar _ -> None
-    | Char.NotWhiteSpace _ & x :: DelimiterRun (run, xs) ->
+    | Char.NotWhiteSpace _ & x :: DelimiterRun(run, xs) ->
         match input with
         // 1 and 2a
         | NotPunctuation _ -> Some([ x ], run, xs)
         // 1 and 2b
-        | Punctuation (x, DelimiterRun (run, Char.WhiteSpace ys)) -> Some([ x ], run, ys)
+        | Punctuation(x, DelimiterRun(run, Char.WhiteSpace ys)) -> Some([ x ], run, ys)
         // 1 and 2b
-        | Punctuation (x, DelimiterRun (run, Punctuation (y, ys))) -> Some([ x ], run, y :: ys)
+        | Punctuation(x, DelimiterRun(run, Punctuation(y, ys))) -> Some([ x ], run, y :: ys)
         | _ -> None
     | _ -> None
 
@@ -157,13 +157,13 @@ let (|CannotOpenEmphasis|_|) input =
     //  and either (a) not part of a [right-flanking delimiter run]
     //  or (b) part of a [right-flanking delimiter run]
     //  preceded by a [Unicode punctuation character].
-    | LeftDelimiterRun _ & RightDelimiterRun (pre, [ '_' ], post) ->
+    | LeftDelimiterRun _ & RightDelimiterRun(pre, [ '_' ], post) ->
         match List.rev pre with
         | Punctuation _ -> None
         | revPre -> Some('_' :: revPre, post)
     // We cannot pass 1 and 2b of the left flanking rule
     // when h is neither white space nor punctuation.
-    | h :: DelimiterRun (run, Punctuation (x, xs)) ->
+    | h :: DelimiterRun(run, Punctuation(x, xs)) ->
         match [ h ] with
         | Char.WhiteSpace _
         | Punctuation _ -> None
@@ -179,28 +179,28 @@ let (|DelimitedMarkdown|_|) bracket input =
     // Like List.partitionUntilEquals, but skip over escaped characters
     let rec loop acc count =
         function
-        | (RightDelimiterRun (pre, [ '_' ], post) as input) when endl = [ '_' ] ->
+        | (RightDelimiterRun(pre, [ '_' ], post) as input) when endl = [ '_' ] ->
             match input with
-            | LeftDelimiterRun (pre, run, (Punctuation _ as post)) ->
+            | LeftDelimiterRun(pre, run, (Punctuation _ as post)) ->
                 if count = 0 then
                     Some((List.rev acc) @ pre, run @ post)
                 else
                     loop ((List.rev (pre @ run)) @ acc) (count - 1) post
-            | LeftDelimiterRun (pre, run, post) -> loop ((List.rev (pre @ run)) @ acc) (count + 1) post
+            | LeftDelimiterRun(pre, run, post) -> loop ((List.rev (pre @ run)) @ acc) (count + 1) post
             | _ -> Some((List.rev acc) @ pre, [ '_' ] @ post)
-        | RightDelimiterRun (pre, run, post) when endl = run ->
+        | RightDelimiterRun(pre, run, post) when endl = run ->
             if count = 0 then
                 Some((List.rev acc) @ pre, run @ post)
             else
                 loop ((List.rev (pre @ run)) @ acc) (count - 1) post
-        | EscapedChar (x, xs) -> loop (x :: '\\' :: acc) count xs
-        | LeftDelimiterRun (pre, run, post) when run = endl -> loop ((List.rev (pre @ run)) @ acc) (count + 1) post
+        | EscapedChar(x, xs) -> loop (x :: '\\' :: acc) count xs
+        | LeftDelimiterRun(pre, run, post) when run = endl -> loop ((List.rev (pre @ run)) @ acc) (count + 1) post
         | x :: xs -> loop (x :: acc) count xs
         | [] -> None
     // If it starts with 'startl', let's search for 'endl'
     if List.startsWith bracket input then
         match loop [] 0 (List.skip bracket.Length input) with
-        | Some (pre, post) -> Some(pre, List.skip bracket.Length post)
+        | Some(pre, post) -> Some(pre, List.skip bracket.Length post)
         | None -> None
     else
         None
@@ -211,14 +211,14 @@ let (|DelimitedLatexDisplayMath|_|) bracket input =
     // Like List.partitionUntilEquals, but skip over escaped characters
     let rec loop acc =
         function
-        | EscapedLatexInlineMathChar (x, xs) -> loop (x :: '\\' :: acc) xs
+        | EscapedLatexInlineMathChar(x, xs) -> loop (x :: '\\' :: acc) xs
         | input when List.startsWith endl input -> Some(List.rev acc, input)
         | x :: xs -> loop (x :: acc) xs
         | [] -> None
     // If it starts with 'startl', let's search for 'endl'
     if List.startsWith bracket input then
         match loop [] (List.skip bracket.Length input) with
-        | Some (pre, post) -> Some(pre, List.skip bracket.Length post)
+        | Some(pre, post) -> Some(pre, List.skip bracket.Length post)
         | None -> None
     else
         None
@@ -229,14 +229,14 @@ let (|DelimitedLatexInlineMath|_|) bracket input =
     // Like List.partitionUntilEquals, but skip over escaped characters
     let rec loop acc =
         function
-        | EscapedLatexInlineMathChar (x, xs) -> loop (x :: '\\' :: acc) xs
+        | EscapedLatexInlineMathChar(x, xs) -> loop (x :: '\\' :: acc) xs
         | input when List.startsWith endl input -> Some(List.rev acc, input)
         | x :: xs -> loop (x :: acc) xs
         | [] -> None
     // If it starts with 'startl', let's search for 'endl'
     if List.startsWith bracket input then
         match loop [] (List.skip bracket.Length input) with
-        | Some (pre, post) -> Some(pre, List.skip bracket.Length post)
+        | Some(pre, post) -> Some(pre, List.skip bracket.Length post)
         | None -> None
     else
         None
@@ -247,9 +247,8 @@ let (|IndirectLink|_|) =
     function
     | List.BracketDelimited '[' ']' (body, '\r' :: '\n' :: (List.BracketDelimited '[' ']' (List.AsString link, rest))) ->
         Some(body, link, "\r\n[" + link + "]", rest)
-    | List.BracketDelimited '['
-                            ']'
-                            (body, ((' ' | '\n') as c) :: (List.BracketDelimited '[' ']' (List.AsString link, rest))) ->
+    | List.BracketDelimited '[' ']' (body,
+                                     ((' ' | '\n') as c) :: (List.BracketDelimited '[' ']' (List.AsString link, rest))) ->
         Some(body, link, c.ToString() + "[" + link + "]", rest)
     | List.BracketDelimited '[' ']' (body, List.BracketDelimited '[' ']' (List.AsString link, rest)) ->
         Some(body, link, "[" + link + "]", rest)
@@ -279,7 +278,7 @@ let (|AutoLink|_|) input =
 /// TODO: This does not handle nested emphasis well.
 let (|Emphasised|_|) =
     function
-    | LeftDelimiterRun (pre, run, post) ->
+    | LeftDelimiterRun(pre, run, post) ->
         match run @ post with
         | DelimitedMarkdown [ '_'; '_'; '_' ] (body, rest)
         | DelimitedMarkdown [ '*'; '*'; '*' ] (body, rest) ->
@@ -335,25 +334,32 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
         // Zero or one literals, depending whether there is some accumulated input and update the ctx
         let accLiterals =
-            Lazy<_>.Create
-                (fun () ->
-                    if List.isEmpty acc then
-                        ([], ctx)
-                    else
-                        let range =
-                            match ctx.CurrentRange with
-                            | Some (n) -> Some({ n with EndColumn = n.StartColumn + acc.Length })
-                            | None -> None
+            Lazy<_>.Create(fun () ->
+                if List.isEmpty acc then
+                    ([], ctx)
+                else
+                    let range =
+                        match ctx.CurrentRange with
+                        | Some(n) ->
+                            Some(
+                                { n with
+                                    EndColumn = n.StartColumn + acc.Length }
+                            )
+                        | None -> None
 
-                        let ctx =
-                            { ctx with
-                                CurrentRange =
-                                    match ctx.CurrentRange with
-                                    | Some (n) -> Some({ n with StartColumn = n.StartColumn + acc.Length })
-                                    | None -> None }
+                    let ctx =
+                        { ctx with
+                            CurrentRange =
+                                match ctx.CurrentRange with
+                                | Some(n) ->
+                                    Some(
+                                        { n with
+                                            StartColumn = n.StartColumn + acc.Length }
+                                    )
+                                | None -> None }
 
-                        let text = String(List.rev acc |> Array.ofList)
-                        ([ Literal(text, range) ], ctx))
+                    let text = String(List.rev acc |> Array.ofList)
+                    ([ Literal(text, range) ], ctx))
 
         match input with
         // Recognizes explicit line-break at the end of line
@@ -364,7 +370,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield HardLineBreak(ctx.CurrentRange)
             yield! parseChars [] rest ctx
 
-        | HtmlEntity (entity, rest) ->
+        | HtmlEntity(entity, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
             yield Literal(entity, ctx.CurrentRange)
@@ -373,7 +379,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
         | '&' :: rest -> yield! parseChars (';' :: 'p' :: 'm' :: 'a' :: '&' :: acc) rest ctx
 
         // Ignore escaped characters that might mean something else
-        | EscapedChar (c, rest) -> yield! parseChars (c :: acc) rest ctx
+        | EscapedChar(c, rest) -> yield! parseChars (c :: acc) rest ctx
 
         // Inline code delimited either using double `` or single `
         // (if there are spaces around, then body can contain more backticks)
@@ -384,7 +390,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
             let rng =
                 match ctx.CurrentRange with
-                | Some (n) ->
+                | Some(n) ->
                     Some
                         { n with
                             StartColumn = n.StartColumn + s
@@ -409,7 +415,11 @@ let rec parseChars acc input (ctx: ParsingContext) =
                 { ctx with
                     CurrentRange =
                         match ctx.CurrentRange with
-                        | Some (n) -> Some({ n with StartColumn = n.StartColumn + 1 })
+                        | Some(n) ->
+                            Some(
+                                { n with
+                                    StartColumn = n.StartColumn + 1 }
+                            )
                         | None -> None }
 
             yield! value
@@ -419,7 +429,11 @@ let rec parseChars acc input (ctx: ParsingContext) =
                 LatexInlineMath(
                     code,
                     match ctx.CurrentRange with
-                    | Some (n) -> Some({ n with EndColumn = n.StartColumn + code.Length })
+                    | Some(n) ->
+                        Some(
+                            { n with
+                                EndColumn = n.StartColumn + code.Length }
+                        )
                     | None -> None
                 )
 
@@ -439,7 +453,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield! parseChars ('>' :: (List.rev tag) @ '<' :: acc) rest ctx
 
         // Recognize direct link [foo](http://bar) or indirect link [foo][bar] or auto link http://bar
-        | DirectLink (body, link, rest) ->
+        | DirectLink(body, link, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
@@ -447,7 +461,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
             yield DirectLink(parseChars [] body ctx |> List.ofSeq, link, title, ctx.CurrentRange)
             yield! parseChars [] rest ctx
-        | IndirectLink (body, link, original, rest) ->
+        | IndirectLink(body, link, original, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
@@ -459,14 +473,14 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
             yield IndirectLink(parseChars [] body ctx |> List.ofSeq, original, key, ctx.CurrentRange)
             yield! parseChars [] rest ctx
-        | AutoLink (link, rest) ->
+        | AutoLink(link, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
             yield DirectLink([ Literal(link, ctx.CurrentRange) ], link, None, ctx.CurrentRange)
             yield! parseChars [] rest ctx
 
         // Recognize image - this is a link prefixed with the '!' symbol
-        | '!' :: DirectLink (body, link, rest) ->
+        | '!' :: DirectLink(body, link, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
@@ -474,7 +488,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
 
             yield DirectImage(String(Array.ofList body), link, title, ctx.CurrentRange)
             yield! parseChars [] rest ctx
-        | '!' :: IndirectLink (body, link, original, rest) ->
+        | '!' :: IndirectLink(body, link, original, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
 
@@ -488,8 +502,8 @@ let rec parseChars acc input (ctx: ParsingContext) =
             yield! parseChars [] rest ctx
 
         // Handle Emphasis
-        | CannotOpenEmphasis (revPre, post) -> yield! parseChars (revPre @ acc) post ctx
-        | Emphasised (pre, body, f, rest) ->
+        | CannotOpenEmphasis(revPre, post) -> yield! parseChars (revPre @ acc) post ctx
+        | Emphasised(pre, body, f, rest) ->
             let (value, ctx) = accLiterals.Value
             yield! value
             yield! parseChars [] pre ctx
@@ -507,7 +521,7 @@ let rec parseChars acc input (ctx: ParsingContext) =
     }
 
 /// Parse body of a paragraph into a list of Markdown inline spans
-let parseSpans (StringPosition.TrimBoth (s, n)) ctx =
+let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
     let ctx = { ctx with CurrentRange = Some(n) }
 
     parseChars [] (s.ToCharArray() |> List.ofArray) ctx |> List.ofSeq
@@ -529,13 +543,13 @@ let rec trimSpaces numSpaces (s: string) =
 /// Recognizes heading, either prefixed with #s or followed by === or --- line
 let (|Heading|_|) lines =
     match lines with
-    | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd (StringPosition.EqualsRepeated ("=",
-                                                                                                              MarkdownRange.zero))) as line2) :: rest ->
+    | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd(StringPosition.EqualsRepeated("=",
+                                                                                                            MarkdownRange.zero))) as line2) :: rest ->
         Some(1, header, [ line1; line2 ], rest)
-    | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd (StringPosition.EqualsRepeated ("-",
-                                                                                                              MarkdownRange.zero))) as line2) :: rest ->
+    | ((StringPosition.TrimBoth header) as line1) :: ((StringPosition.TrimEnd(StringPosition.EqualsRepeated("-",
+                                                                                                            MarkdownRange.zero))) as line2) :: rest ->
         Some(2, header, [ line1; line2 ], rest)
-    | (StringPosition.StartsWithRepeated "#" (n, StringPosition.TrimBoth (header, ln)) as line1) :: rest ->
+    | (StringPosition.StartsWithRepeated "#" (n, StringPosition.TrimBoth(header, ln)) as line1) :: rest ->
         let header =
             // Drop "##" at the end, but only when it is preceded by some whitespace
             // (For example "## Hello F#" should be "Hello F#")
@@ -592,7 +606,7 @@ let (|HorizontalRule|_|) (line: string, _n: MarkdownRange) =
 /// Recognizes a code block - lines starting with four spaces (including blank)
 let (|NestedCodeBlock|_|) lines =
     match lines with
-    | Lines.TakeCodeBlock (_numspaces, (Lines.TrimBlank lines as takenLines), rest) when lines <> [] ->
+    | Lines.TakeCodeBlock(_numspaces, (Lines.TrimBlank lines as takenLines), rest) when lines <> [] ->
         let code = [ for (l, _n) in lines -> if String.IsNullOrEmpty l then "" else trimSpaces 4 l ]
 
         Some(code @ [ "" ], takenLines, rest, None, "", "")
@@ -699,16 +713,19 @@ let (|SkipSomeNumbers|_|) (input: string, _n: MarkdownRange) =
 /// Returns the rest of the line, together with the indent.
 let (|ListStart|_|) =
     function
-    | StringPosition.TrimStartAndCount (startIndent,
-                                        _spaces,
-                                        // NOTE: a tab character after +, * or - isn't supported by the reference implementation
-                                        // (it will be parsed as paragraph for 0.22)
-                                        (StringPosition.StartsWithAny [ "+ "; "* "; "- " (*; "+\t"; "*\t"; "-\t"*)  ] as item)) ->
+    | StringPosition.TrimStartAndCount(startIndent,
+                                       _spaces,
+                                       // NOTE: a tab character after +, * or - isn't supported by the reference implementation
+                                       // (it will be parsed as paragraph for 0.22)
+                                       (StringPosition.StartsWithAny [ "+ "; "* "; "- " (*; "+\t"; "*\t"; "-\t"*) ] as item)) ->
         let range = snd item
 
-        let li = ((fst item).Substring(2), { range with StartColumn = range.StartColumn + 2 })
+        let li =
+            ((fst item).Substring(2),
+             { range with
+                 StartColumn = range.StartColumn + 2 })
 
-        let (StringPosition.TrimStartAndCount (startIndent2, _spaces2, _)) = li
+        let (StringPosition.TrimStartAndCount(startIndent2, _spaces2, _)) = li
 
         let endIndent =
             startIndent
@@ -718,10 +735,10 @@ let (|ListStart|_|) =
             if startIndent2 >= 5 then 1 else startIndent2
 
         Some(Unordered, startIndent, endIndent, li)
-    | StringPosition.TrimStartAndCount (startIndent,
-                                        _spaces,
-                                        (SkipSomeNumbers (skipNumCount, '.' :: ' ' :: List.AsString item))) ->
-        let (StringPosition.TrimStartAndCount (startIndent2, _spaces2, _)) = (item, MarkdownRange.zero)
+    | StringPosition.TrimStartAndCount(startIndent,
+                                       _spaces,
+                                       (SkipSomeNumbers(skipNumCount, '.' :: ' ' :: List.AsString item))) ->
+        let (StringPosition.TrimStartAndCount(startIndent2, _spaces2, _)) = (item, MarkdownRange.zero)
 
         let endIndent =
             startIndent
@@ -760,12 +777,12 @@ let (|ListItem|_|) prevSimple lines =
     //
     // Then take more things that belong to the item -
     // the value 'more' will contain indented paragraphs
-    | (ListStart (kind, startIndent, endIndent, item) as takenLine) :: LinesUntilListOrWhite (continued,
-                                                                                              (LinesUntilListOrUnindented (more,
-                                                                                                                           rest) as next)) ->
+    | (ListStart(kind, startIndent, endIndent, item) as takenLine) :: LinesUntilListOrWhite(continued,
+                                                                                            (LinesUntilListOrUnindented(more,
+                                                                                                                        rest) as next)) ->
         let simple =
             match item with
-            | StringPosition.TrimStartAndCount (_, spaces, _) when spaces >= 4 ->
+            | StringPosition.TrimStartAndCount(_, spaces, _) when spaces >= 4 ->
                 // Code Block
                 false
             | _ ->
@@ -784,7 +801,11 @@ let (|ListItem|_|) prevSimple lines =
                   yield (line.Trim(), n)
               for (line, n) in more do
                   let trimmed = trimSpaces endIndent line
-                  yield (trimmed, { n with StartColumn = n.StartColumn + line.Length - trimmed.Length }) ]
+
+                  yield
+                      (trimmed,
+                       { n with
+                           StartColumn = n.StartColumn + line.Length - trimmed.Length }) ]
         //let trimmed = line.TrimStart()
         //if trimmed.Length >= line.Length - endIndent then yield trimmed
         //else yield line.Substring(endIndent) ]
@@ -839,12 +860,12 @@ let rec pipeTableFindSplits (delim: char array) (line: char list) =
 /// Recognizes alignment specified in the passed separator line.
 let (|TableCellSeparator|_|) =
     function
-    | StringPosition.StartsAndEndsWith (":", ":") (StringPosition.EqualsRepeated ("-", MarkdownRange.zero)) ->
+    | StringPosition.StartsAndEndsWith (":", ":") (StringPosition.EqualsRepeated("-", MarkdownRange.zero)) ->
         Some(AlignCenter)
-    | StringPosition.StartsWith ":" (StringPosition.EqualsRepeated ("-", MarkdownRange.zero)) -> Some(AlignLeft)
-    | StringPosition.StartsAndEndsWith ("", ":") (StringPosition.EqualsRepeated ("-", MarkdownRange.zero)) ->
+    | StringPosition.StartsWith ":" (StringPosition.EqualsRepeated("-", MarkdownRange.zero)) -> Some(AlignLeft)
+    | StringPosition.StartsAndEndsWith ("", ":") (StringPosition.EqualsRepeated("-", MarkdownRange.zero)) ->
         Some(AlignRight)
-    | StringPosition.EqualsRepeated ("-", MarkdownRange.zero) -> Some(AlignDefault)
+    | StringPosition.EqualsRepeated("-", MarkdownRange.zero) -> Some(AlignDefault)
     | _ -> None
 
 /// Recognizes row of pipe table.
@@ -1048,7 +1069,7 @@ let (|HtmlBlock|_|) (lines: (string * MarkdownRange) list) =
     match lines with
     | (first, _n) :: _ when first.StartsWith("<") ->
         match lines with
-        | TakeParagraphLines (html, rest) -> Some(html, html, rest)
+        | TakeParagraphLines(html, rest) -> Some(html, html, rest)
         | _ -> None
     | _ -> None
 
@@ -1067,13 +1088,13 @@ let (|LinesUntilBlockquoteEnds|) input =
 /// starting with '>' until there is something else
 let rec (|Blockquote|_|) lines =
     match lines with
-    | EmptyBlockquote (takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+    | EmptyBlockquote(takenLines, Lines.TrimBlankStart(takenLines2, rest)) ->
         Some([ ("", MarkdownRange.zero) ], takenLines @ takenLines2, rest)
-    | (BlockquoteStart (quoteLine) as takenLine) :: LinesUntilBlockquoteEnds (continued,
-                                                                              Lines.TrimBlankStart (takenLines2, rest)) ->
+    | (BlockquoteStart(quoteLine) as takenLine) :: LinesUntilBlockquoteEnds(continued,
+                                                                            Lines.TrimBlankStart(takenLines2, rest)) ->
         let moreQuoteLines, moreTakenLines, rest =
             match rest with
-            | Blockquote (lines, takenLines, rest) -> lines, takenLines, rest
+            | Blockquote(lines, takenLines, rest) -> lines, takenLines, rest
             | _ -> [], [], rest
 
         Some(quoteLine :: continued @ moreQuoteLines, takenLine :: continued @ takenLines2 @ moreTakenLines, rest)
@@ -1083,8 +1104,8 @@ let rec (|Blockquote|_|) lines =
 /// the blockquote if the next line is not a blockquote
 and (|EmptyBlockquote|_|) lines =
     match lines with
-    | BlockquoteStart (StringPosition.WhiteSpace) :: Blockquote (_) -> None
-    | (BlockquoteStart (StringPosition.WhiteSpace) as takenLine) :: rest -> Some([ takenLine ], rest)
+    | BlockquoteStart(StringPosition.WhiteSpace) :: Blockquote(_) -> None
+    | (BlockquoteStart(StringPosition.WhiteSpace) as takenLine) :: rest -> Some([ takenLine ], rest)
     | _ -> None
 
 /// Recognizes Latex block
@@ -1103,7 +1124,7 @@ let (|LatexBlock|_|) (lines: (string * MarkdownRange) list) =
     match lines with
     | (first, n) as _takenLine1 :: rest when (first.TrimEnd()) = "$$$" ->
         match rest with
-        | TakeParagraphLines (body, rest) ->
+        | TakeParagraphLines(body, rest) ->
             Some("equation", body, ((@"\begin{equation}", n) :: body @ [ (@"\end{equation}", n) ]), rest)
         | _ -> None
     | ((first, n) as takenLine) :: rest when
@@ -1135,15 +1156,12 @@ let (|LatexBlock|_|) (lines: (string * MarkdownRange) list) =
 let (|LinkDefinition|_|) s =
     match s with
     | ((StringPosition.StartsWithWrapped ("[", "]:") (wrapped, StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped (" [",
-                                                                                                                                 "]:")
-                                                                                                                                (wrapped,
-                                                                                                                                 StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped ("  [",
-                                                                                                                                                                                                   "]:")
-                                                                                                                                                                                                  (wrapped,
-                                                                                                                                                                                                   StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped ("   [",
-                                                                                                                                                                                                                                                                     "]:")
-                                                                                                                                                                                                                                                                    (wrapped,
-                                                                                                                                                                                                                                                                     StringPosition.TrimBoth link)) as line) :: rest ->
+                                                                                                                                 "]:") (wrapped,
+                                                                                                                                        StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped ("  [",
+                                                                                                                                                                                                          "]:") (wrapped,
+                                                                                                                                                                                                                 StringPosition.TrimBoth link) | StringPosition.StartsWithWrapped ("   [",
+                                                                                                                                                                                                                                                                                   "]:") (wrapped,
+                                                                                                                                                                                                                                                                                          StringPosition.TrimBoth link)) as line) :: rest ->
         Some((wrapped, link), [ line ], rest)
     | _ -> None
 
@@ -1155,12 +1173,14 @@ let updateCurrentRange lines =
 /// Parse a list of lines into a sequence of markdown paragraphs
 let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) list) =
     seq {
-        let ctx = { ctx with CurrentRange = updateCurrentRange lines }
+        let ctx =
+            { ctx with
+                CurrentRange = updateCurrentRange lines }
 
-        let frontMatter, (Lines.TrimBlankStart (_, moreLines)) =
+        let frontMatter, (Lines.TrimBlankStart(_, moreLines)) =
             if ctx.IsFirst && ctx.AllowYamlFrontMatter then
                 match lines with
-                | YamlFrontmatter (yaml, loc, rest) -> Some(YamlFrontmatter(yaml, Some loc)), rest
+                | YamlFrontmatter(yaml, loc, rest) -> Some(YamlFrontmatter(yaml, Some loc)), rest
                 | _ -> None, lines
             else
                 None, lines
@@ -1169,13 +1189,15 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
         | None -> ()
         | Some p -> yield p
 
-        let ctx = { ctx with CurrentRange = updateCurrentRange moreLines }
+        let ctx =
+            { ctx with
+                CurrentRange = updateCurrentRange moreLines }
 
         let ctx = { ctx with IsFirst = false }
 
         match moreLines with
         // Recognize various kinds of standard paragraphs
-        | LinkDefinition ((key, link), takenLines, Lines.TrimBlankStart (takenLines2, lines)) ->
+        | LinkDefinition((key, link), takenLines, Lines.TrimBlankStart(takenLines2, lines)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1186,18 +1208,18 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | NestedCodeBlock (code,
-                           takenLines,
-                           Lines.TrimBlankStart (takenLines2, lines),
-                           fenceString,
-                           langString,
-                           ignoredLine)
-        | FencedCodeBlock (code,
-                           takenLines,
-                           Lines.TrimBlankStart (takenLines2, lines),
-                           fenceString,
-                           langString,
-                           ignoredLine) ->
+        | NestedCodeBlock(code,
+                          takenLines,
+                          Lines.TrimBlankStart(takenLines2, lines),
+                          fenceString,
+                          langString,
+                          ignoredLine)
+        | FencedCodeBlock(code,
+                          takenLines,
+                          Lines.TrimBlankStart(takenLines2, lines),
+                          fenceString,
+                          langString,
+                          ignoredLine) ->
             if ctx.ParseCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1206,7 +1228,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | Blockquote (body, takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+        | Blockquote(body, takenLines, Lines.TrimBlankStart(takenLines2, rest)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1218,8 +1240,8 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx rest
 
-        | EmacsTableBlock ((headers, alignments, rows), takenLines, Lines.TrimBlankStart (takenLines2, rest))
-        | PipeTableBlock ((headers, alignments, rows), takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+        | EmacsTableBlock((headers, alignments, rows), takenLines, Lines.TrimBlankStart(takenLines2, rest))
+        | PipeTableBlock((headers, alignments, rows), takenLines, Lines.TrimBlankStart(takenLines2, rest)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1235,7 +1257,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx rest
 
-        | HorizontalRule (c) as takenLine :: (Lines.TrimBlankStart (takenLines2, lines)) ->
+        | HorizontalRule(c) as takenLine :: (Lines.TrimBlankStart(takenLines2, lines)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLine :: takenLines2, ctx.CurrentRange)
             else
@@ -1243,7 +1265,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | LatexBlock (env, body, takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+        | LatexBlock(env, body, takenLines, Lines.TrimBlankStart(takenLines2, rest)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1253,7 +1275,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
 
         // Recognize list of list items and turn it into nested lists
-        | ListItems true (items, takenLines, Lines.TrimBlankStart (takenLines2, rest)) ->
+        | ListItems true (items, takenLines, Lines.TrimBlankStart(takenLines2, rest)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1262,10 +1284,10 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                 // Nest all items that have another kind (i.e. UL vs. OL)
                 let rec nestUnmatchingItems items =
                     match items with
-                    | Node ((_, baseKind, _), _) :: _ ->
+                    | Node((_, baseKind, _), _) :: _ ->
                         items
-                        |> List.nestUnderLastMatching (fun (Node ((_, kind, _), _)) -> kind = baseKind)
-                        |> List.map (fun (Node (info, children), nested) ->
+                        |> List.nestUnderLastMatching (fun (Node((_, kind, _), _)) -> kind = baseKind)
+                        |> List.map (fun (Node(info, children), nested) ->
                             let children = nestUnmatchingItems children
                             Node(info, children @ nested))
                     | [] -> []
@@ -1274,11 +1296,11 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                 let rec formatTree (nodes: Tree<bool * MarkdownListKind * (string * MarkdownRange) list> list) =
                     let kind =
                         match nodes with
-                        | Node ((_, kind, _), _) :: _ -> kind
+                        | Node((_, kind, _), _) :: _ -> kind
                         | _ -> Unordered
 
                     let items =
-                        [ for (Node ((simple, _, body), nested)) in nodes ->
+                        [ for (Node((simple, _, body), nested)) in nodes ->
                               [ let rng = body |> List.map snd |> MarkdownRange.mergeRanges
 
                                 if not simple then
@@ -1302,13 +1324,13 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                     let containsNonSimple =
                         tree
                         |> Seq.exists (function
-                            | Node ((false, _, _), _) -> true
+                            | Node((false, _, _), _) -> true
                             | _ -> false)
 
                     if containsNonSimple then
                         nodes
                         |> List.map (function
-                            | Node ((_, kind, content), nested) ->
+                            | Node((_, kind, content), nested) ->
                                 Node((false, kind, content), unifySimpleProperty nested))
                     else
                         nodes
@@ -1318,7 +1340,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
             yield! parseParagraphs ctx rest
 
         // Recognize remaining types of paragraphs
-        | Heading (n, body, takenLines, Lines.TrimBlankStart (takenLines2, lines)) ->
+        | Heading(n, body, takenLines, Lines.TrimBlankStart(takenLines2, lines)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1326,7 +1348,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | HtmlBlock (code, takenLines, Lines.TrimBlankStart (takenLines2, lines)) when
+        | HtmlBlock(code, takenLines, Lines.TrimBlankStart(takenLines2, lines)) when
             (let all = String.concat ctx.Newline (code |> List.map fst)
 
              not (all.StartsWith("<http://"))
@@ -1342,7 +1364,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx lines
 
-        | TakeParagraphLines ((Lines.TrimParagraphLines lines as takenLines), Lines.TrimBlankStart (takenLines2, rest)) ->
+        | TakeParagraphLines((Lines.TrimParagraphLines lines as takenLines), Lines.TrimBlankStart(takenLines2, rest)) ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
@@ -1357,7 +1379,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
 
             yield! parseParagraphs ctx rest
 
-        | Lines.TrimBlankStart (_takenLines2, []) -> ()
+        | Lines.TrimBlankStart(_takenLines2, []) -> ()
 
         | _ -> failwithf "Unexpectedly stopped!\n%A" moreLines
     }

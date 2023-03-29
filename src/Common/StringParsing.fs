@@ -140,17 +140,26 @@ module StringPosition =
     /// Returns a string trimmed from the end
     let (|TrimEnd|) (text: string, n: MarkdownRange) =
         let trimmed = text.TrimEnd()
-        (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
+
+        (trimmed,
+         { n with
+             EndColumn = n.EndColumn - text.Length + trimmed.Length })
 
     /// Returns a string trimmed from the start
     let (|TrimStart|) (text: string, n: MarkdownRange) =
         let trimmed = text.TrimStart()
-        (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
+
+        (trimmed,
+         { n with
+             StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Returns a string trimmed from the end using characters given as a parameter
     let (|TrimEndUsing|) chars (text: string, n: MarkdownRange) =
         let trimmed = text.TrimEnd(Array.ofSeq chars)
-        (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
+
+        (trimmed,
+         { n with
+             EndColumn = n.EndColumn - text.Length + trimmed.Length })
 
     /// Returns a string trimmed from the start together with
     /// the number of skipped whitespace characters
@@ -160,7 +169,9 @@ module StringPosition =
 
         len,
         text.Substring(0, len).Replace("\t", "    ").Length,
-        (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
+        (trimmed,
+         { n with
+             StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Matches when a string starts with any of the specified sub-strings
     let (|StartsWithAny|_|) (starts: seq<string>) (text: string, _n: MarkdownRange) =
@@ -172,7 +183,11 @@ module StringPosition =
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string, n: MarkdownRange) =
         if text.StartsWith(start) then
-            Some(text.Substring(start.Length), { n with StartColumn = n.StartColumn + text.Length - start.Length })
+            Some(
+                text.Substring(start.Length),
+                { n with
+                    StartColumn = n.StartColumn + text.Length - start.Length }
+            )
         else
             None
 
@@ -182,7 +197,8 @@ module StringPosition =
         if text.StartsWith(start) then
             Some(
                 text.Substring(start.Length).Trim(),
-                { n with StartColumn = n.StartColumn + text.Length - start.Length }
+                { n with
+                    StartColumn = n.StartColumn + text.Length - start.Length }
             )
         else
             None
@@ -268,7 +284,12 @@ module StringPosition =
 
                 let rest = text.Substring(id + ends.Length, text.Length - id - ends.Length)
 
-                Some(wrapped, (rest, { n with StartColumn = id + ends.Length }))
+                Some(
+                    wrapped,
+                    (rest,
+                     { n with
+                         StartColumn = id + ends.Length })
+                )
             else
                 None
         else
@@ -287,7 +308,7 @@ module List =
     let inline (|DelimitedWith|_|) startl endl input =
         if List.startsWith startl input then
             match List.partitionUntilEquals endl (List.skip startl.Length input) with
-            | Some (pre, post) -> Some(pre, List.skip endl.Length post, startl.Length, endl.Length)
+            | Some(pre, post) -> Some(pre, List.skip endl.Length post, startl.Length, endl.Length)
             | None -> None
         else
             None
@@ -388,7 +409,9 @@ module Lines =
 
             let trimmed = s.TrimEnd([| ' ' |]) + if endsWithTwoSpaces then "  " else ""
 
-            (trimmed, { n with EndColumn = n.EndColumn - s.Length + trimmed.Length }))
+            (trimmed,
+             { n with
+                 EndColumn = n.EndColumn - s.Length + trimmed.Length }))
 
 /// Parameterized pattern that assigns the specified value to the
 /// first component of a tuple. Usage:

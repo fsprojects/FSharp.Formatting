@@ -46,28 +46,28 @@ printf ">>%d<<" 12343
     // Contains formatted code and markdown
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", _) ], _) ], _) -> true
+        | Paragraph([ Strong([ Literal("hello", _) ], _) ], _) -> true
         | _ -> false)
 
     // Contains transformed output - not using 'include-value' and 'include-output' gives odd execution sequence numbers
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock ("42", "text/plain", Some 4) -> true
+        | OutputBlock("42", "text/plain", Some 4) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock ("85", "text/plain", Some 5) -> true
+        | OutputBlock("85", "text/plain", Some 5) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock (">>12343<<", "text/plain", Some 3) -> true
+        | OutputBlock(">>12343<<", "text/plain", Some 3) -> true
         | _ -> false)
 
 [<Test>]
@@ -102,27 +102,27 @@ test2 + 16
     // Contains transformed output
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock ("42", "text/plain", Some 2) -> true
+        | OutputBlock("42", "text/plain", Some 2) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock ("100", "text/plain", Some 3) -> true
+        | OutputBlock("100", "text/plain", Some 3) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock (">>12343<<", "text/plain", Some 4) -> true
+        | OutputBlock(">>12343<<", "text/plain", Some 4) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock (">>12345<<", "text/plain", Some 5) -> true
+        | OutputBlock(">>12345<<", "text/plain", Some 5) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | OutputBlock ("101", "text/plain", Some 5) -> true
+        | OutputBlock("101", "text/plain", Some 5) -> true
         | _ -> false)
 
 [<Test>]
@@ -162,7 +162,7 @@ let test = [1;2;3]
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | ListBlock (Ordered, items, None) ->
+        | ListBlock(Ordered, items, None) ->
             items = [ [ Paragraph([ Literal("1", None) ], None) ]
                       [ Paragraph([ Literal("2", None) ], None) ]
                       [ Paragraph([ Literal("3", None) ], None) ] ]

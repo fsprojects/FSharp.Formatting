@@ -200,15 +200,15 @@ let ``Should be able to create nested list item with two paragraphs`` () =
           ) ]
 
     match doc.Paragraphs.Head with
-    | ListBlock (Unordered,
-                 [ [ Span ([ Literal ("a",
-                                      Some ({ StartLine = 2
-                                              StartColumn = 2
-                                              EndLine = 2
-                                              EndColumn = 3 })) ],
-                           _)
-                     ListBlock (Unordered, [ body ], _) ] ],
-                 _) -> body |> shouldEqual expectedBody
+    | ListBlock(Unordered,
+                [ [ Span([ Literal("a",
+                                   Some({ StartLine = 2
+                                          StartColumn = 2
+                                          EndLine = 2
+                                          EndColumn = 3 })) ],
+                         _)
+                    ListBlock(Unordered, [ body ], _) ] ],
+                _) -> body |> shouldEqual expectedBody
     | _ -> Assert.Fail "Expected list block with a nested list block"
 
 [<Test>]

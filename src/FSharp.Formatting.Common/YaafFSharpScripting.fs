@@ -326,13 +326,7 @@ type internal InteractionOutputs =
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
 type internal FsiEvaluationException
-    (
-        msg: string,
-        input: string,
-        args: string list option,
-        result: InteractionOutputs,
-        inner: System.Exception
-    ) =
+    (msg: string, input: string, args: string list option, result: InteractionOutputs, inner: System.Exception) =
     inherit Exception(msg, inner)
 
     member x.Result = result
@@ -585,35 +579,64 @@ type internal FsiOptions =
                     let parsed, (userArgs, newCont) = cont arg
                     parsed, (userArgs, unbox newCont)
                 | _, "--" -> parsed, (true, None)
-                | (true, _), a -> { parsed with ScriptArgs = a :: parsed.ScriptArgs }, state
+                | (true, _), a ->
+                    { parsed with
+                        ScriptArgs = a :: parsed.ScriptArgs },
+                    state
                 | _, FsiBoolArg "--checked" enabled -> { parsed with Checked = Some enabled }, state
                 | _, StartsWith "--codepage:" res -> { parsed with Codepage = Some(int res) }, state
-                | _, FsiBoolArg "--crossoptimize" enabled -> { parsed with CrossOptimize = Some enabled }, state
+                | _, FsiBoolArg "--crossoptimize" enabled ->
+                    { parsed with
+                        CrossOptimize = Some enabled },
+                    state
                 | _, StartsWith "--debug:" "pdbonly"
-                | _, StartsWith "-g:" "pdbonly" -> { parsed with Debug = Some DebugMode.PdbOnly }, state
+                | _, StartsWith "-g:" "pdbonly" ->
+                    { parsed with
+                        Debug = Some DebugMode.PdbOnly },
+                    state
                 | _, StartsWith "--debug:" "portable"
-                | _, StartsWith "-g:" "portable" -> { parsed with Debug = Some DebugMode.Portable }, state
+                | _, StartsWith "-g:" "portable" ->
+                    { parsed with
+                        Debug = Some DebugMode.Portable },
+                    state
                 | _, StartsWith "--debug:" "full"
                 | _, StartsWith "-g:" "full"
                 | _, FsiBoolArg "--debug" true
-                | _, FsiBoolArg "-g" true -> { parsed with Debug = Some DebugMode.Full }, state
+                | _, FsiBoolArg "-g" true ->
+                    { parsed with
+                        Debug = Some DebugMode.Full },
+                    state
                 | _, FsiBoolArg "--debug" false
-                | _, FsiBoolArg "-g" false -> { parsed with Debug = Some DebugMode.NoDebug }, state
+                | _, FsiBoolArg "-g" false ->
+                    { parsed with
+                        Debug = Some DebugMode.NoDebug },
+                    state
                 | _, StartsWith "-d:" def
-                | _, StartsWith "--define:" def -> { parsed with Defines = def :: parsed.Defines }, state
+                | _, StartsWith "--define:" def ->
+                    { parsed with
+                        Defines = def :: parsed.Defines },
+                    state
                 | _, "--exec" -> { parsed with Exec = true }, state
                 | _, "--noninteractive" -> { parsed with NonInteractive = true }, state
                 | _, "--fullpaths" -> { parsed with FullPaths = true }, state
                 | _, FsiBoolArg "--gui" enabled -> { parsed with Gui = Some enabled }, state
                 | _, StartsWith "-I:" lib
-                | _, StartsWith "--lib:" lib -> { parsed with LibDirs = lib :: parsed.LibDirs }, state
-                | _, StartsWith "--load:" load -> { parsed with Loads = load :: parsed.Loads }, state
+                | _, StartsWith "--lib:" lib ->
+                    { parsed with
+                        LibDirs = lib :: parsed.LibDirs },
+                    state
+                | _, StartsWith "--load:" load ->
+                    { parsed with
+                        Loads = load :: parsed.Loads },
+                    state
                 | _, "--noframework" -> { parsed with NoFramework = true }, state
                 | _, "--nologo" -> { parsed with NoLogo = true }, state
                 | _, StartsWith "--nowarn:" warns ->
                     let noWarns = warns.Split([| ',' |]) |> Seq.map int |> Seq.toList
 
-                    { parsed with NoWarns = noWarns @ parsed.NoWarns }, state
+                    { parsed with
+                        NoWarns = noWarns @ parsed.NoWarns },
+                    state
                 | _, FsiBoolArg "--optimize" enabled ->
                     let cont (arg: string) =
                         let optList =
@@ -627,19 +650,35 @@ type internal FsiOptions =
                                 | unknown -> failwithf "Unknown optimization option %s" unknown)
                             |> Seq.toList
 
-                        { parsed with Optimize = (enabled, optList) :: parsed.Optimize }, (false, box None)
+                        { parsed with
+                            Optimize = (enabled, optList) :: parsed.Optimize },
+                        (false, box None)
 
-                    { parsed with Optimize = (enabled, []) :: parsed.Optimize }, (false, Some cont)
+                    { parsed with
+                        Optimize = (enabled, []) :: parsed.Optimize },
+                    (false, Some cont)
                 | _, "--quiet" -> { parsed with Quiet = true }, state
                 | _, "--quotations-debug" -> { parsed with QuotationsDebug = true }, state
                 | _, FsiBoolArg "--readline" enabled -> { parsed with ReadLine = Some enabled }, state
                 | _, StartsWith "-r:" ref
-                | _, StartsWith "--reference:" ref -> { parsed with References = ref :: parsed.References }, state
+                | _, StartsWith "--reference:" ref ->
+                    { parsed with
+                        References = ref :: parsed.References },
+                    state
                 | _, FsiBoolArg "--tailcalls" enabled -> { parsed with TailCalls = Some enabled }, state
-                | _, StartsWith "--use:" useFile -> { parsed with Uses = useFile :: parsed.Uses }, state
+                | _, StartsWith "--use:" useFile ->
+                    { parsed with
+                        Uses = useFile :: parsed.Uses },
+                    state
                 | _, "--utf8output" -> { parsed with Utf8Output = true }, state
-                | _, StartsWith "--warn:" warn -> { parsed with WarnLevel = Some(int warn) }, state
-                | _, FsiBoolArg "--warnaserror" enabled -> { parsed with WarnAsError = Some enabled }, state
+                | _, StartsWith "--warn:" warn ->
+                    { parsed with
+                        WarnLevel = Some(int warn) },
+                    state
+                | _, FsiBoolArg "--warnaserror" enabled ->
+                    { parsed with
+                        WarnAsError = Some enabled },
+                    state
                 | _, StartsWith "--warnaserror" warnOpts ->
                     let parseList (l: string) =
                         l.Split [| ',' |] |> Seq.map int |> Seq.toList
@@ -659,7 +698,10 @@ type internal FsiOptions =
                         state
                     | _ -> failwithf "invalid --warnaserror argument: %s" arg
                 | _, FsiBoolArg "--multiemit" enabled -> { parsed with MultiEmit = Some enabled }, state
-                | _, unknown -> { parsed with ScriptArgs = unknown :: parsed.ScriptArgs }, (true, None))
+                | _, unknown ->
+                    { parsed with
+                        ScriptArgs = unknown :: parsed.ScriptArgs },
+                    (true, None))
             (FsiOptions.Empty, (false, None))
         |> fst
         |> (fun p ->
@@ -876,16 +918,7 @@ module internal Helper =
             Console.SetError defErr
 
 type internal FsiSession
-    (
-        fsi: obj,
-        options: FsiOptions,
-        reportGlobal,
-        liveOut,
-        liveOutFsi,
-        liveErr,
-        liveErrFsi,
-        discardStdOut
-    ) =
+    (fsi: obj, options: FsiOptions, reportGlobal, liveOut, liveOutFsi, liveErr, liveErrFsi, discardStdOut) =
     // Intialize output and input streams
     let out = new OutStreamHelper(reportGlobal, liveOut, liveOutFsi)
 
@@ -928,7 +961,8 @@ type internal FsiSession
             let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi, false)
 
             redirectOut (fun () ->
-                let session = FsiEvaluationSession.Create(fsiConfig, args, inStream, out.FsiOutWriter, err.FsiOutWriter)
+                let session =
+                    FsiEvaluationSession.Create(fsiConfig, args, inStream, out.FsiOutWriter, err.FsiOutWriter)
 
                 saveOutput () |> ignore
                 session)
@@ -976,7 +1010,10 @@ type internal FsiSession
         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
     let addDiagsToFsiOutput (o: InteractionOutputs) diags =
-        { o with Output = { o.Output with FsiOutput = diagsToString diags + o.Output.FsiOutput } }
+        { o with
+            Output =
+                { o.Output with
+                    FsiOutput = diagsToString diags + o.Output.FsiOutput } }
 
     member _.EvalInteraction text =
         let i, (r, diags) = evalInteraction text
@@ -1061,7 +1098,9 @@ type internal ScriptHost() =
             ?fsiErrWriter: TextWriter,
             ?discardStdOut
         ) =
-        let opts = { FsiOptions.Default with Defines = defaultArg defines [] }
+        let opts =
+            { FsiOptions.Default with
+                Defines = defaultArg defines [] }
 
         ScriptHost.Create(
             opts,

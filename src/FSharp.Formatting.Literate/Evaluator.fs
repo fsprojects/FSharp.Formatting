@@ -187,7 +187,8 @@ type FsiEvaluator
 
     let fsiOptions =
         if addHtmlPrinter then
-            { fsiOptions with Defines = fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ] }
+            { fsiOptions with
+                Defines = fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ] }
         else
             fsiOptions
 
@@ -482,7 +483,7 @@ module __FsiSettings =
 
                 let output = outputText.Trim()
                 [ OutputBlock(output, "text/plain", Some executionCount) ]
-            | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItRaw ->
+            | { ItValue = Some(obj, ty) }, FsiEmbedKind.ItRaw ->
                 match
                     valueTransformations
                     |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
@@ -491,7 +492,7 @@ module __FsiSettings =
                 | blocks ->
                     blocks
                     |> List.map (function
-                        | OutputBlock (output, _, Some executionCount) ->
+                        | OutputBlock(output, _, Some executionCount) ->
                             let output =
                                 if ty.FullName = (typeof<string>).FullName then
                                     let l = output.Length
@@ -501,8 +502,8 @@ module __FsiSettings =
 
                             OutputBlock(output, "text/html", Some executionCount)
                         | _ -> OutputBlock("Value could not be returned raw", "text/plain", Some executionCount))
-            | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItValue
-            | { Result = Some (obj, ty) }, FsiEmbedKind.Value ->
+            | { ItValue = Some(obj, ty) }, FsiEmbedKind.ItValue
+            | { Result = Some(obj, ty) }, FsiEmbedKind.Value ->
                 match
                     valueTransformations
                     |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
