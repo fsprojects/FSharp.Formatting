@@ -1065,33 +1065,74 @@ With some [hyperlink](http://tomasp.net)
     printfn "----"
     pynb |> shouldContainText """ "cells": ["""
 
-    pynb |> shouldContainText """ "cell_type": "markdown","""
+    pynb
+    |> shouldContainText
+        """
+   "cell_type": "markdown",
+   "metadata": {},"""
 
-    pynb |> shouldContainText """ "source": ["Heading\n","""
+    pynb
+    |> shouldContainText
+        """ "source": [
+    "Heading\n","""
 
     pynb |> shouldContainText """"=======\n","""
 
     pynb |> shouldContainText """With some [hyperlink](http://tomasp.net)"""
 
-    pynb |> shouldContainText """ "cell_type": "code","""
+    pynb
+    |> shouldContainText
+        """"cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }"""
 
     pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
 
-    pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
+    pynb
+    |> shouldContainText
+        """ "source": [
+    "let hello = \"Code sample"""
 
     pynb
-    |> shouldContainText """ "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},"""
+    |> shouldContainText
+        """  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },"""
+
+    pynb
+    |> shouldContainText
+        """"polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }"""
 
     pynb |> shouldContainText """ "file_extension": ".fs","""
 
     pynb |> shouldContainText """ "mimetype": "text/x-fsharp","""
 
-    pynb |> shouldContainText """ "pygments_lexer": "fsharp","""
+    pynb
+    |> shouldContainText
+        """ "pygments_lexer": "fsharp"
+"""
 
-    pynb |> shouldContainText """ "version": "4.5"""
     pynb |> shouldContainText """ "nbformat": 4,"""
 
-    pynb |> shouldContainText """ "nbformat_minor": 1"""
+    pynb |> shouldContainText """ "nbformat_minor": 2"""
 
 
 [<Test>]
@@ -1183,7 +1224,10 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """ "cell_type": "markdown","""
 
-    pynb |> shouldContainText """ "source": ["Heading"""
+    pynb
+    |> shouldContainText
+        """ "source": [
+    "Heading"""
 
     pynb |> shouldContainText """====="""
     pynb |> shouldContainText """```emptyblockcode"""
@@ -1258,25 +1302,59 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
     pynb
     |> shouldNotContainText """Doc preparation code is not present in generated notebooks"""
 
-    pynb |> shouldContainText """ "cell_type": "code","""
-
-    pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
-
-    pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
+    pynb
+    |> shouldContainText
+        """"cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],"""
 
     pynb
-    |> shouldContainText """ "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},"""
+    |> shouldContainText
+        """ "source": [
+    "let hello = \"Code sample"""
+
+    pynb
+    |> shouldContainText
+        """  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },"""
+
+    pynb
+    |> shouldContainText
+        """  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }"""
 
     pynb |> shouldContainText """ "file_extension": ".fs","""
 
     pynb |> shouldContainText """ "mimetype": "text/x-fsharp","""
 
-    pynb |> shouldContainText """ "pygments_lexer": "fsharp","""
+    pynb
+    |> shouldContainText
+        """ "pygments_lexer": "fsharp"
+"""
 
-    pynb |> shouldContainText """ "version": "4.5"""
     pynb |> shouldContainText """ "nbformat": 4,"""
 
-    pynb |> shouldContainText """ "nbformat_minor": 1"""
+    pynb |> shouldContainText """ "nbformat_minor": 2"""
 
 
 [<Test>]
@@ -1302,30 +1380,54 @@ let goodbye = 2
 
     let expected =
         """
-        {
-            "cells": [
-          {
-           "cell_type": "code",
-           "metadata": {},
-            "execution_count": null, "outputs": [],
-           "source": ["let hello = 1\n",
-"\n",
-"let goodbye = 2\n"]
-          }],
-            "metadata": {
-            "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},
-            "langauge_info": {
-        "file_extension": ".fs",
-        "mimetype": "text/x-fsharp",
-        "name": "C#",
-        "pygments_lexer": "fsharp",
-        "version": "4.5"
-        }
-        },
-            "nbformat": 4,
-            "nbformat_minor": 1
-        }
-        """
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],
+   "source": [
+    "let hello = 1\n",
+    "\n",
+    "let goodbye = 2\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "polyglot-notebook",
+   "pygments_lexer": "fsharp"
+  },
+  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}"""
 
     let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
 
