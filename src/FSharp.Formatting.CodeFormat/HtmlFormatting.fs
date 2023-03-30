@@ -59,7 +59,7 @@ type ToolTipFormatter(prefix) =
 
     /// Returns all generated tool tip elements
     member x.WriteTipElements(writer: TextWriter) =
-        for (KeyValue (_, (index, html))) in tips do
+        for (KeyValue(_, (index, html))) in tips do
             writer.WriteLine(sprintf "<div class=\"fsdocs-tip\" id=\"%s%d\">%s</div>" prefix index html)
 
 
@@ -87,11 +87,11 @@ let formatToolTipSpans spans =
     let rec format spans =
         spans
         |> List.iter (function
-            | Emphasis (spans) ->
+            | Emphasis(spans) ->
                 wr.Write("<em>")
                 format spans
                 wr.Write("</em>")
-            | Literal (string) ->
+            | Literal(string) ->
                 let spaces = string.Length - string.TrimStart(' ').Length
 
                 wr.Write(String.replicate spaces "&#160;")
@@ -104,7 +104,7 @@ let formatToolTipSpans spans =
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx: FormattingContext) =
     List.iter (function
-        | TokenSpan.Error (_kind, message, body) when ctx.GenerateErrors ->
+        | TokenSpan.Error(_kind, message, body) when ctx.GenerateErrors ->
             let tip = ToolTipReader.formatMultilineString (message.Trim().Split('\n'))
 
             let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
@@ -115,14 +115,14 @@ let rec formatTokenSpans (ctx: FormattingContext) =
             formatTokenSpans { ctx with FormatTip = fun _ _ _ -> "" } body
             ctx.Writer.Write("</span>")
 
-        | TokenSpan.Error (_, _, body) -> formatTokenSpans ctx body
+        | TokenSpan.Error(_, _, body) -> formatTokenSpans ctx body
 
-        | TokenSpan.Output (body) ->
+        | TokenSpan.Output(body) ->
             ctx.Writer.Write("<span class=\"fsi\">")
             ctx.Writer.Write(HttpUtility.HtmlEncode(body))
             ctx.Writer.Write("</span>")
 
-        | TokenSpan.Omitted (body, hidden) ->
+        | TokenSpan.Omitted(body, hidden) ->
             let tip = ToolTipReader.formatMultilineString (hidden.Trim().Split('\n'))
 
             let tipAttributes = ctx.FormatTip tip true formatToolTipSpans
@@ -133,11 +133,11 @@ let rec formatTokenSpans (ctx: FormattingContext) =
             ctx.Writer.Write(body)
             ctx.Writer.Write("</span>")
 
-        | TokenSpan.Token (kind, body, tip) ->
+        | TokenSpan.Token(kind, body, tip) ->
             // Generate additional attributes for ToolTip
             let tipAttributes =
                 match tip with
-                | Some (tip) -> ctx.FormatTip tip false formatToolTipSpans
+                | Some(tip) -> ctx.FormatTip tip false formatToolTipSpans
                 | _ -> ""
 
             // Get CSS class name of the token
@@ -155,16 +155,18 @@ let rec formatTokenSpans (ctx: FormattingContext) =
 
 /// Generate HTML with the specified snippets
 let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
-    [| for (Snippet (key, lines)) in snippets do
+    [| for (Snippet(key, lines)) in snippets do
            // Skip empty lines at the beginning and at the end
-           let skipEmptyLines = Seq.skipWhile (fun (Line (_, spans)) -> List.isEmpty spans) >> List.ofSeq
+           let skipEmptyLines = Seq.skipWhile (fun (Line(_, spans)) -> List.isEmpty spans) >> List.ofSeq
 
            let lines = lines |> skipEmptyLines |> List.rev |> skipEmptyLines |> List.rev
 
            // Generate snippet to a local StringBuilder
            let mainStr = StringBuilder()
 
-           let ctx = { ctx with Writer = new StringWriter(mainStr) }
+           let ctx =
+               { ctx with
+                   Writer = new StringWriter(mainStr) }
 
            let numberLength = lines.Length.ToString().Length
            let linesLength = lines.Length
@@ -198,7 +200,7 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
            emitTag ctx.OpenTag
 
            lines
-           |> List.iter (fun (Line (_originalLine, spans)) ->
+           |> List.iter (fun (Line(_originalLine, spans)) ->
                formatTokenSpans ctx spans
                ctx.Writer.WriteLine())
 

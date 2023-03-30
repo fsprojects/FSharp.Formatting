@@ -22,7 +22,7 @@ module internal Transformations =
     let rec collectCodeSnippets par =
         seq {
             match par with
-            | CodeBlock (code, _executionCount, _fence, language, _, _) ->
+            | CodeBlock(code, _executionCount, _fence, language, _, _) ->
                 match code with
                 | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine _code) when
                     (not (String.IsNullOrWhiteSpace(language)) && language <> "fsharp")
@@ -38,11 +38,11 @@ module internal Transformations =
 
                     yield modul, code
             | MarkdownPatterns.ParagraphLeaf _ -> ()
-            | MarkdownPatterns.ParagraphNested (_, pars) ->
+            | MarkdownPatterns.ParagraphNested(_, pars) ->
                 for ps in pars do
                     for p in ps do
                         yield! collectCodeSnippets p
-            | MarkdownPatterns.ParagraphSpans (_, _spans) -> ()
+            | MarkdownPatterns.ParagraphSpans(_, _spans) -> ()
         }
 
 
@@ -52,7 +52,7 @@ module internal Transformations =
     /// Note: this processes snipppets within markdown, not snippets coming from .fsx
     let rec replaceCodeSnippets (path: string) (codeLookup: IDictionary<_, _>) para =
         match para with
-        | CodeBlock (code, _executionCount, _fence, language, _, range) ->
+        | CodeBlock(code, _executionCount, _fence, language, _, range) ->
             match code with
             | String.StartsWithWrapped ("[", "]") (ParseCommands cmds, String.SkipSingleLine code)
             | Let (dict []) (cmds, code) ->
@@ -99,7 +99,7 @@ module internal Transformations =
             | _ -> Some para
 
         // Recursively process nested paragraphs, other nodes return without change
-        | MarkdownPatterns.ParagraphNested (pn, nested) ->
+        | MarkdownPatterns.ParagraphNested(pn, nested) ->
             let pars = List.map (List.choose (replaceCodeSnippets path codeLookup)) nested
 
             MarkdownPatterns.ParagraphNested(pn, pars) |> Some
@@ -159,7 +159,7 @@ module internal Transformations =
                     )
 
                 let results =
-                    [ for (_, id), (Snippet (_, code)) in Array.zip codes snippets -> id, code ]
+                    [ for (_, id), (Snippet(_, code)) in Array.zip codes snippets -> id, code ]
                     |> dict
 
                 results, diagnostics
@@ -180,9 +180,9 @@ module internal Transformations =
         let rec collectSpanReferences span =
             seq {
                 match span with
-                | IndirectLink (_, _, key, _) -> yield key
+                | IndirectLink(_, _, key, _) -> yield key
                 | MarkdownPatterns.SpanLeaf _ -> ()
-                | MarkdownPatterns.SpanNode (_, spans) ->
+                | MarkdownPatterns.SpanNode(_, spans) ->
                     for s in spans do
                         yield! collectSpanReferences s
             }
@@ -191,11 +191,11 @@ module internal Transformations =
             seq {
                 match par with
                 | MarkdownPatterns.ParagraphLeaf _ -> ()
-                | MarkdownPatterns.ParagraphNested (_, pars) ->
+                | MarkdownPatterns.ParagraphNested(_, pars) ->
                     for ps in pars do
                         for p in ps do
                             yield! loop p
-                | MarkdownPatterns.ParagraphSpans (_, spans) ->
+                | MarkdownPatterns.ParagraphSpans(_, spans) ->
                     for s in spans do
                         yield! collectSpanReferences s
             }
@@ -208,7 +208,7 @@ module internal Transformations =
         // Replace IndirectLinks with a nice link given a single span element
         let rec replaceSpans =
             function
-            | IndirectLink (body, original, key, r) ->
+            | IndirectLink(body, original, key, r) ->
                 [ yield IndirectLink(body, original, key, r)
                   match refIndex.TryGetValue(key) with
                   | true, i ->
@@ -216,17 +216,16 @@ module internal Transformations =
                       yield DirectLink([ Literal(string i, r) ], "#rf" + DateTime.Now.ToString("yyMMddhh"), None, r)
                       yield Literal("]", r)
                   | _ -> () ]
-            | MarkdownPatterns.SpanLeaf (sl) -> [ MarkdownPatterns.SpanLeaf(sl) ]
-            | MarkdownPatterns.SpanNode (nd, spans) ->
-                [ MarkdownPatterns.SpanNode(nd, List.collect replaceSpans spans) ]
+            | MarkdownPatterns.SpanLeaf(sl) -> [ MarkdownPatterns.SpanLeaf(sl) ]
+            | MarkdownPatterns.SpanNode(nd, spans) -> [ MarkdownPatterns.SpanNode(nd, List.collect replaceSpans spans) ]
         // Given a paragraph, process it recursively and transform all spans
         let rec loop =
             function
-            | MarkdownPatterns.ParagraphNested (pn, nested) ->
+            | MarkdownPatterns.ParagraphNested(pn, nested) ->
                 MarkdownPatterns.ParagraphNested(pn, List.map (List.choose loop) nested) |> Some
-            | MarkdownPatterns.ParagraphSpans (ps, spans) ->
+            | MarkdownPatterns.ParagraphSpans(ps, spans) ->
                 MarkdownPatterns.ParagraphSpans(ps, List.collect replaceSpans spans) |> Some
-            | MarkdownPatterns.ParagraphLeaf (pl) -> MarkdownPatterns.ParagraphLeaf(pl) |> Some
+            | MarkdownPatterns.ParagraphLeaf(pl) -> MarkdownPatterns.ParagraphLeaf(pl) |> Some
 
         loop
 
@@ -307,7 +306,7 @@ module internal Transformations =
 
     /// Unparse a Line list to a string - for evaluation by fsi.
     let unparse (lines: Line list) =
-        let joinLine (Line (originalLine, _spans)) = originalLine
+        let joinLine (Line(originalLine, _spans)) = originalLine
         //spans
         //|> Seq.map (fun span -> match span with TokenSpan.Token (_,s,_) -> s | TokenSpan.Omitted (s1,s2) -> s2 | _ -> "")
         //|> String.concat ""
@@ -327,7 +326,7 @@ module internal Transformations =
         (paras: MarkdownParagraphs)
         =
         match paras with
-        | MarkdownPatterns.LiterateParagraph (para) :: paras ->
+        | MarkdownPatterns.LiterateParagraph(para) :: paras ->
 
             // Do not evaluate blocks that don't match the conditional define, typically "condition: eval" or
             // "condition: formatting".
@@ -338,7 +337,7 @@ module internal Transformations =
                 evalBlocks ctx fsi executionCountRef file acc paras
             | _ ->
                 match para with
-                | LiterateCode (snip, opts, _popts) ->
+                | LiterateCode(snip, opts, _popts) ->
                     let acc =
                         if opts.Evaluate then
                             let text = unparse snip
@@ -352,7 +351,7 @@ module internal Transformations =
 
                     evalBlocks ctx fsi executionCountRef file acc paras
 
-                | ValueReference (ref, _popts) ->
+                | ValueReference(ref, _popts) ->
                     let result = fsi.Evaluate(ref, true, Some file)
                     incr executionCountRef
                     let executionCount = executionCountRef.Value
@@ -374,21 +373,21 @@ module internal Transformations =
     /// Replace evaluation references with the results
     let rec replaceEvaluations (ctx: CompilerContext) (results: Map<_, IFsiEvaluationResult * int>) para =
         match para with
-        | MarkdownPatterns.LiterateParagraph (special) ->
+        | MarkdownPatterns.LiterateParagraph(special) ->
             match special with
-            | FsiMergedOutputReference (ref, _popts)
-            | FsiOutputReference (ref, _popts)
-            | OutputReference (ref, _popts)
-            | ItValueReference (ref, _popts)
-            | ItRawReference (ref, _popts)
-            | ValueReference (ref, _popts) ->
+            | FsiMergedOutputReference(ref, _popts)
+            | FsiOutputReference(ref, _popts)
+            | OutputReference(ref, _popts)
+            | ItValueReference(ref, _popts)
+            | ItRawReference(ref, _popts)
+            | ValueReference(ref, _popts) ->
                 let key =
                     (match special with
                      | ValueReference _ -> ValueRef ref
                      | _ -> OutputRef ref)
 
                 match results.TryFind(key) with
-                | Some (result, executionCount) ->
+                | Some(result, executionCount) ->
                     let kind =
                         match special with
                         | FsiMergedOutputReference _ -> FsiEmbedKind.FsiMergedOutput
@@ -404,16 +403,18 @@ module internal Transformations =
                     let output = "Could not find reference '" + ref + "'"
                     [ OutputBlock(output, "text/plain", None) ]
 
-            | LiterateCode (lines, opts, popts) when results.ContainsKey(OutputRef opts.OutputName) ->
+            | LiterateCode(lines, opts, popts) when results.ContainsKey(OutputRef opts.OutputName) ->
                 let _, executionCount = results.[OutputRef opts.OutputName]
 
-                let opts = { opts with ExecutionCount = Some executionCount }
+                let opts =
+                    { opts with
+                        ExecutionCount = Some executionCount }
 
                 [ EmbedParagraphs(LiterateCode(lines, opts, popts), None) ]
             | _ -> [ EmbedParagraphs(special, None) ]
 
         // Traverse all other structrues recursively
-        | MarkdownPatterns.ParagraphNested (pn, nested) ->
+        | MarkdownPatterns.ParagraphNested(pn, nested) ->
             let nested = List.map (List.collect (replaceEvaluations ctx results)) nested
 
             [ MarkdownPatterns.ParagraphNested(pn, nested) ]
@@ -439,17 +440,17 @@ module internal Transformations =
     /// between moved snippets and ordinary snippets
     let rec collectLiterateCode par =
         [ match par with
-          | MarkdownPatterns.LiterateParagraph (para) ->
+          | MarkdownPatterns.LiterateParagraph(para) ->
               //// Remove "condition: ipynb" etc. from output unless the condition is satisfied
               //match para.ParagraphOptions with
               //| { Condition=Some define } when define <> "prepare" -> ()
               //| _ ->
               match para with
-              | LiterateCode (lines, ({ Visibility = LiterateCodeVisibility.NamedCode id } as opts), _popts) ->
+              | LiterateCode(lines, ({ Visibility = LiterateCodeVisibility.NamedCode id } as opts), _popts) ->
                   yield Choice2Of2(id), (lines, opts.ExecutionCount)
-              | LiterateCode (lines, opts, _popts) -> yield Choice1Of2(lines), (lines, opts.ExecutionCount)
+              | LiterateCode(lines, opts, _popts) -> yield Choice1Of2(lines), (lines, opts.ExecutionCount)
               | _ -> ()
-          | MarkdownPatterns.ParagraphNested (_pn, nested) ->
+          | MarkdownPatterns.ParagraphNested(_pn, nested) ->
               for ps in nested do
                   for p in ps do
                       yield! collectLiterateCode p
@@ -499,23 +500,23 @@ module internal Transformations =
     /// Replace all special 'LiterateParagraph' elements recursively using the given lookup dictionary
     let rec replaceLiterateParagraph (ctx: LiterateProcessingContext) (formatted: IDictionary<_, _>) para =
         match para with
-        | MarkdownPatterns.LiterateParagraph (special) ->
+        | MarkdownPatterns.LiterateParagraph(special) ->
             // Remove "condition: ipynb" etc. from output unless the condition is satisfied
             match special.ParagraphOptions with
             | { Condition = Some define } when not (ctx.ConditionalDefines |> List.contains define) -> None
             | _ ->
                 // Remove "(** hide ***)" from output unless the condition is satisfied
                 match special with
-                | LiterateCode (_, { Visibility = LiterateCodeVisibility.HiddenCode }, _) -> None
+                | LiterateCode(_, { Visibility = LiterateCodeVisibility.HiddenCode }, _) -> None
                 | _ ->
                     // Remove "(** define: name ***)" from output, they should be referenced elsewhere
                     match special with
-                    | LiterateCode (_, { Visibility = LiterateCodeVisibility.NamedCode _ }, _) -> None
+                    | LiterateCode(_, { Visibility = LiterateCodeVisibility.NamedCode _ }, _) -> None
                     | _ ->
                         match special with
-                        | RawBlock (lines, _) -> Some(InlineHtmlBlock(unparse lines, None, None))
-                        | LiterateCode (lines, _, _) -> Some(formatted.[Choice1Of2 lines])
-                        | CodeReference (ref, _) -> Some(formatted.[Choice2Of2 ref])
+                        | RawBlock(lines, _) -> Some(InlineHtmlBlock(unparse lines, None, None))
+                        | LiterateCode(lines, _, _) -> Some(formatted.[Choice1Of2 lines])
+                        | CodeReference(ref, _) -> Some(formatted.[Choice2Of2 ref])
                         | FsiMergedOutputReference _
                         | FsiOutputReference _
                         | OutputReference _
@@ -526,7 +527,7 @@ module internal Transformations =
 
                             printfn "%s" msg
                             Some(InlineHtmlBlock(msg, None, None))
-                        | LanguageTaggedCode (lang, code, _) ->
+                        | LanguageTaggedCode(lang, code, _) ->
                             let inlined =
                                 match ctx.OutputKind with
                                 | OutputKind.Html -> replaceHtmlTaggedCode ctx lang code
@@ -537,7 +538,7 @@ module internal Transformations =
 
                             Some(InlineHtmlBlock(inlined, None, None))
         // Traverse all other structures recursively
-        | MarkdownPatterns.ParagraphNested (pn, nested) ->
+        | MarkdownPatterns.ParagraphNested(pn, nested) ->
             let nested = List.map (List.choose (replaceLiterateParagraph ctx formatted)) nested
 
             Some(MarkdownPatterns.ParagraphNested(pn, nested))

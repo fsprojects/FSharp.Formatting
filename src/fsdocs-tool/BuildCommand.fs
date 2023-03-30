@@ -1060,11 +1060,15 @@ module Serve =
 
         let defaultBinding = defaultConfig.bindings.[0]
 
-        let withPort = { defaultBinding.socketBinding with port = uint16 localPort }
+        let withPort =
+            { defaultBinding.socketBinding with
+                port = uint16 localPort }
 
         let serverConfig =
             { defaultConfig with
-                bindings = [ { defaultBinding with socketBinding = withPort } ]
+                bindings =
+                    [ { defaultBinding with
+                          socketBinding = withPort } ]
                 homeFolder = Some rootOutputFolderAsGiven
                 mimeTypesMap = mimeTypesMap }
 
@@ -1247,31 +1251,28 @@ type CoreBuildOptions(watch) =
                  getTime (typeof<CoreBuildOptions>.Assembly.Location),
                  (projects |> List.map getTime |> List.toArray))
 
-            Utils.cacheBinary
-                cacheFile
-                (fun (_, key2) -> key1 = key2)
-                (fun () ->
-                    let props =
-                        this.extraMsbuildProperties
-                        |> Seq.toList
-                        |> List.map (fun s ->
-                            let arr = s.Split("=")
+            Utils.cacheBinary cacheFile (fun (_, key2) -> key1 = key2) (fun () ->
+                let props =
+                    this.extraMsbuildProperties
+                    |> Seq.toList
+                    |> List.map (fun s ->
+                        let arr = s.Split("=")
 
-                            if arr.Length > 1 then
-                                arr.[0], String.concat "=" arr.[1..]
-                            else
-                                failwith "properties must be of the form 'PropName=PropValue'")
+                        if arr.Length > 1 then
+                            arr.[0], String.concat "=" arr.[1..]
+                        else
+                            failwith "properties must be of the form 'PropName=PropValue'")
 
-                    Crack.crackProjects (
-                        onError,
-                        props,
-                        userRoot,
-                        userCollectionName,
-                        userParameters,
-                        projects,
-                        this.ignoreprojects
-                    ),
-                    key1)
+                Crack.crackProjects (
+                    onError,
+                    props,
+                    userRoot,
+                    userCollectionName,
+                    userParameters,
+                    projects,
+                    this.ignoreprojects
+                ),
+                key1)
 
         // See https://github.com/ionide/proj-info/issues/123
         System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
@@ -1488,7 +1489,7 @@ type CoreBuildOptions(watch) =
                                   OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
                             match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
-                            | Some (kind, path) -> kind, Some path
+                            | Some(kind, path) -> kind, Some path
                             | None ->
                                 let templateFiles = templates |> Seq.map snd |> String.concat "', '"
 
@@ -1611,7 +1612,7 @@ type CoreBuildOptions(watch) =
                     Map.ofList
                         [ for (thing, _action) in docModels do
                               match thing with
-                              | Some (file, _isOtherLang, model) -> (file, model)
+                              | Some(file, _isOtherLang, model) -> (file, model)
                               | None -> () ]
 
                 latestDocContentResults <- results
@@ -1627,7 +1628,7 @@ type CoreBuildOptions(watch) =
                         for (_thing, action) in docModels do
                             action globals
 
-                        ))
+                    ))
 
         let runDocContentPhase2 () =
             protect "Content generation (phase 2)" (fun () ->

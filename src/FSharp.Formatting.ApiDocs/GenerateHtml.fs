@@ -152,7 +152,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                           br []
                                                       match m.ReturnInfo.ReturnType with
                                                       | None -> ()
-                                                      | Some (_, rty) ->
+                                                      | Some(_, rty) ->
                                                           span
                                                               []
                                                               [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
@@ -195,7 +195,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                           | None -> ()
 
                                           match m.ExtendedType with
-                                          | Some (_, extendedTypeHtml) ->
+                                          | Some(_, extendedTypeHtml) ->
                                               p [] [ !! "Extended Type: "; embed extendedTypeHtml ]
                                           | _ -> ()
 
@@ -219,7 +219,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                                           match m.ReturnInfo.ReturnType with
                                           | None -> ()
-                                          | Some (_, returnTypeHtml) ->
+                                          | Some(_, returnTypeHtml) ->
                                               dl
                                                   [ Class "fsdocs-returns" ]
                                                   [ dt
@@ -371,12 +371,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
 
                 match entity.AbbreviatedType with
-                | Some (_, abbreviatedTypHtml) -> dt [] [ !! "Abbreviation For: "; embed abbreviatedTypHtml ]
+                | Some(_, abbreviatedTypHtml) -> dt [] [ !! "Abbreviation For: "; embed abbreviatedTypHtml ]
 
                 | None -> ()
 
                 match entity.BaseType with
-                | Some (_, baseTypeHtml) -> dt [] [ !! "Base Type: "; embed baseTypeHtml ]
+                | Some(_, baseTypeHtml) -> dt [] [ !! "Base Type: "; embed baseTypeHtml ]
                 | None -> ()
 
                 match entity.AllInterfaces with
@@ -395,7 +395,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     dt [] [ !!("Kind: Struct") ]
 
                 match entity.DelegateSignature with
-                | Some (_, delegateSigHtml) -> dt [] [ !!("Delegate Signature: "); embed delegateSigHtml ]
+                | Some(_, delegateSigHtml) -> dt [] [ !!("Delegate Signature: "); embed delegateSigHtml ]
                 | None -> ()
 
                 if entity.Symbol.IsProvided then
@@ -598,7 +598,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                   match nsOpt with
                   | Some ns2 when ns.Name = ns2.Name ->
                       ul
-                          [ Custom("list-style-type", "none") (* Class "navbar-nav " *)  ]
+                          [ Custom("list-style-type", "none") (* Class "navbar-nav " *) ]
                           [ for category in allByCategory do
                                 for e in category.CategoryEntites do
                                     li

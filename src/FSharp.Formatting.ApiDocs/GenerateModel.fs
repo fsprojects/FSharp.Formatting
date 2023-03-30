@@ -309,7 +309,7 @@ type ApiDocMember
         warn
     ) =
 
-    let (ApiDocMemberDetails (usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, compiledName)) =
+    let (ApiDocMemberDetails(usageHtml, paramTypes, returnType, modifiers, typars, extendedType, location, compiledName)) =
         details
 
     let m = defaultArg symbol.DeclarationLocation range0
@@ -674,12 +674,7 @@ type ApiDocCollection(name: string, asms: AssemblyName list, nss: ApiDocNamespac
 
 /// High-level information about a module definition
 type ApiDocEntityInfo
-    (
-        entity: ApiDocEntity,
-        collection: ApiDocCollection,
-        ns: ApiDocNamespace,
-        parent: ApiDocEntity option
-    ) =
+    (entity: ApiDocEntity, collection: ApiDocCollection, ns: ApiDocNamespace, parent: ApiDocEntity option) =
     /// The actual entity
     member x.Entity = entity
 
@@ -761,7 +756,7 @@ module internal CrossReferences =
 
             match (memb.DeclaringEntity.Value.TryFullName) with
             | None -> ""
-            | Some (n) -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) n memberName
+            | Some(n) -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) n memberName
         | n -> n
 
 type internal CrefReference =
@@ -1187,13 +1182,13 @@ module internal TypeFormatter =
         // of measures in a normalized form (see Andrew Kennedy technical reports). Here we detect this
         // embedding and use an approximate set of rules for layout out normalized measures in a nice way.
         match typ with
-        | MeasureProd (ty, MeasureOne)
-        | MeasureProd (MeasureOne, ty) -> formatTypeWithPrecAsHtml ctx prec ty
-        | MeasureProd (ty1, MeasureInv ty2)
-        | MeasureProd (ty1, MeasureProd (MeasureInv ty2, MeasureOne)) ->
+        | MeasureProd(ty, MeasureOne)
+        | MeasureProd(MeasureOne, ty) -> formatTypeWithPrecAsHtml ctx prec ty
+        | MeasureProd(ty1, MeasureInv ty2)
+        | MeasureProd(ty1, MeasureProd(MeasureInv ty2, MeasureOne)) ->
             span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !! "/"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
-        | MeasureProd (ty1, MeasureProd (ty2, MeasureOne))
-        | MeasureProd (ty1, ty2) ->
+        | MeasureProd(ty1, MeasureProd(ty2, MeasureOne))
+        | MeasureProd(ty1, ty2) ->
             span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !! "*"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
         | MeasureInv ty -> span [] [ !! "/"; formatTypeWithPrecAsHtml ctx 1 ty ]
         | MeasureOne -> !! "1"
@@ -1505,7 +1500,7 @@ module internal SymbolReader =
 
         let argInfos, retType =
             match argInfos, v.HasGetterMethod, v.HasSetterMethod with
-            | [ AllAndLast (args, last) ], _, true -> [ args ], Some last.Type
+            | [ AllAndLast(args, last) ], _, true -> [ args ], Some last.Type
             | _, _, true -> argInfos, None
             | [ [] ], true, _ -> [], Some retType
             | _, _, _ -> argInfos, Some retType
@@ -1753,12 +1748,12 @@ module internal SymbolReader =
 
         let raw =
             match doc.Source with
-            | LiterateSource.Markdown (string) -> [ KeyValuePair(current, string) ]
+            | LiterateSource.Markdown(string) -> [ KeyValuePair(current, string) ]
             | LiterateSource.Script _ -> []
 
         for par in doc.Paragraphs do
             match par with
-            | Heading (2, [ Literal (text, _) ], _) ->
+            | Heading(2, [ Literal(text, _) ], _) ->
                 current <- text.Trim()
                 groups.Add(current, [ par ])
             | par -> groups.[groups.Count - 1] <- (current, par :: snd (groups.[groups.Count - 1]))
@@ -1826,7 +1821,7 @@ module internal SymbolReader =
 
     let findCommand cmd =
         match cmd with
-        | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand (k, v), _rest) -> Some(k, v)
+        | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), _rest) -> Some(k, v)
         | _ -> None
 
     let rec readXmlElementAsHtml
@@ -1841,7 +1836,7 @@ module internal SymbolReader =
                 let text = (x :?> XText).Value
 
                 match findCommand (text, MarkdownRange.zero) with
-                | Some (k, v) -> cmds.Add(k, v)
+                | Some(k, v) -> cmds.Add(k, v)
                 | None -> html.Append(text) |> ignore
             elif x.NodeType = XmlNodeType.Element then
                 let elem = x :?> XElement
@@ -2138,9 +2133,9 @@ module internal SymbolReader =
     let rec collectSpanIndirectLinks span =
         seq {
             match span with
-            | IndirectLink (_, _, key, _) -> yield key
+            | IndirectLink(_, _, key, _) -> yield key
             | MarkdownPatterns.SpanLeaf _ -> ()
-            | MarkdownPatterns.SpanNode (_, spans) ->
+            | MarkdownPatterns.SpanNode(_, spans) ->
                 for s in spans do
                     yield! collectSpanIndirectLinks s
         }
@@ -2150,11 +2145,11 @@ module internal SymbolReader =
         seq {
             match par with
             | MarkdownPatterns.ParagraphLeaf _ -> ()
-            | MarkdownPatterns.ParagraphNested (_, pars) ->
+            | MarkdownPatterns.ParagraphNested(_, pars) ->
                 for ps in pars do
                     for p in ps do
                         yield! collectParagraphIndirectLinks p
-            | MarkdownPatterns.ParagraphSpans (_, spans) ->
+            | MarkdownPatterns.ParagraphSpans(_, spans) ->
                 for s in spans do
                     yield! collectSpanIndirectLinks s
         }
@@ -2175,13 +2170,13 @@ module internal SymbolReader =
     /// Adds a cross-type link to the document defined links
     let addLinkToType (doc: LiterateDocument) link =
         match link with
-        | Some (k, v) -> do doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName))
+        | Some(k, v) -> do doc.DefinedLinks.Add(k, (v.ReferenceLink, Some v.NiceName))
         | None -> ()
 
     /// Wraps the span inside an IndirectLink if it is an inline code that can be converted to a link
     let wrapInlineCodeLinksInSpans (ctx: ReadingContext) span =
         match span with
-        | InlineCode (code, r) ->
+        | InlineCode(code, r) ->
             match getTypeLink ctx code with
             | Some _ -> IndirectLink([ span ], code, code, r)
             | None -> span
@@ -2191,13 +2186,13 @@ module internal SymbolReader =
     let rec wrapInlineCodeLinksInParagraphs (ctx: ReadingContext) (para: MarkdownParagraph) =
         match para with
         | MarkdownPatterns.ParagraphLeaf _ -> para
-        | MarkdownPatterns.ParagraphNested (info, pars) ->
+        | MarkdownPatterns.ParagraphNested(info, pars) ->
             MarkdownPatterns.ParagraphNested(
                 info,
                 pars
                 |> List.map (fun innerPars -> List.map (wrapInlineCodeLinksInParagraphs ctx) innerPars)
             )
-        | MarkdownPatterns.ParagraphSpans (info, spans) ->
+        | MarkdownPatterns.ParagraphSpans(info, spans) ->
             MarkdownPatterns.ParagraphSpans(info, List.map (wrapInlineCodeLinksInSpans ctx) spans)
 
     /// Adds the missing links to types to the document defined links
@@ -2221,7 +2216,7 @@ module internal SymbolReader =
             |> List.filter (
                 findCommand
                 >> (function
-                | Some (k, v) ->
+                | Some(k, v) ->
                     cmds.[k] <- v
                     false
                 | _ -> true)
@@ -2499,7 +2494,7 @@ module internal SymbolReader =
 
     let xmlDocText (xmlDoc: FSharpXmlDoc) =
         match xmlDoc with
-        | FSharpXmlDoc.FromXmlText (xmlDoc) -> String.concat "" xmlDoc.UnprocessedLines
+        | FSharpXmlDoc.FromXmlText(xmlDoc) -> String.concat "" xmlDoc.UnprocessedLines
         | _ -> ""
 
     // Create a xml documentation snippet and add it to the XmlMemberMap
@@ -3023,7 +3018,7 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
                 | false, _ -> namespaces.Add(ns.Name, (ns.Entities, ns.NamespaceDocs, ns.Substitutions))
 
         let namespaces =
-            [ for (KeyValue (name, (entities, summary, substitutions))) in namespaces do
+            [ for (KeyValue(name, (entities, summary, substitutions))) in namespaces do
                   printfn "  found %d entities in namespace %s..." entities.Length name
 
                   if entities.Length > 0 then

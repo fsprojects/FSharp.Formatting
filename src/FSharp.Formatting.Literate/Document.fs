@@ -93,16 +93,16 @@ type LiterateParagraph =
 
     member x.ParagraphOptions =
         match x with
-        | CodeReference (_, popts) -> popts
-        | FsiMergedOutputReference (_, popts) -> popts
-        | FsiOutputReference (_, popts) -> popts
-        | OutputReference (_, popts) -> popts
-        | ItValueReference (_, popts) -> popts
-        | ItRawReference (_, popts) -> popts
-        | ValueReference (_, popts) -> popts
-        | LiterateCode (_, _, popts) -> popts
-        | LanguageTaggedCode (_, _, popts) -> popts
-        | RawBlock (_, popts) -> popts
+        | CodeReference(_, popts) -> popts
+        | FsiMergedOutputReference(_, popts) -> popts
+        | FsiOutputReference(_, popts) -> popts
+        | OutputReference(_, popts) -> popts
+        | ItValueReference(_, popts) -> popts
+        | ItRawReference(_, popts) -> popts
+        | ValueReference(_, popts) -> popts
+        | LiterateCode(_, _, popts) -> popts
+        | LanguageTaggedCode(_, _, popts) -> popts
+        | RawBlock(_, popts) -> popts
 
     interface MarkdownEmbedParagraphs with
         member x.Render() =
@@ -179,5 +179,5 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, root
 module MarkdownPatterns =
     let (|LiterateParagraph|_|) =
         function
-        | EmbedParagraphs (:? LiterateParagraph as lp, _) -> Some lp
+        | EmbedParagraphs(:? LiterateParagraph as lp, _) -> Some lp
         | _ -> None

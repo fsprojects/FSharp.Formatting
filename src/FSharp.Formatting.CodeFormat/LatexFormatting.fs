@@ -42,19 +42,19 @@ type FormattingContext =
 /// Format token spans such as tokens, omitted code etc.
 let rec formatTokenSpans (ctx: FormattingContext) =
     List.iter (function
-        | TokenSpan.Error (_, _, body) -> formatTokenSpans ctx body
+        | TokenSpan.Error(_, _, body) -> formatTokenSpans ctx body
 
-        | TokenSpan.Output (body) ->
+        | TokenSpan.Output(body) ->
             ctx.Writer.Write(@"\fsi{")
             ctx.Writer.Write(latexEncode body)
             ctx.Writer.Write("}")
 
-        | TokenSpan.Omitted (body, _) ->
+        | TokenSpan.Omitted(body, _) ->
             ctx.Writer.Write(@"\omi{")
             ctx.Writer.Write(latexEncode body)
             ctx.Writer.Write("}")
 
-        | TokenSpan.Token (kind, body, _) ->
+        | TokenSpan.Token(kind, body, _) ->
             let tag =
                 match kind with
                 | TokenKind.Comment -> @"\com"
@@ -86,11 +86,13 @@ let rec formatTokenSpans (ctx: FormattingContext) =
 
 /// Generate LaTEX with the specified snippets
 let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
-    [| for (Snippet (key, lines)) in snippets do
+    [| for (Snippet(key, lines)) in snippets do
            // Generate snippet to a local StringBuilder
            let mainStr = StringBuilder()
 
-           let ctx = { ctx with Writer = new StringWriter(mainStr) }
+           let ctx =
+               { ctx with
+                   Writer = new StringWriter(mainStr) }
 
            // Generate <pre> tag for the snippet
            if String.IsNullOrEmpty(ctx.OpenTag) |> not then
@@ -104,7 +106,7 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
 
            // Print all lines of the snippet
            lines
-           |> List.iter (fun (Line (_originalLine, spans)) ->
+           |> List.iter (fun (Line(_originalLine, spans)) ->
                // Write tokens & end of the line
                formatTokenSpans ctx spans
                ctx.Writer.WriteLine())

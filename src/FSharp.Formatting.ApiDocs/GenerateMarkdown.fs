@@ -72,11 +72,11 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                             match m.ExtendedType with
                             | None -> ()
-                            | Some (_, extendedTypeHtml) -> p [ !! "Extended Type: "; embedSafe extendedTypeHtml; br ]
+                            | Some(_, extendedTypeHtml) -> p [ !! "Extended Type: "; embedSafe extendedTypeHtml; br ]
 
                             match m.ReturnInfo.ReturnType with
                             | None -> ()
-                            | Some (_, returnTypeHtml) ->
+                            | Some(_, returnTypeHtml) ->
                                 p
                                     [ !!(if m.Kind <> ApiDocMemberKind.RecordField then
                                              "Returns: "
@@ -174,11 +174,11 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ]
 
           match entity.AbbreviatedType with
-          | Some (_, abbreviatedTyp) -> p [ !! "Abbreviation For: "; embed abbreviatedTyp ]
+          | Some(_, abbreviatedTyp) -> p [ !! "Abbreviation For: "; embed abbreviatedTyp ]
           | None -> ()
 
           match entity.BaseType with
-          | Some (_, baseType) -> p [ !! "Base Type: "; embed baseType ]
+          | Some(_, baseType) -> p [ !! "Base Type: "; embed baseType ]
           | None -> ()
 
           match entity.AllInterfaces with
@@ -196,7 +196,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               p [ !!("Kind: Struct") ]
 
           match entity.DelegateSignature with
-          | Some (_, delegateSigHtml) -> p [ !!("Delegate Signature: "); embed delegateSigHtml ]
+          | Some(_, delegateSigHtml) -> p [ !!("Delegate Signature: "); embed delegateSigHtml ]
           | None -> ()
 
           if entity.Symbol.IsProvided then

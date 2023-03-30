@@ -287,7 +287,7 @@ module Crack =
 
             let splitTargetFrameworks =
                 function
-                | Some (s: string) ->
+                | Some(s: string) ->
                     s.Split(";", StringSplitOptions.RemoveEmptyEntries)
                     |> Array.map (fun s' -> s'.Trim())
                     |> Some
@@ -348,7 +348,7 @@ module Crack =
         let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
         //printfn "msgs = %A" msgs
         match result with
-        | Ok (Some targetFrameworks, crackedProjectInfo) when
+        | Ok(Some targetFrameworks, crackedProjectInfo) when
             crackedProjectInfo.TargetPath.IsNone && targetFrameworks.Length > 1
             ->
             // no targetpath and there are multiple target frameworks
@@ -360,16 +360,16 @@ module Crack =
                 crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildPropertiesAndFirstTargetFramework file
 
             match result2 with
-            | Ok (_, crackedProjectInfo) -> crackedProjectInfo
-            | Error (GetProjectOptionsErrors (err, msgs)) ->
+            | Ok(_, crackedProjectInfo) -> crackedProjectInfo
+            | Error(GetProjectOptionsErrors(err, msgs)) ->
                 failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
-        | Ok (_, crackedProjectInfo) -> crackedProjectInfo
-        | Error (GetProjectOptionsErrors (err, msgs)) ->
+        | Ok(_, crackedProjectInfo) -> crackedProjectInfo
+        | Error(GetProjectOptionsErrors(err, msgs)) ->
             failwithf "error - %s\nlog - %s" (err.ToString()) (String.concat "\n" msgs)
 
     let getProjectsFromSlnFile (slnPath: string) =
         match InspectSln.tryParseSln slnPath with
-        | Ok (_, slnData) -> InspectSln.loadingBuildOrder slnData
+        | Ok(_, slnData) -> InspectSln.loadingBuildOrder slnData
 
         //this.LoadProjects(projs, crosstargetingStrategy, useBinaryLogger, numberOfThreads)
         | Error e -> raise (exn ("cannot load the sln", e))

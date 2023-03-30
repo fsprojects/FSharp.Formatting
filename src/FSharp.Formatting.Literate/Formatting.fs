@@ -61,7 +61,7 @@ module internal Formatting =
         paragraphs
         |> Seq.tryPick (fun para ->
             match para with
-            | Heading (1, text, r) ->
+            | Heading(1, text, r) ->
                 match outputKind with
                 | OutputKind.Html
                 | OutputKind.Latex ->
@@ -80,7 +80,7 @@ module internal Formatting =
             let mutable count = 0
 
             let paragraphs =
-                [ for Snippet (name, lines) in snippets do
+                [ for Snippet(name, lines) in snippets do
                       if snippets.Length > 1 then
                           yield Heading(3, [ Literal(name, None) ], None)
 
@@ -104,8 +104,8 @@ module internal Formatting =
         match doc.Source with
         | LiterateSource.Markdown text -> text
         | LiterateSource.Script snippets ->
-            [ for Snippet (_name, lines) in snippets do
-                  for (Line (line, _)) in lines do
+            [ for Snippet(_name, lines) in snippets do
+                  for (Line(line, _)) in lines do
                       yield line ]
             |> String.concat "\n"
 
@@ -113,7 +113,7 @@ module internal Formatting =
 
         let findInFrontMatter key =
             match doc.Paragraphs with
-            | YamlFrontmatter (lines, _) :: _ ->
+            | YamlFrontmatter(lines, _) :: _ ->
                 lines
                 |> List.tryPick (fun line ->
                     let line = line.Trim()
@@ -169,7 +169,8 @@ module internal Formatting =
 
         let substitutions0 =
             [ ParamKeys.``fsdocs-page-title``, pageTitle; ParamKeys.``fsdocs-page-source``, doc.SourceFile ]
-            @ ctx.Substitutions @ sourceSubstitutions
+            @ ctx.Substitutions
+            @ sourceSubstitutions
 
         let formattedDocument =
             format

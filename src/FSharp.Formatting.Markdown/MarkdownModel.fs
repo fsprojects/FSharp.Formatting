@@ -158,19 +158,19 @@ module MarkdownPatterns =
         | LatexDisplayMath _
         | EmbedSpans _
         | HardLineBreak _ -> SpanLeaf(SL span)
-        | Strong (spans, _)
-        | Emphasis (spans, _)
-        | DirectLink (spans, _, _, _)
-        | IndirectLink (spans, _, _, _) -> SpanNode(SN span, spans)
+        | Strong(spans, _)
+        | Emphasis(spans, _)
+        | DirectLink(spans, _, _, _)
+        | IndirectLink(spans, _, _, _) -> SpanNode(SN span, spans)
 
-    let SpanLeaf (SL (span)) = span
+    let SpanLeaf (SL(span)) = span
 
-    let SpanNode (SN (span), spans) =
+    let SpanNode (SN(span), spans) =
         match span with
-        | Strong (_, r) -> Strong(spans, r)
-        | Emphasis (_, r) -> Emphasis(spans, r)
-        | DirectLink (_, l, t, r) -> DirectLink(spans, l, t, r)
-        | IndirectLink (_, a, b, r) -> IndirectLink(spans, a, b, r)
+        | Strong(_, r) -> Strong(spans, r)
+        | Emphasis(_, r) -> Emphasis(spans, r)
+        | DirectLink(_, l, t, r) -> DirectLink(spans, l, t, r)
+        | IndirectLink(_, a, b, r) -> IndirectLink(spans, a, b, r)
         | _ -> invalidArg "" "Incorrect SpanNodeInfo"
 
     type ParagraphSpansInfo = private PS of MarkdownParagraph
@@ -179,9 +179,9 @@ module MarkdownPatterns =
 
     let (|ParagraphLeaf|ParagraphNested|ParagraphSpans|) par =
         match par with
-        | Heading (_, spans, _)
-        | Paragraph (spans, _)
-        | Span (spans, _) -> ParagraphSpans(PS par, spans)
+        | Heading(_, spans, _)
+        | Paragraph(spans, _)
+        | Span(spans, _) -> ParagraphSpans(PS par, spans)
         | OtherBlock _
         | OutputBlock _
         | CodeBlock _
@@ -190,23 +190,23 @@ module MarkdownPatterns =
         | LatexBlock _
         | YamlFrontmatter _
         | HorizontalRule _ -> ParagraphLeaf(PL par)
-        | ListBlock (_, pars, _) -> ParagraphNested(PN par, pars)
-        | QuotedBlock (nested, _) -> ParagraphNested(PN par, [ nested ])
-        | TableBlock (headers, _alignments, rows, _) ->
+        | ListBlock(_, pars, _) -> ParagraphNested(PN par, pars)
+        | QuotedBlock(nested, _) -> ParagraphNested(PN par, [ nested ])
+        | TableBlock(headers, _alignments, rows, _) ->
             match headers with
             | None -> ParagraphNested(PN par, rows |> List.concat)
             | Some columns -> ParagraphNested(PN par, columns :: rows |> List.concat)
 
-    let ParagraphSpans (PS (par), spans) =
+    let ParagraphSpans (PS(par), spans) =
         match par with
-        | Heading (a, _, r) -> Heading(a, spans, r)
-        | Paragraph (_, r) -> Paragraph(spans, r)
-        | Span (_, r) -> Span(spans, r)
+        | Heading(a, _, r) -> Heading(a, spans, r)
+        | Paragraph(_, r) -> Paragraph(spans, r)
+        | Span(_, r) -> Span(spans, r)
         | _ -> invalidArg "" "Incorrect ParagraphSpansInfo."
 
-    let ParagraphLeaf (PL (par)) = par
+    let ParagraphLeaf (PL(par)) = par
 
-    let ParagraphNested (PN (par), pars) =
+    let ParagraphNested (PN(par), pars) =
         let splitEach n list =
             let rec loop n left ansList curList items =
                 if List.isEmpty items && List.isEmpty curList then
@@ -219,9 +219,9 @@ module MarkdownPatterns =
             loop n n [] [] list
 
         match par with
-        | ListBlock (a, _, r) -> ListBlock(a, pars, r)
-        | QuotedBlock (_, r) -> QuotedBlock(List.concat pars, r)
-        | TableBlock (headers, alignments, _, r) ->
+        | ListBlock(a, _, r) -> ListBlock(a, pars, r)
+        | QuotedBlock(_, r) -> QuotedBlock(List.concat pars, r)
+        | TableBlock(headers, alignments, _, r) ->
             let rows = splitEach (alignments.Length) pars
 
             if List.isEmpty rows || headers.IsNone then

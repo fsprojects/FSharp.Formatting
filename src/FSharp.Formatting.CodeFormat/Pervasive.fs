@@ -36,7 +36,7 @@ type AsyncMaybeBuilder() =
 
             match r1' with
             | None -> return None
-            | Some () -> return! r2
+            | Some() -> return! r2
         }
 
     [<DebuggerStepThrough>]
@@ -163,7 +163,7 @@ type FSharpChecker with
 
         let bindParsedInput (results: (FSharpParseFileResults * FSharpCheckFileResults) option) =
             match results with
-            | Some (parseResults, checkResults) -> Some(parseResults, parseResults.ParseTree, checkResults)
+            | Some(parseResults, checkResults) -> Some(parseResults, parseResults.ParseTree, checkResults)
             | None -> None
 
         if allowStaleResults then
@@ -176,7 +176,7 @@ type FSharpChecker with
                     | StillRunning worker ->
                         async {
                             match allowStaleResults, this.TryGetRecentCheckResultsForFile(filePath, options) with
-                            | true, Some (parseResults, checkFileResults, _) ->
+                            | true, Some(parseResults, checkFileResults, _) ->
                                 return Some(parseResults, checkFileResults)
                             | _ -> return! worker
                         }

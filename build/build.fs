@@ -67,7 +67,9 @@ let solutionFile = "FSharp.Formatting.sln"
 
 let build _ =
     solutionFile
-    |> DotNet.build (fun opts -> { opts with Configuration = configuration })
+    |> DotNet.build (fun opts ->
+        { opts with
+            Configuration = configuration })
 
 let tests _ =
     solutionFile
