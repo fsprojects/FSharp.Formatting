@@ -10,3 +10,4 @@ Fake.DotNet.NuGet
 Fake.DotNet.MsBuild
 Fake.Tools.Git
 Fake.DotNet.Paket
+MSBuild.StructuredLogger
