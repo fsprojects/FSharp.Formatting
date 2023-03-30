@@ -46,4 +46,5 @@ group Fake
     nuget Fake.DotNet.NuGet            
     nuget Fake.DotNet.MsBuild          
     nuget Fake.Tools.Git               
-    nuget Fake.DotNet.Paket            
+    nuget Fake.DotNet.Paket        
+    nuget MSBuild.StructuredLogger 2.1.790
