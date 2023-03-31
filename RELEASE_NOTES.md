@@ -1,3 +1,7 @@
+## 18.1.0
+
+* Condense ApiDocs member info [#778](https://github.com/fsprojects/FSharp.Formatting/issues/778)
+
 ## 18.0.0
 
 * Update FCS to 43.7.200
