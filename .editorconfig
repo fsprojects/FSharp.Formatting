@@ -15,3 +15,6 @@ trim_trailing_whitespace = true
 fsharp_max_array_or_list_width=120
 fsharp_max_infix_operator_expression=80
 fsharp_max_value_binding_width=120
+
+[GenerateHtml.fs]
+fsharp_experimental_elmish = true
