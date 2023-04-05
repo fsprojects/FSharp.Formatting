@@ -1,3 +1,7 @@
+## 18.0.1
+
+* Pass `--multiemit-` as default option for `FsiEvaluator`.
+
 ## 18.0.0
 
 * Update FCS to 43.7.200
