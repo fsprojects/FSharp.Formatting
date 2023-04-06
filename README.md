@@ -9,8 +9,7 @@ See https://fsprojects.github.io/FSharp.Formatting/
 
 ## Development
 
-    .\build.cmd
-    ./build.sh
+    dotnet fsi build.fsx
 
 
 Once built, you can run the command-line tool to self-build the docs for this directory using 
