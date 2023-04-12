@@ -180,99 +180,99 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                   ]
                               ]
 
-                              td [ Class "fsdocs-member-xmldoc" ] [
-                                  details [] [
-                                      summary [] [
-                                          div [ Class "fsdocs-summary" ] [
-                                              yield! copyXmlSigIconForSymbolMarkdown m.Symbol
-                                              yield! copyXmlSigIconForSymbol m.Symbol
-                                              yield! sourceLink m.SourceLocation
-                                              p [ Class "fsdocs-summary" ] [ embed m.Comment.Summary ]
-                                          ]
-                                      ]
-
-                                      match m.Comment.Remarks with
-                                      | Some r -> p [ Class "fsdocs-remarks" ] [ embed r ]
-                                      | None -> ()
-
-                                      match m.ExtendedType with
-                                      | Some(_, extendedTypeHtml) ->
-                                          p [] [ !! "Extended Type: "; embed extendedTypeHtml ]
-                                      | _ -> ()
-
-                                      if not m.Parameters.IsEmpty then
-                                          dl [ Class "fsdocs-params" ] [
-                                              for parameter in m.Parameters do
-                                                  dt [ Class "fsdocs-param" ] [
-                                                      span [ Class "fsdocs-param-name" ] [
-                                                          !!parameter.ParameterNameText
-                                                      ]
-                                                      !! ":"
-                                                      embed parameter.ParameterType
-                                                  ]
-
-                                                  dd [ Class "fsdocs-param-docs" ] [
-                                                      match parameter.ParameterDocs with
-                                                      | None -> ()
-                                                      | Some d -> p [] [ embed d ]
-                                                  ]
-                                          ]
-
-                                      match m.ReturnInfo.ReturnType with
-                                      | None -> ()
-                                      | Some(_, returnTypeHtml) ->
-                                          dl [ Class "fsdocs-returns" ] [
-                                              dt [] [
-                                                  span [ Class "fsdocs-return-name" ] [
-                                                      !!(if m.Kind <> ApiDocMemberKind.RecordField then
-                                                             "Returns: "
-                                                         else
-                                                             "Field type: ")
-                                                  ]
-                                                  embed returnTypeHtml
-                                              ]
-                                              dd [ Class "fsdocs-return-docs" ] [
-                                                  match m.ReturnInfo.ReturnDocs with
-                                                  | None -> ()
-                                                  | Some r -> p [] [ embed r ]
-                                              ]
-                                          ]
-
-                                      if not m.Comment.Exceptions.IsEmpty then
-                                          //p [] [ !! "Exceptions:" ]
-                                          table [ Class "fsdocs-exception-list" ] [
-                                              for (nm, link, html) in m.Comment.Exceptions do
-                                                  tr [] [
-                                                      td
-                                                          []
-                                                          (match link with
-                                                           | None -> []
-                                                           | Some href -> [ a [ Href href ] [ !!nm ] ])
-                                                      td [] [ embed html ]
-                                                  ]
-                                          ]
-
-                                      for e in m.Comment.Notes do
-                                          h5 [ Class "fsdocs-note-header" ] [ !! "Note" ]
-
-                                          p [ Class "fsdocs-note" ] [ embed e ]
-
-                                      for e in m.Comment.Examples do
-                                          h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
-
-                                          p [
-                                              Class "fsdocs-example"
-                                              if e.Id.IsSome then
-                                                  Id e.Id.Value
-                                          ] [ embed e ]
-
-                                  //if m.IsObsolete then
-                                  //    obsoleteMessage m.ObsoleteMessage
-
-                                  //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
-                                  //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
+                              let smry =
+                                  div [ Class "fsdocs-summary" ] [
+                                      yield! copyXmlSigIconForSymbolMarkdown m.Symbol
+                                      yield! copyXmlSigIconForSymbol m.Symbol
+                                      yield! sourceLink m.SourceLocation
+                                      p [ Class "fsdocs-summary" ] [ embed m.Comment.Summary ]
                                   ]
-                              ]
+
+                              let dtls =
+                                  [ match m.Comment.Remarks with
+                                    | Some r -> p [ Class "fsdocs-remarks" ] [ embed r ]
+                                    | None -> ()
+
+                                    match m.ExtendedType with
+                                    | Some(_, extendedTypeHtml) -> p [] [ !! "Extended Type: "; embed extendedTypeHtml ]
+                                    | _ -> ()
+
+                                    if not m.Parameters.IsEmpty then
+                                        dl [ Class "fsdocs-params" ] [
+                                            for parameter in m.Parameters do
+                                                dt [ Class "fsdocs-param" ] [
+                                                    span [ Class "fsdocs-param-name" ] [ !!parameter.ParameterNameText ]
+                                                    !! ":"
+                                                    embed parameter.ParameterType
+                                                ]
+
+                                                dd [ Class "fsdocs-param-docs" ] [
+                                                    match parameter.ParameterDocs with
+                                                    | None -> ()
+                                                    | Some d -> p [] [ embed d ]
+                                                ]
+                                        ]
+
+                                    match m.ReturnInfo.ReturnType with
+                                    | None -> ()
+                                    | Some(_, returnTypeHtml) ->
+                                        dl [ Class "fsdocs-returns" ] [
+                                            dt [] [
+                                                span [ Class "fsdocs-return-name" ] [
+                                                    !!(if m.Kind <> ApiDocMemberKind.RecordField then
+                                                           "Returns: "
+                                                       else
+                                                           "Field type: ")
+                                                ]
+                                                embed returnTypeHtml
+                                            ]
+                                            dd [ Class "fsdocs-return-docs" ] [
+                                                match m.ReturnInfo.ReturnDocs with
+                                                | None -> ()
+                                                | Some r -> p [] [ embed r ]
+                                            ]
+                                        ]
+
+                                    if not m.Comment.Exceptions.IsEmpty then
+                                        //p [] [ !! "Exceptions:" ]
+                                        table [ Class "fsdocs-exception-list" ] [
+                                            for (nm, link, html) in m.Comment.Exceptions do
+                                                tr [] [
+                                                    td
+                                                        []
+                                                        (match link with
+                                                         | None -> []
+                                                         | Some href -> [ a [ Href href ] [ !!nm ] ])
+                                                    td [] [ embed html ]
+                                                ]
+                                        ]
+
+                                    for e in m.Comment.Notes do
+                                        h5 [ Class "fsdocs-note-header" ] [ !! "Note" ]
+
+                                        p [ Class "fsdocs-note" ] [ embed e ]
+
+                                    for e in m.Comment.Examples do
+                                        h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
+
+                                        p [
+                                            Class "fsdocs-example"
+                                            if e.Id.IsSome then
+                                                Id e.Id.Value
+                                        ] [ embed e ]
+                                    //if m.IsObsolete then
+                                    //    obsoleteMessage m.ObsoleteMessage
+
+                                    //if not (String.IsNullOrEmpty(m.Details.FormatCompiledName)) then
+                                    //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
+                                    ]
+
+                              td
+                                  [ Class "fsdocs-member-xmldoc" ]
+                                  (match dtls, m.Comment.Summary.HtmlText.Trim() with
+                                   | [], _ -> [ smry ]
+                                   | _, "" -> dtls
+                                   | _, _ -> [ details [] ((summary [] [ smry ]) :: dtls) ])
                           ]
                   ]
               ] ]
