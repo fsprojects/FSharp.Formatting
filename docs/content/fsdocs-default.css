@@ -252,6 +252,10 @@ blockquote {
     margin: 10px 0px 0px 0px;
 }
 
+.fsdocs-member-xmldoc details[open] dl {
+    margin-top: 1rem;
+}
+
 /* #fsdocs-nav .searchbox {
     margin-top: 30px;
     margin-bottom: 30px;
