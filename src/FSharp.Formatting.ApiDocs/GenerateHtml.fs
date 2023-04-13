@@ -267,12 +267,14 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                     //    p [] [!!"CompiledName: "; code [] [!!m.Details.FormatCompiledName]]
                                     ]
 
-                              td
-                                  [ Class "fsdocs-member-xmldoc" ]
-                                  (match dtls, m.Comment.Summary.HtmlText.Trim() with
-                                   | [], _ -> [ smry ]
-                                   | _, "" -> dtls
-                                   | _, _ -> [ details [] ((summary [] [ smry ]) :: dtls) ])
+                              td [ Class "fsdocs-member-xmldoc" ] [
+                                  if List.isEmpty dtls then
+                                      smry
+                                  elif String.IsNullOrWhiteSpace(m.Comment.Summary.HtmlText) then
+                                      yield! dtls
+                                  else
+                                      details [] ((summary [] [ smry ]) :: dtls)
+                              ]
                           ]
                   ]
               ] ]
