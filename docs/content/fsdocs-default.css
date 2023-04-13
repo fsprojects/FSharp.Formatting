@@ -252,7 +252,7 @@ blockquote {
     margin: 10px 0px 0px 0px;
 }
 
-.fsdocs-member-xmldoc details[open] dl {
+.fsdocs-member-xmldoc details[open] summary + * {
     margin-top: 1rem;
 }
 
