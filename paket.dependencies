@@ -31,20 +31,3 @@ nuget FsUnit ~> 3.8
 nuget FSharp.Data ~> 3.3
 nuget NUnit3TestAdapter
 nuget Microsoft.NET.Test.Sdk
-
-group Fake
-    source https://api.nuget.org/v3/index.json
-    storage: none
-    framework: net7.0
-
-    nuget FSharp.Core
-    nuget Fake.Core.Target             
-    nuget Fake.Core.ReleaseNotes       
-    nuget Fake.DotNet.AssemblyInfoFile 
-    nuget Fake.DotNet.Cli              
-    nuget Fake.DotNet.Testing.NUnit    
-    nuget Fake.DotNet.NuGet            
-    nuget Fake.DotNet.MsBuild          
-    nuget Fake.Tools.Git               
-    nuget Fake.DotNet.Paket        
-    nuget MSBuild.StructuredLogger 2.1.790
