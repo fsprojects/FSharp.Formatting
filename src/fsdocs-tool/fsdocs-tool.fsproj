@@ -16,7 +16,6 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
@@ -45,5 +44,11 @@
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
     <ProjectReference Include="..\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="Ionide.ProjInfo" />
+    <PackageReference Include="Ionide.ProjInfo.Sln" />
+    <PackageReference Include="Suave" />
+  </ItemGroup>
 </Project>
