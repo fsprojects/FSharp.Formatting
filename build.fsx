@@ -73,8 +73,6 @@ pipeline "CI" {
     }
 
     stage "Build" {
-        envVars [ "PAKET_SKIP_RESTORE_TARGETS", "true" ]
-        run "dotnet paket restore"
         run $"dotnet restore {solutionFile}"
         run $"dotnet build {solutionFile} --configuration {configuration}"
     }

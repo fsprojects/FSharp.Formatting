@@ -5,7 +5,6 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="paket.references" />
     <Compile Include="..\Common\AssemblyInfo.fs">
       <Link>Common\AssemblyInfo.fs</Link>
     </Compile>
@@ -39,6 +38,8 @@
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Formatting.Common.*" PackagePath="lib/$(TargetFramework)" />
     <Content Include="bin\$(Configuration)\$(TargetFramework)\FSharp.Markdown.*" PackagePath="lib/$(TargetFramework)" />
   </ItemGroup>
-  
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="FSharp.Compiler.Service" />
+  </ItemGroup>
 </Project>

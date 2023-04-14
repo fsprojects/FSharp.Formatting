@@ -6,7 +6,6 @@
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="paket.references" />
     <None Include="files/simple1.fsx" />
     <None Include="files/simple2.md" />
     <None Include="files/template.html" />
@@ -29,5 +28,12 @@
     <ProjectReference Include="..\..\src\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" />
     <ProjectReference Include="..\..\src\FSharp.Formatting.ApiDocs\FSharp.Formatting.ApiDocs.fsproj" />
   </ItemGroup>
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="FSharp.Compiler.Service" />
+    <PackageReference Include="FsUnit" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+  </ItemGroup>
 </Project>

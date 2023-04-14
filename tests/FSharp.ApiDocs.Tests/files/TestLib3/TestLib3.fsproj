@@ -9,7 +9,9 @@
     <Compile Include="DOM.fs" />
     <Compile Include="Library3.fs" />
     <Compile Include="UndocumentedModule.fs" />
-    <None Include="paket.references" />
   </ItemGroup>
-  <Import Project="..\..\..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="FSharp.Core" />
+    <PackageReference Include="FSharp.Compiler.Service" />
+  </ItemGroup>
 </Project>
