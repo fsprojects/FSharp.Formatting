@@ -1,3 +1,7 @@
+## 18.1.1
+
+* Pass `--multiemit-` as default option for `FsiEvaluator`.
+
 ## 18.1.0
 
 * Collapsible ApiDocs member info [#778](https://github.com/fsprojects/FSharp.Formatting/issues/778). The issue was fixed collaboratively in an [Amplifying F# session](https://amplifying-fsharp.github.io/) with a recording that can be found [here](https://amplifying-fsharp.github.io/sessions/2023/03/31/).

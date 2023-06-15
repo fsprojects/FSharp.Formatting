@@ -254,7 +254,9 @@ type internal DocContent
 
                           let fsiEvaluator =
                               (if evaluate then
-                                   Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
+                                   Some(
+                                       FsiEvaluator(onError = onError, options = [| "--multiemit-" |]) :> IFsiEvaluator
+                                   )
                                else
                                    None)
 
