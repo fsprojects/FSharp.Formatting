@@ -1,6 +1,6 @@
 ## 18.1.1
 
-* Pass `--multiemit-` as default option for `FsiEvaluator`.
+* Pass `--multiemit-` as default option for `FsiEvaluator`. 
 
 ## 18.1.0
 
