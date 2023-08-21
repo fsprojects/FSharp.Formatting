@@ -5,14 +5,14 @@
       "creflib1": {
         "type": "Project",
         "dependencies": {
-          "FSharp.Core": "[7.0.200, 7.0.200]"
+          "FSharp.Core": "[7.0.400, 7.0.400]"
         }
       },
       "creflib2": {
         "type": "Project",
         "dependencies": {
-          "FSharp.Core": "[7.0.200, 7.0.200]",
-          "crefLib1": "[18.1.0, )"
+          "FSharp.Core": "[7.0.400, 7.0.400]",
+          "crefLib1": "[18.1.1, )"
         }
       },
       "creflib3": {
@@ -20,9 +20,9 @@
       },
       "FSharp.Core": {
         "type": "CentralTransitive",
-        "requested": "[7.0.200, 7.0.200]",
-        "resolved": "7.0.200",
-        "contentHash": "NmgUnpNH6Zu9B0SPIhojyo38gnPdkdYFYQfbd6zosEH32kbGY/g/Klk7PfOWe1NAe/O1YOMmK9KhwQ2OWsWEbg=="
+        "requested": "[7.0.400, 7.0.400]",
+        "resolved": "7.0.400",
+        "contentHash": "kJQ7TBQqd1d2VoODSgwFSAaApaBN0Fuu8mZt2XExmd3UzUxLjUsMn5Y5XhpsUWdnxOL8amp7VFg7cwhPllR4Qw=="
       }
     }
   }

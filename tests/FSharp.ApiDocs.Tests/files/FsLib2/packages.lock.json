@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.1": {
       "FSharp.Core": {
         "type": "Direct",
-        "requested": "[7.0.200, 7.0.200]",
-        "resolved": "7.0.200",
-        "contentHash": "NmgUnpNH6Zu9B0SPIhojyo38gnPdkdYFYQfbd6zosEH32kbGY/g/Klk7PfOWe1NAe/O1YOMmK9KhwQ2OWsWEbg=="
+        "requested": "[7.0.400, 7.0.400]",
+        "resolved": "7.0.400",
+        "contentHash": "kJQ7TBQqd1d2VoODSgwFSAaApaBN0Fuu8mZt2XExmd3UzUxLjUsMn5Y5XhpsUWdnxOL8amp7VFg7cwhPllR4Qw=="
       }
     }
   }

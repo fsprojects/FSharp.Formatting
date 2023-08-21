@@ -4,9 +4,9 @@
     ".NETStandard,Version=v2.1": {
       "FSharp.Core": {
         "type": "Direct",
-        "requested": "[7.0.200, 7.0.200]",
-        "resolved": "7.0.200",
-        "contentHash": "NmgUnpNH6Zu9B0SPIhojyo38gnPdkdYFYQfbd6zosEH32kbGY/g/Klk7PfOWe1NAe/O1YOMmK9KhwQ2OWsWEbg=="
+        "requested": "[7.0.400, 7.0.400]",
+        "resolved": "7.0.400",
+        "contentHash": "kJQ7TBQqd1d2VoODSgwFSAaApaBN0Fuu8mZt2XExmd3UzUxLjUsMn5Y5XhpsUWdnxOL8amp7VFg7cwhPllR4Qw=="
       },
       "System.Buffers": {
         "type": "Transitive",
@@ -15,19 +15,19 @@
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "l4zZJ1WU2hqpQQHXz1rvC3etVZN+2DLmQMO79FhOTZHMn8tDRr+WU287sbomD0BETlmKDn0ygUgVy9k5xkkJdA==",
+        "resolved": "7.0.0",
+        "contentHash": "dQPcs0U1IKnBdRDBkrCTi1FoajSTBzLcVTpjO4MBCMC7f4pDOIPzgBoX8JjG7X6uZRJ8EBxsi8+DR1JuwjnzOQ==",
         "dependencies": {
-          "System.Memory": "4.5.4",
+          "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
       "System.Diagnostics.DiagnosticSource": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "frQDfv0rl209cKm1lnwTgFPzNigy2EKk1BS3uAvHvlBVKe5cymGyHO+Sj+NLv5VF/AhHsqPIUUwya5oV4CHMUw==",
+        "resolved": "7.0.2",
+        "contentHash": "hYr3I9N9811e0Bjf2WNwAGGyTuAFbbTgX1RPLt/3Wbm68x3IGcX5Cl75CMmgT6WlNwLQ2tCCWfqYPpypjaf2xA==",
         "dependencies": {
-          "System.Memory": "4.5.4",
+          "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
@@ -43,10 +43,11 @@
       },
       "System.Reflection.Metadata": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "sffDOcex1C3HO5kDolOYcWXTwRpZY/LvJujM6SMjn63fWMJWchYAAmkoAJXlbpZ5yf4d+KMgxd+LeETa4gD9sQ==",
+        "resolved": "7.0.0",
+        "contentHash": "MclTG61lsD9sYdpNz9xsKBzjsmsfCtcMZYXz/IUr2zlhaTaABonlr1ESeompTgM+Xk+IwtGYU7/voh3YWB/fWw==",
         "dependencies": {
-          "System.Collections.Immutable": "6.0.0"
+          "System.Collections.Immutable": "7.0.0",
+          "System.Memory": "4.5.5"
         }
       },
       "System.Runtime.CompilerServices.Unsafe": {
@@ -57,23 +58,23 @@
       "fsharp.formatting.common": {
         "type": "Project",
         "dependencies": {
-          "FSharp.Compiler.Service": "[43.7.200, 43.7.200]",
-          "FSharp.Core": "[7.0.200, 7.0.200]"
+          "FSharp.Compiler.Service": "[43.7.400, 43.7.400]",
+          "FSharp.Core": "[7.0.400, 7.0.400]"
         }
       },
       "FSharp.Compiler.Service": {
         "type": "CentralTransitive",
-        "requested": "[43.7.200, 43.7.200]",
-        "resolved": "43.7.200",
-        "contentHash": "RpO8Ly7mTRGnZANzjKMDsxsrkpVyyPP3d211+95TBVrDh5XU8LS+F/tPsJ9y+10kphzOmplZ9xaEc44OtveWzw==",
+        "requested": "[43.7.400, 43.7.400]",
+        "resolved": "43.7.400",
+        "contentHash": "lg3iNkZMvuj9hOxSJ0TM1/ntcFDPRQgr1+e4bLj/avNX3FkpUtPrzCRNRpy0VP8UCNa362al5NGkVWiihxjeUQ==",
         "dependencies": {
-          "FSharp.Core": "[7.0.200]",
+          "FSharp.Core": "[7.0.400]",
           "System.Buffers": "4.5.1",
-          "System.Collections.Immutable": "6.0.0",
-          "System.Diagnostics.DiagnosticSource": "6.0.0",
+          "System.Collections.Immutable": "7.0.0",
+          "System.Diagnostics.DiagnosticSource": "7.0.2",
           "System.Memory": "4.5.5",
           "System.Reflection.Emit": "4.7.0",
-          "System.Reflection.Metadata": "6.0.0",
+          "System.Reflection.Metadata": "7.0.0",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
       },
