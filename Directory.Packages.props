@@ -13,8 +13,8 @@
     <PackageVersion Include="Microsoft.Build.Framework" Version="" PrivateAssets="all" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="" PrivateAssets="all" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="" PrivateAssets="all" />
-    <PackageVersion Include="Ionide.ProjInfo" Version="0.62.0-nightly001" />
-    <PackageVersion Include="Ionide.ProjInfo.Sln" Version="0.62.0-nightly001" />
+    <PackageVersion Include="Ionide.ProjInfo" Version="0.62.0" />
+    <PackageVersion Include="Ionide.ProjInfo.Sln" Version="0.62.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Suave" Version="2.6.2" />
     <PackageVersion Include="System.Memory" Version="4.5.5" />
