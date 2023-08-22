@@ -391,6 +391,40 @@ ApiDocs.GenerateHtml(
     substitutions = []
 )
 
+(**
+### Adding extra dependencies
+
+When building a library programmatically, you might require a reference to an additional assembly.
+You can pass this using the `otherFlags` argument.
+*)
+
+let projectAssembly = Path.Combine(root, "bin/X.dll")
+
+let projectInput = ApiDocInput.FromFile(projectAssembly)
+
+ApiDocs.GenerateHtml(
+    [ projectInput ],
+    output = Path.Combine(root, "output"),
+    collectionName = "Project X",
+    template = Path.Combine(root, "templates", "template.html"),
+    substitutions = [],
+    otherFlags = [ "-r:/root/ProjectY/bin/Debug/net6.0/Y.dll" ]
+)
+
+(**
+or use `libDirs` to include all assemblies from an entire folder.
+Tip: A combination of `<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>` in the fsproj file and setting `libDirs` to the compilation output path leads to only one folder with all dependencies referenced.
+This might be easier especially for large projects with many dependencies.
+*)
+
+ApiDocs.GenerateHtml(
+    [ projectInput ],
+    output = Path.Combine(root, "output"),
+    collectionName = "Project X",
+    template = Path.Combine(root, "templates", "template.html"),
+    substitutions = [],
+    libDirs = [ "ProjectX/bin/Debug/netstandard2.0" ]
+)
 
 (**
 ## Rebasing Links
