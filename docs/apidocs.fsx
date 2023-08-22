@@ -412,7 +412,7 @@ ApiDocs.GenerateHtml(
 )
 
 (**
-or use `libDirs` to pass to include all assemblies from an entire folder.
+or use `libDirs` to include all assemblies from an entire folder.
 Tip: A combination of `<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>` in the fsproj file and setting `libDirs` to the compilation output path leads to only one folder with all dependencies referenced.
 This might be easier especially for large projects with many dependencies.
 *)
