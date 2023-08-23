@@ -6,7 +6,7 @@ RUN apt-get update \
 
 RUN python3 -m pip install --no-cache-dir notebook jupyterlab
 
-ARG NB_USER=jovyan
+ARG NB_USER=fsdocs-user
 ARG NB_UID=1000
 ENV USER ${NB_USER}
 ENV NB_UID ${NB_UID}
