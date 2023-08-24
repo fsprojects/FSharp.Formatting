@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <OutputPath>..\bin\$(Configuration)</OutputPath>
+    <NoWarn>FS1182</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Library2.fs" />
