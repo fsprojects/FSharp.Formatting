@@ -9,19 +9,19 @@ type TestAttribute(?int: int, ?string: string, ?array: string array) =
     member val Int = defaultArg int 0 with get, set
     member val Array = defaultArg array [||] with get, set
 
-type IntTestAttribute(int: int) =
+type IntTestAttribute(_int: int) =
     inherit Attribute()
 
-type BoolTestAttribute(bool: bool) =
+type BoolTestAttribute(_bool: bool) =
     inherit Attribute()
 
-type StringTestAttribute(string: string) =
+type StringTestAttribute(_string: string) =
     inherit Attribute()
 
-type ArrayTestAttribute(array: string array) =
+type ArrayTestAttribute(_array: string array) =
     inherit Attribute()
 
-type MultipleTestAttribute(string: string, int: int, array: int array) =
+type MultipleTestAttribute(_string: string, _int: int, _array: int array) =
     inherit Attribute()
 
 [<Obsolete>]
@@ -50,7 +50,7 @@ type AttributeInterface =
 [<TestAttribute>]
 type AttributeClass() =
     [<TestAttribute(String = "ctor")>]
-    new(i: int) = AttributeClass()
+    new(_i: int) = AttributeClass()
 
     [<TestAttribute>]
     member _.TestMember = 1
