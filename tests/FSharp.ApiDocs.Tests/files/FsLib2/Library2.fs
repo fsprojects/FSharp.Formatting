@@ -67,7 +67,7 @@ type Test_Issue287() =
     /// Function Foo!
     abstract member Foo: int -> unit
     /// Empty function for signature
-    default x.Foo _a = ()
+    default x.Foo a = ()
 
 [<RequireQualifiedAccess>]
 module Test_Issue472_R =
@@ -88,11 +88,11 @@ module Test_Issue472 =
 
 type Test_Issue472_T() =
     /// Function MultPartial!
-    member x.MultPartial (_arg1: int) (_arg2: int) = ()
+    member x.MultPartial (arg1: int) (arg2: int) = ()
     /// Function MultArg!
-    member x.MultArg(_arg1: int, _arg2: int) = ()
+    member x.MultArg(arg1: int, arg2: int) = ()
     /// Function MultArgTupled!
-    member x.MultArgTupled(_arg: (int * int)) = ()
+    member x.MultArgTupled(arg: (int * int)) = ()
 
 (*
 type ITestInterface =
@@ -117,16 +117,16 @@ module Test_Issue201Extensions =
 /// [omit]
 type Test_Omit() =
     /// This Should not be displayed
-    member x.Foo _a = ()
+    member x.Foo a = ()
 
 /// Test ` ` test
 type Test_Empty_Code_Block() =
-    let _empty = ()
+    let empty = ()
 
 module ``Space-Missing`` =
 
     /// Implicit cast operator test
-    type ``Implicit-Cast``(_value: int) =
+    type ``Implicit-Cast``(value: int) =
         class
         end
 
