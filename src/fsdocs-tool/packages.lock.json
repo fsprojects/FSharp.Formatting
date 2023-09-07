@@ -365,10 +365,10 @@
         "dependencies": {
           "FSharp.Compiler.Service": "[43.7.400, 43.7.400]",
           "FSharp.Core": "[7.0.400, 7.0.400]",
-          "FSharp.Formatting.CodeFormat": "[18.1.1, )",
-          "FSharp.Formatting.Common": "[18.1.1, )",
-          "FSharp.Formatting.Literate": "[18.1.1, )",
-          "FSharp.Formatting.Markdown": "[18.1.1, )"
+          "FSharp.Formatting.CodeFormat": "[19.0.0, )",
+          "FSharp.Formatting.Common": "[19.0.0, )",
+          "FSharp.Formatting.Literate": "[19.0.0, )",
+          "FSharp.Formatting.Markdown": "[19.0.0, )"
         }
       },
       "fsharp.formatting.codeformat": {
@@ -376,7 +376,7 @@
         "dependencies": {
           "FSharp.Compiler.Service": "[43.7.400, 43.7.400]",
           "FSharp.Core": "[7.0.400, 7.0.400]",
-          "FSharp.Formatting.Common": "[18.1.1, )"
+          "FSharp.Formatting.Common": "[19.0.0, )"
         }
       },
       "fsharp.formatting.common": {
@@ -400,7 +400,7 @@
         "type": "Project",
         "dependencies": {
           "FSharp.Core": "[7.0.400, 7.0.400]",
-          "FSharp.Formatting.Common": "[18.1.1, )"
+          "FSharp.Formatting.Common": "[19.0.0, )"
         }
       },
       "FSharp.Compiler.Service": {
