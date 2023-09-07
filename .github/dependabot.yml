@@ -11,3 +11,13 @@ updates:
       - dependency-name: "Microsoft.Build.Framework"
       - dependency-name: "Microsoft.Build.Utilities.Core"
       - dependency-name: "Microsoft.Build.Tasks.Core"
+
+  - package-ecosystem: nuget
+    target-branch: nightly
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "10:00"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-name: "FSharp.Compiler.Service"
