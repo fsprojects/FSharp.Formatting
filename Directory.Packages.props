@@ -23,6 +23,6 @@
     <PackageVersion Include="FsUnit" Version="5.4.0" />
     <PackageVersion Include="FSharp.Data" Version="6.2.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
   </ItemGroup>
 </Project>
