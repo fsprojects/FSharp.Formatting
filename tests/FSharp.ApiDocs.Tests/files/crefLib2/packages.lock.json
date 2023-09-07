@@ -4,14 +4,14 @@
     ".NETStandard,Version=v2.1": {
       "FSharp.Core": {
         "type": "Direct",
-        "requested": "[7.0.400, 7.0.400]",
-        "resolved": "7.0.400",
-        "contentHash": "kJQ7TBQqd1d2VoODSgwFSAaApaBN0Fuu8mZt2XExmd3UzUxLjUsMn5Y5XhpsUWdnxOL8amp7VFg7cwhPllR4Qw=="
+        "requested": "[8.0.100-beta.23455.5, 8.0.100-beta.23455.5]",
+        "resolved": "8.0.100-beta.23455.5",
+        "contentHash": "Mh4z3CYGP224ExJmDSd/SMd4SVVwtl+m83L8Cfx+BU/m7P2E3r0cF6zW3PpzJUFOJAo/wYGdj4gM3chNzlk6ow=="
       },
       "creflib1": {
         "type": "Project",
         "dependencies": {
-          "FSharp.Core": "[7.0.400, 7.0.400]"
+          "FSharp.Core": "[8.0.100-beta.23455.5, 8.0.100-beta.23455.5]"
         }
       }
     }
