@@ -8,6 +8,7 @@ open NUnit.Framework
 open FSharp.Formatting.ApiDocs
 open FSharp.Formatting.Templating
 open FsUnitTyped
+open FSharp.Data
 
 // --------------------------------------------------------------------------------------
 // Run the metadata formatter on sample project
@@ -1362,3 +1363,20 @@ printfn "ApiDocs test that cref generation works"
 runtest ``ApiDocs test that cref generation works``
 
 #endif
+
+[<Test>]
+let ``Newlines in XML comment are preserved`` () =
+    let library = testBin </> "TestLib1.dll" |> fullpath
+    let docs = generateApiDocs [ library ] OutputFormat.Html false "TestLib1"
+    let fileContent = docs.["fslib-myclass.html"]
+    use ms = new MemoryStream()
+    let bytes = System.Text.Encoding.UTF8.GetBytes(fileContent)
+    ms.Write(bytes, 0, bytes.Length)
+    ms.Seek(0L, SeekOrigin.Begin) |> ignore
+    let htmlResult = HtmlDocument.Load(ms)
+
+    let xmlCommentNode =
+        htmlResult.Descendants [ "p" ]
+        |> Seq.pick (fun node -> if node.HasClass "fsdocs-summary" then Some node else None)
+
+    xmlCommentNode.Elements "pre" |> List.length |> (=) 1 |> Assert.True

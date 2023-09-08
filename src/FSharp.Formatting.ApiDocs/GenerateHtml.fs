@@ -185,7 +185,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                       yield! copyXmlSigIconForSymbolMarkdown m.Symbol
                                       yield! copyXmlSigIconForSymbol m.Symbol
                                       yield! sourceLink m.SourceLocation
-                                      p [ Class "fsdocs-summary" ] [ embed m.Comment.Summary ]
+                                      p [ Class "fsdocs-summary" ] [ pre [] [ embed m.Comment.Summary ] ]
                                   ]
 
                               let dtls =
@@ -327,7 +327,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                       yield! copyXmlSigIconForSymbolMarkdown e.Symbol
                                       yield! copyXmlSigIconForSymbol e.Symbol
                                       yield! sourceLink e.SourceLocation
-                                      p [ Class "fsdocs-summary" ] [ embed e.Comment.Summary ]
+                                      p [ Class "fsdocs-summary" ] [ pre [] [ embed e.Comment.Summary ] ]
                                   ]
                               ]
                           ]
@@ -413,7 +413,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               div [] [
                   //yield! copyXmlSigIconForSymbol entity.Symbol
                   //yield! sourceLink entity.SourceLocation
-                  p [ Class "fsdocs-summary" ] [ embed entity.Comment.Summary ]
+                  p [ Class "fsdocs-summary" ] [ pre [] [ embed entity.Comment.Summary ] ]
               ]
               // Show the remarks etc.
               match entity.Comment.Remarks with

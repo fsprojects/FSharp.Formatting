@@ -1,3 +1,7 @@
+## 19.0.1
+
+* Fix New lines in API reference docs are not included [#736](https://github.com/fsprojects/FSharp.Formatting/issues/736)
+
 ## 19.0.0
 
 * Update FCS to 43.7.400

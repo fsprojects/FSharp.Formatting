@@ -24,6 +24,22 @@
         "resolved": "7.0.400",
         "contentHash": "kJQ7TBQqd1d2VoODSgwFSAaApaBN0Fuu8mZt2XExmd3UzUxLjUsMn5Y5XhpsUWdnxOL8amp7VFg7cwhPllR4Qw=="
       },
+      "FSharp.Data": {
+        "type": "Direct",
+        "requested": "[6.3.0, )",
+        "resolved": "6.3.0",
+        "contentHash": "nzbYXC+erJeSgBadHTbQqb3J4pTNQ3NCuKIFpuMjAFDdF+oZLYGWMrOEXK3XpfKfs9G//D6rZkK6m2MS59CWHQ==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Csv.Core": "6.3.0",
+          "FSharp.Data.Html.Core": "6.3.0",
+          "FSharp.Data.Http": "6.3.0",
+          "FSharp.Data.Json.Core": "6.3.0",
+          "FSharp.Data.Runtime.Utilities": "6.3.0",
+          "FSharp.Data.WorldBank.Core": "6.3.0",
+          "FSharp.Data.Xml.Core": "6.3.0"
+        }
+      },
       "FsUnit": {
         "type": "Direct",
         "requested": "[5.4.0, )",
@@ -58,6 +74,74 @@
         "requested": "[4.5.0, )",
         "resolved": "4.5.0",
         "contentHash": "s8JpqTe9bI2f49Pfr3dFRfoVSuFQyraTj68c3XXjIS/MRGvvkLnrg6RLqnTjdShX+AdFUCCU/4Xex58AdUfs6A=="
+      },
+      "FSharp.Data.Csv.Core": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "esvZUiizgxPlzYQSKRy7VhwY1CRXRQuuwDkfP4ajCcUayHOl4Ny+Tb8HRplA4kcIVEdkAiQW2+xRIEAFP/jl/g==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Runtime.Utilities": "6.3.0"
+        }
+      },
+      "FSharp.Data.Html.Core": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "tvG2LYcVvRD+BCN1pnjljgYl8V6q7w7ZMZ45KtTmK6kQtYxzDA+Wmqd4ZU1qh1btPwxp/+KVLoXcVU07Ltm/FQ==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Csv.Core": "6.3.0",
+          "FSharp.Data.Runtime.Utilities": "6.3.0"
+        }
+      },
+      "FSharp.Data.Http": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "8NcHLQpqXD0cx9SIBoNGfCroBx/gyAR3aR20Ax+TQGG7lUi+HSi3FD/Y0PBHiHIJQHBPsGKmJ9ADz3vqdXwtnw==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1"
+        }
+      },
+      "FSharp.Data.Json.Core": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "vKqMe/FagHZJRqyQMyg2Af3xeDldO9w4SN6awq8KoxIf963GqT4w2E7FpH9VNNbMzH6+91rz54uTwwC0huD+qQ==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Http": "6.3.0",
+          "FSharp.Data.Runtime.Utilities": "6.3.0"
+        }
+      },
+      "FSharp.Data.Runtime.Utilities": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "9hKUvcqn/sC6SrVz1Rjeswtn62mG4OMgFh3/dAJD6bgeaMuMjj6wS9So/DtQXwgOGk44icn+QN659OoFtDKDlw==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Http": "6.3.0"
+        }
+      },
+      "FSharp.Data.WorldBank.Core": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "kW52EsL4oquFohn0i7mopdWilNKmJlDmdaM2pA1QN8frrX+K731mkg44dtASG7kFQeccwfpq3uJb2Dtpo/VIaQ==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Http": "6.3.0",
+          "FSharp.Data.Json.Core": "6.3.0",
+          "FSharp.Data.Runtime.Utilities": "6.3.0"
+        }
+      },
+      "FSharp.Data.Xml.Core": {
+        "type": "Transitive",
+        "resolved": "6.3.0",
+        "contentHash": "P+ktC5XRZF+P2BgGj9J6ygviu8AQ9CSSmrNT/9Ye815+pEaPN0Vj6u+tc8TvNxLlee24VKIC0j3x4TVSBVtqAQ==",
+        "dependencies": {
+          "FSharp.Core": "5.0.1",
+          "FSharp.Data.Http": "6.3.0",
+          "FSharp.Data.Json.Core": "6.3.0",
+          "FSharp.Data.Runtime.Utilities": "6.3.0"
+        }
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
