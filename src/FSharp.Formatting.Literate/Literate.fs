@@ -5,7 +5,6 @@ open System.Collections.Generic
 open System.IO
 open System.Runtime.CompilerServices
 open FSharp.Formatting.Markdown
-open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Templating
 
 /// <summary>
@@ -260,7 +259,7 @@ type Literate private () =
         let doc =
             MarkdownDocument(doc.Paragraphs @ [ InlineHtmlBlock(doc.FormattedTips, None, None) ], doc.DefinedLinks)
 
-        let sb = new System.Text.StringBuilder()
+        let sb = System.Text.StringBuilder()
         use wr = new StringWriter(sb)
 
         HtmlFormatting.formatAsHtml
@@ -424,7 +423,8 @@ type Literate private () =
             crefResolver,
             mdlinkResolver,
             parseOptions,
-            onError
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
         ) =
 
         let parseOptions =
@@ -457,7 +457,7 @@ type Literate private () =
                 None
 
         let doc = downloadImagesForDoc imageSaver doc
-        let docModel = Formatting.transformDocument doc output ctx
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
         docModel
 
     /// Parse and transform an F# script file
@@ -477,7 +477,8 @@ type Literate private () =
             rootInputFolder,
             crefResolver,
             mdlinkResolver,
-            onError
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
         ) =
 
         let parseOptions =
@@ -509,7 +510,7 @@ type Literate private () =
                 None
 
         let doc = downloadImagesForDoc imageSaver doc
-        let docModel = Formatting.transformDocument doc output ctx
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
         docModel
 
     /// Convert a markdown file into HTML or another output kind
@@ -529,7 +530,8 @@ type Literate private () =
             ?rootInputFolder,
             ?crefResolver,
             ?mdlinkResolver,
-            ?onError
+            ?onError,
+            ?filesWithFrontMatter
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -537,6 +539,7 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let substitutions = defaultArg substitutions []
+        let filesWithFrontMatter = defaultArg filesWithFrontMatter Array.empty
 
         let res =
             Literate.ParseAndTransformMarkdownFile(
@@ -554,7 +557,8 @@ type Literate private () =
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver,
                 parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
-                onError = onError
+                onError = onError,
+                filesWithFrontMatter = filesWithFrontMatter
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
@@ -582,7 +586,8 @@ type Literate private () =
             ?rootInputFolder,
             ?crefResolver,
             ?mdlinkResolver,
-            ?onError
+            ?onError,
+            ?filesWithFrontMatter
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -590,6 +595,7 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let substitutions = defaultArg substitutions []
+        let filesWithFrontMatter = defaultArg filesWithFrontMatter Array.empty
 
         let res =
             Literate.ParseAndTransformScriptFile(
@@ -607,7 +613,8 @@ type Literate private () =
                 rootInputFolder = rootInputFolder,
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver,
-                onError = onError
+                onError = onError,
+                filesWithFrontMatter = filesWithFrontMatter
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)

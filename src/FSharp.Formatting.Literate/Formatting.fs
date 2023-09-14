@@ -40,7 +40,7 @@ module internal Formatting =
                 mdlinkResolver = mdlinkResolver
             )
         | OutputKind.Html ->
-            let sb = new System.Text.StringBuilder()
+            let sb = System.Text.StringBuilder()
             use wr = new StringWriter(sb)
 
             HtmlFormatting.formatAsHtml
@@ -105,11 +105,17 @@ module internal Formatting =
         | LiterateSource.Markdown text -> text
         | LiterateSource.Script snippets ->
             [ for Snippet(_name, lines) in snippets do
-                  for (Line(line, _)) in lines do
+                  for Line(line, _) in lines do
                       yield line ]
             |> String.concat "\n"
 
-    let transformDocument (doc: LiterateDocument) (outputPath: string) ctx =
+    let transformDocument
+        // This array was sorted in BuildCommand.fs
+        (filesWithFrontMatter: FrontMatterFile array)
+        (doc: LiterateDocument)
+        (outputPath: string)
+        ctx
+        =
 
         let findInFrontMatter key =
             match doc.Paragraphs with
@@ -126,10 +132,14 @@ module internal Formatting =
                         None)
             | _ -> None
 
-        let category = findInFrontMatter "category"
+        let mkValidIndex (value: string) =
+            match System.Int32.TryParse value with
+            | true, i -> Some i
+            | false, _ -> None
 
-        let categoryIndex = findInFrontMatter "categoryindex"
-        let index = findInFrontMatter "index"
+        let category = findInFrontMatter "category"
+        let categoryIndex = findInFrontMatter "categoryindex" |> Option.bind mkValidIndex
+        let index = findInFrontMatter "index" |> Option.bind mkValidIndex
         let titleFromFrontMatter = findInFrontMatter "title"
 
         // If we want to include the source code of the script, then process
@@ -167,10 +177,62 @@ module internal Formatting =
         // Replace all special elements with ordinary Html/Latex Markdown
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
+        // construct previous and next urls
+        let nextPreviousPageSubstitutions =
+            let getLinksFromCurrentPageIdx currentPageIdx =
+                match currentPageIdx with
+                | None -> []
+                | Some currentPageIdx ->
+                    let previousPage =
+                        filesWithFrontMatter
+                        |> Array.tryItem (currentPageIdx - 1)
+                        |> Option.bind (fun { FileName = fileName } ->
+                            ctx.MarkdownDirectLinkResolver fileName
+                            |> Option.map (fun link -> ParamKeys.``fsdocs-previous-page-link``, link))
+                        |> Option.toList
+
+                    let nextPage =
+                        filesWithFrontMatter
+                        |> Array.tryItem (currentPageIdx + 1)
+                        |> Option.bind (fun { FileName = fileName } ->
+                            ctx.MarkdownDirectLinkResolver fileName
+                            |> Option.map (fun link -> ParamKeys.``fsdocs-next-page-link``, link))
+                        |> Option.toList
+
+                    previousPage @ nextPage
+
+            match index, categoryIndex with
+            | None, None
+            | None, Some _ ->
+                // Typical uses case here is the main index page.
+                // If there is no frontmatter there, we want to propose the first available page
+                filesWithFrontMatter
+                |> Array.tryHead
+                |> Option.bind (fun { FileName = fileName } ->
+                    ctx.MarkdownDirectLinkResolver fileName
+                    |> Option.map (fun link -> ParamKeys.``fsdocs-next-page-link``, link))
+                |> Option.toList
+
+            | Some currentPageIdx, None ->
+                let currentPageIdx =
+                    filesWithFrontMatter
+                    |> Array.tryFindIndex (fun { Index = idx } -> idx = currentPageIdx)
+
+                getLinksFromCurrentPageIdx currentPageIdx
+            | Some currentPageIdx, Some currentCategoryIdx ->
+                let currentPageIdx =
+                    filesWithFrontMatter
+                    |> Array.tryFindIndex (fun { Index = idx; CategoryIndex = cIdx } ->
+                        cIdx = currentCategoryIdx && idx = currentPageIdx)
+
+                getLinksFromCurrentPageIdx currentPageIdx
+
         let substitutions0 =
-            [ ParamKeys.``fsdocs-page-title``, pageTitle; ParamKeys.``fsdocs-page-source``, doc.SourceFile ]
-            @ ctx.Substitutions
-            @ sourceSubstitutions
+            [ yield ParamKeys.``fsdocs-page-title``, pageTitle
+              yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
+              yield! ctx.Substitutions
+              yield! sourceSubstitutions
+              yield! nextPreviousPageSubstitutions ]
 
         let formattedDocument =
             format

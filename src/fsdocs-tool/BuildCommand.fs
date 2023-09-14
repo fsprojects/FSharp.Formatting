@@ -173,6 +173,7 @@ type internal DocContent
         outputFolderRelativeToRoot
         imageSaver
         mdlinkResolver
+        (filesWithFrontMatter: FrontMatterFile array)
         =
         [ let name = Path.GetFileName(inputFileFullPath)
 
@@ -276,7 +277,8 @@ type internal DocContent
                                   rootInputFolder = rootInputFolder,
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
-                                  onError = Some onError
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
                               )
 
                           yield
@@ -313,7 +315,8 @@ type internal DocContent
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
                                   parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
-                                  onError = Some onError
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
                               )
 
                           yield
@@ -353,6 +356,7 @@ type internal DocContent
         (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder, fullPathFileMap)
         (inputFolderAsGiven: string)
         outputFolderRelativeToRoot
+        (filesWithFrontMatter: FrontMatterFile array)
         =
         [
           // Look for the presence of the _template.* files to activate the
@@ -426,6 +430,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Html
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -442,6 +447,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Latex
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -458,6 +464,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Pynb
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -474,6 +481,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Fsx
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -490,6 +498,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Markdown
                       ))
+                      filesWithFrontMatter
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
@@ -511,7 +520,8 @@ type internal DocContent
                            rootInputFolder,
                            fullPathFileMap)
                           (Path.Combine(inputFolderAsGiven, subInputFolderName))
-                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName)) ]
+                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
+                          filesWithFrontMatter ]
 
     member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs) =
 
@@ -523,12 +533,32 @@ type internal DocContent
                   yield! prepFolder rootInputFolderAsGiven outputFolderRelativeToRoot ]
             |> Map.ofList
 
+        // In order to create {{next-page-url}} and {{previous-page-url}}
+        // We need to scan all *.fsx and *.md files for their frontmatter.
+        let filesWithFrontMatter =
+            fullPathFileMap
+            |> Map.keys
+            |> Seq.map fst
+            |> Seq.distinct
+            |> Seq.choose (fun fileName ->
+                let ext = Path.GetExtension fileName
+
+                if ext = ".fsx" then
+                    ParseScript.ParseFrontMatter(fileName)
+                elif ext = ".md" then
+                    File.ReadLines fileName |> FrontMatterFile.ParseFromLines fileName
+                else
+                    None)
+            |> Seq.sortBy (fun { Index = idx; CategoryIndex = cIdx } -> cIdx, idx)
+            |> Seq.toArray
+
         [ for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
               yield!
                   processFolder
                       (htmlTemplate, None, None, None, None, false, Some rootInputFolderAsGiven, fullPathFileMap)
                       rootInputFolderAsGiven
-                      outputFolderRelativeToRoot ]
+                      outputFolderRelativeToRoot
+                      filesWithFrontMatter ]
 
     member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =
         [| for (_inputFile, isOtherLang, model) in docModels do
@@ -564,7 +594,7 @@ type internal DocContent
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
-        let orderList list =
+        let orderList (list: LiterateDocModel list) =
             list
             |> List.sortBy (fun model ->
                 match model.Index with

@@ -1,6 +1,12 @@
 namespace FSharp.Formatting.Literate
 
 open System.Collections.Generic
+open System.Text
+open FSharp.Compiler.CodeAnalysis
+open FSharp.Compiler.Syntax
+open FSharp.Compiler.SyntaxTrivia
+open FSharp.Compiler.Text
+open FSharp.Formatting.Templating
 open FSharp.Patterns
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
@@ -389,3 +395,50 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             diagnostics = diagnostics,
             rootInputFolder = rootInputFolder
         )
+
+    /// Tries and parse the file to find and process the first block comment.
+    static member ParseFrontMatter(fileName: string) : FrontMatterFile option =
+        try
+            let sourceText = (System.IO.File.ReadAllText >> SourceText.ofString) fileName
+            let checker = FSharp.Formatting.Internal.CompilerServiceExtensions.FSharpAssemblyHelper.checker
+
+            let parseResult =
+                checker.ParseFile(
+                    fileName,
+                    sourceText,
+                    { FSharpParsingOptions.Default with
+                        SourceFiles = [| fileName |] }
+                )
+                |> Async.RunSynchronously
+
+            match parseResult.ParseTree with
+            | ParsedInput.SigFile _ -> None
+            | ParsedInput.ImplFile(ParsedImplFileInput.ParsedImplFileInput(trivia = { CodeComments = codeComments })) ->
+                codeComments
+                |> List.tryPick (function
+                    | CommentTrivia.BlockComment mBlockComment -> Some mBlockComment
+                    | CommentTrivia.LineComment _ -> None)
+                |> Option.bind (fun mBlockComment ->
+                    // Grab the comment text from the ISourceText
+                    let commentText =
+                        let startLine = mBlockComment.StartLine - 1
+                        let line = sourceText.GetLineString startLine
+
+                        if mBlockComment.StartLine = mBlockComment.EndLine then
+                            let length = mBlockComment.EndColumn - mBlockComment.StartColumn
+                            line.Substring(mBlockComment.StartColumn, length)
+                        else
+                            let firstLineContent = line.Substring(mBlockComment.StartColumn)
+                            let sb = StringBuilder().AppendLine(firstLineContent)
+
+                            (sb, [ mBlockComment.StartLine .. mBlockComment.EndLine - 2 ])
+                            ||> List.fold (fun sb lineNumber -> sb.AppendLine(sourceText.GetLineString lineNumber))
+                            |> fun sb ->
+                                let lastLine = sourceText.GetLineString(mBlockComment.EndLine - 1)
+                                sb.Append(lastLine.Substring(0, mBlockComment.EndColumn)).ToString()
+
+                    let lines = commentText.Split '\n'
+                    FrontMatterFile.ParseFromLines fileName lines)
+        with ex ->
+            printfn "Failed to find frontmatter in %s, %A" fileName ex
+            None

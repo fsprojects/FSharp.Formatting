@@ -63,10 +63,10 @@ type internal LiterateDocModel =
         Category: string option
 
         /// The category index in the front matter (determines the order of categories)
-        CategoryIndex: string option
+        CategoryIndex: int option
 
         /// The index in the front matter (Determines the order of files within a category)
-        Index: string option
+        Index: int option
 
         /// The relative output path
         OutputPath: string
