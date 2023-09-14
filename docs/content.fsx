@@ -146,6 +146,8 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-source-basename`      | Name of original input source, excluding its extensions, relative to the `docs` root  |
 | `fsdocs-tooltips`             | Generated hidden div elements for tooltips                    |
 | `fsdocs-watch-script`         | The websocket script used in watch mode to trigger hot reload |
+| `fsdocs-previous-page-link`   | A relative link to the previous page based on the frontmatter index data |
+| `fsdocs-next-page-link`       | A relative link to the next page based on the frontmatter index data |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:
