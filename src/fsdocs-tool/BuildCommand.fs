@@ -1,5 +1,6 @@
 namespace fsdocs
 
+open System.Collections.Concurrent
 open CommandLine
 
 open System
@@ -25,6 +26,7 @@ open Suave.Sockets.Control
 open Suave.WebSocket
 open Suave.Operators
 open Suave.Filters
+open Suave.Logging
 open FSharp.Formatting.Markdown
 
 #nowarn "44" // Obsolete WebClient
@@ -627,8 +629,7 @@ type internal DocContent
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
-    //not sure what this was needed for
-    //let refreshEvent = new Event<_>()
+    let refreshEvent = FSharp.Control.Event<string>()
 
     /// generate the script to inject into html to enable hot reload during development
     let generateWatchScript (port: int) =
@@ -639,13 +640,24 @@ module Serve =
     function init()
     {
         websocket = new WebSocket(wsUri);
-        websocket.onclose = function(evt) { onClose(evt) };
-    }
-    function onClose(evt)
-    {
-        console.log('closing');
-        websocket.close();
-        document.location.reload();
+        websocket.onmessage = function(evt) {
+            const data = evt.data;
+            if (data.endsWith(".css")) {
+                console.log(`Trying to reload ${data}`);
+                const link = document.querySelector(`link[href*='${data}']`);
+                if (link) {
+                    const href = new URL(link.href);
+                    const ticks = new Date().getTime();
+                    href.searchParams.set("v", ticks);
+                    link.href = href.toString();
+                }
+            }
+            else {
+                console.log('closing');
+                websocket.close();
+                document.location.reload();
+            }
+        }
     }
     window.addEventListener("load", init, false);
 </script>
@@ -653,18 +665,41 @@ module Serve =
 
         tag.Replace("{{PORT}}", string port)
 
+    let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
+    let socketHandler (webSocket: WebSocket) (context: HttpContext) =
+        context.runtime.logger.info (Message.eventX "New websocket connection")
+        connectedClients.TryAdd(webSocket, ()) |> ignore
 
-    let signalHotReload = new System.Threading.ManualResetEvent(false)
-
-    let socketHandler (webSocket: WebSocket) _ =
         socket {
-            signalHotReload.WaitOne() |> ignore
-            signalHotReload.Reset() |> ignore
-            let emptyResponse = [||] |> ByteSegment
-            printfn "Triggering hot reload on the client"
-            do! webSocket.send Close emptyResponse true
+            let! msg = webSocket.read ()
+
+            match msg with
+            | Close, _, _ ->
+                context.runtime.logger.info (Message.eventX "Closing connection")
+                connectedClients.TryRemove webSocket |> ignore
+                let emptyResponse = [||] |> ByteSegment
+                do! webSocket.send Close emptyResponse true
+            | _ -> ()
         }
+
+    let broadCastReload (msg: string) =
+        let msg = msg |> Encoding.UTF8.GetBytes |> ByteSegment
+
+        connectedClients.Keys
+        |> Seq.map (fun client ->
+            async {
+                let! _ = client.send Text msg true
+                ()
+            })
+        |> Async.Parallel
+        |> Async.Ignore
+        |> Async.RunSynchronously
+
+    refreshEvent.Publish
+    |> Event.add (fun fileName ->
+        let fileName = fileName.TrimEnd('~')
+        broadCastReload fileName)
 
     let startWebServer rootOutputFolderAsGiven localPort =
         let mimeTypesMap ext =
@@ -1743,9 +1778,9 @@ type CoreBuildOptions(watch) =
             let mutable docsQueued = true
             let mutable generateQueued = true
 
-            let docsDependenciesChanged = Event<_>()
+            let docsDependenciesChanged = FSharp.Control.Event<string>()
 
-            docsDependenciesChanged.Publish.Add(fun () ->
+            docsDependenciesChanged.Publish.Add(fun fileName ->
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..." this.input
@@ -1760,11 +1795,11 @@ type CoreBuildOptions(watch) =
                                 if runDocContentPhase2 () then
                                     regenerateSearchIndex ())
 
-                        Serve.signalHotReload.Set() |> ignore
+                        Serve.refreshEvent.Trigger fileName
                     }
                     |> Async.Start)
 
-            let apiDocsDependenciesChanged = Event<_>()
+            let apiDocsDependenciesChanged = FSharp.Control.Event<_>()
 
             apiDocsDependenciesChanged.Publish.Add(fun () ->
                 if not generateQueued then
@@ -1781,7 +1816,7 @@ type CoreBuildOptions(watch) =
                                 if runGeneratePhase2 () then
                                     regenerateSearchIndex ())
 
-                        Serve.signalHotReload.Set() |> ignore
+                        Serve.refreshEvent.Trigger "full"
                     }
                     |> Async.Start)
 
@@ -1789,7 +1824,7 @@ type CoreBuildOptions(watch) =
             for docsWatcher in docsWatchers do
                 docsWatcher.IncludeSubdirectories <- true
                 docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-                docsWatcher.Changed.Add(fun _ -> docsDependenciesChanged.Trigger())
+                docsWatcher.Changed.Add(fun fileEvent -> docsDependenciesChanged.Trigger fileEvent.Name)
 
             // When _template.* change rebuild everything
             for templateWatcher in templateWatchers do
@@ -1798,8 +1833,8 @@ type CoreBuildOptions(watch) =
                 templateWatcher.Filter <- "*template.html"
                 templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
 
-                templateWatcher.Changed.Add(fun _ ->
-                    docsDependenciesChanged.Trigger()
+                templateWatcher.Changed.Add(fun fileEvent ->
+                    docsDependenciesChanged.Trigger fileEvent.Name
                     apiDocsDependenciesChanged.Trigger())
 
             // Listen to changes in output DLLs
