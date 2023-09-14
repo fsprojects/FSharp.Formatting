@@ -186,3 +186,42 @@ let ``Can build doc content using relative input path`` () =
     let f2md2 = File.ReadAllText(rootOutputFolderAsGiven </> "folder2" </> "in-folder2.md")
     f1md1 |> shouldContainText """../folder2/in-folder2.md"""
     f2md2 |> shouldContainText """../folder1/in-folder1.md"""
+
+[<Test>]
+let ``Parses frontmatter correctly `` () =
+    let rootOutputFolderAsGiven = __SOURCE_DIRECTORY__ </> "previous-next-output"
+
+    let relativeInputFolderAsGiven =
+        Path.GetRelativePath(System.Environment.CurrentDirectory, __SOURCE_DIRECTORY__ </> "previous-next")
+
+    if Directory.Exists(rootOutputFolderAsGiven) then
+        Directory.Delete(rootOutputFolderAsGiven, true)
+
+    let content =
+        DocContent(
+            rootOutputFolderAsGiven,
+            Map.empty,
+            lineNumbers = None,
+            evaluate = false,
+            substitutions = [],
+            saveImages = None,
+            watch = false,
+            root = "https://en.wikipedia.org",
+            crefResolver = (fun _ -> None),
+            onError = failwith
+        )
+
+    let docModels = content.Convert(relativeInputFolderAsGiven, None, [])
+    let globals = []
+
+    for _thing, action in docModels do
+        action globals
+
+    let fellowshipHtml = rootOutputFolderAsGiven </> "fellowship.html" |> File.ReadAllText
+    let twoTowersHtml = rootOutputFolderAsGiven </> "two-tower.html" |> File.ReadAllText
+    let returnHtml = rootOutputFolderAsGiven </> "return.html" |> File.ReadAllText
+
+    fellowshipHtml |> shouldContainText "<a href=\"two-tower.html\">Next</a>"
+    twoTowersHtml |> shouldContainText "<a href=\"fellowship.html\">Previous</a>"
+    twoTowersHtml |> shouldContainText "<a href=\"return.html\">Next</a>"
+    returnHtml |> shouldContainText "<a href=\"two-tower.html\">Previous</a>"
