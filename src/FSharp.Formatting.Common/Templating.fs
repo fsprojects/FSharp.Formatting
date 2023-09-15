@@ -23,6 +23,48 @@ type ParamKey =
 /// A list of parameters for substituting in templates, indexed by parameter keys
 type Substitutions = (ParamKey * string) list
 
+/// Meta data from files that contains front matter
+/// Used to determine upfront which files have front matter so that previous and next substitutes can be discovered.
+type FrontMatterFile =
+    { FileName: string
+      Category: string
+      CategoryIndex: int
+      Index: int }
+
+    /// Parses the category, categoryindex and index from the frontmatter lines
+    static member ParseFromLines (fileName: string) (lines: string seq) =
+        let (|ValidIndex|_|) (value: string) =
+            match Int32.TryParse value with
+            | true, i -> Some i
+            | false, _ -> None
+
+        let keyValues =
+            lines
+            // Skip opening lines
+            |> Seq.skipWhile (fun line ->
+                let line = line.Trim()
+                line = "(**" || line = "---")
+            |> Seq.takeWhile (fun line ->
+                // Allow empty lines in frontmatter
+                let isBlankLine = String.IsNullOrWhiteSpace line
+                isBlankLine || line.Contains(":"))
+            |> Seq.filter (String.IsNullOrWhiteSpace >> not)
+            |> Seq.map (fun line ->
+                let parts = line.Split(":")
+                parts.[0].ToLowerInvariant(), parts.[1])
+            |> Map.ofSeq
+
+        match
+            Map.tryFind "category" keyValues, Map.tryFind "categoryindex" keyValues, Map.tryFind "index" keyValues
+        with
+        | Some category, Some(ValidIndex categoryindex), Some(ValidIndex index) ->
+            Some
+                { FileName = fileName
+                  Category = category.Trim()
+                  CategoryIndex = categoryindex
+                  Index = index }
+        | _ -> None
+
 /// <summary>
 ///  Defines the parameter keys known to FSharp.Formatting processing code
 /// </summary>
@@ -133,6 +175,12 @@ module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
     let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
+
+    /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
+    let ``fsdocs-previous-page-link`` = ParamKey "fsdocs-previous-page-link"
+
+    /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
+    let ``fsdocs-next-page-link`` = ParamKey "fsdocs-next-page-link"
 
 module internal SimpleTemplating =
 

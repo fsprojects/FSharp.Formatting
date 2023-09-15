@@ -42,6 +42,32 @@
           "FSharp.Core": "0.0.0"
         }
       },
+      "Microsoft.Build": {
+        "type": "Transitive",
+        "resolved": "17.2.0",
+        "contentHash": "Rpf+7b8WHcgkrEQnGcV8FiAIl15ZC7Oit4t213fMoRdJb8SUYKdB71ZzWFaV5f9glN3y+R4cxRDY0dkwaIpwYw==",
+        "dependencies": {
+          "Microsoft.Build.Framework": "17.2.0",
+          "Microsoft.NET.StringTools": "1.0.0",
+          "Microsoft.Win32.Registry": "4.3.0",
+          "System.Collections.Immutable": "5.0.0",
+          "System.Configuration.ConfigurationManager": "4.7.0",
+          "System.Reflection.Metadata": "1.6.0",
+          "System.Security.Principal.Windows": "4.7.0",
+          "System.Text.Encoding.CodePages": "4.0.1",
+          "System.Text.Json": "6.0.0",
+          "System.Threading.Tasks.Dataflow": "6.0.0"
+        }
+      },
+      "Microsoft.Build.Framework": {
+        "type": "Transitive",
+        "resolved": "17.2.0",
+        "contentHash": "5MtMF6vZeK8Nq6r9GctGpfiBa+r5+pTCnZJp8Bi6C74TysWl5ri6vmuLbsYhzvXqTPbnvDxCpKAI90z3m4m5mw==",
+        "dependencies": {
+          "Microsoft.Win32.Registry": "4.3.0",
+          "System.Security.Permissions": "4.7.0"
+        }
+      },
       "Microsoft.NET.StringTools": {
         "type": "Transitive",
         "resolved": "1.0.0",
@@ -417,34 +443,6 @@
           "System.Reflection.Emit": "4.7.0",
           "System.Reflection.Metadata": "7.0.0",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
-        }
-      },
-      "Microsoft.Build": {
-        "type": "CentralTransitive",
-        "requested": "(, )",
-        "resolved": "17.2.0",
-        "contentHash": "Rpf+7b8WHcgkrEQnGcV8FiAIl15ZC7Oit4t213fMoRdJb8SUYKdB71ZzWFaV5f9glN3y+R4cxRDY0dkwaIpwYw==",
-        "dependencies": {
-          "Microsoft.Build.Framework": "17.2.0",
-          "Microsoft.NET.StringTools": "1.0.0",
-          "Microsoft.Win32.Registry": "4.3.0",
-          "System.Collections.Immutable": "5.0.0",
-          "System.Configuration.ConfigurationManager": "4.7.0",
-          "System.Reflection.Metadata": "1.6.0",
-          "System.Security.Principal.Windows": "4.7.0",
-          "System.Text.Encoding.CodePages": "4.0.1",
-          "System.Text.Json": "6.0.0",
-          "System.Threading.Tasks.Dataflow": "6.0.0"
-        }
-      },
-      "Microsoft.Build.Framework": {
-        "type": "CentralTransitive",
-        "requested": "(, )",
-        "resolved": "17.2.0",
-        "contentHash": "5MtMF6vZeK8Nq6r9GctGpfiBa+r5+pTCnZJp8Bi6C74TysWl5ri6vmuLbsYhzvXqTPbnvDxCpKAI90z3m4m5mw==",
-        "dependencies": {
-          "Microsoft.Win32.Registry": "4.3.0",
-          "System.Security.Permissions": "4.7.0"
         }
       },
       "System.Memory": {
