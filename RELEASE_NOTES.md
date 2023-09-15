@@ -1,3 +1,8 @@
+## 19.1.0
+
+* Only reload css file when changed. [#845](https://github.com/fsprojects/FSharp.Formatting/pull/845)
+* Add previous and next page url substitutions. [#846](https://github.com/fsprojects/FSharp.Formatting/pull/846)
+
 ## 19.0.0
 
 * Update FCS to 43.7.400
