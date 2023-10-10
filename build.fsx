@@ -77,7 +77,7 @@ pipeline "CI" {
         run $"dotnet build {solutionFile} --configuration {configuration}"
     }
 
-    stage "NuGet" { run $"dotnet pack {solutionFile} --output {artifactsDir} --configuration {configuration}" }
+    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration}" }
 
     stage "Tests" {
         run
@@ -91,10 +91,10 @@ pipeline "CI" {
         // Τhe tool has been uninstalled when the
         // artifacts folder was removed in the Clean stage.
         run
-            $"dotnet tool install --no-cache --version %s{release.NugetVersion} --add-source %s{artifactsDir} --tool-path %s{artifactsDir} fsdocs-tool"
+            $"dotnet tool install --no-cache --version %s{release.NugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
 
-        run $"{fsdocTool} build --strict --clean --properties Configuration=Release"
-        run $"dotnet tool uninstall fsdocs-tool --tool-path %s{artifactsDir}"
+        run $"\"{fsdocTool}\" build --strict --clean --properties Configuration=Release"
+        run $"dotnet tool uninstall fsdocs-tool --tool-path \"%s{artifactsDir}\""
         run (fun _ -> Shell.cleanDir ".packages")
     }
 
