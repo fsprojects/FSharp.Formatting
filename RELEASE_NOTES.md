@@ -1,3 +1,7 @@
+## 19.1.1
+
+* Fix code rendering on firefox. [#851](https://github.com/fsprojects/FSharp.Formatting/pull/851)
+
 ## 19.1.0
 
 * Only reload css file when changed. [#845](https://github.com/fsprojects/FSharp.Formatting/pull/845)
