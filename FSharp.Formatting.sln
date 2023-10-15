@@ -121,12 +121,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "leftside", "leftside", "{18
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{FAD5C374-4748-4A3D-A435-FFA425916F3A}"
 	ProjectSection(SolutionItems) = preProject
-		docs\content\fsdocs-custom.css = docs\content\fsdocs-custom.css
 		docs\content\fsdocs-default.css = docs\content\fsdocs-default.css
 		docs\content\fsdocs-search.js = docs\content\fsdocs-search.js
 		docs\content\fsdocs-tips.js = docs\content\fsdocs-tips.js
-		docs\content\navbar-fixed-left.css = docs\content\navbar-fixed-left.css
-		docs\content\navbar-fixed-right.css = docs\content\navbar-fixed-right.css
 	EndProjectSection
 EndProject
 Global

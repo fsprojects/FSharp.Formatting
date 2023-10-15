@@ -728,7 +728,7 @@ module Serve =
 
     refreshEvent.Publish
     |> Event.add (fun fileName ->
-        let fileName = fileName.TrimEnd('~')
+        let fileName = fileName.Replace("\\", "/").TrimEnd('~')
         broadCastReload fileName)
 
     let startWebServer rootOutputFolderAsGiven localPort =
