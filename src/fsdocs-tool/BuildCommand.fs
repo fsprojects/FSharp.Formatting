@@ -728,8 +728,9 @@ module Serve =
 
     refreshEvent.Publish
     |> Event.add (fun fileName ->
-        let fileName = fileName.Replace("\\", "/").TrimEnd('~')
-        broadCastReload fileName)
+        if Path.HasExtension fileName then
+            let fileName = fileName.Replace("\\", "/").TrimEnd('~')
+            broadCastReload fileName)
 
     let startWebServer rootOutputFolderAsGiven localPort =
         let mimeTypesMap ext =
