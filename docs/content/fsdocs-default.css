@@ -22,7 +22,7 @@
     --container-lg: 1024px;
     --container-xl: 1200px;
     --container-xxl: 1400px;
-    --aside-width: 200px;
+    --aside-width: 250px;
 
     --header-height: 60px;
 
@@ -31,8 +31,9 @@
     --background: #f5f5f6;
     --text-color: #020202;
     --text-hover: #282828;
+    --heading-color: #2e293a;
     --code-background: #ffffff;
-    --code-color: #1B6504;
+    --code-color: #1a4b0b;
     --header-background: #f9fbfc;
     --header-border: #e8ecf1;
     --menu-icon-hover: #F7F7F7;
@@ -116,11 +117,11 @@ header {
     justify-content: space-between;
     position: sticky;
     top: 0;
-    
+
     & .start {
         display: flex;
         align-items: center;
-        
+
         & #menu-toggle {
             position: relative;
             height: var(--icon-size);
@@ -197,11 +198,11 @@ header {
     & .end {
         display: flex;
         align-items: center;
-        
+
         & a {
             display: none;
         }
-        
+
         & > .themeToggle, & > .search {
             cursor: pointer;
             height: var(--icon-size);
@@ -224,7 +225,7 @@ main {
 }
 
 #content {
-    padding: var(--unit-2) var(--unit-2);
+    padding: var(--unit-2) var(--unit-4);
 }
 
 /* menu items */
@@ -278,7 +279,7 @@ main {
         border-bottom: 1px solid var(--header-border);
         grid-row: 1;
         grid-column: span 2;
-        
+
         & .end {
             > a {
                 display: flex;
@@ -353,7 +354,7 @@ main {
 
 /* Headings */
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
-    color: var(--primary);
+    color: var(--heading-color);
     text-decoration: none;
 }
 
@@ -780,6 +781,7 @@ span[onmouseout] {
     --background: #32283c;
     --text-color: #F7F7F7;
     --text-hover: #FFF;
+    --heading-color: #F4F4F6;
     --code-background: #3e3e42;
     --code-color: #f5f5f6;
     --header-background: #0c1318;
