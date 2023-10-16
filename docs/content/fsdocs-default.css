@@ -39,6 +39,7 @@
     --menu-icon-hover-background: #bdc3c7;
     --doc-tip-background: #F7F7F7;
     --link-color: #4871f7;
+    --link-hover: #91aafa;
     --search-background: rgb(229, 231, 235);
     --nav-category: rgb(156, 163, 175);
 
@@ -102,6 +103,8 @@ p, h1, h2, h3, h4, h5, h6 {
 /* Main layout */
 body {
     font-family: var(--system-font);
+    background-color: var(--background);
+    color: var(--text-color);
 }
 
 header {
@@ -110,77 +113,105 @@ header {
     height: var(--header-height);
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    
+    & .start {
+        display: flex;
+        align-items: center;
+        
+        & #menu-toggle {
+            position: relative;
+            height: var(--icon-size);
+            width: var(--icon-size);
+            border: 1px solid var(--header-border);
+            border-radius: var(--radius);
 
-    & #menu-toggle {
-        position: relative;
-        height: var(--icon-size);
-        width: var(--icon-size);
-        border: 1px solid var(--header-border);
-        border-radius: var(--radius);
+            & .icon {
+                top: 3px;
+                left: 3px;
+                width: calc(var(--icon-size) - 4px);
+                height: calc(var(--icon-size) - 4px);
+                position: absolute;
 
-        & .icon {
-            top: 3px;
-            left: 3px;
-            width: calc(var(--icon-size) - 4px);
-            height: calc(var(--icon-size) - 4px);
-            position: absolute;
+                &.open {
+                    display: none;
+                }
+            }
 
-            &.open {
-                display: none;
+            & input[type=checkbox] {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+                appearance: none;
+                cursor: pointer;
+            }
+
+            & .menu {
+                visibility: hidden;
+                height: 0;
+                opacity: 0;
+                width: 100%;
+                transition: all 0.2s ease-in-out;
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                background-color: var(--header-background);
+                list-style: none;
+                padding: var(--unit-2);
+            }
+
+            & input:checked + .menu {
+                visibility: visible;
+                opacity: 1;
+                height: calc(100vh - var(--header-height));
+            }
+
+            &:has(input:checked) {
+                .icon.open {
+                    display: block;
+                }
+
+                .icon.closed {
+                    display: none;
+                }
             }
         }
 
-        & input[type=checkbox] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            appearance: none;
+        & img {
+            margin: 0 var(--unit-4);
+            border-radius: var(--radius);
+            height: calc(var(--icon-size) - 2px);
+        }
+
+        & strong {
+            line-height: var(--icon-size);
+            font-size: var(--unit-4);
+            display: block;
+        }
+    }
+
+    & .end {
+        display: flex;
+        align-items: center;
+        
+        & a {
+            display: none;
+        }
+        
+        & > .themeToggle, & > .search {
             cursor: pointer;
+            height: var(--icon-size);
+            align-items: center;
+            margin: 0 var(--unit);
         }
 
-        & .menu {
-            visibility: hidden;
-            height: 0;
-            opacity: 0;
-            width: 100%;
-            transition: all 0.2s ease-in-out;
-            position: fixed;
-            top: var(--header-height);
-            left: 0;
-            background-color: var(--header-background);
-            list-style: none;
-            padding: var(--unit-2);
+        & > .search {
+            display: flex;
         }
-
-        & input:checked + .menu {
-            visibility: visible;
-            opacity: 1;
-            height: calc(100vh - var(--header-height));
-        }
-
-        &:has(input:checked) {
-            .icon.open {
-                display: block;
-            }
-
-            .icon.closed {
-                display: none;
-            }
-        }
-    }
-
-    & img {
-        margin: 0 var(--unit-4);
-        border-radius: var(--radius);
-        height: calc(var(--icon-size) - 2px);
-    }
-
-    & strong {
-        line-height: var(--icon-size);
-        font-size: var(--unit-4);
-        display: block;
     }
 }
 
@@ -247,6 +278,20 @@ main {
         border-bottom: 1px solid var(--header-border);
         grid-row: 1;
         grid-column: span 2;
+        
+        & .end {
+            > a {
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                color: var(--text-color);
+                margin: 0 var(--unit);
+
+                &:hover {
+                    color: var(--link-hover);
+                }
+            }
+        }
     }
 
     aside, main {
@@ -313,8 +358,7 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    margin-top: 0;
-    margin-bottom: var(--unit-3);
+    margin: var(--unit-3) 0;
 }
 
 h1 {
@@ -608,7 +652,6 @@ table.pre td iconify-icon {
     }
 }
 
-
 /* tooltips */
 div.fsdocs-tip {
     z-index: 1000;
@@ -728,7 +771,6 @@ span[onmouseout] {
     .fsdocs-source-link img.normal {
         filter: invert(1);
     }
-;
 }
 
 /* dark theme */
@@ -740,6 +782,7 @@ span[onmouseout] {
     --text-hover: #FFF;
     --code-background: #3e3e42;
     --code-color: #f5f5f6;
+    --header-background: #0c1318;
     --header-border: #9b9b9b;
     --doc-tip-background: #2e293a;
     --link-color: #c5eff7;
@@ -774,33 +817,4 @@ span[onmouseout] {
     --code-preprocessor-color: #af75c1;
     --code-fsioutput-color: #808080;
     --code-tooltip-color: #d1d1d1;
-}
-
-/* theme toggling */
-
-.themeToggle.dark {
-    display: block;
-}
-
-.themeToggle.light {
-    display: none;
-}
-
-[data-theme=dark] {
-    .themeToggle.light {
-        display: block;
-    }
-
-    .themeToggle.dark {
-        display: none;
-    }
-}
-
-.themeToggle {
-    cursor: pointer;
-    color: var(--text-color);
-
-    &:hover {
-        color: var(--text-hover);
-    }
 }

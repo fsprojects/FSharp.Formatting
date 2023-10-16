@@ -16,25 +16,34 @@
 </head>
 <body>
 <header>
-    <div id="menu-toggle">
-        <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
-        <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
-        <input type="checkbox" name="mobile-menu" />
-        <ul class="menu">
-            <li class="nav-header">Links</li>
-            <li class="nav-item"><a class="nav-link" href="{{fsdocs-license-link}}">License</a>
-            </li>
-            <li class="nav-item"><a class="nav-link"
-                                    href="{{fsdocs-release-notes-link}}">Release
-                Notes</a></li>
-            <li class="nav-item"><a class="nav-link" href="{{fsdocs-repository-link}}">Source
-                Repository</a></li>
-            {{fsdocs-list-of-documents}}
-            {{fsdocs-list-of-namespaces}}
-        </ul>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="nav-item"><a class="nav-link" href="{{fsdocs-license-link}}">License</a>
+                </li>
+                <li class="nav-item"><a class="nav-link"
+                                        href="{{fsdocs-release-notes-link}}">Release
+                    Notes</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{fsdocs-repository-link}}">Source
+                    Repository</a></li>
+                {{fsdocs-list-of-documents}}
+                {{fsdocs-list-of-namespaces}}
+            </ul>
+        </div>
+        <img alt="Header menu logo" src="{{root}}img/logo.png">
+        <strong>{{fsdocs-collection-name}}</strong>
     </div>
-    <img alt="Header menu logo" src="{{root}}img/logo.png">
-    <strong>{{fsdocs-collection-name}}</strong>
+    <div class="end">
+        <a href="{{fsdocs-repository-link}}" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
 </header>
 <aside>
     <ul class="menu">
@@ -57,5 +66,6 @@
     </div>
 </main>
 <script type="module" src="{{root}}content/fsdocs-tips.js"></script>
+<script type="module" src="{{root}}content/fsdocs-theme-toggle.js"></script>
 </body>
 </html>
