@@ -1773,10 +1773,12 @@ type CoreBuildOptions(watch) =
         if watch then
 
             let docsWatchers =
-                if Directory.Exists(this.input) then
-                    [ new FileSystemWatcher(this.input) ]
-                else
-                    []
+                [ if Directory.Exists(this.input) then
+                      yield new FileSystemWatcher(this.input)
+                  match defaultTemplate with
+                  | Some defaultTemplate ->
+                      yield new FileSystemWatcher(Path.GetDirectoryName(defaultTemplate), IncludeSubdirectories = true)
+                  | None -> () ]
 
             let templateWatchers =
                 if Directory.Exists(this.input) then
