@@ -86,7 +86,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-img, picture, video, canvas, svg {
+picture, video, canvas, svg {
     display: block;
     max-width: 100%;
 }
@@ -190,7 +190,10 @@ aside {
 
 main {
     height: calc(100vh - var(--header-height));
-    padding: var(--unit-2) var(--unit-4);
+}
+
+#content {
+    padding: var(--unit-2) var(--unit-2);
 }
 
 /* menu items */
@@ -235,8 +238,8 @@ main {
 
     body {
         display: grid;
-        grid-template-rows: var(--header-height) 1fr;
-        grid-template-columns:var(--aside-width) 1fr;
+        grid-template-rows: var(--header-height) minmax(0, 1fr);
+        grid-template-columns:var(--aside-width) minmax(0, 1fr);
         gap: 0;
     }
 
@@ -247,52 +250,61 @@ main {
     }
 
     aside, main {
-        height: calc(100vh - var(--header-height));
+        min-height: calc(100vh - var(--header-height));
     }
 
     aside {
         display: block;
-        padding: var(--unit-2) var(--unit-3);
+        padding: var(--unit-2) var(--unit-6);
         background-color: var(--header-background);
         width: var(--aside-width);
         border-right: 1px solid var(--header-border);
+        grid-row: 2;
+        grid-row-end: 3;
+    }
+
+    main {
+        grid-row: 2;
+        grid-column: 2;
+        overflow-y: auto;
+    }
+
+    #content {
+        padding-left: var(--unit-4);
+        padding-right: var(--unit-4);
     }
 }
 
-/*@media screen and (min-width: 768px) {*/
-/*    #fsdocs-content {*/
-/*        max-width: calc(var(--container-sm) - var(--aside-width) - var(--unit-8));*/
-/*        min-width: calc(var(--container-sm) - var(--aside-width) - var(--unit-8));*/
-/*        margin: 0 auto;*/
-/*    }*/
-/*}*/
+@media screen and (min-width: 768px) {
+    #content {
+        max-width: calc(100vw - var(--aside-width) - var(--unit-4));
+        margin: 0 auto;
+    }
+}
 
-/*@media screen and (min-width: 960px) {*/
-/*    #fsdocs-content {*/
-/*        min-width: calc(var(--container-md) - var(--aside-width) - var(--unit-8));*/
-/*        max-width: calc(var(--container-md) - var(--aside-width) - var(--unit-8));*/
-/*    }*/
-/*}*/
+@media screen and (min-width: 960px) {
+    #content {
+        max-width: calc(var(--container-md) - var(--aside-width) - var(--unit-4));
+    }
+}
 
-/*@media screen and (min-width: 1024px) {*/
-/*    #fsdocs-content {*/
-/*        min-width: calc(var(--container-lg) - var(--aside-width) - var(--unit-8));*/
-/*        max-width: calc(var(--container-lg) - var(--aside-width) - var(--unit-8));*/
-/*    }*/
-/*}*/
+@media screen and (min-width: 1024px) {
+    #content {
+        max-width: calc(var(--container-lg) - var(--aside-width) - var(--unit-4));
+    }
+}
 
-/*@media screen and (min-width: 1200px) {*/
-/*    #fsdocs-content {*/
-/*        min-width: calc(var(--container-xl) - var(--aside-width) - var(--unit-8));*/
-/*        max-width: calc(var(--container-xl) - var(--aside-width) - var(--unit-8));*/
-/*    }*/
-/*}*/
+@media screen and (min-width: 1200px) {
+    #content {
+        max-width: calc(var(--container-xl) - var(--aside-width) - var(--unit-4));
+    }
+}
 
-/*@media screen and (min-width: 1400px) {*/
-/*    #fsdocs-content {*/
-/*        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--unit-8));*/
-/*    }*/
-/*}*/
+@media screen and (min-width: 1400px) {
+    #content {
+        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--unit-4));
+    }
+}
 
 /* Headings */
 h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
@@ -340,6 +352,10 @@ p {
 
 ol li {
     margin-bottom: var(--unit-2);
+}
+
+#content > table {
+    margin: var(--unit-2) 0;
 }
 
 /* Code snippets */
@@ -391,31 +407,31 @@ table.pre td iconify-icon {
 }
 
 @media screen and (min-width: 768px) {
-    table.pre, code {
+    table, code {
         max-width: var(--container-sm);
     }
 }
 
 @media screen and (min-width: 960px) {
-    table.pre, code {
+    table, code {
         max-width: var(--container-md);
     }
 }
 
 @media screen and (min-width: 1024px) {
-    table.pre, code {
+    table, code {
         max-width: var(--container-lg);
     }
 }
 
 @media screen and (min-width: 1200px) {
-    table.pre, code {
+    table, code {
         max-width: var(--container-xl);
     }
 }
 
 @media screen and (min-width: 1400px) {
-    table.pre, code {
+    table, code {
         max-width: var(--container-xxl);
     }
 }
@@ -594,7 +610,6 @@ table.pre td iconify-icon {
 
 
 /* tooltips */
-
 div.fsdocs-tip {
     z-index: 1000;
     display: none;
