@@ -518,6 +518,11 @@ pre.fssnip > code {
     margin-bottom: initial;
 }
 
+pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
+    background-color: transparent;
+}
+
+
 /* copy icons in the shell commands */
 table.pre td iconify-icon {
     margin-top: var(--spacing-one-quarter);
