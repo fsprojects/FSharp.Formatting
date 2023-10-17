@@ -56,6 +56,9 @@
     --link-hover: #91aafa;
     --search-background: rgb(229, 231, 235);
     --nav-category: rgb(156, 163, 175);
+    --scrollbar-track-background: #424242;
+    --scrollbar-track-border: #4A4A4A;
+    --scrollbar-thumb-background: #686868;
 
     --header-brand-text-transform: none;
 
@@ -106,7 +109,6 @@
     --link-color: #c5eff7;
     --search-background: #020202;
     --nav-category: rgb(207, 211, 215);
-
     --code-strings-color: #5adfec;
     --code-printf-color: #6B2FBA;
     --code-escaped-color: #EA8675;
@@ -257,6 +259,7 @@ header {
             font-size: var(--font-size);
             display: block;
             text-transform: var(--header-brand-text-transform);
+            font-weight: 500;
         }
     }
 
@@ -543,18 +546,11 @@ table.pre, pre.fssnip.highlighted {
 }
 
 table.pre, pre.fssnip {
-    padding: var(--spacing-half);
+    padding: var(--spacing-three-quarter);
 }
 
 p > code, li > code {
     padding: var(--spacing-one-quarter);
-}
-
-table.pre, code {
-    overflow-x: auto;
-    max-width: 100%;
-    box-sizing: border-box;
-    border-radius: var(--radius);
 }
 
 table.pre, pre > code {
@@ -566,14 +562,31 @@ pre.fssnip > code {
     margin-bottom: initial;
 }
 
+/* avoid problems with transparent background colors */
 pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
     background-color: transparent;
 }
 
+/* Custom scrollbar styling */
+main, table.pre, code {
+    overflow-x: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: var(--radius);
 
-/* copy icons in the shell commands */
-table.pre td iconify-icon {
-    margin-top: var(--spacing-one-quarter);
+    &::-webkit-scrollbar {
+        height: var(--spacing-three-quarter);
+        width: var(--spacing);
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: var(--scrollbar-track-background);
+        border: 1px solid var(--scrollbar-track-border);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-background);
+    }
 }
 
 /* Code coloring */
