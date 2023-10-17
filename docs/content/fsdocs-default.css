@@ -2,20 +2,33 @@
     --monospace-font: "Fira Code", monospace;
     --system-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
-    --unit: 0.25rem;
-    --unit-2: calc(2 * var(--unit));
-    --unit-3: calc(3 * var(--unit));
-    --unit-4: calc(4 * var(--unit));
-    --unit-5: calc(5 * var(--unit));
-    --unit-6: calc(6 * var(--unit));
-    --unit-7: calc(7 * var(--unit));
-    --unit-8: calc(8 * var(--unit));
-    --unit-9: calc(9 * var(--unit));
-    --unit-10: calc(10 * var(--unit));
-    --unit-11: calc(11 * var(--unit));
-    --unit-12: calc(12 * var(--unit));
+    --spacing-one-quarter: 4px;
+    --spacing-half: 8px;
+    --spacing-three-quarter: 12px;
+    --spacing: 16px;
+    --spacing-one-and-a-half: 24px;
+    --spacing-twice: 32px;
+    --spacing-three-times: 48px;
+    --spacing-four-times: 64px;
+    --spacing-six-times: 96px;
+    --spacing-eight-times: 128px;
+    --spacing-twelve-times: 192px;
+
+    --font-size-smallest: 12x;
+    --font-size-smaller: 14px;
+    --font-size: 16px;
+    --font-size-larger: 18px;
+    --font-size-largest: 20px;
+    --font-size-heading-6: 24px;
+    --font-size-heading-5: 30px;
+    --font-size-heading-4: 36px;
+    --font-size-heading-3: 48px;
+    --font-size-heading-2: 60px;
+    --font-size-heading-1: 72px;
+
+    --line-height: 1.5;
+    --heading-line-height: 1.25;
     --radius: 6px;
-    --icon-size: 30px;
 
     --container-sm: 768px;
     --container-md: 960px;
@@ -23,7 +36,6 @@
     --container-xl: 1200px;
     --container-xxl: 1400px;
     --aside-width: 250px;
-
     --header-height: 60px;
 
     /* light theme */
@@ -38,11 +50,14 @@
     --header-border: #e8ecf1;
     --menu-icon-hover: #F7F7F7;
     --menu-icon-hover-background: #bdc3c7;
+    --menu-item-hover-background: #eff0f1;
     --doc-tip-background: #F7F7F7;
     --link-color: #4871f7;
     --link-hover: #91aafa;
     --search-background: rgb(229, 231, 235);
     --nav-category: rgb(156, 163, 175);
+
+    --header-brand-text-transform: none;
 
     --code-strings-color: #0093A1;
     --code-printf-color: #6B2FBA;
@@ -106,11 +121,12 @@ body {
     font-family: var(--system-font);
     background-color: var(--background);
     color: var(--text-color);
+    line-height: var(--line-height);
 }
 
 header {
     background-color: var(--header-background);
-    padding: var(--unit-2);
+    padding: var(--spacing);
     height: var(--header-height);
     display: flex;
     align-items: center;
@@ -124,16 +140,16 @@ header {
 
         & #menu-toggle {
             position: relative;
-            height: var(--icon-size);
-            width: var(--icon-size);
+            height: var(--spacing-twice);
+            width: var(--spacing-twice);
             border: 1px solid var(--header-border);
             border-radius: var(--radius);
 
             & .icon {
-                top: 3px;
-                left: 3px;
-                width: calc(var(--icon-size) - 4px);
-                height: calc(var(--icon-size) - 4px);
+                top: 4px;
+                left: 4px;
+                width: calc(var(--spacing-twice) - 4px);
+                height: calc(var(--spacing-twice) - 4px);
                 position: absolute;
 
                 &.open {
@@ -162,7 +178,7 @@ header {
                 left: 0;
                 background-color: var(--header-background);
                 list-style: none;
-                padding: var(--unit-2);
+                padding: var(--spacing);
             }
 
             & input:checked + .menu {
@@ -183,15 +199,16 @@ header {
         }
 
         & img {
-            margin: 0 var(--unit-4);
+            margin: 0 var(--spacing-three-quarter);
             border-radius: var(--radius);
-            height: calc(var(--icon-size) - 2px);
+            height: calc(var(--spacing-twice) - 2px);
         }
 
         & strong {
-            line-height: var(--icon-size);
-            font-size: var(--unit-4);
+            line-height: var(--spacing-twice);
+            font-size: var(--font-size);
             display: block;
+            text-transform: var(--header-brand-text-transform);
         }
     }
 
@@ -205,9 +222,9 @@ header {
 
         & > .themeToggle, & > .search {
             cursor: pointer;
-            height: var(--icon-size);
+            height: var(--spacing-twice);
             align-items: center;
-            margin: 0 var(--unit);
+            margin: 0 var(--spacing-half);
         }
 
         & > .search {
@@ -225,7 +242,11 @@ main {
 }
 
 #content {
-    padding: var(--unit-2) var(--unit-4);
+    padding: var(--spacing);
+
+    > *:first-child {
+        margin-top: 0;
+    }
 }
 
 /* menu items */
@@ -238,9 +259,9 @@ main {
 }
 
 .nav-header {
-    margin-top: var(--unit-3);
+    margin-top: var(--spacing-one-and-a-half);
     text-transform: uppercase;
-    font-size: var(--unit-3);
+    font-size: var(--font-size-largest);
 }
 
 .nav-header:first-child {
@@ -248,14 +269,18 @@ main {
 }
 
 .nav-item {
-    padding-left: var(--unit-3);
-    padding-top: var(--unit);
     border-left: 1px solid var(--header-border);
 
     & a {
         color: var(--text-color);
         text-decoration: none;
-        font-size: var(--unit-3);
+        font-size: var(--font-size);
+        padding: var(--spacing-half);
+        display: inline-block;
+
+        &:hover {
+            background-color: var(--menu-item-hover-background);
+        }
     }
 
     &:hover {
@@ -286,7 +311,6 @@ main {
                 align-items: center;
                 text-decoration: none;
                 color: var(--text-color);
-                margin: 0 var(--unit);
 
                 &:hover {
                     color: var(--link-hover);
@@ -301,7 +325,7 @@ main {
 
     aside {
         display: block;
-        padding: var(--unit-2) var(--unit-6);
+        padding: var(--spacing) var(--spacing-twice);
         background-color: var(--header-background);
         width: var(--aside-width);
         border-right: 1px solid var(--header-border);
@@ -316,39 +340,39 @@ main {
     }
 
     #content {
-        padding-left: var(--unit-4);
-        padding-right: var(--unit-4);
+        padding-left: var(--spacing);
+        padding-right: var(--spacing);
     }
 }
 
 @media screen and (min-width: 768px) {
     #content {
-        max-width: calc(100vw - var(--aside-width) - var(--unit-4));
+        max-width: calc(100vw - var(--aside-width) - var(--spacing) - var(--spacing));
         margin: 0 auto;
     }
 }
 
 @media screen and (min-width: 960px) {
     #content {
-        max-width: calc(var(--container-md) - var(--aside-width) - var(--unit-4));
+        max-width: calc(var(--container-md) - var(--aside-width) - var(--spacing) - var(--spacing));
     }
 }
 
 @media screen and (min-width: 1024px) {
     #content {
-        max-width: calc(var(--container-lg) - var(--aside-width) - var(--unit-4));
+        max-width: calc(var(--container-lg) - var(--aside-width) - var(--spacing) - var(--spacing));
     }
 }
 
 @media screen and (min-width: 1200px) {
     #content {
-        max-width: calc(var(--container-xl) - var(--aside-width) - var(--unit-4));
+        max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing) - var(--spacing));
     }
 }
 
 @media screen and (min-width: 1400px) {
     #content {
-        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--unit-4));
+        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing) - var(--spacing));
     }
 }
 
@@ -358,32 +382,72 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     text-decoration: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin: var(--unit-3) 0;
-}
-
 h1 {
-    font-size: var(--unit-8);
+    font-size: var(--font-size-heading-5);
+    line-height: var(--heading-line-height);
+    margin-bottom: var(--spacing);
+    margin-top: var(--spacing-one-quarter);
 }
 
 h2 {
-    font-size: var(--unit-6);
+    font-size: var(--font-size-heading-6);
+    line-height: var(--heading-line-height);
+    margin-top: var(--spacing);
+    margin-bottom: var(--spacing-three-quarter);
 }
 
 h3 {
-    font-size: var(--unit-5);
+    font-size: var(--font-size-largest);
+    line-height: var(--heading-line-height);
+    margin-top: var(--spacing-three-quarter);
+    margin-bottom: var(--spacing-three-quarter);
 }
 
 h4 {
-    font-size: var(--unit-4);
+    font-size: var(--font-size-larger);
+    font-weight: bold;
+    margin-top: var(--spacing-three-quarter);
+    margin-bottom: var(--spacing-three-quarter);
 }
 
 h5 {
-    font-size: var(--unit-3);
+    font-size: var(--font-size-larger);
+    margin-top: var(--spacing-three-quarter);
+    margin-bottom: var(--spacing-three-quarter);
 }
 
 h6 {
-    font-size: var(--unit-2);
+    font-size: var(--font-size-larger);
+    margin-top: var(--spacing-three-quarter);
+    margin-bottom: var(--spacing-three-quarter);
+}
+
+@media screen and (min-width: 768px) {
+    h1 {
+        font-size: var(--font-size-heading-3);
+        margin-bottom: var(--spacing-one-and-a-half);
+        line-height: var(--heading-line-height);
+    }
+
+    h2 {
+        font-size: var(--font-size-heading-4);
+        margin-top: var(--spacing-twice);
+        margin-bottom: var(--spacing);
+    }
+
+    h3 {
+        font-size: var(--font-size-heading-5);
+        margin-top: var(--spacing-one-and-a-half);
+        margin-bottom: var(--spacing-three-quarter);
+    }
+
+    h4 {
+        font-size: var(--font-size-heading-6);
+    }
+
+    h4, h5, h6 {
+        margin-top: var(--spacing);
+    }
 }
 
 /* Common items */
@@ -395,12 +459,20 @@ p {
     line-height: 1.8;
 }
 
+ol, ul {
+    margin-bottom: var(--spacing);
+}
+
 ol li {
-    margin-bottom: var(--unit-2);
+    margin-bottom: var(--spacing-three-quarter);
+}
+
+img {
+    max-width: 100%;
 }
 
 #content > table {
-    margin: var(--unit-2) 0;
+    margin: var(--spacing) 0;
 }
 
 /* Code snippets */
@@ -418,21 +490,21 @@ code, table.pre, pre {
 }
 
 table.pre, pre.fssnip.highlighted {
-    margin-bottom: var(--unit-3);
+    margin-bottom: var(--spacing-half);
+    margin-top: var(--spacing-half);
 }
 
 table.pre, pre.fssnip {
-    padding: var(--unit) var(--unit-2);
+    padding: var(--spacing-half);
 }
 
 p > code, li > code {
-    padding: var(--unit);
-    transform: translateY(var(--unit));
+    padding: var(--spacing-one-quarter);
 }
 
 table.pre, code {
     overflow-x: auto;
-    max-width: calc(100vw - var(--unit-12));
+    max-width: 100%;
     box-sizing: border-box;
     border-radius: var(--radius);
 }
@@ -448,37 +520,7 @@ pre.fssnip > code {
 
 /* copy icons in the shell commands */
 table.pre td iconify-icon {
-    margin-top: 4px;
-}
-
-@media screen and (min-width: 768px) {
-    table, code {
-        max-width: var(--container-sm);
-    }
-}
-
-@media screen and (min-width: 960px) {
-    table, code {
-        max-width: var(--container-md);
-    }
-}
-
-@media screen and (min-width: 1024px) {
-    table, code {
-        max-width: var(--container-lg);
-    }
-}
-
-@media screen and (min-width: 1200px) {
-    table, code {
-        max-width: var(--container-xl);
-    }
-}
-
-@media screen and (min-width: 1400px) {
-    table, code {
-        max-width: var(--container-xxl);
-    }
+    margin-top: var(--spacing-one-quarter);
 }
 
 /* Code coloring */
@@ -486,8 +528,8 @@ table.pre td iconify-icon {
 .return-name,
 .param {
     font-weight: 900;
-    font-size: 0.85rem;
-    font-family: 'Roboto Mono', monospace;
+    font-size: var(--font-size-smaller);
+    font-family: var(--monospace-font);
 }
 
 .fssnip {
@@ -660,7 +702,7 @@ div.fsdocs-tip {
     background-color: var(--doc-tip-background);
     border-radius: var(--radius);
     border: 1px solid var(--header-border);
-    padding: var(--unit-3);
+    padding: var(--spacing-three-quarter);
     font-family: var(--monospace-font);
     color: var(--code-color);
 
@@ -674,17 +716,21 @@ span[onmouseout] {
 }
 
 /* API docs */
+#content > div > h2:first-child {
+    margin-top: 0;
+}
+
 .table {
     width: 100%;
 
     & thead tr td {
         font-weight: bold;
-        padding: var(--unit-3) 0;
+        padding: var(--spacing-one-and-a-half) 0;
     }
 
     & tbody td {
         border-top: 1px solid var(--header-border);
-        padding: var(--unit-2) 0;
+        padding: var(--spacing) 0;
     }
 
     .fsdocs-entity-xmldoc {
@@ -695,22 +741,22 @@ span[onmouseout] {
             align-items: center;
 
             > p {
-                margin: 0 var(--unit-2) 0 0;
+                margin: 0 var(--spacing-one-and-a-half) 0 0;
             }
         }
     }
 
     .fsdocs-member-usage {
         display: block;
-        margin-right: var(--unit-2);
+        margin-right: var(--spacing);
     }
 
     .fsdocs-member-xmldoc {
         & details {
-            margin-left: var(--unit-2);
+            margin-left: var(--spacing);
 
             & .fsdocs-summary {
-                margin-left: var(--unit-2);
+                margin-left: var(--spacing);
             }
         }
 
@@ -725,7 +771,7 @@ span[onmouseout] {
             &::after {
                 content: '▶';
                 cursor: pointer;
-                margin-left: var(--unit-4);
+                margin-left: var(--spacing-one-and-a-half);
             }
         }
 
@@ -734,7 +780,7 @@ span[onmouseout] {
         }
 
         .fsdocs-returns, .fsdocs-params {
-            margin-left: var(--unit-4);
+            margin-left: var(--spacing-one-and-a-half);
         }
 
         /* hide the browser mark and display one after the summary */
@@ -746,10 +792,11 @@ span[onmouseout] {
 }
 
 .fsdocs-source-link {
-    padding: 0 var(--unit);
+    padding: 0 var(--spacing-half);
 
     > img {
-        height: var(--icon-size);
+        height: var(--spacing-twice);
+        width: var(--spacing-twice);
         cursor: pointer;
 
         &.hover {
@@ -778,10 +825,10 @@ span[onmouseout] {
 
 [data-theme=dark] {
     --primary: #81cfe0;
-    --background: #32283c;
+    --background: #171717;
     --text-color: #F7F7F7;
     --text-hover: #FFF;
-    --heading-color: #F4F4F6;
+    --heading-color: rgb(229, 231, 235);
     --code-background: #3e3e42;
     --code-color: #f5f5f6;
     --header-background: #0c1318;
