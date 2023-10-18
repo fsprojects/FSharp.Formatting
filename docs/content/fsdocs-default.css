@@ -2,29 +2,29 @@
     --monospace-font: "Fira Code", monospace;
     --system-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
-    --spacing-one-quarter: 4px;
-    --spacing-half: 8px;
-    --spacing-three-quarter: 12px;
-    --spacing: 16px;
-    --spacing-one-and-a-half: 24px;
-    --spacing-twice: 32px;
-    --spacing-three-times: 48px;
-    --spacing-four-times: 64px;
-    --spacing-six-times: 96px;
-    --spacing-eight-times: 128px;
-    --spacing-twelve-times: 192px;
+    --spacing-50: 4px;
+    --spacing-100: 8px;
+    --spacing-200: 12px;
+    --spacing-300: 16px;
+    --spacing-400: 24px;
+    --spacing-500: 32px;
+    --spacing-600: 48px;
+    --spacing-700: 64px;
+    --spacing-800: 96px;
+    --spacing-900: 128px;
+    --spacing-950: 192px;
 
-    --font-size-smallest: 12x;
-    --font-size-smaller: 14px;
-    --font-size: 16px;
-    --font-size-larger: 18px;
-    --font-size-largest: 20px;
-    --font-size-heading-6: 24px;
-    --font-size-heading-5: 30px;
-    --font-size-heading-4: 36px;
-    --font-size-heading-3: 48px;
-    --font-size-heading-2: 60px;
-    --font-size-heading-1: 72px;
+    --font-50: 12x;
+    --font-100: 14px;
+    --font-200: 16px;
+    --font-300: 18px;
+    --font-400: 20px;
+    --font-500: 24px;
+    --font-600: 30px;
+    --font-700: 36px;
+    --font-800: 48px;
+    --font-900: 60px;
+    --font-950: 72px;
 
     --line-height: 1.5;
     --heading-line-height: 1.25;
@@ -176,7 +176,7 @@ body {
 
 header {
     background-color: var(--header-background);
-    padding: var(--spacing);
+    padding: var(--spacing-300);
     height: var(--header-height);
     display: flex;
     align-items: center;
@@ -190,16 +190,16 @@ header {
 
         & #menu-toggle {
             position: relative;
-            height: var(--spacing-twice);
-            width: var(--spacing-twice);
+            height: var(--spacing-500);
+            width: var(--spacing-500);
             border: 1px solid var(--header-border);
             border-radius: var(--radius);
 
             & .icon {
                 top: 4px;
                 left: 4px;
-                width: calc(var(--spacing-twice) - 4px);
-                height: calc(var(--spacing-twice) - 4px);
+                width: calc(var(--spacing-500) - 4px);
+                height: calc(var(--spacing-500) - 4px);
                 position: absolute;
 
                 &.open {
@@ -228,7 +228,7 @@ header {
                 left: 0;
                 background-color: var(--header-background);
                 list-style: none;
-                padding: var(--spacing);
+                padding: var(--spacing-300);
             }
 
             & input:checked + .menu {
@@ -249,14 +249,14 @@ header {
         }
 
         & img {
-            margin: 0 var(--spacing-three-quarter);
+            margin: 0 var(--spacing-200);
             border-radius: var(--radius);
-            height: calc(var(--spacing-twice) - 2px);
+            height: calc(var(--spacing-500) - 2px);
         }
 
         & strong {
-            line-height: var(--spacing-twice);
-            font-size: var(--font-size);
+            line-height: var(--spacing-500);
+            font-size: var(--font-200);
             display: block;
             text-transform: var(--header-brand-text-transform);
             font-weight: 500;
@@ -273,9 +273,9 @@ header {
 
         & > .themeToggle, & > .search {
             cursor: pointer;
-            height: var(--spacing-twice);
+            height: var(--spacing-500);
             align-items: center;
-            margin: 0 var(--spacing-half);
+            margin: 0 var(--spacing-100);
         }
 
         & > .search {
@@ -293,7 +293,7 @@ main {
 }
 
 #content {
-    padding: var(--spacing);
+    padding: var(--spacing-300);
 
     > *:first-child {
         margin-top: 0;
@@ -310,9 +310,9 @@ main {
 }
 
 .nav-header {
-    margin-top: var(--spacing-one-and-a-half);
+    margin-top: var(--spacing-400);
     text-transform: uppercase;
-    font-size: var(--font-size-largest);
+    font-size: var(--font-400);
 }
 
 .nav-header:first-child {
@@ -325,8 +325,8 @@ main {
     & a {
         color: var(--text-color);
         text-decoration: none;
-        font-size: var(--font-size);
-        padding: var(--spacing-half);
+        font-size: var(--font-200);
+        padding: var(--spacing-100);
         display: inline-block;
 
         &:hover {
@@ -376,7 +376,7 @@ main {
 
     aside {
         display: block;
-        padding: var(--spacing) var(--spacing-twice);
+        padding: var(--spacing-300) var(--spacing-500);
         background-color: var(--header-background);
         width: var(--aside-width);
         border-right: 1px solid var(--header-border);
@@ -391,39 +391,39 @@ main {
     }
 
     #content {
-        padding-left: var(--spacing);
-        padding-right: var(--spacing);
+        padding-left: var(--spacing-300);
+        padding-right: var(--spacing-300);
     }
 }
 
 @media screen and (min-width: 768px) {
     #content {
-        max-width: calc(100vw - var(--aside-width) - var(--spacing) - var(--spacing));
+        max-width: calc(100vw - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
         margin: 0 auto;
     }
 }
 
 @media screen and (min-width: 960px) {
     #content {
-        max-width: calc(var(--container-md) - var(--aside-width) - var(--spacing) - var(--spacing));
+        max-width: calc(var(--container-md) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1024px) {
     #content {
-        max-width: calc(var(--container-lg) - var(--aside-width) - var(--spacing) - var(--spacing));
+        max-width: calc(var(--container-lg) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1200px) {
     #content {
-        max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing) - var(--spacing));
+        max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1400px) {
     #content {
-        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing) - var(--spacing));
+        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
@@ -434,70 +434,61 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 }
 
 h1 {
-    font-size: var(--font-size-heading-5);
+    font-size: var(--font-600);
     line-height: var(--heading-line-height);
-    margin-bottom: var(--spacing);
-    margin-top: var(--spacing-one-quarter);
+    margin-bottom: var(--spacing-300);
+    margin-top: var(--spacing-50);
 }
 
 h2 {
-    font-size: var(--font-size-heading-6);
+    font-size: var(--font-500);
     line-height: var(--heading-line-height);
-    margin-top: var(--spacing);
-    margin-bottom: var(--spacing-three-quarter);
+    margin-top: var(--spacing-300);
+    margin-bottom: var(--spacing-200);
 }
 
 h3 {
-    font-size: var(--font-size-largest);
+    font-size: var(--font-400);
     line-height: var(--heading-line-height);
-    margin-top: var(--spacing-three-quarter);
-    margin-bottom: var(--spacing-three-quarter);
+    margin-top: var(--spacing-200);
+    margin-bottom: var(--spacing-200);
 }
 
 h4 {
-    font-size: var(--font-size-larger);
     font-weight: bold;
-    margin-top: var(--spacing-three-quarter);
-    margin-bottom: var(--spacing-three-quarter);
 }
 
-h5 {
-    font-size: var(--font-size-larger);
-    margin-top: var(--spacing-three-quarter);
-    margin-bottom: var(--spacing-three-quarter);
-}
-
-h6 {
-    font-size: var(--font-size-larger);
-    margin-top: var(--spacing-three-quarter);
-    margin-bottom: var(--spacing-three-quarter);
+h4, h5, h6 {
+    font-size: var(--font-300);
+    margin-top: var(--spacing-200);
+    margin-bottom: var(--spacing-200);
 }
 
 @media screen and (min-width: 768px) {
     h1 {
-        font-size: var(--font-size-heading-3);
-        margin-bottom: var(--spacing-one-and-a-half);
+        font-size: var(--font-800);
+        margin-bottom: var(--spacing-400);
         line-height: var(--heading-line-height);
     }
 
     h2 {
-        font-size: var(--font-size-heading-4);
-        margin-top: var(--spacing-twice);
-        margin-bottom: var(--spacing);
+        font-size: var(--font-700);
+        margin-top: var(--spacing-600);
+        margin-bottom: var(--spacing-400);
     }
 
     h3 {
-        font-size: var(--font-size-heading-5);
-        margin-top: var(--spacing-one-and-a-half);
-        margin-bottom: var(--spacing-three-quarter);
+        font-size: var(--font-600);
+        margin-top: var(--spacing-500);
+        margin-bottom: var(--spacing-200);
     }
 
     h4 {
-        font-size: var(--font-size-heading-6);
+        font-size: var(--font-500);
     }
 
     h4, h5, h6 {
-        margin-top: var(--spacing);
+        margin-top: var(--spacing-300);
     }
 }
 
@@ -511,11 +502,11 @@ p {
 }
 
 ol, ul {
-    margin-bottom: var(--spacing);
+    margin-bottom: var(--spacing-300);
 }
 
 ol li {
-    margin-bottom: var(--spacing-three-quarter);
+    margin-bottom: var(--spacing-200);
 }
 
 img {
@@ -523,7 +514,7 @@ img {
 }
 
 #content > table {
-    margin: var(--spacing) 0;
+    margin: var(--spacing-300) 0;
 }
 
 /* Code snippets */
@@ -541,16 +532,15 @@ code, table.pre, pre {
 }
 
 table.pre, pre.fssnip.highlighted {
-    margin-bottom: var(--spacing-half);
-    margin-top: var(--spacing-half);
+    margin: var(--spacing-200) 0;
 }
 
 table.pre, pre.fssnip {
-    padding: var(--spacing-three-quarter);
+    padding: var(--spacing-200);
 }
 
 p > code, li > code {
-    padding: var(--spacing-one-quarter);
+    padding: var(--spacing-50);
 }
 
 table.pre, pre > code {
@@ -575,8 +565,8 @@ main, table.pre, code {
     border-radius: var(--radius);
 
     &::-webkit-scrollbar {
-        height: var(--spacing-three-quarter);
-        width: var(--spacing);
+        height: var(--spacing-200);
+        width: var(--spacing-300);
     }
 
     &::-webkit-scrollbar-track {
@@ -594,7 +584,7 @@ main, table.pre, code {
 .return-name,
 .param {
     font-weight: 900;
-    font-size: var(--font-size-smaller);
+    font-size: var(--font-100);
     font-family: var(--monospace-font);
 }
 
@@ -768,7 +758,7 @@ div.fsdocs-tip {
     background-color: var(--doc-tip-background);
     border-radius: var(--radius);
     border: 1px solid var(--header-border);
-    padding: var(--spacing-three-quarter);
+    padding: var(--spacing-200);
     font-family: var(--monospace-font);
     color: var(--code-color);
 
@@ -791,12 +781,12 @@ span[onmouseout] {
 
     & thead tr td {
         font-weight: bold;
-        padding: var(--spacing-one-and-a-half) 0;
+        padding: var(--spacing-400) 0;
     }
 
     & tbody td {
         border-top: 1px solid var(--header-border);
-        padding: var(--spacing) 0;
+        padding: var(--spacing-300) 0;
     }
 
     .fsdocs-entity-xmldoc {
@@ -807,22 +797,22 @@ span[onmouseout] {
             align-items: center;
 
             > p {
-                margin: 0 var(--spacing-one-and-a-half) 0 0;
+                margin: 0 var(--spacing-400) 0 0;
             }
         }
     }
 
     .fsdocs-member-usage {
         display: block;
-        margin-right: var(--spacing);
+        margin-right: var(--spacing-300);
     }
 
     .fsdocs-member-xmldoc {
         & details {
-            margin-left: var(--spacing);
+            margin-left: var(--spacing-300);
 
             & .fsdocs-summary {
-                margin-left: var(--spacing);
+                margin-left: var(--spacing-300);
             }
         }
 
@@ -837,7 +827,7 @@ span[onmouseout] {
             &::after {
                 content: '▶';
                 cursor: pointer;
-                margin-left: var(--spacing-one-and-a-half);
+                margin-left: var(--spacing-400);
             }
         }
 
@@ -846,7 +836,7 @@ span[onmouseout] {
         }
 
         .fsdocs-returns, .fsdocs-params {
-            margin-left: var(--spacing-one-and-a-half);
+            margin-left: var(--spacing-400);
         }
 
         /* hide the browser mark and display one after the summary */
@@ -858,11 +848,11 @@ span[onmouseout] {
 }
 
 .fsdocs-source-link {
-    padding: 0 var(--spacing-half);
+    padding: 0 var(--spacing-100);
 
     > img {
-        height: var(--spacing-twice);
-        width: var(--spacing-twice);
+        height: var(--spacing-500);
+        width: var(--spacing-500);
         cursor: pointer;
 
         &.hover {
