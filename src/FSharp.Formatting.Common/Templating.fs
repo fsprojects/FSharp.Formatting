@@ -105,9 +105,6 @@ module ParamKeys =
     let ``fsdocs-logo-src`` = ParamKey "fsdocs-logo-src"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-navbar-position`` = ParamKey "fsdocs-navbar-position"
-
-    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-license-expression`` = ParamKey "fsdocs-package-license-expression"
 
     /// A parameter key known to FSharp.Formatting

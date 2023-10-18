@@ -37,6 +37,11 @@
     --container-xxl: 1400px;
     --aside-width: 250px;
     --header-height: 60px;
+    --body-grid-template-columns: var(--aside-width) minmax(0, 1fr);
+    --aside-grid-row: 2;
+    --aside-grid-column: 1;
+    --main-grid-row: 2;
+    --main-grid-column: 2;
 
     /* light theme */
     --primary: #1e8bc3;
@@ -347,7 +352,7 @@ main {
     body {
         display: grid;
         grid-template-rows: var(--header-height) minmax(0, 1fr);
-        grid-template-columns:var(--aside-width) minmax(0, 1fr);
+        grid-template-columns:var(--body-grid-template-columns);
         gap: 0;
     }
 
@@ -380,13 +385,13 @@ main {
         background-color: var(--header-background);
         width: var(--aside-width);
         border-right: 1px solid var(--header-border);
-        grid-row: 2;
-        grid-row-end: 3;
+        grid-row: var(--aside-grid-row);
+        grid-column: var(--aside-grid-column);
     }
 
     main {
-        grid-row: 2;
-        grid-column: 2;
+        grid-row: var(--main-grid-row);
+        grid-column: var(--main-grid-column);
         overflow-y: auto;
     }
 
@@ -499,10 +504,7 @@ a {
 
 p {
     line-height: 1.8;
-}
-
-ol, ul {
-    margin-bottom: var(--spacing-300);
+    margin-top: var(--spacing-200);
 }
 
 ol li {

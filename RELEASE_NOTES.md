@@ -1,3 +1,8 @@
+## 20.0.0-alpha-001
+
+### Removed
+* `FsDocsNavbarPosition` is no longer respected. Use CSS variables instead. See [docs](https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html).
+
 ## 19.1.1
 
 * Fix code rendering on firefox. [#851](https://github.com/fsprojects/FSharp.Formatting/pull/851)

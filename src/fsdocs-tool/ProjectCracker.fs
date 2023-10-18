@@ -200,7 +200,6 @@ module Crack =
           FsDocsLicenseLink: string option
           FsDocsLogoLink: string option
           FsDocsLogoSource: string option
-          FsDocsNavbarPosition: string option
           FsDocsReleaseNotesLink: string option
           FsDocsSourceFolder: string option
           FsDocsSourceRepository: string option
@@ -229,7 +228,6 @@ module Crack =
               "UsesMarkdownComments"
               "FsDocsCollectionNameLink"
               "FsDocsLogoSource"
-              "FsDocsNavbarPosition"
               "FsDocsTheme"
               "FsDocsLogoLink"
               "FsDocsLicenseLink"
@@ -319,7 +317,6 @@ module Crack =
                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
-                  FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
@@ -520,7 +517,6 @@ module Crack =
               FsDocsLogoSource = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoSource)
               FsDocsSourceFolder = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceFolder)
               FsDocsSourceRepository = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceRepository)
-              FsDocsNavbarPosition = projectInfos |> List.tryPick (fun info -> info.FsDocsNavbarPosition)
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
               PackageProjectUrl =
@@ -564,10 +560,6 @@ module Crack =
                       None
                       ParamKeys.``fsdocs-logo-src``
                       (Some(defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" root)))
-                  param
-                      None
-                      ParamKeys.``fsdocs-navbar-position``
-                      (Some(defaultArg info.FsDocsNavbarPosition "fixed-left"))
                   param None ParamKeys.``fsdocs-theme`` (Some(defaultArg info.FsDocsTheme "default"))
                   param
                       None

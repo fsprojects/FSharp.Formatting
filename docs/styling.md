@@ -46,7 +46,6 @@ The following [content parameters](content.html) are particularly related to vis
 | `fsdocs-license-link`         | `<FsDocsLicenseLink>`  | 
 | `fsdocs-logo-src`             | `<FsDocsLogoSource>` |  
 | `fsdocs-logo-link`            | `<FsDocsLogoLink>`   |                
-| `fsdocs-navbar-position`      | `<FsDocsNavbarPosition>` (`fixed-left` or `fixed-right`)     |  
 | `fsdocs-release-notes-link`   | `<FsDocsReleaseNotesLink>` else `<PackageProjectUrl>/blob/master/RELEASE_NOTES.md`  | 
 | `fsdocs-repository-link`      | `<RepositoryUrl>`                                             | 
 | `fsdocs-theme`                | `<FsDocsTheme>`, must currently be `default`    | 
@@ -62,7 +61,6 @@ For example:
     <FsDocsLogoLink>https://fsharp.org</FsDocsLogoLink>
     <FsDocsLicenseLink>https://github.com/foo/bar/blob/master/License.txt</FsDocsLicenseLink>
     <FsDocsReleaseNotesLink>https://github.com/foo/bar/blob/master/release-notes.md</FsDocsReleaseNotesLink>
-    <FsDocsNavbarPosition>fixed-left</FsDocsNavbarPosition>
     <FsDocsWarnOnMissingDocs>true</FsDocsWarnOnMissingDocs>
     <FsDocsTheme>default</FsDocsTheme>
 ```
