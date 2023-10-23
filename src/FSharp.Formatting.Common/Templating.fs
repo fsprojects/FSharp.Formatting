@@ -179,6 +179,12 @@ module ParamKeys =
     /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
     let ``fsdocs-next-page-link`` = ParamKey "fsdocs-next-page-link"
 
+    /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+    let ``fsdocs-head-extra`` = ParamKey "fsdocs-head-extra"
+
+    /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+    let ``fsdocs-body-extra`` = ParamKey "fsdocs-body-extra"
+
 module internal SimpleTemplating =
 
 #if NETSTANDARD2_0

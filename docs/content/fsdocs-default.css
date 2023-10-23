@@ -866,6 +866,7 @@ span[onmouseout] {
         height: var(--spacing-500);
         width: var(--spacing-500);
         cursor: pointer;
+        object-fit: contain;
 
         &.hover {
             display: none;

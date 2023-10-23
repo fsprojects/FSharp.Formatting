@@ -46,9 +46,3 @@ export class ThemeToggle extends LitElement {
 }
 
 customElements.define('fsdocs-theme-toggle', ThemeToggle);
-
-/*
-
-        <iconify-icon class="themeToggle light" icon="ion:moon-sharp" width="20" height="20"></iconify-icon>
-        <iconify-icon class="themeToggle dark" icon="clarity:sun-solid" width="20" height="20"></iconify-icon>
- */

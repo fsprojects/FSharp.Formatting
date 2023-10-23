@@ -148,6 +148,8 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-watch-script`         | The websocket script used in watch mode to trigger hot reload |
 | `fsdocs-previous-page-link`   | A relative link to the previous page based on the frontmatter index data |
 | `fsdocs-next-page-link`       | A relative link to the next page based on the frontmatter index data |
+| `fsdocs-head-extra`           | Additional html content loaded from the `_head.html` file if present in the `--input` folder |
+| `fsdocs-body-extra`           | Additional html content loaded from the `_body.html` file if present in the `--input` folder |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:

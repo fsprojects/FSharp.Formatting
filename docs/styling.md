@@ -138,6 +138,12 @@ Similarly, to customize the individual menu item list, use file `_menu-item_temp
 Do note that files need to be added prior running or won't be generated.
 In case you want to get a unique identifier for a header or menu item, you can use `{{fsdocs-menu-header-id}}` and `{{fsdocs-menu-item-id}}`, respectively.
 
+## Injecting additional html into the default template
+
+Occasionally, you may find the need to make small customizations to the default template, such as adding a Google Analytics snippet or including additional style or script tags. To address this scenario, you can create two files: `_head.html` and/or `_body.html`.
+
+The content within these files will serve as replacements for the `{{fsdocs-head-extra}}` and `{{fsdocs-body-extra}}` placeholders, which are utilized in the default template.
+
 ## Customizing by generating your own site using your own code
 
 The `FSharp.Formatting.ApiDocs` namespace includes a `GenerateModel` that captures

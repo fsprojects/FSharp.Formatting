@@ -221,10 +221,16 @@ type internal DocContent
                               try
                                   let fi = FileInfo(t)
                                   let input = fi.Directory.Name
+                                  let headPath = Path.Combine(input, "_head.html")
+                                  let bodyPath = Path.Combine(input, "_body.html")
 
                                   [ yield File.GetLastWriteTime(t)
                                     if Menu.isTemplatingAvailable input then
-                                        yield! Menu.getLastWriteTimes input ]
+                                        yield! Menu.getLastWriteTimes input
+                                    if File.Exists headPath then
+                                        yield File.GetLastWriteTime headPath
+                                    if File.Exists bodyPath then
+                                        yield File.GetLastWriteTime bodyPath ]
                                   |> List.max
                               with _ ->
                                   DateTime.MaxValue
@@ -1676,6 +1682,22 @@ type CoreBuildOptions(watch) =
 
                 let navEntries = docContent.GetNavigationEntries(this.input, actualDocModels)
 
+                let headTemplateContent =
+                    let headTemplatePath = Path.Combine(this.input, "_head.html")
+
+                    if not (File.Exists headTemplatePath) then
+                        ""
+                    else
+                        File.ReadAllText headTemplatePath
+
+                let bodyTemplateContent =
+                    let bodyTemplatePath = Path.Combine(this.input, "_body.html")
+
+                    if not (File.Exists bodyTemplatePath) then
+                        ""
+                    else
+                        File.ReadAllText bodyTemplatePath
+
                 let results =
                     Map.ofList
                         [ for (thing, _action) in docModels do
@@ -1685,7 +1707,11 @@ type CoreBuildOptions(watch) =
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
-                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents``, navEntries ]
+
+                latestDocContentGlobalParameters <-
+                    [ ParamKeys.``fsdocs-list-of-documents``, navEntries
+                      ParamKeys.``fsdocs-head-extra``, headTemplateContent
+                      ParamKeys.``fsdocs-body-extra``, bodyTemplateContent ]
 
                 latestDocContentPhase2 <-
                     (fun globals ->
