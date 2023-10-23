@@ -64,7 +64,8 @@
     --scrollbar-track-background: #424242;
     --scrollbar-track-border: #4A4A4A;
     --scrollbar-thumb-background: #686868;
-    --shadow: hsla(0,0%,0%,.1);
+    --shadow-color: hsla(0,0%,0%,.1);
+    --main-shadow-color: hsla(0,0%,0%,.025);
 
     --header-brand-text-transform: none;
 
@@ -189,7 +190,7 @@ header {
     justify-content: space-between;
     position: sticky;
     top: 0;
-    box-shadow: 0 1px 1px var(--shadow);
+    box-shadow: 0 1px 1px var(--shadow-color);
 
     & .start {
         display: flex;
@@ -201,7 +202,7 @@ header {
             width: var(--spacing-500);
             border: 1px solid var(--header-border);
             border-radius: var(--radius);
-            box-shadow: 0 1px 1px var(--shadow);
+            box-shadow: 0 1px 1px var(--shadow-color);
 
             & .icon {
                 top: 4px;
@@ -398,7 +399,7 @@ main {
         grid-row: var(--main-grid-row);
         grid-column: var(--main-grid-column);
         overflow-y: auto;
-        box-shadow: inset 1px 1px var(--shadow);
+        box-shadow: inset 1px 1px var(--main-shadow-color);
         border-radius: 0;
     }
 
