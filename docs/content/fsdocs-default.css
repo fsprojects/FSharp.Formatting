@@ -64,6 +64,7 @@
     --scrollbar-track-background: #424242;
     --scrollbar-track-border: #4A4A4A;
     --scrollbar-thumb-background: #686868;
+    --shadow: hsla(0,0%,0%,.1);
 
     --header-brand-text-transform: none;
 
@@ -188,6 +189,7 @@ header {
     justify-content: space-between;
     position: sticky;
     top: 0;
+    box-shadow: 0 1px 1px var(--shadow);
 
     & .start {
         display: flex;
@@ -199,6 +201,7 @@ header {
             width: var(--spacing-500);
             border: 1px solid var(--header-border);
             border-radius: var(--radius);
+            box-shadow: 0 1px 1px var(--shadow);
 
             & .icon {
                 top: 4px;
@@ -315,9 +318,10 @@ main {
 }
 
 .nav-header {
-    margin-top: var(--spacing-400);
+    margin-top: var(--spacing-300);
     text-transform: uppercase;
-    font-size: var(--font-400);
+    font-size: var(--font-200);
+    font-weight: 500;
 }
 
 .nav-header:first-child {
@@ -360,6 +364,7 @@ main {
         border-bottom: 1px solid var(--header-border);
         grid-row: 1;
         grid-column: span 2;
+        box-shadow: none;
 
         & .end {
             > a {
@@ -393,6 +398,8 @@ main {
         grid-row: var(--main-grid-row);
         grid-column: var(--main-grid-column);
         overflow-y: auto;
+        box-shadow: inset 1px 1px var(--shadow);
+        border-radius: 0;
     }
 
     #content {
@@ -563,8 +570,6 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 main, table.pre, code {
     overflow-x: auto;
     max-width: 100%;
-    box-sizing: border-box;
-    border-radius: var(--radius);
 
     &::-webkit-scrollbar {
         height: var(--spacing-200);
@@ -579,6 +584,10 @@ main, table.pre, code {
     &::-webkit-scrollbar-thumb {
         background-color: var(--scrollbar-thumb-background);
     }
+}
+
+table.pre, code {
+    border-radius: var(--radius);
 }
 
 /* Code coloring */
