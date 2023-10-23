@@ -64,8 +64,8 @@
     --scrollbar-track-background: #424242;
     --scrollbar-track-border: #4A4A4A;
     --scrollbar-thumb-background: #686868;
-    --shadow-color: hsla(0,0%,0%,.1);
-    --main-shadow-color: hsla(0,0%,0%,.025);
+    --shadow-color: hsla(0, 0%, 0%, .1);
+    --main-shadow-color: hsla(0, 0%, 0%, .025);
 
     --header-brand-text-transform: none;
 
@@ -543,10 +543,12 @@ code, table.pre, pre {
 
 table.pre, pre.fssnip.highlighted {
     margin: var(--spacing-200) 0;
+    padding: var(--spacing-200);
 }
 
-table.pre, pre.fssnip {
-    padding: var(--spacing-200);
+table.pre .snippet pre.fssnip {
+    padding: 0;
+    margin: 0;
 }
 
 p > code, li > code {
@@ -587,7 +589,7 @@ main, table.pre, code {
     }
 }
 
-table.pre, code {
+table.pre, code, pre.fssnip {
     border-radius: var(--radius);
 }
 
