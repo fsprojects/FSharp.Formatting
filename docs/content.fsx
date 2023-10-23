@@ -66,7 +66,7 @@ copy of this content in your `content` directory.
 
 ## Ignored Content
 
-Any file or directory beginning with `.` is ignored.
+Any file or directory beginning with `.` is ignored. Also `node_modules` directory is ignored.
 
 ## Front matter
 

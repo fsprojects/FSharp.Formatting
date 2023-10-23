@@ -96,6 +96,9 @@ type internal DocContent
         |> Array.filter (fun x -> x.Length = 2)
         |> Array.distinct
 
+    let sourceFileOrFolderIsSkipped (input: string) =
+        input.StartsWith "." || input = "node_modules"
+
     let makeMarkdownLinkResolver
         (inputFolderAsGiven, outputFolderRelativeToRoot, fullPathFileMap: Map<(string * OutputKind), string>, outputKind)
         (markdownReference: string)
@@ -157,7 +160,7 @@ type internal DocContent
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-              let subFolderIsSkipped = subInputFolderName.StartsWith "."
+              let subFolderIsSkipped = sourceFileOrFolderIsSkipped subInputFolderName
               let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
               if not subFolderIsOutput && not subFolderIsSkipped then
@@ -504,7 +507,7 @@ type internal DocContent
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-              let subFolderIsSkipped = subInputFolderName.StartsWith "."
+              let subFolderIsSkipped = sourceFileOrFolderIsSkipped subInputFolderName
               let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
               if subFolderIsOutput || subFolderIsSkipped then
