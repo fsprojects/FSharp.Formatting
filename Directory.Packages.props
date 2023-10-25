@@ -7,7 +7,7 @@
   <ItemGroup>
     <!-- locking the version of F# Core as FCS does this anyway and in practise all will be using the same version -->
     <PackageVersion Include="FSharp.Core" Version="[7.0.400]" />
-    <PackageVersion Include="FSharp.Compiler.Service" Version="[43.7.400]" />
+    <PackageVersion Include="FSharp.Compiler.Service" Version="[43.7.401]" />
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
     <PackageVersion Include="Microsoft.Build" Version="" PrivateAssets="all" />
     <PackageVersion Include="Microsoft.Build.Framework" Version="" PrivateAssets="all" />
