@@ -203,6 +203,7 @@ module Crack =
           FsDocsReleaseNotesLink: string option
           FsDocsSourceFolder: string option
           FsDocsSourceRepository: string option
+          FsDocsFaviconSource: string option
           FsDocsTheme: string option
           FsDocsWarnOnMissingDocs: bool
           PackageProjectUrl: string option
@@ -228,6 +229,7 @@ module Crack =
               "UsesMarkdownComments"
               "FsDocsCollectionNameLink"
               "FsDocsLogoSource"
+              "FsDocsFaviconSource"
               "FsDocsTheme"
               "FsDocsLogoLink"
               "FsDocsLicenseLink"
@@ -317,6 +319,7 @@ module Crack =
                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+                  FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
@@ -515,6 +518,7 @@ module Crack =
               FsDocsReleaseNotesLink = projectInfos |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
               FsDocsLogoLink = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoLink)
               FsDocsLogoSource = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoSource)
+              FsDocsFaviconSource = projectInfos |> List.tryPick (fun info -> info.FsDocsFaviconSource)
               FsDocsSourceFolder = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceFolder)
               FsDocsSourceRepository = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceRepository)
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
@@ -556,10 +560,11 @@ module Crack =
                       ParamKeys.``fsdocs-collection-name-link``
                       (Some(info.FsDocsCollectionNameLink |> Option.defaultValue projectUrl))
                   param None ParamKeys.``fsdocs-copyright`` info.Copyright
+                  param None ParamKeys.``fsdocs-logo-src`` (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
                   param
                       None
-                      ParamKeys.``fsdocs-logo-src``
-                      (Some(defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" root)))
+                      ParamKeys.``fsdocs-favicon-src``
+                      (Some(defaultArg info.FsDocsFaviconSource "img/favicon.ico"))
                   param None ParamKeys.``fsdocs-theme`` (Some(defaultArg info.FsDocsTheme "default"))
                   param
                       None

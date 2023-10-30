@@ -155,6 +155,10 @@
     margin: 0;
 }
 
+html {
+    overflow-y: hidden;
+}
+
 body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -382,7 +386,7 @@ main {
     }
 
     aside, main {
-        min-height: calc(100vh - var(--header-height));
+        height: calc(100vh - var(--header-height));
     }
 
     aside {
@@ -393,6 +397,7 @@ main {
         border-right: 1px solid var(--header-border);
         grid-row: var(--aside-grid-row);
         grid-column: var(--aside-grid-column);
+        overflow-y: auto;
     }
 
     main {
@@ -486,7 +491,7 @@ h4, h5, h6 {
 
     h2 {
         font-size: var(--font-700);
-        margin-top: var(--spacing-600);
+        margin-top: var(--spacing-500);
         margin-bottom: var(--spacing-400);
     }
 
@@ -512,7 +517,7 @@ a {
 
 p {
     line-height: 1.8;
-    margin-top: var(--spacing-200);
+    margin-top: var(--spacing-300);
 }
 
 ol li {
@@ -542,7 +547,7 @@ code, table.pre, pre {
 }
 
 table.pre, pre.fssnip.highlighted {
-    margin: var(--spacing-200) 0;
+    margin: var(--spacing-300) 0;
     padding: var(--spacing-200);
 }
 
@@ -570,7 +575,7 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 }
 
 /* Custom scrollbar styling */
-main, table.pre, code {
+main, aside, table.pre, code {
     overflow-x: auto;
     max-width: 100%;
 
