@@ -617,9 +617,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
 
                     [ { Menu.MenuItem.Link = link
-                        Menu.MenuItem.Content = title } ]
+                        Menu.MenuItem.Content = title
+                        Menu.MenuItem.IsActive = true } ]
 
-                Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
+                Menu.createMenu menuTemplateFolder.Value false "API Reference" menuItems
 
             else
                 let categorise = Categorise.model model
@@ -634,9 +635,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                             let name = ns.Name
 
                             { Menu.MenuItem.Link = link
-                              Menu.MenuItem.Content = name })
+                              Menu.MenuItem.Content = name
+                              Menu.MenuItem.IsActive = false })
 
-                    Menu.createMenu menuTemplateFolder.Value "Namespaces" menuItems
+                    Menu.createMenu menuTemplateFolder.Value false "Namespaces" menuItems
         else
             listOfNamespacesNavAux otherDocs nsOpt
             |> List.map (fun html -> html.ToString())

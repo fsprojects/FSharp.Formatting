@@ -165,6 +165,10 @@ module ParamKeys =
     let ``fsdocs-menu-header-id`` = ParamKey "fsdocs-menu-header-id"
 
     /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    /// This will be an empty string if the category is not active.
+    let ``fsdocs-menu-header-active-class`` = ParamKey "fsdocs-menu-header-active-class"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
     let ``fsdocs-menu-items`` = ParamKey "fsdocs-menu-items"
 
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
@@ -175,6 +179,10 @@ module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
     let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    /// /// This will be an empty string if the item is not active.
+    let ``fsdocs-menu-item-active-class`` = ParamKey "fsdocs-menu-item-active-class"
 
     /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
     let ``fsdocs-previous-page-link`` = ParamKey "fsdocs-previous-page-link"

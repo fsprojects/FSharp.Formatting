@@ -348,8 +348,12 @@ main {
         }
     }
 
-    &:hover {
+    &:hover, &.active {
         border-color: var(--text-color);
+    }
+    
+    &.active {
+        font-weight: 600;
     }
 }
 

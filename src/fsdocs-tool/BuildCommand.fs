@@ -578,7 +578,12 @@ type internal DocContent
                          uri = model.Uri(root) }
                    | _ -> () |]
 
-    member _.GetNavigationEntries(input, docModels: (string * bool * LiterateDocModel) list) =
+    member _.GetNavigationEntries
+        (
+            input,
+            docModels: (string * bool * LiterateDocModel) list,
+            currentPagePath: string option
+        ) =
         let modelsForList =
             [ for thing in docModels do
                   match thing with
@@ -587,12 +592,16 @@ type internal DocContent
                       && model.OutputKind = OutputKind.Html
                       && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
                       ->
-                      model
+                      { model with
+                          IsActive =
+                              match currentPagePath with
+                              | None -> false
+                              | Some currentPagePath -> currentPagePath = inputFileFullPath }
                   | _ -> () ]
 
         let modelsByCategory =
             modelsForList
-            |> List.groupBy (fun model -> model.Category)
+            |> List.groupBy (fun (model) -> model.Category)
             |> List.sortBy (fun (_, ms) ->
                 match ms.[0].CategoryIndex with
                 | Some s ->
@@ -602,19 +611,12 @@ type internal DocContent
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
-        let orderList (list: LiterateDocModel list) =
+        let orderList (list: (LiterateDocModel) list) =
             list
-            |> List.sortBy (fun model ->
-                match model.Index with
-                | Some s ->
-                    (try
-                        int32 s
-                     with _ ->
-                         Int32.MaxValue)
-                | None -> Int32.MaxValue)
+            |> List.sortBy (fun model -> Option.defaultValue Int32.MaxValue model.Index)
 
         if Menu.isTemplatingAvailable input then
-            let createGroup (header: string) (items: LiterateDocModel list) : string =
+            let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
                 let menuItems =
                     orderList items
@@ -623,18 +625,20 @@ type internal DocContent
                         let title = System.Web.HttpUtility.HtmlEncode model.Title
 
                         { Menu.MenuItem.Link = link
-                          Menu.MenuItem.Content = title })
+                          Menu.MenuItem.Content = title
+                          Menu.MenuItem.IsActive = model.IsActive })
 
-                Menu.createMenu input header menuItems
+                Menu.createMenu input isCategoryActive header menuItems
             // No categories specified
             if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                 let _, items = modelsByCategory.[0]
-                createGroup "Documentation" items
+                createGroup false "Documentation" items
             else
                 modelsByCategory
                 |> List.map (fun (header, items) ->
                     let header = Option.defaultValue "Other" header
-                    createGroup header items)
+                    let isActive = items |> List.exists (fun m -> m.IsActive)
+                    createGroup isActive header items)
                 |> String.concat "\n"
         else
             [
@@ -644,22 +648,34 @@ type internal DocContent
 
                   for model in snd modelsByCategory.[0] do
                       let link = model.Uri(root)
+                      let activeClass = if model.IsActive then "active" else ""
 
-                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                      li
+                          [ Class $"nav-item %s{activeClass}" ]
+                          [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
               else
                   // At least one category has been specified. Sort each category by index and emit
                   // Use 'Other' as a header for uncategorised things
                   for (cat, modelsInCategory) in modelsByCategory do
                       let modelsInCategory = orderList modelsInCategory
 
+                      let categoryActiveClass =
+                          if modelsInCategory |> List.exists (fun m -> m.IsActive) then
+                              "active"
+                          else
+                              ""
+
                       match cat with
-                      | Some c -> li [ Class "nav-header" ] [ !!c ]
-                      | None -> li [ Class "nav-header" ] [ !! "Other" ]
+                      | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
+                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !! "Other" ]
 
                       for model in modelsInCategory do
                           let link = model.Uri(root)
+                          let activeClass = if model.IsActive then "active" else ""
 
-                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                          li
+                              [ Class $"nav-item %s{activeClass}" ]
+                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
@@ -1675,12 +1691,9 @@ type CoreBuildOptions(watch) =
                     )
 
                 let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
-
                 let actualDocModels = docModels |> List.map fst |> List.choose id
-
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
-
-                let navEntries = docContent.GetNavigationEntries(this.input, actualDocModels)
+                let navEntriesWithoutActivePage = docContent.GetNavigationEntries(this.input, actualDocModels, None)
 
                 let headTemplateContent =
                     let headTemplatePath = Path.Combine(this.input, "_head.html")
@@ -1709,20 +1722,36 @@ type CoreBuildOptions(watch) =
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
 
                 latestDocContentGlobalParameters <-
-                    [ ParamKeys.``fsdocs-list-of-documents``, navEntries
+                    [ ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
                       ParamKeys.``fsdocs-head-extra``, headTemplateContent
                       ParamKeys.``fsdocs-body-extra``, bodyTemplateContent ]
 
                 latestDocContentPhase2 <-
                     (fun globals ->
-
                         printfn ""
                         printfn "Write Content:"
 
-                        for (_thing, action) in docModels do
-                            action globals
+                        for (optDocModel, action) in docModels do
+                            let globals =
+                                match optDocModel with
+                                | None -> globals
+                                | Some(currentPagePath, _, _) ->
+                                    // Update the nav entries with the current page doc model
+                                    let navEntries =
+                                        docContent.GetNavigationEntries(
+                                            this.input,
+                                            actualDocModels,
+                                            Some currentPagePath
+                                        )
 
-                    ))
+                                    globals
+                                    |> List.map (fun (pk, v) ->
+                                        if pk <> ParamKeys.``fsdocs-list-of-documents`` then
+                                            pk, v
+                                        else
+                                            ParamKeys.``fsdocs-list-of-documents``, navEntries)
+
+                            action globals))
 
         let runDocContentPhase2 () =
             protect "Content generation (phase 2)" (fun () ->

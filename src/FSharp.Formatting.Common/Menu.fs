@@ -4,7 +4,10 @@ open System
 open System.IO
 open FSharp.Formatting.Templating
 
-type MenuItem = { Link: string; Content: string }
+type MenuItem =
+    { Link: string
+      Content: string
+      IsActive: bool }
 
 let private snakeCase (v: string) =
     System.Text.RegularExpressions.Regex
@@ -12,7 +15,7 @@ let private snakeCase (v: string) =
         .Replace(" ", "_")
         .ToLower()
 
-let createMenu (input: string) (header: string) (items: MenuItem list) : string =
+let createMenu (input: string) (isCategoryActive: bool) (header: string) (items: MenuItem list) : string =
     let pwd = Directory.GetCurrentDirectory()
     let menuTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu_template.html"))
     let menuItemTemplate = File.ReadAllText(Path.Combine(pwd, input, "_menu-item_template.html"))
@@ -27,13 +30,15 @@ let createMenu (input: string) (header: string) (items: MenuItem list) : string 
             SimpleTemplating.ApplySubstitutionsInText
                 [| ParamKeys.``fsdocs-menu-item-link``, link
                    ParamKeys.``fsdocs-menu-item-content``, title
-                   ParamKeys.``fsdocs-menu-item-id``, id |]
+                   ParamKeys.``fsdocs-menu-item-id``, id
+                   ParamKeys.``fsdocs-menu-item-active-class``, (if isCategoryActive then "active" else "") |]
                 menuItemTemplate)
         |> String.concat "\n"
 
     SimpleTemplating.ApplySubstitutionsInText
         [| ParamKeys.``fsdocs-menu-header-content``, header
            ParamKeys.``fsdocs-menu-header-id``, snakeCase header
+           ParamKeys.``fsdocs-menu-header-active-class``, (if isCategoryActive then "active" else "")
            ParamKeys.``fsdocs-menu-items``, menuItems |]
         menuTemplate
 

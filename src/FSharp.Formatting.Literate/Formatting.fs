@@ -262,4 +262,7 @@ module internal Formatting =
           CategoryIndex = categoryIndex
           Index = index
           IndexText = indexText
-          Substitutions = substitutions }
+          Substitutions = substitutions
+          // No don't know this until later.
+          // See DocContent.GetNavigationEntries
+          IsActive = false }

@@ -73,6 +73,9 @@ type internal LiterateDocModel =
 
         /// The kind of output generated
         OutputKind: OutputKind
+
+        /// Used for the navigation section, to indicate the list item as active
+        IsActive: bool
     }
 
     // Get the URI for the resource when it is part of an overall site
