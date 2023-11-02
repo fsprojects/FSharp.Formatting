@@ -14,6 +14,7 @@
     <Compile Include="HtmlModel.fs" />
     <Compile Include="Templating.fs" />
     <Compile Include="Menu.fs" />
+    <Compile Include="PageContentList.fs" />
   </ItemGroup>
  <ItemGroup>
    <PackageReference Include="FSharp.Core" />

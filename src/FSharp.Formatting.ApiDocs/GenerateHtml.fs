@@ -658,6 +658,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                yield (ParamKeys.``fsdocs-source``, "")
                yield (ParamKeys.``fsdocs-tooltips``, "")
                yield (ParamKeys.``fsdocs-page-title``, pageTitle)
+               yield (ParamKeys.``fsdocs-page-content-list``, PageContentList.EmptyContent)
                yield! globalParameters |]
 
         let collection = model.Collection

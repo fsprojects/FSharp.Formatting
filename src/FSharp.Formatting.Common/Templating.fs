@@ -84,6 +84,9 @@ module ParamKeys =
     let ``fsdocs-content`` = ParamKey "fsdocs-content"
 
     /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-page-content-list`` = ParamKey "fsdocs-page-content-list"
+
+    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-collection-name-link`` = ParamKey "fsdocs-collection-name-link"
 
     /// A parameter key known to FSharp.Formatting

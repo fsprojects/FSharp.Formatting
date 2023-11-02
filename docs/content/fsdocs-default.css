@@ -35,6 +35,7 @@
     --container-lg: 1024px;
     --container-xl: 1200px;
     --container-xxl: 1400px;
+    --container-xxxl: 1800px;
     --aside-width: 250px;
     --header-height: 60px;
     --body-grid-template-columns: var(--aside-width) minmax(0, 1fr);
@@ -303,6 +304,7 @@ aside {
 
 main {
     height: calc(100vh - var(--header-height));
+    scroll-behavior: smooth;
 }
 
 #content {
@@ -310,6 +312,42 @@ main {
 
     > *:first-child {
         margin-top: 0;
+    }
+}
+
+#fsdocs-page-content-list {
+    display: none;
+    padding: var(--spacing-300);
+    background-color: var(--header-background);
+    border-left: 1px solid var(--header-border);
+
+    > p {
+        font-size: var(--font-100);
+        line-height: 1.5;
+        color: var(--text-color);
+        font-weight: 500;
+        margin: 0 0 var(--spacing-50);
+    }
+
+    & ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        & li {
+            border-left: 1px solid var(--header-border);
+
+            &:hover, &:focus {
+                border-color: var(--text-color);
+            }
+
+            & a {
+                color: var(--text-color);
+                text-decoration: none;
+                padding: var(--spacing-50) var(--spacing-100);
+                display: block;
+            }
+        }
     }
 }
 
@@ -351,7 +389,7 @@ main {
     &:hover, &.active {
         border-color: var(--text-color);
     }
-    
+
     &.active {
         font-weight: 600;
     }
@@ -438,14 +476,44 @@ main {
 }
 
 @media screen and (min-width: 1200px) {
-    #content {
-        max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+    main {
+        display: flex;
+        flex-flow: row wrap;
+
+        > #content {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: calc(var(--container-xl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+            flex: 1;
+        }
+
+        > #fsdocs-page-content-list {
+            display: block;
+
+            /* Hide the side-menu on the API doc pages */
+            /* :has is not cross browser, won't work in Firefox */
+
+            &:has(.empty) {
+                display: none;
+            }
+
+            width: var(--aside-width);
+            position: sticky;
+            top: 0;
+            height: 100%;
+        }
     }
 }
 
 @media screen and (min-width: 1400px) {
-    #content {
-        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+    main > #content {
+        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+    }
+}
+
+@media screen and (min-width: 1800px) {
+    main > #content {
+        max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
