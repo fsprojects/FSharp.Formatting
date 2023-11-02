@@ -246,34 +246,7 @@ module internal Formatting =
                 ctx.CodeReferenceResolver
                 ctx.MarkdownDirectLinkResolver
 
-        // We process the html to collect the table of content.
-        // We can't use the doc.MarkdownDocument because we cannot easily get the generated id values.
-        // It is safer to parse the html.
-        let pageHeaders =
-            try
-                let doc = XmlDocument()
-                doc.LoadXml($"<main>%s{formattedDocument.Trim([| '\r'; '\n' |])}</main>")
-                let xpathQuery = "//*[self::h1 or self::h2 or self::h3 or self::h4]/a"
-                let nodes = doc.SelectNodes(xpathQuery)
-
-                let pageHeaderInfo =
-                    if isNull nodes then
-                        []
-                    else
-                        nodes
-                        |> Seq.cast<XmlNode>
-                        |> Seq.map (fun xmlNode ->
-                            let level = xmlNode.ParentNode.Name.TrimStart('h') |> int
-
-                            { Level = level
-                              Href = xmlNode.Attributes.["href"].Value
-                              Text = xmlNode.InnerText }
-                            : FSharp.Formatting.Common.PageContentList.PageHeaderInfo)
-                        |> Seq.toList
-
-                FSharp.Formatting.Common.PageContentList.mkPageContentMenu pageHeaderInfo
-            with ex ->
-                System.String.Empty
+        let pageHeaders = FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
 
         let tipsHtml = doc.FormattedTips
 
