@@ -36,7 +36,7 @@
     --container-xl: 1200px;
     --container-xxl: 1400px;
     --container-xxxl: 1800px;
-    --aside-width: 250px;
+    --aside-width: 260px;
     --header-height: 60px;
     --body-grid-template-columns: var(--aside-width) minmax(0, 1fr);
     --aside-grid-row: 2;
