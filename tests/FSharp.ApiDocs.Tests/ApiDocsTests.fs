@@ -88,7 +88,8 @@ let substitutions =
     [ ParamKeys.``fsdocs-collection-name``, "F# TestProject"
       ParamKeys.``fsdocs-authors``, "Your Name"
       ParamKeys.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
-      ParamKeys.root, "/root/" ]
+      ParamKeys.root, "/root/"
+      ParamKeys.``fsdocs-favicon-src``, "img/favicon.ico" ]
 
 let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComments uniq =
     try
