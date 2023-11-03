@@ -2,6 +2,19 @@
 
 ### Removed
 * `FsDocsNavbarPosition` is no longer respected. Use CSS variables instead. See [docs](https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html).
+* ⚠️ Search was completely removed and will be revisited in future versions.
+
+### Changed
+* The default template was updated and is not compatible with previous versions.
+
+### Added
+* Dark mode is available out of the box.
+* `{{fsdocs-head-extra}}` can included additional html before the closing `</head>` when `_head.html` exists.
+* `{{fsdocs-body-extra}}` can included additional html before the closing `</body>` when `_body.html` exists.
+* MSBuild property `<FsDocsFaviconSource>` can be used to configure the favicon.
+* `active` class is added to the active menu item in `{{fsdocs-list-of-documents}}`.
+  If menu templating is used, `{{fsdocs-menu-header-active-class}}` and `{{fsdocs-menu-item-active-class}}` are avaiable.
+* `{{fsdocs-page-content-list}}` contains an unordered list of the header (`h1` till `h4`) of the current page. (if available)
 
 ## 19.1.1
 
