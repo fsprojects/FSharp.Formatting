@@ -16,9 +16,6 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <Compile Include="..\Common\AssemblyInfo.fs">
-      <Link>Common\AssemblyInfo.fs</Link>
-    </Compile>
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
     <Compile Include="BuildCommand.fs" />

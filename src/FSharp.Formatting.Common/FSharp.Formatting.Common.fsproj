@@ -6,7 +6,6 @@
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Common\AssemblyInfo.fs" Link="Common\AssemblyInfo.fs" />
     <Compile Include="YaafFSharpScripting.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
