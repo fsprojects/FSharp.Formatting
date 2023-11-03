@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-002 - 2023-11-03
+
+### Fixed
+* `{{root}}` is now available as substitution in `_body.html` and `_head.html`.
+
 ## 20.0.0-alpha-001 - 2023-11-03
 
 ### Removed
