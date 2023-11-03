@@ -1,4 +1,4 @@
-﻿name: Build and Test and Publish (main)
+﻿name: Modern theme
 
 on: workflow_dispatch
 
