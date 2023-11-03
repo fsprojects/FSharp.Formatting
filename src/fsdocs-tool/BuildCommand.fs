@@ -1702,6 +1702,7 @@ type CoreBuildOptions(watch) =
                         ""
                     else
                         File.ReadAllText headTemplatePath
+                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
 
                 let bodyTemplateContent =
                     let bodyTemplatePath = Path.Combine(this.input, "_body.html")
@@ -1710,6 +1711,7 @@ type CoreBuildOptions(watch) =
                         ""
                     else
                         File.ReadAllText bodyTemplatePath
+                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
 
                 let results =
                     Map.ofList
