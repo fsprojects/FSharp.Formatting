@@ -47,7 +47,7 @@
         <fsdocs-theme-toggle></fsdocs-theme-toggle>
     </div>
 </header>
-<aside>
+<aside id="fsdocs-main-menu">
     <ul class="menu">
         <li class="nav-header">Links</li>
         <li class="nav-item"><a class="nav-link" href="{{fsdocs-license-link}}">License</a>
@@ -66,11 +66,11 @@
         {{fsdocs-content}}
         {{fsdocs-tooltips}}
     </div>
-    <div id="fsdocs-page-content-list">
-        <p>On this page</p>
-        {{fsdocs-page-content-list}}
-    </div>
 </main>
+<aside id="fsdocs-page-menu">
+    <p>On this page</p>
+    {{fsdocs-page-content-list}}
+</aside>
 <script type="module" src="{{root}}content/fsdocs-tips.js"></script>
 <script type="module" src="{{root}}content/fsdocs-theme-toggle.js"></script>
 <script type="module" src="{{root}}content/fsdocs-theme.js"></script>

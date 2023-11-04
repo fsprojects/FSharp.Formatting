@@ -39,6 +39,7 @@
     --aside-width: 260px;
     --header-height: 60px;
     --body-grid-template-columns: var(--aside-width) minmax(0, 1fr);
+    --body-grid-template-columns-xl:  var(--aside-width) minmax(0, 1fr) var(--aside-width);
     --aside-grid-row: 2;
     --aside-grid-column: 1;
     --main-grid-row: 2;
@@ -184,6 +185,8 @@ body {
     background-color: var(--background);
     color: var(--text-color);
     line-height: var(--line-height);
+    scroll-padding-top: var(--header-height);
+    scroll-behavior: smooth;
 }
 
 header {
@@ -304,7 +307,6 @@ aside {
 
 main {
     height: calc(100vh - var(--header-height));
-    scroll-behavior: smooth;
 }
 
 #content {
@@ -315,11 +317,15 @@ main {
     }
 }
 
-#fsdocs-page-content-list {
+#fsdocs-page-menu {
     display: none;
     padding: var(--spacing-300);
     background-color: var(--header-background);
     border-left: 1px solid var(--header-border);
+
+    &:has(.empty) {
+        display: none;
+    }
 
     > p {
         font-size: var(--font-100);
@@ -430,8 +436,13 @@ main {
     aside, main {
         height: calc(100vh - var(--header-height));
     }
-
+    
     aside {
+        position: sticky;
+        top: var(--header-height);
+    }
+
+    #fsdocs-main-menu {
         display: block;
         padding: var(--spacing-300) var(--spacing-500);
         background-color: var(--header-background);
@@ -445,7 +456,6 @@ main {
     main {
         grid-row: var(--main-grid-row);
         grid-column: var(--main-grid-column);
-        overflow-y: auto;
         box-shadow: inset 1px 1px var(--main-shadow-color);
         border-radius: 0;
     }
@@ -476,43 +486,32 @@ main {
 }
 
 @media screen and (min-width: 1200px) {
-    main {
-        display: flex;
-        flex-flow: row wrap;
+    body {
+        grid-template-columns: var(--body-grid-template-columns-xl);
+    }
 
-        > #content {
-            margin-left: auto;
-            margin-right: auto;
-            max-width: calc(var(--container-xl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
-            flex: 1;
-        }
-
-        > #fsdocs-page-content-list {
-            display: block;
-
-            /* Hide the side-menu on the API doc pages */
-            /* :has is not cross browser, won't work in Firefox */
-
-            &:has(.empty) {
-                display: none;
-            }
-
-            width: var(--aside-width);
-            position: sticky;
-            top: 0;
-            height: 100%;
-        }
+    header {
+        grid-column: span 3;
+    }
+    
+    #fsdocs-page-menu {
+        grid-column: 3;
+        display: block;
+    }
+    
+    #content {
+        max-width: calc(var(--container-xl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1400px) {
-    main > #content {
+    #content {
         max-width: calc(var(--container-xxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1800px) {
-    main > #content {
+    #content {
         max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
@@ -647,7 +646,7 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 }
 
 /* Custom scrollbar styling */
-main, aside, table.pre, code {
+body, aside, table.pre, code {
     overflow-x: auto;
     max-width: 100%;
 
