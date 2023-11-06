@@ -265,6 +265,14 @@ header {
             }
         }
 
+        > a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-color);
+        }        
+        
         & img {
             margin: 0 var(--spacing-200);
             border-radius: var(--radius);
