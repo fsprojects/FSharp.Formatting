@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-003 - 2023-11-06
+
+### Changed
+* default template style changes (`#fsdocs-page-menu` outside `main`, link around project name, overflow ellipsis for menu items)
+
 ## 20.0.0-alpha-002 - 2023-11-03
 
 ### Fixed
