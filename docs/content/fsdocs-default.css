@@ -363,6 +363,14 @@ main {
                 overflow-x: hidden;
                 text-overflow: ellipsis;
             }
+
+            &.level-3 {
+                padding-left: var(--spacing-100);
+            }
+
+            &.level-4 {
+                padding-left: var(--spacing-300);
+            }
         }
     }
 }
