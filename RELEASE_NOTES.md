@@ -1,5 +1,13 @@
 # Changelog
 
+## 20.0.0-alpha-004 - 2023-11-08
+
+### Fixed
+* Don't use font ligatures, the can confuse newcomers of F#.
+* Replace `{{fsdocs-list-of-namespaces}}` with an empty string if no API docs are present.
+* Improve default styling of `blockquote`
+* Add some padding for level 3 and 4 headers in 'on this page' section.
+
 ## 20.0.0-alpha-003 - 2023-11-06
 
 ### Changed
