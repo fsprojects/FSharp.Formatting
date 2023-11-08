@@ -39,7 +39,7 @@
     --aside-width: 260px;
     --header-height: 60px;
     --body-grid-template-columns: var(--aside-width) minmax(0, 1fr);
-    --body-grid-template-columns-xl:  var(--aside-width) minmax(0, 1fr) var(--aside-width);
+    --body-grid-template-columns-xl: var(--aside-width) minmax(0, 1fr) var(--aside-width);
     --aside-grid-row: 2;
     --aside-grid-column: 1;
     --main-grid-row: 2;
@@ -271,8 +271,8 @@ header {
             align-items: center;
             text-decoration: none;
             color: var(--text-color);
-        }        
-        
+        }
+
         & img {
             margin: 0 var(--spacing-200);
             border-radius: var(--radius);
@@ -350,6 +350,7 @@ main {
 
         & li {
             border-left: 1px solid var(--header-border);
+            margin: 0;
 
             &:hover, &:focus {
                 border-color: var(--text-color);
@@ -381,14 +382,15 @@ main {
 
     & > li {
         list-style: none;
+        margin: 0;
     }
-}
 
-.nav-header {
-    margin-top: var(--spacing-300);
-    text-transform: uppercase;
-    font-size: var(--font-200);
-    font-weight: 500;
+    .nav-header {
+        margin-top: var(--spacing-300);
+        text-transform: uppercase;
+        font-size: var(--font-200);
+        font-weight: 500;
+    }
 }
 
 .nav-header:first-child {
@@ -456,7 +458,7 @@ main {
     aside, main {
         height: calc(100vh - var(--header-height));
     }
-    
+
     aside {
         position: sticky;
         top: var(--header-height);
@@ -513,12 +515,12 @@ main {
     header {
         grid-column: span 3;
     }
-    
+
     #fsdocs-page-menu {
         grid-column: 3;
         display: block;
     }
-    
+
     #content {
         max-width: calc(var(--container-xl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
@@ -611,8 +613,12 @@ p {
     margin-top: var(--spacing-300);
 }
 
-ol li {
-    margin-bottom: var(--spacing-200);
+ol, ul {
+    padding-left: var(--spacing-400);
+}
+
+ol li, ul li {
+    margin: var(--spacing-100) 0;
 }
 
 img {
@@ -631,24 +637,24 @@ pre {
     padding: 0;
 }
 
-code, table.pre, pre {
+code, table.pre, pre, blockquote {
     background-color: var(--code-background);
     color: var(--code-color);
     font-family: var(--monospace-font);
 }
 
-table.pre, pre.fssnip.highlighted {
+table.pre, pre.fssnip.highlighted, blockquote {
     margin: var(--spacing-300) 0;
     padding: var(--spacing-200);
 }
 
-table.pre .snippet pre.fssnip {
+table.pre .snippet pre.fssnip, blockquote > p {
     padding: 0;
     margin: 0;
 }
 
 p > code, li > code {
-    padding: var(--spacing-50);
+    padding: 2px var(--spacing-50);
 }
 
 table.pre, pre > code {
@@ -685,7 +691,7 @@ body, aside, table.pre, code {
     }
 }
 
-table.pre, code, pre.fssnip {
+table.pre, code, pre.fssnip, blockquote {
     border-radius: var(--radius);
 }
 
