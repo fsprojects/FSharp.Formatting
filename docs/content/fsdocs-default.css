@@ -641,6 +641,7 @@ code, table.pre, pre, blockquote {
     background-color: var(--code-background);
     color: var(--code-color);
     font-family: var(--monospace-font);
+    font-variant-ligatures: none;
 }
 
 table.pre, pre.fssnip.highlighted, blockquote {
@@ -702,6 +703,7 @@ table.pre, code, pre.fssnip, blockquote {
     font-weight: 900;
     font-size: var(--font-100);
     font-family: var(--monospace-font);
+    font-variant-ligatures: none;
 }
 
 .fssnip {
@@ -876,6 +878,7 @@ div.fsdocs-tip {
     border: 1px solid var(--header-border);
     padding: var(--spacing-200);
     font-family: var(--monospace-font);
+    font-variant-ligatures: none;
     color: var(--code-color);
 
     & code {
