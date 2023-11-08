@@ -1567,89 +1567,88 @@ type CoreBuildOptions(watch) =
         // Incrementally generate API docs (regenerates all api docs, in two phases)
         let runGeneratePhase1 () =
             protect "API doc generation (phase 1)" (fun () ->
-                if crackedProjects.Length > 0 then
+                if crackedProjects.Length = 0 || this.noapidocs then
+                    latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
+                elif crackedProjects.Length > 0 then
+                    let (outputKind, initialTemplate2) =
+                        let templates =
+                            [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                              OutputKind.Html, Path.Combine(this.input, "_template.html")
+                              OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                              OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
-                    if not this.noapidocs then
+                        match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
+                        | Some(kind, path) -> kind, Some path
+                        | None ->
+                            let templateFiles = templates |> Seq.map snd |> String.concat "', '"
 
-                        let (outputKind, initialTemplate2) =
-                            let templates =
-                                [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                                  OutputKind.Html, Path.Combine(this.input, "_template.html")
-                                  OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
+                            match defaultTemplate with
+                            | Some d ->
+                                printfn
+                                    "note, no template files: '%s' found, using default template %s"
+                                    templateFiles
+                                    d
 
-                            match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
-                            | Some(kind, path) -> kind, Some path
+                                OutputKind.Html, Some d
                             | None ->
-                                let templateFiles = templates |> Seq.map snd |> String.concat "', '"
+                                printfn
+                                    "note, no template file '%s' found, and no default template at '%s'"
+                                    templateFiles
+                                    defaultTemplateAttempt1
 
-                                match defaultTemplate with
-                                | Some d ->
-                                    printfn
-                                        "note, no template files: '%s' found, using default template %s"
-                                        templateFiles
-                                        d
+                                OutputKind.Html, None
 
-                                    OutputKind.Html, Some d
-                                | None ->
-                                    printfn
-                                        "note, no template file '%s' found, and no default template at '%s'"
-                                        templateFiles
-                                        defaultTemplateAttempt1
+                    printfn ""
+                    printfn "API docs:"
+                    printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
 
-                                    OutputKind.Html, None
+                    let model, globals, index, phase2 =
+                        match outputKind with
+                        | OutputKind.Html ->
+                            ApiDocs.GenerateHtmlPhased(
+                                inputs = apiDocInputs,
+                                output = rootOutputFolderAsGiven,
+                                collectionName = collectionName,
+                                substitutions = docsSubstitutions,
+                                qualify = this.qualify,
+                                ?template = initialTemplate2,
+                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                                root = root,
+                                libDirs = paths,
+                                onError = onError,
+                                menuTemplateFolder = this.input
+                            )
+                        | OutputKind.Markdown ->
+                            ApiDocs.GenerateMarkdownPhased(
+                                inputs = apiDocInputs,
+                                output = rootOutputFolderAsGiven,
+                                collectionName = collectionName,
+                                substitutions = docsSubstitutions,
+                                qualify = this.qualify,
+                                ?template = initialTemplate2,
+                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                                root = root,
+                                libDirs = paths,
+                                onError = onError
+                            )
+                        | _ -> failwithf "API Docs format '%A' is not supported" outputKind
 
-                        printfn ""
-                        printfn "API docs:"
-                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
+                    // Used to resolve code references in content with respect to the API Docs model
+                    let resolveInlineCodeReference (s: string) =
+                        if s.StartsWith("cref:") then
+                            let s = s.[5..]
 
-                        let model, globals, index, phase2 =
-                            match outputKind with
-                            | OutputKind.Html ->
-                                ApiDocs.GenerateHtmlPhased(
-                                    inputs = apiDocInputs,
-                                    output = rootOutputFolderAsGiven,
-                                    collectionName = collectionName,
-                                    substitutions = docsSubstitutions,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    onError = onError,
-                                    menuTemplateFolder = this.input
-                                )
-                            | OutputKind.Markdown ->
-                                ApiDocs.GenerateMarkdownPhased(
-                                    inputs = apiDocInputs,
-                                    output = rootOutputFolderAsGiven,
-                                    collectionName = collectionName,
-                                    substitutions = docsSubstitutions,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    onError = onError
-                                )
-                            | _ -> failwithf "API Docs format '%A' is not supported" outputKind
+                            match model.Resolver.ResolveCref s with
+                            | None -> None
+                            | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
+                        else
+                            None
 
-                        // Used to resolve code references in content with respect to the API Docs model
-                        let resolveInlineCodeReference (s: string) =
-                            if s.StartsWith("cref:") then
-                                let s = s.[5..]
-
-                                match model.Resolver.ResolveCref s with
-                                | None -> None
-                                | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-                            else
-                                None
-
-                        latestApiDocModel <- Some model
-                        latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
-                        latestApiDocSearchIndexEntries <- index
-                        latestApiDocGlobalParameters <- globals
-                        latestApiDocPhase2 <- phase2)
+                    latestApiDocModel <- Some model
+                    latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
+                    latestApiDocSearchIndexEntries <- index
+                    latestApiDocGlobalParameters <- globals
+                    latestApiDocPhase2 <- phase2)
 
         let runGeneratePhase2 () =
             protect "API doc generation (phase 2)" (fun () ->
