@@ -510,6 +510,15 @@ main {
 @media screen and (min-width: 1200px) {
     body {
         grid-template-columns: var(--body-grid-template-columns-xl);
+        /* This again, won't work in Firefox */
+
+        &:has(#fsdocs-page-menu .empty) {
+            grid-template-columns: var(--body-grid-template-columns);
+
+            #content {
+                max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+            }
+        }
     }
 
     header {
@@ -527,12 +536,28 @@ main {
 }
 
 @media screen and (min-width: 1400px) {
+    body {
+        &:has(#fsdocs-page-menu .empty) {
+            #content {
+                max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+            }
+        }
+    }
+
     #content {
         max-width: calc(var(--container-xxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1800px) {
+    body {
+        &:has(#fsdocs-page-menu .empty) {
+            #content {
+                max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+            }
+        }
+    }
+
     #content {
         max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
     }
@@ -673,7 +698,7 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 }
 
 /* Custom scrollbar styling */
-body, aside, table.pre, code {
+body, aside, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre {
     overflow-x: auto;
     max-width: 100%;
 
@@ -880,6 +905,7 @@ div.fsdocs-tip {
     font-family: var(--monospace-font);
     font-variant-ligatures: none;
     color: var(--code-color);
+    box-shadow: 0 1px 1px var(--shadow-color);
 
     & code {
         color: var(--code-color);
@@ -897,6 +923,7 @@ span[onmouseout] {
 
 .table {
     width: 100%;
+    table-layout: fixed;
 
     & thead tr td {
         font-weight: bold;
@@ -906,6 +933,19 @@ span[onmouseout] {
     & tbody td {
         border-top: 1px solid var(--header-border);
         padding: var(--spacing-300) 0;
+        padding-right: var(--spacing-300);
+
+        &:last-child {
+            padding-right: 0;
+        }
+    }
+
+    & thead tr td:first-child, & td.fsdocs-entity-name, & td.fsdocs-member-usage {
+        width: 25%;
+
+        & p {
+            margin: 0;
+        }
     }
 
     .fsdocs-entity-xmldoc {
@@ -915,39 +955,50 @@ span[onmouseout] {
             justify-content: flex-start;
             align-items: center;
 
-            > p {
-                margin: 0 var(--spacing-400) 0 0;
+            & p.fsdocs-summary {
+                margin: 0;
+                flex-grow: 1;
+            }
+
+            & pre {
+                margin-bottom: var(--spacing-200);
+                padding: var(--spacing-50);
+                flex-grow: 1;
+                overflow-x: auto;
             }
         }
-    }
-
-    .fsdocs-member-usage {
-        display: block;
-        margin-right: var(--spacing-300);
     }
 
     .fsdocs-member-xmldoc {
-        & details {
-            margin-left: var(--spacing-300);
-
-            & .fsdocs-summary {
-                margin-left: var(--spacing-300);
-            }
-        }
-
         & summary {
             list-style: none;
 
-            .fsdocs-summary {
+            > .fsdocs-summary {
                 display: flex;
                 align-items: center;
+                flex-direction: row-reverse;
+
+                & p.fsdocs-summary {
+                    margin: 0;
+                    flex-grow: 1;
+                }
+
+                & pre {
+                    margin-bottom: var(--spacing-200);
+                    padding: var(--spacing-50);
+                    flex-grow: 1;
+                    overflow-x: auto;
+                }
             }
 
             &::after {
                 content: '▶';
                 cursor: pointer;
-                margin-left: var(--spacing-400);
             }
+        }
+
+        & details[open] summary {
+            margin-bottom: var(--spacing-200);
         }
 
         & details[open] summary::after {
@@ -955,7 +1006,19 @@ span[onmouseout] {
         }
 
         .fsdocs-returns, .fsdocs-params {
-            margin-left: var(--spacing-400);
+            margin: var(--spacing-200) 0;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .fsdocs-return-name, .fsdocs-param-name {
+            font-weight: 500;
         }
 
         /* hide the browser mark and display one after the summary */
@@ -963,33 +1026,40 @@ span[onmouseout] {
         & ::marker {
             display: none;
         }
+
+        > div.fsdocs-summary {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            align-items: center;
+
+            > p {
+                margin: 0;
+            }
+        }
     }
 }
 
 .fsdocs-source-link {
+    display: none;
     padding: 0 var(--spacing-100);
-
-    > img {
-        height: var(--spacing-500);
-        width: var(--spacing-500);
-        cursor: pointer;
-        object-fit: contain;
-
-        &.hover {
-            display: none;
-        }
-    }
+    color: var(--text-color);
+    cursor: pointer;
+    height: var(--font-500);
+    width: var(--font-500);
+    margin: 0 var(--spacing-50);
 
     &:hover {
-        > img.normal {
-            display: none;
-        }
-
-        > img.hover {
-            display: block;
-        }
+        color: var(--primary);
     }
 }
+
+@media screen and (min-width: 768px) {
+    .fsdocs-source-link {
+        display: block;
+    }
+}
+
 
 [data-theme=dark] {
     .fsdocs-source-link img.normal {

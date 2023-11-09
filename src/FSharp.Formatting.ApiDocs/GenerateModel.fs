@@ -1824,6 +1824,28 @@ module internal SymbolReader =
         | StringPosition.StartsWithWrapped ("[", "]") (ParseCommand(k, v), _rest) -> Some(k, v)
         | _ -> None
 
+    /// Wraps the summary content in a <pre> tag if it is multiline and has different column indentations.
+    let readXmlElementAsSingleSummary (e: XElement) =
+        let text = e.Value
+        let nonEmptyLines = e.Value.Split([| '\n' |], StringSplitOptions.RemoveEmptyEntries)
+
+        if nonEmptyLines.Length = 1 then
+            nonEmptyLines.[0]
+        else
+            let allLinesHaveSameColumn =
+                nonEmptyLines
+                |> Array.map (fun line -> line |> Seq.takeWhile (fun c -> c = ' ') |> Seq.length)
+                |> Array.distinct
+                |> Array.length
+                |> (=) 1
+
+            let trimmed = text.TrimStart([| '\n'; '\r' |]).TrimEnd()
+
+            if allLinesHaveSameColumn then
+                trimmed
+            else
+                $"<pre>{trimmed}</pre>"
+
     let rec readXmlElementAsHtml
         anyTagsOK
         (urlMap: CrossReferenceResolver)
@@ -1904,6 +1926,12 @@ module internal SymbolReader =
                         let elemAsXml = elem.ToString()
                         html.Append(elemAsXml) |> ignore
 
+    let (|SummaryWithoutChildren|_|) (e: XElement) =
+        if e.Name.LocalName = "summary" && not e.HasElements then
+            Some e
+        else
+            None
+
     let readXmlCommentAsHtmlAux
         summaryExpected
         (urlMap: CrossReferenceResolver)
@@ -1918,22 +1946,26 @@ module internal SymbolReader =
             if Seq.length ds > 0 then Some(Seq.toList ds) else None
 
         let summary =
-            if summaryExpected then
-                let summaries = doc.Elements(XName.Get "summary") |> Seq.toList
+            match Seq.tryExactlyOne (doc.Elements()) with
+            | Some(SummaryWithoutChildren e) -> ApiDocHtml(readXmlElementAsSingleSummary e, None)
+            | Some _
+            | None ->
+                if summaryExpected then
+                    let summaries = doc.Elements(XName.Get "summary") |> Seq.toList
 
-                let html = new StringBuilder()
+                    let html = new StringBuilder()
 
-                for (id, e) in List.indexed summaries do
-                    let n = if id = 0 then "summary" else "summary-" + string id
+                    for (id, e) in List.indexed summaries do
+                        let n = if id = 0 then "summary" else "summary-" + string id
 
-                    rawData.[n] <- e.Value
-                    readXmlElementAsHtml true urlMap cmds html e
+                        rawData.[n] <- e.Value
+                        readXmlElementAsHtml true urlMap cmds html e
 
-                ApiDocHtml(html.ToString(), None)
-            else
-                let html = new StringBuilder()
-                readXmlElementAsHtml false urlMap cmds html doc
-                ApiDocHtml(html.ToString(), None)
+                    ApiDocHtml(html.ToString(), None)
+                else
+                    let html = new StringBuilder()
+                    readXmlElementAsHtml false urlMap cmds html doc
+                    ApiDocHtml(html.ToString(), None)
 
         let paramNodes = doc.Elements(XName.Get "param") |> Seq.toList
 
