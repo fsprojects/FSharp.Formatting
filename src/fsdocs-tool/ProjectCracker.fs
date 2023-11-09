@@ -6,6 +6,7 @@ open System.Runtime.InteropServices
 open System.Runtime.Serialization
 open System.Xml
 
+open System.Xml.Linq
 open FSharp.Formatting.Templating
 
 open Ionide.ProjInfo
@@ -499,6 +500,20 @@ module Crack =
 
                 None
 
+        /// Try and xpath query a fallback value from the current Directory.Build.props file.
+        /// This is useful to set some settings when there are no actual (c|f)sproj files.
+        let fallbackFromDirectoryProps =
+            if not (File.Exists "Directory.Build.props") then
+                fun _ _ -> None
+            else
+                let xDoc = XDocument.Load("Directory.Build.props")
+
+                fun xpath optProp ->
+                    optProp
+                    |> Option.orElseWith (fun () ->
+                        let xe = System.Xml.XPath.Extensions.XPathSelectElement(xDoc, xpath)
+                        if isNull xe then None else Some xe.Value)
+
         // For the 'docs' directory we use the best info we can find from across all projects
         let projectInfoForDocs =
             { ProjectFileName = ""
@@ -510,30 +525,49 @@ module Crack =
               RepositoryUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.RepositoryUrl)
+                |> fallbackFromDirectoryProps "//RepositoryUrl"
                 |> Option.map ensureTrailingSlash
               RepositoryType = projectInfos |> List.tryPick (fun info -> info.RepositoryType)
               RepositoryBranch = projectInfos |> List.tryPick (fun info -> info.RepositoryBranch)
               FsDocsCollectionNameLink = projectInfos |> List.tryPick (fun info -> info.FsDocsCollectionNameLink)
-              FsDocsLicenseLink = projectInfos |> List.tryPick (fun info -> info.FsDocsLicenseLink)
-              FsDocsReleaseNotesLink = projectInfos |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
+              FsDocsLicenseLink =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLicenseLink)
+                |> fallbackFromDirectoryProps "//FsDocsLicenseLink"
+              FsDocsReleaseNotesLink =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
+                |> fallbackFromDirectoryProps "//FsDocsReleaseNotesLink"
               FsDocsLogoLink = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoLink)
-              FsDocsLogoSource = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoSource)
-              FsDocsFaviconSource = projectInfos |> List.tryPick (fun info -> info.FsDocsFaviconSource)
+              FsDocsLogoSource =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLogoSource)
+                |> fallbackFromDirectoryProps "//FsDocsLogoSource"
+              FsDocsFaviconSource =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsFaviconSource)
+                |> fallbackFromDirectoryProps "//FsDocsFaviconSource"
               FsDocsSourceFolder = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceFolder)
-              FsDocsSourceRepository = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceRepository)
+              FsDocsSourceRepository =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsSourceRepository)
+                |> fallbackFromDirectoryProps "//RepositoryUrl"
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
                 |> Option.map ensureTrailingSlash
-              Authors = projectInfos |> List.tryPick (fun info -> info.Authors)
+              Authors =
+                projectInfos
+                |> List.tryPick (fun info -> info.Authors)
+                |> fallbackFromDirectoryProps "//Authors"
               GenerateDocumentationFile = true
               PackageLicenseExpression = projectInfos |> List.tryPick (fun info -> info.PackageLicenseExpression)
               PackageTags = projectInfos |> List.tryPick (fun info -> info.PackageTags)
               UsesMarkdownComments = false
               Copyright = projectInfos |> List.tryPick (fun info -> info.Copyright)
-              PackageVersion = projectInfos |> List.tryPick (fun info -> info.PackageVersion)
+              PackageVersion = projectInfos |> List.tryPick (fun info -> info.PackageVersion) |> fallbackFromDirectoryProps "//Version"
               PackageIconUrl = projectInfos |> List.tryPick (fun info -> info.PackageIconUrl)
               RepositoryCommit = projectInfos |> List.tryPick (fun info -> info.RepositoryCommit) }
 
