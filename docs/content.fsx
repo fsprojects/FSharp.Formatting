@@ -150,6 +150,7 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-next-page-link`       | A relative link to the next page based on the frontmatter index data |
 | `fsdocs-head-extra`           | Additional html content loaded from the `_head.html` file if present in the `--input` folder |
 | `fsdocs-body-extra`           | Additional html content loaded from the `_body.html` file if present in the `--input` folder |
+| `fsdocs-body-class`           | A css class value to help distinguish between `content` and `api-docs` |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:

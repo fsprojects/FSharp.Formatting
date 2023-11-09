@@ -199,6 +199,11 @@ module ParamKeys =
     /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
     let ``fsdocs-body-extra`` = ParamKey "fsdocs-body-extra"
 
+    /// A parameter key known to FSharp.Formatting, either 'content' or 'api-doc'
+    /// Mean to be used on the `class` attribute in the `<body>` tag.
+    /// This helps to differentiate styles between API docs and custom content.
+    let ``fsdocs-body-class`` = ParamKey "fsdocs-body-class"
+
 module internal SimpleTemplating =
 
 #if NETSTANDARD2_0

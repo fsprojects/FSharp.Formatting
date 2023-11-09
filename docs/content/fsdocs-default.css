@@ -512,13 +512,16 @@ main {
 @media screen and (min-width: 1200px) {
     body {
         grid-template-columns: var(--body-grid-template-columns-xl);
-        /* This again, won't work in Firefox */
 
-        &:has(#fsdocs-page-menu .empty) {
+        &.api-docs {
             grid-template-columns: var(--body-grid-template-columns);
 
             #content {
                 max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+            }
+
+            #fsdocs-page-menu {
+                display: none;
             }
         }
     }
@@ -539,7 +542,7 @@ main {
 
 @media screen and (min-width: 1400px) {
     body {
-        &:has(#fsdocs-page-menu .empty) {
+        &.api-docs, &:has(#fsdocs-page-menu .empty) {
             #content {
                 max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
             }
@@ -553,7 +556,7 @@ main {
 
 @media screen and (min-width: 1800px) {
     body {
-        &:has(#fsdocs-page-menu .empty) {
+        &.api-docs, &:has(#fsdocs-page-menu .empty) {
             #content {
                 max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
             }
@@ -1124,14 +1127,14 @@ dialog {
         & li {
             margin: 0;
             border-bottom: 1px solid var(--header-border);
-            
+
             &:hover {
                 & a, & a iconify-icon {
                     background-color: var(--link-hover);
                     color: var(--header-background);
                 }
             }
-            
+
             & a {
                 display: flex;
                 padding: var(--spacing-300);
@@ -1147,7 +1150,7 @@ dialog {
     }
 }
 
-/* Variables don't seem to work on ::backdrop */ 
+/* Variables don't seem to work on ::backdrop */
 [data-theme=dark] {
     ::backdrop {
         opacity: 0.75;

@@ -55,7 +55,7 @@ type internal LiterateDocModel =
         /// The extracted title of the document (first h1 header if not in front matter)
         Title: string
 
-        /// The replacement paramaters
+        /// The replacement parameters
         Substitutions: Substitutions
 
         /// The text for search index generation (empty for notebooks and latex)

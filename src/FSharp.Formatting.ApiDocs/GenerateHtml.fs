@@ -647,7 +647,8 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     /// Get the substitutions relevant to all
     member _.GlobalSubstitutions: Substitutions =
         let toc = listOfNamespacesNav true None
-        [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
+        [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
+          yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
 
     member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 

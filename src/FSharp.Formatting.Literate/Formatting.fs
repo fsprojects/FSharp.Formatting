@@ -231,6 +231,7 @@ module internal Formatting =
         let substitutions0 =
             [ yield ParamKeys.``fsdocs-page-title``, pageTitle
               yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
+              yield ParamKeys.``fsdocs-body-class``, "content"
               yield! ctx.Substitutions
               yield! sourceSubstitutions
               yield! nextPreviousPageSubstitutions ]
