@@ -705,8 +705,8 @@ body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > 
     max-width: 100%;
 
     &::-webkit-scrollbar {
-        height: var(--spacing-200);
-        width: var(--spacing-300);
+        height: var(--spacing-100);
+        width: var(--spacing-100);
     }
 
     &::-webkit-scrollbar-track {
@@ -716,6 +716,15 @@ body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > 
 
     &::-webkit-scrollbar-thumb {
         background-color: var(--scrollbar-thumb-background);
+    }
+}
+
+body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre, dialog ul {
+    @media screen and (min-width: 768px) {
+        &::-webkit-scrollbar {
+            height: var(--spacing-200);
+            width: var(--spacing-300);
+        }
     }
 }
 
