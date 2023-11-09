@@ -3111,9 +3111,14 @@ type ApiDocModel internal (substitutions, collection, entityInfos, root, qualify
 
 /// Represents an entry suitable for constructing a Lunr index
 type ApiDocsSearchIndexEntry =
-    { uri: string
-      title: string
-      content: string }
+    {
+        uri: string
+        title: string
+        content: string
+        headings: string list
+        /// apiDocs or content
+        ``type``: string
+    }
 
 [<Obsolete("Renamed to ApiDocMember", true)>]
 type Member =

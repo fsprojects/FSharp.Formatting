@@ -44,6 +44,7 @@
     --aside-grid-column: 1;
     --main-grid-row: 2;
     --main-grid-column: 2;
+    --dialog-width: 500px;
 
     /* light theme */
     --primary: #1e8bc3;
@@ -699,7 +700,7 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 }
 
 /* Custom scrollbar styling */
-body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre {
+body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre, dialog ul {
     overflow-x: auto;
     max-width: 100%;
 
@@ -1061,10 +1062,85 @@ span[onmouseout] {
     }
 }
 
+/* Search */
+::backdrop {
+    background-color: #020202;
+    opacity: 0.5;
+}
 
-[data-theme=dark] {
-    .fsdocs-source-link img.normal {
-        filter: invert(1);
+dialog {
+    background-color: var(--header-background);
+    margin: var(--spacing-700) auto;
+    padding: var(--spacing-100);
+    border: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    border-radius: var(--radius);
+    width: var(--dialog-width);
+
+    &[open] {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    & input[type=search] {
+        margin: 0;
+        display: block;
+        width: 100%;
+        padding: var(--spacing-200);
+        outline: 1px solid var(--primary);
+        border-radius: var(--radius);
+        border: none;
+
+        &::placeholder {
+            font-size: var(--font-400);
+        }
+    }
+
+    .empty {
+        color: var(--nav-category);
+        text-align: center;
+        font-size: var(--font-100);
+        margin: var(--spacing-100);
+        margin-bottom: 0;
+    }
+
+    & ul {
+        overflow-y: auto;
+        max-height: calc(50vh - var(--spacing-700) - var(--spacing-700));
+        list-style: none;
+        padding: 0;
+
+        & li {
+            margin: 0;
+            border-bottom: 1px solid var(--header-border);
+            
+            &:hover {
+                & a, & a iconify-icon {
+                    background-color: var(--link-hover);
+                    color: var(--header-background);
+                }
+            }
+            
+            & a {
+                display: flex;
+                padding: var(--spacing-300);
+                overflow-x: hidden;
+
+                & iconify-icon {
+                    color: var(--text-color);
+                    width: 24px;
+                    margin-right: var(--spacing-200);
+                }
+            }
+        }
     }
 }
 
+/* Variables don't seem to work on ::backdrop */ 
+[data-theme=dark] {
+    ::backdrop {
+        opacity: 0.75;
+    }
+}

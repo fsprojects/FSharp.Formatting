@@ -47,6 +47,8 @@ type OutputKind =
         | Html -> "html"
         | Pynb -> "ipynb"
 
+type IndexText = IndexText of fullContent: string * headings: string list
+
 /// Defines the output of processing a literate doc
 type internal LiterateDocModel =
     {
@@ -57,7 +59,7 @@ type internal LiterateDocModel =
         Substitutions: Substitutions
 
         /// The text for search index generation (empty for notebooks and latex)
-        IndexText: string option
+        IndexText: IndexText option
 
         /// The category in the front matter
         Category: string option

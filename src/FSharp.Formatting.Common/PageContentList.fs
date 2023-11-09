@@ -20,14 +20,15 @@ let mkPageContentMenu (html: string) =
         let href = matchItem.Groups.[2].Value
         let linkText = matchItem.Groups.[3].Value
 
-        li [ Class $"level-%i{level}" ] [ a [ Href href ] [ !!linkText ] ]
+        linkText, li [ Class $"level-%i{level}" ] [ a [ Href href ] [ !!linkText ] ]
 
-    let listItems =
+    let headingTexts, listItems =
         regex.Matches(html)
         |> Seq.cast<Match>
         |> Seq.map extractHeadingLinks
         |> Seq.toList
+        |> List.unzip
 
     match listItems with
-    | [] -> EmptyContent
-    | items -> string (ul [] items)
+    | [] -> List.empty, EmptyContent
+    | items -> headingTexts, string (ul [] items)

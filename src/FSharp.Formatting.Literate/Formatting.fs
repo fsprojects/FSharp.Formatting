@@ -1,7 +1,7 @@
 namespace FSharp.Formatting.Literate
 
 open System.IO
-open System.Xml
+open System.Text.RegularExpressions
 open FSharp.Formatting.Literate
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
@@ -246,7 +246,7 @@ module internal Formatting =
                 ctx.CodeReferenceResolver
                 ctx.MarkdownDirectLinkResolver
 
-        let pageHeaders = FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
+        let headingTexts, pageHeaders = FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
 
         let tipsHtml = doc.FormattedTips
 
@@ -259,7 +259,10 @@ module internal Formatting =
 
         let indexText =
             (match ctx.OutputKind with
-             | OutputKind.Html -> Some(getIndexText doc)
+             | OutputKind.Html ->
+                 // Strip the html tags
+                 let fullText = Regex.Replace(formattedDocument, "<.*?>", "")
+                 Some(IndexText(fullText, headingTexts))
              | _ -> None)
 
         { OutputPath = outputPath

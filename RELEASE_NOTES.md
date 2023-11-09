@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-006 - 2023-11-09
+
+### Added
+* Revisited search using [fusejs](https://www.fusejs.io/)
+
 ## 20.0.0-alpha-005 - 2023-11-09
 
 ### Changed

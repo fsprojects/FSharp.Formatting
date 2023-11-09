@@ -572,10 +572,12 @@ type internal DocContent
         [| for (_inputFile, isOtherLang, model) in docModels do
                if not isOtherLang then
                    match model.IndexText with
-                   | Some text ->
+                   | Some(IndexText(fullContent, headings)) ->
                        { title = model.Title
-                         content = text
-                         uri = model.Uri(root) }
+                         content = fullContent
+                         headings = headings
+                         uri = model.Uri(root)
+                         ``type`` = "content" }
                    | _ -> () |]
 
     member _.GetNavigationEntries

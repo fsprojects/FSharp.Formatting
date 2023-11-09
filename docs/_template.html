@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-root="{{root}}">
 <head>
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
@@ -45,7 +45,7 @@
         <a href="{{fsdocs-repository-link}}" target="_blank">
             <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
         </a>
-        <iconify-icon icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
         <fsdocs-theme-toggle></fsdocs-theme-toggle>
     </div>
 </header>
@@ -73,9 +73,17 @@
     <p>On this page</p>
     {{fsdocs-page-content-list}}
 </aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
 <script type="module" src="{{root}}content/fsdocs-tips.js"></script>
 <script type="module" src="{{root}}content/fsdocs-theme-toggle.js"></script>
 <script type="module" src="{{root}}content/fsdocs-theme.js"></script>
+<script type="module" src="{{root}}content/fsdocs-search.js"></script>
 {{fsdocs-body-extra}}
 </body>
 </html>
