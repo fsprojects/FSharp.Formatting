@@ -246,6 +246,7 @@ header {
                 background-color: var(--header-background);
                 list-style: none;
                 padding: var(--spacing-300);
+                overflow-y: auto;
             }
 
             & input:checked + .menu {
@@ -698,7 +699,7 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 }
 
 /* Custom scrollbar styling */
-body, aside, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre {
+body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre {
     overflow-x: auto;
     max-width: 100%;
 
