@@ -1,5 +1,13 @@
 # Changelog
 
+## 20.0.0-alpha-005 - 2023-11-09
+
+### Changed
+* Improve API doc styling.
+
+### Fixed
+* Make mobile menu scrollable.
+
 ## 20.0.0-alpha-004 - 2023-11-08
 
 ### Fixed
