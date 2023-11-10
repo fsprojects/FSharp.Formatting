@@ -528,7 +528,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
               // Generate the entry for the namespace
               tr [] [
-                  td [] [ a [ Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [ !!ns.Name ] ]
+                  td [] [
+                      a [
+                          Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                          HtmlProperties.Title ns.Name
+                      ] [ !!ns.Name ]
+                  ]
                   td [] [
                       match ns.NamespaceDocs with
                       | Some nsdocs -> embed nsdocs.Summary

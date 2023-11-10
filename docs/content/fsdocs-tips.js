@@ -26,6 +26,8 @@ function showTip(evt, name, unique, owner) {
     el.style.display = "block";
     el.style.left = `${x}px`;
     el.style.top = `${y}px`;
+    const maxWidth = document.documentElement.clientWidth - x - 16;
+    el.style.maxWidth = `${maxWidth}px`;
 
     const rect =  el.getBoundingClientRect();
     // Move tooltip if it is out of sight
@@ -37,6 +39,8 @@ function showTip(evt, name, unique, owner) {
     if (rect.right > window.innerWidth) {
         x = y - el.clientWidth - offset;
         el.style.left = `${x}px`;
+        const maxWidth = document.documentElement.clientWidth - x - 16;
+        el.style.maxWidth = `${maxWidth}px`;
     }
 }
 

@@ -703,7 +703,7 @@ pre.fssnip.highlighted > code, table.pre .fssnip, table.pre .fssnip code {
 }
 
 /* Custom scrollbar styling */
-body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre, dialog ul {
+body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre, dialog ul, div.fsdocs-tip {
     overflow-x: auto;
     max-width: 100%;
 
@@ -722,7 +722,7 @@ body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > 
     }
 }
 
-body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre, dialog ul {
+body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > pre, div.fsdocs-summary > pre, dialog ul, div.fsdocs-tip {
     @media screen and (min-width: 768px) {
         &::-webkit-scrollbar {
             height: var(--spacing-200);
@@ -948,6 +948,13 @@ span[onmouseout] {
         border-top: 1px solid var(--header-border);
         padding: var(--spacing-300) 0;
         padding-right: var(--spacing-300);
+
+        &:first-child a {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            display: block;
+        }
 
         &:last-child {
             padding-right: 0;
