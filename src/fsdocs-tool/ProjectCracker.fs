@@ -567,7 +567,10 @@ module Crack =
               PackageTags = projectInfos |> List.tryPick (fun info -> info.PackageTags)
               UsesMarkdownComments = false
               Copyright = projectInfos |> List.tryPick (fun info -> info.Copyright)
-              PackageVersion = projectInfos |> List.tryPick (fun info -> info.PackageVersion) |> fallbackFromDirectoryProps "//Version"
+              PackageVersion =
+                projectInfos
+                |> List.tryPick (fun info -> info.PackageVersion)
+                |> fallbackFromDirectoryProps "//Version"
               PackageIconUrl = projectInfos |> List.tryPick (fun info -> info.PackageIconUrl)
               RepositoryCommit = projectInfos |> List.tryPick (fun info -> info.RepositoryCommit) }
 
