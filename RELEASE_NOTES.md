@@ -1,5 +1,13 @@
 # Changelog
 
+## 20.0.0-alpha-007 - 2023-11-10
+
+### Fixed
+* Smaller scrollbars on mobile devices
+
+### Added
+* Use property values from the current `Directory.Build.props` file as fallback. [#865](https://github.com/fsprojects/FSharp.Formatting/issues/865)
+
 ## 20.0.0-alpha-006 - 2023-11-09
 
 ### Added
