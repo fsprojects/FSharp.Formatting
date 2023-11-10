@@ -1,5 +1,11 @@
 # Changelog
 
+## 20.0.0-alpha-008 - 2023-11-10
+
+### Fixed
+* Add dynamic `max-width` to tooltip.
+* Overflow long namespace names in overview table.
+
 ## 20.0.0-alpha-007 - 2023-11-10
 
 ### Fixed
