@@ -504,7 +504,7 @@ module Crack =
         /// This is useful to set some settings when there are no actual (c|f)sproj files.
         let fallbackFromDirectoryProps =
             if not (File.Exists "Directory.Build.props") then
-                fun _ _ -> None
+                fun _ optProp -> optProp
             else
                 let xDoc = XDocument.Load("Directory.Build.props")
 
