@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-009 - 2023-11-11
+
+### Fixed
+* Return original prop when no Directory.Build.props is used as fallback.
+
 ## 20.0.0-alpha-008 - 2023-11-10
 
 ### Fixed
