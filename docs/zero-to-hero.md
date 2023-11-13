@@ -5,7 +5,7 @@ index: 9
 ---
 # From zero to hero: deploying to GitHub Pages
 
-This guide is meant for a typically setup for open-source projects on GitHub.  
+This guide is meant for a typical setup of open-source projects on GitHub.  
 We start from a repository without any documentation and aim to end up with a published website on [GitHub Pages](https://pages.github.com/).  
 
 ## Install the local tool
@@ -44,7 +44,7 @@ When `fsdocs` runs, it will transform this `index.md` file to `index.html`, whic
 
 We can put `# Hello world` in the markdown file for now.
 
-Having this in play, should already serve the first page when we start the `watch` command:
+Having this in place, should already serve the first page when we start the `watch` command:
 
 > dotnet fsdocs watch
 
@@ -63,7 +63,7 @@ It will filter these found projects, the requirements are:
 - Not having `<IsTestProject>true</IsTestProject>`
 - Having `<GenerateDocumentationFile>true</GenerateDocumentationFile>`
 
-🪄 If you made some changes to in order to adhere to the rules, you may want to remove the `.fsdocs/cache` file.
+🪄 If you made some changes in order to adhere to the rules, you may want to remove the `.fsdocs/cache` file.
 
 ## Adding the missing properties
 
@@ -100,9 +100,9 @@ Running `dotnet fsdocs watch` will now yield:
 ⚠️ Again, you might need to remove `.fsdocs/cache` in order for changes to be picked up! 
 
 `<PackageProjectUrl>` is actually a very important property when you run `dotnet fsdocs build`.  
-`build` will generated static files for the targeted production environment. In our case, this will be GitHub Pages.
+`build` will generate static files for the targeted production environment. In our case, this will be GitHub Pages.
 
-Pages will host your files from https://github.com/user/project to on `https://user.github.io/project/` by default.  
+Pages will host your files from https://github.com/user/project on `https://user.github.io/project/` by default.  
 You can change this by adding a custom domain so we need to be sure that all links and urls will be generated correctly during a build.
 
 Let's now run `dotnet fsdocs build`.
@@ -113,7 +113,7 @@ Let's now run `dotnet fsdocs build`.
 
 ## Ignore generated files
 
-Alright, at this point we've made a lot of progress. I you are using `git` you want to add the following to your [.gitignore](https://git-scm.com/docs/gitignore) file.
+Alright, at this point we've made a lot of progress. If you are using `git` you want to add the following to your [.gitignore](https://git-scm.com/docs/gitignore) file.
 
 ```.ignorelang
 # FSharp.Formatting
@@ -189,7 +189,7 @@ jobs:
 
 ## Next steps
 
-Mission accomplished right? If everything went well, you should have a published website at this point!  
+Mission accomplished, right? If everything went well, you should have a published website at this point!  
 Here are some next steps you could consider:
 
 ### Use fsx file in your documentation
