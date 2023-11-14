@@ -60,7 +60,7 @@ Content that is not `*.fsx` or `*.md` is copied across.
 
 ## Default Styling Content
 
-By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-styles.css` are included in the
+By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-default.css` are included in the
 the `content` directory of the output.  This can be suppressed with `--nodefaultcontent` or by having your own
 copy of this content in your `content` directory.
 
