@@ -659,6 +659,25 @@ img {
     margin: var(--spacing-300) 0;
 }
 
+blockquote {
+    border-left: var(--spacing-50) solid var(--primary);
+    margin: var(--spacing-200) 0;
+    margin-left: var(--spacing-200);
+    padding: var(--spacing-100) var(--spacing-300);
+    background-color: var(--header-background);
+
+    > p {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    blockquote {
+        margin-left: var(--spacing-400);
+    }
+}
+
 /* Code snippets */
 
 /* reset browser style */
@@ -667,19 +686,19 @@ pre {
     padding: 0;
 }
 
-code, table.pre, pre, blockquote {
+code, table.pre, pre {
     background-color: var(--code-background);
     color: var(--code-color);
     font-family: var(--monospace-font);
     font-variant-ligatures: none;
 }
 
-table.pre, pre.fssnip.highlighted, blockquote {
+table.pre, pre.fssnip.highlighted {
     margin: var(--spacing-300) 0;
     padding: var(--spacing-200);
 }
 
-table.pre .snippet pre.fssnip, blockquote > p {
+table.pre .snippet pre.fssnip {
     padding: 0;
     margin: 0;
 }
@@ -731,7 +750,7 @@ body, aside, #menu-toggle .menu, table.pre, code, .fsdocs-entity-xmldoc > div > 
     }
 }
 
-table.pre, code, pre.fssnip, blockquote {
+table.pre, code, pre.fssnip {
     border-radius: var(--radius);
 }
 
