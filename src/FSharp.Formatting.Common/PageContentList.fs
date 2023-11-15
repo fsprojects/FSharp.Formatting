@@ -11,7 +11,7 @@ let EmptyContent = "<div class=\"empty\"></div>"
 /// We can't use the doc.MarkdownDocument because we cannot easily get the generated id values.
 /// It is safer to parse the html.
 let mkPageContentMenu (html: string) =
-    let headingLinkPattern = "<h(\\d)><a name=\"[^\"]+\" class=\"anchor\" href=\"([^\"]+)\">([^<]+)</a></h\\d>"
+    let headingLinkPattern = "<h(\\d)><a [^>]*href=\"([^\"]+)\">([^<]+)</a></h\\d>"
 
     let regex = Regex(headingLinkPattern)
 
