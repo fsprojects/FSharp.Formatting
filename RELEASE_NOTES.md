@@ -1,5 +1,19 @@
 # Changelog
 
+## 20.0.0-alpha-010 - 2023-11-15
+
+### Fixed
+* Update styling for blockquote.
+* Update search documentation.
+* Tweak dark theme colors.
+* Loosen the header link search restriction.
+* Improve custom theme icon.
+* Correct fsdocs-menu-item-active-class value.
+* Fix example of Right-Side navigation.
+
+### Changed
+* Allow for more fine-grained styling control.
+
 ## 20.0.0-alpha-009 - 2023-11-11
 
 ### Fixed
