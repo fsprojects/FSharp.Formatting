@@ -9,8 +9,9 @@ index: 4
 
 <style>
 :root {
-    --body-grid-template-columns:  minmax(0, 1fr) var(--aside-width);
-    --aside-grid-column: 2;
+    --body-grid-template-columns: minmax(0, 1fr) var(--main-menu-width);
+    --body-grid-template-columns-xl: minmax(0, 1fr) var(--main-menu-width) var(--page-menu-width);
+    --main-menu-grid-column: 2;
     --main-grid-column: 1;
 }
 </style>
@@ -19,8 +20,9 @@ The sidebar can be moved to the right by overwriting the following CSS variables
 
 ```css
 :root {
-    --body-grid-template-columns:  minmax(0, 1fr) var(--aside-width);
-    --aside-grid-column: 2;
+    --body-grid-template-columns: minmax(0, 1fr) var(--main-menu-width);
+    --body-grid-template-columns-xl: minmax(0, 1fr) var(--main-menu-width) var(--page-menu-width);
+    --main-menu-grid-column: 2;
     --main-grid-column: 1;
 }
 ```
