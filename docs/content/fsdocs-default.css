@@ -36,12 +36,13 @@
     --container-xl: 1200px;
     --container-xxl: 1400px;
     --container-xxxl: 1800px;
-    --aside-width: 260px;
+    --main-menu-width: 260px;
+    --page-menu-width: var(--main-menu-width);
     --header-height: 60px;
-    --body-grid-template-columns: var(--aside-width) minmax(0, 1fr);
-    --body-grid-template-columns-xl: var(--aside-width) minmax(0, 1fr) var(--aside-width);
-    --aside-grid-row: 2;
-    --aside-grid-column: 1;
+    --body-grid-template-columns: var(--main-menu-width) minmax(0, 1fr);
+    --body-grid-template-columns-xl: var(--main-menu-width) minmax(0, 1fr) var(--page-menu-width);
+    --main-menu-grid-row: 2;
+    --main-menu-grid-column: 1;
     --main-grid-row: 2;
     --main-grid-column: 2;
     --dialog-width: 500px;
@@ -56,8 +57,7 @@
     --code-color: #1a4b0b;
     --header-background: #f9fbfc;
     --header-border: #e8ecf1;
-    --menu-icon-hover: #F7F7F7;
-    --menu-icon-hover-background: #bdc3c7;
+    --mobile-menu-background: var(--header-background);
     --menu-item-hover-background: #eff0f1;
     --doc-tip-background: #F7F7F7;
     --link-color: #4871f7;
@@ -69,6 +69,11 @@
     --scrollbar-thumb-background: #686868;
     --shadow-color: hsla(0, 0%, 0%, .1);
     --main-shadow-color: hsla(0, 0%, 0%, .025);
+    --aside-background: var(--header-background);
+    --menu-color: var(--text-color);
+    --fsdocs-theme-toggle-light-color: var(--text-color);
+    --fsdocs-theme-toggle-dark-color: #FFF;
+    --header-link-color: var(--text-color);
 
     --header-brand-text-transform: none;
 
@@ -199,6 +204,7 @@ header {
     justify-content: space-between;
     position: sticky;
     top: 0;
+    z-index: 100;
     box-shadow: 0 1px 1px var(--shadow-color);
 
     & .start {
@@ -244,7 +250,7 @@ header {
                 position: fixed;
                 top: var(--header-height);
                 left: 0;
-                background-color: var(--header-background);
+                background-color: var(--mobile-menu-background);
                 list-style: none;
                 padding: var(--spacing-300);
                 overflow-y: auto;
@@ -272,7 +278,7 @@ header {
             justify-content: center;
             align-items: center;
             text-decoration: none;
-            color: var(--text-color);
+            color: var(--header-link-color);
         }
 
         & img {
@@ -296,6 +302,7 @@ header {
 
         & a {
             display: none;
+            color: var(--header-link-color);
         }
 
         & > .themeToggle, & > .search {
@@ -307,6 +314,7 @@ header {
 
         & > .search {
             display: flex;
+            color: var(--header-link-color);
         }
     }
 }
@@ -382,7 +390,7 @@ main {
 .menu {
     padding: 0;
 
-    & > li {
+    & li {
         list-style: none;
         margin: 0;
     }
@@ -392,6 +400,7 @@ main {
         text-transform: uppercase;
         font-size: var(--font-200);
         font-weight: 500;
+        color: var(--menu-color);
     }
 }
 
@@ -403,7 +412,7 @@ main {
     border-left: 1px solid var(--header-border);
 
     & a {
-        color: var(--text-color);
+        color: var(--menu-color);
         text-decoration: none;
         font-size: var(--font-200);
         padding: var(--spacing-100);
@@ -448,7 +457,6 @@ main {
                 display: flex;
                 align-items: center;
                 text-decoration: none;
-                color: var(--text-color);
 
                 &:hover {
                     color: var(--link-hover);
@@ -469,11 +477,11 @@ main {
     #fsdocs-main-menu {
         display: block;
         padding: var(--spacing-300) var(--spacing-500);
-        background-color: var(--header-background);
-        width: var(--aside-width);
+        background-color: var(--aside-background);
+        width: var(--page-menu-width);
         border-right: 1px solid var(--header-border);
-        grid-row: var(--aside-grid-row);
-        grid-column: var(--aside-grid-column);
+        grid-row: var(--main-menu-grid-row);
+        grid-column: var(--main-menu-grid-column);
         overflow-y: auto;
     }
 
@@ -492,20 +500,20 @@ main {
 
 @media screen and (min-width: 768px) {
     #content {
-        max-width: calc(100vw - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+        max-width: calc(100vw - var(--main-menu-width) - var(--spacing-300) - var(--spacing-300));
         margin: 0 auto;
     }
 }
 
 @media screen and (min-width: 960px) {
     #content {
-        max-width: calc(var(--container-md) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+        max-width: calc(var(--container-md) - var(--main-menu-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
 @media screen and (min-width: 1024px) {
     #content {
-        max-width: calc(var(--container-lg) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+        max-width: calc(var(--container-lg) - var(--main-menu-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
@@ -517,7 +525,7 @@ main {
             grid-template-columns: var(--body-grid-template-columns);
 
             #content {
-                max-width: calc(var(--container-xl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+                max-width: calc(var(--container-xl) - var(--main-menu-width) - var(--spacing-300) - var(--spacing-300));
             }
 
             #fsdocs-page-menu {
@@ -536,7 +544,7 @@ main {
     }
 
     #content {
-        max-width: calc(var(--container-xl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+        max-width: calc(var(--container-xl) - var(--main-menu-width) - var(--page-menu-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
@@ -544,13 +552,13 @@ main {
     body {
         &.api-docs, &:has(#fsdocs-page-menu .empty) {
             #content {
-                max-width: calc(var(--container-xxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+                max-width: calc(var(--container-xxl) - var(--main-menu-width) - var(--spacing-300) - var(--spacing-300));
             }
         }
     }
 
     #content {
-        max-width: calc(var(--container-xxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+        max-width: calc(var(--container-xxl) - var(--main-menu-width) - var(--page-menu-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
@@ -558,13 +566,13 @@ main {
     body {
         &.api-docs, &:has(#fsdocs-page-menu .empty) {
             #content {
-                max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+                max-width: calc(var(--container-xxxl) - var(--main-menu-width) - var(--spacing-300) - var(--spacing-300));
             }
         }
     }
 
     #content {
-        max-width: calc(var(--container-xxxl) - var(--aside-width) - var(--aside-width) - var(--spacing-300) - var(--spacing-300));
+        max-width: calc(var(--container-xxxl) - var(--main-menu-width) - var(--page-menu-width) - var(--spacing-300) - var(--spacing-300));
     }
 }
 
@@ -577,21 +585,21 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 h1 {
     font-size: var(--font-600);
     line-height: var(--heading-line-height);
-    margin-bottom: var(--spacing-300);
+    margin-bottom: var(--spacing-400);
     margin-top: var(--spacing-50);
 }
 
 h2 {
     font-size: var(--font-500);
     line-height: var(--heading-line-height);
-    margin-top: var(--spacing-300);
-    margin-bottom: var(--spacing-200);
+    margin-top: var(--spacing-400);
+    margin-bottom: var(--spacing-300);
 }
 
 h3 {
     font-size: var(--font-400);
     line-height: var(--heading-line-height);
-    margin-top: var(--spacing-200);
+    margin-top: var(--spacing-300);
     margin-bottom: var(--spacing-200);
 }
 
