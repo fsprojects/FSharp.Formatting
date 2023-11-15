@@ -31,7 +31,7 @@ let createMenu (input: string) (isCategoryActive: bool) (header: string) (items:
                 [| ParamKeys.``fsdocs-menu-item-link``, link
                    ParamKeys.``fsdocs-menu-item-content``, title
                    ParamKeys.``fsdocs-menu-item-id``, id
-                   ParamKeys.``fsdocs-menu-item-active-class``, (if isCategoryActive then "active" else "") |]
+                   ParamKeys.``fsdocs-menu-item-active-class``, (if model.IsActive then "active" else "") |]
                 menuItemTemplate)
         |> String.concat "\n"
 
