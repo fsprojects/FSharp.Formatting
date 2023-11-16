@@ -1,6 +1,7 @@
 namespace fsdocs
 
 open System
+open System.Diagnostics
 open System.IO
 open System.Runtime.InteropServices
 open System.Runtime.Serialization
@@ -141,6 +142,22 @@ module Utils =
             s
         else
             s + "/"
+
+module DotNetCli =
+
+    /// Run `dotnet msbuild <args>` and receive the trimmed standard output.
+    let msbuild (pwd: string) (args: string) : string =
+        let psi = ProcessStartInfo "dotnet"
+        psi.WorkingDirectory <- pwd
+        psi.Arguments <- $"msbuild %s{args}"
+        psi.RedirectStandardOutput <- true
+        psi.UseShellExecute <- false
+        use ps = new Process()
+        ps.StartInfo <- psi
+        ps.Start() |> ignore
+        let output = ps.StandardOutput.ReadToEnd()
+        ps.WaitForExit()
+        output.Trim()
 
 module Crack =
 
@@ -337,14 +354,26 @@ module Crack =
             Ok(targetFrameworks, projOptions2)
         | Error err -> GetProjectOptionsErrors(string err, msgs) |> Result.Error
 
-    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo =
-
+    let private ensureProjectWasRestored (file: string) =
         let projDir = Path.GetDirectoryName(file)
-
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
 
-        if not (File.Exists(projectAssetsJsonPath)) then
-            failwithf "project '%s' not restored" file
+        if File.Exists projectAssetsJsonPath then
+            ()
+        else
+            // In dotnet 8 <UseArtifactsOutput> was introduced, see https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output
+            // We will try and use CLI-based project evaluation to determine the location of project.assets.json file
+            // See https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8#cli-based-project-evaluation
+            try
+                let path = DotNetCli.msbuild projDir "--getProperty:ProjectAssetsFile"
+
+                if not (File.Exists path) then
+                    failwithf $"project '%s{file}' not restored"
+            with ex ->
+                failwithf $"Failed to detect if the project '%s{file}' was restored"
+
+    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo =
+        ensureProjectWasRestored file
 
         let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
         //printfn "msgs = %A" msgs

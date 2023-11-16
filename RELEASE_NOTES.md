@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-011 - 2023-11-16
+
+### Fixed
+* Take `<UseArtifactsOutput>` into account during the project restore check.
+
 ## 20.0.0-alpha-010 - 2023-11-15
 
 ### Fixed
