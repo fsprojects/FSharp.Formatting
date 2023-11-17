@@ -86,6 +86,7 @@
     --dialog-background-color: var(--header-background);
     --dialog-icon-color: var(--text-color);
     --dialog-link-color: var(--link-color);
+    --code-fence-border-color: transparent;
 
     --header-brand-text-transform: none;
 
@@ -714,6 +715,10 @@ code, table.pre, pre {
     color: var(--code-color);
     font-family: var(--monospace-font);
     font-variant-ligatures: none;
+}
+
+table.pre, #content > pre.fssnip {
+    border: 1px solid var(--code-fence-border-color);
 }
 
 table.pre, pre.fssnip.highlighted {
