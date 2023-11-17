@@ -59,6 +59,7 @@
     --header-border: #e8ecf1;
     --mobile-menu-background: var(--header-background);
     --menu-item-hover-background: #eff0f1;
+    --menu-item-hover-color: var(--menu-color);
     --doc-tip-background: #F7F7F7;
     --link-color: #4871f7;
     --link-hover: #91aafa;
@@ -74,6 +75,14 @@
     --fsdocs-theme-toggle-light-color: var(--text-color);
     --fsdocs-theme-toggle-dark-color: #FFF;
     --header-link-color: var(--text-color);
+    --blockquote-bacground-color: var(--header-background);
+    --blockquote-color: var(--text-color);
+    --on-this-page-color: var(--text-color);
+    --page-menu-background-color: var(--header-background);
+    --page-menu-background-border-color: var(--header-border);
+    --page-menu-background-hover-border-color: var(--text-color);
+    --nav-item-border-color: var(--header-border);
+    --nav-item-active-border-color: var(--text-color);
 
     --header-brand-text-transform: none;
 
@@ -225,6 +234,7 @@ header {
                 width: calc(var(--spacing-500) - 4px);
                 height: calc(var(--spacing-500) - 4px);
                 position: absolute;
+                color: var(--header-link-color);
 
                 &.open {
                     display: none;
@@ -338,17 +348,17 @@ main {
 #fsdocs-page-menu {
     display: none;
     padding: var(--spacing-300);
-    background-color: var(--header-background);
-    border-left: 1px solid var(--header-border);
+    background-color: var(--page-menu-background-color);
+    border-left: 1px solid var(--page-menu-background-border-color);
 
     &:has(.empty) {
         display: none;
     }
 
-    > p {
+    > #on-this-page {
         font-size: var(--font-100);
         line-height: 1.5;
-        color: var(--text-color);
+        color: var(--on-this-page-color);
         font-weight: 500;
         margin: 0 0 var(--spacing-50);
     }
@@ -363,11 +373,11 @@ main {
             margin: 0;
 
             &:hover, &:focus {
-                border-color: var(--text-color);
+                border-color: var(--page-menu-background-hover-border-color);
             }
 
             & a {
-                color: var(--text-color);
+                color: var(--menu-color);
                 text-decoration: none;
                 padding: var(--spacing-50) var(--spacing-100);
                 display: block;
@@ -409,7 +419,7 @@ main {
 }
 
 .nav-item {
-    border-left: 1px solid var(--header-border);
+    border-left: 1px solid var(--nav-item-border-color);
 
     & a {
         color: var(--menu-color);
@@ -422,11 +432,12 @@ main {
 
         &:hover {
             background-color: var(--menu-item-hover-background);
+            color: var(--menu-item-hover-color);
         }
     }
 
     &:hover, &.active {
-        border-color: var(--text-color);
+        border-color: var(--nav-item-active-border-color);
     }
 
     &.active {
@@ -478,7 +489,7 @@ main {
         display: block;
         padding: var(--spacing-300) var(--spacing-500);
         background-color: var(--aside-background);
-        width: var(--page-menu-width);
+        width: var(--main-menu-width);
         border-right: 1px solid var(--header-border);
         grid-row: var(--main-menu-grid-row);
         grid-column: var(--main-menu-grid-column);
@@ -672,7 +683,8 @@ blockquote {
     margin: var(--spacing-200) 0;
     margin-left: var(--spacing-200);
     padding: var(--spacing-100) var(--spacing-300);
-    background-color: var(--header-background);
+    background-color: var(--blockquote-bacground-color);
+    color: var(--blockquote-color);
 
     > p {
         margin: 0;
