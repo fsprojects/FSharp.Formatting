@@ -1,7 +1,7 @@
 ---
 category: Documentation
 categoryindex: 1
-index: 7
+index: 8
 ---
 
 # Customization and Styling
