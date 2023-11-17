@@ -83,6 +83,9 @@
     --page-menu-background-hover-border-color: var(--text-color);
     --nav-item-border-color: var(--header-border);
     --nav-item-active-border-color: var(--text-color);
+    --dialog-background-color: var(--header-background);
+    --dialog-icon-color: var(--text-color);
+    --dialog-link-color: var(--link-color);
 
     --header-brand-text-transform: none;
 
@@ -1100,26 +1103,6 @@ span[onmouseout] {
     }
 }
 
-.fsdocs-source-link {
-    display: none;
-    padding: 0 var(--spacing-100);
-    color: var(--text-color);
-    cursor: pointer;
-    height: var(--font-500);
-    width: var(--font-500);
-    margin: 0 var(--spacing-50);
-
-    &:hover {
-        color: var(--primary);
-    }
-}
-
-@media screen and (min-width: 768px) {
-    .fsdocs-source-link {
-        display: block;
-    }
-}
-
 /* Search */
 ::backdrop {
     background-color: #020202;
@@ -1127,7 +1110,7 @@ span[onmouseout] {
 }
 
 dialog {
-    background-color: var(--header-background);
+    background-color: var(--dialog-background-color);
     margin: var(--spacing-700) auto;
     padding: var(--spacing-100);
     border: none;
@@ -1185,9 +1168,10 @@ dialog {
                 display: flex;
                 padding: var(--spacing-300);
                 overflow-x: hidden;
+                color: var(--dialog-link-color);
 
                 & iconify-icon {
-                    color: var(--text-color);
+                    color: var(--dialog-icon-color);
                     width: 24px;
                     margin-right: var(--spacing-200);
                 }
