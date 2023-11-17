@@ -2,6 +2,7 @@ namespace FSharp.Formatting.Literate
 
 open System.IO
 open System.Text.Json
+open FSharp.Formatting.Templating
 
 module internal ParsePynb =
 
@@ -21,17 +22,15 @@ module internal ParsePynb =
                 match code.outputs with
                 | None -> codeBlock
                 | Some outputs ->
-                    let outputsString = outputs |> String.concat "\n\n"
-                    sprintf $"{codeBlock}\n\n{outputsString}\n\n"
+                    let outputsString = outputs |> String.concat "\n"
+                    sprintf $"{codeBlock}\n{outputsString}"
 
     module Output =
         let (|TextHtml|_|) (x: JsonElement) =
             match x.TryGetProperty("text/html") with
             | true, html ->
-                html.EnumerateArray()
-                |> Seq.map (fun x -> x.GetString())
-                |> String.concat ""
-                |> Some
+                let html = html.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat "\n"
+                Some("""<p>""" + html + """</p>""")
             | _ -> None
 
         let (|TextPlain|_|) (x: JsonElement) =
@@ -40,9 +39,9 @@ module internal ParsePynb =
                 let text = text.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat ""
 
                 Some(
-                    """<table class="pre"><tr><td><pre><code>"""
+                    """<table class="pre"><tbody><tr><td><pre><code>"""
                     + text
-                    + """</code></pre></td></tr></table>"""
+                    + """</code></pre></td></tr></tbody></table>"""
                 )
             | _ -> None
 
@@ -64,9 +63,9 @@ module internal ParsePynb =
                     |> String.concat ""
 
                 Some(
-                    """<table class="pre"><tr><td><pre><code>"""
+                    """<table class="pre"><tbody><tr><td><pre><code>"""
                     + text
-                    + """</code></pre></td></tr></table>"""
+                    + """</code></pre></td></tr></tbody></table>"""
                 )
             else
                 None
@@ -143,6 +142,20 @@ module internal ParsePynb =
 
         json.RootElement.GetProperty("cells").EnumerateArray()
         |> Seq.map (parseCell >> (fun x -> x.ToMarkdown()))
-        |> String.concat ""
+        |> String.concat "\n\n"
 
-    let pynbToMarkdown ipynbFile = ipynbFile |> File.ReadAllText |> pynbStringToMarkdown
+    let pynbToMarkdown ipynbFile =
+        ipynbFile |> File.ReadAllText |> pynbStringToMarkdown
+
+    let parseFrontMatter ipynbFile =
+        let json = JsonDocument.Parse(ipynbFile |> File.ReadAllText)
+
+        json.RootElement.GetProperty("cells").EnumerateArray()
+        |> Seq.map parseCell
+        |> Seq.choose (fun cell ->
+            match cell with
+            | Code _ -> None
+            | Markdown source ->
+                let lines = source.Split([| '\n'; '\r' |], System.StringSplitOptions.RemoveEmptyEntries)
+                FrontMatterFile.ParseFromLines ipynbFile lines)
+        |> Seq.tryHead

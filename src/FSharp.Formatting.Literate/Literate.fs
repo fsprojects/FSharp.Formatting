@@ -513,6 +513,61 @@ type Literate private () =
         let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
         docModel
 
+    /// Parse and transform a pynb document
+    static member internal ParseAndTransformPynbFile
+        (
+            input,
+            output,
+            outputKind,
+            prefix,
+            fscOptions,
+            lineNumbers,
+            references,
+            substitutions,
+            generateAnchors,
+            imageSaver,
+            rootInputFolder,
+            crefResolver,
+            mdlinkResolver,
+            parseOptions,
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
+        ) =
+
+        let parseOptions =
+            match outputKind with
+            | OutputKind.Markdown
+            | OutputKind.Fsx
+            | OutputKind.Pynb -> parseOptions ||| MarkdownParseOptions.ParseCodeAsOther
+            //||| MarkdownParseOptions.ParseNonCodeAsOther
+            | _ -> parseOptions
+
+        let md = ParsePynb.pynbToMarkdown input
+        let doc =
+            Literate.ParseMarkdownString(
+                md,
+                ?fscOptions = fscOptions,
+                ?references = references,
+                parseOptions = parseOptions,
+                ?rootInputFolder = rootInputFolder,
+                ?onError = onError
+            )
+
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                crefResolver
+                mdlinkResolver
+                None
+
+        let doc = downloadImagesForDoc imageSaver doc
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
+        docModel
+
     /// Convert a markdown file into HTML or another output kind
     static member ConvertMarkdownFile
         (

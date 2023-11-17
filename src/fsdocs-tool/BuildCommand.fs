@@ -74,10 +74,11 @@ type internal DocContent
         let inputFileName = Path.GetFileName(inputFileFullPath)
         let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
         let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+        let isPynb = inputFileFullPath.EndsWith(".ipynb", true, CultureInfo.InvariantCulture)
         let ext = outputKind.Extension
 
         let outputFileRelativeToRoot =
-            if isFsx || isMd then
+            if isFsx || isMd || isPynb then
                 let basename = Path.GetFileNameWithoutExtension(inputFileFullPath)
 
                 Path.Combine(outputFolderRelativeToRoot, sprintf "%s.%s" basename ext)
@@ -188,6 +189,8 @@ type internal DocContent
               let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
 
               let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+
+              let isPynb = inputFileFullPath.EndsWith(".ipynb", true, CultureInfo.InvariantCulture)
 
               // A _template.tex or _template.pynb is needed to generate those files
               match outputKind, template with
@@ -344,7 +347,43 @@ type internal DocContent
                                        template,
                                        outputFileFullPath
                                    )))
+                      elif isPynb then
+                          printfn " preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                          let model =
+                              Literate.ParseAndTransformPynbFile(
+                                  inputFileFullPath,
+                                  output = outputFileRelativeToRoot,
+                                  outputKind = outputKind,
+                                  prefix = None,
+                                  fscOptions = None,
+                                  lineNumbers = lineNumbers,
+                                  references = Some false,
+                                  substitutions = substitutions,
+                                  generateAnchors = Some true,
+                                  imageSaver = imageSaverOpt,
+                                  rootInputFolder = rootInputFolder,
+                                  crefResolver = crefResolver,
+                                  mdlinkResolver = mdlinkResolver,
+                                  parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
+                              )
 
+                          yield
+                              ((if mainRun then
+                                    Some(inputFileFullPath, isOtherLang, model)
+                                else
+                                    None),
+                               (fun p ->
+                                   printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+
+                                   SimpleTemplating.UseFileAsSimpleTemplate(
+                                       p @ model.Substitutions,
+                                       template,
+                                       outputFileFullPath
+                                   )))
+                        
                       else if mainRun then
                           yield
                               (None,
@@ -558,6 +597,8 @@ type internal DocContent
                     ParseScript.ParseFrontMatter(fileName)
                 elif ext = ".md" then
                     File.ReadLines fileName |> FrontMatterFile.ParseFromLines fileName
+                elif ext = ".ipynb" then
+                    ParsePynb.parseFrontMatter fileName
                 else
                     None)
             |> Seq.sortBy (fun { Index = idx; CategoryIndex = cIdx } -> cIdx, idx)
