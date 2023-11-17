@@ -13,6 +13,12 @@
       "commands": [
         "fsharp-analyzers"
       ]
+    },
+    "dotnet-repl": {
+      "version": "0.1.208",
+      "commands": [
+        "dotnet-repl"
+      ]
     }
   }
 }

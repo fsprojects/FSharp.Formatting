@@ -348,7 +348,23 @@ type internal DocContent
                                        outputFileFullPath
                                    )))
                       elif isPynb then
-                          printfn " preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                          printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+
+                          let evaluateNotebook ipynbFile =
+                            let psi = 
+                                ProcessStartInfo(fileName = "dotnet",
+                                                 arguments = $"repl --run {ipynbFile} --default-kernel fsharp --exit-after-run --output-path {ipynbFile}",
+                                                 UseShellExecute = false,
+                                                 CreateNoWindow = true)
+
+                            let p = Process.Start(psi)
+                            p.WaitForExit()
+
+                          if evaluate then
+                            printfn $"  evaluating {inputFileFullPath} with dotnet-repl"
+                            evaluateNotebook inputFileFullPath
+
+
                           let model =
                               Literate.ParseAndTransformPynbFile(
                                   inputFileFullPath,
