@@ -1435,7 +1435,8 @@ let goodbye = 2
 
 [<Test>]
 let ``md --> pynb --> md comes back the same`` () =
-    let mdIn = """Heading
+    let mdIn =
+        """Heading
 =======
 
 |  Col1 | Col2 |
@@ -1453,13 +1454,17 @@ let add a b = a + b
 ```python
 ```
 """
-    let mdOut = 
-        Literate.ParseMarkdownString(mdIn, 
-                                     parseOptions = 
-                                        (MarkdownParseOptions.ParseCodeAsOther
-                                         ||| MarkdownParseOptions.ParseNonCodeAsOther))
-        |> Literate.ToPynb 
+
+    let mdOut =
+        Literate.ParseMarkdownString(
+            mdIn,
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
+        )
+        |> Literate.ToPynb
         |> ParsePynb.pynbStringToMarkdown
+
     mdOut |> shouldEqual mdIn
 
 [<Test>]
