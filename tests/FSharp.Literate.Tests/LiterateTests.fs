@@ -1433,6 +1433,34 @@ let goodbye = 2
 
     pynb2 |> shouldEqual expected2
 
+[<Test>]
+let ``md --> pynb --> md comes back the same`` () =
+    let mdIn = """Heading
+=======
+
+|  Col1 | Col2 |
+|:----:|------|
+|  Table with heading cell A1   | Table with heading cell B1    |
+|  Table with heading cell A2   | Table with heading cell B2    |
+
+```fsharp
+let add a b = a + b
+```
+
+```csharp
+```
+
+```python
+```
+"""
+    let mdOut = 
+        Literate.ParseMarkdownString(mdIn, 
+                                     parseOptions = 
+                                        (MarkdownParseOptions.ParseCodeAsOther
+                                         ||| MarkdownParseOptions.ParseNonCodeAsOther))
+        |> Literate.ToPynb 
+        |> ParsePynb.pynbStringToMarkdown
+    mdOut |> shouldEqual mdIn
 
 [<Test>]
 let ``Script output is exactly right`` () =

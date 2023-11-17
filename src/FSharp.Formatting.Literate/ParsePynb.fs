@@ -138,9 +138,11 @@ module internal ParsePynb =
         | "code" -> getCode cell
         | _ -> failwith $"unknown cell type {cell_type}"
 
-    let ipynbToMarkdown ipynbFile =
-        let json = JsonDocument.Parse(File.ReadAllText(ipynbFile))
+    let pynbStringToMarkdown (ipynb: string) =
+        let json = JsonDocument.Parse(ipynb)
 
         json.RootElement.GetProperty("cells").EnumerateArray()
         |> Seq.map (parseCell >> (fun x -> x.ToMarkdown()))
-        |> String.concat "\n\n"
+        |> String.concat ""
+
+    let pynbToMarkdown ipynbFile = ipynbFile |> File.ReadAllText |> pynbStringToMarkdown
