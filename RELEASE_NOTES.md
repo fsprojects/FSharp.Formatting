@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-012 - 2023-11-17
+
+### Added
+* Add more options to customize colors.
+
 ## 20.0.0-alpha-011 - 2023-11-16
 
 ### Fixed
