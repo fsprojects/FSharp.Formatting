@@ -1579,11 +1579,13 @@ type CoreBuildOptions(watch) =
         //   to .nuget\packages\fsdocs-tool\7.1.7\templates
         let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
 
-        let defaultTemplateAttempt1 =
-            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.html"))
+        // get template locations for in-package and in-repo and decide which to use later
+        let inPackageLocations = Common.InPackageLocations(Path.Combine(dir, "..", "..", ".."))
+        let inRepoLocations = Common.InRepoLocations(Path.Combine(dir, "..", "..", "..", "..", ".."))
+
+        let defaultTemplateAttempt1 = inPackageLocations.template_html
         // This is in-repo only
-        let defaultTemplateAttempt2 =
-            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.html"))
+        let defaultTemplateAttempt2 = inRepoLocations.template_html
 
         let defaultTemplate =
             if this.nodefaultcontent then
@@ -1610,7 +1612,7 @@ type CoreBuildOptions(watch) =
                   // The "extras" content goes in "."
                   //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
                   //   to .nuget\packages\fsdocs-tool\7.1.7\extras
-                  let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
+                  let attempt1 = inPackageLocations.extras
 
                   if
                       (try
@@ -1624,8 +1626,7 @@ type CoreBuildOptions(watch) =
                       // This is for in-repo use only, assuming we are executing directly from
                       //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
                       //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
-                      let attempt2 =
-                          Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
+                      let attempt2 = inRepoLocations.docs_content
 
                       if
                           (try
