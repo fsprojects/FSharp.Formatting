@@ -1,9 +1,9 @@
 (**
 # Literate script example
 
-- A multi-line comment starting with (** and ending with *) is turned into text and is processed using the F# Markdown processor (which supports standard Markdown commands).
+- A multi-line comment starting with (`**` and ending with `*`) is turned into text and is processed using the F# Markdown processor (which supports standard Markdown commands).
 
-- A single-line comment starting with (*** and ending with ***) is treated as a special command. The command can consist of key, key: value or key=value pairs.
+- A single-line comment starting with (`***` and ending with `***`) is treated as a special command. The command can consist of key, key: value or key=value pairs.
 
 The rest is just plain F# code goodness:
 *)
