@@ -1583,27 +1583,13 @@ type CoreBuildOptions(watch) =
         let inPackageLocations = Common.InPackageLocations(Path.Combine(dir, "..", "..", ".."))
         let inRepoLocations = Common.InRepoLocations(Path.Combine(dir, "..", "..", "..", "..", ".."))
 
-        let defaultTemplateAttempt1 = inPackageLocations.template_html
-        // This is in-repo only
-        let defaultTemplateAttempt2 = inRepoLocations.template_html
-
         let defaultTemplate =
             if this.nodefaultcontent then
                 None
-            else if
-                (try
-                    File.Exists(defaultTemplateAttempt1)
-                 with _ ->
-                     false)
-            then
-                Some defaultTemplateAttempt1
-            elif
-                (try
-                    File.Exists(defaultTemplateAttempt2)
-                 with _ ->
-                     false)
-            then
-                Some defaultTemplateAttempt2
+            else if inPackageLocations.Exist() then
+                Some inPackageLocations.template_html
+            elif inRepoLocations.Exist() then
+                Some inRepoLocations.template_html
             else
                 None
 
@@ -1612,32 +1598,22 @@ type CoreBuildOptions(watch) =
                   // The "extras" content goes in "."
                   //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
                   //   to .nuget\packages\fsdocs-tool\7.1.7\extras
-                  let attempt1 = inPackageLocations.extras
-
-                  if
-                      (try
-                          Directory.Exists(attempt1)
-                       with _ ->
-                           false)
-                  then
-                      printfn "using extra content from %s" attempt1
-                      (attempt1, ".")
-                  else
+                  if inPackageLocations.Exist() then
+                      printfn "using extra content from %s" inPackageLocations.extras
+                      (inPackageLocations.extras, ".")
+                  else if
                       // This is for in-repo use only, assuming we are executing directly from
                       //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
                       //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
-                      let attempt2 = inRepoLocations.docs_content
-
-                      if
-                          (try
-                              Directory.Exists(attempt2)
-                           with _ ->
-                               false)
-                      then
-                          printfn "using extra content from %s" attempt2
-                          (attempt2, "content")
-                      else
-                          printfn "no extra content found at %s or %s" attempt1 attempt2 ]
+                      inRepoLocations.Exist()
+                  then
+                      printfn "using extra content from %s" inRepoLocations.docs_content
+                      (inRepoLocations.docs_content, "content")
+                  else
+                      printfn
+                          "no extra content found at %s or %s"
+                          inPackageLocations.extras
+                          inRepoLocations.docs_content ]
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocModel = None
@@ -1695,12 +1671,12 @@ type CoreBuildOptions(watch) =
                                     templateFiles
                                     d
 
-                                OutputKind.Html, Some d
-                            | None ->
-                                printfn
-                                    "note, no template file '%s' found, and no default template at '%s'"
-                                    templateFiles
-                                    defaultTemplateAttempt1
+                                    OutputKind.Html, Some d
+                                | None ->
+                                    printfn
+                                        "note, no template file '%s' found, and no default template at '%s'"
+                                        templateFiles
+                                        inRepoLocations.template_html
 
                                 OutputKind.Html, None
 
