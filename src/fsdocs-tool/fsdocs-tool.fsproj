@@ -28,6 +28,9 @@
     <Content Include="..\..\docs\_template.html" PackagePath="templates" />
     <Content Include="..\..\docs\_template.tex" PackagePath="templates" />
     <Content Include="..\..\docs\_template.ipynb" PackagePath="templates" />
+    <Content Include="..\..\docs\templates\init\.index_md_template.md" PackagePath="templates" />
+    <Content Include="..\..\docs\templates\init\.index_md_template.md" PackagePath="templates" />
+    <Content Include="..\..\docs\templates\init\.logo.png" PackagePath="templates" />
     <Content Include="..\..\docs\Dockerfile" PackagePath="extras" />
     <Content Include="..\..\docs\NuGet.config" PackagePath="extras" />
     <Content Include="..\..\docs\content\*" PackagePath="extras\content" />
