@@ -3,6 +3,7 @@ namespace FSharp.Formatting.Literate
 open System.IO
 open System.Text.Json
 open FSharp.Formatting.Templating
+open FSharp.Formatting.PynbModel
 
 module internal ParsePynb =
 
@@ -17,7 +18,7 @@ module internal ParsePynb =
             match this with
             | Markdown source -> source
             | Code code ->
-                let codeBlock = sprintf $"```{code.lang}\n{code.source}\n```"
+                let codeBlock = sprintf $"```{code.lang}\n{addLineEnd code.source}```"
 
                 match code.outputs with
                 | None -> codeBlock
@@ -142,7 +143,7 @@ module internal ParsePynb =
 
         json.RootElement.GetProperty("cells").EnumerateArray()
         |> Seq.map (parseCell >> (fun x -> x.ToMarkdown()))
-        |> String.concat "\n\n"
+        |> String.concat "\n"
 
     let pynbToMarkdown ipynbFile =
         ipynbFile |> File.ReadAllText |> pynbStringToMarkdown

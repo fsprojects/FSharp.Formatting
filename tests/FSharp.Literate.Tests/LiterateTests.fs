@@ -1465,7 +1465,7 @@ let add a b = a + b
         |> Literate.ToPynb
         |> ParsePynb.pynbStringToMarkdown
 
-    mdOut |> shouldEqual mdIn
+    (mdOut.Trim()) |> shouldEqual (mdIn.Trim())
 
 [<Test>]
 let ``Script output is exactly right`` () =
