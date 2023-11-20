@@ -5,6 +5,10 @@ on:
     branches:
     - main
 
+permissions:
+  id-token: write
+  security-events: write
+
 jobs:
   build:
 
@@ -20,3 +24,14 @@ jobs:
       uses: actions/setup-dotnet@v3
     - name: Run CI
       run: dotnet fsi build.fsx
+  
+    - name: Analyze Solution
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet msbuild /t:AnalyzeSolution
+      continue-on-error: true
+
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      if: matrix.os == 'ubuntu-latest'
+      with:
+        sarif_file: ./reports
