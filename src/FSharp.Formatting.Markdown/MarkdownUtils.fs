@@ -302,7 +302,7 @@ module internal MarkdownUtils =
             | OutputBlock(output, kind, count) -> OutputBlock(output, kind, count)
             | ListBlock(kind, items, range) -> ListBlock(kind, List.map (mapParagraphs f) items, range)
             | QuotedBlock(paragraphs, range) -> QuotedBlock(mapParagraphs f paragraphs, range)
-            | Span(spans, range) -> Span(mapSpans f spans, range)
+            | Span(spans, range) -> MarkdownParagraph.Span(mapSpans f spans, range)
             | LatexBlock(env, body, range) -> LatexBlock(env, List.map (mapText f) body, range)
             | HorizontalRule(character, range) -> HorizontalRule(character, range)
             | YamlFrontmatter(lines, range) -> YamlFrontmatter(List.map (mapText f) lines, range)
