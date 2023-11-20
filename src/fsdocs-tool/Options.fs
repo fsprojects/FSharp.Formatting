@@ -20,7 +20,7 @@ module Common =
 
     let evalPairwiseStrings (a: string array) =
         match Array.tryExactlyOne a with
-        | Some "" -> None
+        | Some v when System.String.IsNullOrWhiteSpace v -> None
         | _ -> a |> pairs |> List.ofSeq |> Some
 
     let evalPairwiseStringsNoOption (a: string array) =

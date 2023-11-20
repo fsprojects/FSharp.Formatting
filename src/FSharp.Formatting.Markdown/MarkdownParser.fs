@@ -271,7 +271,7 @@ let (|AutoLink|_|) input =
         | List.StartsWith prefix (List.AsString link) -> Some(link, [])
         | _ -> None
 
-    [ "http://"; "https://" ] |> Seq.tryPick linkFor
+    [ "http://"; "https://" ] |> List.tryPick linkFor
 
 /// Recognizes some form of emphasis using `**bold**` or `*italic*`
 /// (both can be also marked using underscore).
@@ -529,9 +529,9 @@ let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
 let rec trimSpaces numSpaces (s: string) =
     if numSpaces <= 0 then
         s
-    elif s.StartsWith(" ") then
+    elif s.StartsWith ' ' then
         trimSpaces (numSpaces - 1) (s.Substring(1))
-    elif s.StartsWith("\t") then
+    elif s.StartsWith '\t' then
         trimSpaces (numSpaces - 4) (s.Substring(1))
     else
         s
@@ -553,7 +553,7 @@ let (|Heading|_|) lines =
         let header =
             // Drop "##" at the end, but only when it is preceded by some whitespace
             // (For example "## Hello F#" should be "Hello F#")
-            if header.EndsWith "#" then
+            if header.EndsWith '#' then
                 let noHash = header.TrimEnd [| '#' |]
 
                 if noHash.Length > 0 && Char.IsWhiteSpace(noHash.Chars(noHash.Length - 1)) then
@@ -658,10 +658,11 @@ let (|FencedCodeBlock|_|) lines =
                 else
                     let splits = header.Split((null: char array), StringSplitOptions.RemoveEmptyEntries)
 
-                    match splits |> Seq.tryFind (fun _ -> true) with
+                    match splits |> Array.tryFind (fun _ -> true) with
                     | None -> "", ""
                     | Some langString ->
-                        let ignoredString = header.Substring(header.IndexOf(langString) + langString.Length)
+                        let ignoredString =
+                            header.Substring(header.IndexOf(langString, StringComparison.Ordinal) + langString.Length)
 
                         langString,
                         (if String.IsNullOrWhiteSpace ignoredString then
@@ -673,7 +674,7 @@ let (|FencedCodeBlock|_|) lines =
             let takenLines2, codeWithoutIndent, rest =
                 match rest with
                 | ((hd, n) as takenLine2) :: tl ->
-                    let idx = hd.IndexOf(fenceString)
+                    let idx = hd.IndexOf(fenceString, StringComparison.Ordinal)
 
                     if idx > -1 && idx + fenceString.Length <= hd.Length then
                         let _pre = hd.Substring(0, idx)
@@ -942,7 +943,7 @@ let (|PipeTableBlock|_|) input =
 /// Passed function is used to check whether all parts within grid are valid.
 /// Retuns tuple (position of grid columns, text between grid columns).
 let (|EmacsTableLine|_|)
-    (grid: option<int[]>)
+    (grid: option<int array>)
     (c: char)
     (check: string * MarkdownRange -> bool)
     (line: string, _n: MarkdownRange)
@@ -1067,7 +1068,7 @@ let (|TakeParagraphLines|_|) input =
 /// TODO: This is too simple - takes paragraph that starts with <
 let (|HtmlBlock|_|) (lines: (string * MarkdownRange) list) =
     match lines with
-    | (first, _n) :: _ when first.StartsWith("<") ->
+    | (first, _n) :: _ when first.StartsWith('<') ->
         match lines with
         | TakeParagraphLines(html, rest) -> Some(html, html, rest)
         | _ -> None
@@ -1128,8 +1129,8 @@ let (|LatexBlock|_|) (lines: (string * MarkdownRange) list) =
             Some("equation", body, ((@"\begin{equation}", n) :: body @ [ (@"\end{equation}", n) ]), rest)
         | _ -> None
     | ((first, n) as takenLine) :: rest when
-        first.TrimEnd().StartsWith("$$")
-        && first.TrimEnd().EndsWith("$$")
+        first.TrimEnd().StartsWith("$$", StringComparison.Ordinal)
+        && first.TrimEnd().EndsWith("$$", StringComparison.Ordinal)
         && first.TrimEnd().Length >= 4
         ->
         let text = first.TrimEnd()
@@ -1323,7 +1324,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                     =
                     let containsNonSimple =
                         tree
-                        |> Seq.exists (function
+                        |> List.exists (function
                             | Node((false, _, _), _) -> true
                             | _ -> false)
 
@@ -1351,9 +1352,9 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
         | HtmlBlock(code, takenLines, Lines.TrimBlankStart(takenLines2, lines)) when
             (let all = String.concat ctx.Newline (code |> List.map fst)
 
-             not (all.StartsWith("<http://"))
-             && not (all.StartsWith("<ftp://"))
-             && not (all.Contains("@")))
+             not (all.StartsWith("<http://", StringComparison.Ordinal))
+             && not (all.StartsWith("<ftp://", StringComparison.Ordinal))
+             && not (all.Contains '@'))
             ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)

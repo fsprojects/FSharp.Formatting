@@ -46,7 +46,7 @@ type Literate private () =
     /// ignoring newlines or spaces in the key.
     static let (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
         [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-        |> Seq.tryPick (fun key ->
+        |> List.tryPick (fun key ->
             match dict.TryGetValue(key) with
             | true, v -> Some v
             | _ -> None)

@@ -4,6 +4,7 @@
 
 namespace rec FSharp.Formatting.Markdown
 
+open System
 open System.Collections.Generic
 open System.Linq
 open System.Xml.Linq
@@ -66,7 +67,7 @@ module internal MarkdownUtils =
     /// ignoring newlines or spaces in the key.
     let (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
         [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-        |> Seq.tryPick (fun key ->
+        |> List.tryPick (fun key ->
             match dict.TryGetValue(key) with
             | true, v -> Some v
             | _ -> None)
@@ -192,10 +193,7 @@ module internal MarkdownUtils =
                   |> String.concat " | "
 
               let replaceEmptyWith x s =
-                  match s with
-                  | ""
-                  | null -> x
-                  | s -> Some s
+                  if System.String.IsNullOrWhiteSpace s then x else Some s
 
               yield
                   [ for r in rows do
@@ -321,7 +319,10 @@ module internal MarkdownUtils =
                 try
                     let fText, _, fLink = f
 
-                    if code.StartsWith("<pre") || code.StartsWith("<table class=\"pre\"") then
+                    if
+                        code.StartsWith("<pre", StringComparison.Ordinal)
+                        || code.StartsWith("<table class=\"pre\"", StringComparison.Ordinal)
+                    then
                         // Skip check for non-user html
                         // Should be even run that code through `fText`?
                         InlineHtmlBlock(fText code, count, range)
@@ -340,7 +341,7 @@ module internal MarkdownUtils =
                             InlineHtmlBlock(fText code, count, range)
                         else
                             for attribute in attributes do
-                                if attribute.Value.EndsWith(".md") then
+                                if attribute.Value.EndsWith(".md", StringComparison.Ordinal) then
                                     attribute.SetValue(fLink attribute.Value)
 
                             let html = element.Elements() |> Seq.map string |> String.concat "" |> fText

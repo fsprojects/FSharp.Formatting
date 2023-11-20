@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open System.IO
 open System.Text.RegularExpressions
 open FSharp.Formatting.Literate
@@ -125,7 +126,7 @@ module internal Formatting =
                 |> List.tryPick (fun line ->
                     let line = line.Trim()
 
-                    if line.StartsWith(key + ":") then
+                    if line.StartsWith(key + ":", StringComparison.Ordinal) then
                         let line = line.[(key + ":").Length ..]
                         let line = line.Trim()
                         Some line

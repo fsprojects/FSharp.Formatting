@@ -6,7 +6,6 @@
 namespace FSharp.Formatting.CodeFormat
 
 open System
-open System.Diagnostics
 
 /// <summary>
 ///  Represents an individual formatted snippet with title as key
@@ -28,7 +27,7 @@ type FormattedSnippet(key: string, content: string) =
 
 
 /// Represents formatted snippets
-type FormattedContent(snippets: FormattedSnippet[], tips: string) =
+type FormattedContent(snippets: FormattedSnippet array, tips: string) =
     /// Returns the processed snippets as an array
     member x.Snippets = snippets
 

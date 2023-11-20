@@ -23,7 +23,7 @@ module String =
 
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(text.Substring(start.Length))
         else
             None
@@ -31,7 +31,7 @@ module String =
     /// Matches when a string starts with the specified sub-string
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithTrim|_|) (start: string) (text: string) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(text.Substring(start.Length).Trim())
         else
             None
@@ -40,8 +40,8 @@ module String =
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string) =
         if
-            s.StartsWith(starts)
-            && s.EndsWith(ends)
+            s.StartsWith(starts, StringComparison.Ordinal)
+            && s.EndsWith(ends, StringComparison.Ordinal)
             && s.Length >= starts.Length + ends.Length
         then
             Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
@@ -60,8 +60,8 @@ module String =
     /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
     /// text together with the rest.
     let (|StartsWithWrapped|_|) (starts: string, ends: string) (text: string) =
-        if text.StartsWith(starts) then
-            let id = text.IndexOf(ends, starts.Length)
+        if text.StartsWith(starts, StringComparison.Ordinal) then
+            let id = text.IndexOf(ends, starts.Length, StringComparison.Ordinal)
 
             if id >= 0 then
                 let wrapped = text.Substring(starts.Length, id - starts.Length)
@@ -79,7 +79,7 @@ module String =
         let rec tryEol eolList =
             match eolList with
             | h: string :: t ->
-                match text.IndexOf(h) with
+                match text.IndexOf(h, StringComparison.Ordinal) with
                 | i when i < 0 -> tryEol t
                 | i -> text.Substring(i + h.Length)
             | _ -> text
@@ -174,15 +174,15 @@ module StringPosition =
              StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Matches when a string starts with any of the specified sub-strings
-    let (|StartsWithAny|_|) (starts: seq<string>) (text: string, _n: MarkdownRange) =
-        if starts |> Seq.exists (text.StartsWith) then
+    let (|StartsWithAny|_|) (starts: string seq) (text: string, _n: MarkdownRange) =
+        if starts |> Seq.exists (fun s -> text.StartsWith(s, StringComparison.Ordinal)) then
             Some()
         else
             None
 
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string, n: MarkdownRange) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(
                 text.Substring(start.Length),
                 { n with
@@ -194,7 +194,7 @@ module StringPosition =
     /// Matches when a string starts with the specified sub-string
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithTrim|_|) (start: string) (text: string, n: MarkdownRange) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(
                 text.Substring(start.Length).Trim(),
                 { n with
@@ -207,7 +207,7 @@ module StringPosition =
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start: string) (text: string, _n: MarkdownRange) =
         if text.Contains(start) then
-            let beforeStart = text.Substring(0, text.IndexOf(start))
+            let beforeStart = text.Substring(0, text.IndexOf(start, StringComparison.Ordinal))
 
             if String.IsNullOrWhiteSpace(beforeStart) then
                 let startAndRest = text.Substring(beforeStart.Length)
@@ -232,8 +232,8 @@ module StringPosition =
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string, n: MarkdownRange) =
         if
-            s.StartsWith(starts)
-            && s.EndsWith(ends)
+            s.StartsWith(starts, StringComparison.Ordinal)
+            && s.EndsWith(ends, StringComparison.Ordinal)
             && s.Length >= starts.Length + ends.Length
         then
             Some(
@@ -276,8 +276,8 @@ module StringPosition =
     /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
     /// text together with the rest.
     let (|StartsWithWrapped|_|) (starts: string, ends: string) (text: string, n: MarkdownRange) =
-        if text.StartsWith(starts) then
-            let id = text.IndexOf(ends, starts.Length)
+        if text.StartsWith(starts, StringComparison.Ordinal) then
+            let id = text.IndexOf(ends, starts.Length, StringComparison.Ordinal)
 
             if id >= 0 then
                 let wrapped = text.Substring(starts.Length, id - starts.Length)
@@ -363,7 +363,8 @@ module Lines =
     let (|TakeStartingWithOrBlank|_|) (start: string) (input: string list) =
         match
             input
-            |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start))
+            |> List.partitionWhile (fun s ->
+                String.IsNullOrWhiteSpace s || s.StartsWith(start, StringComparison.Ordinal))
         with
         | matching, rest when matching <> [] -> Some(matching, rest)
         | _ -> None
@@ -405,7 +406,7 @@ module Lines =
         |> List.map (fun (StringPosition.TrimStart s) -> s)
         // Now remove all additional spaces at the end, but keep two spaces if existent
         |> List.map (fun (s, n) ->
-            let endsWithTwoSpaces = s.EndsWith("  ")
+            let endsWithTwoSpaces = s.EndsWith("  ", StringComparison.Ordinal)
 
             let trimmed = s.TrimEnd([| ' ' |]) + if endsWithTwoSpaces then "  " else ""
 

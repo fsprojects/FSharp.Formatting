@@ -58,7 +58,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               ] ]
 
     let removeParen (memberName: string) =
-        let firstParen = memberName.IndexOf("(")
+        let firstParen = memberName.IndexOf('(')
 
         if firstParen > 0 then
             memberName.Substring(0, firstParen)
@@ -81,7 +81,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
     // Copy XML sig for use in `cref` markdown
     let copyXmlSigIconMarkdown (xmlDocSig: string) =
-        if xmlDocSig.StartsWith("`") || xmlDocSig.EndsWith("`") then
+        if xmlDocSig.StartsWith('`') || xmlDocSig.EndsWith('`') then
             div [] []
         else
             let delim =

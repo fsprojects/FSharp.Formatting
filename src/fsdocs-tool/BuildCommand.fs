@@ -1469,7 +1469,7 @@ type CoreBuildOptions(watch) =
             |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
 
         let rootOutputFolderAsGiven =
-            if this.output = "" then
+            if String.IsNullOrWhiteSpace this.output then
                 if watch then "tmp/watch" else "output"
             else
                 this.output
@@ -1582,7 +1582,7 @@ type CoreBuildOptions(watch) =
                               OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
                               OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
-                        match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
+                        match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
                         | Some(kind, path) -> kind, Some path
                         | None ->
                             let templateFiles = templates |> Seq.map snd |> String.concat "', '"

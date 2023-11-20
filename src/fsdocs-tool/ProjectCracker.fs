@@ -168,10 +168,14 @@ module Crack =
             None
 
     let msbuildPropBool (s: string) =
-        match s.Trim() with
-        | "" -> None
-        | ConditionEquals "True" -> Some true
-        | _ -> Some false
+        let trimmed = s.Trim()
+
+        if String.IsNullOrWhiteSpace trimmed then
+            None
+        else
+            match trimmed with
+            | ConditionEquals "True" -> Some true
+            | _ -> Some false
 
     let runProcess (log: string -> unit) (workingDir: string) (exePath: string) (args: string) =
         let psi = System.Diagnostics.ProcessStartInfo()
@@ -201,7 +205,7 @@ module Crack =
 
         exitCode, (workingDir, exePath, args)
 
-    type private CrackErrors = GetProjectOptionsErrors of string * (string list)
+    type private CrackErrors = GetProjectOptionsErrors of error: string * messages: string list
 
     type CrackedProjectInfo =
         { ProjectFileName: string

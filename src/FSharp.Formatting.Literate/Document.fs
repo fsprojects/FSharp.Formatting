@@ -57,52 +57,52 @@ type LiterateCodeOptions =
 /// </summary>
 type LiterateParagraph =
     /// (*** include:foo ***) - Include formatted snippet from other part of the document here
-    | CodeReference of string * LiterateParagraphOptions
+    | CodeReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
     /// (*** include-fsi-output ***) - Include output from previous snippet
     /// (*** include-fsi-output:foo ***) - Include output from a named snippet
-    | FsiOutputReference of string * LiterateParagraphOptions
+    | FsiOutputReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
     /// (*** include-fsi-merged-output ***) - Include output from previous snippet
     /// (*** include-fsi-merged-output:foo ***) - Include output from a named snippet
-    | FsiMergedOutputReference of string * LiterateParagraphOptions
+    | FsiMergedOutputReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
     /// (*** include-fsi-output ***) - Include F# Interactive output from previous snippet
     /// (*** include-fsi-output:foo ***) - Include F# Interactive from a named snippet
-    | OutputReference of string * LiterateParagraphOptions
+    | OutputReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
     /// (*** include-it ***) - Include "it" value from the subsequent snippet here
     /// (*** include-it:foo ***) - Include "it" value from a named snippet
-    | ItValueReference of string * LiterateParagraphOptions
+    | ItValueReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
     /// (*** include-it-raw ***) - Include "it" value from the subsequent snippet here as raw text (Not formatted as fsi)
     /// (*** include-it-raw:foo ***) - Include "it" value from a named snippet as raw text (Not formatted as fsi)
-    | ItRawReference of string * LiterateParagraphOptions
+    | ItRawReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
     /// (*** include-value:foo ***) - Include the formatting of a specified value here
-    | ValueReference of string * LiterateParagraphOptions
+    | ValueReference of ref: string * paragraphOptions: LiterateParagraphOptions
 
-    /// Emebdded literate code snippet. Consists of source lines and options
-    | LiterateCode of Line list * LiterateCodeOptions * LiterateParagraphOptions
+    /// Embedded literate code snippet. Consists of source lines and options
+    | LiterateCode of lines: Line list * options: LiterateCodeOptions * paragraphOptions: LiterateParagraphOptions
 
     /// Ordinary formatted code snippet in non-F# language (tagged with language code)
-    | LanguageTaggedCode of string * string * LiterateParagraphOptions
+    | LanguageTaggedCode of language: string * code: string * paragraphOptions: LiterateParagraphOptions
 
     /// Block simply emitted without any formatting equivalent to <pre> tag in html
-    | RawBlock of Line list * LiterateParagraphOptions
+    | RawBlock of lines: Line list * paragraphOptions: LiterateParagraphOptions
 
     member x.ParagraphOptions =
         match x with
-        | CodeReference(_, popts) -> popts
-        | FsiMergedOutputReference(_, popts) -> popts
-        | FsiOutputReference(_, popts) -> popts
-        | OutputReference(_, popts) -> popts
-        | ItValueReference(_, popts) -> popts
-        | ItRawReference(_, popts) -> popts
-        | ValueReference(_, popts) -> popts
-        | LiterateCode(_, _, popts) -> popts
-        | LanguageTaggedCode(_, _, popts) -> popts
-        | RawBlock(_, popts) -> popts
+        | CodeReference(paragraphOptions = popts)
+        | FsiMergedOutputReference(paragraphOptions = popts)
+        | FsiOutputReference(paragraphOptions = popts)
+        | OutputReference(paragraphOptions = popts)
+        | ItValueReference(paragraphOptions = popts)
+        | ItRawReference(paragraphOptions = popts)
+        | ValueReference(paragraphOptions = popts)
+        | LiterateCode(paragraphOptions = popts)
+        | LanguageTaggedCode(paragraphOptions = popts)
+        | RawBlock(paragraphOptions = popts) -> popts
 
     interface MarkdownEmbedParagraphs with
         member x.Render() =
@@ -115,7 +115,7 @@ type LiterateSource =
     | Markdown of string
 
     /// A parsed F# script file consisting of snippets.
-    | Script of Snippet[]
+    | Script of Snippet array
 
 /// Representation of a literate document - the representation of Paragraphs
 /// uses an F# discriminated union type and so is best used from F#.
@@ -131,7 +131,7 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, root
     member _.DefinedLinks: IDictionary<string, string * option<string>> = links
 
     /// Errors
-    member _.Diagnostics: SourceError[] = diagnostics
+    member _.Diagnostics: SourceError array = diagnostics
 
     /// Original document source code
     member _.Source: LiterateSource = source

@@ -260,9 +260,18 @@ module internal SimpleTemplating =
 
     // Replace '{{xyz}}' in text
     let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
-        match templateTextOpt |> Option.map (fun s -> s.Trim()) with
-        | None
-        | Some "" ->
+        let opt =
+            templateTextOpt
+            |> Option.bind (fun s ->
+                let trimmed = s.Trim()
+
+                if String.IsNullOrWhiteSpace trimmed then
+                    None
+                else
+                    Some trimmed)
+
+        match opt with
+        | None ->
             // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
             let lookup = readOnlyDict substitutions
 
