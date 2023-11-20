@@ -79,7 +79,7 @@ module private Helpers =
                 s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries)
                 |> List.ofSeq)
         // Create source tokenizer
-        let sourceTok = FSharpSourceTokenizer(defaultArg defines [], file, None)
+        let sourceTok = FSharpSourceTokenizer(defaultArg defines [], file, None, None)
 
         // Parse lines using the tokenizer
         let indexedSnippetLines =
