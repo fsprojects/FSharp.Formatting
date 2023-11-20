@@ -690,13 +690,13 @@ type ApiDocEntityInfo
 [<AutoOpen>]
 module internal CrossReferences =
     let getXmlDocSigForType (typ: FSharpEntity) =
-        match typ.XmlDocSig with
-        | "" ->
+        if not (String.IsNullOrWhiteSpace typ.XmlDocSig) then
+            typ.XmlDocSig
+        else
             try
                 defaultArg (Option.map (sprintf "T:%s") typ.TryFullName) ""
             with _ ->
                 ""
-        | n -> n
 
     let getMemberXmlDocsSigPrefix (memb: FSharpMemberOrFunctionOrValue) =
         if memb.IsEvent then "E"
@@ -704,8 +704,9 @@ module internal CrossReferences =
         else "M"
 
     let getXmlDocSigForMember (memb: FSharpMemberOrFunctionOrValue) =
-        match memb.XmlDocSig with
-        | "" ->
+        if not (String.IsNullOrWhiteSpace memb.XmlDocSig) then
+            memb.XmlDocSig
+        else
             let memberName =
                 try
                     let name = memb.CompiledName.Replace(".ctor", "#ctor")
@@ -757,7 +758,6 @@ module internal CrossReferences =
             match (memb.DeclaringEntity.Value.TryFullName) with
             | None -> ""
             | Some(n) -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) n memberName
-        | n -> n
 
 type internal CrefReference =
     { IsInternal: bool

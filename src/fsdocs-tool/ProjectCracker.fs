@@ -138,7 +138,7 @@ module Utils =
             res
 
     let ensureTrailingSlash (s: string) =
-        if s.EndsWith("/") || s.EndsWith(".html") then
+        if s.EndsWith '/' || s.EndsWith(".html", StringComparison.Ordinal) then
             s
         else
             s + "/"
@@ -456,7 +456,7 @@ module Crack =
             |> List.filter (fun s ->
                 let isFSharpFormattingTestProject =
                     s.Contains $"FSharp.ApiDocs.Tests{Path.DirectorySeparatorChar}files"
-                    || s.EndsWith "FSharp.Formatting.TestHelpers.fsproj"
+                    || s.EndsWith("FSharp.Formatting.TestHelpers.fsproj", StringComparison.Ordinal)
 
                 if isFSharpFormattingTestProject then
                     printfn

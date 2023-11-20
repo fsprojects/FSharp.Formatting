@@ -299,7 +299,7 @@ module StringPosition =
     /// complete repetitions of a specified sub-string.
     let (|EqualsRepeated|_|) (repeated, _n: MarkdownRange) =
         function
-        | StartsWithRepeated repeated (_n, ("", _)) -> Some()
+        | StartsWithRepeated repeated (_n, (v, _)) when not (String.IsNullOrWhiteSpace v) -> Some()
         | _ -> None
 
 module List =
