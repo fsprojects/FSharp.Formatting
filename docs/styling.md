@@ -60,7 +60,6 @@ These basic entry-level styling parameters can be set in the project file or `Di
 For example:
 
 ```xml
-
 <PropertyGroup>
     <!-- Example ultra-simple styling and generation settings for FsDocs default template-->
     <PackageLicenseUrl>https://github.com/foo/bar/blob/master/License.txt</PackageLicenseUrl>
@@ -163,7 +162,6 @@ You can add advanced styling to the sidebar generated menu items by creating a n
 To customize the generated menu-item headers, use file `_menu_template.html` with starting template:
 
 ```html
-
 <li class="nav-header">
     {{fsdocs-menu-header-content}}
 </li>
@@ -173,7 +171,6 @@ To customize the generated menu-item headers, use file `_menu_template.html` wit
 Similarly, to customize the individual menu item list, use file `_menu-item_template.html` with starting template:
 
 ```html
-
 <li class="nav-item"><a href="{{fsdocs-menu-item-link}}" class="nav-link">{{fsdocs-menu-item-content}}</a></li>
 ```
 
