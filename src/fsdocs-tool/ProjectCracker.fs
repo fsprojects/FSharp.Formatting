@@ -527,7 +527,7 @@ module Crack =
             | None ->
                 match setting with
                 | Some setting -> printfn "please set '%s' in 'Directory.Build.props'" setting
-                | None _ -> ()
+                | None -> ()
 
                 None
 
