@@ -223,7 +223,7 @@ type internal DocContent
 
                       let templateChangeTime =
                           match template with
-                          | Some t when isFsx || isMd ->
+                          | Some t when isFsx || isMd || isPynb ->
                               try
                                   let fi = FileInfo(t)
                                   let input = fi.Directory.Name
