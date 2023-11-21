@@ -84,6 +84,9 @@ module ParamKeys =
     let ``fsdocs-content`` = ParamKey "fsdocs-content"
 
     /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-page-content-list`` = ParamKey "fsdocs-page-content-list"
+
+    /// A parameter key known to FSharp.Formatting
     let ``fsdocs-collection-name-link`` = ParamKey "fsdocs-collection-name-link"
 
     /// A parameter key known to FSharp.Formatting
@@ -105,7 +108,7 @@ module ParamKeys =
     let ``fsdocs-logo-src`` = ParamKey "fsdocs-logo-src"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-navbar-position`` = ParamKey "fsdocs-navbar-position"
+    let ``fsdocs-favicon-src`` = ParamKey "fsdocs-favicon-src"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-license-expression`` = ParamKey "fsdocs-package-license-expression"
@@ -165,6 +168,10 @@ module ParamKeys =
     let ``fsdocs-menu-header-id`` = ParamKey "fsdocs-menu-header-id"
 
     /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    /// This will be an empty string if the category is not active.
+    let ``fsdocs-menu-header-active-class`` = ParamKey "fsdocs-menu-header-active-class"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
     let ``fsdocs-menu-items`` = ParamKey "fsdocs-menu-items"
 
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
@@ -176,11 +183,26 @@ module ParamKeys =
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
     let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
 
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    /// /// This will be an empty string if the item is not active.
+    let ``fsdocs-menu-item-active-class`` = ParamKey "fsdocs-menu-item-active-class"
+
     /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
     let ``fsdocs-previous-page-link`` = ParamKey "fsdocs-previous-page-link"
 
     /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
     let ``fsdocs-next-page-link`` = ParamKey "fsdocs-next-page-link"
+
+    /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+    let ``fsdocs-head-extra`` = ParamKey "fsdocs-head-extra"
+
+    /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+    let ``fsdocs-body-extra`` = ParamKey "fsdocs-body-extra"
+
+    /// A parameter key known to FSharp.Formatting, either 'content' or 'api-doc'
+    /// Mean to be used on the `class` attribute in the `<body>` tag.
+    /// This helps to differentiate styles between API docs and custom content.
+    let ``fsdocs-body-class`` = ParamKey "fsdocs-body-class"
 
 module internal SimpleTemplating =
 

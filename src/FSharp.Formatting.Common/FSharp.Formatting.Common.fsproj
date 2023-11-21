@@ -4,9 +4,9 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
+    <WarningsAsErrors>FS0025;FS1182;$(WarningsAsErrors)</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Common\AssemblyInfo.fs" Link="Common\AssemblyInfo.fs" />
     <Compile Include="YaafFSharpScripting.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
@@ -14,6 +14,7 @@
     <Compile Include="HtmlModel.fs" />
     <Compile Include="Templating.fs" />
     <Compile Include="Menu.fs" />
+    <Compile Include="PageContentList.fs" />
   </ItemGroup>
  <ItemGroup>
    <PackageReference Include="FSharp.Core" />

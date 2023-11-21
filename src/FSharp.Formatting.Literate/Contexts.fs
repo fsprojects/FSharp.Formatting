@@ -47,17 +47,19 @@ type OutputKind =
         | Html -> "html"
         | Pynb -> "ipynb"
 
+type IndexText = IndexText of fullContent: string * headings: string list
+
 /// Defines the output of processing a literate doc
 type internal LiterateDocModel =
     {
         /// The extracted title of the document (first h1 header if not in front matter)
         Title: string
 
-        /// The replacement paramaters
+        /// The replacement parameters
         Substitutions: Substitutions
 
         /// The text for search index generation (empty for notebooks and latex)
-        IndexText: string option
+        IndexText: IndexText option
 
         /// The category in the front matter
         Category: string option
@@ -73,6 +75,9 @@ type internal LiterateDocModel =
 
         /// The kind of output generated
         OutputKind: OutputKind
+
+        /// Used for the navigation section, to indicate the list item as active
+        IsActive: bool
     }
 
     // Get the URI for the resource when it is part of an overall site

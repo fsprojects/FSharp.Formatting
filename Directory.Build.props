@@ -25,8 +25,14 @@
     <PackageTags>F# fsharp formatting markdown code fssnip literate programming</PackageTags>
     <RepositoryUrl>https://github.com/fsprojects/FSharp.Formatting</RepositoryUrl>
     <PackageProjectUrl>https://fsprojects.github.io/FSharp.Formatting</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/fsprojects/FSharp.Formatting/master/docs/files/img/logo.png</PackageIconUrl>
+    <PackageIcon>logo.png</PackageIcon>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
+    <ChangelogFile>../../RELEASE_NOTES.md</ChangelogFile>
   </PropertyGroup>
+
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <None Include="..\..\docs\img\logo.png" Pack="true" PackagePath="\"/>
+        <PackageReference Include="Ionide.KeepAChangelog.Tasks" PrivateAssets="all" />
+    </ItemGroup>
 </Project>

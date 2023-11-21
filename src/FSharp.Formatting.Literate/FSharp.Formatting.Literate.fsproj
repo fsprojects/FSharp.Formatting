@@ -5,9 +5,6 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Common\AssemblyInfo.fs">
-      <Link>Common\AssemblyInfo.fs</Link>
-    </Compile>
     <Compile Include="..\Common\Collections.fs">
       <Link>Common\Collections.fs</Link>
     </Compile>

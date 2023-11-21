@@ -60,7 +60,7 @@ Content that is not `*.fsx` or `*.md` is copied across.
 
 ## Default Styling Content
 
-By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-styles.css` are included in the
+By default additional content such as `fsdocs-search.js`, `fsdocs-tips.js` and `fsdocs-default.css` are included in the
 the `content` directory of the output.  This can be suppressed with `--nodefaultcontent` or by having your own
 copy of this content in your `content` directory.
 
@@ -148,6 +148,9 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-watch-script`         | The websocket script used in watch mode to trigger hot reload |
 | `fsdocs-previous-page-link`   | A relative link to the previous page based on the frontmatter index data |
 | `fsdocs-next-page-link`       | A relative link to the next page based on the frontmatter index data |
+| `fsdocs-head-extra`           | Additional html content loaded from the `_head.html` file if present in the `--input` folder |
+| `fsdocs-body-extra`           | Additional html content loaded from the `_body.html` file if present in the `--input` folder |
+| `fsdocs-body-class`           | A css class value to help distinguish between `content` and `api-docs` |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:

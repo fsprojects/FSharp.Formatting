@@ -85,24 +85,22 @@ report an error (e.g. "Problem loading...", "Connection was reset").
 
 ## Searchable docs
 
-When using the command-line tool a Lunr search index is automatically generated in `index.json`.
+When using the command-line tool a [Fuse](https://www.fusejs.io/) search index is automatically generated in `index.json`. 
+A search box is included in the default template via an [HTML Dialog element](https://developer.mozilla.org/docs/Web/HTML/Element/dialog).  
+To add search to your own `_template.html`:
 
-A search box is included in the default template.  To add a search box
-to your own `_template.html`, include `fsdocs-search.js`, which is added to the `content`
-by default.
+- include an HTML element with id `search-btn`
+- include a `dialog` element
+- include `fsdocs-search.js` script
 
-    [lang=text]
-    ...
-    <div id="header">
-      <div class="searchbox">
-        <label for="search-by">
-          <i class="fas fa-search"></i>
-        </label>
-        <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
-        <span data-search-clear="">
-          <i class="fas fa-times"></i>
-        </span>
-      </div>
+```html
+<button id="search-btn">Open search dialog</button>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
     </div>
-    ...
-
+</dialog>
+<script type="module" src="{`{root}}content/fsdocs-search.js"></script>
+```

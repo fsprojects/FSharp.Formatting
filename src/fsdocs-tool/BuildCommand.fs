@@ -221,10 +221,16 @@ type internal DocContent
                               try
                                   let fi = FileInfo(t)
                                   let input = fi.Directory.Name
+                                  let headPath = Path.Combine(input, "_head.html")
+                                  let bodyPath = Path.Combine(input, "_body.html")
 
                                   [ yield File.GetLastWriteTime(t)
                                     if Menu.isTemplatingAvailable input then
-                                        yield! Menu.getLastWriteTimes input ]
+                                        yield! Menu.getLastWriteTimes input
+                                    if File.Exists headPath then
+                                        yield File.GetLastWriteTime headPath
+                                    if File.Exists bodyPath then
+                                        yield File.GetLastWriteTime bodyPath ]
                                   |> List.max
                               with _ ->
                                   DateTime.MaxValue
@@ -566,13 +572,20 @@ type internal DocContent
         [| for (_inputFile, isOtherLang, model) in docModels do
                if not isOtherLang then
                    match model.IndexText with
-                   | Some text ->
+                   | Some(IndexText(fullContent, headings)) ->
                        { title = model.Title
-                         content = text
-                         uri = model.Uri(root) }
+                         content = fullContent
+                         headings = headings
+                         uri = model.Uri(root)
+                         ``type`` = "content" }
                    | _ -> () |]
 
-    member _.GetNavigationEntries(input, docModels: (string * bool * LiterateDocModel) list) =
+    member _.GetNavigationEntries
+        (
+            input,
+            docModels: (string * bool * LiterateDocModel) list,
+            currentPagePath: string option
+        ) =
         let modelsForList =
             [ for thing in docModels do
                   match thing with
@@ -581,12 +594,16 @@ type internal DocContent
                       && model.OutputKind = OutputKind.Html
                       && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
                       ->
-                      model
+                      { model with
+                          IsActive =
+                              match currentPagePath with
+                              | None -> false
+                              | Some currentPagePath -> currentPagePath = inputFileFullPath }
                   | _ -> () ]
 
         let modelsByCategory =
             modelsForList
-            |> List.groupBy (fun model -> model.Category)
+            |> List.groupBy (fun (model) -> model.Category)
             |> List.sortBy (fun (_, ms) ->
                 match ms.[0].CategoryIndex with
                 | Some s ->
@@ -596,19 +613,12 @@ type internal DocContent
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
-        let orderList (list: LiterateDocModel list) =
+        let orderList (list: (LiterateDocModel) list) =
             list
-            |> List.sortBy (fun model ->
-                match model.Index with
-                | Some s ->
-                    (try
-                        int32 s
-                     with _ ->
-                         Int32.MaxValue)
-                | None -> Int32.MaxValue)
+            |> List.sortBy (fun model -> Option.defaultValue Int32.MaxValue model.Index)
 
         if Menu.isTemplatingAvailable input then
-            let createGroup (header: string) (items: LiterateDocModel list) : string =
+            let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
                 let menuItems =
                     orderList items
@@ -617,18 +627,20 @@ type internal DocContent
                         let title = System.Web.HttpUtility.HtmlEncode model.Title
 
                         { Menu.MenuItem.Link = link
-                          Menu.MenuItem.Content = title })
+                          Menu.MenuItem.Content = title
+                          Menu.MenuItem.IsActive = model.IsActive })
 
-                Menu.createMenu input header menuItems
+                Menu.createMenu input isCategoryActive header menuItems
             // No categories specified
             if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                 let _, items = modelsByCategory.[0]
-                createGroup "Documentation" items
+                createGroup false "Documentation" items
             else
                 modelsByCategory
                 |> List.map (fun (header, items) ->
                     let header = Option.defaultValue "Other" header
-                    createGroup header items)
+                    let isActive = items |> List.exists (fun m -> m.IsActive)
+                    createGroup isActive header items)
                 |> String.concat "\n"
         else
             [
@@ -638,22 +650,34 @@ type internal DocContent
 
                   for model in snd modelsByCategory.[0] do
                       let link = model.Uri(root)
+                      let activeClass = if model.IsActive then "active" else ""
 
-                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                      li
+                          [ Class $"nav-item %s{activeClass}" ]
+                          [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
               else
                   // At least one category has been specified. Sort each category by index and emit
                   // Use 'Other' as a header for uncategorised things
                   for (cat, modelsInCategory) in modelsByCategory do
                       let modelsInCategory = orderList modelsInCategory
 
+                      let categoryActiveClass =
+                          if modelsInCategory |> List.exists (fun m -> m.IsActive) then
+                              "active"
+                          else
+                              ""
+
                       match cat with
-                      | Some c -> li [ Class "nav-header" ] [ !!c ]
-                      | None -> li [ Class "nav-header" ] [ !! "Other" ]
+                      | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
+                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !! "Other" ]
 
                       for model in modelsInCategory do
                           let link = model.Uri(root)
+                          let activeClass = if model.IsActive then "active" else ""
 
-                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                          li
+                              [ Class $"nav-item %s{activeClass}" ]
+                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
@@ -728,8 +752,9 @@ module Serve =
 
     refreshEvent.Publish
     |> Event.add (fun fileName ->
-        let fileName = fileName.TrimEnd('~')
-        broadCastReload fileName)
+        if Path.HasExtension fileName then
+            let fileName = fileName.Replace("\\", "/").TrimEnd('~')
+            broadCastReload fileName)
 
     let startWebServer rootOutputFolderAsGiven localPort =
         let mimeTypesMap ext =
@@ -1544,89 +1569,88 @@ type CoreBuildOptions(watch) =
         // Incrementally generate API docs (regenerates all api docs, in two phases)
         let runGeneratePhase1 () =
             protect "API doc generation (phase 1)" (fun () ->
-                if crackedProjects.Length > 0 then
+                if crackedProjects.Length = 0 || this.noapidocs then
+                    latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
+                elif crackedProjects.Length > 0 then
+                    let (outputKind, initialTemplate2) =
+                        let templates =
+                            [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                              OutputKind.Html, Path.Combine(this.input, "_template.html")
+                              OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                              OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
-                    if not this.noapidocs then
+                        match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
+                        | Some(kind, path) -> kind, Some path
+                        | None ->
+                            let templateFiles = templates |> Seq.map snd |> String.concat "', '"
 
-                        let (outputKind, initialTemplate2) =
-                            let templates =
-                                [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                                  OutputKind.Html, Path.Combine(this.input, "_template.html")
-                                  OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
+                            match defaultTemplate with
+                            | Some d ->
+                                printfn
+                                    "note, no template files: '%s' found, using default template %s"
+                                    templateFiles
+                                    d
 
-                            match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
-                            | Some(kind, path) -> kind, Some path
+                                OutputKind.Html, Some d
                             | None ->
-                                let templateFiles = templates |> Seq.map snd |> String.concat "', '"
+                                printfn
+                                    "note, no template file '%s' found, and no default template at '%s'"
+                                    templateFiles
+                                    defaultTemplateAttempt1
 
-                                match defaultTemplate with
-                                | Some d ->
-                                    printfn
-                                        "note, no template files: '%s' found, using default template %s"
-                                        templateFiles
-                                        d
+                                OutputKind.Html, None
 
-                                    OutputKind.Html, Some d
-                                | None ->
-                                    printfn
-                                        "note, no template file '%s' found, and no default template at '%s'"
-                                        templateFiles
-                                        defaultTemplateAttempt1
+                    printfn ""
+                    printfn "API docs:"
+                    printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
 
-                                    OutputKind.Html, None
+                    let model, globals, index, phase2 =
+                        match outputKind with
+                        | OutputKind.Html ->
+                            ApiDocs.GenerateHtmlPhased(
+                                inputs = apiDocInputs,
+                                output = rootOutputFolderAsGiven,
+                                collectionName = collectionName,
+                                substitutions = docsSubstitutions,
+                                qualify = this.qualify,
+                                ?template = initialTemplate2,
+                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                                root = root,
+                                libDirs = paths,
+                                onError = onError,
+                                menuTemplateFolder = this.input
+                            )
+                        | OutputKind.Markdown ->
+                            ApiDocs.GenerateMarkdownPhased(
+                                inputs = apiDocInputs,
+                                output = rootOutputFolderAsGiven,
+                                collectionName = collectionName,
+                                substitutions = docsSubstitutions,
+                                qualify = this.qualify,
+                                ?template = initialTemplate2,
+                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                                root = root,
+                                libDirs = paths,
+                                onError = onError
+                            )
+                        | _ -> failwithf "API Docs format '%A' is not supported" outputKind
 
-                        printfn ""
-                        printfn "API docs:"
-                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
+                    // Used to resolve code references in content with respect to the API Docs model
+                    let resolveInlineCodeReference (s: string) =
+                        if s.StartsWith("cref:") then
+                            let s = s.[5..]
 
-                        let model, globals, index, phase2 =
-                            match outputKind with
-                            | OutputKind.Html ->
-                                ApiDocs.GenerateHtmlPhased(
-                                    inputs = apiDocInputs,
-                                    output = rootOutputFolderAsGiven,
-                                    collectionName = collectionName,
-                                    substitutions = docsSubstitutions,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    onError = onError,
-                                    menuTemplateFolder = this.input
-                                )
-                            | OutputKind.Markdown ->
-                                ApiDocs.GenerateMarkdownPhased(
-                                    inputs = apiDocInputs,
-                                    output = rootOutputFolderAsGiven,
-                                    collectionName = collectionName,
-                                    substitutions = docsSubstitutions,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    onError = onError
-                                )
-                            | _ -> failwithf "API Docs format '%A' is not supported" outputKind
+                            match model.Resolver.ResolveCref s with
+                            | None -> None
+                            | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
+                        else
+                            None
 
-                        // Used to resolve code references in content with respect to the API Docs model
-                        let resolveInlineCodeReference (s: string) =
-                            if s.StartsWith("cref:") then
-                                let s = s.[5..]
-
-                                match model.Resolver.ResolveCref s with
-                                | None -> None
-                                | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-                            else
-                                None
-
-                        latestApiDocModel <- Some model
-                        latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
-                        latestApiDocSearchIndexEntries <- index
-                        latestApiDocGlobalParameters <- globals
-                        latestApiDocPhase2 <- phase2)
+                    latestApiDocModel <- Some model
+                    latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
+                    latestApiDocSearchIndexEntries <- index
+                    latestApiDocGlobalParameters <- globals
+                    latestApiDocPhase2 <- phase2)
 
         let runGeneratePhase2 () =
             protect "API doc generation (phase 2)" (fun () ->
@@ -1668,12 +1692,27 @@ type CoreBuildOptions(watch) =
                     )
 
                 let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
-
                 let actualDocModels = docModels |> List.map fst |> List.choose id
-
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
+                let navEntriesWithoutActivePage = docContent.GetNavigationEntries(this.input, actualDocModels, None)
 
-                let navEntries = docContent.GetNavigationEntries(this.input, actualDocModels)
+                let headTemplateContent =
+                    let headTemplatePath = Path.Combine(this.input, "_head.html")
+
+                    if not (File.Exists headTemplatePath) then
+                        ""
+                    else
+                        File.ReadAllText headTemplatePath
+                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
+
+                let bodyTemplateContent =
+                    let bodyTemplatePath = Path.Combine(this.input, "_body.html")
+
+                    if not (File.Exists bodyTemplatePath) then
+                        ""
+                    else
+                        File.ReadAllText bodyTemplatePath
+                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
 
                 let results =
                     Map.ofList
@@ -1684,18 +1723,38 @@ type CoreBuildOptions(watch) =
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
-                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents``, navEntries ]
+
+                latestDocContentGlobalParameters <-
+                    [ ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
+                      ParamKeys.``fsdocs-head-extra``, headTemplateContent
+                      ParamKeys.``fsdocs-body-extra``, bodyTemplateContent ]
 
                 latestDocContentPhase2 <-
                     (fun globals ->
-
                         printfn ""
                         printfn "Write Content:"
 
-                        for (_thing, action) in docModels do
-                            action globals
+                        for (optDocModel, action) in docModels do
+                            let globals =
+                                match optDocModel with
+                                | None -> globals
+                                | Some(currentPagePath, _, _) ->
+                                    // Update the nav entries with the current page doc model
+                                    let navEntries =
+                                        docContent.GetNavigationEntries(
+                                            this.input,
+                                            actualDocModels,
+                                            Some currentPagePath
+                                        )
 
-                    ))
+                                    globals
+                                    |> List.map (fun (pk, v) ->
+                                        if pk <> ParamKeys.``fsdocs-list-of-documents`` then
+                                            pk, v
+                                        else
+                                            ParamKeys.``fsdocs-list-of-documents``, navEntries)
+
+                            action globals))
 
         let runDocContentPhase2 () =
             protect "Content generation (phase 2)" (fun () ->
@@ -1772,10 +1831,12 @@ type CoreBuildOptions(watch) =
         if watch then
 
             let docsWatchers =
-                if Directory.Exists(this.input) then
-                    [ new FileSystemWatcher(this.input) ]
-                else
-                    []
+                [ if Directory.Exists(this.input) then
+                      yield new FileSystemWatcher(this.input)
+                  match defaultTemplate with
+                  | Some defaultTemplate ->
+                      yield new FileSystemWatcher(Path.GetDirectoryName(defaultTemplate), IncludeSubdirectories = true)
+                  | None -> () ]
 
             let templateWatchers =
                 if Directory.Exists(this.input) then

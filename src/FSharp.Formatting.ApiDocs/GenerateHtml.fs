@@ -10,8 +10,15 @@ open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
 
-/// Embed some HTML generateed in GenerateModel
+/// Embed some HTML generated in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
+
+let fsdocsSummary (x: ApiDocHtml) =
+    // the <pre> tag is not allowed inside a <p> tag.
+    if x.HtmlText.StartsWith("<pre>", StringComparison.Ordinal) then
+        embed x
+    else
+        p [ Class "fsdocs-summary" ] [ embed x ]
 
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
@@ -47,8 +54,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | None -> ()
           | Some href ->
               a [ Href href; Class "fsdocs-source-link"; HtmlProperties.Title "Source on GitHub" ] [
-                  img [ Src(sprintf "%scontent/img/github.png" root); Class "normal" ]
-                  img [ Src(sprintf "%scontent/img/github-hover.png" root); Class "hover" ]
+                  iconifyIcon [ Icon "ri:github-fill"; Height "24"; Width "24" ]
               ] ]
 
     let removeParen (memberName: string) =
@@ -65,10 +71,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             Class "fsdocs-source-link"
             HtmlProperties.Title "Copy signature (XML)"
             OnClick(sprintf "Clipboard_CopyTo('<see cref=\\\'%s\\\'/>')" xmlDocSig)
-        ] [
-            img [ Src(sprintf "%scontent/img/copy-xml.png" root); Class "normal" ]
-            img [ Src(sprintf "%scontent/img/copy-xml-hover.png" root); Class "hover" ]
-        ]
+        ] [ iconifyIcon [ HtmlProperties.Icon "bi:filetype-xml"; Height "24"; Width "24" ] ]
 
     let copyXmlSigIconForSymbol (symbol: FSharpSymbol) =
         [ match symbol with
@@ -90,10 +93,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 Class "fsdocs-source-link"
                 HtmlProperties.Title "Copy signature (Markdown)"
                 OnClick(sprintf "Clipboard_CopyTo('%scref:%s%s')" delim xmlDocSig delim)
-            ] [
-                img [ Src(sprintf "%scontent/img/copy-md.png" root); Class "normal" ]
-                img [ Src(sprintf "%scontent/img/copy-md-hover.png" root); Class "hover" ]
-            ]
+            ] [ iconifyIcon [ HtmlProperties.Icon "bi:filetype-md"; Height "24"; Width "24" ] ]
 
     let copyXmlSigIconForSymbolMarkdown (symbol: FSharpSymbol) =
         [ match symbol with
@@ -185,7 +185,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                       yield! copyXmlSigIconForSymbolMarkdown m.Symbol
                                       yield! copyXmlSigIconForSymbol m.Symbol
                                       yield! sourceLink m.SourceLocation
-                                      p [ Class "fsdocs-summary" ] [ embed m.Comment.Summary ]
+                                      fsdocsSummary m.Comment.Summary
                                   ]
 
                               let dtls =
@@ -327,7 +327,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                       yield! copyXmlSigIconForSymbolMarkdown e.Symbol
                                       yield! copyXmlSigIconForSymbol e.Symbol
                                       yield! sourceLink e.SourceLocation
-                                      p [ Class "fsdocs-summary" ] [ embed e.Comment.Summary ]
+                                      fsdocsSummary e.Comment.Summary
                                   ]
                               ]
                           ]
@@ -413,7 +413,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               div [] [
                   //yield! copyXmlSigIconForSymbol entity.Symbol
                   //yield! sourceLink entity.SourceLocation
-                  p [ Class "fsdocs-summary" ] [ embed entity.Comment.Summary ]
+                  fsdocsSummary entity.Comment.Summary
               ]
               // Show the remarks etc.
               match entity.Comment.Remarks with
@@ -528,7 +528,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
               // Generate the entry for the namespace
               tr [] [
-                  td [] [ a [ Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [ !!ns.Name ] ]
+                  td [] [
+                      a [
+                          Href(ns.Url(root, collectionName, qualify, model.FileExtensions.InUrl))
+                          HtmlProperties.Title ns.Name
+                      ] [ !!ns.Name ]
+                  ]
                   td [] [
                       match ns.NamespaceDocs with
                       | Some nsdocs -> embed nsdocs.Summary
@@ -617,9 +622,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
 
                     [ { Menu.MenuItem.Link = link
-                        Menu.MenuItem.Content = title } ]
+                        Menu.MenuItem.Content = title
+                        Menu.MenuItem.IsActive = true } ]
 
-                Menu.createMenu menuTemplateFolder.Value "API Reference" menuItems
+                Menu.createMenu menuTemplateFolder.Value false "API Reference" menuItems
 
             else
                 let categorise = Categorise.model model
@@ -634,9 +640,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                             let name = ns.Name
 
                             { Menu.MenuItem.Link = link
-                              Menu.MenuItem.Content = name })
+                              Menu.MenuItem.Content = name
+                              Menu.MenuItem.IsActive = false })
 
-                    Menu.createMenu menuTemplateFolder.Value "Namespaces" menuItems
+                    Menu.createMenu menuTemplateFolder.Value false "Namespaces" menuItems
         else
             listOfNamespacesNavAux otherDocs nsOpt
             |> List.map (fun html -> html.ToString())
@@ -645,7 +652,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     /// Get the substitutions relevant to all
     member _.GlobalSubstitutions: Substitutions =
         let toc = listOfNamespacesNav true None
-        [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc) ]
+        [ yield (ParamKeys.``fsdocs-list-of-namespaces``, toc); yield ParamKeys.``fsdocs-body-class``, "api-docs" ]
 
     member _.Generate(outDir: string, templateOpt, collectionName, globalParameters) =
 
@@ -656,6 +663,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                yield (ParamKeys.``fsdocs-source``, "")
                yield (ParamKeys.``fsdocs-tooltips``, "")
                yield (ParamKeys.``fsdocs-page-title``, pageTitle)
+               yield (ParamKeys.``fsdocs-page-content-list``, PageContentList.EmptyContent)
                yield! globalParameters |]
 
         let collection = model.Collection
