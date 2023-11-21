@@ -47,7 +47,7 @@ let lintStage =
 let testStage =
     stage "Tests" {
         run
-            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --framework net7.0 --results-directory TestResults -tl"
+            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
     }
 
 pipeline "CI" {
