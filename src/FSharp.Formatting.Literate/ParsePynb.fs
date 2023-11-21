@@ -31,45 +31,44 @@ module internal ParsePynb =
             match x.TryGetProperty("text/html") with
             | true, html ->
                 let html = html.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat "\n"
-                Some("""<p>""" + html + """</p>""")
+                Some $"<p>{html}</p>"
             | _ -> None
 
         let (|TextPlain|_|) (x: JsonElement) =
             match x.TryGetProperty("text/plain") with
             | true, text ->
                 let text = text.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat ""
-
-                Some(
-                    """<table class="pre"><tbody><tr><td><pre><code>"""
-                    + text
-                    + """</code></pre></td></tr></tbody></table>"""
-                )
+                Some $"""<table class="pre"><tbody><tr><td><pre><code>{text}</code></pre></td></tr></tbody></table>"""
             | _ -> None
 
         let (|DisplayData|_|) (x: JsonElement) =
-            if x.GetProperty("output_type").GetString() = "display_data" then
-                match x.GetProperty("data") with
-                | TextHtml html -> html
-                | TextPlain text -> text
-                | s -> failwith $"unknown ouptut {s}"
-                |> Some
-            else
-                None
+            match x.TryGetProperty("output_type") with
+            | true, outputType ->
+                if outputType.GetString() = "display_data" then
+                    match x.TryGetProperty("data") with
+                    | true, TextHtml html -> html
+                    | true, TextPlain text -> text
+                    | true, s -> failwith $"unknown output {s}"
+                    | false, _ -> failwith "no data property"
+                    |> Some
+                else
+                    None
+            | _ -> failwith "no output_type property"
 
         let (|Stream|_|) (x: JsonElement) =
-            if x.GetProperty("output_type").GetString() = "stream" then
-                let text =
-                    x.GetProperty("text").EnumerateArray()
-                    |> Seq.map (fun x -> x.GetString())
-                    |> String.concat ""
+            match x.TryGetProperty("output_type") with
+            | true, outputType ->
+                if outputType.GetString() = "stream" then
+                    let text =
+                        match x.TryGetProperty("text") with
+                        | true, xs -> xs.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat ""
+                        | _ -> failwith "no text property"
 
-                Some(
-                    """<table class="pre"><tbody><tr><td><pre><code>"""
-                    + text
-                    + """</code></pre></td></tr></tbody></table>"""
-                )
-            else
-                None
+                    Some
+                        $"""<table class="pre"><tbody><tr><td><pre><code>{text}</code></pre></td></tr></tbody></table>"""
+                else
+                    None
+            | _ -> failwith "no output_type property"
 
         let parse (output: JsonElement) =
             match output with

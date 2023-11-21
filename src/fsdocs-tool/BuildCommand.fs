@@ -185,12 +185,12 @@ type internal DocContent
 
           if name.StartsWith('.') then
               printfn "skipping file %s" inputFileFullPath
-          elif not (name.StartsWith("_template", StringComparison.Ordinal)) then
-              let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
+          elif not (name.StartsWith "_template") then
+              let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
 
-              let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+              let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
 
-              let isPynb = inputFileFullPath.EndsWith(".ipynb", true, CultureInfo.InvariantCulture)
+              let isPynb = inputFileFullPath.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
 
               // A _template.tex or _template.pynb is needed to generate those files
               match outputKind, template with
@@ -351,19 +351,58 @@ type internal DocContent
                           printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
                           let evaluateNotebook ipynbFile =
+                              let args =
+                                  $"repl --run {ipynbFile} --default-kernel fsharp --exit-after-run --output-path {ipynbFile}"
+
                               let psi =
                                   ProcessStartInfo(
                                       fileName = "dotnet",
-                                      arguments =
-                                          $"repl --run {ipynbFile} --default-kernel fsharp --exit-after-run --output-path {ipynbFile}",
+                                      arguments = args,
                                       UseShellExecute = false,
                                       CreateNoWindow = true
                                   )
 
-                              let p = Process.Start(psi)
-                              p.WaitForExit()
+                              try
+                                  let p = Process.Start(psi)
+                                  p.WaitForExit()
+                              with _ ->
+                                  let msg =
+                                      $"Failed to evaluate notebook {ipynbFile} using dotnet-repl\n"
+                                      + $"""try running "{args}" at the command line and inspect the error"""
+
+                                  failwith msg
+
+                          let checkDotnetReplInstall () =
+                              let failmsg =
+                                  "'dotnet-repl' is not installed. Please install it using 'dotnet tool install dotnet-repl'"
+
+                              try
+                                  let psi =
+                                      ProcessStartInfo(
+                                          fileName = "dotnet",
+                                          arguments = "tool list --local",
+                                          UseShellExecute = false,
+                                          CreateNoWindow = true,
+                                          RedirectStandardOutput = true
+                                      )
+
+                                  let p = Process.Start(psi)
+                                  let ol = p.StandardOutput.ReadToEnd()
+                                  p.WaitForExit()
+                                  psi.Arguments <- "tool list --global"
+                                  p.Start() |> ignore
+                                  let og = p.StandardOutput.ReadToEnd()
+                                  let output = $"{ol}\n{og}"
+
+                                  if not (output.Contains("dotnet-repl")) then
+                                      failwith failmsg
+
+                                  p.WaitForExit()
+                              with _ ->
+                                  failwith failmsg
 
                           if evaluate then
+                              checkDotnetReplInstall ()
                               printfn $"  evaluating {inputFileFullPath} with dotnet-repl"
                               evaluateNotebook inputFileFullPath
 
