@@ -1,4 +1,5 @@
 <Project>
+    <Import Project="../Directory.Build.props" />
     <ItemGroup>
         <PackageReference Include="FSharp.Analyzers.Build">
             <PrivateAssets>all</PrivateAssets>
