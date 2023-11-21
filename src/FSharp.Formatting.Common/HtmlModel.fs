@@ -147,7 +147,7 @@ type internal HtmlProperties =
     | Results of float
     | Security of string
     | Unselectable of bool
-    | Custom of string * string
+    | Custom of name: string * value: string
 
     override s.ToString() =
         match s with

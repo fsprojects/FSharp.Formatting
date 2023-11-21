@@ -68,9 +68,9 @@ module internal Transformations =
 
                             let lines = File.ReadAllLines(file)
 
-                            let startIdx = lines |> Seq.findIndex (fun l -> l.Contains startTag)
+                            let startIdx = lines |> Array.findIndex (fun l -> l.Contains startTag)
 
-                            let endIdx = lines |> Seq.findIndex (fun l -> l.Contains endTag)
+                            let endIdx = lines |> Array.findIndex (fun l -> l.Contains endTag)
 
                             lines.[startIdx + 1 .. endIdx - 1]
                             |> Array.toList
@@ -249,7 +249,7 @@ module internal Transformations =
         // Generate Markdown blocks paragraphs representing Reference <li> items
         let refList =
             [ for i, (_ref, link, title) in refs do
-                  let colon = title.IndexOf(":")
+                  let colon = title.IndexOf(':')
 
                   if colon > 0 then
                       let auth = title.Substring(0, colon)

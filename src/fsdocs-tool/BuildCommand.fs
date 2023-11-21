@@ -52,7 +52,10 @@ type internal DocContent
         let mutable counter = 0
 
         fun (url: string) ->
-            if url.StartsWith("http") || url.StartsWith("https") then
+            if
+                url.StartsWith("http", StringComparison.Ordinal)
+                || url.StartsWith("https", StringComparison.Ordinal)
+            then
                 counter <- counter + 1
                 let ext = Path.GetExtension(url)
 
@@ -134,8 +137,8 @@ type internal DocContent
         [ let inputFileName = Path.GetFileName(inputFileFullPath)
 
           if
-              not (inputFileName.StartsWith("."))
-              && not (inputFileName.StartsWith "_template")
+              not (inputFileName.StartsWith('.'))
+              && not (inputFileName.StartsWith("_template", StringComparison.Ordinal))
           then
               let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
 
@@ -157,7 +160,7 @@ type internal DocContent
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-              let subFolderIsSkipped = subInputFolderName.StartsWith "."
+              let subFolderIsSkipped = subInputFolderName.StartsWith '.'
               let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
               if not subFolderIsOutput && not subFolderIsSkipped then
@@ -179,9 +182,9 @@ type internal DocContent
         =
         [ let name = Path.GetFileName(inputFileFullPath)
 
-          if name.StartsWith(".") then
+          if name.StartsWith('.') then
               printfn "skipping file %s" inputFileFullPath
-          elif not (name.StartsWith "_template") then
+          elif not (name.StartsWith("_template", StringComparison.Ordinal)) then
               let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
 
               let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
@@ -510,7 +513,7 @@ type internal DocContent
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
-              let subFolderIsSkipped = subInputFolderName.StartsWith "."
+              let subFolderIsSkipped = subInputFolderName.StartsWith '.'
               let subFolderIsOutput = subFolderIsOutput subInputFolderFullPath
 
               if subFolderIsOutput || subFolderIsSkipped then
@@ -1457,7 +1460,7 @@ type CoreBuildOptions(watch) =
         let apiDocOtherFlags =
             [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _) in crackedProjects do
                   for otherFlag in otherFlags do
-                      if otherFlag.StartsWith("-r:") then
+                      if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
                           if File.Exists(otherFlag.[3..]) then
                               yield otherFlag
                           else
@@ -1466,7 +1469,7 @@ type CoreBuildOptions(watch) =
             |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
 
         let rootOutputFolderAsGiven =
-            if this.output = "" then
+            if String.IsNullOrWhiteSpace this.output then
                 if watch then "tmp/watch" else "output"
             else
                 this.output
@@ -1579,7 +1582,7 @@ type CoreBuildOptions(watch) =
                               OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
                               OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
-                        match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
+                        match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
                         | Some(kind, path) -> kind, Some path
                         | None ->
                             let templateFiles = templates |> Seq.map snd |> String.concat "', '"
@@ -1637,7 +1640,7 @@ type CoreBuildOptions(watch) =
 
                     // Used to resolve code references in content with respect to the API Docs model
                     let resolveInlineCodeReference (s: string) =
-                        if s.StartsWith("cref:") then
+                        if s.StartsWith("cref:", StringComparison.Ordinal) then
                             let s = s.[5..]
 
                             match model.Resolver.ResolveCref s with
@@ -1775,7 +1778,7 @@ type CoreBuildOptions(watch) =
                     File.Delete file |> ignore
 
                 for subdir in Directory.EnumerateDirectories dir do
-                    if not (Path.GetFileName(subdir).StartsWith ".") then
+                    if not (Path.GetFileName(subdir).StartsWith '.') then
                         clean subdir
 
             let isOutputPathOK =

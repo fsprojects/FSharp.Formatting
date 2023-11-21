@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open System.Collections.Generic
 open System.Text
 open FSharp.Compiler.CodeAnalysis
@@ -76,7 +77,10 @@ module internal CodeBlockUtils =
                 yield BlockCommand cmds
                 yield! collectSnippet [] lines
 
-            | (ConcatenatedComments text) :: _ when comment.LastIndexOf("*)") <> -1 && text.Trim().StartsWith("//") ->
+            | (ConcatenatedComments text) :: _ when
+                comment.LastIndexOf("*)", StringComparison.Ordinal) <> -1
+                && text.Trim().StartsWith("//", StringComparison.Ordinal)
+                ->
                 // Comment ended, but we found a code snippet starting with // comment
                 let cend = findCommentEnd comment
                 yield BlockComment(comment.Substring(0, cend))
@@ -156,8 +160,10 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
     let getParaOptions cmds =
         match cmds with
-        | Command "condition" name when not (System.String.IsNullOrWhiteSpace name) -> { Condition = Some name }
+        | Command "condition" name when not (String.IsNullOrWhiteSpace name) -> { Condition = Some name }
         | _ -> { Condition = None }
+
+    let (|EmptyString|_|) (v: string) = if v.Length = 0 then Some() else None
 
     /// Transform list of code blocks (snippet/comment/command)
     /// into a formatted Markdown document, with link definitions
@@ -175,7 +181,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false None count noEval (p :: acc) defs blocks
 
         // Include console output (stdout) of previous block
-        | BlockCommand(Command "include-output" "" as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand(Command "include-output" EmptyString as cmds) :: blocks when prevCodeId.IsSome ->
             let popts = getParaOptions cmds
 
             let p1 = EmbedParagraphs(OutputReference(prevCodeId.Value, popts), None)
@@ -191,7 +197,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
         // Include FSI output (stdout) of previous block
-        | BlockCommand(Command "include-fsi-output" "" as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand(Command "include-fsi-output" EmptyString as cmds) :: blocks when prevCodeId.IsSome ->
             let popts = getParaOptions cmds
 
             let p1 = EmbedParagraphs(FsiOutputReference(prevCodeId.Value, popts), None)
@@ -207,7 +213,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
         // Include the merge of the console and FSI output (stdout) of previous block
-        | BlockCommand(Command "include-fsi-merged-output" "" as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand(Command "include-fsi-merged-output" EmptyString as cmds) :: blocks when prevCodeId.IsSome ->
             let popts = getParaOptions cmds
 
             let p1 = EmbedParagraphs(FsiMergedOutputReference(prevCodeId.Value, popts), None)
@@ -223,7 +229,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
         // Include formatted 'it' of previous block
-        | BlockCommand((Command "include-it" "") as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand((Command "include-it" EmptyString) as cmds) :: blocks when prevCodeId.IsSome ->
             let popts = getParaOptions cmds
 
             let p1 = EmbedParagraphs(ItValueReference(prevCodeId.Value, popts), None)
@@ -239,7 +245,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false None count noEval (p :: acc) defs blocks
 
         // Include unformatted 'it' of previous block
-        | BlockCommand((Command "include-it-raw" "") as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand((Command "include-it-raw" EmptyString) as cmds) :: blocks when prevCodeId.IsSome ->
             let popts = getParaOptions cmds
 
             let p1 = EmbedParagraphs(ItRawReference(prevCodeId.Value, popts), None)

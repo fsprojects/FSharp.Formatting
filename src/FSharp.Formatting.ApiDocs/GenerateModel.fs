@@ -173,7 +173,7 @@ type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArgum
     member x.ObsoleteMessage =
         let tryFindObsoleteMessage =
             x.ConstructorArguments
-            |> Seq.tryFind (fun x -> x :? string)
+            |> List.tryFind (fun x -> x :? string)
             |> Option.map string
             |> Option.defaultValue ""
 
@@ -186,7 +186,7 @@ type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArgum
     member x.CustomOperationName =
         let tryFindCustomOperation =
             x.ConstructorArguments
-            |> Seq.tryFind (fun x -> x :? string)
+            |> List.tryFind (fun x -> x :? string)
             |> Option.map string
             |> Option.defaultValue ""
 
@@ -200,7 +200,10 @@ type ApiDocAttribute(name, fullName, constructorArguments, namedConstructorArgum
         let dropSuffix (s: string) (t: string) = s.[0 .. s.Length - t.Length - 1]
 
         let attributeName =
-            if removeAttributeSuffix && attributeName.EndsWith "Attribute" then
+            if
+                removeAttributeSuffix
+                && attributeName.EndsWith("Attribute", StringComparison.Ordinal)
+            then
                 dropSuffix attributeName "Attribute"
             else
                 attributeName
@@ -368,7 +371,7 @@ type ApiDocMember
                     printfn "%s(%d,%d): error: duplicate id for example '%s'" m.FileName m.StartLine m.StartColumn id
 
         for (id, _count) in knownExampleIds do
-            if id.StartsWith "example-" then
+            if id.StartsWith("example-", StringComparison.Ordinal) then
                 let potentialInteger = id.["example-".Length ..]
 
                 match System.Int32.TryParse potentialInteger with
@@ -482,13 +485,13 @@ type ApiDocMember
     member x.Symbol: FSharpSymbol = symbol
 
     /// Gets a value indicating whether this member is obsolete
-    member x.IsObsolete = x.Attributes |> Seq.exists (fun a -> a.IsObsoleteAttribute)
+    member x.IsObsolete = x.Attributes |> List.exists (fun a -> a.IsObsoleteAttribute)
 
     /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
     member x.ObsoleteMessage = ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
 
     member x.IsRequireQualifiedAccessAttribute =
-        x.Attributes |> Seq.exists (fun a -> a.IsRequireQualifiedAccessAttribute)
+        x.Attributes |> List.exists (fun a -> a.IsRequireQualifiedAccessAttribute)
 
     /// Returns the custom operation name, when this attribute is the CustomOperationAttribute.
     member x.CustomOperationName = ApiDocAttribute.TryGetCustomOperationName(x.Attributes)
@@ -602,7 +605,7 @@ type ApiDocEntity
     member x.StaticMembers: ApiDocMember list = stat
 
     /// Gets a value indicating whether this member is obsolete
-    member x.IsObsolete = x.Attributes |> Seq.exists (fun a -> a.IsObsoleteAttribute)
+    member x.IsObsolete = x.Attributes |> List.exists (fun a -> a.IsObsoleteAttribute)
 
     /// Returns the obsolete message, when this member is obsolete. When its not or no message was specified, an empty string is returned
     member x.ObsoleteMessage = ApiDocAttribute.TryGetObsoleteMessage(x.Attributes)
@@ -690,13 +693,13 @@ type ApiDocEntityInfo
 [<AutoOpen>]
 module internal CrossReferences =
     let getXmlDocSigForType (typ: FSharpEntity) =
-        match typ.XmlDocSig with
-        | "" ->
+        if not (String.IsNullOrWhiteSpace typ.XmlDocSig) then
+            typ.XmlDocSig
+        else
             try
                 defaultArg (Option.map (sprintf "T:%s") typ.TryFullName) ""
             with _ ->
                 ""
-        | n -> n
 
     let getMemberXmlDocsSigPrefix (memb: FSharpMemberOrFunctionOrValue) =
         if memb.IsEvent then "E"
@@ -704,8 +707,9 @@ module internal CrossReferences =
         else "M"
 
     let getXmlDocSigForMember (memb: FSharpMemberOrFunctionOrValue) =
-        match memb.XmlDocSig with
-        | "" ->
+        if not (String.IsNullOrWhiteSpace memb.XmlDocSig) then
+            memb.XmlDocSig
+        else
             let memberName =
                 try
                     let name = memb.CompiledName.Replace(".ctor", "#ctor")
@@ -757,7 +761,6 @@ module internal CrossReferences =
             match (memb.DeclaringEntity.Value.TryFullName) with
             | None -> ""
             | Some(n) -> sprintf "%s:%s.%s" (getMemberXmlDocsSigPrefix memb) n memberName
-        | n -> n
 
 type internal CrefReference =
     { IsInternal: bool
@@ -782,7 +785,8 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
     let nameGen (name: string) =
         let nice =
-            (toReplace |> Seq.fold (fun (s: string) (inv, repl) -> s.Replace(inv, repl)) name)
+            (toReplace
+             |> List.fold (fun (s: string) (inv, repl) -> s.Replace(inv, repl)) name)
                 .ToLower()
 
         let found =
@@ -837,7 +841,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             failwithf "The entity %s was not registered before!" (sprintf "%s.%s" entity.AccessPath entity.CompiledName)
 
     let removeParen (memberName: string) =
-        let firstParen = memberName.IndexOf("(")
+        let firstParen = memberName.IndexOf('(')
 
         if firstParen > 0 then
             memberName.Substring(0, firstParen)
@@ -874,7 +878,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         let noNamespaceParts =
             if hasModuleSuffix then
                 match noNamespaceParts with
-                | h :: t when h.EndsWith("Module") -> h.[0 .. h.Length - 7] :: t
+                | h :: t when h.EndsWith("Module", StringComparison.Ordinal) -> h.[0 .. h.Length - 7] :: t
                 | s -> s
             else
                 noNamespaceParts
@@ -890,7 +894,10 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         noGenerics
 
     let externalDocsLink isMember simple (typeName: string) (fullName: string) =
-        if fullName.StartsWith "FSharp." || fullName.StartsWith "Microsoft.FSharp." then
+        if
+            fullName.StartsWith("FSharp.", StringComparison.Ordinal)
+            || fullName.StartsWith("Microsoft.FSharp.", StringComparison.Ordinal)
+        then
             let noParen = removeParen typeName
 
             let docs =
@@ -1051,9 +1058,9 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
         match cref with
         // Type
-        | _ when cref.StartsWith("T:") -> Some(resolveCrossReferenceForTypeByXmlSig cref)
+        | _ when cref.StartsWith("T:", StringComparison.Ordinal) -> Some(resolveCrossReferenceForTypeByXmlSig cref)
         // Compiler was unable to resolve!
-        | _ when cref.StartsWith("!:") ->
+        | _ when cref.StartsWith("!:", StringComparison.Ordinal) ->
             Log.warnf "Compiler was unable to resolve %s" cref
             None
         // ApiDocMember
@@ -1165,7 +1172,7 @@ module internal TypeFormatter =
             match args with
             | [] -> typeName
             | [ arg ] ->
-                if tcref.DisplayName.StartsWith "[" then
+                if tcref.DisplayName.StartsWith '[' then
                     span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !!tcref.DisplayName ]
                 else
                     span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !! "&#32;"; typeName ]
@@ -1581,7 +1588,7 @@ module internal SymbolReader =
     let readUnionCase (ctx: ReadingContext) (_typ: FSharpEntity) (case: FSharpUnionCase) =
 
         let formatFieldUsage (field: FSharpField) =
-            if field.Name.StartsWith("Item") then
+            if field.Name.StartsWith("Item", StringComparison.Ordinal) then
                 formatTypeAsHtml ctx.UrlMap field.FieldType
             else
                 !!field.Name
@@ -1993,7 +2000,7 @@ module internal SymbolReader =
         let remarks =
             let remarkNodes = doc.Elements(XName.Get "remarks") |> Seq.toList
 
-            if Seq.length remarkNodes > 0 then
+            if List.length remarkNodes > 0 then
                 let html = new StringBuilder()
 
                 for (id, e) in List.indexed remarkNodes do
@@ -2036,7 +2043,11 @@ module internal SymbolReader =
                           // FSharp.Core cref listings don't start with "T:", see https://github.com/dotnet/fsharp/issues/9805
                           let cname = cref.Value
 
-                          let cname = if cname.StartsWith("T:") then cname else "T:" + cname // FSharp.Core exception listings don't start with "T:"
+                          let cname =
+                              if cname.StartsWith("T:", StringComparison.Ordinal) then
+                                  cname
+                              else
+                                  "T:" + cname // FSharp.Core exception listings don't start with "T:"
 
                           match urlMap.ResolveCref cname with
                           | Some reference ->
@@ -2095,7 +2106,7 @@ module internal SymbolReader =
 
             match lst with
             | [ x ] -> rawData.[n] <- x.Value
-            | lst -> lst |> Seq.iteri (fun id el -> rawData.[n + "-" + string id] <- el.Value))
+            | lst -> lst |> List.iteri (fun id el -> rawData.[n + "-" + string id] <- el.Value))
 
         let rawData = rawData |> Seq.toList
 
@@ -2756,9 +2767,9 @@ module internal SymbolReader =
     // ----------------------------------------------------------------------------------------------
 
     let stripMicrosoft (str: string) =
-        if str.StartsWith("Microsoft.") then
+        if str.StartsWith("Microsoft.", StringComparison.Ordinal) then
             str.["Microsoft.".Length ..]
-        elif str.StartsWith("microsoft-") then
+        elif str.StartsWith("microsoft-", StringComparison.Ordinal) then
             str.["microsoft-".Length ..]
         else
             str

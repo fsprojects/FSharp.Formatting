@@ -164,7 +164,7 @@ type FsiEvaluatorConfig() =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator
     (
-        ?options: string[],
+        ?options: string array,
         ?fsiObj: obj,
         ?addHtmlPrinter: bool,
         ?discardStdOut: bool,
@@ -486,7 +486,7 @@ module __FsiSettings =
             | { ItValue = Some(obj, ty) }, FsiEmbedKind.ItRaw ->
                 match
                     valueTransformations
-                    |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                    |> List.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
                 with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks ->
@@ -506,7 +506,7 @@ module __FsiSettings =
             | { Result = Some(obj, ty) }, FsiEmbedKind.Value ->
                 match
                     valueTransformations
-                    |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                    |> List.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
                 with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks -> blocks

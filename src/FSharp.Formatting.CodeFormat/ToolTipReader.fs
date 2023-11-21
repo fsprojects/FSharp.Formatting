@@ -4,16 +4,9 @@
 // --------------------------------------------------------------------------------------
 module internal FSharp.Formatting.CodeFormat.ToolTipReader
 
-open System
-open System.IO
 open System.Text
-open System.Web
-
 open FSharp.Collections
-
-open FSharp.Compiler
 open FSharp.Compiler.Symbols
-open FSharp.Compiler.Xml
 open FSharp.Compiler.EditorServices
 open FSharp.Compiler.Text
 
@@ -21,7 +14,7 @@ open FSharp.Compiler.Text
 // Implements formatting of tool tips
 // --------------------------------------------------------------------------------------
 
-let linesFromTaggedText (tags: TaggedText[]) =
+let linesFromTaggedText (tags: TaggedText array) =
     seq {
         let content = StringBuilder()
 
@@ -37,7 +30,7 @@ let linesFromTaggedText (tags: TaggedText[]) =
     }
 
 /// Turn string into a sequence of lines interleaved with line breaks
-let formatMultilineString (lines: string[]) =
+let formatMultilineString (lines: string array) =
     [ for line in lines do
           yield HardLineBreak
           yield Literal line ]

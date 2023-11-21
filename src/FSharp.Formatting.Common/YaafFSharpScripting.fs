@@ -82,8 +82,8 @@ module internal CompilerServiceExtensions =
                  //    printfn "option: %s" r
 
                  options.OtherOptions
-                 |> Array.filter (fun path -> path.StartsWith "-r:")
-                 |> Array.filter (fun path -> path.StartsWith "-r:")
+                 |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
+                 |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
                  //|> Seq.choose (fun path -> if path.StartsWith "-r:" then path.Substring 3 |> Some else None)
                  //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
                  |> Array.toList)
@@ -267,9 +267,9 @@ module internal CompilerServiceExtensions =
         member x.NamespaceName =
             x.FullName.Substring(
                 0,
-                match x.FullName.IndexOf("[") with
+                match x.FullName.IndexOf '[' with
                 | -1 -> x.FullName.Length
-                | _ as i -> i
+                | i -> i
             )
 
     type FSharpAssembly with
@@ -285,7 +285,7 @@ module internal CompilerServiceExtensions =
                     let fileName = Path.GetFileName file
 
                     dllFiles
-                    |> Seq.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
+                    |> List.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
                     |> not)
                 |> Seq.filter (fun file ->
                     if Path.GetFileName file =? "FSharp.Core.dll" then
@@ -458,7 +458,7 @@ module internal Shell =
 
 module internal ArgParser =
     let (|StartsWith|_|) (start: string) (s: string) =
-        if s.StartsWith(start) then
+        if s.StartsWith(start, StringComparison.Ordinal) then
             StartsWith(s.Substring(start.Length)) |> Some
         else
             None
@@ -466,12 +466,13 @@ module internal ArgParser =
     let (|FsiBoolArg|_|) argName s =
         match s with
         | StartsWith argName rest ->
-            match rest with
-            | null
-            | ""
-            | "+" -> Some true
-            | "-" -> Some false
-            | _ -> None
+            if String.IsNullOrWhiteSpace rest then
+                Some true
+            else
+                match rest with
+                | "+" -> Some true
+                | "-" -> Some false
+                | _ -> None
         | _ -> None
 
 open ArgParser
@@ -575,7 +576,7 @@ type internal FsiOptions =
         |> Seq.fold
             (fun (parsed, state) (arg: string) ->
                 match state, arg with
-                | (false, Some cont), _ when not (arg.StartsWith("--")) ->
+                | (false, Some cont), _ when not (arg.StartsWith("--", StringComparison.Ordinal)) ->
                     let parsed, (userArgs, newCont) = cont arg
                     parsed, (userArgs, unbox newCont)
                 | _, "--" -> parsed, (true, None)
@@ -1006,7 +1007,7 @@ type internal FsiSession
 
     let evalExpression = save fsiSession.EvalExpressionNonThrowing
 
-    let diagsToString (diags: FSharpDiagnostic[]) =
+    let diagsToString (diags: FSharpDiagnostic array) =
         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
     let addDiagsToFsiOutput (o: InteractionOutputs) diags =

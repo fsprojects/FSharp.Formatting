@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Templating
@@ -85,7 +86,11 @@ type internal LiterateDocModel =
     member x.Uri(root) =
         let uri = x.OutputPath.Replace("\\", "/")
 
-        let uri = if uri.StartsWith("./") then uri.[2..] else uri
+        let uri =
+            if uri.StartsWith("./", StringComparison.Ordinal) then
+                uri.[2..]
+            else
+                uri
 
         sprintf "%s%s" root uri
 

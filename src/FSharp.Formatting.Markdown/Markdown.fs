@@ -55,7 +55,7 @@ type Markdown internal () =
 
                   lineNo <- lineNo + 1
 
-              if text.EndsWith(newline) then
+              if text.EndsWith(newline, StringComparison.Ordinal) then
                   yield
                       ("",
                        { StartLine = lineNo

@@ -85,7 +85,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
                 ctx.Writer.Write(latexEncode body))
 
 /// Generate LaTEX with the specified snippets
-let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
+let formatSnippets (ctx: FormattingContext) (snippets: Snippet array) =
     [| for (Snippet(key, lines)) in snippets do
            // Generate snippet to a local StringBuilder
            let mainStr = StringBuilder()
@@ -121,7 +121,7 @@ let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
 
 /// Format snippets and return LaTEX for <pre> tags together
 /// (to be added to the end of document)
-let formatSnippetsAsLatex lineNumbers openTag closeTag (snippets: Snippet[]) =
+let formatSnippetsAsLatex lineNumbers openTag closeTag (snippets: Snippet array) =
     let ctx =
         { GenerateLineNumbers = lineNumbers
           Writer = null

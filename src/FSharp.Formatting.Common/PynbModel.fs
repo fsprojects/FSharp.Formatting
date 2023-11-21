@@ -1,17 +1,14 @@
 module internal FSharp.Formatting.PynbModel
 
-open System
-open System.IO
 open System.Web
 
 let escapeAndQuote (txt: string) =
     HttpUtility.JavaScriptStringEncode(txt, true)
 
-let addLineEnd (s: string) =
-    if s.EndsWith("\n") then s else s + "\n"
+let addLineEnd (s: string) = if s.EndsWith '\n' then s else s + "\n"
 
 type OutputData =
-    | OutputData of kind: string * lines: string[]
+    | OutputData of kind: string * lines: string array
 
     override this.ToString() =
         let (OutputData(kind, lines)) = this
@@ -49,8 +46,8 @@ type Cell =
     { cell_type: string
       execution_count: int option
       metadata: string
-      outputs: Output[]
-      source: string[] }
+      outputs: Output array
+      source: string array }
 
     static member Default =
         { cell_type = "code"
@@ -194,7 +191,7 @@ type Notebook =
     { nbformat: int
       nbformat_minor: int
       metadata: Metadata
-      cells: Cell[] }
+      cells: Cell array }
 
     static member Default =
         { nbformat = 4
@@ -220,7 +217,7 @@ type Notebook =
 let internal splitLines (s: string) =
     s.Replace("\r\n", "\n").Split([| '\n' |])
 
-let codeCell (lines: string[]) executionCount outputs =
+let codeCell (lines: string array) executionCount outputs =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
     let cell =
@@ -237,7 +234,7 @@ let rawCell (s: string) =
         cell_type = "raw"
         source = splitLines s }
 
-let markdownCell (lines: string[]) =
+let markdownCell (lines: string array) =
     let lines = lines |> Array.collect splitLines |> Array.map addLineEnd
 
     { Cell.Default with
