@@ -565,9 +565,9 @@ module Crack =
                 |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
                 |> fallbackFromDirectoryProps "//FsDocsReleaseNotesLink"
               FsDocsLogoLink =
-                  projectInfos
-                  |> List.tryPick (fun info -> info.FsDocsLogoLink)
-                  |> fallbackFromDirectoryProps "//FsDocsLogoLink"
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLogoLink)
+                |> fallbackFromDirectoryProps "//FsDocsLogoLink"
               FsDocsLogoSource =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsLogoSource)
@@ -622,7 +622,10 @@ module Crack =
                   param None ParamKeys.``fsdocs-authors`` (Some(info.Authors |> Option.defaultValue ""))
                   param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
                   param None ParamKeys.``fsdocs-copyright`` info.Copyright
-                  param (Some "<FsDocsLogoSource>") ParamKeys.``fsdocs-logo-src`` (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
+                  param
+                      (Some "<FsDocsLogoSource>")
+                      ParamKeys.``fsdocs-logo-src``
+                      (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
                   param
                       (Some "<FsDocsFaviconSource>")
                       ParamKeys.``fsdocs-favicon-src``
