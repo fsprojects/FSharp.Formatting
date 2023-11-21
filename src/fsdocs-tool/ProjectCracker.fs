@@ -214,7 +214,6 @@ module Crack =
           RepositoryType: string option
           RepositoryBranch: string option
           UsesMarkdownComments: bool
-          FsDocsCollectionNameLink: string option
           FsDocsLicenseLink: string option
           FsDocsLogoLink: string option
           FsDocsLogoSource: string option
@@ -330,7 +329,6 @@ module Crack =
                   RepositoryUrl = msbuildPropString "RepositoryUrl"
                   RepositoryType = msbuildPropString "RepositoryType"
                   RepositoryBranch = msbuildPropString "RepositoryBranch"
-                  FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink"
                   FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
                   FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
                   FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
@@ -558,7 +556,6 @@ module Crack =
                 |> Option.map ensureTrailingSlash
               RepositoryType = projectInfos |> List.tryPick (fun info -> info.RepositoryType)
               RepositoryBranch = projectInfos |> List.tryPick (fun info -> info.RepositoryBranch)
-              FsDocsCollectionNameLink = projectInfos |> List.tryPick (fun info -> info.FsDocsCollectionNameLink)
               FsDocsLicenseLink =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsLicenseLink)
@@ -567,7 +564,10 @@ module Crack =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
                 |> fallbackFromDirectoryProps "//FsDocsReleaseNotesLink"
-              FsDocsLogoLink = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoLink)
+              FsDocsLogoLink =
+                  projectInfos
+                  |> List.tryPick (fun info -> info.FsDocsLogoLink)
+                  |> fallbackFromDirectoryProps "//FsDocsLogoLink"
               FsDocsLogoSource =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsLogoSource)
@@ -621,19 +621,15 @@ module Crack =
                 [ param None ParamKeys.root (Some root)
                   param None ParamKeys.``fsdocs-authors`` (Some(info.Authors |> Option.defaultValue ""))
                   param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
-                  param
-                      None
-                      ParamKeys.``fsdocs-collection-name-link``
-                      (Some(info.FsDocsCollectionNameLink |> Option.defaultValue projectUrl))
                   param None ParamKeys.``fsdocs-copyright`` info.Copyright
-                  param None ParamKeys.``fsdocs-logo-src`` (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
+                  param (Some "<FsDocsLogoSource>") ParamKeys.``fsdocs-logo-src`` (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
                   param
-                      None
+                      (Some "<FsDocsFaviconSource>")
                       ParamKeys.``fsdocs-favicon-src``
                       (Some(defaultArg info.FsDocsFaviconSource "img/favicon.ico"))
                   param None ParamKeys.``fsdocs-theme`` (Some(defaultArg info.FsDocsTheme "default"))
                   param
-                      None
+                      (Some "<FsDocsLogoLink>")
                       ParamKeys.``fsdocs-logo-link``
                       (Some(info.FsDocsLogoLink |> Option.defaultValue projectUrl))
                   param
