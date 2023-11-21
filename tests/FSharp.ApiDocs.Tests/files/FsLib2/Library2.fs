@@ -126,9 +126,7 @@ type Test_Empty_Code_Block() =
 module ``Space-Missing`` =
 
     /// Implicit cast operator test
-    type ``Implicit-Cast``(value: int) =
-        class
-        end
+    type ``Implicit-Cast``(value: int) = class end
 
 
 module CommentExamples =

@@ -32,9 +32,7 @@ type FsiEmbedKind =
 
 /// An interface that represents FSI evaluation result
 /// (we make this abstract so that evaluators can store other info)
-type IFsiEvaluationResult =
-    interface
-    end
+type IFsiEvaluationResult = interface end
 
 /// Represents the result of evaluating an F# snippet. This contains
 /// the generated console output together with a result and its static type.

@@ -47,7 +47,7 @@ let lintStage =
 let testStage =
     stage "Tests" {
         run
-            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --framework net7.0 --results-directory TestResults"
+            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
     }
 
 pipeline "CI" {
@@ -61,11 +61,11 @@ pipeline "CI" {
     }
 
     stage "Build" {
-        run $"dotnet restore {solutionFile}"
-        run $"dotnet build {solutionFile} --configuration {configuration}"
+        run $"dotnet restore {solutionFile} -tl"
+        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
     }
 
-    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration}" }
+    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
     testStage
 

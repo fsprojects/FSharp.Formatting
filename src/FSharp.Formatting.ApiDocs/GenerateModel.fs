@@ -3132,46 +3132,28 @@ type ApiDocsSearchIndexEntry =
     }
 
 [<Obsolete("Renamed to ApiDocMember", true)>]
-type Member =
-    class
-    end
+type Member = class end
 
 [<Obsolete("Renamed to ApiDocMemberKind", true)>]
-type MemberKind =
-    class
-    end
+type MemberKind = class end
 
 [<Obsolete("Renamed to ApiDocAttribute", true)>]
-type Attribute =
-    class
-    end
+type Attribute = class end
 
 [<Obsolete("Renamed to ApiDocComment", true)>]
-type DocComment =
-    class
-    end
+type DocComment = class end
 
 [<Obsolete("Renamed to ApiDocEntity", true)>]
-type Module =
-    class
-    end
+type Module = class end
 
 [<Obsolete("Renamed to ApiDocEntityInfo", true)>]
-type ModuleInfo =
-    class
-    end
+type ModuleInfo = class end
 
 [<Obsolete("Renamed to ApiDocEntity", true)>]
-type Type =
-    class
-    end
+type Type = class end
 
 [<Obsolete("Renamed to ApiDocEntity", true)>]
-type ApiDocType =
-    class
-    end
+type ApiDocType = class end
 
 [<Obsolete("Renamed to ApiDocTypeInfo", true)>]
-type TypeInfo =
-    class
-    end
+type TypeInfo = class end
