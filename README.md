@@ -18,6 +18,17 @@ Once built, you can run the command-line tool to self-build the docs for this di
     src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe watch
     src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe build --clean
 
+### Pipelines
+
+Run
+    dotnet fsi build.fsx -- --help
+
+to see what other pipelines can be run from `build.fsx`.
+
+    dotnet fsi build.fsx -- -p Verify
+
+Will perform the linting, unit tests and analyzer check.
+This is useful to run locally before submitting your PR.
 
 ## Maintainer(s)
 

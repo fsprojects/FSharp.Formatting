@@ -1,4 +1,4 @@
-#r "nuget: Fun.Build, 0.3.8"
+#r "nuget: Fun.Build, 1.0.4"
 #r "nuget: Fake.IO.FileSystem, 6.0.0"
 #r "nuget: Ionide.KeepAChangelog, 0.1.8"
 
@@ -38,11 +38,20 @@ let releaseNugetVersion, _, _ =
 
 let solutionFile = "FSharp.Formatting.sln"
 
-pipeline "CI" {
+let lintStage =
     stage "Lint" {
         run "dotnet tool restore"
         run $"dotnet fantomas {__SOURCE_FILE__} src tests docs --check"
     }
+
+let testStage =
+    stage "Tests" {
+        run
+            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --framework net7.0 --results-directory TestResults"
+    }
+
+pipeline "CI" {
+    lintStage
 
     stage "Clean" {
         run (fun _ ->
@@ -58,10 +67,7 @@ pipeline "CI" {
 
     stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration}" }
 
-    stage "Tests" {
-        run
-            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --framework net7.0 --results-directory TestResults"
-    }
+    testStage
 
     stage "GenerateDocs" {
         run (fun _ ->
@@ -78,6 +84,13 @@ pipeline "CI" {
     }
 
     runIfOnlySpecified false
+}
+
+pipeline "Verify" {
+    lintStage
+    testStage
+    stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
+    runIfOnlySpecified true
 }
 
 tryPrintPipelineCommandHelp ()
