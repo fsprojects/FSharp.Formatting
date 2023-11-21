@@ -23,7 +23,7 @@
     <PackageVersion Include="FsUnit" Version="5.6.0" />
     <PackageVersion Include="FSharp.Data" Version="6.3.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8"  />
   </ItemGroup>
 </Project>
