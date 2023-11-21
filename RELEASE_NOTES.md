@@ -7,6 +7,7 @@
 
 ### Removed
 - `--fsdocs-theme-toggle-light-color` and `--fsdocs-theme-toggle-dark-color` are now deprecated. Use `--header-link-color` instead.
+- `<FsDocsCollectionNameLink>`
 
 ## 20.0.0-alpha-012 - 2023-11-17
 
