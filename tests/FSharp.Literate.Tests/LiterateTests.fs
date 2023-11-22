@@ -1468,6 +1468,80 @@ let add a b = a + b
     (mdOut.Trim()) |> shouldEqual (mdIn.Trim())
 
 [<Test>]
+let ``Notebook is converted to script exactly right`` () =
+    let doc =
+        Literate.ParsePynbString(
+                    """
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],
+   "source": [
+    "let hello = 1\n",
+    "\n",
+    "let goodbye = 2\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "polyglot-notebook",
+   "pygments_lexer": "fsharp"
+  },
+  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}""",
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
+        )
+
+    let fsx = Literate.ToFsx(doc)
+    printfn "----"
+    printfn "%s" fsx
+    printfn "----"
+
+    let fsx2 = fsx.Replace("\r\n", "\n").Replace("\n", "!")
+
+    let expected =
+            """let hello = 1
+
+let goodbye = 2"""
+
+    let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+
+    fsx2 |> shouldEqual expected2
+
+[<Test>]
 let ``Script output is exactly right`` () =
     let md =
         Literate.ParseScriptString(

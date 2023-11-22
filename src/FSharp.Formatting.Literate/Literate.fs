@@ -223,6 +223,45 @@ type Literate private () =
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
 
+    /// <summary>
+    /// Parse pynb string as literate document
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="path">optional file path for debugging purposes</param>
+    /// <param name="definedSymbols"></param>
+    /// <param name="references"></param>
+    /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
+    /// <param name="rootInputFolder"></param>
+    /// <param name="onError"></param>
+    static member ParsePynbString
+        (
+            content,
+            ?path,
+            ?definedSymbols,
+            ?references,
+            ?parseOptions,
+            ?rootInputFolder,
+            ?onError
+        ) =
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext None None definedSymbols onError
+
+        let filePath =
+            match path with
+            | Some s -> s
+            | None ->
+                match rootInputFolder with
+                | None -> "C:\\script.fsx"
+                | Some r -> Path.Combine(r, "script.fsx")
+        
+        let content = ParsePynb.pynbStringToFsx content
+        
+        ParseScript(parseOptions, ctx)
+            .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
+        |> Transformations.generateReferences references
+        |> Transformations.formatCodeSnippets filePath ctx
+        |> Transformations.evaluateCodeSnippets ctx
+
     // ------------------------------------------------------------------------------------
     // Simple writing functions
     // ------------------------------------------------------------------------------------
@@ -542,11 +581,11 @@ type Literate private () =
             //||| MarkdownParseOptions.ParseNonCodeAsOther
             | _ -> parseOptions
 
-        let md = ParsePynb.pynbToMarkdown input
+        let fsx = ParsePynb.pynbToFsx input
 
         let doc =
-            Literate.ParseMarkdownString(
-                md,
+            Literate.ParseScriptString(
+                fsx,
                 ?fscOptions = fscOptions,
                 ?references = references,
                 parseOptions = parseOptions,

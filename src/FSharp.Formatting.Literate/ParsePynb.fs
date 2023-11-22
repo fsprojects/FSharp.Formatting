@@ -25,6 +25,19 @@ module internal ParsePynb =
                 | Some outputs ->
                     let outputsString = outputs |> String.concat "\n"
                     sprintf $"{codeBlock}\n{outputsString}"
+        member this.ToFsx() =
+            match this with
+            | Markdown source -> $"(**\n{source}\n*)"
+            | Code code when code.lang = "fsharp" ->
+                let codeBlock = addLineEnd code.source
+
+                match code.outputs with
+                | None -> codeBlock
+                | Some outputs ->
+                    let outputsString = outputs |> String.concat "\n"
+                    sprintf $"{codeBlock}\n(**\n{outputsString}\n*)"
+            | Code _ ->
+                $"(**\n{this.ToMarkdown()}\n*)" 
 
     module Output =
         let (|TextHtml|_|) (x: JsonElement) =
@@ -146,6 +159,17 @@ module internal ParsePynb =
 
     let pynbToMarkdown ipynbFile =
         ipynbFile |> File.ReadAllText |> pynbStringToMarkdown
+
+
+    let pynbStringToFsx (ipynb: string) =
+        let json = JsonDocument.Parse(ipynb)
+
+        json.RootElement.GetProperty("cells").EnumerateArray()
+        |> Seq.map (parseCell >> (fun x -> x.ToFsx()))
+        |> String.concat "\n"
+
+    let pynbToFsx ipynbFile =
+        ipynbFile |> File.ReadAllText |> pynbStringToFsx
 
     let parseFrontMatter ipynbFile =
         let json = JsonDocument.Parse(ipynbFile |> File.ReadAllText)
