@@ -185,7 +185,7 @@ type internal DocContent
 
           if name.StartsWith('.') then
               printfn "skipping file %s" inputFileFullPath
-          elif not (name.StartsWith "_template") then
+          elif not (name.StartsWith("_template", StringComparison.Ordinal)) then
               let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
 
               let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
