@@ -1359,7 +1359,7 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
 [<Test>]
 let ``Notebook output is exactly right`` () =
-    let md =
+    let doc =
         Literate.ParseScriptString(
             """
 let hello = 1
@@ -1371,7 +1371,7 @@ let goodbye = 2
                  ||| MarkdownParseOptions.ParseNonCodeAsOther)
         )
 
-    let pynb = Literate.ToPynb(md)
+    let pynb = Literate.ToPynb(doc)
     printfn "----"
     printfn "%s" pynb
     printfn "----"
@@ -1433,6 +1433,299 @@ let goodbye = 2
 
     pynb2 |> shouldEqual expected2
 
+[<Test>]
+let ``pynb outputs passed to script correctly`` () =
+
+    let input =
+        """{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "dotnet_repl_cellExecutionStartTime": "2023-11-22T09:25:48.0570832+00:00",
+    "dotnet_repl_cellExecutionEndTime": "2023-11-22T09:25:48.0798154+00:00"
+   },
+   "source": [
+    "words"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "dotnet_repl_cellExecutionStartTime": "2023-11-22T09:25:48.081018+00:00",
+    "dotnet_repl_cellExecutionEndTime": "2023-11-22T09:25:50.1467326+00:00",
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<details open=\"open\" class=\"dni-treeview\"><summary><span class=\"dni-code-hint\"><code>{ Name = &quot;Alf&quot;\\n  Phone = &quot;(555) 555-5555&quot;\\n  ZipCode = &quot;90210&quot; }</code></span></summary><div><table><thead><tr></tr></thead><tbody><tr><td>Name</td><td><div class=\"dni-plaintext\"><pre>&quot;Alf&quot;\r\n",
+       "</pre></div></td></tr><tr><td>Phone</td><td><div class=\"dni-plaintext\"><pre>&quot;(555) 555-5555&quot;\r\n",
+       "</pre></div></td></tr><tr><td>ZipCode</td><td><div class=\"dni-plaintext\"><pre>&quot;90210&quot;\r\n",
+       "</pre></div></td></tr></tbody></table></div></details><style>\r\n",
+       ".dni-code-hint {\r\n",
+       "    font-style: italic;\r\n",
+       "    overflow: hidden;\r\n",
+       "    white-space: nowrap;\r\n",
+       "}\r\n",
+       ".dni-treeview {\r\n",
+       "    white-space: nowrap;\r\n",
+       "}\r\n",
+       ".dni-treeview td {\r\n",
+       "    vertical-align: top;\r\n",
+       "    text-align: start;\r\n",
+       "}\r\n",
+       "details.dni-treeview {\r\n",
+       "    padding-left: 1em;\r\n",
+       "}\r\n",
+       "table td {\r\n",
+       "    text-align: start;\r\n",
+       "}\r\n",
+       "table tr { \r\n",
+       "    vertical-align: top; \r\n",
+       "    margin: 0em 0px;\r\n",
+       "}\r\n",
+       "table tr td pre \r\n",
+       "{ \r\n",
+       "    vertical-align: top !important; \r\n",
+       "    margin: 0em 0px !important;\r\n",
+       "} \r\n",
+       "table th {\r\n",
+       "    text-align: start;\r\n",
+       "}\r\n",
+       "</style>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "type ContactCard =\n",
+    "    { Name: string\n",
+    "      Phone: string\n",
+    "      ZipCode: string }\n",
+    "\n",
+    "// Create a new record\n",
+    "{ Name = \"Alf\"; Phone = \"(555) 555-5555\"; ZipCode = \"90210\" }"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "F#",
+   "pygments_lexer": "fsharp",
+   "version": "6.0"
+  },
+  "polyglot_notebook": {
+   "defaultKernelName": "fsharp",
+   "items": [
+    {
+     "name": "fsharp"
+    }
+   ]
+  },
+  "dotnet_interactive": {
+   "defaultKernelName": "fsharp",
+   "items": [
+    {
+     "name": "fsharp"
+    }
+   ]
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}"""
+
+    let doc = Literate.ParsePynbString(input, parseOptions = (MarkdownParseOptions.ParseCodeAsOther))
+
+    let fsx = Literate.ToFsx(doc)
+    printfn "----"
+    printfn "%s" fsx
+    printfn "----"
+
+    let fsx2 =
+        fsx
+            .Replace("\r\n", "\n")
+            .Replace(" \n", "\n")
+            .Replace("\n\n*)", "\n*)")
+            .Replace("\n", "!")
+
+    let expected =
+        """(**
+words
+*)
+type ContactCard =
+    { Name: string
+      Phone: string
+      ZipCode: string }
+
+// Create a new record
+{ Name = "Alf"; Phone = "(555) 555-5555"; ZipCode = "90210" }
+(**
+<p><details open="open" class="dni-treeview"><summary><span class="dni-code-hint"><code>{ Name = &quot;Alf&quot;\n  Phone = &quot;(555) 555-5555&quot;\n  ZipCode = &quot;90210&quot; }</code></span></summary><div><table><thead><tr></tr></thead><tbody><tr><td>Name</td><td><div class="dni-plaintext"><pre>&quot;Alf&quot;
+</pre></div></td></tr><tr><td>Phone</td><td><div class="dni-plaintext"><pre>&quot;(555) 555-5555&quot;
+</pre></div></td></tr><tr><td>ZipCode</td><td><div class="dni-plaintext"><pre>&quot;90210&quot;
+</pre></div></td></tr></tbody></table></div></details><style>
+.dni-code-hint {
+    font-style: italic;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.dni-treeview {
+    white-space: nowrap;
+}
+.dni-treeview td {
+    vertical-align: top;
+    text-align: start;
+}
+details.dni-treeview {
+    padding-left: 1em;
+}
+table td {
+    text-align: start;
+}
+table tr {
+    vertical-align: top;
+    margin: 0em 0px;
+}
+table tr td pre
+{
+    vertical-align: top !important;
+    margin: 0em 0px !important;
+}
+table th {
+    text-align: start;
+}
+</style>
+</p>
+*)"""
+
+    let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+    fsx2 |> shouldEqual expected2
+
+[<Test>]
+let ``md --> pynb --> md comes back the same`` () =
+    let mdIn =
+        """Heading
+=======
+
+|  Col1 | Col2 |
+|:----:|------|
+|  Table with heading cell A1   | Table with heading cell B1    |
+|  Table with heading cell A2   | Table with heading cell B2    |
+
+```fsharp
+let add a b = a + b
+```
+
+```csharp
+```
+
+```python
+```
+"""
+
+    let mdOut =
+        Literate.ParseMarkdownString(
+            mdIn,
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
+        )
+        |> Literate.ToPynb
+        |> ParsePynb.pynbStringToMarkdown
+
+    (mdOut.Trim()) |> shouldEqual (mdIn.Trim())
+
+[<Test>]
+let ``Notebook is converted to script exactly right`` () =
+    let doc =
+        Literate.ParsePynbString(
+            """
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],
+   "source": [
+    "let hello = 1\n",
+    "\n",
+    "let goodbye = 2\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "polyglot-notebook",
+   "pygments_lexer": "fsharp"
+  },
+  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}""",
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
+        )
+
+    let fsx = Literate.ToFsx(doc)
+    printfn "----"
+    printfn "%s" fsx
+    printfn "----"
+
+    let fsx2 = fsx.Replace("\r\n", "\n").Replace("\n", "!")
+
+    let expected =
+        """let hello = 1
+
+let goodbye = 2"""
+
+    let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+
+    fsx2 |> shouldEqual expected2
 
 [<Test>]
 let ``Script output is exactly right`` () =

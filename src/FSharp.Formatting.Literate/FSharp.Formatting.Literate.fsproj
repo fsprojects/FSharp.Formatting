@@ -16,6 +16,7 @@
     <Compile Include="Contexts.fs" />
     <Compile Include="ParseScript.fs" />
     <Compile Include="ParseMarkdown.fs" />
+    <Compile Include="ParsePynb.fs" />
     <Compile Include="Transformations.fs" />
     <Compile Include="Formatting.fs" />
     <Compile Include="Literate.fs" />
@@ -26,7 +27,6 @@
     <ProjectReference Include="..\FSharp.Formatting.Common\FSharp.Formatting.Common.fsproj" PrivateAssets="all" />
     <ProjectReference Include="..\FSharp.Formatting.Markdown\FSharp.Formatting.Markdown.fsproj" PrivateAssets="all" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- ugly hack: inline p2p libraries in NuGet package
          workaround for https://github.com/NuGet/Home/issues/3891 -->
@@ -38,5 +38,6 @@
   <ItemGroup>
     <PackageReference Include="FSharp.Core" />
     <PackageReference Include="FSharp.Compiler.Service" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 </Project>

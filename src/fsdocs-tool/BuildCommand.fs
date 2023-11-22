@@ -74,10 +74,11 @@ type internal DocContent
         let inputFileName = Path.GetFileName(inputFileFullPath)
         let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
         let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+        let isPynb = inputFileFullPath.EndsWith(".ipynb", true, CultureInfo.InvariantCulture)
         let ext = outputKind.Extension
 
         let outputFileRelativeToRoot =
-            if isFsx || isMd then
+            if isFsx || isMd || isPynb then
                 let basename = Path.GetFileNameWithoutExtension(inputFileFullPath)
 
                 Path.Combine(outputFolderRelativeToRoot, sprintf "%s.%s" basename ext)
@@ -185,9 +186,11 @@ type internal DocContent
           if name.StartsWith('.') then
               printfn "skipping file %s" inputFileFullPath
           elif not (name.StartsWith("_template", StringComparison.Ordinal)) then
-              let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
+              let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
 
-              let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+              let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+
+              let isPynb = inputFileFullPath.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
 
               // A _template.tex or _template.pynb is needed to generate those files
               match outputKind, template with
@@ -220,7 +223,7 @@ type internal DocContent
 
                       let templateChangeTime =
                           match template with
-                          | Some t when isFsx || isMd ->
+                          | Some t when isFsx || isMd || isPynb ->
                               try
                                   let fi = FileInfo(t)
                                   let input = fi.Directory.Name
@@ -326,6 +329,99 @@ type internal DocContent
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
                                   parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
+                              )
+
+                          yield
+                              ((if mainRun then
+                                    Some(inputFileFullPath, isOtherLang, model)
+                                else
+                                    None),
+                               (fun p ->
+                                   printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+
+                                   SimpleTemplating.UseFileAsSimpleTemplate(
+                                       p @ model.Substitutions,
+                                       template,
+                                       outputFileFullPath
+                                   )))
+                      elif isPynb then
+                          printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+
+                          let evaluateNotebook ipynbFile =
+                              let args =
+                                  $"repl --run {ipynbFile} --default-kernel fsharp --exit-after-run --output-path {ipynbFile}"
+
+                              let psi =
+                                  ProcessStartInfo(
+                                      fileName = "dotnet",
+                                      arguments = args,
+                                      UseShellExecute = false,
+                                      CreateNoWindow = true
+                                  )
+
+                              try
+                                  let p = Process.Start(psi)
+                                  p.WaitForExit()
+                              with _ ->
+                                  let msg =
+                                      $"Failed to evaluate notebook {ipynbFile} using dotnet-repl\n"
+                                      + $"""try running "{args}" at the command line and inspect the error"""
+
+                                  failwith msg
+
+                          let checkDotnetReplInstall () =
+                              let failmsg =
+                                  "'dotnet-repl' is not installed. Please install it using 'dotnet tool install dotnet-repl'"
+
+                              try
+                                  let psi =
+                                      ProcessStartInfo(
+                                          fileName = "dotnet",
+                                          arguments = "tool list --local",
+                                          UseShellExecute = false,
+                                          CreateNoWindow = true,
+                                          RedirectStandardOutput = true
+                                      )
+
+                                  let p = Process.Start(psi)
+                                  let ol = p.StandardOutput.ReadToEnd()
+                                  p.WaitForExit()
+                                  psi.Arguments <- "tool list --global"
+                                  p.Start() |> ignore
+                                  let og = p.StandardOutput.ReadToEnd()
+                                  let output = $"{ol}\n{og}"
+
+                                  if not (output.Contains("dotnet-repl")) then
+                                      failwith failmsg
+
+                                  p.WaitForExit()
+                              with _ ->
+                                  failwith failmsg
+
+                          if evaluate then
+                              checkDotnetReplInstall ()
+                              printfn $"  evaluating {inputFileFullPath} with dotnet-repl"
+                              evaluateNotebook inputFileFullPath
+
+
+                          let model =
+                              Literate.ParseAndTransformPynbFile(
+                                  inputFileFullPath,
+                                  output = outputFileRelativeToRoot,
+                                  outputKind = outputKind,
+                                  prefix = None,
+                                  fscOptions = None,
+                                  lineNumbers = lineNumbers,
+                                  references = Some false,
+                                  substitutions = substitutions,
+                                  generateAnchors = Some true,
+                                  imageSaver = imageSaverOpt,
+                                  rootInputFolder = rootInputFolder,
+                                  crefResolver = crefResolver,
+                                  mdlinkResolver = mdlinkResolver,
                                   onError = Some onError,
                                   filesWithFrontMatter = filesWithFrontMatter
                               )
@@ -558,6 +654,8 @@ type internal DocContent
                     ParseScript.ParseFrontMatter(fileName)
                 elif ext = ".md" then
                     File.ReadLines fileName |> FrontMatterFile.ParseFromLines fileName
+                elif ext = ".ipynb" then
+                    ParsePynb.parseFrontMatter fileName
                 else
                     None)
             |> Seq.sortBy (fun { Index = idx; CategoryIndex = cIdx } -> cIdx, idx)
