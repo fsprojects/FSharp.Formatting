@@ -88,7 +88,7 @@ The default template is heavily based
 on [CSS variables](https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties). These can easily be
 override to customize the look and feel of the default theme.  
 A full list of the overrideable variables can be
-found [here](https://github.com/fsprojects/FSharp.Formatting/blob/main/docs/content/fsdocs-theme.css).
+found [here](https://github.com/fsprojects/FSharp.Formatting/blob/main/docs/content/fsdocs-default.css).
 
 ```css
 :root {
