@@ -1,5 +1,13 @@
 # Changelog
 
+## 20.0.0-alpha-014 - 2023-11-22
+
+### Added
+* Added the ability to use ipynb files as inputs [#874](https://github.com/fsprojects/FSharp.Formatting/pull/874)
+
+### Fixed
+* Fsx outputs no longer treat inline html as F# code. Inline html blocks are now enclosed inside literate comments. 
+
 ## 20.0.0-alpha-013 - 2023-11-21
 
 ### Added
