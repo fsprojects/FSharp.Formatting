@@ -1114,6 +1114,26 @@ span[onmouseout] {
     }
 }
 
+.fsdocs-source-link {
+    display: none;
+    padding: 0 var(--spacing-100);
+    color: var(--text-color);
+    cursor: pointer;
+    height: var(--font-500);
+    width: var(--font-500);
+    margin: 0 var(--spacing-50);
+
+    &:hover {
+        color: var(--primary);
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .fsdocs-source-link {
+        display: block;
+    }
+}
+
 /* Search */
 ::backdrop {
     background-color: #020202;
