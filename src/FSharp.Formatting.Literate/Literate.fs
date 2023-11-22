@@ -568,18 +568,16 @@ type Literate private () =
             rootInputFolder,
             crefResolver,
             mdlinkResolver,
-            parseOptions,
             onError,
             filesWithFrontMatter: FrontMatterFile array
         ) =
 
         let parseOptions =
             match outputKind with
-            | OutputKind.Markdown
             | OutputKind.Fsx
-            | OutputKind.Pynb -> parseOptions ||| MarkdownParseOptions.ParseCodeAsOther
-            //||| MarkdownParseOptions.ParseNonCodeAsOther
-            | _ -> parseOptions
+            | OutputKind.Pynb -> 
+                (MarkdownParseOptions.ParseCodeAsOther)
+            | _ -> MarkdownParseOptions.None
 
         let fsx = ParsePynb.pynbToFsx input
 

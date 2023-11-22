@@ -25,6 +25,7 @@ module internal ParsePynb =
                 | Some outputs ->
                     let outputsString = outputs |> String.concat "\n"
                     sprintf $"{codeBlock}\n{outputsString}"
+
         member this.ToFsx() =
             match this with
             | Markdown source -> $"(**\n{source}\n*)"
@@ -36,14 +37,17 @@ module internal ParsePynb =
                 | Some outputs ->
                     let outputsString = outputs |> String.concat "\n"
                     sprintf $"{codeBlock}\n(**\n{outputsString}\n*)"
-            | Code _ ->
-                $"(**\n{this.ToMarkdown()}\n*)" 
+            | Code _ -> $"(**\n{this.ToMarkdown()}\n*)"
 
     module Output =
         let (|TextHtml|_|) (x: JsonElement) =
             match x.TryGetProperty("text/html") with
             | true, html ->
-                let html = html.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat "\n"
+                let html =
+                    html.EnumerateArray()
+                    |> Seq.map (fun x -> x.GetString().Replace("\r\n", "\n") |> addLineEnd)
+                    |> String.concat ""
+
                 Some $"<p>{html}</p>"
             | _ -> None
 

@@ -422,7 +422,6 @@ type internal DocContent
                                   rootInputFolder = rootInputFolder,
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
-                                  parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
                                   onError = Some onError,
                                   filesWithFrontMatter = filesWithFrontMatter
                               )
