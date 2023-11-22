@@ -253,9 +253,9 @@ type Literate private () =
                 match rootInputFolder with
                 | None -> "C:\\script.fsx"
                 | Some r -> Path.Combine(r, "script.fsx")
-        
+
         let content = ParsePynb.pynbStringToFsx content
-        
+
         ParseScript(parseOptions, ctx)
             .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
         |> Transformations.generateReferences references
@@ -575,8 +575,7 @@ type Literate private () =
         let parseOptions =
             match outputKind with
             | OutputKind.Fsx
-            | OutputKind.Pynb -> 
-                (MarkdownParseOptions.ParseCodeAsOther)
+            | OutputKind.Pynb -> (MarkdownParseOptions.ParseCodeAsOther)
             | _ -> MarkdownParseOptions.None
 
         let fsx = ParsePynb.pynbToFsx input
