@@ -28,6 +28,6 @@
     <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" />
     <PackageVersion Include="FSharp.Analyzers.Build" Version="0.2.0" />
     <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.3.1" />
-    <PackageVersion Include="Ionide.Analyzers" Version="0.4.0" />
+    <PackageVersion Include="Ionide.Analyzers" Version="0.5.0" />
   </ItemGroup>
 </Project>
