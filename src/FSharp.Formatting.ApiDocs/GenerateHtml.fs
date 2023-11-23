@@ -256,9 +256,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                         h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
 
                                         p [
-                                            Class "fsdocs-example"
-                                            if e.Id.IsSome then
-                                                Id e.Id.Value
+                                            yield Class "fsdocs-example"
+                                            match e.Id with
+                                            | None -> ()
+                                            | Some id -> yield Id id
                                         ] [ embed e ]
                                     //if m.IsObsolete then
                                     //    obsoleteMessage m.ObsoleteMessage
@@ -610,13 +611,19 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                   | _ -> () ]
 
     let listOfNamespacesNav otherDocs (nsOpt: ApiDocNamespace option) =
-        let isTemplatingAvailable =
-            match menuTemplateFolder with
-            | None -> false
-            | Some input -> Menu.isTemplatingAvailable input
+        let noTemplatingFallback () =
+            listOfNamespacesNavAux otherDocs nsOpt
+            |> List.map (fun html -> html.ToString())
+            |> String.concat "             \n"
 
-        if isTemplatingAvailable then
-            if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
+        match menuTemplateFolder with
+        | None -> noTemplatingFallback ()
+        | Some menuTemplateFolder ->
+            let isTemplatingAvailable = Menu.isTemplatingAvailable menuTemplateFolder
+
+            if not isTemplatingAvailable then
+                noTemplatingFallback ()
+            else if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
                 let menuItems =
                     let title = "All Namespaces"
                     let link = model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)
@@ -625,7 +632,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         Menu.MenuItem.Content = title
                         Menu.MenuItem.IsActive = true } ]
 
-                Menu.createMenu menuTemplateFolder.Value false "API Reference" menuItems
+                Menu.createMenu menuTemplateFolder false "API Reference" menuItems
 
             else
                 let categorise = Categorise.model model
@@ -643,11 +650,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                               Menu.MenuItem.Content = name
                               Menu.MenuItem.IsActive = false })
 
-                    Menu.createMenu menuTemplateFolder.Value false "Namespaces" menuItems
-        else
-            listOfNamespacesNavAux otherDocs nsOpt
-            |> List.map (fun html -> html.ToString())
-            |> String.concat "             \n"
+                    Menu.createMenu menuTemplateFolder false "Namespaces" menuItems
 
     /// Get the substitutions relevant to all
     member _.GlobalSubstitutions: Substitutions =

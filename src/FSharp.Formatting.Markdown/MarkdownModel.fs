@@ -70,7 +70,7 @@ type MarkdownParagraph =
     | InlineHtmlBlock of code: string * executionCount: int option * range: MarkdownRange option
 
     /// A Markdown List block
-    | ListBlock of kind: MarkdownListKind * items: list<MarkdownParagraphs> * range: MarkdownRange option
+    | ListBlock of kind: MarkdownListKind * items: MarkdownParagraphs list * range: MarkdownRange option
 
     /// A Markdown Quote block
     | QuotedBlock of paragraphs: MarkdownParagraphs * range: MarkdownRange option
@@ -79,16 +79,16 @@ type MarkdownParagraph =
     | Span of body: MarkdownSpans * range: MarkdownRange option
 
     /// A Markdown Latex block
-    | LatexBlock of env: string * body: list<string> * range: MarkdownRange option
+    | LatexBlock of env: string * body: string list * range: MarkdownRange option
 
     /// A Markdown Horizontal rule
     | HorizontalRule of character: char * range: MarkdownRange option
 
     /// A Markdown Table
     | TableBlock of
-        headers: option<MarkdownTableRow> *
-        alignments: list<MarkdownColumnAlignment> *
-        rows: list<MarkdownTableRow> *
+        headers: MarkdownTableRow option *
+        alignments: MarkdownColumnAlignment list *
+        rows: MarkdownTableRow list *
         range: MarkdownRange option
 
     /// Represents a block of markdown produced when parsing of code or tables or quoted blocks is suppressed
@@ -104,10 +104,10 @@ type MarkdownParagraph =
     | OutputBlock of output: string * kind: string * executionCount: int option
 
 /// A type alias for a list of paragraphs
-type MarkdownParagraphs = list<MarkdownParagraph>
+type MarkdownParagraphs = MarkdownParagraph list
 
 /// A type alias representing table row as a list of paragraphs
-type MarkdownTableRow = list<MarkdownParagraphs>
+type MarkdownTableRow = MarkdownParagraphs list
 
 /// Provides an extensibility point for adding custom kinds of paragraphs into a document
 /// (MarkdownEmbedParagraphs values can be embedded using MarkdownParagraph.EmbedParagraphs)

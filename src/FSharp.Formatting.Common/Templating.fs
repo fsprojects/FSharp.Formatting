@@ -213,7 +213,7 @@ module internal SimpleTemplating =
 #endif
 
     // Replace '{{xyz}}' in template text
-    let ApplySubstitutionsInText (substitutions: seq<ParamKey * string>) (text: string) =
+    let ApplySubstitutionsInText (substitutions: (ParamKey * string) seq) (text: string) =
         if not (text.Contains "{{") then
             text
         else
@@ -258,8 +258,8 @@ module internal SimpleTemplating =
 
             sb.ToString()
 
-    // Replace '{{xyz}}' in text
-    let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
+    /// Replace '{{xyz}}' in text
+    let ApplySubstitutions (substitutions: (ParamKey * string) seq) (templateTextOpt: string option) =
         let opt =
             templateTextOpt
             |> Option.bind (fun s ->

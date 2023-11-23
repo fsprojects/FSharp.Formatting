@@ -94,7 +94,7 @@ type private NoOpFsiObject() =
     let mutable printSize = 10000
     let mutable showIEnumerable = true
     let mutable showProperties = true
-    let mutable addedPrinters: list<Choice<System.Type * (obj -> string), System.Type * (obj -> obj)>> = []
+    let mutable addedPrinters: Choice<System.Type * (obj -> string), System.Type * (obj -> obj)> list = []
 
     member self.FloatingPointFormat
         with get () = fpfmt
@@ -193,7 +193,7 @@ type FsiEvaluator
     let fsiSession = ScriptHost.Create(fsiOptions, discardStdOut = discardStdOut, fsiObj = fsiObj)
 
     let mutable plainTextPrinters: Choice<(obj -> string option), (obj -> obj option)> list = []
-    let mutable htmlPrinters: Choice<(obj -> (seq<string * string> * string) option), (obj -> obj option)> list = []
+    let mutable htmlPrinters: Choice<(obj -> ((string * string) seq * string) option), (obj -> obj option)> list = []
 
     //----------------------------------------------------
     // Inject the standard 'fsi' script control model into the evaluation session
@@ -247,7 +247,7 @@ type FsiEvaluator
             | _ ->
                 if ty.IsAssignableFrom(value.GetType()) then
                     match f with
-                    | :? (obj -> seq<string * string> * string) as f2 -> Some(f2 value)
+                    | :? (obj -> (string * string) seq * string) as f2 -> Some(f2 value)
                     | _ -> None
                 else
                     None
@@ -444,7 +444,7 @@ module __FsiSettings =
         Unchecked.defaultof<_> with get, set
 
     /// Temporarily holds the function value injected into the F# evaluation session
-    static member val internal InjectedAddHtmlPrinter: ((obj -> seq<string * string> * string) * Type -> unit) =
+    static member val internal InjectedAddHtmlPrinter: ((obj -> (string * string) seq * string) * Type -> unit) =
         Unchecked.defaultof<_> with get, set
 
     /// Temporarily holds the object value injected into the F# evaluation session

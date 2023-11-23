@@ -161,8 +161,9 @@ module internal CompilerServiceExtensions =
                        yield "-r:" + dllFile
                    for libDir in libDirs do
                        yield "-I:" + libDir
-                   if fsCoreLib.IsSome then
-                       yield sprintf "-r:%s" fsCoreLib.Value
+                   match fsCoreLib with
+                   | None -> ()
+                   | Some fsCoreLib -> yield $"-r:%s{fsCoreLib}"
 
                    yield! otherFlags
                    yield fileName1 |]
@@ -753,7 +754,7 @@ type internal FsiOptions =
            yield!
                (match x.NoWarns with
                 | [] -> None
-                | l -> l |> Seq.map string |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
+                | l -> l |> Seq.map string<int> |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
                |> maybeArg
            yield!
                match x.Optimize with
@@ -799,7 +800,7 @@ type internal FsiOptions =
                x.WarnAsErrorList
                |> Seq.map (fun (enable, warnNums) ->
                    warnNums
-                   |> Seq.map string
+                   |> Seq.map string<int>
                    |> String.concat ","
                    |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
 
@@ -815,7 +816,7 @@ module internal Helper =
     type ForwardTextWriter(f) =
         inherit TextWriter()
         override __.Flush() = ()
-        override __.Write(c: char) = f (string c)
+        override __.Write(c: char) = f (string<char> c)
 
         override __.Write(c: string) =
             if isNull c |> not then
@@ -875,15 +876,17 @@ module internal Helper =
             CombineTextWriter.Create
                 [ yield fsiOutStream
                   yield mergedOutStream
-                  if liveFsiWriter.IsSome then
-                      yield liveFsiWriter.Value ]
+                  match liveFsiWriter with
+                  | None -> ()
+                  | Some liveFsiWriter -> yield liveFsiWriter ]
 
         let stdOutWriter =
             CombineTextWriter.Create
                 [ yield stdOutStream
                   yield mergedOutStream
-                  if liveOutWriter.IsSome then
-                      yield liveOutWriter.Value ]
+                  match liveOutWriter with
+                  | None -> ()
+                  | Some liveFsiWriter -> yield liveFsiWriter ]
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
@@ -891,7 +894,7 @@ module internal Helper =
         member _.StdOutWriter = stdOutWriter
 
         member _.GetOutputAndResetLocal() =
-            let [ fsi; std; merged ] =
+            let mapped =
                 all
                 |> List.map (fun (global', local) ->
                     let data = local.ToString()
@@ -902,9 +905,12 @@ module internal Helper =
                     local.Clear() |> ignore
                     data)
 
-            { FsiOutput = fsi
-              ScriptOutput = std
-              Merged = merged }
+            match mapped with
+            | [ fsi; std; merged ] ->
+                { FsiOutput = fsi
+                  ScriptOutput = std
+                  Merged = merged }
+            | _ -> failwith $"Expected three StringBuilders, got %A{mapped}"
 
     let consoleCapture out err f =
         let defOut = Console.Out

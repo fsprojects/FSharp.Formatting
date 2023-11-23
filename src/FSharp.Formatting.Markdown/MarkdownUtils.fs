@@ -75,7 +75,7 @@ module internal MarkdownUtils =
     /// Context passed around while formatting
     type FormattingContext =
         {
-            Links: IDictionary<string, string * option<string>>
+            Links: IDictionary<string, string * string option>
             Newline: string
             /// Additional replacements to be made in content
             Substitutions: Substitutions
@@ -344,7 +344,7 @@ module internal MarkdownUtils =
                                 if attribute.Value.EndsWith(".md", StringComparison.Ordinal) then
                                     attribute.SetValue(fLink attribute.Value)
 
-                            let html = element.Elements() |> Seq.map string |> String.concat "" |> fText
+                            let html = element.Elements() |> Seq.map string<XElement> |> String.concat "" |> fText
                             InlineHtmlBlock(html, count, range)
                 with ex ->
                     InlineHtmlBlock(mapText f code, count, range)

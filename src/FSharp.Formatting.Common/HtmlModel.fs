@@ -450,7 +450,7 @@ type internal HtmlElement =
 
             let attrs =
                 if props.Length > 0 then
-                    " " + (props |> List.map string |> String.concat " ")
+                    " " + (props |> List.map string<HtmlProperties> |> String.concat " ")
                 else
                     ""
 
@@ -460,7 +460,7 @@ type internal HtmlElement =
         and formatVoid tag (props: HtmlProperties list) _level =
             let attrs =
                 if props.Length > 0 then
-                    " " + (props |> List.map string |> String.concat " ")
+                    " " + (props |> List.map string<HtmlProperties> |> String.concat " ")
                 else
                     ""
 

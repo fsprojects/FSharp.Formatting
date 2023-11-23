@@ -88,7 +88,7 @@ module internal Formatting =
 
                       let id =
                           count <- count + 1
-                          "cell" + string count
+                          "cell" + string<int> count
 
                       let opts =
                           { Evaluate = true

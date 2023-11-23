@@ -128,7 +128,7 @@ type LiterateDocument(paragraphs, formattedTips, links, source, sourceFile, root
     member _.Paragraphs: MarkdownParagraphs = paragraphs
 
     /// Returns a dictionary containing explicitly defined links
-    member _.DefinedLinks: IDictionary<string, string * option<string>> = links
+    member _.DefinedLinks: IDictionary<string, string * string option> = links
 
     /// Errors
     member _.Diagnostics: SourceError array = diagnostics

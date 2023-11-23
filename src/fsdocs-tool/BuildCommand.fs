@@ -455,9 +455,11 @@ type internal DocContent
                                            File.SetLastWriteTime(outputFileFullPath, DateTime.Now)
                                        with _ when watch ->
                                            ()))
+                  //printfn "skipping unchanged file %s" inputFileFullPath
                   else if mainRun && watch then
-                      //printfn "skipping unchanged file %s" inputFileFullPath
-                      yield (Some(inputFileFullPath, isOtherLang, haveModel.Value), (fun _ -> ())) ]
+                      match haveModel with
+                      | None -> ()
+                      | Some haveModel -> yield (Some(inputFileFullPath, isOtherLang, haveModel), (fun _ -> ())) ]
 
     let rec processFolder
         (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder, fullPathFileMap)
@@ -818,7 +820,7 @@ module Serve =
 </script>
 """
 
-        tag.Replace("{{PORT}}", string port)
+        tag.Replace("{{PORT}}", string<int> port)
 
     let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 

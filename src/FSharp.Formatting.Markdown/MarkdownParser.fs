@@ -73,14 +73,10 @@ let (|NotPunctuation|_|) input =
     | _ -> Some input
 
 module Char =
-    let (|WhiteSpace|_|) input =
+    let (|WhiteSpace|_|) (input: char list) =
         match input with
         | [] -> Some input
-        | x :: _xs ->
-            if String.IsNullOrWhiteSpace(string x) then
-                Some input
-            else
-                None
+        | x :: _xs -> if Char.IsWhiteSpace x then Some input else None
 
     let (|NotWhiteSpace|_|) input =
         match input with
@@ -316,7 +312,7 @@ let (|HtmlEntity|_|) input =
 
 /// Defines a context for the main `parseParagraphs` function
 type ParsingContext =
-    { Links: Dictionary<string, string * option<string>>
+    { Links: Dictionary<string, string * string option>
       Newline: string
       IsFirst: bool
       CurrentRange: MarkdownRange option
@@ -872,7 +868,7 @@ let (|TableCellSeparator|_|) =
 /// Recognizes row of pipe table.
 /// The function takes number of expected columns and array of delimiters.
 /// Returns list of strings between delimiters.
-let (|PipeTableRow|_|) (size: option<int>) delimiters (line: string, n: MarkdownRange) =
+let (|PipeTableRow|_|) (size: int option) delimiters (line: string, n: MarkdownRange) =
     let parts =
         pipeTableFindSplits delimiters (line.ToCharArray() |> Array.toList)
         |> List.toArray
@@ -880,7 +876,7 @@ let (|PipeTableRow|_|) (size: option<int>) delimiters (line: string, n: Markdown
 
     let n = parts.Length
 
-    let m = if size.IsNone then 1 else size.Value
+    let m = size |> Option.defaultValue 1
 
     let x =
         if String.IsNullOrEmpty(fst parts.[0]) && n > m then
@@ -943,16 +939,14 @@ let (|PipeTableBlock|_|) input =
 /// Passed function is used to check whether all parts within grid are valid.
 /// Retuns tuple (position of grid columns, text between grid columns).
 let (|EmacsTableLine|_|)
-    (grid: option<int array>)
+    (grid: int array option)
     (c: char)
     (check: string * MarkdownRange -> bool)
     (line: string, _n: MarkdownRange)
     =
     let p =
-        if grid.IsSome then
-            grid.Value
-        else
-            Array.FindAll([| 0 .. line.Length - 1 |], (fun i -> line.[i] = c))
+        grid
+        |> Option.defaultValue (Array.FindAll([| 0 .. line.Length - 1 |], (fun i -> line.[i] = c)))
 
     let n = p.Length - 1
 
@@ -1247,10 +1241,8 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
                 let headParagraphs =
-                    if headers.IsNone then
-                        None
-                    else
-                        Some(headers.Value |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
+                    headers
+                    |> Option.map (fun headers -> headers |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
 
                 let rows = rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
 

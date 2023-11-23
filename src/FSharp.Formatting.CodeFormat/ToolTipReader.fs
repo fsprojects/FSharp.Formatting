@@ -20,13 +20,13 @@ let linesFromTaggedText (tags: TaggedText array) =
 
         for tag in tags do
             if tag.Tag = TextTag.Space && tag.Text.Contains "\n" then
-                yield string content
+                yield string<StringBuilder> content
                 content.Clear() |> ignore
             else
                 content.Append tag.Text |> ignore
         // yield any remaining text
         if content.Length <> 0 then
-            yield string content
+            yield string<StringBuilder> content
     }
 
 /// Turn string into a sequence of lines interleaved with line breaks
