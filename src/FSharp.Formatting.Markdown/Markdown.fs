@@ -26,7 +26,7 @@ type MarkdownDocument(paragraphs, links) =
     member x.Paragraphs: MarkdownParagraphs = paragraphs
 
     /// Returns a dictionary containing explicitly defined links
-    member x.DefinedLinks: IDictionary<string, string * option<string>> = links
+    member x.DefinedLinks: IDictionary<string, string * string option> = links
 
 /// Static class that provides methods for formatting
 /// and transforming Markdown documents.

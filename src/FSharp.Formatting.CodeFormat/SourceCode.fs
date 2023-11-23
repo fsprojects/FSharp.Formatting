@@ -11,7 +11,7 @@ open FSharp.Formatting.CodeFormat.Constants
 // --------------------------------------------------------------------------------------
 
 /// A tool tip consists of a list of items reported from the compiler
-type ToolTipSpans = list<ToolTipSpan>
+type ToolTipSpans = ToolTipSpan list
 
 /// A tool tip span can be emphasized text, plain text Literal or a line brak
 type ToolTipSpan =

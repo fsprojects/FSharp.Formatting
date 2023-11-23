@@ -131,13 +131,13 @@ module internal Transformations =
                             + modul
                             + " =\n"
                             + "// [snippet:"
-                            + (string index)
+                            + (string<int> index)
                             + "]\n"
                             + "    "
                             + code.Replace("\n", "\n    ")
                             + "\n"
                             + "// [/snippet]"
-                        | None, code -> "// [snippet:" + (string index) + "]\n" + code + "\n" + "// [/snippet]")
+                        | None, code -> "// [snippet:" + (string<int> index) + "]\n" + code + "\n" + "// [/snippet]")
 
                 let modul = "module " + (new String(name |> Seq.filter Char.IsLetter |> Seq.toArray))
 
@@ -213,7 +213,10 @@ module internal Transformations =
                   match refIndex.TryGetValue(key) with
                   | true, i ->
                       yield Literal("&#160;[", r)
-                      yield DirectLink([ Literal(string i, r) ], "#rf" + DateTime.Now.ToString("yyMMddhh"), None, r)
+
+                      yield
+                          DirectLink([ Literal(string<int> i, r) ], "#rf" + DateTime.Now.ToString("yyMMddhh"), None, r)
+
                       yield Literal("]", r)
                   | _ -> () ]
             | MarkdownPatterns.SpanLeaf(sl) -> [ MarkdownPatterns.SpanLeaf(sl) ]
@@ -386,8 +389,8 @@ module internal Transformations =
                      | ValueReference _ -> ValueRef ref
                      | _ -> OutputRef ref)
 
-                match results.TryFind(key) with
-                | Some(result, executionCount) ->
+                match results.TryFind(key), ctx.Evaluator with
+                | Some(result, executionCount), Some evaluator ->
                     let kind =
                         match special with
                         | FsiMergedOutputReference _ -> FsiEmbedKind.FsiMergedOutput
@@ -398,8 +401,8 @@ module internal Transformations =
                         | ValueReference _ -> FsiEmbedKind.Value
                         | _ -> failwith "unreachable"
 
-                    ctx.Evaluator.Value.Format(result, kind, executionCount)
-                | None ->
+                    evaluator.Format(result, kind, executionCount)
+                | _ ->
                     let output = "Could not find reference '" + ref + "'"
                     [ OutputBlock(output, "text/plain", None) ]
 

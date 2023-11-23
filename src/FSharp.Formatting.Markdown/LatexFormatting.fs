@@ -47,7 +47,7 @@ type FormattingContext =
     { LineBreak: unit -> unit
       Newline: string
       Writer: TextWriter
-      Links: IDictionary<string, string * option<string>>
+      Links: IDictionary<string, string * string option>
       GenerateLineNumbers: bool
       DefineSymbol: string }
 

@@ -53,7 +53,7 @@ type internal FormattingContext =
     { LineBreak: unit -> unit
       Newline: string
       Writer: TextWriter
-      Links: IDictionary<string, string * option<string>>
+      Links: IDictionary<string, string * string option>
       WrapCodeSnippets: bool
       GenerateHeaderAnchors: bool
       UniqueNameGenerator: UniqueNameGenerator
@@ -142,7 +142,7 @@ let internal formatAnchor (ctx: FormattingContext) (spans: MarkdownSpans) =
     let extractWords (text: string) =
         Regex.Matches(text, @"\w+") |> Seq.cast<Match> |> Seq.map (fun m -> m.Value)
 
-    let rec gather (span: MarkdownSpan) : seq<string> =
+    let rec gather (span: MarkdownSpan) : string seq =
         seq {
             match span with
             | Literal(str, _) -> yield! extractWords str
@@ -177,7 +177,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
     | EmbedParagraphs(cmd, _) -> formatParagraphs ctx (cmd.Render())
     | Heading(n, spans, _) ->
-        ctx.Writer.Write("<h" + string n + ">")
+        ctx.Writer.Write("<h" + string<int> n + ">")
 
         if ctx.GenerateHeaderAnchors then
             let anchorName = formatAnchor ctx spans
@@ -187,7 +187,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         else
             formatSpans ctx spans
 
-        ctx.Writer.Write("</h" + string n + ">")
+        ctx.Writer.Write("</h" + string<int> n + ">")
     | Paragraph(spans, _) ->
         ctx.ParagraphIndent()
         ctx.Writer.Write("<p>")
@@ -196,7 +196,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
             formatSpan ctx span
 
         ctx.Writer.Write("</p>")
-    | HorizontalRule(_, _) -> ctx.Writer.Write("<hr />")
+    | HorizontalRule _ -> ctx.Writer.Write("<hr />")
     | CodeBlock(code, _, _fence, language, _, _) ->
         let code =
             if language = "fsharp" then
@@ -241,10 +241,12 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("<table>")
         ctx.Writer.Write(ctx.Newline)
 
-        if headers.IsSome then
+        match headers with
+        | None -> ()
+        | Some headers ->
             ctx.Writer.Write("<thead>" + ctx.Newline + "<tr class=\"header\">" + ctx.Newline)
 
-            for cell, align in Seq.zip headers.Value aligns do
+            for cell, align in Seq.zip headers aligns do
                 ctx.Writer.Write("<th" + align + ">")
 
                 for paragraph in cell do

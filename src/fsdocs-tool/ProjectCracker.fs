@@ -354,7 +354,7 @@ module Crack =
                   RepositoryCommit = msbuildPropString "RepositoryCommit" }
 
             Ok(targetFrameworks, projOptions2)
-        | Error err -> GetProjectOptionsErrors(string err, msgs) |> Result.Error
+        | Error err -> GetProjectOptionsErrors(err, msgs) |> Result.Error
 
     let private ensureProjectWasRestored (file: string) =
         let projDir = Path.GetDirectoryName(file)
@@ -661,22 +661,28 @@ module Crack =
 
         let crackedProjects =
             projectInfos
-            |> List.map (fun info ->
-                let substitutions = parametersForProjectInfo info
+            |> List.choose (fun info ->
+                match info.TargetPath, info.ProjectOptions with
+                | Some targetPath, Some projectOptions ->
+                    let substitutions = parametersForProjectInfo info
 
-                info.TargetPath.Value,
-                info.ProjectOptions.Value.OtherOptions,
-                info.RepositoryUrl,
-                info.RepositoryBranch,
-                info.RepositoryType,
-                info.UsesMarkdownComments,
-                info.FsDocsWarnOnMissingDocs,
-                info.FsDocsSourceFolder,
-                info.FsDocsSourceRepository,
-                substitutions)
+                    Some(
+                        targetPath,
+                        projectOptions.OtherOptions,
+                        info.RepositoryUrl,
+                        info.RepositoryBranch,
+                        info.RepositoryType,
+                        info.UsesMarkdownComments,
+                        info.FsDocsWarnOnMissingDocs,
+                        info.FsDocsSourceFolder,
+                        info.FsDocsSourceRepository,
+                        substitutions
+                    )
+                | _ -> None)
 
-        let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
+        let paths =
+            projectInfos
+            |> List.choose (fun projectInfo -> projectInfo.TargetPath |> Option.map Path.GetDirectoryName)
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
-
         root, collectionName, crackedProjects, paths, docsParameters

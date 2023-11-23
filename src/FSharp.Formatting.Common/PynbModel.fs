@@ -38,7 +38,7 @@ type Output =
             (this.data.ToString())
             (match this.execution_count with
              | None -> "null"
-             | Some(x) -> string x)
+             | Some(x) -> string<int> x)
             this.metadata
             this.output_type
 
@@ -85,8 +85,8 @@ type Cell =
                      """"execution_count": %s, "outputs": [%s],"""
                      (match this.execution_count with
                       | None -> "null"
-                      | Some(x) -> string x)
-                     (this.outputs |> Array.map string |> String.concat ",\n")))
+                      | Some(x) -> string<int> x)
+                     (this.outputs |> Array.map string<Output> |> String.concat ",\n")))
             (this.source
              |> Array.map addLineEnd
              |> Array.map escapeAndQuote
@@ -209,7 +209,7 @@ type Notebook =
  "nbformat": %i,
  "nbformat_minor": %i
 }"""
-            (this.cells |> Array.map string |> String.concat "\n,")
+            (this.cells |> Array.map string<Cell> |> String.concat "\n,")
             this.metadata
             this.nbformat
             this.nbformat_minor
