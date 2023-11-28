@@ -44,7 +44,8 @@ module Common =
         [<Literal>]
         let ``docs folder`` = "the path to the folder that contains the inputs (documentation) for fsdocs."
 
-        let ``nuget package root path`` = "the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`."
+        let ``nuget package root path`` =
+            "the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`."
 
         [<Literal>]
         let ``templates`` = "contains additional default files (e.g., default files for the `init` command)"
@@ -63,41 +64,49 @@ module Common =
 
         // files in the docs folder
         [<Literal>]
-        let ``_template.html`` = "description here"
+        let ``_template.html`` =
+            "The root html template used for creating web pages. Documentation pages will all be based on this file with substitutions. If you do not want to customize this file, it is recommended to NOT include it in your docs folder and therefore use the default file that comes with the tool."
 
         [<Literal>]
-        let ``_template.ipynb`` = "description here"
+        let ``_template.ipynb`` =
+            "The root ipynb template used for creating notebooks. Notebooks of your documentation pages will all be based on this file with substitutions. If you do not want to customize this file, it is recommended to NOT include it in your docs folder and therefore use the default file that comes with the tool."
 
         [<Literal>]
-        let ``_template.tex`` = "description here"
+        let ``_template.tex`` =
+            "The root tex template used for creating LaTeX. LaTeX versions of your documentation pages will all be based on this file with substitutions. If you do not want to customize this file, it is recommended to NOT include it in your docs folder and therefore use the default file that comes with the tool."
 
         [<Literal>]
-        let ``Dockerfile`` = "description here"
+        let ``Dockerfile`` =
+            "Dockerfile used for setting up a binder instance that can host the generated notebooks. Include this file if you plan to provide binder links to generated notebooks."
 
         [<Literal>]
-        let ``Nuget.config`` = "description here"
+        let ``Nuget.config`` =
+            "Additional nuget sources used for setting up a binder instance that can host the generated notebooks. Include this file if you plan to provide binder links to generated notebooks."
 
         [<Literal>]
-        let ``img/badge-binder.svg`` = "description here"
+        let ``img/badge-binder.svg`` = "A badge that can be used for adding pretty link buttons to binder."
 
         [<Literal>]
-        let ``img/badge-notebook.svg`` = "description here"
+        let ``img/badge-notebook.svg`` =
+            "A badge that can be used for adding pretty download link buttons for generated notebooks."
 
         [<Literal>]
-        let ``img/badge-script.svg`` = "description here"
+        let ``img/badge-script.svg`` = "A badge that can be used for adding pretty download link buttons for scripts."
 
         [<Literal>]
-        let ``img/logo.png`` = "description here"
+        let ``img/logo.png`` = "The logo of the project."
 
         // specific files for the init command
         [<Literal>]
-        let ``templates/init/.logo.png`` = "description here"
+        let ``templates/init/.logo.png`` = "A logo placeholder for better preview of how pages will look with a logo."
 
         [<Literal>]
-        let ``templates/init/.index_md_template.md`` = "description here"
+        let ``templates/init/.index_md_template.md`` =
+            "A basic landing page markdown template that showcases how markdown files will be rendered."
 
         [<Literal>]
-        let ``templates/init/.literate_sample_template.fsx`` = "description here"
+        let ``templates/init/.literate_sample_template.fsx`` =
+            "A basic literate script that showcases how literate scripts will be rendered."
 
     type AnnotatedPath =
         { Path: string
@@ -229,14 +238,17 @@ module Common =
         // PackageRootPath : the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`.
         // for example, default on windows would be: ~\.nuget\packages\fsdocs-tool\20.0.0-alpha-010
         member _.NugetPackageRootPath =
-            {
-                Path = nugetPackageRootPath
-                Description = "the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`."
-            }
+            { Path = nugetPackageRootPath
+              Description =
+                "the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`." }
 
         // default folder locations relative to the package root path
-        member this.templates = AnnotatedPath.Combine(this.NugetPackageRootPath, "templates", DefaultLocationDescriptions.templates)
-        member this.``templates/init`` = AnnotatedPath.Combine(this.templates, "init", DefaultLocationDescriptions.templates)
+        member this.templates =
+            AnnotatedPath.Combine(this.NugetPackageRootPath, "templates", DefaultLocationDescriptions.templates)
+
+        member this.``templates/init`` =
+            AnnotatedPath.Combine(this.templates, "init", DefaultLocationDescriptions.templates)
+
         member this.extras = AnnotatedPath.Combine(this.NugetPackageRootPath, "extras")
         member this.``extras/content`` = AnnotatedPath.Combine(this.extras, "content")
         member this.``extras/content/img`` = AnnotatedPath.Combine(this.``extras/content``, "img")
@@ -249,7 +261,11 @@ module Common =
         member this.``Nuget.config`` = AnnotatedPath.Combine(this.extras, "Nuget.config")
 
         member this.``extras/content/img/badge-binder.svg`` =
-            AnnotatedPath.Combine(this.``extras/content/img``, "badge-binder.svg", DefaultLocationDescriptions.``img/badge-binder.svg``)
+            AnnotatedPath.Combine(
+                this.``extras/content/img``,
+                "badge-binder.svg",
+                DefaultLocationDescriptions.``img/badge-binder.svg``
+            )
 
         member this.``extras/content/img/badge-notebook.svg`` =
             AnnotatedPath.Combine(
@@ -259,12 +275,19 @@ module Common =
             )
 
         member this.``extras/content/img/badge-script.svg`` =
-            AnnotatedPath.Combine(this.``extras/content/img``, "badge-script.svg", DefaultLocationDescriptions.``img/badge-script.svg``)
+            AnnotatedPath.Combine(
+                this.``extras/content/img``,
+                "badge-script.svg",
+                DefaultLocationDescriptions.``img/badge-script.svg``
+            )
         // specific files for the init command
         member this.``templates/init/.logo.png`` = AnnotatedPath.Combine(this.``templates/init``, ".logo.png")
-        member this.``templates/init/.index_md_template.md`` = AnnotatedPath.Combine(this.``templates/init``, ".index_md_template.md")
 
-        member this.``templates/init/.literate_sample_template.fsx`` = AnnotatedPath.Combine(this.``templates/init``, ".literate_sample_template.fsx")
+        member this.``templates/init/.index_md_template.md`` =
+            AnnotatedPath.Combine(this.``templates/init``, ".index_md_template.md")
+
+        member this.``templates/init/.literate_sample_template.fsx`` =
+            AnnotatedPath.Combine(this.``templates/init``, ".literate_sample_template.fsx")
 
         /// <summary>
         /// returns true if all special files and folders of this location exist.
@@ -287,3 +310,26 @@ module Common =
                 && File.Exists(this.``templates/init/.literate_sample_template.fsx``.Path)
             with _ ->
                 false
+
+    module CLI =
+        open Spectre.Console
+
+        let confirmFileCreation (path: string) (description: string) =
+            let table =
+                Table()
+                    .AddColumn(new TableColumn("""[bold]Default file[/]"""))
+                    .AddColumn(new TableColumn($"""[green]{Path.GetFileName(path)}[/]"""))
+                    .AddEmptyRow()
+                    .AddRow("""[bold]Will be created at[/]""", $"""[green]{path}[/]""")
+                    .AddEmptyRow()
+                    .AddRow("""[bold]Description[/]""", $"""{description}""")
+
+            AnsiConsole.WriteLine()
+            // AnsiConsole.MarkupLine $"""[bold]Default file:[/] [green]{Path.GetFileName(path)}[/]"""
+            // AnsiConsole.MarkupLine $"""[bold]Will be created at[/] [green]{path}[/]"""
+            // AnsiConsole.MarkupLine $"""[bold]Description:[/] {description}"""
+            // AnsiConsole.WriteLine()
+            AnsiConsole.Write(table)
+            let conf = AnsiConsole.Confirm $"""[bold]Do you want to create this file?[/]"""
+            AnsiConsole.WriteLine()
+            conf

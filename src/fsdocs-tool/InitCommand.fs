@@ -46,9 +46,12 @@ type InitCommand() =
                       inNugetPackageLocations.``templates/template.tex``, initLocations.``template.tex``.Path
                       inNugetPackageLocations.Dockerfile, initLocations.Dockerfile.Path
                       inNugetPackageLocations.``Nuget.config``, initLocations.``Nuget.config``.Path
-                      inNugetPackageLocations.``extras/content/img/badge-binder.svg``, initLocations.``img/badge-binder.svg``.Path
-                      inNugetPackageLocations.``extras/content/img/badge-notebook.svg``, initLocations.``img/badge-notebook.svg``.Path
-                      inNugetPackageLocations.``extras/content/img/badge-script.svg``, initLocations.``img/badge-script.svg``.Path
+                      inNugetPackageLocations.``extras/content/img/badge-binder.svg``,
+                      initLocations.``img/badge-binder.svg``.Path
+                      inNugetPackageLocations.``extras/content/img/badge-notebook.svg``,
+                      initLocations.``img/badge-notebook.svg``.Path
+                      inNugetPackageLocations.``extras/content/img/badge-script.svg``,
+                      initLocations.``img/badge-script.svg``.Path
                       // these files must be renamed, because files prefixed with a dot are otherwise ignored by fsdocs. We want this in the source repo, but not in the output of this command.
                       inNugetPackageLocations.``templates/init/.logo.png``,
                       Path.GetFullPath(Path.Combine(initLocations.img.Path, "logo.png"))
@@ -93,8 +96,10 @@ type InitCommand() =
                        Path.GetFullPath(Path.Combine(initLocations.DocsFolder.Path, "literate_sample.fsx"))) ]
 
                 fileMap
-                // |> List.map (fun (src, dst) -> )
-                |> List.iter (fun (src, dst) -> File.Copy(src.Path, dst, this.force))
+                |> List.map (fun (src, dst) -> (src, dst, Common.CLI.confirmFileCreation dst src.Description))
+                |> List.iter (fun (src, dst, copy) ->
+                    if copy then
+                        File.Copy(src.Path, dst, this.force))
 
                 printfn ""
                 printfn "a basic fsdocs scaffold has been created in %s." this.output
