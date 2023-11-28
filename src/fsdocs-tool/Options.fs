@@ -37,128 +37,253 @@ module Common =
 
     open System.IO
 
-    /// <summary>
-    /// a set of default locations in this repo.
-    /// these files are to be used in 2 scenarios assuming we are executing directly from
-    ///
-    ///   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
-    ///
-    ///   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe:
-    ///
-    /// - as default styles when running watch or build when there are no user equivalents present and `nodefaultcontent` is not set to true
-    ///
-    /// - as content of the output of the `init` command to initialize a default docs folder structure.
-    ///
-    /// Note that the path of these files will always be combined with the given `assemblyPath` because the cli tool will query it's own path on runtime via reflection.
-    /// </summary>
-    type InRepoLocations(relAssemblyPath) =
+    [<RequireQualifiedAccess>]
+    module DefaultLocationDescriptions =
 
-        // relAssemblyPath : relative path from assemly to repo root path
-        member _.RelAssemblyPath = relAssemblyPath
+        //folders
+        [<Literal>]
+        let ``docs folder`` = "the path to the folder that contains the inputs (documentation) for fsdocs."
 
-        // default folder locations relative to the assembly path
-        member this.docs = Path.Combine(this.RelAssemblyPath, "docs") |> Path.GetFullPath
-        member this.docs_templates = Path.Combine(this.docs, "templates") |> Path.GetFullPath
-        member this.docs_templates_init = Path.Combine(this.docs_templates, "init") |> Path.GetFullPath
-        member this.docs_img = Path.Combine(this.docs, "img") |> Path.GetFullPath
-        member this.docs_content = Path.Combine(this.docs, "content") |> Path.GetFullPath
-        member this.docs_content_img = Path.Combine(this.docs_content, "img") |> Path.GetFullPath
+        let ``nuget package root path`` = "the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`."
 
-        // specific files in this folder structure that might need special treatment instead of just copy pasting
-        member this.template_html = Path.Combine(this.docs, "_template.html") |> Path.GetFullPath
-        member this.template_ipynb = Path.Combine(this.docs, "_template.ipynb") |> Path.GetFullPath
-        member this.template_tex = Path.Combine(this.docs, "_template.tex") |> Path.GetFullPath
-        member this.dockerfile = Path.Combine(this.docs, "Dockerfile") |> Path.GetFullPath
-        member this.nuget_config = Path.Combine(this.docs, "Nuget.config") |> Path.GetFullPath
+        [<Literal>]
+        let ``templates`` = "contains additional default files (e.g., default files for the `init` command)"
+
+        [<Literal>]
+        let ``extras`` = "contains additional default files (e.g., default files for the `init` command)"
+
+        [<Literal>]
+        let ``templates/init`` = "contains the default files for the init command."
+
+        [<Literal>]
+        let ``img`` = "base folder to contain all images for your documentation"
+
+        [<Literal>]
+        let ``content`` = "contains additional content (e.g., custom css themes)"
+
+        // files in the docs folder
+        [<Literal>]
+        let ``_template.html`` = "description here"
+
+        [<Literal>]
+        let ``_template.ipynb`` = "description here"
+
+        [<Literal>]
+        let ``_template.tex`` = "description here"
+
+        [<Literal>]
+        let ``Dockerfile`` = "description here"
+
+        [<Literal>]
+        let ``Nuget.config`` = "description here"
+
+        [<Literal>]
+        let ``img/badge-binder.svg`` = "description here"
+
+        [<Literal>]
+        let ``img/badge-notebook.svg`` = "description here"
+
+        [<Literal>]
+        let ``img/badge-script.svg`` = "description here"
+
+        [<Literal>]
+        let ``img/logo.png`` = "description here"
 
         // specific files for the init command
-        member this.logo_template = Path.Combine(this.docs_templates_init, ".logo.png") |> Path.GetFullPath
+        [<Literal>]
+        let ``templates/init/.logo.png`` = "description here"
 
-        member this.index_md_template =
-            Path.Combine(this.docs_templates_init, ".index_md_template.md")
-            |> Path.GetFullPath
+        [<Literal>]
+        let ``templates/init/.index_md_template.md`` = "description here"
 
-        member this.literate_sample_template =
-            Path.Combine(this.docs_templates_init, ".literate_sample_template.fsx")
-            |> Path.GetFullPath
+        [<Literal>]
+        let ``templates/init/.literate_sample_template.fsx`` = "description here"
+
+    type AnnotatedPath =
+        { Path: string
+          Description: string }
+
+        static member Combine(ap: AnnotatedPath, path, ?description) =
+            { Path = Path.Combine(ap.Path, path) |> Path.GetFullPath
+              Description = defaultArg description "" }
+
+    /// <summary>
+    /// A set of default locations in a folder containing documentation inputs for fsdocs.
+    ///
+    /// When the fsdocs tool binary is called directly via
+    ///
+    /// `src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe` or `src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe`,
+    ///
+    /// these locations can also be used
+    ///
+    /// - as default content for the `watch` and `build` commands when no user equivalents present and `nodefaultcontent` is not set to true. This can be achieved by using the relative assembly path (plus "/docs") of the command classes as `docsFolderPath`.
+    ///
+    /// - as output paths of the `init` command to initialize a default docs folder structure.
+    ///
+    /// because the paths will exist relative to the FSharp.Formatting repo root path.
+    /// </summary>
+    type InDocsFolderLocations(docsFolderPath) =
+
+        // DocsFolderPath : the path to the docs folder which is used as the base path to construct the other paths.
+        // note that this folder is not necessarily named "docs", it can be any location that is used as the base folder containing inputs for fsdocs.
+        member _.DocsFolder =
+            { Path = docsFolderPath
+              Description = DefaultLocationDescriptions.``docs folder`` }
+
+        // default folder locations based on the docs folder path
+        member this.templates =
+            AnnotatedPath.Combine(this.DocsFolder, "templates", DefaultLocationDescriptions.``templates``)
+
+        member this.``templates/init`` =
+            AnnotatedPath.Combine(this.templates, "init", DefaultLocationDescriptions.``templates/init``)
+
+        member this.content = AnnotatedPath.Combine(this.DocsFolder, "content", DefaultLocationDescriptions.content)
+        member this.img = AnnotatedPath.Combine(this.DocsFolder, "img", DefaultLocationDescriptions.``img``)
+
+        // specific files in the docs folder.
+        member this.``template.html`` =
+            AnnotatedPath.Combine(this.DocsFolder, "_template.html", DefaultLocationDescriptions.``_template.html``)
+
+        member this.``template.ipynb`` =
+            AnnotatedPath.Combine(this.DocsFolder, "_template.ipynb", DefaultLocationDescriptions.``_template.ipynb``)
+
+        member this.``template.tex`` =
+            AnnotatedPath.Combine(this.DocsFolder, "_template.tex", DefaultLocationDescriptions.``_template.tex``)
+
+        member this.Dockerfile =
+            AnnotatedPath.Combine(this.DocsFolder, "Dockerfile", DefaultLocationDescriptions.Dockerfile)
+
+        member this.``Nuget.config`` =
+            AnnotatedPath.Combine(this.DocsFolder, "Nuget.config", DefaultLocationDescriptions.``Nuget.config``)
+
+        member this.``img/badge-binder.svg`` =
+            AnnotatedPath.Combine(this.img, "badge-binder.svg", DefaultLocationDescriptions.``img/badge-binder.svg``)
+
+        member this.``img/badge-notebook.svg`` =
+            AnnotatedPath.Combine(
+                this.img,
+                "badge-notebook.svg",
+                DefaultLocationDescriptions.``img/badge-notebook.svg``
+            )
+
+        member this.``img/badge-script.svg`` =
+            AnnotatedPath.Combine(this.img, "badge-script.svg", DefaultLocationDescriptions.``img/badge-script.svg``)
+
+        // specific files for the init command. Note that these typically only exist in the FSharp.Formatting repo because they are to be copied and renamed on running `fsdocs init```
+        member this.``templates/init/.logo.png`` =
+            AnnotatedPath.Combine(
+                this.``templates/init``,
+                ".logo.png",
+                DefaultLocationDescriptions.``templates/init/.logo.png``
+            )
+
+        member this.``templates/init/.index_md_template.md`` =
+            AnnotatedPath.Combine(
+                this.``templates/init``,
+                ".index_md_template.md",
+                DefaultLocationDescriptions.``templates/init/.index_md_template.md``
+            )
+
+        member this.``templates/init/.literate_sample_template.fsx`` =
+            AnnotatedPath.Combine(
+                this.``templates/init``,
+                ".literate_sample_template.fsx",
+                DefaultLocationDescriptions.``templates/init/.literate_sample_template.fsx``
+            )
 
         /// <summary>
-        /// returns true if all special files and folders of this location exist.
+        /// returns true if all files and folders of this location exist.
         /// </summary>
-        member this.Exist() =
+        member this.AllLocationsExist() =
             try
-                Directory.Exists(this.docs)
-                && Directory.Exists(this.docs_templates)
-                && Directory.Exists(this.docs_templates_init)
-                && Directory.Exists(this.docs_img)
-                && Directory.Exists(this.docs_content)
-                && Directory.Exists(this.docs_content_img)
-                && File.Exists(this.template_html)
-                && File.Exists(this.template_ipynb)
-                && File.Exists(this.template_tex)
-                && File.Exists(this.dockerfile)
-                && File.Exists(this.nuget_config)
-                && File.Exists(this.logo_template)
-                && File.Exists(this.index_md_template)
-                && File.Exists(this.literate_sample_template)
+                Directory.Exists(this.DocsFolder.Path)
+                && Directory.Exists(this.templates.Path)
+                && Directory.Exists(this.``templates/init``.Path)
+                && Directory.Exists(this.content.Path)
+                && Directory.Exists(this.img.Path)
+                && File.Exists(this.``template.html``.Path)
+                && File.Exists(this.``template.ipynb``.Path)
+                && File.Exists(this.``template.tex``.Path)
+                && File.Exists(this.Dockerfile.Path)
+                && File.Exists(this.``img/badge-binder.svg``.Path)
+                && File.Exists(this.``img/badge-notebook.svg``.Path)
+                && File.Exists(this.``img/badge-script.svg``.Path)
+                && File.Exists(this.``templates/init/.logo.png``.Path)
+                && File.Exists(this.``templates/init/.index_md_template.md``.Path)
+                && File.Exists(this.``templates/init/.literate_sample_template.fsx``.Path)
             with _ ->
                 false
 
     /// <summary>
     /// a set of default locations in the nuget package created for fsdocs-tool.
-    /// these files are to be used in 2 scenarios assuming the tool is invoked via cli:
+    /// these files are to be used when fsdocs is run as dotnet tool installed via `dotnet tool install` in the following scenarios:
     ///
-    /// - as default styles when running watch or build when there are no user equivalents present and `nodefaultcontent` is not set to true
+    /// - as default files when running watch or build when there are no user equivalents present and `nodefaultcontent` is not set to true
     ///
     /// - as content of the output of the `init` command to initialize a default docs folder structure.
     ///
     /// Note that the path of these files will always be combined with the given `assemblyPath` because the cli tool will query it's own path on runtime via reflection.
     /// </summary>
-    type InPackageLocations(relAssemblyPath) =
+    type InNugetPackageLocations(nugetPackageRootPath) =
 
-        // relAssemblyPath : relative path from assemly to package root path
-        member _.RelAssemblyPath = relAssemblyPath
+        // PackageRootPath : the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`.
+        // for example, default on windows would be: ~\.nuget\packages\fsdocs-tool\20.0.0-alpha-010
+        member _.NugetPackageRootPath =
+            {
+                Path = nugetPackageRootPath
+                Description = "the root path of the nuget package, e.g. when the tool is installed via `dotnet tool install`."
+            }
 
-        //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
-        //   to .nuget\packages\fsdocs-tool\7.1.7\*
-
-        // default folder locations relative to the assembly path
-        member this.templates = Path.Combine(this.RelAssemblyPath, "templates") |> Path.GetFullPath
-        member this.extras = Path.Combine(this.RelAssemblyPath, "extras") |> Path.GetFullPath
-        member this.extras_content = Path.Combine(this.extras, "content") |> Path.GetFullPath
-        member this.extras_content_img = Path.Combine(this.extras_content, "img") |> Path.GetFullPath
+        // default folder locations relative to the package root path
+        member this.templates = AnnotatedPath.Combine(this.NugetPackageRootPath, "templates", DefaultLocationDescriptions.templates)
+        member this.``templates/init`` = AnnotatedPath.Combine(this.templates, "init", DefaultLocationDescriptions.templates)
+        member this.extras = AnnotatedPath.Combine(this.NugetPackageRootPath, "extras")
+        member this.``extras/content`` = AnnotatedPath.Combine(this.extras, "content")
+        member this.``extras/content/img`` = AnnotatedPath.Combine(this.``extras/content``, "img")
 
         // specific files in this folder structure that might need special treatment instead of just copy pasting
-        member this.template_html = Path.Combine(this.templates, "_template.html") |> Path.GetFullPath
-        member this.template_ipynb = Path.Combine(this.templates, "_template.ipynb") |> Path.GetFullPath
-        member this.template_tex = Path.Combine(this.templates, "_template.tex") |> Path.GetFullPath
-        member this.dockerfile = Path.Combine(this.extras, "Dockerfile") |> Path.GetFullPath
-        member this.nuget_config = Path.Combine(this.extras, "Nuget.config") |> Path.GetFullPath
+        member this.``templates/template.html`` = AnnotatedPath.Combine(this.templates, "_template.html")
+        member this.``templates/template.ipynb`` = AnnotatedPath.Combine(this.templates, "_template.ipynb")
+        member this.``templates/template.tex`` = AnnotatedPath.Combine(this.templates, "_template.tex")
+        member this.Dockerfile = AnnotatedPath.Combine(this.extras, "Dockerfile")
+        member this.``Nuget.config`` = AnnotatedPath.Combine(this.extras, "Nuget.config")
 
+        member this.``extras/content/img/badge-binder.svg`` =
+            AnnotatedPath.Combine(this.``extras/content/img``, "badge-binder.svg", DefaultLocationDescriptions.``img/badge-binder.svg``)
+
+        member this.``extras/content/img/badge-notebook.svg`` =
+            AnnotatedPath.Combine(
+                this.``extras/content/img``,
+                "badge-notebook.svg",
+                DefaultLocationDescriptions.``img/badge-notebook.svg``
+            )
+
+        member this.``extras/content/img/badge-script.svg`` =
+            AnnotatedPath.Combine(this.``extras/content/img``, "badge-script.svg", DefaultLocationDescriptions.``img/badge-script.svg``)
         // specific files for the init command
-        member this.logo_template = Path.Combine(this.templates, ".logo.png") |> Path.GetFullPath
-        member this.index_md_template = Path.Combine(this.templates, ".index_md_template.md") |> Path.GetFullPath
+        member this.``templates/init/.logo.png`` = AnnotatedPath.Combine(this.``templates/init``, ".logo.png")
+        member this.``templates/init/.index_md_template.md`` = AnnotatedPath.Combine(this.``templates/init``, ".index_md_template.md")
 
-        member this.literate_sample_template =
-            Path.Combine(this.templates, ".literate_sample_template.fsx")
-            |> Path.GetFullPath
+        member this.``templates/init/.literate_sample_template.fsx`` = AnnotatedPath.Combine(this.``templates/init``, ".literate_sample_template.fsx")
 
         /// <summary>
         /// returns true if all special files and folders of this location exist.
         /// </summary>
-        member this.Exist() =
+        member this.AllLocationsExist() =
             try
-                Directory.Exists(this.templates)
-                && Directory.Exists(this.extras)
-                && Directory.Exists(this.extras_content)
-                && Directory.Exists(this.extras_content_img)
-                && File.Exists(this.template_html)
-                && File.Exists(this.template_ipynb)
-                && File.Exists(this.template_tex)
-                && File.Exists(this.dockerfile)
-                && File.Exists(this.nuget_config)
-                && File.Exists(this.logo_template)
-                && File.Exists(this.index_md_template)
-                && File.Exists(this.literate_sample_template)
+                Directory.Exists(this.templates.Path)
+                && Directory.Exists(this.extras.Path)
+                && Directory.Exists(this.``extras/content``.Path)
+                && Directory.Exists(this.``extras/content/img``.Path)
+                && File.Exists(this.``templates/template.html``.Path)
+                && File.Exists(this.``templates/template.ipynb``.Path)
+                && File.Exists(this.``templates/template.tex``.Path)
+                && File.Exists(this.Dockerfile.Path)
+                && File.Exists(this.``extras/content/img/badge-binder.svg``.Path)
+                && File.Exists(this.``extras/content/img/badge-notebook.svg``.Path)
+                && File.Exists(this.``extras/content/img/badge-script.svg``.Path)
+                && File.Exists(this.``templates/init/.logo.png``.Path)
+                && File.Exists(this.``templates/init/.index_md_template.md``.Path)
+                && File.Exists(this.``templates/init/.literate_sample_template.fsx``.Path)
             with _ ->
                 false

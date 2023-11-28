@@ -16,6 +16,7 @@
     <PackageVersion Include="Ionide.ProjInfo" Version="0.62.0" />
     <PackageVersion Include="Ionide.ProjInfo.Sln" Version="0.62.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Spectre.Console" Version="0.48.0" />
     <PackageVersion Include="Suave" Version="2.6.2" />
     <PackageVersion Include="System.Memory" Version="4.5.5" />
     <PackageVersion Include="System.Text.Json" Version="8.0.0" />
