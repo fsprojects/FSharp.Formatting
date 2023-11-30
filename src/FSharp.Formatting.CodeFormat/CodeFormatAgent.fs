@@ -6,8 +6,6 @@ namespace FSharp.Formatting.CodeFormat
 
 open System
 open System.IO
-open System.Runtime.ExceptionServices
-open FSharp.Compiler
 open FSharp.Compiler.Tokenization
 open FSharp.Compiler.Text
 open FSharp.Formatting.CodeFormat
@@ -70,16 +68,16 @@ module private Helpers =
 
     /// Use the F# compiler's SourceTokenizer to split a snippet (array of strings)
     /// into a snippet with token information and line numbers.
-    let getTokens file defines (lines: string[]) : Snippet =
+    let getTokens file defines (lines: string array) : Snippet =
 
         // Get defined directives
         let defines =
             defines
             |> Option.map (fun (s: string) ->
                 s.Split([| ' '; ';'; ',' |], StringSplitOptions.RemoveEmptyEntries)
-                |> List.ofSeq)
+                |> List.ofArray)
         // Create source tokenizer
-        let sourceTok = FSharpSourceTokenizer(defaultArg defines [], file, None)
+        let sourceTok = FSharpSourceTokenizer(defaultArg defines [], file, None, None)
 
         // Parse lines using the tokenizer
         let indexedSnippetLines =
@@ -112,13 +110,13 @@ module private Helpers =
     // Count the minimal number of spaces at the beginning of lines
     // (so that we can remove spaces for indented text)
     let countStartingSpaces (lines: Snippet) =
-        [ for _, (toks: _ list) in lines do
+        [ for _, toks: _ list in lines do
               match toks with
               | ((text: string), info) :: _ when info.TokenName = "WHITESPACE" ->
                   yield text.Length - text.TrimStart([| ' ' |]).Length
               | [] -> ()
               | _ -> yield 0 ]
-        |> Seq.fold min 0
+        |> List.fold min 0
 
 [<Struct>]
 type internal Range =
@@ -133,7 +131,7 @@ type internal Range =
 module CodeFormatter =
     // Create keys for query tooltips for double-backtick identifiers
     let processDoubleBackticks (body: string) =
-        if body.StartsWith "``" then
+        if body.StartsWith("``", StringComparison.Ordinal) then
             sprintf "( %s )" <| body.Trim '`'
         else
             body
@@ -183,8 +181,8 @@ module CodeFormatter =
     // Processes a single line of the snippet
     let processSnippetLine
         (checkResults: FSharpCheckFileResults)
-        (semanticRanges: SemanticClassificationItem[])
-        (lines: string[])
+        (semanticRanges: SemanticClassificationItem array)
+        (lines: string array)
         (line: int, lineTokens: SnippetLine)
         =
         let lineStr = lines.[line]
@@ -255,7 +253,7 @@ module CodeFormatter =
                             else
                                 None
 
-                        if token.TokenName.StartsWith("OMIT") then
+                        if token.TokenName.StartsWith("OMIT", StringComparison.Ordinal) then
                             // Special OMIT tag - add tool tip stored in token name
                             // (The text immediately follows the keyword "OMIT")
                             yield TokenSpan.Omitted(body, token.TokenName.Substring(4))
@@ -264,7 +262,7 @@ module CodeFormatter =
                             yield TokenSpan.Output(body)
                         else
                             match tip with
-                            | Some(Literal msg :: _) when msg.StartsWith("custom operation:") ->
+                            | Some(Literal msg :: _) when msg.StartsWith("custom operation:", StringComparison.Ordinal) ->
                                 // If the tool-tip says this is a custom operation, then
                                 // we want to treat it as keyword (not sure if there is a better
                                 // way to detect this, but Visual Studio also colors these later)
@@ -373,17 +371,17 @@ module CodeFormatter =
             // filter invalid args
             let refCorLib =
                 args
-                |> Seq.tryFind (fun i -> i.EndsWith "mscorlib.dll")
+                |> Array.tryFind (fun i -> i.EndsWith("mscorlib.dll", StringComparison.Ordinal))
                 |> Option.defaultValue "-r:netstandard.dll"
 
             let args =
                 args
                 |> Array.filter (fun item ->
-                    not <| item.StartsWith "--target"
-                    && not <| item.StartsWith "--doc"
-                    && not <| item.StartsWith "--out"
-                    && not <| item.StartsWith "--nooptimizationdata"
-                    && not <| item.EndsWith "mscorlib.dll")
+                    not <| item.StartsWith("--target", StringComparison.Ordinal)
+                    && not <| item.StartsWith("--doc", StringComparison.Ordinal)
+                    && not <| item.StartsWith("--out", StringComparison.Ordinal)
+                    && not <| item.StartsWith("--nooptimizationdata", StringComparison.Ordinal)
+                    && not <| item.EndsWith("mscorlib.dll", StringComparison.Ordinal))
 
             //Log.verbf "getting project options ('%s', \"\"\"%s\"\"\", now, args, assumeDotNetFramework = false): \n\t%s" filePath source (System.String.Join("\n\t", args))// fscore
             let filePath = Path.GetFullPath(filePath)
@@ -422,7 +420,7 @@ module CodeFormatter =
 
                            yield! opts.OtherOptions |]
                         |> Array.filter (fun item ->
-                            if item.StartsWith "-r:" then
+                            if item.StartsWith("-r:", StringComparison.Ordinal) then
                                 let fullPath = item.Substring 3
                                 let name = System.IO.Path.GetFileName fullPath
 

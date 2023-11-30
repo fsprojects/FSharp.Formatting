@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open System.Collections.Generic
 open System.Text
 open FSharp.Compiler.CodeAnalysis
@@ -76,7 +77,10 @@ module internal CodeBlockUtils =
                 yield BlockCommand cmds
                 yield! collectSnippet [] lines
 
-            | (ConcatenatedComments text) :: _ when comment.LastIndexOf("*)") <> -1 && text.Trim().StartsWith("//") ->
+            | (ConcatenatedComments text) :: _ when
+                comment.LastIndexOf("*)", StringComparison.Ordinal) <> -1
+                && text.Trim().StartsWith("//", StringComparison.Ordinal)
+                ->
                 // Comment ended, but we found a code snippet starting with // comment
                 let cend = findCommentEnd comment
                 yield BlockComment(comment.Substring(0, cend))
@@ -156,18 +160,21 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
     let getParaOptions cmds =
         match cmds with
-        | Command "condition" name when not (System.String.IsNullOrWhiteSpace name) -> { Condition = Some name }
+        | Command "condition" name when not (String.IsNullOrWhiteSpace name) -> { Condition = Some name }
         | _ -> { Condition = None }
+
+    let (|EmptyString|_|) (v: string) = if v.Length = 0 then Some() else None
 
     /// Transform list of code blocks (snippet/comment/command)
     /// into a formatted Markdown document, with link definitions
     let rec transformBlocks isFirst prevCodeId count noEval acc defs blocks =
-        match blocks with
+        match blocks, prevCodeId with
         // Disable evaluation for the rest of the file
-        | BlockCommand(Command "do-not-eval-file" _) :: blocks -> transformBlocks false None count true acc defs blocks
+        | BlockCommand(Command "do-not-eval-file" _) :: blocks, _ ->
+            transformBlocks false None count true acc defs blocks
 
         // Reference to code snippet defined later
-        | BlockCommand((Command "include" ref) as cmds) :: blocks ->
+        | BlockCommand((Command "include" ref) as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(CodeReference(ref, popts), None)
@@ -175,15 +182,15 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false None count noEval (p :: acc) defs blocks
 
         // Include console output (stdout) of previous block
-        | BlockCommand(Command "include-output" "" as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand(Command "include-output" EmptyString as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(OutputReference(prevCodeId.Value, popts), None)
+            let p1 = EmbedParagraphs(OutputReference(prevCodeId, popts), None)
 
-            transformBlocks false prevCodeId count noEval (p1 :: acc) defs blocks
+            transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
         // Include console output (stdout) of a named block
-        | BlockCommand(Command "include-output" ref as cmds) :: blocks ->
+        | BlockCommand(Command "include-output" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(OutputReference(ref, popts), None)
@@ -191,15 +198,15 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
         // Include FSI output (stdout) of previous block
-        | BlockCommand(Command "include-fsi-output" "" as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand(Command "include-fsi-output" EmptyString as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(FsiOutputReference(prevCodeId.Value, popts), None)
+            let p1 = EmbedParagraphs(FsiOutputReference(prevCodeId, popts), None)
 
-            transformBlocks false prevCodeId count noEval (p1 :: acc) defs blocks
+            transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
         // Include FSI output (stdout) of a named block
-        | BlockCommand(Command "include-fsi-output" ref as cmds) :: blocks ->
+        | BlockCommand(Command "include-fsi-output" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(FsiOutputReference(ref, popts), None)
@@ -207,15 +214,15 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
         // Include the merge of the console and FSI output (stdout) of previous block
-        | BlockCommand(Command "include-fsi-merged-output" "" as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand(Command "include-fsi-merged-output" EmptyString as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(FsiMergedOutputReference(prevCodeId.Value, popts), None)
+            let p1 = EmbedParagraphs(FsiMergedOutputReference(prevCodeId, popts), None)
 
-            transformBlocks false prevCodeId count noEval (p1 :: acc) defs blocks
+            transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
         // Include the merge of the console and FSI output (stdout) of a named block
-        | BlockCommand(Command "include-fsi-merged-output" ref as cmds) :: blocks ->
+        | BlockCommand(Command "include-fsi-merged-output" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(FsiMergedOutputReference(ref, popts), None)
@@ -223,15 +230,15 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false prevCodeId count noEval (p :: acc) defs blocks
 
         // Include formatted 'it' of previous block
-        | BlockCommand((Command "include-it" "") as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand((Command "include-it" EmptyString) as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(ItValueReference(prevCodeId.Value, popts), None)
+            let p1 = EmbedParagraphs(ItValueReference(prevCodeId, popts), None)
 
-            transformBlocks false prevCodeId count noEval (p1 :: acc) defs blocks
+            transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
         // Include formatted 'it' of a named block
-        | BlockCommand(Command "include-it" ref as cmds) :: blocks ->
+        | BlockCommand(Command "include-it" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(ItValueReference(ref, popts), None)
@@ -239,15 +246,15 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false None count noEval (p :: acc) defs blocks
 
         // Include unformatted 'it' of previous block
-        | BlockCommand((Command "include-it-raw" "") as cmds) :: blocks when prevCodeId.IsSome ->
+        | BlockCommand((Command "include-it-raw" EmptyString) as cmds) :: blocks, Some prevCodeId ->
             let popts = getParaOptions cmds
 
-            let p1 = EmbedParagraphs(ItRawReference(prevCodeId.Value, popts), None)
+            let p1 = EmbedParagraphs(ItRawReference(prevCodeId, popts), None)
 
-            transformBlocks false prevCodeId count noEval (p1 :: acc) defs blocks
+            transformBlocks false (Some prevCodeId) count noEval (p1 :: acc) defs blocks
 
         // Include unformatted 'it' of a named block
-        | BlockCommand(Command "include-it-raw" ref as cmds) :: blocks ->
+        | BlockCommand(Command "include-it-raw" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(ItRawReference(ref, popts), None)
@@ -255,7 +262,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false None count noEval (p :: acc) defs blocks
 
         // Include formatted named value
-        | BlockCommand(Command "include-value" ref as cmds) :: blocks ->
+        | BlockCommand(Command "include-value" ref as cmds) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(ValueReference(ref, popts), None)
@@ -263,7 +270,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false None count noEval (p :: acc) defs blocks
 
         // Include code without evaluation
-        | BlockCommand(Command "raw" _ as cmds) :: BlockSnippet(snip) :: blocks ->
+        | BlockCommand(Command "raw" _ as cmds) :: BlockSnippet(snip) :: blocks, _ ->
             let popts = getParaOptions cmds
 
             let p = EmbedParagraphs(RawBlock(snip, popts), None)
@@ -275,13 +282,13 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         //  * do-not-eval - the snippet will not be evaluated
         //  * define:foo - specifies the name of this snippet (for inclusion later)
         //  * define-output - defines the name for the snippet's output
-        | BlockCommand(cmds) :: BlockSnippet(snip) :: blocks ->
+        | BlockCommand(cmds) :: BlockSnippet(snip) :: blocks, _ ->
             let outputName =
                 match cmds with
                 | Command "define-output" name -> name
                 | _ ->
                     incr count
-                    "cell" + string count.Value
+                    "cell" + string<int> count.Value
 
             let opts =
                 { Evaluate = getEvaluate noEval cmds
@@ -296,17 +303,17 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false (Some outputName) count noEval (code :: acc) defs blocks
 
         // Unknown command
-        | BlockCommand(cmds) :: _ ->
+        | BlockCommand(cmds) :: _, _ ->
             failwithf "Unknown command: %A" [ for (KeyValue(k, v)) in cmds -> sprintf "%s:%s" k v ]
 
         // Skip snippets with no content
-        | BlockSnippet([]) :: blocks -> transformBlocks isFirst prevCodeId count noEval acc defs blocks
+        | BlockSnippet([]) :: blocks, _ -> transformBlocks isFirst prevCodeId count noEval acc defs blocks
 
         // Ordinary F# code snippet
-        | BlockSnippet(snip) :: blocks ->
+        | BlockSnippet(snip) :: blocks, _ ->
             let id =
                 incr count
-                "cell" + string count.Value
+                "cell" + string<int> count.Value
 
             let opts =
                 { Evaluate = not noEval
@@ -321,7 +328,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             transformBlocks false (Some id) count noEval (p :: acc) defs blocks
 
         // Markdown documentation block
-        | BlockComment(text) :: blocks ->
+        | BlockComment(text) :: blocks, _ ->
             // yaml frontmatter
             let parseOptions =
                 if isFirst then
@@ -337,7 +344,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
             let acc = (List.rev doc.Paragraphs) @ acc
             transformBlocks false None count noEval acc defs blocks
 
-        | [] ->
+        | [], _ ->
             // Union all link definitions & return Markdown doc
             let allDefs =
                 [ for def in defs do

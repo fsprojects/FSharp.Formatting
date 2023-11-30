@@ -46,7 +46,7 @@ type Literate private () =
     /// ignoring newlines or spaces in the key.
     static let (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
         [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-        |> Seq.tryPick (fun key ->
+        |> List.tryPick (fun key ->
             match dict.TryGetValue(key) with
             | true, v -> Some v
             | _ -> None)
@@ -219,6 +219,45 @@ type Literate private () =
                 | Some r -> Path.Combine(r, "document.md")
 
         ParseMarkdown.parseMarkdown filePath rootInputFolder content parseOptions
+        |> Transformations.generateReferences references
+        |> Transformations.formatCodeSnippets filePath ctx
+        |> Transformations.evaluateCodeSnippets ctx
+
+    /// <summary>
+    /// Parse pynb string as literate document
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="path">optional file path for debugging purposes</param>
+    /// <param name="definedSymbols"></param>
+    /// <param name="references"></param>
+    /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
+    /// <param name="rootInputFolder"></param>
+    /// <param name="onError"></param>
+    static member ParsePynbString
+        (
+            content,
+            ?path,
+            ?definedSymbols,
+            ?references,
+            ?parseOptions,
+            ?rootInputFolder,
+            ?onError
+        ) =
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext None None definedSymbols onError
+
+        let filePath =
+            match path with
+            | Some s -> s
+            | None ->
+                match rootInputFolder with
+                | None -> "C:\\script.fsx"
+                | Some r -> Path.Combine(r, "script.fsx")
+
+        let content = ParsePynb.pynbStringToFsx content
+
+        ParseScript(parseOptions, ctx)
+            .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -493,6 +532,59 @@ type Literate private () =
                 ?fscOptions = fscOptions,
                 ?references = references,
                 ?fsiEvaluator = fsiEvaluator,
+                parseOptions = parseOptions,
+                ?rootInputFolder = rootInputFolder,
+                ?onError = onError
+            )
+
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                crefResolver
+                mdlinkResolver
+                None
+
+        let doc = downloadImagesForDoc imageSaver doc
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
+        docModel
+
+    /// Parse and transform a pynb document
+    static member internal ParseAndTransformPynbFile
+        (
+            input,
+            output,
+            outputKind,
+            prefix,
+            fscOptions,
+            lineNumbers,
+            references,
+            substitutions,
+            generateAnchors,
+            imageSaver,
+            rootInputFolder,
+            crefResolver,
+            mdlinkResolver,
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
+        ) =
+
+        let parseOptions =
+            match outputKind with
+            | OutputKind.Fsx
+            | OutputKind.Pynb -> (MarkdownParseOptions.ParseCodeAsOther)
+            | _ -> MarkdownParseOptions.None
+
+        let fsx = ParsePynb.pynbToFsx input
+
+        let doc =
+            Literate.ParseScriptString(
+                fsx,
+                ?fscOptions = fscOptions,
+                ?references = references,
                 parseOptions = parseOptions,
                 ?rootInputFolder = rootInputFolder,
                 ?onError = onError

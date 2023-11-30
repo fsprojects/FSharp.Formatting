@@ -11,7 +11,6 @@ open System.Web
 open System.Text
 open System.Collections.Generic
 open FSharp.Formatting.CodeFormat
-open FSharp.Formatting.CodeFormat.Constants
 
 // --------------------------------------------------------------------------------------
 // Context used by the formatter
@@ -154,7 +153,7 @@ let rec formatTokenSpans (ctx: FormattingContext) =
                 ctx.Writer.Write(HttpUtility.HtmlEncode(body)))
 
 /// Generate HTML with the specified snippets
-let formatSnippets (ctx: FormattingContext) (snippets: Snippet[]) =
+let formatSnippets (ctx: FormattingContext) (snippets: Snippet array) =
     [| for (Snippet(key, lines)) in snippets do
            // Skip empty lines at the beginning and at the end
            let skipEmptyLines = Seq.skipWhile (fun (Line(_, spans)) -> List.isEmpty spans) >> List.ofSeq
@@ -226,7 +225,7 @@ let formatSnippetsAsHtml
     openLinesTag
     closeLinesTag
     tokenKindToCss
-    (snippets: Snippet[])
+    (snippets: Snippet array)
     =
     let tipf = ToolTipFormatter prefix
 

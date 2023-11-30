@@ -11,7 +11,7 @@ open FSharp.Formatting.CodeFormat.Constants
 // --------------------------------------------------------------------------------------
 
 /// A tool tip consists of a list of items reported from the compiler
-type ToolTipSpans = list<ToolTipSpan>
+type ToolTipSpans = ToolTipSpan list
 
 /// A tool tip span can be emphasized text, plain text Literal or a line brak
 type ToolTipSpan =
@@ -59,9 +59,9 @@ type ErrorKind =
 /// tokens), Omitted for the special [omit:...] tags and Output for the special [output:...] tag
 [<RequireQualifiedAccess>]
 type TokenSpan =
-    | Token of TokenKind * string * ToolTipSpans option
-    | Error of ErrorKind * string * TokenSpans
-    | Omitted of string * string
+    | Token of kind: TokenKind * body: string * tip: ToolTipSpans option
+    | Error of kind: ErrorKind * message: string * body: TokenSpans
+    | Omitted of body: string * hidden: string
     | Output of string
 
 /// A type alias representing a list of TokenSpan values
@@ -72,7 +72,7 @@ type TokenSpans = TokenSpan list
 type Line = Line of originalLine: string * tokenSpans: TokenSpans
 
 /// An F# snippet consists of a snippet title and a list of lines
-type Snippet = Snippet of string * Line list
+type Snippet = Snippet of title: string * lines: Line list
 
 /// Error reported from the F# compiler consists of location (start and end),
 /// error kind and the message (wrapped in a single case discriminated union

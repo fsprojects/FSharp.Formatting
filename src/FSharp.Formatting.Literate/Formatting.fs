@@ -1,6 +1,8 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open System.IO
+open System.Text.RegularExpressions
 open FSharp.Formatting.Literate
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
@@ -86,7 +88,7 @@ module internal Formatting =
 
                       let id =
                           count <- count + 1
-                          "cell" + string count
+                          "cell" + string<int> count
 
                       let opts =
                           { Evaluate = true
@@ -124,7 +126,7 @@ module internal Formatting =
                 |> List.tryPick (fun line ->
                     let line = line.Trim()
 
-                    if line.StartsWith(key + ":") then
+                    if line.StartsWith(key + ":", StringComparison.Ordinal) then
                         let line = line.[(key + ":").Length ..]
                         let line = line.Trim()
                         Some line
@@ -230,9 +232,12 @@ module internal Formatting =
         let substitutions0 =
             [ yield ParamKeys.``fsdocs-page-title``, pageTitle
               yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
+              yield ParamKeys.``fsdocs-body-class``, "content"
               yield! ctx.Substitutions
               yield! sourceSubstitutions
               yield! nextPreviousPageSubstitutions ]
+
+
 
         let formattedDocument =
             format
@@ -243,16 +248,23 @@ module internal Formatting =
                 ctx.CodeReferenceResolver
                 ctx.MarkdownDirectLinkResolver
 
+        let headingTexts, pageHeaders = FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
+
         let tipsHtml = doc.FormattedTips
 
         // Construct new Markdown document and write it
         let substitutions =
             substitutions0
-            @ [ ParamKeys.``fsdocs-content``, formattedDocument; ParamKeys.``fsdocs-tooltips``, tipsHtml ]
+            @ [ ParamKeys.``fsdocs-content``, formattedDocument
+                ParamKeys.``fsdocs-tooltips``, tipsHtml
+                ParamKeys.``fsdocs-page-content-list``, pageHeaders ]
 
         let indexText =
             (match ctx.OutputKind with
-             | OutputKind.Html -> Some(getIndexText doc)
+             | OutputKind.Html ->
+                 // Strip the html tags
+                 let fullText = Regex.Replace(formattedDocument, "<.*?>", "")
+                 Some(IndexText(fullText, headingTexts))
              | _ -> None)
 
         { OutputPath = outputPath
@@ -262,4 +274,7 @@ module internal Formatting =
           CategoryIndex = categoryIndex
           Index = index
           IndexText = indexText
-          Substitutions = substitutions }
+          Substitutions = substitutions
+          // No don't know this until later.
+          // See DocContent.GetNavigationEntries
+          IsActive = false }

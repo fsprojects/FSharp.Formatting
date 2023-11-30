@@ -1,13 +1,13 @@
-#r "nuget: Fun.Build, 0.3.8"
-#r "nuget: Fake.Core.ReleaseNotes, 6.0.0"
-#r "nuget: Fake.DotNet.AssemblyInfoFile, 6.0.0"
+#r "nuget: Fun.Build, 1.0.4"
+#r "nuget: Fake.IO.FileSystem, 6.0.0"
+#r "nuget: Ionide.KeepAChangelog, 0.1.8"
 
-open System.Xml.Linq
-open Fake.Core
-open Fake.DotNet
+open System.IO
 open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
 open Fake.IO
+open Ionide.KeepAChangelog
+open Ionide.KeepAChangelog.Domain
 open Fun.Build
 
 let root = __SOURCE_DIRECTORY__
@@ -29,41 +29,29 @@ let artifactsDir = root @@ "artifacts"
 let fsdocTool = artifactsDir @@ "fsdocs"
 
 // Read release notes document
-let release = ReleaseNotes.load "RELEASE_NOTES.md"
+let releaseNugetVersion, _, _ =
+    let changeLog = FileInfo(__SOURCE_DIRECTORY__ </> "RELEASE_NOTES.md")
+
+    match Parser.parseChangeLog changeLog with
+    | Error(msg, error) -> failwithf "%s msg\n%A" msg error
+    | Ok result -> result.Releases |> List.head
+
 let solutionFile = "FSharp.Formatting.sln"
 
-pipeline "CI" {
+let lintStage =
     stage "Lint" {
         run "dotnet tool restore"
         run $"dotnet fantomas {__SOURCE_FILE__} src tests docs --check"
     }
 
-    stage "AssemblyInfo" {
-        // Generate assembly info files with the right version & up-to-date information
-        run (fun _ ->
-            let info =
-                [ AssemblyInfo.Product project
-                  AssemblyInfo.Description summary
-                  AssemblyInfo.Version release.AssemblyVersion
-                  AssemblyInfo.FileVersion release.AssemblyVersion
-                  AssemblyInfo.InformationalVersion release.NugetVersion
-                  AssemblyInfo.Copyright license ]
-
-            AssemblyInfoFile.createFSharp "src/Common/AssemblyInfo.fs" info
-            AssemblyInfoFile.createCSharp "src/Common/AssemblyInfo.cs" info
-
-            let versionProps =
-                XElement(
-                    XName.Get "Project",
-                    XElement(
-                        XName.Get "PropertyGroup",
-                        XElement(XName.Get "Version", release.NugetVersion),
-                        XElement(XName.Get "PackageReleaseNotes", String.toLines release.Notes)
-                    )
-                )
-
-            versionProps.Save("version.props"))
+let testStage =
+    stage "Tests" {
+        run
+            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
     }
+
+pipeline "CI" {
+    lintStage
 
     stage "Clean" {
         run (fun _ ->
@@ -73,16 +61,13 @@ pipeline "CI" {
     }
 
     stage "Build" {
-        run $"dotnet restore {solutionFile}"
-        run $"dotnet build {solutionFile} --configuration {configuration}"
+        run $"dotnet restore {solutionFile} -tl"
+        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
     }
 
-    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration}" }
+    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
-    stage "Tests" {
-        run
-            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --framework net7.0 --results-directory TestResults"
-    }
+    testStage
 
     stage "GenerateDocs" {
         run (fun _ ->
@@ -91,7 +76,7 @@ pipeline "CI" {
         // Τhe tool has been uninstalled when the
         // artifacts folder was removed in the Clean stage.
         run
-            $"dotnet tool install --no-cache --version %s{release.NugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
+            $"dotnet tool install --no-cache --version %A{releaseNugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
 
         run $"\"{fsdocTool}\" build --strict --clean --properties Configuration=Release"
         run $"dotnet tool uninstall fsdocs-tool --tool-path \"%s{artifactsDir}\""
@@ -99,6 +84,13 @@ pipeline "CI" {
     }
 
     runIfOnlySpecified false
+}
+
+pipeline "Verify" {
+    lintStage
+    testStage
+    stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
+    runIfOnlySpecified true
 }
 
 tryPrintPipelineCommandHelp ()

@@ -80,7 +80,7 @@ type AsyncMaybeBuilder() =
             x.Zero()
 
     [<DebuggerStepThrough>]
-    member x.For(sequence: seq<_>, body: 'T -> Async<unit option>) : Async<_ option> =
+    member x.For(sequence: _ seq, body: 'T -> Async<unit option>) : Async<_ option> =
         x.Using(sequence.GetEnumerator(), (fun enum -> x.While(enum.MoveNext, x.Delay(fun () -> body enum.Current))))
 
     [<DebuggerStepThrough>]

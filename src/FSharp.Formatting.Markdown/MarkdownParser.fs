@@ -73,14 +73,10 @@ let (|NotPunctuation|_|) input =
     | _ -> Some input
 
 module Char =
-    let (|WhiteSpace|_|) input =
+    let (|WhiteSpace|_|) (input: char list) =
         match input with
         | [] -> Some input
-        | x :: _xs ->
-            if String.IsNullOrWhiteSpace(string x) then
-                Some input
-            else
-                None
+        | x :: _xs -> if Char.IsWhiteSpace x then Some input else None
 
     let (|NotWhiteSpace|_|) input =
         match input with
@@ -271,7 +267,7 @@ let (|AutoLink|_|) input =
         | List.StartsWith prefix (List.AsString link) -> Some(link, [])
         | _ -> None
 
-    [ "http://"; "https://" ] |> Seq.tryPick linkFor
+    [ "http://"; "https://" ] |> List.tryPick linkFor
 
 /// Recognizes some form of emphasis using `**bold**` or `*italic*`
 /// (both can be also marked using underscore).
@@ -316,7 +312,7 @@ let (|HtmlEntity|_|) input =
 
 /// Defines a context for the main `parseParagraphs` function
 type ParsingContext =
-    { Links: Dictionary<string, string * option<string>>
+    { Links: Dictionary<string, string * string option>
       Newline: string
       IsFirst: bool
       CurrentRange: MarkdownRange option
@@ -529,9 +525,9 @@ let parseSpans (StringPosition.TrimBoth(s, n)) ctx =
 let rec trimSpaces numSpaces (s: string) =
     if numSpaces <= 0 then
         s
-    elif s.StartsWith(" ") then
+    elif s.StartsWith ' ' then
         trimSpaces (numSpaces - 1) (s.Substring(1))
-    elif s.StartsWith("\t") then
+    elif s.StartsWith '\t' then
         trimSpaces (numSpaces - 4) (s.Substring(1))
     else
         s
@@ -553,7 +549,7 @@ let (|Heading|_|) lines =
         let header =
             // Drop "##" at the end, but only when it is preceded by some whitespace
             // (For example "## Hello F#" should be "Hello F#")
-            if header.EndsWith "#" then
+            if header.EndsWith '#' then
                 let noHash = header.TrimEnd [| '#' |]
 
                 if noHash.Length > 0 && Char.IsWhiteSpace(noHash.Chars(noHash.Length - 1)) then
@@ -658,10 +654,11 @@ let (|FencedCodeBlock|_|) lines =
                 else
                     let splits = header.Split((null: char array), StringSplitOptions.RemoveEmptyEntries)
 
-                    match splits |> Seq.tryFind (fun _ -> true) with
+                    match splits |> Array.tryFind (fun _ -> true) with
                     | None -> "", ""
                     | Some langString ->
-                        let ignoredString = header.Substring(header.IndexOf(langString) + langString.Length)
+                        let ignoredString =
+                            header.Substring(header.IndexOf(langString, StringComparison.Ordinal) + langString.Length)
 
                         langString,
                         (if String.IsNullOrWhiteSpace ignoredString then
@@ -673,7 +670,7 @@ let (|FencedCodeBlock|_|) lines =
             let takenLines2, codeWithoutIndent, rest =
                 match rest with
                 | ((hd, n) as takenLine2) :: tl ->
-                    let idx = hd.IndexOf(fenceString)
+                    let idx = hd.IndexOf(fenceString, StringComparison.Ordinal)
 
                     if idx > -1 && idx + fenceString.Length <= hd.Length then
                         let _pre = hd.Substring(0, idx)
@@ -871,7 +868,7 @@ let (|TableCellSeparator|_|) =
 /// Recognizes row of pipe table.
 /// The function takes number of expected columns and array of delimiters.
 /// Returns list of strings between delimiters.
-let (|PipeTableRow|_|) (size: option<int>) delimiters (line: string, n: MarkdownRange) =
+let (|PipeTableRow|_|) (size: int option) delimiters (line: string, n: MarkdownRange) =
     let parts =
         pipeTableFindSplits delimiters (line.ToCharArray() |> Array.toList)
         |> List.toArray
@@ -879,7 +876,7 @@ let (|PipeTableRow|_|) (size: option<int>) delimiters (line: string, n: Markdown
 
     let n = parts.Length
 
-    let m = if size.IsNone then 1 else size.Value
+    let m = size |> Option.defaultValue 1
 
     let x =
         if String.IsNullOrEmpty(fst parts.[0]) && n > m then
@@ -942,16 +939,14 @@ let (|PipeTableBlock|_|) input =
 /// Passed function is used to check whether all parts within grid are valid.
 /// Retuns tuple (position of grid columns, text between grid columns).
 let (|EmacsTableLine|_|)
-    (grid: option<int[]>)
+    (grid: int array option)
     (c: char)
     (check: string * MarkdownRange -> bool)
     (line: string, _n: MarkdownRange)
     =
     let p =
-        if grid.IsSome then
-            grid.Value
-        else
-            Array.FindAll([| 0 .. line.Length - 1 |], (fun i -> line.[i] = c))
+        grid
+        |> Option.defaultValue (Array.FindAll([| 0 .. line.Length - 1 |], (fun i -> line.[i] = c)))
 
     let n = p.Length - 1
 
@@ -1067,7 +1062,7 @@ let (|TakeParagraphLines|_|) input =
 /// TODO: This is too simple - takes paragraph that starts with <
 let (|HtmlBlock|_|) (lines: (string * MarkdownRange) list) =
     match lines with
-    | (first, _n) :: _ when first.StartsWith("<") ->
+    | (first, _n) :: _ when first.StartsWith('<') ->
         match lines with
         | TakeParagraphLines(html, rest) -> Some(html, html, rest)
         | _ -> None
@@ -1128,8 +1123,8 @@ let (|LatexBlock|_|) (lines: (string * MarkdownRange) list) =
             Some("equation", body, ((@"\begin{equation}", n) :: body @ [ (@"\end{equation}", n) ]), rest)
         | _ -> None
     | ((first, n) as takenLine) :: rest when
-        first.TrimEnd().StartsWith("$$")
-        && first.TrimEnd().EndsWith("$$")
+        first.TrimEnd().StartsWith("$$", StringComparison.Ordinal)
+        && first.TrimEnd().EndsWith("$$", StringComparison.Ordinal)
         && first.TrimEnd().Length >= 4
         ->
         let text = first.TrimEnd()
@@ -1246,10 +1241,8 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)
             else
                 let headParagraphs =
-                    if headers.IsNone then
-                        None
-                    else
-                        Some(headers.Value |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
+                    headers
+                    |> Option.map (fun headers -> headers |> List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
 
                 let rows = rows |> List.map (List.map (fun i -> parseParagraphs ctx i |> List.ofSeq))
 
@@ -1323,7 +1316,7 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
                     =
                     let containsNonSimple =
                         tree
-                        |> Seq.exists (function
+                        |> List.exists (function
                             | Node((false, _, _), _) -> true
                             | _ -> false)
 
@@ -1351,9 +1344,9 @@ let rec parseParagraphs (ctx: ParsingContext) (lines: (string * MarkdownRange) l
         | HtmlBlock(code, takenLines, Lines.TrimBlankStart(takenLines2, lines)) when
             (let all = String.concat ctx.Newline (code |> List.map fst)
 
-             not (all.StartsWith("<http://"))
-             && not (all.StartsWith("<ftp://"))
-             && not (all.Contains("@")))
+             not (all.StartsWith("<http://", StringComparison.Ordinal))
+             && not (all.StartsWith("<ftp://", StringComparison.Ordinal))
+             && not (all.Contains '@'))
             ->
             if ctx.ParseNonCodeAsOther then
                 yield OtherBlock(takenLines @ takenLines2, ctx.CurrentRange)

@@ -1,11 +1,13 @@
 namespace fsdocs
 
 open System
+open System.Diagnostics
 open System.IO
 open System.Runtime.InteropServices
 open System.Runtime.Serialization
 open System.Xml
 
+open System.Xml.Linq
 open FSharp.Formatting.Templating
 
 open Ionide.ProjInfo
@@ -136,10 +138,26 @@ module Utils =
             res
 
     let ensureTrailingSlash (s: string) =
-        if s.EndsWith("/") || s.EndsWith(".html") then
+        if s.EndsWith '/' || s.EndsWith(".html", StringComparison.Ordinal) then
             s
         else
             s + "/"
+
+module DotNetCli =
+
+    /// Run `dotnet msbuild <args>` and receive the trimmed standard output.
+    let msbuild (pwd: string) (args: string) : string =
+        let psi = ProcessStartInfo "dotnet"
+        psi.WorkingDirectory <- pwd
+        psi.Arguments <- $"msbuild %s{args}"
+        psi.RedirectStandardOutput <- true
+        psi.UseShellExecute <- false
+        use ps = new Process()
+        ps.StartInfo <- psi
+        ps.Start() |> ignore
+        let output = ps.StandardOutput.ReadToEnd()
+        ps.WaitForExit()
+        output.Trim()
 
 module Crack =
 
@@ -150,10 +168,14 @@ module Crack =
             None
 
     let msbuildPropBool (s: string) =
-        match s.Trim() with
-        | "" -> None
-        | ConditionEquals "True" -> Some true
-        | _ -> Some false
+        let trimmed = s.Trim()
+
+        if String.IsNullOrWhiteSpace trimmed then
+            None
+        else
+            match trimmed with
+            | ConditionEquals "True" -> Some true
+            | _ -> Some false
 
     let runProcess (log: string -> unit) (workingDir: string) (exePath: string) (args: string) =
         let psi = System.Diagnostics.ProcessStartInfo()
@@ -183,7 +205,7 @@ module Crack =
 
         exitCode, (workingDir, exePath, args)
 
-    type private CrackErrors = GetProjectOptionsErrors of string * (string list)
+    type private CrackErrors = GetProjectOptionsErrors of error: string * messages: string list
 
     type CrackedProjectInfo =
         { ProjectFileName: string
@@ -196,14 +218,13 @@ module Crack =
           RepositoryType: string option
           RepositoryBranch: string option
           UsesMarkdownComments: bool
-          FsDocsCollectionNameLink: string option
           FsDocsLicenseLink: string option
           FsDocsLogoLink: string option
           FsDocsLogoSource: string option
-          FsDocsNavbarPosition: string option
           FsDocsReleaseNotesLink: string option
           FsDocsSourceFolder: string option
           FsDocsSourceRepository: string option
+          FsDocsFaviconSource: string option
           FsDocsTheme: string option
           FsDocsWarnOnMissingDocs: bool
           PackageProjectUrl: string option
@@ -229,7 +250,7 @@ module Crack =
               "UsesMarkdownComments"
               "FsDocsCollectionNameLink"
               "FsDocsLogoSource"
-              "FsDocsNavbarPosition"
+              "FsDocsFaviconSource"
               "FsDocsTheme"
               "FsDocsLogoLink"
               "FsDocsLicenseLink"
@@ -312,14 +333,13 @@ module Crack =
                   RepositoryUrl = msbuildPropString "RepositoryUrl"
                   RepositoryType = msbuildPropString "RepositoryType"
                   RepositoryBranch = msbuildPropString "RepositoryBranch"
-                  FsDocsCollectionNameLink = msbuildPropString "FsDocsCollectionNameLink"
                   FsDocsSourceFolder = msbuildPropString "FsDocsSourceFolder"
                   FsDocsSourceRepository = msbuildPropString "FsDocsSourceRepository"
                   FsDocsLicenseLink = msbuildPropString "FsDocsLicenseLink"
                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
-                  FsDocsNavbarPosition = msbuildPropString "FsDocsNavbarPosition"
+                  FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
                   UsesMarkdownComments = msbuildPropBool "UsesMarkdownComments" |> Option.defaultValue false
@@ -334,16 +354,28 @@ module Crack =
                   RepositoryCommit = msbuildPropString "RepositoryCommit" }
 
             Ok(targetFrameworks, projOptions2)
-        | Error err -> GetProjectOptionsErrors(string err, msgs) |> Result.Error
+        | Error err -> GetProjectOptionsErrors(err, msgs) |> Result.Error
 
-    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo =
-
+    let private ensureProjectWasRestored (file: string) =
         let projDir = Path.GetDirectoryName(file)
-
         let projectAssetsJsonPath = Path.Combine(projDir, "obj", "project.assets.json")
 
-        if not (File.Exists(projectAssetsJsonPath)) then
-            failwithf "project '%s' not restored" file
+        if File.Exists projectAssetsJsonPath then
+            ()
+        else
+            // In dotnet 8 <UseArtifactsOutput> was introduced, see https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output
+            // We will try and use CLI-based project evaluation to determine the location of project.assets.json file
+            // See https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8#cli-based-project-evaluation
+            try
+                let path = DotNetCli.msbuild projDir "--getProperty:ProjectAssetsFile"
+
+                if not (File.Exists path) then
+                    failwithf $"project '%s{file}' not restored"
+            with ex ->
+                failwithf $"Failed to detect if the project '%s{file}' was restored"
+
+    let crackProjectFile slnDir extraMsbuildProperties (file: string) : CrackedProjectInfo =
+        ensureProjectWasRestored file
 
         let result = crackProjectFileAndIncludeTargetFrameworks slnDir extraMsbuildProperties file
         //printfn "msgs = %A" msgs
@@ -428,7 +460,7 @@ module Crack =
             |> List.filter (fun s ->
                 let isFSharpFormattingTestProject =
                     s.Contains $"FSharp.ApiDocs.Tests{Path.DirectorySeparatorChar}files"
-                    || s.EndsWith "FSharp.Formatting.TestHelpers.fsproj"
+                    || s.EndsWith("FSharp.Formatting.TestHelpers.fsproj", StringComparison.Ordinal)
 
                 if isFSharpFormattingTestProject then
                     printfn
@@ -495,9 +527,23 @@ module Crack =
             | None ->
                 match setting with
                 | Some setting -> printfn "please set '%s' in 'Directory.Build.props'" setting
-                | None _ -> ()
+                | None -> ()
 
                 None
+
+        /// Try and xpath query a fallback value from the current Directory.Build.props file.
+        /// This is useful to set some settings when there are no actual (c|f)sproj files.
+        let fallbackFromDirectoryProps =
+            if not (File.Exists "Directory.Build.props") then
+                fun _ optProp -> optProp
+            else
+                let xDoc = XDocument.Load("Directory.Build.props")
+
+                fun xpath optProp ->
+                    optProp
+                    |> Option.orElseWith (fun () ->
+                        let xe = System.Xml.XPath.Extensions.XPathSelectElement(xDoc, xpath)
+                        if isNull xe then None else Some xe.Value)
 
         // For the 'docs' directory we use the best info we can find from across all projects
         let projectInfoForDocs =
@@ -510,30 +556,54 @@ module Crack =
               RepositoryUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.RepositoryUrl)
+                |> fallbackFromDirectoryProps "//RepositoryUrl"
                 |> Option.map ensureTrailingSlash
               RepositoryType = projectInfos |> List.tryPick (fun info -> info.RepositoryType)
               RepositoryBranch = projectInfos |> List.tryPick (fun info -> info.RepositoryBranch)
-              FsDocsCollectionNameLink = projectInfos |> List.tryPick (fun info -> info.FsDocsCollectionNameLink)
-              FsDocsLicenseLink = projectInfos |> List.tryPick (fun info -> info.FsDocsLicenseLink)
-              FsDocsReleaseNotesLink = projectInfos |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
-              FsDocsLogoLink = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoLink)
-              FsDocsLogoSource = projectInfos |> List.tryPick (fun info -> info.FsDocsLogoSource)
+              FsDocsLicenseLink =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLicenseLink)
+                |> fallbackFromDirectoryProps "//FsDocsLicenseLink"
+              FsDocsReleaseNotesLink =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsReleaseNotesLink)
+                |> fallbackFromDirectoryProps "//FsDocsReleaseNotesLink"
+              FsDocsLogoLink =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLogoLink)
+                |> fallbackFromDirectoryProps "//FsDocsLogoLink"
+              FsDocsLogoSource =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLogoSource)
+                |> fallbackFromDirectoryProps "//FsDocsLogoSource"
+              FsDocsFaviconSource =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsFaviconSource)
+                |> fallbackFromDirectoryProps "//FsDocsFaviconSource"
               FsDocsSourceFolder = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceFolder)
-              FsDocsSourceRepository = projectInfos |> List.tryPick (fun info -> info.FsDocsSourceRepository)
-              FsDocsNavbarPosition = projectInfos |> List.tryPick (fun info -> info.FsDocsNavbarPosition)
+              FsDocsSourceRepository =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsSourceRepository)
+                |> fallbackFromDirectoryProps "//RepositoryUrl"
               FsDocsTheme = projectInfos |> List.tryPick (fun info -> info.FsDocsTheme)
               FsDocsWarnOnMissingDocs = false
               PackageProjectUrl =
                 projectInfos
                 |> List.tryPick (fun info -> info.PackageProjectUrl)
                 |> Option.map ensureTrailingSlash
-              Authors = projectInfos |> List.tryPick (fun info -> info.Authors)
+              Authors =
+                projectInfos
+                |> List.tryPick (fun info -> info.Authors)
+                |> fallbackFromDirectoryProps "//Authors"
               GenerateDocumentationFile = true
               PackageLicenseExpression = projectInfos |> List.tryPick (fun info -> info.PackageLicenseExpression)
               PackageTags = projectInfos |> List.tryPick (fun info -> info.PackageTags)
               UsesMarkdownComments = false
               Copyright = projectInfos |> List.tryPick (fun info -> info.Copyright)
-              PackageVersion = projectInfos |> List.tryPick (fun info -> info.PackageVersion)
+              PackageVersion =
+                projectInfos
+                |> List.tryPick (fun info -> info.PackageVersion)
+                |> fallbackFromDirectoryProps "//Version"
               PackageIconUrl = projectInfos |> List.tryPick (fun info -> info.PackageIconUrl)
               RepositoryCommit = projectInfos |> List.tryPick (fun info -> info.RepositoryCommit) }
 
@@ -555,22 +625,18 @@ module Crack =
                 [ param None ParamKeys.root (Some root)
                   param None ParamKeys.``fsdocs-authors`` (Some(info.Authors |> Option.defaultValue ""))
                   param None ParamKeys.``fsdocs-collection-name`` (Some collectionName)
-                  param
-                      None
-                      ParamKeys.``fsdocs-collection-name-link``
-                      (Some(info.FsDocsCollectionNameLink |> Option.defaultValue projectUrl))
                   param None ParamKeys.``fsdocs-copyright`` info.Copyright
                   param
-                      None
+                      (Some "<FsDocsLogoSource>")
                       ParamKeys.``fsdocs-logo-src``
-                      (Some(defaultArg info.FsDocsLogoSource (sprintf "%simg/logo.png" root)))
+                      (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
                   param
-                      None
-                      ParamKeys.``fsdocs-navbar-position``
-                      (Some(defaultArg info.FsDocsNavbarPosition "fixed-left"))
+                      (Some "<FsDocsFaviconSource>")
+                      ParamKeys.``fsdocs-favicon-src``
+                      (Some(defaultArg info.FsDocsFaviconSource "img/favicon.ico"))
                   param None ParamKeys.``fsdocs-theme`` (Some(defaultArg info.FsDocsTheme "default"))
                   param
-                      None
+                      (Some "<FsDocsLogoLink>")
                       ParamKeys.``fsdocs-logo-link``
                       (Some(info.FsDocsLogoLink |> Option.defaultValue projectUrl))
                   param
@@ -595,22 +661,28 @@ module Crack =
 
         let crackedProjects =
             projectInfos
-            |> List.map (fun info ->
-                let substitutions = parametersForProjectInfo info
+            |> List.choose (fun info ->
+                match info.TargetPath, info.ProjectOptions with
+                | Some targetPath, Some projectOptions ->
+                    let substitutions = parametersForProjectInfo info
 
-                info.TargetPath.Value,
-                info.ProjectOptions.Value.OtherOptions,
-                info.RepositoryUrl,
-                info.RepositoryBranch,
-                info.RepositoryType,
-                info.UsesMarkdownComments,
-                info.FsDocsWarnOnMissingDocs,
-                info.FsDocsSourceFolder,
-                info.FsDocsSourceRepository,
-                substitutions)
+                    Some(
+                        targetPath,
+                        projectOptions.OtherOptions,
+                        info.RepositoryUrl,
+                        info.RepositoryBranch,
+                        info.RepositoryType,
+                        info.UsesMarkdownComments,
+                        info.FsDocsWarnOnMissingDocs,
+                        info.FsDocsSourceFolder,
+                        info.FsDocsSourceRepository,
+                        substitutions
+                    )
+                | _ -> None)
 
-        let paths = [ for info in projectInfos -> Path.GetDirectoryName info.TargetPath.Value ]
+        let paths =
+            projectInfos
+            |> List.choose (fun projectInfo -> projectInfo.TargetPath |> Option.map Path.GetDirectoryName)
 
         let docsParameters = parametersForProjectInfo projectInfoForDocs
-
         root, collectionName, crackedProjects, paths, docsParameters

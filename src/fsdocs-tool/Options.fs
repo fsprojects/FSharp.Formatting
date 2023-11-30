@@ -2,12 +2,8 @@ namespace fsdocs
 
 module Common =
 
-    let evalString s = if s = "" then None else Some s
-
-    let evalStrings a =
-        match Seq.tryExactlyOne a with
-        | Some "" -> None
-        | _ -> Some(List.ofSeq a)
+    let evalString s =
+        if System.String.IsNullOrEmpty s then None else Some s
 
     // https://stackoverflow.com/questions/4126351
     let private pairs (xs: _ seq) =
@@ -22,12 +18,12 @@ module Common =
                     yield first, second
         }
 
-    let evalPairwiseStrings a =
-        match Seq.tryExactlyOne a with
-        | Some "" -> None
+    let evalPairwiseStrings (a: string array) =
+        match Array.tryExactlyOne a with
+        | Some v when System.String.IsNullOrWhiteSpace v -> None
         | _ -> a |> pairs |> List.ofSeq |> Some
 
-    let evalPairwiseStringsNoOption a =
+    let evalPairwiseStringsNoOption (a: string array) =
         evalPairwiseStrings a |> Option.defaultValue []
 
     let concat a =

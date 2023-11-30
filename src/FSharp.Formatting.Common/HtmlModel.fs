@@ -147,7 +147,7 @@ type internal HtmlProperties =
     | Results of float
     | Security of string
     | Unselectable of bool
-    | Custom of string * string
+    | Custom of name: string * value: string
 
     override s.ToString() =
         match s with
@@ -433,6 +433,7 @@ type internal HtmlElement =
     | Tspan of props: HtmlProperties list * children: HtmlElement list
     | String of string
     | EncodeString of string
+    | CustomElement of element: string * props: HtmlProperties list * children: HtmlElement list
 
     override tag.ToString() =
         let rec format tag (props: HtmlProperties list) (children: HtmlElement list) level =
@@ -449,7 +450,7 @@ type internal HtmlElement =
 
             let attrs =
                 if props.Length > 0 then
-                    " " + (props |> List.map string |> String.concat " ")
+                    " " + (props |> List.map string<HtmlProperties> |> String.concat " ")
                 else
                     ""
 
@@ -459,7 +460,7 @@ type internal HtmlElement =
         and formatVoid tag (props: HtmlProperties list) _level =
             let attrs =
                 if props.Length > 0 then
-                    " " + (props |> List.map string |> String.concat " ")
+                    " " + (props |> List.map string<HtmlProperties> |> String.concat " ")
                 else
                     ""
 
@@ -600,6 +601,7 @@ type internal HtmlElement =
             | Tspan(props, children) -> format "tspan" props children level
             | String str -> str
             | EncodeString str -> System.Web.HttpUtility.HtmlEncode str
+            | CustomElement(element, props, children) -> format element props children level
 
         helper 1 tag
 
@@ -744,3 +746,7 @@ module internal Html =
     //let string str = HtmlElement.String str
     let (!!) str = HtmlElement.String str
     let encode str = HtmlElement.EncodeString str
+
+    /// Web component from https://iconify.design/docs/
+    let iconifyIcon (props: HtmlProperties list) =
+        HtmlElement.CustomElement("iconify-icon", props, [])

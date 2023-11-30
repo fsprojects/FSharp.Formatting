@@ -48,3 +48,6 @@ tests/FSharp.Literate.Tests/output1/
 .DS_Store
 tests/FSharp.Literate.Tests/output2/
 tests/FSharp.Literate.Tests/previous-next-output/
+
+# Analyzer
+reports/

@@ -82,8 +82,8 @@ module internal CompilerServiceExtensions =
                  //    printfn "option: %s" r
 
                  options.OtherOptions
-                 |> Array.filter (fun path -> path.StartsWith "-r:")
-                 |> Array.filter (fun path -> path.StartsWith "-r:")
+                 |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
+                 |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
                  //|> Seq.choose (fun path -> if path.StartsWith "-r:" then path.Substring 3 |> Some else None)
                  //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
                  |> Array.toList)
@@ -161,8 +161,9 @@ module internal CompilerServiceExtensions =
                        yield "-r:" + dllFile
                    for libDir in libDirs do
                        yield "-I:" + libDir
-                   if fsCoreLib.IsSome then
-                       yield sprintf "-r:%s" fsCoreLib.Value
+                   match fsCoreLib with
+                   | None -> ()
+                   | Some fsCoreLib -> yield $"-r:%s{fsCoreLib}"
 
                    yield! otherFlags
                    yield fileName1 |]
@@ -267,9 +268,9 @@ module internal CompilerServiceExtensions =
         member x.NamespaceName =
             x.FullName.Substring(
                 0,
-                match x.FullName.IndexOf("[") with
+                match x.FullName.IndexOf '[' with
                 | -1 -> x.FullName.Length
-                | _ as i -> i
+                | i -> i
             )
 
     type FSharpAssembly with
@@ -285,7 +286,7 @@ module internal CompilerServiceExtensions =
                     let fileName = Path.GetFileName file
 
                     dllFiles
-                    |> Seq.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
+                    |> List.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
                     |> not)
                 |> Seq.filter (fun file ->
                     if Path.GetFileName file =? "FSharp.Core.dll" then
@@ -458,7 +459,7 @@ module internal Shell =
 
 module internal ArgParser =
     let (|StartsWith|_|) (start: string) (s: string) =
-        if s.StartsWith(start) then
+        if s.StartsWith(start, StringComparison.Ordinal) then
             StartsWith(s.Substring(start.Length)) |> Some
         else
             None
@@ -466,12 +467,13 @@ module internal ArgParser =
     let (|FsiBoolArg|_|) argName s =
         match s with
         | StartsWith argName rest ->
-            match rest with
-            | null
-            | ""
-            | "+" -> Some true
-            | "-" -> Some false
-            | _ -> None
+            if String.IsNullOrWhiteSpace rest then
+                Some true
+            else
+                match rest with
+                | "+" -> Some true
+                | "-" -> Some false
+                | _ -> None
         | _ -> None
 
 open ArgParser
@@ -575,7 +577,7 @@ type internal FsiOptions =
         |> Seq.fold
             (fun (parsed, state) (arg: string) ->
                 match state, arg with
-                | (false, Some cont), _ when not (arg.StartsWith("--")) ->
+                | (false, Some cont), _ when not (arg.StartsWith("--", StringComparison.Ordinal)) ->
                     let parsed, (userArgs, newCont) = cont arg
                     parsed, (userArgs, unbox newCont)
                 | _, "--" -> parsed, (true, None)
@@ -752,7 +754,7 @@ type internal FsiOptions =
            yield!
                (match x.NoWarns with
                 | [] -> None
-                | l -> l |> Seq.map string |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
+                | l -> l |> Seq.map string<int> |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
                |> maybeArg
            yield!
                match x.Optimize with
@@ -798,7 +800,7 @@ type internal FsiOptions =
                x.WarnAsErrorList
                |> Seq.map (fun (enable, warnNums) ->
                    warnNums
-                   |> Seq.map string
+                   |> Seq.map string<int>
                    |> String.concat ","
                    |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
 
@@ -814,7 +816,7 @@ module internal Helper =
     type ForwardTextWriter(f) =
         inherit TextWriter()
         override __.Flush() = ()
-        override __.Write(c: char) = f (string c)
+        override __.Write(c: char) = f (string<char> c)
 
         override __.Write(c: string) =
             if isNull c |> not then
@@ -874,15 +876,17 @@ module internal Helper =
             CombineTextWriter.Create
                 [ yield fsiOutStream
                   yield mergedOutStream
-                  if liveFsiWriter.IsSome then
-                      yield liveFsiWriter.Value ]
+                  match liveFsiWriter with
+                  | None -> ()
+                  | Some liveFsiWriter -> yield liveFsiWriter ]
 
         let stdOutWriter =
             CombineTextWriter.Create
                 [ yield stdOutStream
                   yield mergedOutStream
-                  if liveOutWriter.IsSome then
-                      yield liveOutWriter.Value ]
+                  match liveOutWriter with
+                  | None -> ()
+                  | Some liveFsiWriter -> yield liveFsiWriter ]
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
@@ -890,7 +894,7 @@ module internal Helper =
         member _.StdOutWriter = stdOutWriter
 
         member _.GetOutputAndResetLocal() =
-            let [ fsi; std; merged ] =
+            let mapped =
                 all
                 |> List.map (fun (global', local) ->
                     let data = local.ToString()
@@ -901,9 +905,12 @@ module internal Helper =
                     local.Clear() |> ignore
                     data)
 
-            { FsiOutput = fsi
-              ScriptOutput = std
-              Merged = merged }
+            match mapped with
+            | [ fsi; std; merged ] ->
+                { FsiOutput = fsi
+                  ScriptOutput = std
+                  Merged = merged }
+            | _ -> failwith $"Expected three StringBuilders, got %A{mapped}"
 
     let consoleCapture out err f =
         let defOut = Console.Out
@@ -1006,7 +1013,7 @@ type internal FsiSession
 
     let evalExpression = save fsiSession.EvalExpressionNonThrowing
 
-    let diagsToString (diags: FSharpDiagnostic[]) =
+    let diagsToString (diags: FSharpDiagnostic array) =
         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
     let addDiagsToFsiOutput (o: InteractionOutputs) diags =

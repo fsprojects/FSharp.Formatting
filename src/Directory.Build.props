@@ -1,0 +1,17 @@
+<Project>
+    <Import Project="../Directory.Build.props" />
+    <ItemGroup>
+        <PackageReference Include="FSharp.Analyzers.Build">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>build</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="G-Research.FSharp.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Ionide.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+</Project>
