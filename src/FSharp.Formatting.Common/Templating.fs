@@ -204,6 +204,11 @@ module ParamKeys =
     /// This helps to differentiate styles between API docs and custom content.
     let ``fsdocs-body-class`` = ParamKey "fsdocs-body-class"
 
+    /// A parameter key known to FSharp.Formatting, it is HTML composed from additional frontmatter information.
+    /// Such as tags and description
+    /// This can be empty when both properties are not provided for the current page.
+    let ``fsdocs-meta-tags`` = ParamKey "fsdocs-meta-tags"
+
 module internal SimpleTemplating =
 
 #if NETSTANDARD2_0

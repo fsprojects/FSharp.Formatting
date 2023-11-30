@@ -10,6 +10,7 @@
     <None Include="files/simple2.md" />
     <None Include="files/template.html" />
     <None Include="files/docpage.html" />
+    <None Include="files\seo-page.md" />
     <Compile Include="..\Common\MarkdownUnit.fs">
       <Link>Common\MarkdownUnit.fs</Link>
     </Compile>
