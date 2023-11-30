@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+* Namespace description overflows content box. [#886](https://github.com/fsprojects/FSharp.Formatting/issues/886)
+
 ## 20.0.0-alpha-014 - 2023-11-22
 
 ### Added

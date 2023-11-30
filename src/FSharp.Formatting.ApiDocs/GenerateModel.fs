@@ -1849,7 +1849,10 @@ module internal SymbolReader =
     /// Wraps the summary content in a <pre> tag if it is multiline and has different column indentations.
     let readXmlElementAsSingleSummary (e: XElement) =
         let text = e.Value
-        let nonEmptyLines = e.Value.Split([| '\n' |], StringSplitOptions.RemoveEmptyEntries)
+
+        let nonEmptyLines =
+            e.Value.Split([| '\n' |], StringSplitOptions.RemoveEmptyEntries)
+            |> Array.filter (String.IsNullOrWhiteSpace >> not)
 
         if nonEmptyLines.Length = 1 then
             nonEmptyLines.[0]
