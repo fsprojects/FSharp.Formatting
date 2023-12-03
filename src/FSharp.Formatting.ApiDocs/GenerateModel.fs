@@ -13,6 +13,7 @@ open FSharp.Compiler.Symbols
 open FSharp.Compiler.Text
 open FSharp.Compiler.Text.Range
 open FSharp.Formatting.Common
+open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
 open FSharp.Formatting.Internal
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Literate

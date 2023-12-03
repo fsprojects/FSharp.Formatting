@@ -12,7 +12,7 @@ open System.Text.RegularExpressions
 open FSharp.Patterns
 open FSharp.Collections
 open FSharp.Formatting.Common
-
+open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
 // --------------------------------------------------------------------------------------
 // Parsing of Markdown - first part handles inline formatting
 // --------------------------------------------------------------------------------------

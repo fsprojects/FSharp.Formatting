@@ -150,8 +150,19 @@ module internal Formatting =
             let relativeSourceFileName =
                 match doc.RootInputFolder with
                 | None -> Path.GetFileName(doc.SourceFile)
-                | Some rootInputFolder -> Path.GetRelativePath(rootInputFolder, doc.SourceFile)
-
+                | Some rootInputFolder ->
+#if NETSTANDARD2_1_OR_GREATER
+                    Path.GetRelativePath(rootInputFolder, doc.SourceFile)
+#else
+                    if
+                        doc.SourceFile.StartsWith(rootInputFolder + string Path.DirectorySeparatorChar)
+                        || doc.SourceFile.StartsWith(rootInputFolder + "/")
+                        || doc.SourceFile.StartsWith(rootInputFolder + "\\")
+                    then
+                        doc.SourceFile.Substring(rootInputFolder.Length + 1)
+                    else
+                        failwith $"need to make {doc.SourceFile} relative to {rootInputFolder}"
+#endif
             let relativeSourceFileBaseName = Path.ChangeExtension(relativeSourceFileName, null)
 
             let relativeSourceFileName = relativeSourceFileName.Replace(@"\", "/")

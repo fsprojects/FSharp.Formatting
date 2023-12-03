@@ -1,5 +1,6 @@
 module internal FSharp.Formatting.PynbModel
 
+open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
 open System.Web
 
 let escapeAndQuote (txt: string) =

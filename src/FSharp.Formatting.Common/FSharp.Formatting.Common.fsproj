@@ -7,6 +7,7 @@
     <WarningsAsErrors>FS0025;FS1182;$(WarningsAsErrors)</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utils.fs" />
     <Compile Include="YaafFSharpScripting.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
