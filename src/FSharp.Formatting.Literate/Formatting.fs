@@ -155,9 +155,21 @@ module internal Formatting =
                     Path.GetRelativePath(rootInputFolder, doc.SourceFile)
 #else
                     if
-                        doc.SourceFile.StartsWith(rootInputFolder + string Path.DirectorySeparatorChar)
-                        || doc.SourceFile.StartsWith(rootInputFolder + "/")
-                        || doc.SourceFile.StartsWith(rootInputFolder + "\\")
+                        doc.SourceFile.StartsWith(
+                            rootInputFolder + string<char> Path.DirectorySeparatorChar,
+                            false,
+                            System.Globalization.CultureInfo.InvariantCulture
+                        )
+                        || doc.SourceFile.StartsWith(
+                            rootInputFolder + "/",
+                            false,
+                            System.Globalization.CultureInfo.InvariantCulture
+                        )
+                        || doc.SourceFile.StartsWith(
+                            rootInputFolder + "\\",
+                            false,
+                            System.Globalization.CultureInfo.InvariantCulture
+                        )
                     then
                         doc.SourceFile.Substring(rootInputFolder.Length + 1)
                     else
