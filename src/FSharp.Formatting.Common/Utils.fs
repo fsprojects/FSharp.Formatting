@@ -1,12 +1,13 @@
 module FSharp.Formatting.Common.Utils
 #if NETSTANDARD_2_1_OR_GREATER
 #else
-type System.String with
-    member x.StartsWith c =
-        x.StartsWith(string<char> c, false, System.Globalization.CultureInfo.InvariantCulture)
+open System
+
+type String with
+    member x.StartsWith c = x.StartsWith(string<char> c)
 
     member x.EndsWith c =
-        x.EndsWith(string<char> c, false, System.Globalization.CultureInfo.InvariantCulture)
+        x.EndsWith(string<char> c, StringComparison.Ordinal)
 
     member x.Contains c = x.Contains(string<char> c)
 #endif

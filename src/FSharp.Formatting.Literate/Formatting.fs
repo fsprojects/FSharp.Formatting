@@ -157,19 +157,10 @@ module internal Formatting =
                     if
                         doc.SourceFile.StartsWith(
                             rootInputFolder + string<char> Path.DirectorySeparatorChar,
-                            false,
-                            System.Globalization.CultureInfo.InvariantCulture
+                            StringComparison.Ordinal
                         )
-                        || doc.SourceFile.StartsWith(
-                            rootInputFolder + "/",
-                            false,
-                            System.Globalization.CultureInfo.InvariantCulture
-                        )
-                        || doc.SourceFile.StartsWith(
-                            rootInputFolder + "\\",
-                            false,
-                            System.Globalization.CultureInfo.InvariantCulture
-                        )
+                        || doc.SourceFile.StartsWith(rootInputFolder + "/", StringComparison.Ordinal)
+                        || doc.SourceFile.StartsWith(rootInputFolder + "\\", StringComparison.Ordinal)
                     then
                         doc.SourceFile.Substring(rootInputFolder.Length + 1)
                     else

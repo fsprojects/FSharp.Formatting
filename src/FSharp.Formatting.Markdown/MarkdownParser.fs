@@ -12,7 +12,10 @@ open System.Text.RegularExpressions
 open FSharp.Patterns
 open FSharp.Collections
 open FSharp.Formatting.Common
+#if NETSTANDARD2_1_OR_GREATER
+#else
 open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
+#endif
 // --------------------------------------------------------------------------------------
 // Parsing of Markdown - first part handles inline formatting
 // --------------------------------------------------------------------------------------

@@ -13,7 +13,10 @@ open FSharp.Compiler.Symbols
 open FSharp.Compiler.Text
 open FSharp.Compiler.Text.Range
 open FSharp.Formatting.Common
+#if NETSTANDARD2_1_OR_GREATER
+#else
 open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
+#endif
 open FSharp.Formatting.Internal
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Literate
