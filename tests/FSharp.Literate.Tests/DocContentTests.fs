@@ -1,6 +1,7 @@
 module FSharp.Literate.Tests.DocContent
 
 open System.IO
+open FSharp.Formatting.Templating
 open fsdocs
 open NUnit.Framework
 open FsUnitTyped
@@ -255,6 +256,52 @@ let ``Parses frontmatter correctly `` () =
     twoTowersHtml |> shouldContainText "<a href=\"return.html\">Next</a>"
     returnHtml |> shouldContainText "<a href=\"two-tower.html\">Previous</a>"
 
+[<Test>]
+let ``Parses description and keywords from frontmatter `` () =
+    let rootOutputFolderAsGiven = __SOURCE_DIRECTORY__ </> "output1"
+
+    let relativeInputFolderAsGiven =
+        Path.GetRelativePath(System.Environment.CurrentDirectory, __SOURCE_DIRECTORY__ </> "files")
+
+    if Directory.Exists(rootOutputFolderAsGiven) then
+        Directory.Delete(rootOutputFolderAsGiven, true)
+
+    let content =
+        DocContent(
+            rootOutputFolderAsGiven,
+            Map.empty,
+            lineNumbers = None,
+            evaluate = false,
+            substitutions = [],
+            saveImages = None,
+            watch = false,
+            root = "https://github.com",
+            crefResolver = (fun _ -> None),
+            onError = failwith
+        )
+
+    let docModels = content.Convert(relativeInputFolderAsGiven, None, [])
+
+    let seoPageDocModel =
+        docModels
+        |> List.pick (fun (docInfo, _substitutions) ->
+            match docInfo with
+            | Some(_, _, docModel) when docModel.Title = "StringAnalyzer" -> Some(docModel)
+            | _ -> None)
+
+    let globals = []
+
+    for _thing, action in docModels do
+        action globals
+
+    let meta =
+        seoPageDocModel.Substitutions
+        |> List.find (fst >> ((=) ParamKeys.``fsdocs-meta-tags``))
+        |> snd
+
+    StringAssert.Contains("<meta name=\"description\"", meta)
+    StringAssert.Contains("Great description about StringAnalyzer!", meta)
+    StringAssert.Contains("fsharp, analyzers, tooling", meta)
 
 (* Cannot get this test to evaluate the notebook
 [<Test>]
@@ -283,7 +330,7 @@ let ``ipynb notebook evaluates`` () =
     let globals = []
 
     for (_thing, action) in docModels do
-        action globals  
+        action globals
 
     let ipynbOut = rootOutputFolderAsGiven </> "eval.html" |> File.ReadAllText
 

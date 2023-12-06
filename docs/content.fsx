@@ -70,7 +70,7 @@ Any file or directory beginning with `.` is ignored.
 
 ## Front matter
 
-Each content file can have optional frontmatter.  This determines the navigation bar title, categorization and ordering.
+Each content file can have optional frontmatter.  This determines the navigation bar title, categorization ordering and meta tags.
 
 For markdown, the format is:
 ```
@@ -79,6 +79,8 @@ title: Some Title
 category: Some Category
 categoryindex: 2
 index: 3
+description: Some description
+keywords: tag1, tag2, tag3
 ---
 ```
 For F# scripts the frontmatter is in this form:
@@ -89,6 +91,8 @@ For F# scripts the frontmatter is in this form:
     category: Examples
     categoryindex: 2
     index: 1
+    description: Some description
+    keywords: tag1, tag2, tag3
     ---
     *)
 
@@ -96,6 +100,8 @@ All entries are optional.
 The `categoryindex` determines the ordering of categories.
 The `index` determines the ordering of within each category.
 The `title` is used in the navigation bar instead of any title inferred from the document.
+The `description` is used in `<meta name="description"` as part of the `{{fsdocs-meta-tags}}` substitution.
+The `keywords` are also used in a meta tag as part of `{{fsdocs-meta-tags}}`. Separate them using a `,`.
 
 ## Link Translation for Inputs
 
@@ -151,6 +157,7 @@ See [Styling](styling.html) for information about template parameters and stylin
 | `fsdocs-head-extra`           | Additional html content loaded from the `_head.html` file if present in the `--input` folder |
 | `fsdocs-body-extra`           | Additional html content loaded from the `_body.html` file if present in the `--input` folder |
 | `fsdocs-body-class`           | A css class value to help distinguish between `content` and `api-docs` |
+| `fsdocs-meta-tags`            | A set of additional HTML meta tags, present when description and/or keywords are present in the frontmatter |
 
 The following substitutions are extracted from your project files and may or may not be used by the default
 template:

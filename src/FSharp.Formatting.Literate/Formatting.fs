@@ -143,6 +143,8 @@ module internal Formatting =
         let categoryIndex = findInFrontMatter "categoryindex" |> Option.bind mkValidIndex
         let index = findInFrontMatter "index" |> Option.bind mkValidIndex
         let titleFromFrontMatter = findInFrontMatter "title"
+        let description = findInFrontMatter "description"
+        let tags = findInFrontMatter "keywords"
 
         // If we want to include the source code of the script, then process
         // the entire source and generate replacement {source} => ...some html...
@@ -229,10 +231,26 @@ module internal Formatting =
 
                 getLinksFromCurrentPageIdx currentPageIdx
 
+        let meta =
+            let mkDescription description =
+                $"""<meta name="description" content="%s{description}">
+<meta name="twitter:site" content="%s{description}">
+<meta name="og:description" content="%s{description}">"""
+
+            let mkKeywords keywords =
+                $"""<meta name="keywords" content="%s{keywords}">"""
+
+            match description, tags with
+            | Some description, Some tags -> String.Concat(mkDescription description, "\n", mkKeywords tags)
+            | Some description, None -> mkDescription description
+            | None, Some keywords -> mkKeywords keywords
+            | None, None -> String.Empty
+
         let substitutions0 =
             [ yield ParamKeys.``fsdocs-page-title``, pageTitle
               yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
               yield ParamKeys.``fsdocs-body-class``, "content"
+              yield ParamKeys.``fsdocs-meta-tags``, meta
               yield! ctx.Substitutions
               yield! sourceSubstitutions
               yield! nextPreviousPageSubstitutions ]

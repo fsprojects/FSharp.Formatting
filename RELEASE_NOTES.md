@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 20.0.0-alpha-015 - 2023-12-06
 
 ### Fixed
 * Namespace description overflows content box. [#886](https://github.com/fsprojects/FSharp.Formatting/issues/886)
+
+### Added
+* SEO-optimization for new theme. Allow `description` and `keywords` in frontmatter. Introduce `{{fsdocs-meta-tags}}`. [#869](https://github.com/fsprojects/FSharp.Formatting/issues/869)
 
 ## 20.0.0-alpha-014 - 2023-11-22
 
