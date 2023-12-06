@@ -101,7 +101,7 @@ The `categoryindex` determines the ordering of categories.
 The `index` determines the ordering of within each category.
 The `title` is used in the navigation bar instead of any title inferred from the document.
 The `description` is used in `<meta name="description"` as part of the `{{fsdocs-meta-tags}}` substitution.
-The `keywords` are also used in a meta tag as part of `{{fsdocs-meta-tags}}`.
+The `keywords` are also used in a meta tag as part of `{{fsdocs-meta-tags}}`. Separate them using a `,`.
 
 ## Link Translation for Inputs
 
