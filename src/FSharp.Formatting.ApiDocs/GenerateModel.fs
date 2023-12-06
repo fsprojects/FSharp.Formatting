@@ -816,10 +816,10 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
         if (not (System.String.IsNullOrEmpty xmlsig)) then
             assert
-                (xmlsig.StartsWith("M:")
-                 || xmlsig.StartsWith("P:")
-                 || xmlsig.StartsWith("F:")
-                 || xmlsig.StartsWith("E:"))
+                (xmlsig.StartsWith("M:", StringComparison.Ordinal)
+                 || xmlsig.StartsWith("P:", StringComparison.Ordinal)
+                 || xmlsig.StartsWith("F:", StringComparison.Ordinal)
+                 || xmlsig.StartsWith("E:", StringComparison.Ordinal))
 
             xmlDocNameToSymbol.[xmlsig] <- memb
 
@@ -830,7 +830,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
         let xmlsig = getXmlDocSigForType entity
 
         if (not (System.String.IsNullOrEmpty xmlsig)) then
-            assert (xmlsig.StartsWith("T:"))
+            assert (xmlsig.StartsWith("T:", StringComparison.Ordinal))
             xmlDocNameToSymbol.[xmlsig] <- entity
 
             if (not (niceNameEntityLookup.ContainsKey(entity.LogicalName))) then
@@ -986,7 +986,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
             | Some nm -> Some(externalDocsLink false entity.DisplayName nm nm)
 
     let resolveCrossReferenceForTypeByXmlSig (typeXmlSig: string) =
-        assert (typeXmlSig.StartsWith("T:"))
+        assert (typeXmlSig.StartsWith("T:", StringComparison.Ordinal))
 
         match xmlDocNameToSymbol.TryGetValue(typeXmlSig) with
         | true, (:? FSharpEntity as entity) ->
@@ -1025,10 +1025,10 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
     let tryResolveCrossReferenceForMemberByXmlSig (memberXmlSig: string) =
         assert
-            (memberXmlSig.StartsWith("M:")
-             || memberXmlSig.StartsWith("P:")
-             || memberXmlSig.StartsWith("F:")
-             || memberXmlSig.StartsWith("E:"))
+            (memberXmlSig.StartsWith("M:", StringComparison.Ordinal)
+             || memberXmlSig.StartsWith("P:", StringComparison.Ordinal)
+             || memberXmlSig.StartsWith("F:", StringComparison.Ordinal)
+             || memberXmlSig.StartsWith("E:", StringComparison.Ordinal))
 
         match xmlDocNameToSymbol.TryGetValue(memberXmlSig) with
         | true, (:? FSharpMemberOrFunctionOrValue as memb) when memb.DeclaringEntity.IsSome -> memb |> mfvToCref |> Some
