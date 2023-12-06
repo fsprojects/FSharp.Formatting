@@ -6,7 +6,7 @@
     <!-- Copy all project dependencies to bin folder -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <OtherFlags>$(OtherFlags) /warnon:1182 --test:GraphBasedChecking --test:ParallelOptimization --test:ParallelIlxGen</OtherFlags>
+    <OtherFlags>$(OtherFlags) /warnon:1182 --test:GraphBasedChecking --test:ParallelOptimization --test:ParallelIlxGen --strict-indentation+</OtherFlags>
   </PropertyGroup>
 
   <!-- NuGet Metadata -->
