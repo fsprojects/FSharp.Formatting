@@ -663,10 +663,11 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             [| yield! parameters
                yield (ParamKeys.``fsdocs-list-of-namespaces``, toc)
                yield (ParamKeys.``fsdocs-content``, content.ToString())
-               yield (ParamKeys.``fsdocs-source``, "")
-               yield (ParamKeys.``fsdocs-tooltips``, "")
+               yield (ParamKeys.``fsdocs-source``, String.Empty)
+               yield (ParamKeys.``fsdocs-tooltips``, String.Empty)
                yield (ParamKeys.``fsdocs-page-title``, pageTitle)
                yield (ParamKeys.``fsdocs-page-content-list``, PageContentList.EmptyContent)
+               yield (ParamKeys.``fsdocs-meta-tags``, String.Empty)
                yield! globalParameters |]
 
         let collection = model.Collection
