@@ -4,7 +4,7 @@ module FSharp.Formatting.Common.Utils
 open System
 
 type String with
-    member x.StartsWith c = x.StartsWith(string<char> c)
+    member x.StartsWith c = x.StartsWith(string<char> c, StringComparison.Ordinal)
 
     member x.EndsWith c =
         x.EndsWith(string<char> c, StringComparison.Ordinal)
