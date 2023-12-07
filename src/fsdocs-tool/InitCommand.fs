@@ -26,6 +26,12 @@ type InitCommand() =
              HelpText = "Whether to force-overwrite existing files in the output folder.")>]
     member val force: bool = false with get, set
 
+    [<Option("non-interactive",
+             Required = false,
+             Default = true,
+             HelpText = "Run the tool in non-interactive mode, creating default output.")>]
+    member val ``non-interactive``: bool = false with get, set
+
     member this.Execute() =
 
         let docsOutputPath = Path.GetFullPath(this.output)
@@ -60,7 +66,17 @@ type InitCommand() =
                       inNugetPackageLocations.``templates/init/.literate_sample_template.fsx``,
                       Path.GetFullPath(Path.Combine(initLocations.DocsFolder.Path, "literate_sample.fsx")) ]
 
-                fileMap |> List.iter (fun (src, dst) -> File.Copy(src.Path, dst, this.force))
+                fileMap
+                |> List.map (fun (src, dst) ->
+                    src,
+                    dst,
+                    if this.``non-interactive`` then
+                        true
+                    else
+                        Common.CLI.confirmFileCreation dst src.Description)
+                |> List.iter (fun (src, dst, copy) ->
+                    if copy then
+                        File.Copy(src.Path, dst, this.force))
 
                 printfn ""
                 printfn "a basic fsdocs scaffold has been created in %s." this.output
@@ -96,7 +112,13 @@ type InitCommand() =
                        Path.GetFullPath(Path.Combine(initLocations.DocsFolder.Path, "literate_sample.fsx"))) ]
 
                 fileMap
-                |> List.map (fun (src, dst) -> (src, dst, Common.CLI.confirmFileCreation dst src.Description))
+                |> List.map (fun (src, dst) ->
+                    src,
+                    dst,
+                    if this.``non-interactive`` then
+                        true
+                    else
+                        Common.CLI.confirmFileCreation dst src.Description)
                 |> List.iter (fun (src, dst, copy) ->
                     if copy then
                         File.Copy(src.Path, dst, this.force))
