@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-015 - 2023-12-07
+
+### Fixed
+* Use empty replacement for `{{fsdocs-meta-tags}` in API doc pages. [#892](https://github.com/fsprojects/FSharp.Formatting/pull/892)
+
 ## 20.0.0-alpha-015 - 2023-12-06
 
 ### Fixed
