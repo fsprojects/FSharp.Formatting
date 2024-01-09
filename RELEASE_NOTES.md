@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-017 - 2024-01-09
+
+### Fixed
+* Set default font-size for code. [#889](https://github.com/fsprojects/FSharp.Formatting/issues/889)
+
 ## 20.0.0-alpha-016 - 2023-12-07
 
 ### Fixed
