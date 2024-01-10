@@ -722,6 +722,7 @@ code, table.pre, pre {
     font-family: var(--monospace-font);
     font-variant-ligatures: none;
     font-size: var(--font-200);
+    -webkit-text-size-adjust: 100%;
 }
 
 table.pre, #content > pre.fssnip {

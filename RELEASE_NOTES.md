@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-018 - 2024-01-10
+
+### Fixed
+* Add -webkit-text-size-adjust. [#889](https://github.com/fsprojects/FSharp.Formatting/issues/889)
+
 ## 20.0.0-alpha-017 - 2024-01-09
 
 ### Fixed
