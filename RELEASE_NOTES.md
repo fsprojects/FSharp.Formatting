@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-alpha-019 - 2024-01-29
+
+### Fixed
+* Use dvh for full viewport height . [#899](https://github.com/fsprojects/FSharp.Formatting/pull/899)
+
 ## 20.0.0-alpha-018 - 2024-01-10
 
 ### Fixed
