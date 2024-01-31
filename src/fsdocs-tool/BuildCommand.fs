@@ -128,7 +128,7 @@ type internal DocContent
                     Some uri
                 with _ ->
                     printfn
-                        $"Couldn't map markdown reference {markdownReference} that seemed to correspond to an input file"
+                        $"Couldn't map markdown reference %s{markdownReference} that seemed to correspond to an input file"
 
                     None
 
@@ -352,7 +352,7 @@ type internal DocContent
 
                           let evaluateNotebook ipynbFile =
                               let args =
-                                  $"repl --run {ipynbFile} --default-kernel fsharp --exit-after-run --output-path {ipynbFile}"
+                                  $"repl --run %s{ipynbFile} --default-kernel fsharp --exit-after-run --output-path %s{ipynbFile}"
 
                               let psi =
                                   ProcessStartInfo(
@@ -367,8 +367,8 @@ type internal DocContent
                                   p.WaitForExit()
                               with _ ->
                                   let msg =
-                                      $"Failed to evaluate notebook {ipynbFile} using dotnet-repl\n"
-                                      + $"""try running "{args}" at the command line and inspect the error"""
+                                      $"Failed to evaluate notebook %s{ipynbFile} using dotnet-repl\n"
+                                      + $"""try running "%s{args}" at the command line and inspect the error"""
 
                                   failwith msg
 
@@ -392,7 +392,7 @@ type internal DocContent
                                   psi.Arguments <- "tool list --global"
                                   p.Start() |> ignore
                                   let og = p.StandardOutput.ReadToEnd()
-                                  let output = $"{ol}\n{og}"
+                                  let output = $"%s{ol}\n%s{og}"
 
                                   if not (output.Contains("dotnet-repl")) then
                                       failwith failmsg
@@ -403,7 +403,7 @@ type internal DocContent
 
                           if evaluate then
                               checkDotnetReplInstall ()
-                              printfn $"  evaluating {inputFileFullPath} with dotnet-repl"
+                              printfn $"  evaluating %s{inputFileFullPath} with dotnet-repl"
                               evaluateNotebook inputFileFullPath
 
 

@@ -18,17 +18,17 @@ module internal ParsePynb =
             match this with
             | Markdown source -> source
             | Code code ->
-                let codeBlock = sprintf $"```{code.lang}\n{addLineEnd code.source}```"
+                let codeBlock = sprintf $"```%s{code.lang}\n%s{addLineEnd code.source}```"
 
                 match code.outputs with
                 | None -> codeBlock
                 | Some outputs ->
                     let outputsString = outputs |> String.concat "\n"
-                    sprintf $"{codeBlock}\n{outputsString}"
+                    sprintf $"%s{codeBlock}\n%s{outputsString}"
 
         member this.ToFsx() =
             match this with
-            | Markdown source -> $"(**\n{source}\n*)"
+            | Markdown source -> $"(**\n%s{source}\n*)"
             | Code code when code.lang = "fsharp" ->
                 let codeBlock = addLineEnd code.source
 
@@ -36,8 +36,8 @@ module internal ParsePynb =
                 | None -> codeBlock
                 | Some outputs ->
                     let outputsString = outputs |> String.concat "\n"
-                    sprintf $"{codeBlock}\n(**\n{outputsString}\n*)"
-            | Code _ -> $"(**\n{this.ToMarkdown()}\n*)"
+                    sprintf $"%s{codeBlock}\n(**\n%s{outputsString}\n*)"
+            | Code _ -> $"(**\n%s{this.ToMarkdown()}\n*)"
 
     module Output =
         let (|TextHtml|_|) (x: JsonElement) =
@@ -48,14 +48,14 @@ module internal ParsePynb =
                     |> Seq.map (fun x -> x.GetString().Replace("\r\n", "\n") |> addLineEnd)
                     |> String.concat ""
 
-                Some $"<p>{html}</p>"
+                Some $"<p>%s{html}</p>"
             | _ -> None
 
         let (|TextPlain|_|) (x: JsonElement) =
             match x.TryGetProperty("text/plain") with
             | true, text ->
                 let text = text.EnumerateArray() |> Seq.map (fun x -> x.GetString()) |> String.concat ""
-                Some $"""<table class="pre"><tbody><tr><td><pre><code>{text}</code></pre></td></tr></tbody></table>"""
+                Some $"""<table class="pre"><tbody><tr><td><pre><code>%s{text}</code></pre></td></tr></tbody></table>"""
             | _ -> None
 
         let (|DisplayData|_|) (x: JsonElement) =
@@ -65,7 +65,7 @@ module internal ParsePynb =
                     match x.TryGetProperty("data") with
                     | true, TextHtml html -> html
                     | true, TextPlain text -> text
-                    | true, s -> failwith $"unknown output {s}"
+                    | true, s -> failwith $"unknown output %A{s}"
                     | false, _ -> failwith "no data property"
                     |> Some
                 else
@@ -82,7 +82,7 @@ module internal ParsePynb =
                         | _ -> failwith "no text property"
 
                     Some
-                        $"""<table class="pre"><tbody><tr><td><pre><code>{text}</code></pre></td></tr></tbody></table>"""
+                        $"""<table class="pre"><tbody><tr><td><pre><code>%s{text}</code></pre></td></tr></tbody></table>"""
                 else
                     None
             | _ -> failwith "no output_type property"
@@ -91,7 +91,7 @@ module internal ParsePynb =
             match output with
             | Stream stream -> stream
             | DisplayData displayData -> displayData
-            | s -> failwith $"""unknown output {s.GetProperty("output_type").GetString()}"""
+            | s -> failwith $"""unknown output %s{s.GetProperty("output_type").GetString()}"""
 
     let getSource (cell: JsonElement) =
         let source =
@@ -152,7 +152,7 @@ module internal ParsePynb =
             | _, Some _ -> failwith $"Markdown should not have outputs"
             | source, None -> Markdown source
         | "code" -> getCode cell
-        | _ -> failwith $"unknown cell type {cell_type}"
+        | _ -> failwith $"unknown cell type %s{cell_type}"
 
     let pynbStringToMarkdown (ipynb: string) =
         let json = JsonDocument.Parse(ipynb)

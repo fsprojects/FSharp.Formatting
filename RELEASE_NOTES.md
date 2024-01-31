@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-beta-001 - 2024-01-31
+
+### Changed
+* Marking development of v20 as complete.
+
 ## 20.0.0-alpha-019 - 2024-01-29
 
 ### Fixed

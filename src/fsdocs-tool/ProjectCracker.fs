@@ -459,7 +459,7 @@ module Crack =
             projectFiles
             |> List.filter (fun s ->
                 let isFSharpFormattingTestProject =
-                    s.Contains $"FSharp.ApiDocs.Tests{Path.DirectorySeparatorChar}files"
+                    s.Contains $"FSharp.ApiDocs.Tests%c{Path.DirectorySeparatorChar}files"
                     || s.EndsWith("FSharp.Formatting.TestHelpers.fsproj", StringComparison.Ordinal)
 
                 if isFSharpFormattingTestProject then
