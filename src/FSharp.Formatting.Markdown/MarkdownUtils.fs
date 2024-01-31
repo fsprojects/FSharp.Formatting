@@ -167,7 +167,7 @@ module internal MarkdownUtils =
 
                       for (j, line) in List.indexed lines do
                           if i = 0 && j = 0 then
-                              yield $"{n} " + line
+                              yield $"%i{n} " + line
                           else
                               yield "  " + line
 
@@ -329,7 +329,7 @@ module internal MarkdownUtils =
                     else
                         let tempRoot = "fsdocs-secret-temp-root"
                         // We can't be sure code is a single html element, we could get multiple elements.
-                        let element = XElement.Parse($"<{tempRoot}>{code}</{tempRoot}>")
+                        let element = XElement.Parse($"<%s{tempRoot}>%s{code}</%s{tempRoot}>")
                         // ends-with is XPath 2.0 only, https://stackoverflow.com/questions/1525299/xpath-and-xslt-2-0-for-net
                         let attributes =
                             match System.Xml.XPath.Extensions.XPathEvaluate(element, "//*/@*[contains(., '.md')]") with

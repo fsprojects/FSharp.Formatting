@@ -1869,7 +1869,7 @@ module internal SymbolReader =
             if allLinesHaveSameColumn then
                 trimmed
             else
-                $"<pre>{trimmed}</pre>"
+                $"<pre>%s{trimmed}</pre>"
 
     let rec readXmlElementAsHtml
         anyTagsOK

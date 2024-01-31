@@ -567,7 +567,7 @@ module __FsiSettings =
                       StdErr = e.Result.Error.Merged }
 
                 let msg =
-                    $"Evaluation failed and --strict is on\n    file={file}\n    asExpression={asExpression}, text={text}\n    stdout={e.Result.Output.Merged}\n\    stderr={e.Result.Error.Merged}\n    inner exception={e.InnerException}"
+                    $"Evaluation failed and --strict is on\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n\    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
 
                 onError msg
 
