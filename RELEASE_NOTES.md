@@ -1,5 +1,10 @@
 # Changelog
 
+## 20.0.0-beta-002 - 2024-02-08
+
+### Fixed
+* Avoid theme flicker in dark mode. [#901](https://github.com/fsprojects/FSharp.Formatting/pull/901)
+
 ## 20.0.0-beta-001 - 2024-01-31
 
 ### Changed

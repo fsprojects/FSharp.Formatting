@@ -125,6 +125,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{FAD5
 		docs\content\fsdocs-search.js = docs\content\fsdocs-search.js
 		docs\content\fsdocs-tips.js = docs\content\fsdocs-tips.js
 		docs\content\fsdocs-theme-toggle.js = docs\content\fsdocs-theme-toggle.js
+		docs\content\fsdocs-theme-set-dark.js = docs\content\fsdocs-theme-set-dark.js
 	EndProjectSection
 EndProject
 Global
