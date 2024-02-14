@@ -1,5 +1,9 @@
 # Changelog
 
+## 20.0.0 - 2024-02-14
+
+Stable release
+
 ## 20.0.0-beta-002 - 2024-02-08
 
 ### Fixed
