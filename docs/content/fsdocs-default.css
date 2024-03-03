@@ -721,7 +721,6 @@ code, table.pre, pre {
     color: var(--code-color);
     font-family: var(--monospace-font);
     font-variant-ligatures: none;
-    font-size: var(--font-200);
     -webkit-text-size-adjust: 100%;
 }
 
