@@ -247,10 +247,8 @@ module internal CompilerServiceExtensions =
             |> List.map (fun file ->
                 file,
                 (match referenceDict.TryGetValue file with
-                 | true, refFile -> 
-                     Some refFile
-                 | false, _ ->
-                     None))
+                 | true, refFile -> Some refFile
+                 | false, _ -> None))
 
         let getProjectReferencesSimple frameworkVersion (dllFiles: string list) =
             getProjectReferences frameworkVersion None None dllFiles |> resolve dllFiles
@@ -465,7 +463,7 @@ module internal ArgParser =
         else
             None
 
-    [<return:Struct>]
+    [<return: Struct>]
     let (|FsiBoolArg|_|) argName s =
         match s with
         | StartsWith argName rest ->

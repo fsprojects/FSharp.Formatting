@@ -17,7 +17,10 @@ module String =
     /// Matches when a string is a whitespace or null
     [<return: Struct>]
     let (|WhiteSpace|_|) (s) =
-        if String.IsNullOrWhiteSpace(s) then ValueSome() else ValueNone
+        if String.IsNullOrWhiteSpace(s) then
+            ValueSome()
+        else
+            ValueNone
 
     /// Returns a string trimmed from both start and end
     let (|TrimBoth|) (text: string) = text.Trim()
@@ -118,12 +121,15 @@ module String =
 
 module StringPosition =
     /// Matches when a string is a whitespace or null
-    [<return:Struct>]
+    [<return: Struct>]
     let (|WhiteSpace|_|) (s, _n: MarkdownRange) =
-        if String.IsNullOrWhiteSpace(s) then ValueSome() else ValueNone
+        if String.IsNullOrWhiteSpace(s) then
+            ValueSome()
+        else
+            ValueNone
 
     /// Matches when a string does starts with non-whitespace
-    [<return:Struct>]
+    [<return: Struct>]
     let (|Unindented|_|) (s: string, _n: MarkdownRange) =
         if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then
             ValueSome()
@@ -177,7 +183,7 @@ module StringPosition =
              StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Matches when a string starts with any of the specified sub-strings
-    [<return:Struct>]
+    [<return: Struct>]
     let (|StartsWithAny|_|) (starts: string seq) (text: string, _n: MarkdownRange) =
         if starts |> Seq.exists (fun s -> text.StartsWith(s, StringComparison.Ordinal)) then
             ValueSome()
@@ -301,7 +307,7 @@ module StringPosition =
 
     /// Matches when a string consists of some number of
     /// complete repetitions of a specified sub-string.
-    [<return:Struct>]
+    [<return: Struct>]
     let (|EqualsRepeated|_|) (repeated, _n: MarkdownRange) =
         function
         | StartsWithRepeated repeated (_n, (v, _)) when (String.IsNullOrWhiteSpace v) -> ValueSome()
@@ -409,7 +415,7 @@ module Lines =
         lines
         // first remove all whitespace on the beginning of the line
         // then remove all additional spaces at the end, but keep two spaces if existent
-        |> List.map (fun (StringPosition.TrimStart (s, n)) ->
+        |> List.map (fun (StringPosition.TrimStart(s, n)) ->
             let endsWithTwoSpaces = s.EndsWith("  ", StringComparison.Ordinal)
 
             let trimmed = s.TrimEnd([| ' ' |]) + if endsWithTwoSpaces then "  " else ""

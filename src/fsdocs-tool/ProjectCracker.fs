@@ -161,7 +161,7 @@ module DotNetCli =
 
 module Crack =
 
-    [<return:Struct>]
+    [<return: Struct>]
     let (|ConditionEquals|_|) (str: string) (arg: string) =
         if System.String.Compare(str, arg, System.StringComparison.OrdinalIgnoreCase) = 0 then
             ValueSome()

@@ -49,7 +49,7 @@ module internal List =
             f x
             g ()
             iterInterleaved f g (y :: tl)
-        | [x] -> f x
+        | [ x ] -> f x
         | [] -> ()
 
     /// Tests whether a list starts with the elements of another

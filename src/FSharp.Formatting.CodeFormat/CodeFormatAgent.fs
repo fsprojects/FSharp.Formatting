@@ -352,7 +352,7 @@ module CodeFormatter =
                 [| let line = ref ""
 
                    while (line := reader.ReadLine()
-                          not(isNull line.Value)) do
+                          not (isNull line.Value)) do
                        yield line.Value |]
             // Get options for a standalone script file (this adds some
             // default references and doesn't require full project information)

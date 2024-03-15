@@ -77,8 +77,7 @@ module internal Transformations =
                             |> Array.toList
                             |> String.removeSpaces
                             |> String.concat "\n"
-                        | _ ->
-                            code
+                        | _ -> code
 
                     let lang =
                         match language with

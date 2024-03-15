@@ -284,8 +284,7 @@ module internal SimpleTemplating =
              | true, lookupContent -> lookupContent
              | false, _ -> "")
             + (match lookup.TryGetValue ParamKeys.``fsdocs-tooltips`` with
-               | true, lookupTips -> 
-                   "\n\n" + lookupTips
+               | true, lookupTips -> "\n\n" + lookupTips
                | false, _ -> "")
         | Some templateText -> ApplySubstitutionsInText substitutions templateText
 

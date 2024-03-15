@@ -62,7 +62,7 @@ module internal Utils =
         else
             None
 
-    [<return:Struct>]
+    [<return: Struct>]
     let (|MeasureOne|_|) (typ: FSharpType) =
         if
             typ.HasTypeDefinition
@@ -1758,7 +1758,7 @@ module internal SymbolReader =
             [ let mutable line = ""
 
               while (line <- reader.ReadLine()
-                     not(isNull line)) do
+                     not (isNull line)) do
                   yield line ]
 
         String.removeSpaces lines
@@ -1906,14 +1906,14 @@ module internal SymbolReader =
                     let name = elem.Attribute(XName.Get "name")
                     let nameAsHtml = HttpUtility.HtmlEncode name.Value
 
-                    if not(isNull name) then
+                    if not (isNull name) then
                         html.AppendFormat("<span class=\"fsdocs-param-name\">{0}</span>", nameAsHtml)
                         |> ignore
                 | "see"
                 | "seealso" ->
                     let cref = elem.Attribute(XName.Get "cref")
 
-                    if not(isNull cref) then
+                    if not (isNull cref) then
                         if System.String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
                             printfn "ignoring invalid cref specified in: %A" e
 
@@ -2019,7 +2019,7 @@ module internal SymbolReader =
         let remarks =
             let remarkNodes = doc.Elements(XName.Get "remarks") |> Seq.toList
 
-            if not(List.isEmpty remarkNodes) then
+            if not (List.isEmpty remarkNodes) then
                 let html = new StringBuilder()
 
                 for (id, e) in List.indexed remarkNodes do
@@ -2054,7 +2054,7 @@ module internal SymbolReader =
             [ for e in exceptionNodes do
                   let cref = e.Attribute(XName.Get "cref")
 
-                  if not(isNull cref) then
+                  if not (isNull cref) then
                       if String.IsNullOrEmpty(cref.Value) || cref.Value.Length < 3 then
                           printfn "Warning: Invalid cref specified in: %A" doc
 
@@ -2822,7 +2822,7 @@ module internal SymbolReader =
             [ for e in doc.Descendants(XName.Get "member") do
                   let attr = e.Attribute(XName.Get "name")
 
-                  if (not(isNull attr)) && not (String.IsNullOrEmpty(attr.Value)) then
+                  if (not (isNull attr)) && not (String.IsNullOrEmpty(attr.Value)) then
                       yield attr.Value, e ] do
             // NOTE: We completely ignore duplicate keys and I don't see
             // an easy way to detect where "value" is coming from, because the entries
