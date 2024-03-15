@@ -60,11 +60,12 @@ module internal Transformations =
                     None
                 else
                     let code =
-                        if cmds.ContainsKey("file") && cmds.ContainsKey("key") then
+                        match cmds.TryGetValue "file", cmds.TryGetValue "key" with
+                        | (true, fileVal), (true, keyVal) ->
                             // Get snippet from an external file
-                            let file = Path.Combine(Path.GetDirectoryName(path), cmds.["file"])
+                            let file = Path.Combine(Path.GetDirectoryName(path), fileVal)
 
-                            let startTag, endTag = "[" + cmds.["key"] + "]", "[/" + cmds.["key"] + "]"
+                            let startTag, endTag = "[" + keyVal + "]", "[/" + keyVal + "]"
 
                             let lines = File.ReadAllLines(file)
 
@@ -76,8 +77,7 @@ module internal Transformations =
                             |> Array.toList
                             |> String.removeSpaces
                             |> String.concat "\n"
-                        else
-                            code
+                        | _ -> code
 
                     let lang =
                         match language with

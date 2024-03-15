@@ -23,7 +23,7 @@ type internal CompilerContext =
     }
 
 /// Defines the possible output types from literate script (HTML, Latex, Pynb)
-[<RequireQualifiedAccess>]
+[<RequireQualifiedAccess; Struct>]
 type OutputKind =
     /// Requests HTML output
     | Html

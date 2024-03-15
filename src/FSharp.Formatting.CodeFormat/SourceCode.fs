@@ -20,7 +20,7 @@ type ToolTipSpan =
     | HardLineBreak
 
 /// Classifies tokens reported by the FCS
-[<RequireQualifiedAccess>]
+[<RequireQualifiedAccess; Struct>]
 type TokenKind =
     | Keyword
     | String
@@ -49,7 +49,7 @@ type TokenKind =
 
 
 /// Represents a kind of error reported from the F# compiler (warning or error)
-[<RequireQualifiedAccess>]
+[<RequireQualifiedAccess; Struct>]
 type ErrorKind =
     | Error
     | Warning

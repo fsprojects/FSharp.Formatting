@@ -695,7 +695,7 @@ type internal DocContent
                   | (inputFileFullPath, isOtherLang, model) when
                       not isOtherLang
                       && model.OutputKind = OutputKind.Html
-                      && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
+                      && (Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index")
                       ->
                       { model with
                           IsActive =

@@ -14,11 +14,13 @@ open System.Collections.Generic
 /// <summary>
 ///   A list kind can be Ordered or Unordered corresponding to <c>&lt;ol&gt;</c> and <c>&lt;ul&gt;</c> elements
 /// </summary>
+[<Struct>]
 type MarkdownListKind =
     | Ordered
     | Unordered
 
 /// Column in a table can be aligned to left, right, center or using the default alignment
+[<Struct>]
 type MarkdownColumnAlignment =
     | AlignLeft
     | AlignRight

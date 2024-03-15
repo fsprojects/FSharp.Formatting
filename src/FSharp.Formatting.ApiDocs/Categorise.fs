@@ -59,9 +59,9 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
                       //
                       // See https://github.com/fsharp/fsharp-core-docs/issues/57, we may rethink this
                       |> List.filter (fun e ->
-                          not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols"))
+                          (e.Symbol.Namespace <> Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols"))
                       |> List.filter (fun e ->
-                          not (e.Symbol.Namespace = Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitNames"))
+                          (e.Symbol.Namespace <> Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitNames"))
                       // Don't show 'AnonymousObject' in list-of-namespaces navigation
                       |> List.filter (fun e ->
                           not (

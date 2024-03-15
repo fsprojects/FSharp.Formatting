@@ -246,10 +246,9 @@ module internal CompilerServiceExtensions =
             dllFiles
             |> List.map (fun file ->
                 file,
-                (if referenceDict.ContainsKey file then
-                     Some referenceDict.[file]
-                 else
-                     None))
+                (match referenceDict.TryGetValue file with
+                 | true, refFile -> Some refFile
+                 | false, _ -> None))
 
         let getProjectReferencesSimple frameworkVersion (dllFiles: string list) =
             getProjectReferences frameworkVersion None None dllFiles |> resolve dllFiles
@@ -464,26 +463,29 @@ module internal ArgParser =
         else
             None
 
+    [<return: Struct>]
     let (|FsiBoolArg|_|) argName s =
         match s with
         | StartsWith argName rest ->
             if String.IsNullOrWhiteSpace rest then
-                Some true
+                ValueSome true
             else
                 match rest with
-                | "+" -> Some true
-                | "-" -> Some false
-                | _ -> None
-        | _ -> None
+                | "+" -> ValueSome true
+                | "-" -> ValueSome false
+                | _ -> ValueNone
+        | _ -> ValueNone
 
 open ArgParser
 
+[<Struct>]
 type internal DebugMode =
     | Full
     | PdbOnly
     | Portable
     | NoDebug
 
+[<Struct>]
 type internal OptimizationType =
     | NoJitOptimize
     | NoJitTracking
@@ -761,7 +763,7 @@ type internal FsiOptions =
                | [] -> Seq.empty
                | opts ->
                    opts
-                   |> Seq.map (fun (enable, types) ->
+                   |> Seq.collect (fun (enable, types) ->
                        seq {
                            yield sprintf "--optimize%s" (getMinusPlus enable)
 
@@ -778,7 +780,6 @@ type internal FsiOptions =
                                        | NoTailCalls -> "notailcalls")
                                    |> String.concat ","
                        })
-                   |> Seq.concat
 
            yield! getSimpleBoolArg "--quiet" x.Quiet
            yield! getSimpleBoolArg "--quotations-debug" x.QuotationsDebug

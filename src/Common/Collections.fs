@@ -49,7 +49,7 @@ module internal List =
             f x
             g ()
             iterInterleaved f g (y :: tl)
-        | x :: [] -> f x
+        | [ x ] -> f x
         | [] -> ()
 
     /// Tests whether a list starts with the elements of another
@@ -90,7 +90,7 @@ module internal List =
                     let other, rest = partitionUntil (f >> not) other
                     yield last, other
                     yield! loop rest
-                | [] when other = [] -> ()
+                | [] when List.isEmpty other -> ()
                 | _ -> invalidArg "" "Should start with true"
             }
 
