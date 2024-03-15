@@ -88,8 +88,7 @@ type Cell =
                       | Some(x) -> string<int> x)
                      (this.outputs |> Array.map string<Output> |> String.concat ",\n")))
             (this.source
-             |> Array.map addLineEnd
-             |> Array.map escapeAndQuote
+             |> Array.map (addLineEnd >> escapeAndQuote)
              |> String.concat ",\n    ")
 
 type Kernelspec =

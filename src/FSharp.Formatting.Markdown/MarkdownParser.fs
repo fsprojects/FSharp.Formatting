@@ -844,7 +844,7 @@ let rec pipeTableFindSplits (delim: char array) (line: char list) =
 
     match rest with
     | None -> [ cLstToStr line ]
-    | Some _x when line = [] -> [ "" ]
+    | Some _x when List.isEmpty line -> [ "" ]
     | Some x ->
         let chunkSize = List.length line - List.length x - 1
 

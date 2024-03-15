@@ -163,7 +163,8 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         | Command "condition" name when not (String.IsNullOrWhiteSpace name) -> { Condition = Some name }
         | _ -> { Condition = None }
 
-    let (|EmptyString|_|) (v: string) = if v.Length = 0 then Some() else None
+    [<return:Struct>]
+    let (|EmptyString|_|) (v: string) = if v.Length = 0 then ValueSome() else ValueNone
 
     /// Transform list of code blocks (snippet/comment/command)
     /// into a formatted Markdown document, with link definitions
@@ -386,7 +387,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
         let parsedBlocks =
             [ for Snippet(name, lines) in sourceSnippets do
-                  if name <> null then
+                  if not(isNull name) then
                       yield BlockComment("## " + name)
 
                   yield! parseScriptFile (lines) ]

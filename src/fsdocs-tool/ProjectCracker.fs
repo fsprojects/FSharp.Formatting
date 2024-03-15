@@ -161,11 +161,12 @@ module DotNetCli =
 
 module Crack =
 
+    [<return:Struct>]
     let (|ConditionEquals|_|) (str: string) (arg: string) =
         if System.String.Compare(str, arg, System.StringComparison.OrdinalIgnoreCase) = 0 then
-            Some()
+            ValueSome()
         else
-            None
+            ValueNone
 
     let msbuildPropBool (s: string) =
         let trimmed = s.Trim()

@@ -15,7 +15,7 @@ open FSharp.Formatting.Internal
 /// <namespacedoc>
 ///   <summary>Functionality to support literate evaluation for F# scripts</summary>
 /// </namespacedoc>
-[<RequireQualifiedAccessAttribute>]
+[<RequireQualifiedAccessAttribute; Struct>]
 type FsiEmbedKind =
     /// The FSI output
     | FsiOutput

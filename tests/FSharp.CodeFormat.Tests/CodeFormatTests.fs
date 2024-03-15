@@ -23,6 +23,7 @@ let containsSpan f snips =
     |> Seq.exists (fun (Snippet(_, lines)) -> lines |> Seq.exists (fun (Line(_, spans)) -> spans |> Seq.exists f))
 
 // Check that tool tips contains a specified token
+[<return: Struct>]
 let (|ToolTipWithLiteral|_|) text tips =
     if
         Seq.exists
@@ -31,9 +32,9 @@ let (|ToolTipWithLiteral|_|) text tips =
             | _ -> false)
             tips
     then
-        Some()
+        ValueSome()
     else
-        None
+        ValueNone
 
 // --------------------------------------------------------------------------------------
 // Test that some basic things work
