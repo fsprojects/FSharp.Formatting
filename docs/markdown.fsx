@@ -6,7 +6,7 @@ index: 2
 ---
 *)
 (*** condition: prepare ***)
-#I "../src/FSharp.Formatting/bin/Release/netstandard2.1"
+#I "../src/FSharp.Formatting/bin/Release/netstandard2.0"
 #r "FSharp.Formatting.Common.dll"
 #r "FSharp.Formatting.Markdown.dll"
 (*** condition: fsx ***)

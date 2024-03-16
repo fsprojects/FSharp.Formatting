@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <DefineConstants>TRACE;YAAF_FSHARP_SCRIPTING_PUBLIC</DefineConstants>
     <DisableMSBuildAssemblyCopyCheck>true</DisableMSBuildAssemblyCopyCheck>
     <WarningsAsErrors>FS0025;FS1182;$(WarningsAsErrors)</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Utils.fs" />
     <Compile Include="YaafFSharpScripting.fs" />
     <Compile Include="Log.fs" />
     <Compile Include="Range.fs" />
