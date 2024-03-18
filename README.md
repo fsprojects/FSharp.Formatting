@@ -21,6 +21,7 @@ Once built, you can run the command-line tool to self-build the docs for this di
 ### Pipelines
 
 Run
+
     dotnet fsi build.fsx -- --help
 
 to see what other pipelines can be run from `build.fsx`.
