@@ -3,7 +3,7 @@
 title: Generating API Docs
 category: Documentation
 categoryindex: 1
-index: 6
+index: 7
 ---
 *)
 (*** condition: prepare ***)

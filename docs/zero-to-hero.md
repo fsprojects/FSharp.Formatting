@@ -1,9 +1,11 @@
 ﻿---
+title: Getting Started
 category: Documentation
 categoryindex: 1
-index: 10
+index: 1
 ---
-# From zero to hero: deploying to GitHub Pages
+# Getting Started
+## From zero to hero: deploying to GitHub Pages
 
 This guide is meant for a typical setup of open-source projects on GitHub.  
 We start from a repository without any documentation and aim to end up with a published website on [GitHub Pages](https://pages.github.com/).  

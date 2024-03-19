@@ -1,7 +1,7 @@
 ---
 category: Documentation
 categoryindex: 1
-index: 9
+index: 10
 ---
 # Users of FSharp.Formatting
 
