@@ -214,7 +214,7 @@ This is useful to ensure your documentation is always in sync with your latest p
 
 Using [Dependabot](https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/about-dependabot-version-updates) you can easily receive new PR's with updates to your `dotnet` dependencies.  
 
-Create a `github/dependabot.yml` file with:
+Create a `.github/dependabot.yml` file with:
 
 ```yml
 version: 2
