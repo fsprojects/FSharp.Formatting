@@ -169,7 +169,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
 
     /// Transform list of code blocks (snippet/comment/command)
     /// into a formatted Markdown document, with link definitions
-    let rec transformBlocks isFirst prevCodeId count noEval acc defs blocks =
+    let rec transformBlocks isFirst prevCodeId (count: int ref) noEval acc defs blocks =
         match blocks, prevCodeId with
         // Disable evaluation for the rest of the file
         | BlockCommand(Command "do-not-eval-file" _) :: blocks, _ ->
@@ -289,7 +289,8 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
                 match cmds with
                 | Command "define-output" name -> name
                 | _ ->
-                    incr count
+                    //incr count
+                    count.Value <- count.Value + 1
                     "cell" + string<int> count.Value
 
             let opts =
@@ -314,7 +315,7 @@ type internal ParseScript(parseOptions, ctx: CompilerContext) =
         // Ordinary F# code snippet
         | BlockSnippet(snip) :: blocks, _ ->
             let id =
-                incr count
+                count.Value <- count.Value + 1
                 "cell" + string<int> count.Value
 
             let opts =

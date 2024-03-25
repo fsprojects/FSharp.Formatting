@@ -351,7 +351,7 @@ module CodeFormatter =
             let sourceLines =
                 [| let line = ref ""
 
-                   while (line := reader.ReadLine()
+                   while (line.Value <- reader.ReadLine()
                           not (isNull line.Value)) do
                        yield line.Value |]
             // Get options for a standalone script file (this adds some

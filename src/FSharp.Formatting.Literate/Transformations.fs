@@ -323,7 +323,7 @@ module internal Transformations =
     let rec evalBlocks
         (ctx: CompilerContext)
         (fsi: IFsiEvaluator)
-        executionCountRef
+        (executionCountRef: int ref)
         file
         acc
         (paras: MarkdownParagraphs)
@@ -345,7 +345,7 @@ module internal Transformations =
                         if opts.Evaluate then
                             let text = unparse snip
                             let result = fsi.Evaluate(text, false, Some file)
-                            incr executionCountRef
+                            executionCountRef.Value <- executionCountRef.Value + 1
                             let executionCount = executionCountRef.Value
 
                             (OutputRef opts.OutputName, (result, executionCount)) :: acc
@@ -356,7 +356,7 @@ module internal Transformations =
 
                 | ValueReference(ref, _popts) ->
                     let result = fsi.Evaluate(ref, true, Some file)
-                    incr executionCountRef
+                    executionCountRef.Value <- executionCountRef.Value + 1
                     let executionCount = executionCountRef.Value
 
                     let acc = (ValueRef ref, (result, executionCount)) :: acc

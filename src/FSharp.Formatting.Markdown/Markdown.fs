@@ -44,7 +44,7 @@ type Markdown internal () =
             [ let line = ref ""
               let mutable lineNo = 1
 
-              while (line := reader.ReadLine()
+              while (line.Value <- reader.ReadLine()
                      not (isNull line.Value)) do
                   yield
                       (line.Value,
