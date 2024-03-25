@@ -1064,9 +1064,9 @@ type internal FsiSession
 
         { new System.IDisposable with
             member _.Dispose() =
-                if not !isDisposed then
+                if not isDisposed.Value then
                     cd oldDir
-                    isDisposed := true }
+                    isDisposed.Value <- true }
 
     /// Same as ChangeCurrentDirectory but takes a function for the scope.
     member x.WithCurrentDirectory dir f =
