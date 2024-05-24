@@ -1013,29 +1013,32 @@ span[onmouseout] {
         padding: var(--spacing-400) 0;
     }
 
-    & tbody td {
-        border-top: 1px solid var(--header-border);
-        padding: var(--spacing-300) 0;
-        padding-right: var(--spacing-300);
+    & tr {
+        display: flex;
+        flex-flow: row wrap;
+        column-gap: 1rem;
 
-        &:first-child a {
+        & td:first-of-type {
+            flex: 25 0 0;
+            min-width: 20em;
             overflow-x: hidden;
             text-overflow: ellipsis;
-            width: 100%;
-            display: block;
+            overflow-wrap: break-word;
+
+            & p {
+                margin: unset;
+            }
         }
 
-        &:last-child {
-            padding-right: 0;
+        & td:nth-of-type(2) {
+            flex: 75 0 0;
+            min-width: 15em;
         }
     }
 
-    & thead tr td:first-child, & td.fsdocs-entity-name, & td.fsdocs-member-usage {
-        width: 25%;
-
-        & p {
-            margin: 0;
-        }
+    & tbody td {
+        border-top: 1px solid var(--header-border);
+        padding: var(--spacing-300) 0;
     }
 
     .fsdocs-entity-xmldoc {
@@ -1061,7 +1064,11 @@ span[onmouseout] {
 
     .fsdocs-member-xmldoc {
         & summary {
-            list-style: none;
+            display: list-item;
+            counter-increment: list-item 0;
+            list-style: disclosure-closed outside;
+            cursor: pointer;
+            margin-left: 1rem;
 
             > .fsdocs-summary {
                 display: flex;
@@ -1080,23 +1087,15 @@ span[onmouseout] {
                     overflow-x: auto;
                 }
             }
-
-            &::after {
-                content: '▶';
-                cursor: pointer;
-            }
         }
 
         & details[open] summary {
+            list-style-type: disclosure-open;
             margin-bottom: var(--spacing-200);
         }
 
-        & details[open] summary::after {
-            content: "▼";
-        }
-
         .fsdocs-returns, .fsdocs-params {
-            margin: var(--spacing-200) 0;
+            margin: var(--spacing-200);
 
             &:first-child {
                 margin-top: 0;
@@ -1109,23 +1108,6 @@ span[onmouseout] {
 
         .fsdocs-return-name, .fsdocs-param-name {
             font-weight: 500;
-        }
-
-        /* hide the browser mark and display one after the summary */
-
-        & ::marker {
-            display: none;
-        }
-
-        > div.fsdocs-summary {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: space-between;
-            align-items: center;
-
-            > p {
-                margin: 0;
-            }
         }
     }
 }
