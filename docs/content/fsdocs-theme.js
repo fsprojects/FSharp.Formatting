@@ -12,10 +12,17 @@ if (activeItem && mainMenu) {
     scrollToActiveItem(activeItem);
 }
 
-if(location.hash) {
-    const header = document.querySelector(`a[href='${location.hash}']`);
-    header.scrollIntoView({ behavior: 'instant'});
+function scrollToAndExpandSelectedMember() {
+    if (location.hash) {
+        const header = document.querySelector(`a[href='${location.hash}']`);
+        header.scrollIntoView({ behavior: 'instant'});
+        const details = document.querySelector(`tr > td.fsdocs-member-usage:has(a[href='${location.hash}']) ~ td.fsdocs-member-xmldoc > details`);
+        details?.setAttribute('open', 'true');
+    }
 }
+
+scrollToAndExpandSelectedMember();
+addEventListener('hashchange', _event => scrollToAndExpandSelectedMember());
 
 if(location.pathname.startsWith('/reference/')) {
     // Scroll to API Reference header
