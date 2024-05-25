@@ -14,10 +14,10 @@ if (activeItem && mainMenu) {
 
 function scrollToAndExpandSelectedMember() {
     if (location.hash) {
-        const header = document.querySelector(`a[href='${location.hash}']`);
-        header.scrollIntoView({ behavior: 'instant'});
         const details = document.querySelector(`tr > td.fsdocs-member-usage:has(a[href='${location.hash}']) ~ td.fsdocs-member-xmldoc > details`);
         details?.setAttribute('open', 'true');
+        const header = document.querySelector(`a[href='${location.hash}']`);
+        header.scrollIntoView({ behavior: 'instant'});
     }
 }
 
