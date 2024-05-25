@@ -1046,7 +1046,7 @@ span[onmouseout] {
             display: flex;
             flex-direction: row-reverse;
             justify-content: flex-start;
-            align-items: center;
+            align-items: flex-start;
 
             & p.fsdocs-summary {
                 margin: 0;
@@ -1072,8 +1072,9 @@ span[onmouseout] {
 
             > .fsdocs-summary {
                 display: flex;
-                align-items: center;
                 flex-direction: row-reverse;
+                justify-content: flex-start;
+                align-items: flex-start;
 
                 & p.fsdocs-summary {
                     margin: 0;
