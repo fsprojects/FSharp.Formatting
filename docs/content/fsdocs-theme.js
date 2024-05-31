@@ -22,7 +22,7 @@ function scrollToAndExpandSelectedMember() {
 }
 
 scrollToAndExpandSelectedMember();
-addEventListener('hashchange', _event => scrollToAndExpandSelectedMember());
+addEventListener('hashchange', scrollToAndExpandSelectedMember);
 
 if(location.pathname.startsWith('/reference/')) {
     // Scroll to API Reference header

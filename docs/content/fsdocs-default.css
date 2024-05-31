@@ -47,6 +47,8 @@
     --main-grid-row: 2;
     --main-grid-column: 2;
     --dialog-width: 500px;
+    --api-docs-first-column-min-width: 320px;
+    --api-docs-second-column-min-width: 240px;
 
     /* light theme */
     --primary: #1e8bc3;
@@ -1016,11 +1018,11 @@ span[onmouseout] {
     & tr {
         display: flex;
         flex-flow: row wrap;
-        column-gap: 1rem;
+        column-gap: var(--spacing-300);
 
         & td:first-of-type {
             flex: 25 0 0;
-            min-width: 20em;
+            min-width: var(--api-docs-first-column-min-width);
             overflow-x: hidden;
             text-overflow: ellipsis;
             overflow-wrap: break-word;
@@ -1032,7 +1034,7 @@ span[onmouseout] {
 
         & td:nth-of-type(2) {
             flex: 75 0 0;
-            min-width: 15em;
+            min-width: var(--api-docs-second-column-min-width);
         }
     }
 
@@ -1068,7 +1070,7 @@ span[onmouseout] {
             counter-increment: list-item 0;
             list-style: disclosure-closed outside;
             cursor: pointer;
-            margin-left: 1rem;
+            margin-left: var(--spacing-300);
 
             > .fsdocs-summary {
                 display: flex;
