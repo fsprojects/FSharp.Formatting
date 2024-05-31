@@ -1,5 +1,8 @@
 # Changelog
 
+## 20.0.1 - 2024-05-31
+* Details improvements. [#917](https://github.com/fsprojects/FSharp.Formatting/pull/917)
+
 ## 20.0.0 - 2024-02-14
 
 Stable release
