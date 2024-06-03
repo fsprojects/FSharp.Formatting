@@ -1046,14 +1046,9 @@ span[onmouseout] {
     .fsdocs-entity-xmldoc {
         > div {
             display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-start;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: flex-start;
-
-            & p.fsdocs-summary {
-                margin: 0;
-                flex-grow: 1;
-            }
 
             & pre {
                 margin-bottom: var(--spacing-200);
@@ -1064,18 +1059,41 @@ span[onmouseout] {
         }
     }
 
+    .fsdocs-summary-contents {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .fsdocs-member-xmldoc-column {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .icon-button-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: flex-start;
+        height: calc(-1 * var(--spacing-200));
+    }
+
     .fsdocs-member-xmldoc {
         & summary {
             display: list-item;
             counter-increment: list-item 0;
             list-style: disclosure-closed outside;
             cursor: pointer;
+            width: calc(100% - var(--spacing-300));
             margin-left: var(--spacing-300);
 
             > .fsdocs-summary {
                 display: flex;
-                flex-direction: row-reverse;
-                justify-content: flex-start;
+                flex-direction: row;
+                justify-content: space-between;
                 align-items: flex-start;
 
                 & p.fsdocs-summary {
@@ -1111,6 +1129,13 @@ span[onmouseout] {
 
         .fsdocs-return-name, .fsdocs-param-name {
             font-weight: 500;
+        }
+
+        > div.fsdocs-summary {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
         }
     }
 }
