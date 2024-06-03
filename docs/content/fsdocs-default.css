@@ -1050,6 +1050,11 @@ span[onmouseout] {
             justify-content: space-between;
             align-items: flex-start;
 
+            & p.fsdocs-summary {
+                margin: 0;
+                flex-grow: 1;
+            }
+
             & pre {
                 margin-bottom: var(--spacing-200);
                 padding: var(--spacing-50);
@@ -1131,11 +1136,19 @@ span[onmouseout] {
             font-weight: 500;
         }
 
+        .fsdocs-param-docs p {
+            margin: var(--spacing-200) 0;
+        }
+
         > div.fsdocs-summary {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
             align-items: flex-start;
+
+            & p {
+                margin: 0;
+            }
         }
     }
 }
