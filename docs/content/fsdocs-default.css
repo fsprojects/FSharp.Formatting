@@ -1000,6 +1000,13 @@ span[onmouseout] {
     margin-top: 0;
 }
 
+.fsdocs-description-heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
 .fsdocs-xmldoc {
     & pre {
         overflow-x: auto;

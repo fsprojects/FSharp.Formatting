@@ -109,7 +109,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                   thead [] [
                       tr [] [
                           td [ Class "fsdocs-member-list-header" ] [ !!tableHeader ]
-                          td [ Class "fsdocs-member-list-header" ] [ !! "Description" ]
+                          td [ Class "fsdocs-member-list-header" ] [
+                              div [ Class "fsdocs-description-heading" ] [ !! "Description"; fsdocsDetailsToggle [] ]
+                          ]
                       ]
                   ]
                   tbody [] [
