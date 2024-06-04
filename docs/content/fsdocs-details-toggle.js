@@ -19,7 +19,6 @@ export class DetailsToggle extends LitElement {
     static styles = css`
       :host {
         cursor: pointer;
-        transform: translateY(3px);
       }
     `;
 
