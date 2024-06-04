@@ -10,10 +10,7 @@ export class DetailsToggle extends LitElement {
     constructor() {
         super();
         this._detailsExpanded = detailsExpanded;
-        document.addEventListener('detailstoggled', e => {
-            this._detailsExpanded = !!e?.detail?.expanding;
-            this.render();
-        });
+        document.addEventListener('detailstoggled', e => this._detailsExpanded = !!e?.detail?.expanding);
     }
 
     static styles = css`
