@@ -750,3 +750,7 @@ module internal Html =
     /// Web component from https://iconify.design/docs/
     let iconifyIcon (props: HtmlProperties list) =
         HtmlElement.CustomElement("iconify-icon", props, [])
+
+    /// Toggle button for API doc details.
+    let fsdocsDetailsToggle (props: HtmlProperties list) =
+        HtmlElement.CustomElement("fsdocs-details-toggle", props, [])
