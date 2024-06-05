@@ -1000,7 +1000,7 @@ span[onmouseout] {
     margin-top: 0;
 }
 
-.fsdocs-description-heading {
+.fsdocs-member-list-header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
