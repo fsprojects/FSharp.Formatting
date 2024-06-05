@@ -18,7 +18,7 @@ let fsdocsSummary (x: ApiDocHtml) =
     if x.HtmlText.StartsWith("<pre>", StringComparison.Ordinal) then
         embed x
     else
-        p [ Class "fsdocs-summary" ] [ embed x ]
+        div [ Class "fsdocs-summary-contents" ] [ p [ Class "fsdocs-summary" ] [ embed x ] ]
 
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
@@ -182,10 +182,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                               let smry =
                                   div [ Class "fsdocs-summary" ] [
-                                      yield! copyXmlSigIconForSymbolMarkdown m.Symbol
-                                      yield! copyXmlSigIconForSymbol m.Symbol
-                                      yield! sourceLink m.SourceLocation
                                       fsdocsSummary m.Comment.Summary
+                                      div [ Class "icon-button-row" ] [
+                                          yield! sourceLink m.SourceLocation
+                                          yield! copyXmlSigIconForSymbol m.Symbol
+                                          yield! copyXmlSigIconForSymbolMarkdown m.Symbol
+                                      ]
                                   ]
 
                               let dtls =
@@ -272,7 +274,10 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                   if List.isEmpty dtls then
                                       smry
                                   elif String.IsNullOrWhiteSpace(m.Comment.Summary.HtmlText) then
-                                      yield! dtls
+                                      div [ Class "fsdocs-member-xmldoc-column" ] [
+                                          div [ Class "icon-button-row" ] (sourceLink m.SourceLocation)
+                                          yield! dtls
+                                      ]
                                   else
                                       details [] ((summary [] [ smry ]) :: dtls)
                               ]
@@ -325,10 +330,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                               ]
                               td [ Class "fsdocs-entity-xmldoc" ] [
                                   div [] [
-                                      yield! copyXmlSigIconForSymbolMarkdown e.Symbol
-                                      yield! copyXmlSigIconForSymbol e.Symbol
-                                      yield! sourceLink e.SourceLocation
                                       fsdocsSummary e.Comment.Summary
+                                      div [ Class "icon-button-row" ] [
+                                          yield! sourceLink e.SourceLocation
+                                          yield! copyXmlSigIconForSymbol e.Symbol
+                                          yield! copyXmlSigIconForSymbolMarkdown e.Symbol
+                                      ]
                                   ]
                               ]
                           ]

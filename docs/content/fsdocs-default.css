@@ -1046,8 +1046,8 @@ span[onmouseout] {
     .fsdocs-entity-xmldoc {
         > div {
             display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-start;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: flex-start;
 
             & p.fsdocs-summary {
@@ -1064,18 +1064,41 @@ span[onmouseout] {
         }
     }
 
+    .fsdocs-summary-contents {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+    .fsdocs-member-xmldoc-column {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .icon-button-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: flex-start;
+        height: calc(-1 * var(--spacing-200));
+    }
+
     .fsdocs-member-xmldoc {
         & summary {
             display: list-item;
             counter-increment: list-item 0;
             list-style: disclosure-closed outside;
             cursor: pointer;
+            width: calc(100% - var(--spacing-300));
             margin-left: var(--spacing-300);
 
             > .fsdocs-summary {
                 display: flex;
-                flex-direction: row-reverse;
-                justify-content: flex-start;
+                flex-direction: row;
+                justify-content: space-between;
                 align-items: flex-start;
 
                 & p.fsdocs-summary {
@@ -1098,7 +1121,7 @@ span[onmouseout] {
         }
 
         .fsdocs-returns, .fsdocs-params {
-            margin: var(--spacing-200);
+            margin: var(--spacing-200) 0 var(--spacing-200) var(--spacing-300);
 
             &:first-child {
                 margin-top: 0;
@@ -1111,6 +1134,22 @@ span[onmouseout] {
 
         .fsdocs-return-name, .fsdocs-param-name {
             font-weight: 500;
+        }
+
+        .fsdocs-param-docs p {
+            margin: var(--spacing-200) 0;
+        }
+
+        > div.fsdocs-summary {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+                margin: 0 0 0 var(--spacing-300);
+
+            & p {
+                margin: 0;
+            }
         }
     }
 }
