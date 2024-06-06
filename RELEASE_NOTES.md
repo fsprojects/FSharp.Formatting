@@ -1,5 +1,13 @@
 # Changelog
 
+## 21.0.0-beta-001 - 2024-06-06
+
+### Added
+* Add expand/collapse-all button for API doc details. [#920](https://github.com/fsprojects/FSharp.Formatting/pull/920)
+
+### Changed
+* HTML structure of generated API documentation. [#919](https://github.com/fsprojects/FSharp.Formatting/pull/919)
+
 ## 20.0.1 - 2024-05-31
 * Details improvements. [#917](https://github.com/fsprojects/FSharp.Formatting/pull/917)
 
