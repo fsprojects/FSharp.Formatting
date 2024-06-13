@@ -1,11 +1,11 @@
 #nowarn "211"
 
 // FSharp.Formatting repo context: uncomment for intellisense
-//#I "bin/Release/netstandard2.1"
+//#I "bin/Release/netstandard2.0"
 
 // Standard NuGet or Paket location
 #I __SOURCE_DIRECTORY__
-#I "lib/netstandard2.1"
+#I "lib/netstandard2.0"
 
 // Standard Paket locations
 #I "../FSharp.Compiler.Service/lib/netstandard2.0"

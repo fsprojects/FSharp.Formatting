@@ -4,6 +4,7 @@ open System
 open System.Collections.Generic
 open System.IO
 open System.Text
+open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
 
 /// <summary>
 /// A parameter key
@@ -50,7 +51,7 @@ type FrontMatterFile =
                 isBlankLine || line.Contains(":"))
             |> Seq.filter (String.IsNullOrWhiteSpace >> not)
             |> Seq.map (fun line ->
-                let parts = line.Split(":")
+                let parts = line.Split ':'
                 parts.[0].ToLowerInvariant(), parts.[1])
             |> Map.ofSeq
 

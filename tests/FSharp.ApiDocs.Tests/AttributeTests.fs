@@ -27,7 +27,7 @@ let configuration =
     "Release"
 #endif
 
-let tfm = "netstandard2.1"
+let tfm = "netstandard2.0"
 
 // NOTE - For these tests to run properly they require the output of all the metadata
 // test project to be directed to the directory below

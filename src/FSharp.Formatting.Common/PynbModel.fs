@@ -1,5 +1,9 @@
 module internal FSharp.Formatting.PynbModel
 
+#if NETSTANDARD2_1_OR_GREATER
+#else
+open FSharp.Formatting.Common.Utils // compat layer for netstandard2.0
+#endif
 open System.Web
 
 let escapeAndQuote (txt: string) =
