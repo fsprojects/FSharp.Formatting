@@ -48,10 +48,15 @@ type FrontMatterFile =
                 // Allow empty lines in frontmatter
                 let isBlankLine = String.IsNullOrWhiteSpace line
                 isBlankLine || line.Contains(":"))
-            |> Seq.filter (String.IsNullOrWhiteSpace >> not)
-            |> Seq.map (fun line ->
-                let parts = line.Split(":")
-                parts.[0].ToLowerInvariant(), parts.[1])
+            |> Seq.choose (fun line ->
+                let parts = line.Split(":") |> Array.toList
+
+                if not <| String.IsNullOrWhiteSpace line then
+                    match parts with
+                    | first :: second :: _ -> Some(first.ToLowerInvariant(), second)
+                    | _ -> None
+                else
+                    None)
             |> Map.ofSeq
 
         match
