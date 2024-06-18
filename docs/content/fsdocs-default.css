@@ -1127,7 +1127,7 @@ span[onmouseout] {
             margin-bottom: var(--spacing-200);
         }
 
-        .fsdocs-returns, .fsdocs-params {
+        .fsdocs-returns, .fsdocs-params, .fsdocs-example-header, pre.fssnip.highlighted {
             margin: var(--spacing-200) 0 var(--spacing-200) var(--spacing-300);
 
             &:first-child {
@@ -1145,6 +1145,10 @@ span[onmouseout] {
 
         .fsdocs-param-docs p {
             margin: var(--spacing-200) 0;
+        }
+
+        .fsdocs-example-header {
+            font-size: var(--font-200);
         }
 
         > div.fsdocs-summary {
