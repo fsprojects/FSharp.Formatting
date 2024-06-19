@@ -1,5 +1,11 @@
 # Changelog
 
+## 21.0.0-beta-002 - 2024-06-19
+
+### Changed
+* Shrink API docs example heading font size a bit. [#923](https://github.com/fsprojects/FSharp.Formatting/pull/923)
+* Improve overall API doc content alignment consistency in various scenarios. [#923](https://github.com/fsprojects/FSharp.Formatting/pull/923)
+
 ## 21.0.0-beta-001 - 2024-06-06
 
 ### Added

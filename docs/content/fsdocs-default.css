@@ -1083,6 +1083,22 @@ span[onmouseout] {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
+
+        > * {
+            margin: var(--spacing-200) 0 var(--spacing-200) var(--spacing-300);
+
+            &:first-child:is(.icon-button-row) {
+                margin-block: 0;
+            }
+
+            &:nth-child(2) {
+                margin-top: 0;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
     }
 
     .icon-button-row {
@@ -1099,8 +1115,6 @@ span[onmouseout] {
             counter-increment: list-item 0;
             list-style: disclosure-closed outside;
             cursor: pointer;
-            width: calc(100% - var(--spacing-300));
-            margin-left: var(--spacing-300);
 
             > .fsdocs-summary {
                 display: flex;
@@ -1127,8 +1141,12 @@ span[onmouseout] {
             margin-bottom: var(--spacing-200);
         }
 
-        .fsdocs-returns, .fsdocs-params {
+        & details > * {
             margin: var(--spacing-200) 0 var(--spacing-200) var(--spacing-300);
+
+            &:is(summary) {
+                margin-block: 0;
+            }
 
             &:first-child {
                 margin-top: 0;
@@ -1145,6 +1163,10 @@ span[onmouseout] {
 
         .fsdocs-param-docs p {
             margin: var(--spacing-200) 0;
+        }
+
+        .fsdocs-example-header {
+            font-size: var(--font-200);
         }
 
         > div.fsdocs-summary {
