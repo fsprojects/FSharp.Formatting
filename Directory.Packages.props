@@ -27,7 +27,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageVersion Include="Ionide.KeepAChangelog.Tasks" Version="0.1.8" />
     <PackageVersion Include="FSharp.Analyzers.Build" Version="0.3.0" />
-    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.8.0" />
-    <PackageVersion Include="Ionide.Analyzers" Version="0.8.0" />
+    <PackageVersion Include="G-Research.FSharp.Analyzers" Version="0.10.0" />
+    <PackageVersion Include="Ionide.Analyzers" Version="0.11.0" />
   </ItemGroup>
 </Project>
