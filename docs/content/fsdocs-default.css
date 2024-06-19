@@ -1088,8 +1088,7 @@ span[onmouseout] {
             margin: var(--spacing-200) 0 var(--spacing-200) var(--spacing-300);
 
             &:first-child:is(.icon-button-row) {
-                margin-top: 0;
-                margin-bottom: 0;
+                margin-block: 0;
             }
 
             &:nth-child(2) {
@@ -1146,8 +1145,7 @@ span[onmouseout] {
             margin: var(--spacing-200) 0 var(--spacing-200) var(--spacing-300);
 
             &:is(summary) {
-                margin-top: 0;
-                margin-bottom: 0;
+                margin-block: 0;
             }
 
             &:first-child {
