@@ -49,9 +49,9 @@ type FrontMatterFile =
                 let isBlankLine = String.IsNullOrWhiteSpace line
                 isBlankLine || line.Contains(":"))
             |> Seq.choose (fun line ->
-                let parts = line.Split(":") |> Array.toList
+                if String.IsNullOrWhiteSpace line |> not then
+                    let parts = line.Split(":") |> Array.toList
 
-                if not <| String.IsNullOrWhiteSpace line then
                     match parts with
                     | first :: second :: _ -> Some(first.ToLowerInvariant(), second)
                     | _ -> None

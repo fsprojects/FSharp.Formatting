@@ -2265,10 +2265,8 @@ module internal SymbolReader =
             replacedParagraphs
             |> Seq.collect collectParagraphIndirectLinks
             |> Seq.choose (fun line ->
-                if linkNotDefined doc line then
-                    getTypeLink ctx line |> Some
-                else
-                    None)
+                let linkIsDefined = linkNotDefined doc line |> not
+                if linkIsDefined then None else getTypeLink ctx line |> Some)
             |> Seq.iter (addLinkToType doc)
 
         doc.With(paragraphs = replacedParagraphs)

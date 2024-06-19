@@ -109,7 +109,7 @@ module String =
         let spaces =
             lines
             |> Seq.choose (fun line ->
-                if not <| String.IsNullOrWhiteSpace line then
+                if String.IsNullOrWhiteSpace line |> not then
                     line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length |> Some
                 else
                     None)
