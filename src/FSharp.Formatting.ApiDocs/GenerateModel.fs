@@ -1282,8 +1282,9 @@ module internal TypeFormatter =
                 n
 
         curriedArgs
-        |> List.map (List.map (fun x -> formatArgNameAndType (counter ()) x |> fst))
-        |> List.map (fun argTuple ->
+        |> List.map (fun args ->
+            let argTuple = args |> List.map (formatArgNameAndType (counter ()) >> fst)
+
             match argTuple with
             | [] -> !! "()"
             | [ argName ] when argName = "()" -> !! "()"
@@ -2217,10 +2218,9 @@ module internal SymbolReader =
         }
 
     /// Returns whether the link is not included in the document defined links
-    let linkNotDefined (doc: LiterateDocument) (link: string) =
+    let linkDefined (doc: LiterateDocument) (link: string) =
         [ link; link.Replace("\r\n", ""); link.Replace("\r\n", " "); link.Replace("\n", ""); link.Replace("\n", " ") ]
-        |> Seq.map (fun key -> not (doc.DefinedLinks.ContainsKey(key)))
-        |> Seq.reduce (fun a c -> a && c)
+        |> List.exists (fun key -> doc.DefinedLinks.ContainsKey(key))
 
     /// Returns a tuple of the undefined link and its Cref if it exists
     let getTypeLink (ctx: ReadingContext) undefinedLink =
@@ -2265,8 +2265,10 @@ module internal SymbolReader =
             replacedParagraphs
             |> Seq.collect collectParagraphIndirectLinks
             |> Seq.choose (fun line ->
-                let linkIsDefined = linkNotDefined doc line |> not
-                if linkIsDefined then None else getTypeLink ctx line |> Some)
+                if linkDefined doc line then
+                    None
+                else
+                    getTypeLink ctx line |> Some)
             |> Seq.iter (addLinkToType doc)
 
         doc.With(paragraphs = replacedParagraphs)
@@ -2276,15 +2278,12 @@ module internal SymbolReader =
 
         let text =
             lines
-            |> List.filter (
-                findCommand
-                >> (function
+            |> List.choose (fun line ->
+                match findCommand line with
                 | Some(k, v) ->
                     cmds.[k] <- v
-                    false
-                | _ -> true)
-            )
-            |> List.map fst
+                    None
+                | _ -> fst line |> Some)
             |> String.concat "\n"
 
         let doc =
@@ -2422,8 +2421,7 @@ module internal SymbolReader =
 
     let readChildren ctx (entities: FSharpEntity seq) reader cond =
         entities
-        |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-        |> Seq.filter cond
+        |> Seq.filter (fun v -> checkAccess ctx v.Accessibility && cond v)
         |> Seq.sortBy (fun (c: FSharpEntity) -> c.DisplayName)
         |> Seq.choose (reader ctx)
         |> List.ofSeq
@@ -2449,23 +2447,28 @@ module internal SymbolReader =
 
     let readAllMembers ctx entityUrl kind (members: FSharpMemberOrFunctionOrValue seq) =
         members
-        |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-        |> Seq.filter (fun v ->
-            not v.IsCompilerGenerated
-            && not v.IsPropertyGetterMethod
-            && not v.IsPropertySetterMethod
-            && not v.IsEventAddMethod
-            && not v.IsEventRemoveMethod)
-        |> Seq.choose (tryReadMember ctx entityUrl kind)
+        |> Seq.choose (fun v ->
+            if
+                checkAccess ctx v.Accessibility
+                && not v.IsCompilerGenerated
+                && not v.IsPropertyGetterMethod
+                && not v.IsPropertySetterMethod
+                && not v.IsEventAddMethod
+                && not v.IsEventRemoveMethod
+            then
+                tryReadMember ctx entityUrl kind v
+            else
+                None)
         |> List.ofSeq
         |> collectNamespaceDocs
 
     let readMembers ctx entityUrl kind (entity: FSharpEntity) cond =
         entity.MembersFunctionsAndValues
-        |> Seq.filter (fun v -> checkAccess ctx v.Accessibility)
-        |> Seq.filter (fun v -> not v.IsCompilerGenerated)
-        |> Seq.filter cond
-        |> Seq.choose (tryReadMember ctx entityUrl kind)
+        |> Seq.choose (fun v ->
+            if checkAccess ctx v.Accessibility && not v.IsCompilerGenerated && cond v then
+                tryReadMember ctx entityUrl kind v
+            else
+                None)
         |> List.ofSeq
         |> collectNamespaceDocs
 
@@ -2486,47 +2489,51 @@ module internal SymbolReader =
     let readUnionCases ctx entityUrl (typ: FSharpEntity) =
         typ.UnionCases
         |> List.ofSeq
-        |> List.filter (fun v -> checkAccess ctx v.Accessibility)
         |> List.choose (fun case ->
-            readCommentsInto case ctx case.XmlDocSig (fun cat catidx exclude _ comment ->
-                let details = readUnionCase ctx typ case
+            if checkAccess ctx case.Accessibility |> not then
+                None
+            else
+                readCommentsInto case ctx case.XmlDocSig (fun cat catidx exclude _ comment ->
+                    let details = readUnionCase ctx typ case
 
-                ApiDocMember(
-                    case.Name,
-                    readAttributes case.Attributes,
-                    entityUrl,
-                    ApiDocMemberKind.UnionCase,
-                    cat,
-                    catidx,
-                    exclude,
-                    details,
-                    comment,
-                    case,
-                    ctx.WarnOnMissingDocs
-                )))
+                    ApiDocMember(
+                        case.Name,
+                        readAttributes case.Attributes,
+                        entityUrl,
+                        ApiDocMemberKind.UnionCase,
+                        cat,
+                        catidx,
+                        exclude,
+                        details,
+                        comment,
+                        case,
+                        ctx.WarnOnMissingDocs
+                    )))
         |> collectNamespaceDocs
 
     let readRecordFields ctx entityUrl (typ: FSharpEntity) =
         typ.FSharpFields
         |> List.ofSeq
-        |> List.filter (fun field -> not field.IsCompilerGenerated)
         |> List.choose (fun field ->
-            readCommentsInto field ctx field.XmlDocSig (fun cat catidx exclude _ comment ->
-                let details = readFSharpField ctx field
+            if field.IsCompilerGenerated then
+                None
+            else
+                readCommentsInto field ctx field.XmlDocSig (fun cat catidx exclude _ comment ->
+                    let details = readFSharpField ctx field
 
-                ApiDocMember(
-                    field.Name,
-                    readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes),
-                    entityUrl,
-                    ApiDocMemberKind.RecordField,
-                    cat,
-                    catidx,
-                    exclude,
-                    details,
-                    comment,
-                    field,
-                    ctx.WarnOnMissingDocs
-                )))
+                    ApiDocMember(
+                        field.Name,
+                        readAttributes (Seq.append field.FieldAttributes field.PropertyAttributes),
+                        entityUrl,
+                        ApiDocMemberKind.RecordField,
+                        cat,
+                        catidx,
+                        exclude,
+                        details,
+                        comment,
+                        field,
+                        ctx.WarnOnMissingDocs
+                    )))
         |> collectNamespaceDocs
 
     let readStaticParams ctx entityUrl (typ: FSharpEntity) =
@@ -2586,11 +2593,12 @@ module internal SymbolReader =
             if isNull nameAttr then
                 None
             else
-                Some(nameAttr.Value, p.Value))
-        |> Seq.iter (fun (name, xmlDoc) ->
-            let xmlDocSig = getFSharpStaticParamXmlSig typ name
+                let xmlDocSig = getFSharpStaticParamXmlSig typ nameAttr.Value
 
-            registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape xmlDoc) |> ignore)
+                registerXmlDoc ctx xmlDocSig (Security.SecurityElement.Escape p.Value)
+                |> ignore
+                |> Some)
+        |> ignore
 
     let rec readType (ctx: ReadingContext) (typ: FSharpEntity) =
         if typ.IsProvided && typ.XmlDoc <> FSharpXmlDoc.None then
@@ -2618,17 +2626,15 @@ module internal SymbolReader =
 
             let ivals, svals =
                 getMembers typ
-                |> List.ofSeq
-                |> List.filter (fun v ->
+                |> Seq.filter (fun v ->
                     checkAccess ctx v.Accessibility
                     && not v.IsCompilerGenerated
-                    && not v.IsOverrideOrExplicitInterfaceImplementation)
-                |> List.filter (fun v ->
-                    not v.IsCompilerGenerated
+                    && not v.IsOverrideOrExplicitInterfaceImplementation
                     && not v.IsEventAddMethod
                     && not v.IsEventRemoveMethod
                     && not v.IsPropertyGetterMethod
                     && not v.IsPropertySetterMethod)
+                |> List.ofSeq
                 |> List.partition (fun v -> v.IsInstanceMember)
 
             let cvals, svals = svals |> List.partition (fun v -> v.CompiledName = ".ctor")
