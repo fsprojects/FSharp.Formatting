@@ -83,7 +83,6 @@ module internal CompilerServiceExtensions =
 
                  options.OtherOptions
                  |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
-                 |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
                  //|> Seq.choose (fun path -> if path.StartsWith "-r:" then path.Substring 3 |> Some else None)
                  //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
                  |> Array.toList)
@@ -180,11 +179,11 @@ module internal CompilerServiceExtensions =
                 || libDirs
                    |> List.exists (fun lib ->
                        Directory.EnumerateFiles(lib)
-                       |> Seq.filter (fun file -> Path.GetExtension file =? ".dll")
                        |> Seq.filter (fun file ->
                            // If we find a FSharp.Core in a lib path, we check if is suited for us...
-                           Path.GetFileNameWithoutExtension file <>? "FSharp.Core"
-                           || (tryCheckFsCore file |> Option.isSome))
+                           Path.GetExtension file =? ".dll"
+                           && (Path.GetFileNameWithoutExtension file <>? "FSharp.Core"
+                               || (tryCheckFsCore file |> Option.isSome)))
                        |> Seq.toList
                        |> isAssembly asm)
 
@@ -279,10 +278,9 @@ module internal CompilerServiceExtensions =
 
             let findReferences libDir =
                 Directory.EnumerateFiles(libDir, "*.dll")
-                |> Seq.map Path.GetFullPath
                 // Filter files already referenced directly
                 |> Seq.filter (fun file ->
-                    let fileName = Path.GetFileName file
+                    let fileName = Path.GetFullPath file |> Path.GetFileName
 
                     dllFiles
                     |> List.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)

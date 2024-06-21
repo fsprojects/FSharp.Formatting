@@ -108,8 +108,11 @@ module String =
     let removeSpaces (lines: string list) =
         let spaces =
             lines
-            |> Seq.filter (String.IsNullOrWhiteSpace >> not)
-            |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
+            |> Seq.choose (fun line ->
+                if String.IsNullOrWhiteSpace line |> not then
+                    line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length |> Some
+                else
+                    None)
             |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
 
         lines

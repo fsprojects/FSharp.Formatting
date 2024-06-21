@@ -95,9 +95,12 @@ type internal DocContent
         (subFolderFullPath = rootOutputFolderFullPath)
 
     let allCultures =
-        System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.AllCultures)
-        |> Array.map (fun x -> x.TwoLetterISOLanguageName)
-        |> Array.filter (fun x -> x.Length = 2)
+        CultureInfo.GetCultures(CultureTypes.AllCultures)
+        |> Array.choose (fun x ->
+            if x.TwoLetterISOLanguageName.Length <> 2 then
+                None
+            else
+                Some x.TwoLetterISOLanguageName)
         |> Array.distinct
 
     let makeMarkdownLinkResolver
