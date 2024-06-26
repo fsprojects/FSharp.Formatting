@@ -1406,10 +1406,13 @@ type CoreBuildOptions(watch) =
         // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
-                let userRoot = sprintf "http://localhost:%d/" this.port_option
+                let userRoot =
+                    match this.relative_content_option with
+                    | true -> ""
+                    | _ -> sprintf "http://localhost:%d/" this.port_option
 
                 if userParametersDict.ContainsKey(ParamKeys.root) then
-                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
+                    printfn "ignoring user-specified root since in watch mode, root = '%s'" userRoot
 
                 let userParameters =
                     [ ParamKeys.root, userRoot ]
