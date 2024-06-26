@@ -50,22 +50,6 @@ let testStage =
             $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
     }
 
-let nugetStage =
-    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
-
-let installToolStage =
-    stage "InstallFsDocsTool" {
-        noStdRedirectForStep
-
-        run
-            $"dotnet tool install --no-cache --version %A{releaseNugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
-
-        echo $"The development version of fsdocs can be invoked from:{System.Environment.NewLine}%s{fsdocTool}"
-    }
-
-let uninstallToolStage =
-    stage "UninstallFsDocsTool" { run $"dotnet tool uninstall fsdocs-tool --tool-path \"%s{artifactsDir}\"" }
-
 pipeline "CI" {
     lintStage
 
@@ -81,7 +65,7 @@ pipeline "CI" {
         run $"dotnet build {solutionFile} --configuration {configuration} -tl"
     }
 
-    nugetStage
+    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
     testStage
 
@@ -91,9 +75,11 @@ pipeline "CI" {
             Shell.cleanDir ".packages")
         // Τhe tool has been uninstalled when the
         // artifacts folder was removed in the Clean stage.
-        installToolStage
+        run
+            $"dotnet tool install --no-cache --version %A{releaseNugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
+
         run $"\"{fsdocTool}\" build --strict --clean --properties Configuration=Release"
-        uninstallToolStage
+        run $"dotnet tool uninstall fsdocs-tool --tool-path \"%s{artifactsDir}\""
         run (fun _ -> Shell.cleanDir ".packages")
     }
 
@@ -104,17 +90,6 @@ pipeline "Verify" {
     lintStage
     testStage
     stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
-    runIfOnlySpecified true
-}
-
-pipeline "InstallTool" {
-    nugetStage
-    installToolStage
-    runIfOnlySpecified true
-}
-
-pipeline "UninstallTool" {
-    uninstallToolStage
     runIfOnlySpecified true
 }
 
