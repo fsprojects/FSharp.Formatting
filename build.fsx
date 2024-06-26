@@ -55,10 +55,12 @@ let nugetStage =
 
 let installToolStage =
     stage "InstallFsDocsTool" {
+        noStdRedirectForStep
+
         run
             $"dotnet tool install --no-cache --version %A{releaseNugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
 
-        run $"\"{fsdocTool}\" build --strict --clean --properties Configuration=Release"
+        echo $"The development version of fsdocs can be invoked from:{System.Environment.NewLine}%s{fsdocTool}"
     }
 
 let uninstallToolStage =
@@ -90,6 +92,7 @@ pipeline "CI" {
         // Τhe tool has been uninstalled when the
         // artifacts folder was removed in the Clean stage.
         installToolStage
+        run $"\"{fsdocTool}\" build --strict --clean --properties Configuration=Release"
         uninstallToolStage
         run (fun _ -> Shell.cleanDir ".packages")
     }
