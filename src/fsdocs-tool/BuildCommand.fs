@@ -2088,6 +2088,9 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
+    abstract relative_content_option: bool
+    default x.relative_content_option = false
+
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
     inherit CoreBuildOptions(false)
@@ -2115,3 +2118,11 @@ type WatchCommand() =
 
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
+
+    [<Option("relativecontent",
+             Required = false,
+             Default = false,
+             HelpText = "Use relative links in static content paths")>]
+    member val relativecontent = false
+
+    override x.relative_content_option = x.relativecontent
