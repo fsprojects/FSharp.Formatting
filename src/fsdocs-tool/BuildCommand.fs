@@ -1403,13 +1403,10 @@ type CoreBuildOptions(watch) =
 
         let userParametersDict = readOnlyDict userParameters
 
-        let userRoot, userParameters =
-            let r =
-                match userParametersDict.TryGetValue(ParamKeys.root) with
-                | true, v -> Some v
-                | _ -> None
-
-            r, userParameters
+        let userRoot =
+            match userParametersDict.TryGetValue(ParamKeys.root) with
+            | true, v -> Some v
+            | _ -> None
 
         let userCollectionName =
             match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
