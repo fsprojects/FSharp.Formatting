@@ -1403,10 +1403,26 @@ type CoreBuildOptions(watch) =
 
         let userParametersDict = readOnlyDict userParameters
 
-        let userRoot =
-            match userParametersDict.TryGetValue(ParamKeys.root) with
-            | true, v -> Some v
-            | _ -> None
+        // Adjust the user substitutions for 'watch' mode root
+        let userRoot, userParameters =
+            if watch then
+                let userRoot = sprintf "http://localhost:%d/" this.port_option
+
+                if userParametersDict.ContainsKey(ParamKeys.root) then
+                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
+
+                let userParameters =
+                    [ ParamKeys.root, userRoot ]
+                    @ (userParameters |> List.filter (fun (a, _) -> a <> ParamKeys.root))
+
+                Some userRoot, userParameters
+            else
+                let r =
+                    match userParametersDict.TryGetValue(ParamKeys.root) with
+                    | true, v -> Some v
+                    | _ -> None
+
+                r, userParameters
 
         let userCollectionName =
             match (dict userParameters).TryGetValue(ParamKeys.``fsdocs-collection-name``) with
