@@ -1405,8 +1405,8 @@ type CoreBuildOptions(watch) =
         let userRoot, userParameters =
             if watch then
                 let userRoot =
-                    match this.relative_content_option with
-                    | true -> ""
+                    match this.static_content_host_option with
+                    | Some s -> s
                     | _ -> sprintf "http://localhost:%d/" this.port_option
 
                 if userParametersDict.ContainsKey(ParamKeys.root) then
@@ -2089,8 +2089,8 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
-    abstract relative_content_option: bool
-    default x.relative_content_option = false
+    abstract static_content_host_option: string option
+    default x.static_content_host_option = None
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
@@ -2120,10 +2120,12 @@ type WatchCommand() =
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
 
-    [<Option("relativecontent",
-             Required = false,
-             Default = false,
-             HelpText = "Use relative links in static content paths.")>]
-    member val relativecontent = false with get, set
+    [<Option("contenthost", Required = false, HelpText = "URI root to inject in static content.")>]
+    member val contenthost = "" with get, set
 
-    override x.relative_content_option = x.relativecontent
+    override x.static_content_host_option =
+        match x.contenthost with
+        | "" -> None
+        | s ->
+            if not (s.EndsWith("/")) then $"%s{s}/" else s
+            |> Some
