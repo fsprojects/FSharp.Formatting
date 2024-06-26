@@ -2122,7 +2122,7 @@ type WatchCommand() =
     [<Option("relativecontent",
              Required = false,
              Default = false,
-             HelpText = "Use relative links in static content paths")>]
-    member val relativecontent = false
+             HelpText = "Use relative links in static content paths.")>]
+    member val relativecontent = false with get, set
 
     override x.relative_content_option = x.relativecontent
