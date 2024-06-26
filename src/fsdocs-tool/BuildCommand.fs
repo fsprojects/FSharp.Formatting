@@ -1403,7 +1403,6 @@ type CoreBuildOptions(watch) =
 
         let userParametersDict = readOnlyDict userParameters
 
-        // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             let r =
                 match userParametersDict.TryGetValue(ParamKeys.root) with
