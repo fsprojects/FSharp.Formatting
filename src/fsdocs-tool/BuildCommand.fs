@@ -792,11 +792,11 @@ module Serve =
     let refreshEvent = FSharp.Control.Event<string>()
 
     /// generate the script to inject into html to enable hot reload during development
-    let generateWatchScript (port: int) =
-        let tag =
-            """
+    let generateWatchScript =
+        """
 <script type="text/javascript">
-    var wsUri = "ws://localhost:{{PORT}}/websocket";
+    var loc = window.location.valueOf();
+    var wsUri = `${loc.protocol.replace("http", "ws")}//${loc.host}/websocket`;
     function init()
     {
         websocket = new WebSocket(wsUri);
@@ -822,8 +822,6 @@ module Serve =
     window.addEventListener("load", init, false);
 </script>
 """
-
-        tag.Replace("{{PORT}}", string<int> port)
 
     let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
@@ -1670,7 +1668,7 @@ type CoreBuildOptions(watch) =
         let getLatestWatchScript () =
             if watch then
                 // if running in watch mode, inject hot reload script
-                [ ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript this.port_option ]
+                [ ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript ]
             else
                 // otherwise, inject empty replacement string
                 [ ParamKeys.``fsdocs-watch-script``, "" ]
