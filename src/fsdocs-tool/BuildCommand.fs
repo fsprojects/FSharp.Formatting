@@ -2120,11 +2120,14 @@ type WatchCommand() =
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
 
-    [<Option("contenthost", Required = false, HelpText = "URI root to inject in static content.")>]
-    member val contenthost = "" with get, set
+    [<Option("contenturlroot",
+             Required = false,
+             HelpText =
+                 "Optional URL root 'http[s]://<host>[:<port>]/' to use in static content for browsers not running on localhost.")>]
+    member val contenturlroot = "" with get, set
 
     override x.static_content_host_option =
-        match x.contenthost with
+        match x.contenturlroot with
         | "" -> None
         | s ->
             if not (s.EndsWith("/")) then $"%s{s}/" else s
