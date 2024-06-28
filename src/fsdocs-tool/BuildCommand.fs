@@ -1406,7 +1406,7 @@ type CoreBuildOptions(watch) =
             if watch then
                 let userRoot =
                     match this.static_content_host_option with
-                    | Some s -> s
+                    | Some s -> sprintf "%O" s
                     | _ -> sprintf "http://localhost:%d/" this.port_option
 
                 if userParametersDict.ContainsKey(ParamKeys.root) then
@@ -2089,7 +2089,7 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
-    abstract static_content_host_option: string option
+    abstract static_content_host_option: Uri option
     default x.static_content_host_option = None
 
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
@@ -2127,8 +2127,7 @@ type WatchCommand() =
     member val contenturlroot = "" with get, set
 
     override x.static_content_host_option =
-        match x.contenturlroot with
-        | "" -> None
-        | s ->
-            if not (s.EndsWith("/")) then $"%s{s}/" else s
-            |> Some
+        if not (String.IsNullOrEmpty x.contenturlroot) then
+            x.contenturlroot |> Uri |> Some
+        else
+            None
