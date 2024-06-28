@@ -2123,7 +2123,7 @@ type WatchCommand() =
     [<Option("contenturlroot",
              Required = false,
              HelpText =
-                 "Optional URL root 'http[s]://<host>[:<port>]/' to use in static content for browsers not running on localhost.")>]
+                 "Optional URL root 'http[s]://<host>[:<port>]' to use in static content for browsers not running on localhost.")>]
     member val contenturlroot = "" with get, set
 
     override x.static_content_host_option =
