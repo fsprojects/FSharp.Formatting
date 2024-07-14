@@ -25,6 +25,16 @@
     <script type="application/javascript" src="{{root}}content/fsdocs-details-set-expanded.js"></script>
     <link href="{{root}}content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
     <link href="{{root}}content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    <!-- Load prism.js -->
+    <!-- 
+        TODO:
+        We probably want to add the auto-loader plugin to make the initial prism.js as small as possible
+        This plugin allows to load language on demand, right now I loaded the most default languages from prism.js
+        and the ones supported by Fable.
+        markup+css+clike+javascript+dart+fsharp+python+rust
+    -->
+    <link href="{{root}}content/prism/prism.css" rel="stylesheet" type="text/css"/>
+    <script type="module" src="{{root}}content/prism/prism.js"></script>
     {{fsdocs-head-extra}}
     {{fsdocs-watch-script}}
 </head>

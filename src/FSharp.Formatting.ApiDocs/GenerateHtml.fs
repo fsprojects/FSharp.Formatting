@@ -9,6 +9,9 @@ open FSharp.Compiler.Symbols
 open FSharp.Formatting.Templating
 open FSharp.Formatting.HtmlModel
 open FSharp.Formatting.HtmlModel.Html
+open System.Xml.Linq
+open System.Text.RegularExpressions
+open FSharp.Formatting.ApiDocs.GenerateSignature
 
 /// Embed some HTML generated in GenerateModel
 let embed (x: ApiDocHtml) = !!x.HtmlText
@@ -19,6 +22,36 @@ let fsdocsSummary (x: ApiDocHtml) =
         embed x
     else
         div [ Class "fsdocs-summary-contents" ] [ p [ Class "fsdocs-summary" ] [ embed x ] ]
+
+let formatXmlComment (commentOpt: XElement option) : string =
+
+    match commentOpt with
+    | Some comment ->
+        let docComment = comment.ToString()
+
+        let pattern = $"""<member name=".*">((?'xml_doc'(?:(?!<member>)(?!<\/member>)[\s\S])*)<\/member\s*>)"""
+
+        let m = Regex.Match(docComment, pattern)
+
+        // Remove the <member> and </member> tags
+        if m.Success then
+            let xmlDoc = m.Groups.["xml_doc"].Value
+
+            let lines = xmlDoc |> String.splitLines |> Array.toList
+
+            // Remove the non meaning full indentation
+            let content =
+                lines
+                |> List.map (fun line ->
+                    // Add a small protection in case the user didn't align all it's tags
+                    if line.StartsWith(" ") then line.Substring(1) else line)
+                |> String.concat "\n"
+
+            CommentFormatter.format content
+        else
+            CommentFormatter.format docComment
+
+    | None -> ""
 
 type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
@@ -100,6 +133,151 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | :? FSharpMemberOrFunctionOrValue as v -> copyXmlSigIconMarkdown (removeParen v.XmlDocSig)
           | :? FSharpEntity as v -> copyXmlSigIconMarkdown (removeParen v.XmlDocSig)
           | _ -> () ]
+
+    let renderValueOrFunctions (entities: ApiDocMember list) =
+
+        if entities.IsEmpty then
+            []
+        else
+
+            [ h3 [] [ !! "Functions and values" ]
+
+              for entity in entities do
+                  let (ApiDocMemberDetails(usageHtml,
+                                           paramTypes,
+                                           returnType,
+                                           modifiers,
+                                           typars,
+                                           baseType,
+                                           location,
+                                           compiledName)) =
+                      entity.Details
+
+                  let returnHtml =
+                      // TODO: Parse the return type information from
+                      // let x = entity.Symbol :?> FSharpMemberOrFunctionOrValue
+                      // x.FullType <-- Here we have access to all the type including the argument for the function that we should ignore... (making the processing complex)
+                      // For now, we are just using returnType.HtmlText to have something ready as parsing from
+                      // FSharpMemberOrFunctionOrValue seems to be quite complex
+                      match returnType with
+                      | Some(_, returnType) ->
+                          // Remove the starting <code> and ending </code>
+                          returnType.HtmlText.[6 .. returnType.HtmlText.Length - 8]
+                          // Adapt the text to have basic syntax highlighting
+                          |> fun text -> text.Replace("&lt;", Html.lessThan.ToMinifiedHtml())
+                          |> fun text -> text.Replace("&gt;", Html.greaterThan.ToMinifiedHtml())
+                          |> fun text -> text.Replace(",", Html.comma.ToMinifiedHtml())
+
+                      | None -> "unit"
+
+                  let initial = Signature.ParamTypesInformation.Init entity.Name
+
+                  let paramTypesInfo = Signature.extractParamTypesInformation initial paramTypes
+
+                  div [ Class "fsdocs-block" ] [
+
+                      div [ Class "actions-buttons" ] [
+                          yield! sourceLink entity.SourceLocation
+                          yield! copyXmlSigIconForSymbol entity.Symbol
+                          yield! copyXmlSigIconForSymbolMarkdown entity.Symbol
+                      ]
+
+                      // This is a value
+                      if paramTypesInfo.Infos.IsEmpty then
+                          div [ Class "fsdocs-api-code" ] [
+                              div [] [ Html.val'; Html.space; !!entity.Name; Html.space; Html.colon; !!returnHtml ]
+                          ]
+
+                      // This is a function
+                      else
+
+                          div [ Class "fsdocs-api-code" ] [
+                              [ TextNode.Div [
+                                    TextNode.Keyword "val"
+                                    TextNode.Space
+                                    TextNode.AnchorWithId($"#{entity.Name}", entity.Name, entity.Name)
+                                    TextNode.Space
+                                    TextNode.Colon
+                                ] ]
+                              |> TextNode.Node
+                              |> TextNode.ToHtmlElement
+
+                              for index in 0 .. paramTypesInfo.Infos.Length - 1 do
+                                  let (name, returnType) = paramTypesInfo.Infos.[index]
+
+                                  div [] [
+                                      Html.spaces 4 // Equivalent to 'val '
+                                      !!name
+                                      Html.spaces (paramTypesInfo.MaxNameLength - name.Length + 1) // Complete with space to align ':'
+                                      Html.colon
+                                      Html.space
+                                      !! returnType.HtmlElement.ToMinifiedHtml()
+
+                                      Html.spaces (paramTypesInfo.MaxReturnTypeLength - returnType.Length + 1) // Complete with space to align '->'
+
+                                      // Don't add the arrow for the last parameter
+                                      if index <> paramTypesInfo.Infos.Length - 1 then
+                                          Html.arrow
+                                  ]
+                                  |> Html.minify
+
+                              div [] [
+                                  Html.spaces (4 + paramTypesInfo.MaxNameLength + 1) // Equivalent to 'val ' + the max length of parameter name + ':'
+                                  Html.arrow
+                                  Html.space
+                                  !!returnHtml
+                              ]
+                              |> Html.minify
+                          ]
+
+                      match entity.Comment.Xml with
+                      | Some xmlComment ->
+                          let comment = xmlComment.ToString()
+                          !!(CommentFormatter.formatSummaryOnly comment)
+
+                          if not paramTypesInfo.Infos.IsEmpty then
+                              p [] [ strong [] [ !! "Parameters" ] ]
+
+
+                              for (name, returnType) in paramTypesInfo.Infos do
+                                  let paramDoc =
+                                      CommentFormatter.tryFormatParam name comment
+                                      |> Option.map (fun paramDoc -> !!paramDoc)
+                                      |> Option.defaultValue Html.nothing
+
+                                  div [ Class "fsdocs-doc-parameter" ] [
+                                      [ TextNode.DivWithClass(
+                                            "fsdocs-api-code",
+                                            [ TextNode.Property name
+                                              TextNode.Space
+                                              TextNode.Colon
+                                              TextNode.Space
+                                              returnType ]
+                                        ) ]
+                                      |> TextNode.Node
+                                      |> TextNode.ToHtmlElement
+
+                                      paramDoc
+                                  ]
+
+                          match CommentFormatter.tryFormatReturnsOnly comment with
+                          | Some returnDoc ->
+                              p [] [ strong [] [ !! "Returns" ] ]
+
+                              !!returnDoc
+
+                          | None -> ()
+
+                      // TODO: Should we r``ender a minimal documentation here with the information we have?
+                      // For example, we can render the list of parameters and the return type
+                      // This is to make the documentation more consistent
+                      // However, these minimal information will be rondontant with the information displayed in the signature
+                      | None -> ()
+                  ]
+
+              //   hr []
+
+              ]
 
     let renderMembers header tableHeader (members: ApiDocMember list) =
         [ if members.Length > 0 then
@@ -330,7 +508,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                               ]
                               td [ Class "fsdocs-entity-xmldoc" ] [
                                   div [] [
-                                      fsdocsSummary e.Comment.Summary
+
+                                      div [ Class "fsdocs-summary-contents" ] [ !!(formatXmlComment e.Comment.Xml) ]
+
                                       div [ Class "icon-button-row" ] [
                                           yield! sourceLink e.SourceLocation
                                           yield! copyXmlSigIconForSymbol e.Symbol
@@ -481,7 +661,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               let constructors = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.Constructor)
               let instanceMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.InstanceMember)
               let staticMembers = ms |> List.filter (fun m -> m.Kind = ApiDocMemberKind.StaticMember)
-              div [] (renderMembers "Functions and values" "Function or value" functionsOrValues)
+              div [] (renderValueOrFunctions functionsOrValues)
               div [] (renderMembers "Type extensions" "Type extension" extensions)
               div [] (renderMembers "Active patterns" "Active pattern" activePatterns)
               div [] (renderMembers "Union cases" "Union case" unionCases)

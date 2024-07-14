@@ -122,6 +122,7 @@
     --code-preprocessor-color: #af75c1;
     --code-fsioutput-color: #808080;
     --code-tooltip-color: #d1d1d1;
+
 }
 
 /* dark theme */
@@ -671,7 +672,10 @@ a {
 
 p {
     line-height: 1.8;
-    margin-top: var(--spacing-300);
+    
+    &:not(:last-child) {
+        margin-bottom: var(--spacing-300);
+    }
 }
 
 ol, ul {
@@ -713,15 +717,12 @@ blockquote {
 /* Code snippets */
 
 /* reset browser style */
-pre {
-    margin: 0;
-    padding: 0;
-}
+
 
 code, table.pre, pre {
     background-color: var(--code-background);
     color: var(--code-color);
-    font-family: var(--monospace-font);
+    font-family: var(--monospace-font); 
     font-variant-ligatures: none;
     font-size: var(--font-200);
     -webkit-text-size-adjust: 100%;
@@ -729,7 +730,7 @@ code, table.pre, pre {
 
 h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
     font-size: inherit;
-}
+}  
 
 table.pre, #content > pre.fssnip {
     border: 1px solid var(--code-fence-border-color);
@@ -1062,20 +1063,11 @@ span[onmouseout] {
                 flex-grow: 1;
             }
 
-            & pre {
-                margin-bottom: var(--spacing-200);
-                padding: var(--spacing-50);
-                flex-grow: 1;
-                overflow-x: auto;
-            }
         }
     }
 
     .fsdocs-summary-contents {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: flex-start;
+        width: 100%;
     }
 
     .fsdocs-member-xmldoc-column {
@@ -1284,5 +1276,120 @@ dialog {
 [data-theme=dark] {
     ::backdrop {
         opacity: 0.75;
+    }
+}
+
+
+
+
+
+/* Code */
+
+.fsdocs-api-code {
+    font-family: var(--monospace-font);
+    margin-bottom: 1rem;
+
+    a.record-field-name,
+    a.union-case-property,
+    a.property {
+        /* color: darken($primary, 4%); */
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .property[id]:target,
+    a[id]:target {
+        animation-name: blink;
+        animation-direction: normal;
+        animation-duration: 0.75s;
+        animation-iteration-count: 2;
+        animation-timing-function: ease;
+    }
+
+    span {
+        &.property {
+            color: var(--code-property-color);
+        }
+
+        &.keyword {
+            color: var(--code-keywords-color);
+        }
+    
+        &.type {
+            color: var(--code-reference-color);
+        }
+    }
+
+}
+
+/* 
+    Animations for blinking the target of a link 
+
+    It makes it easier to see where the link is pointing to
+*/
+@keyframes blink {
+    0% {
+        background-color: var(--primary);
+        color: var(--background);
+    }
+    100% {
+        background-color: transparent;
+        color: var(--link-color);
+    }
+}
+
+.docs-example:not(:last-child) {
+    margin-bottom: var(--spacing-300);
+}
+
+/* 
+    If there is parameter right after this one, add some margin.
+
+    We don't want to do it for all of them, because the last one is followed by a `hr` which already adds spacing around it.
+*/
+.fsdocs-doc-parameter {
+    margin-bottom: var(--spacing-300);
+}
+
+/* 
+.button {
+    padding: .5rem .75rem;
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: var(--radius);
+
+    &:has(iconify-icon) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &:hover {
+        background-color: var(--shadow-color);
+    }
+} */
+
+.fsdocs-block {
+    position: relative;
+    padding: 1rem;
+
+    &:not(:first-child) {
+        border-top: 1px solid var(--shadow-color);
+    }
+
+    .actions-buttons {
+        /* Buttons are in the top right of the current block */
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+
+        /* Should be extract as an independant .buttons class when reworking the CSS */
+        display: flex;
+        gap: .25rem;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
     }
 }
