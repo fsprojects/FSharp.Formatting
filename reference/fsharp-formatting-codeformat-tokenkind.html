@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en" data-root="https://fsprojects.github.io/FSharp.Formatting/">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Tomas Petricek; Oleg Pestov; Anh-Dung Phan; Xiang Zhang; Matthias Dittrich; Don Syme" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="FSharp.Formatting">
+    <meta property="og:title" content="TokenKind (FSharp.Formatting)" />
+    <meta property="og:url" content="https://fsprojects.github.io/FSharp.Formatting/{{fsdocs-source-basename}}.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsprojects.github.io/FSharp.Formatting/">
+    <meta name="twitter:title" content="TokenKind (FSharp.Formatting)">
+    
+    <title>TokenKind (FSharp.Formatting) | FSharp.Formatting</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-set-expanded.js"></script>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="api-docs">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+                </li>
+                <li class="nav-item"><a class="nav-link"
+                                        href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+                    Notes</a></li>
+                <li class="nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsprojects.github.io/FSharp.Formatting/">
+            <img alt="Header menu logo" src="https://fsprojects.github.io/FSharp.Formatting/img/logo.png">
+            <strong>FSharp.Formatting</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/fsprojects/FSharp.Formatting/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/blob/master/LICENSE.md">License</a>
+        </li>
+        <li class="nav-item"><a class="nav-link"
+                                href="https://github.com/fsprojects/FSharp.Formatting/blob/master/RELEASE_NOTES.md">Release
+            Notes</a></li>
+        <li class="nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Documentation
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html">
+    Getting Started
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/commandline.html">
+    Command line
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate.html">
+    Literate Scripts
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/literate-notebook.html">
+    Literate Notebooks
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/content.html">
+    Creating Content
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/apidocs.html">
+    Generating API Docs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/evaluation.html">
+    Embedding script output
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/styling.html">
+    Customization and Styling
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/users.html">
+    Users of FSharp.Formatting
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Examples
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidescript.html">
+    Literate Script
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sidemarkdown.html">
+    Markdown Content
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/sidebyside/sideextensions.html">
+    Markdown LaTeX
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/templates/leftside/styling.html">
+    Example: Styling for Right-Side Navigation Bar
+
+  </a>
+</li>             
+<li class="nav-header ">
+  Advanced
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/upgrade.html">
+    Upgrading to fsdocs
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/codeformat.html">
+    Code formatting
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/markdown.html">
+    Markdown parser
+
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://fsprojects.github.io/FSharp.Formatting/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <div>
+  <h2>
+    TokenKind Type
+  </h2>
+  <dl class="fsdocs-metadata">
+    <dt>
+      Namespace: 
+      <a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat.html">
+        FSharp.Formatting.CodeFormat
+      </a>
+    </dt>
+    <dt>
+      Assembly: FSharp.Formatting.CodeFormat.dll
+    </dt>
+    <dt>
+      Base Type: 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.valuetype">ValueType</a></code>
+    </dt>
+    <dt>
+      All Interfaces: 
+      <code><span><a href="https://learn.microsoft.com/dotnet/api/system.iequatable-1">IEquatable</a>&lt;<a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenkind.html">TokenKind</a>&gt;</span></code>
+      , 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.collections.istructuralequatable">IStructuralEquatable</a></code>
+      , 
+      <code><span><a href="https://learn.microsoft.com/dotnet/api/system.icomparable-1">IComparable</a>&lt;<a href="https://fsprojects.github.io/FSharp.Formatting/reference/fsharp-formatting-codeformat-tokenkind.html">TokenKind</a>&gt;</span></code>
+      , 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.icomparable">IComparable</a></code>
+      , 
+      <code><a href="https://learn.microsoft.com/dotnet/api/system.collections.istructuralcomparable">IStructuralComparable</a></code>
+    </dt>
+    <dt>
+      Kind: Struct
+    </dt>
+  </dl>
+  <div class="fsdocs-xmldoc">
+    <div>
+      <div class="fsdocs-summary-contents">
+        <p class="fsdocs-summary">
+           Classifies tokens reported by the FCS
+        </p>
+      </div>
+    </div>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Union cases
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Union case
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+            <fsdocs-details-toggle></fsdocs-details-toggle>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '319', 319)" onmouseover="showTip(event, '319', 319)">
+                <p>
+                  <a id="Comment">
+                    <a href="#Comment">
+                      <code><span>Comment</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="319">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Comment</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L27-27" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '320', 320)" onmouseover="showTip(event, '320', 320)">
+                <p>
+                  <a id="Default">
+                    <a href="#Default">
+                      <code><span>Default</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="320">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Default</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L48-48" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '321', 321)" onmouseover="showTip(event, '321', 321)">
+                <p>
+                  <a id="Disposable">
+                    <a href="#Disposable">
+                      <code><span>Disposable</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="321">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Disposable</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L45-45" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '322', 322)" onmouseover="showTip(event, '322', 322)">
+                <p>
+                  <a id="Enumeration">
+                    <a href="#Enumeration">
+                      <code><span>Enumeration</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="322">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Enumeration</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L40-40" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '323', 323)" onmouseover="showTip(event, '323', 323)">
+                <p>
+                  <a id="Escaped">
+                    <a href="#Escaped">
+                      <code><span>Escaped</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="323">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Escaped</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L47-47" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '324', 324)" onmouseover="showTip(event, '324', 324)">
+                <p>
+                  <a id="Function">
+                    <a href="#Function">
+                      <code><span>Function</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="324">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Function</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L42-42" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '325', 325)" onmouseover="showTip(event, '325', 325)">
+                <p>
+                  <a id="Identifier">
+                    <a href="#Identifier">
+                      <code><span>Identifier</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="325">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Identifier</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L28-28" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '326', 326)" onmouseover="showTip(event, '326', 326)">
+                <p>
+                  <a id="Inactive">
+                    <a href="#Inactive">
+                      <code><span>Inactive</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="326">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Inactive</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L29-29" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '327', 327)" onmouseover="showTip(event, '327', 327)">
+                <p>
+                  <a id="Interface">
+                    <a href="#Interface">
+                      <code><span>Interface</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="327">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Interface</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L37-37" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '328', 328)" onmouseover="showTip(event, '328', 328)">
+                <p>
+                  <a id="Keyword">
+                    <a href="#Keyword">
+                      <code><span>Keyword</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="328">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Keyword</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L25-25" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '329', 329)" onmouseover="showTip(event, '329', 329)">
+                <p>
+                  <a id="Module">
+                    <a href="#Module">
+                      <code><span>Module</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="329">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Module</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L34-34" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '330', 330)" onmouseover="showTip(event, '330', 330)">
+                <p>
+                  <a id="MutableVar">
+                    <a href="#MutableVar">
+                      <code><span>MutableVar</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="330">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>MutableVar</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L44-44" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '331', 331)" onmouseover="showTip(event, '331', 331)">
+                <p>
+                  <a id="Number">
+                    <a href="#Number">
+                      <code><span>Number</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="331">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Number</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L30-30" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '332', 332)" onmouseover="showTip(event, '332', 332)">
+                <p>
+                  <a id="Operator">
+                    <a href="#Operator">
+                      <code><span>Operator</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="332">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Operator</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L31-31" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '333', 333)" onmouseover="showTip(event, '333', 333)">
+                <p>
+                  <a id="Pattern">
+                    <a href="#Pattern">
+                      <code><span>Pattern</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="333">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Pattern</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L43-43" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '334', 334)" onmouseover="showTip(event, '334', 334)">
+                <p>
+                  <a id="Preprocessor">
+                    <a href="#Preprocessor">
+                      <code><span>Preprocessor</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="334">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Preprocessor</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L33-33" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '335', 335)" onmouseover="showTip(event, '335', 335)">
+                <p>
+                  <a id="Printf">
+                    <a href="#Printf">
+                      <code><span>Printf</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="335">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Printf</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L46-46" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '336', 336)" onmouseover="showTip(event, '336', 336)">
+                <p>
+                  <a id="Property">
+                    <a href="#Property">
+                      <code><span>Property</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="336">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Property</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L39-39" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '337', 337)" onmouseover="showTip(event, '337', 337)">
+                <p>
+                  <a id="Punctuation">
+                    <a href="#Punctuation">
+                      <code><span>Punctuation</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="337">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Punctuation</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L32-32" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '338', 338)" onmouseover="showTip(event, '338', 338)">
+                <p>
+                  <a id="ReferenceType">
+                    <a href="#ReferenceType">
+                      <code><span>ReferenceType</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="338">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ReferenceType</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L35-35" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '339', 339)" onmouseover="showTip(event, '339', 339)">
+                <p>
+                  <a id="String">
+                    <a href="#String">
+                      <code><span>String</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="339">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>String</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L26-26" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '340', 340)" onmouseover="showTip(event, '340', 340)">
+                <p>
+                  <a id="TypeArgument">
+                    <a href="#TypeArgument">
+                      <code><span>TypeArgument</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="340">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>TypeArgument</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L38-38" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '341', 341)" onmouseover="showTip(event, '341', 341)">
+                <p>
+                  <a id="UnionCase">
+                    <a href="#UnionCase">
+                      <code><span>UnionCase</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="341">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>UnionCase</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L41-41" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '342', 342)" onmouseover="showTip(event, '342', 342)">
+                <p>
+                  <a id="ValueType">
+                    <a href="#ValueType">
+                      <code><span>ValueType</span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="342">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>ValueType</span></code>
+                  <br/>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-summary-contents">
+                <p class="fsdocs-summary">
+                  
+                </p>
+              </div>
+              <div class="icon-button-row">
+                <a href="https://github.com/fsprojects/FSharp.Formatting/tree/master/src/FSharp.Formatting.CodeFormat/SourceCode.fs#L36-36" class="fsdocs-source-link" title="Source on GitHub">
+                  <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+                </a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <div class="empty"></div>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-tips.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-details-toggle.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-theme.js"></script>
+<script type="module" src="https://fsprojects.github.io/FSharp.Formatting/content/fsdocs-search.js"></script>
+
+</body>
+</html>
