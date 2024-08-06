@@ -1,5 +1,8 @@
 # Changelog
 
+## 21.0.0-beta-003 - 2024-08-06
+* FSharp.Core and FSharp.Compiler.Service updates. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/935)
+
 ## 21.0.0-beta-002 - 2024-06-19
 
 ### Changed
