@@ -32,5 +32,5 @@ module Common =
 
     let waitForKey b =
         if b then
-            printf "\nPress any key to continue ..."
+            printfn "\nPress any key to continue ..."
             System.Console.ReadKey() |> ignore

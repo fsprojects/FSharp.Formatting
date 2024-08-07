@@ -435,6 +435,176 @@ type internal HtmlElement =
     | EncodeString of string
     | CustomElement of element: string * props: HtmlProperties list * children: HtmlElement list
 
+    // TODO: The way F# Formatting format the HTML is causing issues because it "beautifies" the HTML too much
+    // which causes issues with the control over the spaces.
+    // Do we need to have a beautiful HTML generated?
+    // In theory, for performance reasons, we should the most minified HTML possible.
+    member tag.ToMinifiedHtml() =
+        let rec format tag (props: HtmlProperties list) (children: HtmlElement list) =
+            let cnt =
+                if children.Length > 0 then
+                    (children
+                     |> List.map (fun n -> (String.replicate 0 "  ") + helper n)
+                     |> String.concat "")
+                else
+                    ""
+
+            let attrs =
+                if props.Length > 0 then
+                    " " + (props |> List.map string<HtmlProperties> |> String.concat " ")
+                else
+                    ""
+
+            sprintf "<%s%s>%s</%s>" tag attrs cnt tag
+
+        and formatVoid tag (props: HtmlProperties list) =
+            let attrs =
+                if props.Length > 0 then
+                    " " + (props |> List.map string<HtmlProperties> |> String.concat " ")
+                else
+                    ""
+
+            sprintf "<%s%s/>" tag attrs
+
+        and helper tag =
+            match tag with
+            | A(props, children) -> format "a" props children
+            | Abbr(props, children) -> format "abbr" props children
+            | Address(props, children) -> format "address" props children
+            | Area(props) -> formatVoid "area" props
+            | Article(props, children) -> format "article" props children
+            | Aside(props, children) -> format "aside" props children
+            | Audio(props, children) -> format "audio" props children
+            | B(props, children) -> format "b" props children
+            | Base(props) -> formatVoid "base" props
+            | Bdi(props, children) -> format "bdi" props children
+            | Bdo(props, children) -> format "bdo" props children
+            | Big(props, children) -> format "big" props children
+            | Blockquote(props, children) -> format "blockquote" props children
+            | Body(props, children) -> format "body" props children
+            | Br(props) -> formatVoid "br" props
+            | Button(props, children) -> format "button" props children
+            | Canvas(props, children) -> format "canvas" props children
+            | Caption(props, children) -> format "caption" props children
+            | Cite(props, children) -> format "cite" props children
+            | Code(props, children) -> format "code" props children
+            | Col(props) -> formatVoid "col" props
+            | Colgroup(props, children) -> format "colgroup" props children
+            | Data(props, children) -> format "data" props children
+            | Datalist(props, children) -> format "datalist" props children
+            | Dd(props, children) -> format "dd" props children
+            | Del(props, children) -> format "del" props children
+            | Details(props, children) -> format "details" props children
+            | Dfn(props, children) -> format "dfn" props children
+            | Dialog(props, children) -> format "dialog" props children
+            | Div(props, children) -> format "div" props children
+            | Dl(props, children) -> format "dl" props children
+            | Dt(props, children) -> format "dt" props children
+            | Em(props, children) -> format "em" props children
+            | Embed(props) -> formatVoid "embed" props
+            | Fieldset(props, children) -> format "fieldset" props children
+            | Figcaption(props, children) -> format "figcaption" props children
+            | Figure(props, children) -> format "figure" props children
+            | Footer(props, children) -> format "footer" props children
+            | Form(props, children) -> format "form" props children
+            | H1(props, children) -> format "h1" props children
+            | H2(props, children) -> format "h2" props children
+            | H3(props, children) -> format "h3" props children
+            | H4(props, children) -> format "h4" props children
+            | H5(props, children) -> format "h5" props children
+            | H6(props, children) -> format "h6" props children
+            | Head(props, children) -> format "head" props children
+            | Header(props, children) -> format "header" props children
+            | Hgroup(props, children) -> format "hgroup" props children
+            | Hr(props) -> formatVoid "hr" props
+            | Html(props, children) -> format "html" props children
+            | I(props, children) -> format "i" props children
+            | Iframe(props, children) -> format "iframe" props children
+            | Img(props) -> formatVoid "img" props
+            | Input(props) -> formatVoid "input" props
+            | Ins(props, children) -> format "ins" props children
+            | Kbd(props, children) -> format "kbd" props children
+            | Keygen(props) -> formatVoid "keygen" props
+            | Label(props, children) -> format "label" props children
+            | Legend(props, children) -> format "legend" props children
+            | Li(props, children) -> format "li" props children
+            | Link(props) -> formatVoid "link" props
+            | Main(props, children) -> format "main" props children
+            | Map(props, children) -> format "map" props children
+            | Mark(props, children) -> format "mark" props children
+            | Menu(props, children) -> format "menu" props children
+            | Menuitem(props) -> formatVoid "menuitem" props
+            | Meta(props) -> formatVoid "meta" props
+            | Meter(props, children) -> format "meter" props children
+            | Nav(props, children) -> format "nav" props children
+            | Noscript(props, children) -> format "noscript" props children
+            | Object(props, children) -> format "object" props children
+            | Ol(props, children) -> format "ol" props children
+            | Optgroup(props, children) -> format "optgroup" props children
+            | Option(props, children) -> format "option" props children
+            | Output(props, children) -> format "output" props children
+            | P(props, children) -> format "p" props children
+            | Param(props) -> formatVoid "param" props
+            | Picture(props, children) -> format "picture" props children
+            | Pre(props, children) -> format "pre" props children
+            | Progress(props, children) -> format "progress" props children
+            | Q(props, children) -> format "q" props children
+            | Rp(props, children) -> format "rp" props children
+            | Rt(props, children) -> format "rt" props children
+            | Ruby(props, children) -> format "ruby" props children
+            | S(props, children) -> format "s" props children
+            | Samp(props, children) -> format "samp" props children
+            | Script(props, children) -> format "script" props children
+            | Section(props, children) -> format "section" props children
+            | Select(props, children) -> format "select" props children
+            | Small(props, children) -> format "small" props children
+            | Source(props) -> formatVoid "source" props
+            | Span(props, children) -> format "span" props children
+            | Strong(props, children) -> format "strong" props children
+            | Style(props, children) -> format "style" props children
+            | Sub(props, children) -> format "sub" props children
+            | Summary(props, children) -> format "summary" props children
+            | Sup(props, children) -> format "sup" props children
+            | Table(props, children) -> format "table" props children
+            | Tbody(props, children) -> format "tbody" props children
+            | Td(props, children) -> format "td" props children
+            | Textarea(props, children) -> format "textarea" props children
+            | Tfoot(props, children) -> format "tfoot" props children
+            | Th(props, children) -> format "th" props children
+            | Thead(props, children) -> format "thead" props children
+            | Time(props, children) -> format "time" props children
+            | Title(props, children) -> format "title" props children
+            | Tr(props, children) -> format "tr" props children
+            | Track(props) -> formatVoid "track" props
+            | U(props, children) -> format "u" props children
+            | Ul(props, children) -> format "ul" props children
+            | Var(props, children) -> format "var" props children
+            | Video(props, children) -> format "video" props children
+            | Wbr(props) -> formatVoid "wbr" props
+            | Svg(props, children) -> format "svg" props children
+            | Circle(props, children) -> format "circle" props children
+            | Defs(props, children) -> format "defs" props children
+            | Ellipse(props, children) -> format "ellipse" props children
+            | G(props, children) -> format "g" props children
+            | Image(props, children) -> format "image" props children
+            | Line(props, children) -> format "line" props children
+            | LinearGradient(props, children) -> format "radient" props children
+            | Mask(props, children) -> format "mask" props children
+            | Path(props, children) -> format "path" props children
+            | Pattern(props, children) -> format "pattern" props children
+            | Polygon(props, children) -> format "polygon" props children
+            | Polyline(props, children) -> format "polyline" props children
+            | RadialGradient(props, children) -> format "radient" props children
+            | Rect(props, children) -> format "rect" props children
+            | Stop(props, children) -> format "stop" props children
+            | Text(props, children) -> format "text" props children
+            | Tspan(props, children) -> format "tspan" props children
+            | String str -> str
+            | EncodeString str -> System.Web.HttpUtility.HtmlEncode str
+            | CustomElement(element, props, children) -> format element props children
+
+        helper tag
+
     override tag.ToString() =
         let rec format tag (props: HtmlProperties list) (children: HtmlElement list) level =
             let cnt =
@@ -745,6 +915,7 @@ module internal Html =
     let tspan (props: HtmlProperties list) (children: HtmlElement list) = HtmlElement.Tspan(props, children)
     //let string str = HtmlElement.String str
     let (!!) str = HtmlElement.String str
+    let rawString str = HtmlElement.EncodeString str
     let encode str = HtmlElement.EncodeString str
 
     /// Web component from https://iconify.design/docs/
