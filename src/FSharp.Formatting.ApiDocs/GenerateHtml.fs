@@ -592,6 +592,9 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             if symbol.IsFSharpRecord then
                 Generate.Record.renderRecordType entityInfo
+                hr []
+                hr []
+                Generate.Record.renderRecordVSCodeLike entityInfo
             else if symbol.IsFSharpModule then
                 let linkGenerator (entity : ApiDocEntity) =
                     entity.Url(root, collectionName, qualify, model.FileExtensions.InUrl)

@@ -153,3 +153,31 @@ let renderRecordType (entityInfo: ApiDocEntityInfo) =
                 ]
     ]
     |> Html.minify
+
+
+let subSectionTitle (title: string) =
+    div [ Class "sub-section-title" ] [
+        !!title
+    ]
+
+let renderRecordVSCodeLike (entityInfo: ApiDocEntityInfo) =
+    let entity = entityInfo.Entity
+
+    div [] [
+        strong [] [
+            !!entity.Name
+        ]
+
+        if not entity.RecordFields.IsEmpty then
+            subSectionTitle "Fields"
+
+        if not entity.InstanceMembers.IsEmpty then
+            subSectionTitle "Members"
+
+        if not entity.StaticMembers.IsEmpty then
+            subSectionTitle "Static Members"
+
+        // TODO: what are entity.StaticParameters for a record ?
+        // Are they generics?
+
+    ]
