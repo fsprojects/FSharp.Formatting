@@ -1292,7 +1292,8 @@ dialog {
     a.record-field-name,
     a.union-case-property,
     a.property {
-        /* color: darken($primary, 4%); */
+        color: var(--code-property-color);
+        text-decoration: none;
 
         &:hover {
             text-decoration: underline;
@@ -1392,4 +1393,5 @@ dialog {
         justify-content: flex-start;
         align-items: center;
     }
+
 }

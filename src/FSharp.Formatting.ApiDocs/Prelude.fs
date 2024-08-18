@@ -24,6 +24,12 @@ module Html =
     let equal = keyword "="
     let leftParent = keyword "("
     let rightParent = keyword ")"
+    let leftBracket = keyword "["
+    let rightBracket = keyword "]"
+    let leftBrace = keyword "{"
+    let rightBrace = keyword "}"
+
+    let star = keyword "*"
 
     let minify (html: HtmlElement) = !!(html.ToMinifiedHtml())
 

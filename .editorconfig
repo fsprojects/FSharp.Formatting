@@ -16,7 +16,10 @@ fsharp_max_array_or_list_width=120
 fsharp_max_infix_operator_expression=80
 fsharp_max_value_binding_width=120
 
-[{GenerateHtml.fs,tests/FSharp.ApiDocs.Tests/files/ReferenceProject/**/*.fs}]
+[{
+    src/FSharp.Formatting.ApiDocs/GenerateHtml.fs
+    src/FSharp.Formatting.ApiDocs/Generate/**.fs
+    ,tests/FSharp.ApiDocs.Tests/files/ReferenceProject/**/*.fs}]
 # Specific settings for "View/HTML" related files
 # It makes the code more consistent in term of spacing and indentation
 fsharp_experimental_elmish = true
