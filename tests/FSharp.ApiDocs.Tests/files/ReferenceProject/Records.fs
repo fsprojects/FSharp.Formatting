@@ -33,3 +33,23 @@ type WithAttributes =
     {
         Field: string
     }
+
+type WithInstanceMethod =
+    {
+        FieldA : string
+    }
+
+    member this.MyVoidMethod () = ()
+    member this.MyAddMethodCurry (a : int, b : int) = a + b
+    member this.MyAddMethodUncurry (a : int) (b : int) = a + b
+    member this.MyPropertyWithGetterWorksWithUnit with get () = ()
+    member this.MyPropertyWithGetter with get () = 0
+    member this.MyPropertyWithSetter with set (_value : int) = ()
+    member this.MyPropertyWithGetterAndSetter with get () = 0 and set (_value : int) = ()
+
+type WithStaticMethod =
+    {
+        FieldA : string
+    }
+
+    static member MyStaticMethod() = ()
