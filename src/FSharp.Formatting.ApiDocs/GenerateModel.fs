@@ -23,6 +23,7 @@ open FSharp.Formatting.Templating
 open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
+
 [<AutoOpen>]
 module internal Utils =
 
@@ -346,10 +347,14 @@ type ApiDocMember
                         m.StartColumn
                         pn
 
-            for (_psym, pnm, _pn, _pty) in paramTypes do
+            for (psym, pnm, _pn, _pty) in paramTypes do
                 match pnm with
                 | None ->
-                    printfn "%s(%d,%d): warning: a parameter was missing a name" m.FileName m.StartLine m.StartColumn
+                    match psym with
+                    | Choice1Of2 p ->
+                        if isUnitType p.Type |> not then
+                            printfn "%s(%d,%d): warning: a parameter was missing a name" m.FileName m.StartLine m.StartColumn
+                    | Choice2Of2 _ -> ()
                 | Some nm ->
                     if not (tdocs.ContainsKey pnm) then
                         printfn
