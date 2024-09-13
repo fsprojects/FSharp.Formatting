@@ -353,7 +353,8 @@ type ApiDocMember
                     | Choice1Of2 p ->
                         if isUnitType p.Type |> not then
                             printfn "%s(%d,%d): warning: a parameter was missing a name" m.FileName m.StartLine m.StartColumn
-                    | Choice2Of2 _ -> ()
+                    | Choice2Of2 _ ->
+                            printfn "%s(%d,%d): warning: a field was missing a name" m.FileName m.StartLine m.StartColumn
                 | Some nm ->
                     if not (tdocs.ContainsKey pnm) then
                         printfn
