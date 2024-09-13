@@ -23,7 +23,6 @@ open FSharp.Formatting.Templating
 open FSharp.Patterns
 open FSharp.Compiler.Syntax
 
-
 [<AutoOpen>]
 module internal Utils =
 
