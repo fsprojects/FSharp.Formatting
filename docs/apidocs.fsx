@@ -43,7 +43,7 @@ the former the output will be placed in `output\reference` by default.
 `fsdocs` automatically selects the projects and "cracks" the project files for information
 
 * Projects with `GenerateDocumentationFile` and without `IsTestProject` are selected.
-* Projects must not use `TargetFrameworks` (only `TargetFramework`, singular).
+* If Projects use `TargetFrameworks` (not `TargetFramework`, singular) only the firts target framework will be used to build the docs.
 
 ```text
     <PropertyGroup>
