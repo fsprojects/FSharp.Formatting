@@ -33,7 +33,7 @@ This page demonstrates how to use `FSharp.Formatting.CodeFormat` to tokenize
 F# source code, obtain information about the source code (mainly tooltips
 from the type-checker) and how to turn the code into a nicely formatted HTML.
 
-First, we need to load the assembly and open necessary namespaces:
+First, we need to load the assembly and open the necessary namespaces:
 *)
 
 open FSharp.Formatting.CodeFormat
@@ -81,7 +81,7 @@ as those used on [fssnip.net](http://www.fssnip.net) as documented in the
 Working with returned tokens
 ----------------------------
 
-Each returned snippet is essentially just a collection of lines and each line
+Each returned snippet is essentially just a collection of lines, and each line
 consists of a sequence of tokens. The following snippet prints basic information
 about the tokens of our sample snippet:
 *)
@@ -106,8 +106,8 @@ for (Line (_, tokens)) in lines do
 
 (**
 The `TokenSpan.Token` is the most important kind of token. It consists of a kind
-(identifier, keyword, etc.), the original F# code and tool tip information.
-The tool tip is further formatted using a simple document format, but we simply
+(identifier, keyword, etc.), the original F# code and tooltip information.
+The tooltip is further formatted using a simple document format, but we simply
 print the value using the F# pretty printing, so the result looks as follows:
 
     let hello[Literal "val hello : unit -> unit"; ...] () =
@@ -165,6 +165,6 @@ If the input contains multiple snippets separated using the `//[snippet:...]` co
 *)
 
 (**
-then the formatter returns multiple HTML blocks. However, the generated tool tips
+then the formatter returns multiple HTML blocks. However, the generated tooltips
 are shared by all snippets (to save space) and so they are returned separately.
 *)

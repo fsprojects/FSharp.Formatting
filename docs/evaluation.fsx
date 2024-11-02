@@ -58,7 +58,7 @@ To include the meta output of F# Interactive processing such as type signatures 
 
     (*** include-fsi-output ***)
 
-To include both console otuput and F# Interactive output blended use `(*** include-fsi-merged-output ***)`.
+To include both console output and F# Interactive output blended use `(*** include-fsi-merged-output ***)`.
 
     let test = 40 + 4
     (*** include-fsi-merged-output ***)
@@ -125,7 +125,7 @@ Literate.ToHtml(doc)
 (**
 When the `fsiEvaluator` parameter is specified, the script is evaluated and so you
 can use additional commands such as `include-value`. When the evaluator is *not* specified,
-it is not created automatically and so the functionality is not available (this way,
+it is not created automatically, so the functionality is not available (this way,
 you won't accidentally run unexpected code!)
 
 If you specify the `fsiEvaluator` parameter, but don't want a specific snippet to be evaluated
@@ -136,14 +136,14 @@ The constructor of `cref:T:FSharp.Formatting.Literate.Evaluation.FsiEvaluator` t
 be used to specify, for example, defined symbols and other attributes for F# Interactive.
 
 You can also subscribe to the `EvaluationFailed` event which is fired whenever the evaluation
-of an expression fails. You can use that to do tests that verify that all off the code in your
+of an expression fails. You can use that to do tests that verify that all of the code in your
 documentation executes without errors.
 
 F# Formatting as a Library: Custom formatting functions
 ---------------------------
 
 As mentioned earlier, values are formatted using a simple `"%A"` formatter by default.
-However, you can specify a formatting function that provides a nicer formatting for values
+However, you can specify a formatting function that provides nicer formatting for values
 of certain types. For example, let's say that we would want to format F# lists such as
 `[1; 2; 3]` as HTML ordered lists `<ol>`.
 
@@ -158,7 +158,7 @@ fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
     if ty.IsGenericType
        && ty.GetGenericTypeDefinition() = typedefof<list<_>> then
         let items =
-            // Get items as objects and create paragraph for each item
+            // Get items as objects and create a paragraph for each item
             [ for it in Seq.cast<obj> (unbox o) -> [ Paragraph([ Literal(it.ToString(), None) ], None) ] ]
         // Return option value (success) with ordered list
         Some [ ListBlock(MarkdownListKind.Ordered, items, None) ]
@@ -166,10 +166,10 @@ fsiEvaluator.RegisterTransformation(fun (o, ty, _executionCount) ->
         None)
 (**
 
-The function is called with two arguments - `o` is the value to be formatted and `ty`
+The function is called with two arguments - `o` is the value to be formatted, and `ty`
 is the static type of the value (as inferred by the F# compiler). The sample checks
-that the type of the value is a list (containing values of any type) and then it
-casts all values in the list to `obj` (for simplicity). Then we generate Markdown
+that the type of the value is a list (containing values of any type), and then it
+casts all values in the list to `obj` (for simplicity). Then, we generate Markdown
 blocks representing an ordered list. This means that the code will work for both
 LaTeX and HTML formatting - but if you only need one, you can simply produce HTML and
 embed it in `InlineHtmlBlock`.

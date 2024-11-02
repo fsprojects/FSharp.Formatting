@@ -23,7 +23,7 @@ After we've installed the tool, we can run `dotnet fsdocs --help` and see the av
 Both `build` and `watch` will generate the documentation for a solution and an input folder.  
 The default folder for `--input` is the `./docs` folder, relative to the current working directory.
 
-Typically your project will be structured like:
+Typically, your project will be structured like this:
 
 ```
 /repository-root
@@ -36,7 +36,7 @@ Typically your project will be structured like:
     ./Project2/Project2.fsproj
 ```
 
-It is recommended to have a single solution at the root. In some editors, it is more convenient to open a solution at the root, to easily manipulate any file in root repository folder.  
+It is recommended to have a single solution at the root. In some editors, it is more convenient to open a solution at the root, to easily manipulate any file in the root repository folder.  
 When users clone your repository locally, they cannot be confused on how they need to open the project in their IDE.
 
 ⚠️ Please avoid putting your solution in the `src` folder. When we open that solution, it can be more difficult to edit files in the `docs` folder, as we can sometimes only see the `src` folder.
@@ -134,7 +134,7 @@ Deploy to Pages from GitHub Actions must be enabled in the repository settings:
 ![Enable deploy from Actions](./content/img/github-pages-settings.png)
 
 The typical flow is to publish your documentation after a release or after new commits were added to the default branch.  
-Let's create a very basic Action that will deploy our website after pushing to main:
+Let's create a very basic Action that will deploy our website after pushing to the main:
 
 Create a file `.github/workflows/docs.yml`:
 
@@ -260,4 +260,4 @@ jobs:
       run: dotnet fsdocs build
 ```
 
-⚠️ Also never trust any update to `fsdocs` blindly, always check the [release notes](https://github.com/fsprojects/FSharp.Formatting/blob/main/RELEASE_NOTES.md) to see if there are any breaking changes.
+⚠️ Also, never trust any update to `fsdocs` blindly, always check the [release notes](https://github.com/fsprojects/FSharp.Formatting/blob/main/RELEASE_NOTES.md) to see if there are any breaking changes.

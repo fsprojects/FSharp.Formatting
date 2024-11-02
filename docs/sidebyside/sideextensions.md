@@ -9,7 +9,7 @@ Example: Using the Markdown Extensions for LaTeX
 
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script>
 
-To use LaTex extension, you need add javascript
+To use LaTex extension, you need to add javascript
 link to [MathJax](http://www.mathjax.org/) in
 your template or inside a `_head.html` file.
 
@@ -21,7 +21,7 @@ To use inline LaTex, eclose LaTex code with `$`:
 $ k_{n+1} = n^2 + k_n^2 - k_{n-1} $. Alternatively,
 you can also use `$$`.
 
-To use block LaTex, start a new parapgraph, with
+To use block LaTex, start a new paragraph, with
 the first line marked as `$$$` (no close `$$$`):
 
 $$$
