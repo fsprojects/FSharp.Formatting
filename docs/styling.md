@@ -38,7 +38,7 @@ this site.
 
 * Uses no styling parameters except those extracted from the project files.
 
-For your project, you don't need any of these files. However you can add them if you wish, though if
+For your project, you don't need any of these files. However, you can add them if you wish, though if
 you adjust them there is no guarantee that your template will continue to work with future versions of F# Formatting.
 
 ## Customizing via Styling Parameters
@@ -157,7 +157,7 @@ with the existing default template.
 ## Customizing menu items by template
 
 You can add advanced styling to the sidebar generated menu items by creating a new template for it.
-`fsdoc` will look for menu templates in the `--input` folder which defaults to the docs folder.
+`fsdoc` will look for menu templates in the `--input` folder, which defaults to the docs folder.
 
 To customize the generated menu-item headers, use file `_menu_template.html` with starting template:
 
@@ -168,13 +168,13 @@ To customize the generated menu-item headers, use file `_menu_template.html` wit
 {{fsdocs-menu-items}}
 ```
 
-Similarly, to customize the individual menu item list, use file `_menu-item_template.html` with starting template:
+Similarly, to customize the individual menu item list, use file `_menu-item_template.html` with the starting template:
 
 ```html
 <li class="nav-item"><a href="{{fsdocs-menu-item-link}}" class="nav-link">{{fsdocs-menu-item-content}}</a></li>
 ```
 
-Do note that files need to be added prior running or won't be generated.
+Do note that files must be added before running, or won't be generated.
 In case you want to get a unique identifier for a header or menu item, you can use `{{fsdocs-menu-header-id}}`
 and `{{fsdocs-menu-item-id}}`, respectively.
 
@@ -193,7 +193,7 @@ The `FSharp.Formatting.ApiDocs` namespace includes a `GenerateModel` that captur
 the results of documentation preparation in `ApiDocsModel` and allows you to
 generate your own site using your own code.
 
-> NOTE: The ApiDocsModel API is undergoing change and improvement and there is no guarantee that your bespoke site
+> NOTE: The ApiDocsModel API is undergoing change and improvement, and there is no guarantee that your bespoke site
 > generation will continue to work
 > with future versions of F# Formatting.
 

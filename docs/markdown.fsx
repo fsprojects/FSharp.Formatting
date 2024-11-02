@@ -28,10 +28,10 @@ Markdown parser
 ==============================
 
 This page demonstrates how to use `FSharp.Formatting.Markdown` to parse a Markdown
-document, process the obtained document representation and
+document, process the obtained document representation, and
 how to turn the code into a nicely formatted HTML.
 
-First, we need to load the assembly and open necessary namespaces:
+First, we need to load the assembly and open the necessary namespaces:
 *)
 
 open FSharp.Formatting.Markdown
@@ -158,7 +158,7 @@ Some span nodes (like emphasis) can contain other formatting, so we need to recu
 process children. This is done by matching against `MarkdownPatterns.SpanNodes` which is an active
 pattern that recognizes any node with children. The library also provides a _function_
 named `MarkdownPatterns.SpanNode` that can be used to reconstruct the same node (when you want
-to transform document). This is similar to how the `ExprShape` module for working with
+to transform a document). This is similar to how the `ExprShape` module for working with
 F# quotations works.
 
 The function `collectParLinks` processes paragraphs - a paragraph cannot directly be a

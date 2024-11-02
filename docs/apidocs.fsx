@@ -61,7 +61,7 @@ The HTML is built by instantiating a template. The template used is the first of
 
 * The default template
 
-Usually the same template can be used as for [other content](content.html).
+Usually, the same template can be used as for [other content](content.html).
 
 ## Classic XML Doc Comments
 
@@ -94,7 +94,7 @@ In addition, you may also use the [Recommended XML doc extensions for F# documen
 * `\(...\)` for inline math and `$$...$$` and `\[...\]`for math environments, see http://docs.mathjax.org.
   Some escaping of characters (e.g. `&lt;`, `&gt;`) may be needed to form valid XML
 
-An example of an XML documentation comment, assuming the code is in namespace `TheNamespace`:
+An example of an XML documentation comment, assuming the code is in the namespace `TheNamespace`:
 *)
 /// <summary>
 ///   A module
@@ -211,7 +211,7 @@ If the member cannot be found, a link to the containing module/type will be used
 (**
 ### Classic XMl Doc Comments: Excluding APIs from the docs
 
-If you want to exclude modules or functions from the API docs you can use the `<exclude/>` tag.
+If you want to exclude modules or functions from the API docs, you can use the `<exclude/>` tag.
 It needs to be set on a separate triple-slashed line, and can either appear on its own or as part
 of an existing `<summary>` (for example, you may wish to hide existing documentation while it's in progress).
 The `<exclude/>` tag can be the first or last line in these cases.
@@ -304,7 +304,7 @@ You can do this in two different ways:
 * Add a [markdown inline link](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links) were the link
 title is the name of the type you want to link.
 
-      /// this will generate a link to [Foo.Bar] documentation
+      /// This will generate a link to [Foo.Bar] documentation
 
 * Add a [Markdown inline code](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#code) (using
 back-ticks) where the code is the name of the type you want to link.
@@ -312,8 +312,8 @@ back-ticks) where the code is the name of the type you want to link.
       /// This will also generate a link to `Foo.Bar` documentation
 
 You can use either the full name (including namespace and module) or the simple name of a type.
-If more than one type is found with the same name the link will not be generated.
-If a type with the given name is not found in the same assembly the link will not be generated.
+If more than one type is found with the same name, the link will not be generated.
+If a type with the given name is not found in the same assembly, the link will not be generated.
 *)
 
 /// Contains two types [Bar] and [Foo.Baz]
@@ -353,7 +353,7 @@ module Bar =
     let a = 42
 
 (**
-Example as first line:
+Example as the first line:
 *)
 
 /// [omit]
@@ -366,8 +366,8 @@ module Bar2 =
 
 ## Building library documentation programmatically
 
-You can build library documentation programatically using the functionality
-in the `cref:T:FSharp.Formatting.ApiDocs.ApiDocs` type. To do this, load the assembly and open necessary namespaces:
+You can build library documentation programmatically using the functionality
+in the `cref:T:FSharp.Formatting.ApiDocs.ApiDocs` type. To do this, load the assembly and open the necessary namespaces:
 *)
 
 #r "FSharp.Formatting.ApiDocs.dll"
@@ -414,7 +414,7 @@ ApiDocs.GenerateHtml(
 (**
 or use `libDirs` to include all assemblies from an entire folder.
 Tip: A combination of `<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>` in the fsproj file and setting `libDirs` to the compilation output path leads to only one folder with all dependencies referenced.
-This might be easier especially for large projects with many dependencies.
+This might be easier, especially for large projects with many dependencies.
 *)
 
 ApiDocs.GenerateHtml(
@@ -429,7 +429,7 @@ ApiDocs.GenerateHtml(
 (**
 ## Rebasing Links
 
-The `root` parameter is used for the base of page and image links in the generated documentation. By default it is derived from the project's `<PackageProjectUrl>` property.
+The `root` parameter is used for the base of page and image links in the generated documentation. By default, it is derived from the project's `<PackageProjectUrl>` property.
 
 In some instances, you may wish to override the value for `root` (perhaps for local testing). To do this, you can use the command-line argument `--parameters root <base>`.
 

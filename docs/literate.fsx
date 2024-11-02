@@ -51,7 +51,7 @@ F# script file with `.fsx` extension. Most of the features should be quite self-
     List.sum numbers
     (*** include-it ***)
 
-The F# script files is processed as follows:
+The F# script files are processed as follows:
 
 - A multi-line comment starting with `(**` and ending with `*)` is
   turned into text and is processed using the F# Markdown processor
@@ -140,7 +140,7 @@ commands. Some of them are demonstrated in the following example:
         Console.WriteLine("Hello world!");
 
 When processing the document, all F# snippets are copied to a separate file that
-is type-checked using the F# compiler (to obtain colours and tool tips).
+is type-checked using the F# compiler (to obtain colours and tooltips).
 The commands are written on the first line of the named snippet, wrapped in `[...]`:
 
  - The `hide` command specifies that the F# snippet should not be included in the
@@ -190,7 +190,7 @@ The LaTeX will also be used in HTML and iPython notebook outputs.
 
 ### Making literate scripts work for different outputs
 
-Literate scripts and markdown can by turned into LaTex, Python Notebooks and F# scripts.
+Literate scripts and markdown can be turned into LaTex, Python Notebooks and F# scripts.
 
 A header may be needed to get the code to load, a typical example is this:
 
@@ -212,9 +212,9 @@ A header may be needed to get the code to load, a typical example is this:
 #endif // IPYNB
 ```
 
-### Processing literate files programatically
+### Processing literate files programmatically
 
-To process file Use the two static methods to turn single documents into HTML
+To process files use the two static methods to turn single documents into HTML
 as follows using functionality from the `cref:T:FSharp.Formatting.Literate.Literate` type:
 *)
 open System.IO
@@ -233,7 +233,7 @@ Literate.ConvertMarkdownFile(doc, template)
 
 (**
 
-The following sample also uses optional parameter `parameters` to specify additional
+The following sample also uses the optional parameter `parameters` to specify additional
 keywords that will be replaced in the template file (this matches the `template-project.html`
 file which is included as a sample in the package):
 *)
