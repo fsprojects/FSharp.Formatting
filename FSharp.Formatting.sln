@@ -128,6 +128,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{FAD5
 		docs\content\fsdocs-theme-set-dark.js = docs\content\fsdocs-theme-set-dark.js
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{DD76B368-3C5C-4E4A-B3B2-812E950BD497}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FSharp.ApiDocs.Tests", "FSharp.ApiDocs.Tests", "{DE36A7E8-8F98-4763-B859-F452BCA9A675}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{DFDABFED-63CB-46D1-B27D-BF674A820903}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ReferenceProject", "tests\FSharp.ApiDocs.Tests\files\ReferenceProject\ReferenceProject.fsproj", "{CDDD197C-6F51-4BDC-A2C2-87622A784A72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +238,10 @@ Global
 		{CB78F0EA-8005-4735-A02C-B86CEDC29D85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB78F0EA-8005-4735-A02C-B86CEDC29D85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB78F0EA-8005-4735-A02C-B86CEDC29D85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDDD197C-6F51-4BDC-A2C2-87622A784A72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDDD197C-6F51-4BDC-A2C2-87622A784A72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDDD197C-6F51-4BDC-A2C2-87622A784A72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDDD197C-6F51-4BDC-A2C2-87622A784A72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -265,6 +277,9 @@ Global
 		{188DC91F-2202-4495-ACD2-542D7C30364E} = {C7804F57-7FC6-4CF6-BDF6-127D6F9EBEA6}
 		{FAD5C374-4748-4A3D-A435-FFA425916F3A} = {312E452A-1068-4804-89E7-0AFBAD5F885F}
 		{52B949AA-A3F7-4894-B713-804BAEB71118} = {4AE0198D-EDE5-40B0-A5CD-FC7B6F891D94}
+		{DE36A7E8-8F98-4763-B859-F452BCA9A675} = {DD76B368-3C5C-4E4A-B3B2-812E950BD497}
+		{DFDABFED-63CB-46D1-B27D-BF674A820903} = {DE36A7E8-8F98-4763-B859-F452BCA9A675}
+		{CDDD197C-6F51-4BDC-A2C2-87622A784A72} = {DFDABFED-63CB-46D1-B27D-BF674A820903}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {76F121F8-70E0-49FB-9ADF-C7B660C0EB67}
