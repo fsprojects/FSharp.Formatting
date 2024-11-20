@@ -234,15 +234,8 @@ type Literate private () =
     /// <param name="rootInputFolder"></param>
     /// <param name="onError"></param>
     static member ParsePynbString
-        (
-            content,
-            ?path,
-            ?definedSymbols,
-            ?references,
-            ?parseOptions,
-            ?rootInputFolder,
-            ?onError
-        ) =
+        (content, ?path, ?definedSymbols, ?references, ?parseOptions, ?rootInputFolder, ?onError)
+        =
         let onError = defaultArg onError ignore
         let ctx = parsingContext None None definedSymbols onError
 
@@ -361,15 +354,7 @@ type Literate private () =
 
     /// Format the literate document as Latex without using a template
     static member ToLatex
-        (
-            doc: LiterateDocument,
-            ?prefix,
-            ?lineNumbers,
-            ?generateAnchors,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver
-        ) =
+        (doc: LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions, ?crefResolver, ?mdlinkResolver) =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 

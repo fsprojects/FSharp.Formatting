@@ -1,5 +1,10 @@
 # Changelog
 
+## 21.0.0-beta-004 - 2024-11-20
+
+### Changed
+* Update FCS to 43.9.100. [#945](https://github.com/fsprojects/FSharp.Formatting/pull/945)
+
 ## 21.0.0-beta-003 - 2024-08-06
 
 ### Changed

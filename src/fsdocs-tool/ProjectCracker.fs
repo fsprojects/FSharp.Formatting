@@ -408,15 +408,8 @@ module Crack =
         | Error e -> raise (exn ("cannot load the sln", e))
 
     let crackProjects
-        (
-            onError,
-            extraMsbuildProperties,
-            userRoot,
-            userCollectionName,
-            userParameters,
-            projects,
-            ignoreProjects
-        ) =
+        (onError, extraMsbuildProperties, userRoot, userCollectionName, userParameters, projects, ignoreProjects)
+        =
         let slnDir = Path.GetFullPath "."
 
         //printfn "x.projects = %A" x.projects

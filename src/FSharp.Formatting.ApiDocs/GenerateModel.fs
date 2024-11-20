@@ -2912,15 +2912,8 @@ type ApiDocInput =
     }
 
     static member FromFile
-        (
-            assemblyPath: string,
-            ?mdcomments,
-            ?substitutions,
-            ?sourceRepo,
-            ?sourceFolder,
-            ?publicOnly,
-            ?warn
-        ) =
+        (assemblyPath: string, ?mdcomments, ?substitutions, ?sourceRepo, ?sourceFolder, ?publicOnly, ?warn)
+        =
         { Path = assemblyPath
           XmlFile = None
           SourceFolder = sourceFolder
