@@ -134,12 +134,8 @@ type CheckResults =
 type FSharpChecker with
 
     member this.ParseAndCheckDocument
-        (
-            filePath: string,
-            sourceText: string,
-            options: FSharpProjectOptions,
-            allowStaleResults: bool
-        ) : Async<(FSharpParseFileResults * ParsedInput * FSharpCheckFileResults) option> =
+        (filePath: string, sourceText: string, options: FSharpProjectOptions, allowStaleResults: bool)
+        : Async<(FSharpParseFileResults * ParsedInput * FSharpCheckFileResults) option> =
         let parseAndCheckFile =
             async {
                 let! parseResults, checkFileAnswer =

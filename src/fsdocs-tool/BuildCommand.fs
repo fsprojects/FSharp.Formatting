@@ -687,11 +687,8 @@ type internal DocContent
                    | _ -> () |]
 
     member _.GetNavigationEntries
-        (
-            input,
-            docModels: (string * bool * LiterateDocModel) list,
-            currentPagePath: string option
-        ) =
+        (input, docModels: (string * bool * LiterateDocModel) list, currentPagePath: string option)
+        =
         let modelsForList =
             [ for thing in docModels do
                   match thing with
