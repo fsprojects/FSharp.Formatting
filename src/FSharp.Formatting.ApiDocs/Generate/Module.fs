@@ -79,6 +79,8 @@ let private renderValueOrFunctions (entities: ApiDocMember list) (linkGenerator:
                                          compiledName)) =
                     entity.Details
 
+                !!usageHtml.HtmlText
+
                 let returnHtml =
                     // TODO: Parse the return type information from
                     // let x = entity.Symbol :?> FSharpMemberOrFunctionOrValue

@@ -14,7 +14,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="/">
     <meta name="twitter:title" content="Functions (ReferenceProject)">
-    
+
     <title>Functions (ReferenceProject) | ReferenceProject</title>
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
@@ -26,7 +26,7 @@
     <link href="/content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
     <link href="/content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
     <!-- Load prism.js -->
-    <!-- 
+    <!--
         TODO:
         We probably want to add the auto-loader plugin to make the initial prism.js as small as possible
         This plugin allows to load language on demand, right now I loaded the most default languages from prism.js
@@ -35,8 +35,8 @@
     -->
     <link href="/content/prism/prism.css" rel="stylesheet" type="text/css"/>
     <script type="module" src="/content/prism/prism.js"></script>
-    
-    
+
+
 <script type="text/javascript">
     var wsUri = "ws://localhost:8901/websocket";
     function init()
@@ -81,10 +81,10 @@
                     Notes</a></li>
                 <li class="nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
                     Repository</a></li>
-                
+
                 <li class="nav-header">
   API Reference
-</li>             
+</li>
 <li class="nav-item">
   <a class="nav-link" href="/reference/index.html">
     All Namespaces
@@ -115,10 +115,10 @@
             Notes</a></li>
         <li class="nav-item"><a class="nav-link" href="https://github.com/fsprojects/FSharp.Formatting/">Source
             Repository</a></li>
-        
+
         <li class="nav-header">
   API Reference
-</li>             
+</li>
 <li class="nav-item">
   <a class="nav-link" href="/reference/index.html">
     All Namespaces
@@ -134,7 +134,7 @@
   </h2>
   <div>
     <strong>
-      Namespace: 
+      Namespace:
     </strong>
     <a href="/reference/referenceproject.html">
       ReferenceProject
@@ -143,15 +143,18 @@
   <strong>
     Functions and values
   </strong>
-  <div class="fsdocs-block">
-    <div class="actions-buttons"></div>
-    <div class="fsdocs-api-code">
-      <span><div><span class="keyword">val</span>&nbsp;<a href="#add" id="add">add</a>&nbsp;<span class="keyword">:</span></div></span>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;int&nbsp;<span class="keyword">-></span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;b&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;int&nbsp;</div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">-></span>&nbsp;int</div>
-    </div>
-    <p>This function calculates the sum of two numbers.</p>
+
+  <details>
+    <summary>
+      <div class="fsdocs-api-code">
+        <span><div><span class="keyword">val</span>&nbsp;<a href="#add" id="add">add</a>&nbsp;<span class="keyword">:</span></div></span>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;int&nbsp;<span class="keyword">-></span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;b&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;int&nbsp;</div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">-></span>&nbsp;int</div>
+      </div>
+    </summary>
+    <article>
+        <p>This function calculates the sum of two numbers.</p>
 
     <p>
       <strong>
@@ -175,26 +178,44 @@
     </p>
     <p>The sum of the two numbers.</p>
 
-  </div>
-  <div class="fsdocs-block">
-    <div class="actions-buttons"></div>
-    <div class="fsdocs-api-code">
-      <span><div><span class="keyword">val</span>&nbsp;<a href="#emptyFunction" id="emptyFunction">emptyFunction</a>&nbsp;<span class="keyword">:</span></div></span>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;unit&nbsp;</div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">-></span>&nbsp;unit</div>
+    </article>
+  </details>
+
+  <details>
+    <summary>registerTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): DisposableregisterTextEditorCommand(command: string, callback: (textEditor: TextEditor, edit: TextEditorEdit, args: any[]) => void, thisArg?: any): Disposable</summary>
+    <div class="details-content">
+      <p>Registers a text editor command that can be invoked via a keyboard shortcut, a menu item, an action, or directly.</p>
+      <p>Text editor commands are different from ordinary <a href="#">commands</a> as they only execute when there is an active editor.</p>
     </div>
-  </div>
-  <div class="fsdocs-block">
-    <div class="actions-buttons"></div>
-    <div class="fsdocs-api-code">
-      <span><div><span class="keyword">val</span>&nbsp;<a href="#tupleArguments" id="tupleArguments">tupleArguments</a>&nbsp;<span class="keyword">:</span></div></span>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;int&nbsp;<span class="keyword">-></span></div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:</span>&nbsp;int&nbsp;</div>
-      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">-></span>&nbsp;int</div>
+    <article>
+        <p>This function calculates the sum of two numbers.</p>
+
+    <p>
+      <strong>
+        Parameters
+      </strong>
+    </p>
+    <div class="fsdocs-doc-parameter">
+      <span><div class="fsdocs-api-code"><span class="property">a</span>&nbsp;<span class="keyword">:</span>&nbsp;int</div></span>
+      <p>The first number.</p>
+
     </div>
-  </div>
-</div>
-        
+    <div class="fsdocs-doc-parameter">
+      <span><div class="fsdocs-api-code"><span class="property">b</span>&nbsp;<span class="keyword">:</span>&nbsp;int</div></span>
+      <p>The second number.</p>
+
+    </div>
+    <p>
+      <strong>
+        Returns
+      </strong>
+    </p>
+    <p>The sum of the two numbers.</p>
+
+    </article>
+  </details>
+
+
     </div>
 </main>
 <aside id="fsdocs-page-menu">
