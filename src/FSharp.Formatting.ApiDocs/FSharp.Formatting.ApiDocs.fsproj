@@ -10,8 +10,14 @@
     <Compile Include="..\Common\StringParsing.fs">
       <Link>Common\StringParsing.fs</Link>
     </Compile>
+    <Compile Include="Prelude.fs" />
+    <Compile Include="CommentFormatter.fs" />
     <Compile Include="GenerateModel.fs" />
     <Compile Include="Categorise.fs" />
+    <Compile Include="GenerateSignature.fs" />
+    <Compile Include="Generate/Common.fs" />
+    <Compile Include="Generate/Module.fs" />
+    <Compile Include="Generate/Record.fs" />
     <Compile Include="GenerateHtml.fs" />
     <Compile Include="GenerateMarkdown.fs" />
     <Compile Include="GenerateSearchIndex.fs" />

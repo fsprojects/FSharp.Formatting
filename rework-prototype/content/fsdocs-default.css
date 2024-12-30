@@ -1274,6 +1274,7 @@ span[onmouseout] {
     color: var(--text-color);
     cursor: pointer;
     height: var(--font-500);
+    width: var(--font-500);
     margin: 0 var(--spacing-50);
 
     &:hover {
@@ -1462,15 +1463,15 @@ dialog {
 
 .fsdocs-block {
     position: relative;
-    /* padding: 1rem; */
+    padding: 1rem;
 
-    /* &:not(:first-child) {
+    &:not(:first-child) {
         border-top: 1px solid var(--shadow-color);
-    } */
+    }
 
     .actions-buttons {
         /* Buttons are in the top right of the current block */
-        /* position: absolute; */
+        position: absolute;
         top: 1rem;
         right: 1rem;
 
@@ -1486,29 +1487,13 @@ dialog {
 summary {
     list-style: none;
     cursor: pointer;
-    /* Make so the code usage take all the possible place
-        and push the actions-buttons at the far end horizontally
-    */
     display: flex;
-    justify-content: space-between;
-    padding: 1rem;
+    border-radius: 5px 5px 0 0;
 
-    border-radius: var(--radius);
-    background-color: hsl(0, 0%, 100%);
-
-    &:hover {
-        background-color: rgba(55, 50, 119, 0.06);
-    }
-
-    /*
-        Code inside of summary have a specific style
-     */
-    code {
+    .fsdocs-api-code {
         width: 100%;
-        padding: 1rem;
+        padding: 0.5rem;
         margin-bottom: 0;
-        border-radius: inherit;
-        background-color: inherit;
     }
 }
 
@@ -1516,10 +1501,9 @@ details {
     &::before {
         position: relative;
         border-width: 7.8px 7.8px 7.8px 10px;
-        top: 36px;
+        top: 25px;
         left: -20px;
-        border-color: hsla(0, 0%, 0%, 0) hsla(0, 0%, 0%, 0) hsla(0, 0%, 0%, 0)
-            hsla(0, 0%, 65%, 1);
+        border-color: hsla(0, 0%, 0%, 0) hsla(0, 0%, 0%, 0) hsla(0, 0%, 0%, 0) hsla(0, 0%, 65%, 1);
         border-left-color: hsla(0, 0%, 83%, 1);
         display: block;
         content: "";
@@ -1531,31 +1515,23 @@ details {
 
 details[open] {
     summary {
-        background-color: rgba(55, 50, 119, 0.12);
-        border-radius: var(--radius) var(--radius) 0 0;
-
-        code {
-            background-color: inherit;
-        }
+        background-color: rgba(55,50,119,.12);
     }
 
     &::before {
-        border-color: hsla(0, 0%, 0%, 0) hsla(240, 0%, 39%, 1)
-            hsla(0, 0%, 0%, 0) hsla(0, 0%, 0%, 0);
+        border-color: hsla(0, 0%, 0%, 0) hsla(240, 0%, 39%, 1) hsla(0, 0%, 0%, 0) hsla(0, 0%, 0%, 0);
         border-width: 11.7px 11.7px 0 14.3px;
         left: -39px;
-        top: 33px;
     }
 }
 
 details {
     /* background-color: #a2bceb; */
 
-    margin-bottom: 1rem;
+    margin-bottom: 4rem;
 }
 
 details > article {
-    background-color: #ffffff;
+    background-color: #92c5c9;
     padding: 1rem;
-    border-radius: 0 0 var(--radius) var(--radius);
 }

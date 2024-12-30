@@ -3,6 +3,10 @@ root = true
 
 [*]
 end_of_line = lf
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
 
 [*.{fs,fsi,fsx}]
 charset = utf-8
@@ -16,5 +20,24 @@ fsharp_max_array_or_list_width=120
 fsharp_max_infix_operator_expression=80
 fsharp_max_value_binding_width=120
 
-[GenerateHtml.fs]
+[{
+    src/FSharp.Formatting.ApiDocs/GenerateHtml.fs
+    src/FSharp.Formatting.ApiDocs/Generate/**.fs
+    ,tests/FSharp.ApiDocs.Tests/files/ReferenceProject/**/*.fs}]
+# Specific settings for "View/HTML" related files
+# It makes the code more consistent in term of spacing and indentation
 fsharp_experimental_elmish = true
+fsharp_array_or_list_multiline_formatter = number_of_items
+fsharp_max_array_or_list_number_of_items = 0
+
+# In general, the following settings are what I use for any F# project.
+# I didn't apply them globally yet because it will affect all the projects and I want to 
+# have confirmation from the team before doing so.
+fsharp_alternative_long_member_definitions = true
+fsharp_multi_line_lambda_closing_newline = true
+fsharp_multiline_bracket_style = aligned
+fsharp_keep_max_number_of_blank_lines = 1
+fsharp_align_function_signature_to_indentation = true
+fsharp_max_if_then_else_short_width = 0
+fsharp_max_record_number_of_items = 0 # Keep records consistent
+fsharp_record_multiline_formatter = number_of_items

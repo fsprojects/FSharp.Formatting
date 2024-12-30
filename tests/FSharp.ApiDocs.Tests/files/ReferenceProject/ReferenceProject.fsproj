@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>library</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <FsDocsSourceFolder>$(MSBuildThisFileDirectory)</FsDocsSourceFolder>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="GlobalReferences.fs" />
+        <Compile Include="Tuples.fs" />
+        <Compile Include="DiscriminatedUnions.fs" />
+        <Compile Include="Functions.fs" />
+        <Compile Include="Interfaces.fs" />
+        <Compile Include="Classes.fs" />
+        <Compile Include="Records.fs" />
+        <Compile Include="Modules.fs" />
+        <Compile Include="Namespaces.fs" />
+    </ItemGroup>
+
+</Project>

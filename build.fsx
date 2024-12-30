@@ -85,4 +85,38 @@ pipeline "Verify" {
     runIfOnlySpecified true
 }
 
+let referenceProjectDir = "./tests/FSharp.ApiDocs.Tests/files/ReferenceProject"
+
+// TODO: Revisit to see how we can use `dotnet watch` to run a local version of the tool
+// against ReferenceProject
+// dotnet watch change the CWD and fsdocs-tool does not seems to allow changing the CWD
+pipeline "APIDocsReference" {
+
+    stage "Clean up" {
+        // Remove temporary files
+        run (fun _ ->
+            Shell.cleanDirs [
+                "./tests/FSharp.ApiDocs.Tests/files/ReferenceProject/.fsdocs"
+                "./tests/FSharp.ApiDocs.Tests/files/ReferenceProject/.tmp"
+                "./tests/FSharp.ApiDocs.Tests/files/ReferenceProject/.bin"
+                "./tests/FSharp.ApiDocs.Tests/files/ReferenceProject/.obj"
+            ]
+        )
+    }
+
+    stage "Build project"  {
+        // Make sure we have the required information for generating the API docs
+        workingDir referenceProjectDir
+        run "dotnet build"
+    }
+
+    stage "Generate API Docs" {
+        // Run a local version of the tool against the ReferenceProject
+        workingDir referenceProjectDir
+        run "dotnet run --project ../../../../src/fsdocs-tool -- watch --nolaunch --projects ReferenceProject.fsproj --sourcefolder ../../../../src/fsdocs-tool/../../tests/FSharp.ApiDocs.Tests/files/ReferenceProject"
+    }
+
+    runIfOnlySpecified
+}
+
 tryPrintPipelineCommandHelp ()
