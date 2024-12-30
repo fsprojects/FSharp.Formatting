@@ -6,7 +6,7 @@ module ReferenceProject.Functions
 /// <param name="a">The first number.</param>
 /// <param name="b">The second number.</param>
 /// <returns>The sum of the two numbers.</returns>
-let add (a: int) (b: int) = a + b
+let add (a: int) b (c : System.Action) = a + b
 
 let emptyFunction () = ()
 

@@ -79,8 +79,6 @@ let private renderValueOrFunctions (entities: ApiDocMember list) (linkGenerator:
                                          compiledName)) =
                     entity.Details
 
-                !!usageHtml.HtmlText
-
                 let returnHtml =
                     // TODO: Parse the return type information from
                     // let x = entity.Symbol :?> FSharpMemberOrFunctionOrValue
@@ -106,131 +104,91 @@ let private renderValueOrFunctions (entities: ApiDocMember list) (linkGenerator:
                     Class "fsdocs-block"
                 ] [
 
-                    div [
-                        Class "actions-buttons"
-                    ] [
-                    // yield! sourceLink entity.SourceLocation
-                    // yield! copyXmlSigIconForSymbol entity.Symbol
-                    // yield! copyXmlSigIconForSymbolMarkdown entity.Symbol
+                    details [] [
+                        summary [] [
+                            div [ Class "usage"] [
+                                !!usageHtml.HtmlText
+                            ]
+
+                            div [
+                                Class "actions-buttons"
+                            ] [
+                                a [
+                                    Href "dw"
+                                    Class "fsdocs-source-link"
+                                    HtmlProperties.Title "Source on GitHub"
+                                ] [
+                                    iconifyIcon [
+                                        Icon "ri:github-fill"
+                                        Height "24"
+                                        Width "24"
+                                    ]
+                                ]
+                            // yield! copyXmlSigIconForSymbol entity.Symbol
+                            // yield! copyXmlSigIconForSymbolMarkdown entity.Symbol
+                            ]
+                        ]
+                        article [] [
+
+                            match entity.Comment.Xml with
+                            | Some xmlComment ->
+                                let comment = xmlComment.ToString()
+                                !!(CommentFormatter.formatSummaryOnly comment)
+
+                                if not paramTypesInfo.Infos.IsEmpty then
+                                    p [] [
+                                        strong [] [
+                                            !! "Parameters"
+                                        ]
+                                    ]
+
+                                    for (name, returnType) in paramTypesInfo.Infos do
+                                        let paramDoc =
+                                            CommentFormatter.tryFormatParam name comment
+                                            |> Option.map (fun paramDoc -> !!paramDoc)
+                                            |> Option.defaultValue Html.nothing
+
+                                        div [
+                                            Class "fsdocs-doc-parameter"
+                                        ] [
+                                            [
+                                                TextNode.DivWithClass(
+                                                    "fsdocs-api-code",
+                                                    [
+                                                        TextNode.Property name
+                                                        TextNode.Space
+                                                        TextNode.Colon
+                                                        TextNode.Space
+                                                        returnType
+                                                    ]
+                                                )
+                                            ]
+                                            |> TextNode.Node
+                                            |> TextNode.ToHtmlElement
+
+                                            paramDoc
+                                        ]
+
+                                match CommentFormatter.tryFormatReturnsOnly comment with
+                                | Some returnDoc ->
+                                    p [] [
+                                        strong [] [
+                                            !! "Returns"
+                                        ]
+                                    ]
+
+                                    !!returnDoc
+
+                                | None -> ()
+
+                            // TODO: Should we render a minimal documentation here with the information we have?
+                            // For example, we can render the list of parameters and the return type
+                            // This is to make the documentation more consistent
+                            // However, these minimal information will be rondontant with the information displayed in the signature
+                            | None -> ()
+                        ]
                     ]
 
-                    // This is a value
-                    if paramTypesInfo.Infos.IsEmpty then
-                        div [
-                            Class "fsdocs-api-code"
-                        ] [
-                            div [] [
-                                Html.val'
-                                Html.space
-                                !!entity.Name
-                                Html.space
-                                Html.colon
-                                !!returnHtml
-                            ]
-                        ]
-
-                    // This is a function
-                    else
-
-                        div [
-                            Class "fsdocs-api-code"
-                        ] [
-                            [
-                                TextNode.Div [
-                                    TextNode.Keyword "val"
-                                    TextNode.Space
-                                    TextNode.AnchorWithId($"#{entity.Name}", entity.Name, entity.Name)
-                                    TextNode.Space
-                                    TextNode.Colon
-                                ]
-                            ]
-                            |> TextNode.Node
-                            |> TextNode.ToHtmlElement
-
-                            for index in 0 .. paramTypesInfo.Infos.Length - 1 do
-                                let (name, returnType) = paramTypesInfo.Infos.[index]
-
-                                div [] [
-                                    Html.spaces 4 // Equivalent to 'val '
-                                    !!name
-                                    Html.spaces (paramTypesInfo.MaxNameLength - name.Length + 1) // Complete with space to align ':'
-                                    Html.colon
-                                    Html.space
-                                    !! returnType.HtmlElement.ToMinifiedHtml()
-
-                                    Html.spaces (paramTypesInfo.MaxReturnTypeLength - returnType.Length + 1) // Complete with space to align '->'
-
-                                    // Don't add the arrow for the last parameter
-                                    if index <> paramTypesInfo.Infos.Length - 1 then
-                                        Html.arrow
-                                ]
-                                |> Html.minify
-
-                            div [] [
-                                Html.spaces (4 + paramTypesInfo.MaxNameLength + 1) // Equivalent to 'val ' + the max length of parameter name + ':'
-                                Html.arrow
-                                Html.space
-                                !!returnHtml
-                            ]
-                            |> Html.minify
-                        ]
-
-                    match entity.Comment.Xml with
-                    | Some xmlComment ->
-                        let comment = xmlComment.ToString()
-                        !!(CommentFormatter.formatSummaryOnly comment)
-
-                        if not paramTypesInfo.Infos.IsEmpty then
-                            p [] [
-                                strong [] [
-                                    !! "Parameters"
-                                ]
-                            ]
-
-                            for (name, returnType) in paramTypesInfo.Infos do
-                                let paramDoc =
-                                    CommentFormatter.tryFormatParam name comment
-                                    |> Option.map (fun paramDoc -> !!paramDoc)
-                                    |> Option.defaultValue Html.nothing
-
-                                div [
-                                    Class "fsdocs-doc-parameter"
-                                ] [
-                                    [
-                                        TextNode.DivWithClass(
-                                            "fsdocs-api-code",
-                                            [
-                                                TextNode.Property name
-                                                TextNode.Space
-                                                TextNode.Colon
-                                                TextNode.Space
-                                                returnType
-                                            ]
-                                        )
-                                    ]
-                                    |> TextNode.Node
-                                    |> TextNode.ToHtmlElement
-
-                                    paramDoc
-                                ]
-
-                        match CommentFormatter.tryFormatReturnsOnly comment with
-                        | Some returnDoc ->
-                            p [] [
-                                strong [] [
-                                    !! "Returns"
-                                ]
-                            ]
-
-                            !!returnDoc
-
-                        | None -> ()
-
-                    // TODO: Should we render a minimal documentation here with the information we have?
-                    // For example, we can render the list of parameters and the return type
-                    // This is to make the documentation more consistent
-                    // However, these minimal information will be rondontant with the information displayed in the signature
-                    | None -> ()
                 ]
 
         //   hr []
