@@ -2737,6 +2737,11 @@ module internal SymbolReader =
             let exts, nsdocs2 =
                 readMembers ctx entityUrl ApiDocMemberKind.TypeExtension modul (fun v -> v.IsExtensionMember)
 
+            // `with get and set` syntax is sugar for a mutable field, a get binding and a set binding
+            // This result in duplicated Method Extensions, we use DeclarationLocation to keep only one
+            // See https://github.com/fsprojects/FSharp.Formatting/issues/941
+            let exts = exts |> List.distinctBy (fun m -> m.Symbol.DeclarationLocation)
+
             let pats, nsdocs3 =
                 readMembers ctx entityUrl ApiDocMemberKind.ActivePattern modul (fun v -> v.IsActivePattern)
 
