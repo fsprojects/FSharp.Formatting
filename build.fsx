@@ -12,14 +12,6 @@ open Fun.Build
 
 let root = __SOURCE_DIRECTORY__
 
-// Information about the project to be used at NuGet and in AssemblyInfo files
-let project = "FSharp.Formatting"
-
-let summary =
-    "A package of libraries for building great F# documentation, samples and blogs"
-
-let license = "Apache 2.0 License"
-
 let configuration = "Release"
 
 // Folder to deposit deploy artifacts
