@@ -22,10 +22,5 @@ fsharp_max_array_or_list_number_of_items = 0
 fsharp_multi_line_lambda_closing_newline = true
 fsharp_multiline_bracket_style = aligned
 fsharp_keep_max_number_of_blank_lines = 1
-fsharp_align_function_signature_to_indentation = true
 # Keep the if/then/else consistent
 fsharp_max_if_then_else_short_width = 0
-# Keep records consistent
-fsharp_max_record_number_of_items = 0
-fsharp_record_multiline_formatter = number_of_items
-fsharp_alternative_long_member_definitions = true
