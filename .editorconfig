@@ -16,5 +16,10 @@ fsharp_max_array_or_list_width=120
 fsharp_max_infix_operator_expression=80
 fsharp_max_value_binding_width=120
 
+# Specific settings for "View/HTML" related files
+# It makes the code more consistent in term of spacing and indentation
 [GenerateHtml.fs]
 fsharp_experimental_elmish = true
+fsharp_multi_line_lambda_closing_newline = true
+fsharp_multiline_bracket_style = aligned
+fsharp_keep_max_number_of_blank_lines = 1
