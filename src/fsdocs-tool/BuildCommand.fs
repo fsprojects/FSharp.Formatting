@@ -687,8 +687,12 @@ type internal DocContent
                    | _ -> () |]
 
     member _.GetNavigationEntries
-        (input, docModels: (string * bool * LiterateDocModel) list, currentPagePath: string option)
-        =
+        (
+            input,
+            docModels: (string * bool * LiterateDocModel) list,
+            currentPagePath: string option,
+            ignoreUncategorized: bool
+        ) =
         let modelsForList =
             [ for thing in docModels do
                   match thing with
@@ -704,8 +708,15 @@ type internal DocContent
                               | Some currentPagePath -> currentPagePath = inputFileFullPath }
                   | _ -> () ]
 
+        let excludeUncategorized =
+            if ignoreUncategorized then
+                List.filter (fun (model: LiterateDocModel) -> model.Category.IsSome)
+            else
+                id
+
         let modelsByCategory =
             modelsForList
+            |> excludeUncategorized
             |> List.groupBy (fun (model) -> model.Category)
             |> List.sortBy (fun (_, ms) ->
                 match ms.[0].CategoryIndex with
@@ -1296,6 +1307,12 @@ type CoreBuildOptions(watch) =
     [<Option("noapidocs", Default = false, Required = false, HelpText = "Disable generation of API docs.")>]
     member val noapidocs = false with get, set
 
+    [<Option("ignoreuncategorized",
+             Default = false,
+             Required = false,
+             HelpText = "Disable generation of 'Other' category for uncategorized docs.")>]
+    member val ignoreuncategorized = false with get, set
+
     [<Option("ignoreprojects", Default = false, Required = false, HelpText = "Disable project cracking.")>]
     member val ignoreprojects = false with get, set
 
@@ -1797,7 +1814,14 @@ type CoreBuildOptions(watch) =
                 let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
                 let actualDocModels = docModels |> List.map fst |> List.choose id
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
-                let navEntriesWithoutActivePage = docContent.GetNavigationEntries(this.input, actualDocModels, None)
+
+                let navEntriesWithoutActivePage =
+                    docContent.GetNavigationEntries(
+                        this.input,
+                        actualDocModels,
+                        None,
+                        ignoreUncategorized = this.ignoreuncategorized
+                    )
 
                 let headTemplateContent =
                     let headTemplatePath = Path.Combine(this.input, "_head.html")
@@ -1847,7 +1871,8 @@ type CoreBuildOptions(watch) =
                                         docContent.GetNavigationEntries(
                                             this.input,
                                             actualDocModels,
-                                            Some currentPagePath
+                                            Some currentPagePath,
+                                            ignoreUncategorized = this.ignoreuncategorized
                                         )
 
                                     globals

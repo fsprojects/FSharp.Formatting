@@ -1,5 +1,10 @@
 # Changelog
 
+## 21.0.0-beta-005 - 2025-04-23
+
+### Added
+* Add --ignoreuncategorized flag. [#953](https://github.com/fsprojects/FSharp.Formatting/pull/953)
+
 ## 21.0.0-beta-004 - 2024-11-20
 
 ### Changed
