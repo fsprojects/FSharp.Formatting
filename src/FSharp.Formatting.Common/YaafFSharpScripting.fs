@@ -282,14 +282,18 @@ module internal CompilerServiceExtensions =
                 |> Seq.filter (fun file ->
                     let fileName = Path.GetFullPath file |> Path.GetFileName
 
-                    dllFiles
-                    |> List.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
-                    |> not)
-                |> Seq.filter (fun file ->
-                    if Path.GetFileName file =? "FSharp.Core.dll" then
-                        FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
-                    else
-                        true)
+                    let dllNotAlreadyReferenced =
+                        dllFiles
+                        |> List.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
+                        |> not
+
+                    let checkFSharpCore =
+                        if Path.GetFileName file =? "FSharp.Core.dll" then
+                            FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
+                        else
+                            true
+
+                    dllNotAlreadyReferenced && checkFSharpCore)
                 |> Seq.toList
 
             // See https://github.com/tpetricek/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
@@ -349,7 +353,6 @@ type internal FsiEvaluationException
                 (nl x.Input)
                 (Log.formatArgs args)
                 (base.ToString())
-
 
 /// Exception for invalid expression types
 type internal FsiExpressionTypeException =
