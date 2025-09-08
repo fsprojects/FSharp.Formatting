@@ -53,28 +53,32 @@ let entities (nsIndex: int, ns: ApiDocNamespace, suppress) =
                   // TODO: use <exclude /> to do these, or work out if there's a better way
                   if suppress then
                       categoryEntities
+                      |> List.filter (fun e ->
+                          // Remove FSharp.Data.UnitSystems.SI from the list-of-namespaces
+                          // display - it's just so rarely used, has long names and dominates the docs.
+                          //
+                          // See https://github.com/fsharp/fsharp-core-docs/issues/57, we may rethink this
+                          (e.Symbol.Namespace <> Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols")
+                          && (e.Symbol.Namespace <> Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitNames")
 
-                      // Remove FSharp.Data.UnitSystems.SI from the list-of-namespaces
-                      // display - it's just so rarely used, has long names and dominates the docs.
-                      //
-                      // See https://github.com/fsharp/fsharp-core-docs/issues/57, we may rethink this
-                      |> List.filter (fun e ->
-                          (e.Symbol.Namespace <> Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitSymbols"))
-                      |> List.filter (fun e ->
-                          (e.Symbol.Namespace <> Some "Microsoft.FSharp.Data.UnitSystems.SI.UnitNames"))
-                      // Don't show 'AnonymousObject' in list-of-namespaces navigation
-                      |> List.filter (fun e ->
+                          &&
+
+                          // Don't show 'AnonymousObject' in list-of-namespaces navigation
                           not (
                               e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.RuntimeHelpers"
                               && e.Symbol.DisplayName = "AnonymousObject"
-                          ))
-                      // Don't show 'FSharp.Linq.QueryRunExtensions' in list-of-namespaces navigation
-                      |> List.filter (fun e ->
+                          )
+
+                          &&
+
+                          // Don't show 'FSharp.Linq.QueryRunExtensions' in list-of-namespaces navigation
                           not (
                               e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions"
                               && e.Symbol.DisplayName = "LowPriority"
-                          ))
-                      |> List.filter (fun e ->
+                          )
+
+                          &&
+
                           not (
                               e.Symbol.Namespace = Some "Microsoft.FSharp.Linq.QueryRunExtensions"
                               && e.Symbol.DisplayName = "HighPriority"
