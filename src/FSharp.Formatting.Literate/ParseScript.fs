@@ -62,7 +62,7 @@ module internal CodeBlockUtils =
     let rec private collectComment (comment: string) lines =
         seq {
             let findCommentEnd (comment: string) =
-                let cend = comment.LastIndexOf("*)")
+                let cend = comment.LastIndexOf("*)", StringComparison.OrdinalIgnoreCase)
 
                 if cend = -1 then
                     failwith "A (* comment was not closed"

@@ -50,4 +50,4 @@ tests/FSharp.Literate.Tests/output2/
 tests/FSharp.Literate.Tests/previous-next-output/
 
 # Analyzer
-reports/
+analysis.sarif

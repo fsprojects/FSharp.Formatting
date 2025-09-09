@@ -870,7 +870,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
     let tryGetTypeFromMemberName (memberName: string) =
         let sub = removeParen memberName
-        let lastPeriod = sub.LastIndexOf(".")
+        let lastPeriod = sub.LastIndexOf('.')
 
         if lastPeriod > 0 then
             Some(memberName.Substring(0, lastPeriod))
@@ -879,7 +879,7 @@ type internal CrossReferenceResolver(root, collectionName, qualify, extensions) 
 
     let tryGetShortMemberNameFromMemberName (memberName: string) =
         let sub = removeParen memberName
-        let lastPeriod = sub.LastIndexOf(".")
+        let lastPeriod = sub.LastIndexOf('.')
 
         if lastPeriod > 0 then
             Some(memberName.Substring(lastPeriod + 1))

@@ -1,9 +1,26 @@
 <Project>
-    <ItemGroup>
-        <ProjectsToAnalyze Include="src/**/*.fsproj" />
-    </ItemGroup>
+    <!-- Import the NuGet props file to get access to Pkg* variables -->
+    <Import Project="src/FSharp.Formatting/obj/FSharp.Formatting.fsproj.nuget.g.props" Condition="Exists('src/FSharp.Formatting/obj/FSharp.Formatting.fsproj.nuget.g.props')" />
 
-    <Target Name="AnalyzeSolution">
-        <MSBuild Projects="@(ProjectsToAnalyze)" Targets="AnalyzeFSharpProject" />
-    </Target>
+  <ItemGroup>
+    <ProjectsToAnalyze Include="src/**/*.fsproj" />
+  </ItemGroup>
+
+  <Target Name="AnalyzeSolution" Condition="Exists('src/FSharp.Formatting/obj/FSharp.Formatting.fsproj.nuget.g.props')">
+    <PropertyGroup>
+        <CodeRoot>$(SolutionDir)</CodeRoot>
+        <FSharpAnalyzersOtherFlags>--analyzers-path &quot;$(PkgG-Research_FSharp_Analyzers)/analyzers/dotnet/fs&quot;</FSharpAnalyzersOtherFlags>
+        <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --analyzers-path &quot;$(PkgIonide_Analyzers)/analyzers/dotnet/fs&quot;</FSharpAnalyzersOtherFlags>
+        <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --exclude-analyzers PartialAppAnalyzer ReturnStructPartialActivePatternAnalyzer -c Release</FSharpAnalyzersOtherFlags>
+        <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --code-root $(CodeRoot)</FSharpAnalyzersOtherFlags>
+        <FSharpAnalyzersOtherFlags>$(FSharpAnalyzersOtherFlags) --report &quot;$(CodeRoot)/analysis.sarif&quot;</FSharpAnalyzersOtherFlags>
+    </PropertyGroup>
+  <Delete Files="$(SolutionDir)/analysis.sarif" Condition="Exists('$(SolutionDir)/analysis.sarif')" />
+
+    <!-- Execute fsharp-analyzers with all projects in a single process -->
+    <Exec
+      Command="dotnet fsharp-analyzers $(FSharpAnalyzersOtherFlags) @(ProjectsToAnalyze->'--project &quot;%(FullPath)&quot;', ' ')"
+      ContinueOnError="true"
+    />
+  </Target>
 </Project>
