@@ -2,6 +2,7 @@ namespace fsdocs
 
 open System.Collections.Concurrent
 open CommandLine
+open Spectre.Console
 
 open System
 open System.Diagnostics
@@ -1596,29 +1597,17 @@ type CoreBuildOptions(watch) =
         //   to .nuget\packages\fsdocs-tool\7.1.7\templates
         let dir = Path.GetDirectoryName(typeof<CoreBuildOptions>.Assembly.Location)
 
-        let defaultTemplateAttempt1 =
-            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "templates", "_template.html"))
-        // This is in-repo only
-        let defaultTemplateAttempt2 =
-            Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "_template.html"))
+        // get template locations for in-package and in-repo and decide which to use later
+        let inNugetPackageLocations = Common.InNugetPackageLocations(Path.Combine(dir, "..", "..", ".."))
+        let inThisRepoLocations = Common.InDocsFolderLocations(Path.Combine(dir, "..", "..", "..", "..", "..", "docs"))
 
         let defaultTemplate =
             if this.nodefaultcontent then
                 None
-            else if
-                (try
-                    File.Exists(defaultTemplateAttempt1)
-                 with _ ->
-                     false)
-            then
-                Some defaultTemplateAttempt1
-            elif
-                (try
-                    File.Exists(defaultTemplateAttempt2)
-                 with _ ->
-                     false)
-            then
-                Some defaultTemplateAttempt2
+            else if inNugetPackageLocations.AllLocationsExist() then
+                Some inNugetPackageLocations.``templates/template.html``.Path
+            elif inThisRepoLocations.AllLocationsExist() then
+                Some inThisRepoLocations.``template.html``.Path
             else
                 None
 
@@ -1627,33 +1616,22 @@ type CoreBuildOptions(watch) =
                   // The "extras" content goes in "."
                   //   From .nuget\packages\fsdocs-tool\7.1.7\tools\net6.0\any
                   //   to .nuget\packages\fsdocs-tool\7.1.7\extras
-                  let attempt1 = Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "extras"))
-
-                  if
-                      (try
-                          Directory.Exists(attempt1)
-                       with _ ->
-                           false)
-                  then
-                      printfn "using extra content from %s" attempt1
-                      (attempt1, ".")
-                  else
+                  if inNugetPackageLocations.AllLocationsExist() then
+                      printfn "using extra content from %s" inNugetPackageLocations.extras.Path
+                      (inNugetPackageLocations.extras.Path, ".")
+                  else if
                       // This is for in-repo use only, assuming we are executing directly from
                       //   src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe
                       //   src\fsdocs-tool\bin\Release\net6.0\fsdocs.exe
-                      let attempt2 =
-                          Path.GetFullPath(Path.Combine(dir, "..", "..", "..", "..", "..", "docs", "content"))
-
-                      if
-                          (try
-                              Directory.Exists(attempt2)
-                           with _ ->
-                               false)
-                      then
-                          printfn "using extra content from %s" attempt2
-                          (attempt2, "content")
-                      else
-                          printfn "no extra content found at %s or %s" attempt1 attempt2 ]
+                      inThisRepoLocations.AllLocationsExist()
+                  then
+                      printfn "using extra content from %s" inThisRepoLocations.content.Path
+                      (inThisRepoLocations.content.Path, "content")
+                  else
+                      printfn
+                          "no extra content found at %s or %s"
+                          inNugetPackageLocations.extras.Path
+                          inThisRepoLocations.content.Path ]
 
         // The incremental state (as well as the files written to disk)
         let mutable latestApiDocModel = None
@@ -1716,7 +1694,7 @@ type CoreBuildOptions(watch) =
                                 printfn
                                     "note, no template file '%s' found, and no default template at '%s'"
                                     templateFiles
-                                    defaultTemplateAttempt1
+                                    inThisRepoLocations.``template.html``.Path
 
                                 OutputKind.Html, None
 
