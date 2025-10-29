@@ -76,7 +76,7 @@ let rec internal formatSpan (ctx: FormattingContext) span =
         // use mathjax grammar, for detail, check: http://www.mathjax.org/
         ctx.Writer.Write("<span class=\"math\">\\(" + (htmlEncode body) + "\\)</span>")
 
-    | AnchorLink(id, _) -> ctx.Writer.Write("<a name=\"" + id + "\">&#160;</a>")
+    | AnchorLink(id, _) -> ctx.Writer.Write("<a name=\"" + htmlEncodeQuotes id + "\">&#160;</a>")
     | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
     | Literal(str, _) -> ctx.Writer.Write(str)
     | HardLineBreak(_) -> ctx.Writer.Write("<br />" + ctx.Newline)
@@ -181,7 +181,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
         if ctx.GenerateHeaderAnchors then
             let anchorName = formatAnchor ctx spans
-            ctx.Writer.Write(sprintf """<a name="%s" class="anchor" href="#%s">""" anchorName anchorName)
+            let safeAnchorName = htmlEncodeQuotes anchorName
+            ctx.Writer.Write(sprintf """<a name="%s" class="anchor" href="#%s">""" safeAnchorName safeAnchorName)
             formatSpans ctx spans
             ctx.Writer.Write "</a>"
         else
@@ -210,7 +211,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         if String.IsNullOrWhiteSpace(language) then
             ctx.Writer.Write(sprintf "<pre><code>")
         else
-            let langCode = sprintf "language-%s" language
+            let langCode = sprintf "language-%s" (htmlEncodeQuotes language)
             ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
 
         ctx.Writer.Write(htmlEncode code)
