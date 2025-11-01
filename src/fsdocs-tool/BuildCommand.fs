@@ -800,11 +800,11 @@ module Serve =
     let refreshEvent = FSharp.Control.Event<string>()
 
     /// generate the script to inject into html to enable hot reload during development
-    let generateWatchScript (port: int) =
-        let tag =
-            """
+    let generateWatchScript =
+        """
 <script type="text/javascript">
-    var wsUri = "ws://localhost:{{PORT}}/websocket";
+    var loc = window.location.valueOf();
+    var wsUri = `${loc.protocol.replace("http", "ws")}//${loc.host}/websocket`;
     function init()
     {
         websocket = new WebSocket(wsUri);
@@ -830,8 +830,6 @@ module Serve =
     window.addEventListener("load", init, false);
 </script>
 """
-
-        tag.Replace("{{PORT}}", string<int> port)
 
     let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
@@ -1420,10 +1418,13 @@ type CoreBuildOptions(watch) =
         // Adjust the user substitutions for 'watch' mode root
         let userRoot, userParameters =
             if watch then
-                let userRoot = sprintf "http://localhost:%d/" this.port_option
+                let userRoot =
+                    match this.static_content_host_option with
+                    | Some s -> sprintf "%O" s
+                    | _ -> sprintf "http://localhost:%d/" this.port_option
 
                 if userParametersDict.ContainsKey(ParamKeys.root) then
-                    printfn "ignoring user-specified root since in watch mode, root = %s" userRoot
+                    printfn "ignoring user-specified root since in watch mode, root = '%s'" userRoot
 
                 let userParameters =
                     [ ParamKeys.root, userRoot ]
@@ -1681,7 +1682,7 @@ type CoreBuildOptions(watch) =
         let getLatestWatchScript () =
             if watch then
                 // if running in watch mode, inject hot reload script
-                [ ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript this.port_option ]
+                [ ParamKeys.``fsdocs-watch-script``, Serve.generateWatchScript ]
             else
                 // otherwise, inject empty replacement string
                 [ ParamKeys.``fsdocs-watch-script``, "" ]
@@ -2110,6 +2111,9 @@ type CoreBuildOptions(watch) =
     abstract port_option: int
     default x.port_option = 0
 
+    abstract static_content_host_option: Uri option
+    default x.static_content_host_option = None
+
 [<Verb("build", HelpText = "build the documentation for a solution based on content and defaults")>]
 type BuildCommand() =
     inherit CoreBuildOptions(false)
@@ -2137,3 +2141,15 @@ type WatchCommand() =
 
     [<Option("port", Required = false, Default = 8901, HelpText = "Port to serve content for http://localhost serving.")>]
     member val port = 8901 with get, set
+
+    [<Option("contenturlroot",
+             Required = false,
+             HelpText =
+                 "Optional URL root 'http[s]://<host>[:<port>]' to use in static content for browsers not running on localhost.")>]
+    member val contenturlroot = "" with get, set
+
+    override x.static_content_host_option =
+        if not (String.IsNullOrEmpty x.contenturlroot) then
+            x.contenturlroot |> Uri |> Some
+        else
+            None
