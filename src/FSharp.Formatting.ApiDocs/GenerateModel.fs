@@ -1123,12 +1123,7 @@ module internal TypeFormatter =
         let html = code [] [ html ]
 
         ApiDocHtml(
-            html
-                .ToString()
-                .Replace(" ", "")
-                .Replace("\n", "")
-                .Replace("\r", "")
-                .Replace("<ahref", "<a href"),
+            html.ToString().Replace(" ", "").Replace("\n", "").Replace("\r", "").Replace("<ahref", "<a href"),
             None
         )
 
@@ -1165,7 +1160,7 @@ module internal TypeFormatter =
     let formatTypeArgumentsAsText (typars: FSharpGenericParameter list) =
         List.map formatTypeArgumentAsText typars
 
-    let bracketHtml (str: HtmlElement) = span [] [ !! "("; str; !! ")" ]
+    let bracketHtml (str: HtmlElement) = span [] [ !!"("; str; !!")" ]
 
     let bracketNonAtomicHtml (str: HtmlElement) =
         if str.ToString().Contains("&#32;") then
@@ -1176,7 +1171,7 @@ module internal TypeFormatter =
     let bracketHtmlIf cond str = if cond then bracketHtml str else str
 
     let formatTyconRefAsHtml (ctx: TypeFormatterParams) (tcref: FSharpEntity) =
-        let core = !! tcref.DisplayName.Replace(" ", "&#32;")
+        let core = !!tcref.DisplayName.Replace(" ", "&#32;")
 
         match ctx.TryResolveEntity tcref with
         | None -> core
@@ -1186,11 +1181,11 @@ module internal TypeFormatter =
         if prefix then
             match args with
             | [] -> typeName
-            | [ arg ] -> span [] [ typeName; !! "&lt;"; (formatTypeWithPrecAsHtml ctx 4 arg); !! "&gt;" ]
+            | [ arg ] -> span [] [ typeName; !!"&lt;"; (formatTypeWithPrecAsHtml ctx 4 arg); !!"&gt;" ]
             | args ->
                 bracketHtmlIf
                     (prec <= 1)
-                    (span [] [ typeName; !! "&lt;"; formatTypesWithPrecAsHtml ctx 2 ",&#32;" args; !! "&gt;" ])
+                    (span [] [ typeName; !!"&lt;"; formatTypesWithPrecAsHtml ctx 2 ",&#32;" args; !!"&gt;" ])
         else
             match args with
             | [] -> typeName
@@ -1198,7 +1193,7 @@ module internal TypeFormatter =
                 if tcref.DisplayName.StartsWith '[' then
                     span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !!tcref.DisplayName ]
                 else
-                    span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !! "&#32;"; typeName ]
+                    span [] [ formatTypeWithPrecAsHtml ctx 2 arg; !!"&#32;"; typeName ]
             | args ->
                 bracketHtmlIf
                     (prec <= 1)
@@ -1216,12 +1211,12 @@ module internal TypeFormatter =
         | MeasureProd(MeasureOne, ty) -> formatTypeWithPrecAsHtml ctx prec ty
         | MeasureProd(ty1, MeasureInv ty2)
         | MeasureProd(ty1, MeasureProd(MeasureInv ty2, MeasureOne)) ->
-            span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !! "/"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
+            span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !!"/"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
         | MeasureProd(ty1, MeasureProd(ty2, MeasureOne))
         | MeasureProd(ty1, ty2) ->
-            span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !! "*"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
-        | MeasureInv ty -> span [] [ !! "/"; formatTypeWithPrecAsHtml ctx 1 ty ]
-        | MeasureOne -> !! "1"
+            span [] [ formatTypeWithPrecAsHtml ctx 2 ty1; !!"*"; formatTypeWithPrecAsHtml ctx 2 ty2 ]
+        | MeasureInv ty -> span [] [ !!"/"; formatTypeWithPrecAsHtml ctx 1 ty ]
+        | MeasureOne -> !!"1"
         | _ when typ.HasTypeDefinition ->
             let tcref = typ.TypeDefinition
             let tyargs = typ.GenericArguments |> Seq.toList
@@ -1235,13 +1230,13 @@ module internal TypeFormatter =
                 if typ.IsFunctionType then
                     let domainTyp, retType = typ.GenericArguments.[0], typ.GenericArguments.[1]
 
-                    loop (soFar @ [ formatTypeWithPrecAsHtml ctx 4 domainTyp; !! "&#32;->&#32;" ]) retType
+                    loop (soFar @ [ formatTypeWithPrecAsHtml ctx 4 domainTyp; !!"&#32;->&#32;" ]) retType
                 else
                     span [] (soFar @ [ formatTypeWithPrecAsHtml ctx 5 typ ])
 
             bracketHtmlIf (prec <= 4) (loop [] typ)
         | _ when typ.IsGenericParameter -> !!(formatTypeArgumentAsText typ.GenericParameter)
-        | _ -> !! "(type)"
+        | _ -> !!"(type)"
 
     let formatTypeAsHtml ctx (typ: FSharpType) = formatTypeWithPrecAsHtml ctx 5 typ
 
@@ -1295,8 +1290,8 @@ module internal TypeFormatter =
             let argTuple = args |> List.map (formatArgNameAndType (counter ()) >> fst)
 
             match argTuple with
-            | [] -> !! "()"
-            | [ argName ] when argName = "()" -> !! "()"
+            | [] -> !!"()"
+            | [ argName ] when argName = "()" -> !!"()"
             | [ argName ] when preferNoParens -> !!argName
             | args ->
                 let argText = args |> List.map (!!) |> Html.sepWith ",&#32;"
@@ -1311,7 +1306,7 @@ module internal TypeFormatter =
             |> List.map (formatArgNameAndTypePairUsageAsHtml ctx)
             |> Html.sepWith "&#32;*&#32;"
 
-        span [] ([ !!nm; !! "("; args; !! "&#32;->&#32;"; formatTypeAsHtml ctx typ.DelegateReturnType; !! ")" ])
+        span [] ([ !!nm; !!"("; args; !!"&#32;->&#32;"; formatTypeAsHtml ctx typ.DelegateReturnType; !!")" ])
 
 [<AutoOpen>]
 module internal SymbolReader =
@@ -1433,7 +1428,7 @@ module internal SymbolReader =
 
         let fullArgUsage =
             match argInfos with
-            | [ [] ] when (v.IsProperty && v.HasGetterMethod) -> !! ""
+            | [ [] ] when (v.IsProperty && v.HasGetterMethod) -> !!""
             | _ -> formatCurriedArgsUsageAsHtml preferNoParens isItemIndexer argInfos
 
         let usageHtml =
@@ -1449,7 +1444,7 @@ module internal SymbolReader =
                       fullArgUsage ]
 
             // Indexers
-            | _, true, _, "Item", _ -> span [] [ !! "this["; fullArgUsage; !! "]" ]
+            | _, true, _, "Item", _ -> span [] [ !!"this["; fullArgUsage; !!"]" ]
 
             // Custom operators
             | _, _, _, _, Some name ->
@@ -1457,7 +1452,7 @@ module internal SymbolReader =
                     []
                     [ !!name
                       if preferNoParens then
-                          !! "&#32;"
+                          !!"&#32;"
                           fullArgUsage ]
 
             // op_XYZ operators
@@ -1473,7 +1468,7 @@ module internal SymbolReader =
 
                     let right = formatArgUsageAsHtml 1 y
 
-                    span [] [ left; !! "&#32;"; encode nm; !! "&#32;"; right ]
+                    span [] [ left; !!"&#32;"; encode nm; !!"&#32;"; right ]
 
                 // unary operators
                 | [ [ x ] ] ->
@@ -1487,17 +1482,17 @@ module internal SymbolReader =
                         []
                         [ !!name
                           if preferNoParens then
-                              !! "&#32;"
+                              !!"&#32;"
                               fullArgUsage ]
 
             // Ordinary instance members
             | _, true, _, name, _ ->
                 span
                     []
-                    [ !! "this."
+                    [ !!"this."
                       !!name
                       if preferNoParens then
-                          !! "&#32;"
+                          !!"&#32;"
                           fullArgUsage ]
 
             // A hack for Array.Parallel.map in FSharp.Core. TODO: generalise this
@@ -1506,7 +1501,7 @@ module internal SymbolReader =
                     []
                     [ !!("Array.Parallel." + name)
                       if preferNoParens then
-                          !! "&#32;"
+                          !!"&#32;"
                           fullArgUsage ]
 
             // Ordinary functions or values
@@ -1515,7 +1510,7 @@ module internal SymbolReader =
                     []
                     [ !!name
                       if preferNoParens then
-                          !! "&#32;"
+                          !!"&#32;"
                           fullArgUsage ]
 
             // Ordinary static members or things (?) that require fully qualified access
@@ -1526,7 +1521,7 @@ module internal SymbolReader =
                       | None -> !!name
                       | Some aee -> !!(aee.DisplayName + "." + name)
                       if preferNoParens then
-                          !! "&#32;"
+                          !!"&#32;"
                       fullArgUsage ]
 
         let usageHtml = codeHtml usageHtml
@@ -1638,15 +1633,15 @@ module internal SymbolReader =
             let fieldsHtmls = fields |> List.map formatFieldUsage
 
             if case.Name = "op_ColonColon" then
-                span [] [ fieldsHtmls.[0]; !! "&#32;"; !!nm; fieldsHtmls.[1] ] |> codeHtml
+                span [] [ fieldsHtmls.[0]; !!"&#32;"; !!nm; fieldsHtmls.[1] ] |> codeHtml
             else
                 match fieldsHtmls with
                 | [] -> span [] [ !!nm ]
-                | [ fieldHtml ] -> span [] [ !!nm; !! "&#32;"; fieldHtml ]
+                | [ fieldHtml ] -> span [] [ !!nm; !!"&#32;"; fieldHtml ]
                 | _ ->
                     let fieldHtml = fieldsHtmls |> Html.sepWith ",&#32;"
 
-                    span [] [ !!nm; !! "("; fieldHtml; !! ")" ]
+                    span [] [ !!nm; !!"("; fieldHtml; !!")" ]
                 |> codeHtml
 
         let paramTypes =
@@ -1737,7 +1732,7 @@ module internal SymbolReader =
             span
                 []
                 [ !!staticParam.Name
-                  !! ":&#32;"
+                  !!":&#32;"
                   formatTypeAsHtml ctx.UrlMap staticParam.Kind
                   !!(if staticParam.IsOptional then
                          sprintf " (optional, default = %A)" staticParam.DefaultValue

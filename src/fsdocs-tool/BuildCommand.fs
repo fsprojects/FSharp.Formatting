@@ -124,9 +124,7 @@ type internal DocContent
                         Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
 
                     let uri =
-                        Uri(outputFolderFullPath + "/")
-                            .MakeRelativeUri(Uri(markdownReferenceFullOutputPath))
-                            .ToString()
+                        Uri(outputFolderFullPath + "/").MakeRelativeUri(Uri(markdownReferenceFullOutputPath)).ToString()
 
                     Some uri
                 with _ ->
@@ -760,7 +758,7 @@ type internal DocContent
             [
               // No categories specified
               if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                  li [ Class "nav-header" ] [ !! "Documentation" ]
+                  li [ Class "nav-header" ] [ !!"Documentation" ]
 
                   for model in snd modelsByCategory.[0] do
                       let link = model.Uri(root)
@@ -783,7 +781,7 @@ type internal DocContent
 
                       match cat with
                       | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
-                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !! "Other" ]
+                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
 
                       for model in modelsInCategory do
                           let link = model.Uri(root)

@@ -118,7 +118,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                     thead [] [
                         tr [] [
                             td [ Class "fsdocs-member-list-header" ] [ !!tableHeader ]
-                            td [ Class "fsdocs-member-list-header" ] [ !! "Description"; fsdocsDetailsToggle [] ]
+                            td [ Class "fsdocs-member-list-header" ] [ !!"Description"; fsdocsDetailsToggle [] ]
                         ]
                     ]
                     tbody [] [
@@ -131,23 +131,23 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                         p [] [ a [ Id m.Name ] [ a [ Href("#" + m.Name) ] [ embed m.UsageHtml ] ] ]
                                     ] [
                                         div [ Class "member-tooltip" ] [
-                                            !! "Full Usage: "
+                                            !!"Full Usage: "
                                             embed m.UsageHtml
                                             br []
                                             br []
                                             if not m.Parameters.IsEmpty then
-                                                !! "Parameters: "
+                                                !!"Parameters: "
 
                                                 ul [] [
                                                     for p in m.Parameters do
                                                         span [] [
                                                             b [] [ !!p.ParameterNameText ]
-                                                            !! ":"
+                                                            !!":"
                                                             embed p.ParameterType
                                                             match p.ParameterDocs with
                                                             | None -> ()
                                                             | Some d ->
-                                                                !! " - "
+                                                                !!" - "
                                                                 embed d
                                                         ]
 
@@ -174,7 +174,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                             //!! "Signature: "
                                             //encode(m.SignatureTooltip)
                                             if not m.Modifiers.IsEmpty then
-                                                !! "Modifiers: "
+                                                !!"Modifiers: "
                                                 encode (m.FormatModifiers)
                                                 br []
 
@@ -183,7 +183,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                 match m.FormatTypeArguments with
                                                 | None -> ()
                                                 | Some v ->
-                                                    !! "Type parameters: "
+                                                    !!"Type parameters: "
                                                     encode (v)
                                         ]
                                     ]
@@ -207,7 +207,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                                         match m.ExtendedType with
                                         | Some(_, extendedTypeHtml) ->
-                                            p [] [ !! "Extended Type: "; embed extendedTypeHtml ]
+                                            p [] [ !!"Extended Type: "; embed extendedTypeHtml ]
                                         | _ -> ()
 
                                         if not m.Parameters.IsEmpty then
@@ -217,7 +217,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                                         span [ Class "fsdocs-param-name" ] [
                                                             !!parameter.ParameterNameText
                                                         ]
-                                                        !! ":"
+                                                        !!":"
                                                         embed parameter.ParameterType
                                                     ]
 
@@ -263,12 +263,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                             ]
 
                                         for e in m.Comment.Notes do
-                                            h5 [ Class "fsdocs-note-header" ] [ !! "Note" ]
+                                            h5 [ Class "fsdocs-note-header" ] [ !!"Note" ]
 
                                             p [ Class "fsdocs-note" ] [ embed e ]
 
                                         for e in m.Comment.Examples do
-                                            h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
+                                            h5 [ Class "fsdocs-example-header" ] [ !!"Example" ]
 
                                             p [
                                                 yield Class "fsdocs-example"
@@ -314,7 +314,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                    elif hasTypes then "Type"
                                    else "Modules")
                             ]
-                            td [] [ !! "Description" ]
+                            td [] [ !!"Description" ]
                         ]
                     ]
                     tbody [] [
@@ -375,7 +375,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             h2 [] [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
             dl [ Class "fsdocs-metadata" ] [
                 dt [] [
-                    !! "Namespace: "
+                    !!"Namespace: "
                     a [ Href(info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
                         !!info.Namespace.Name
                     ]
@@ -386,19 +386,19 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 | None -> ()
                 | Some parentModule ->
                     dt [] [
-                        !! "Parent Module: "
+                        !!"Parent Module: "
                         a [ Href(parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ] [
                             !!parentModule.Name
                         ]
                     ]
 
                 match entity.AbbreviatedType with
-                | Some(_, abbreviatedTypHtml) -> dt [] [ !! "Abbreviation For: "; embed abbreviatedTypHtml ]
+                | Some(_, abbreviatedTypHtml) -> dt [] [ !!"Abbreviation For: "; embed abbreviatedTypHtml ]
 
                 | None -> ()
 
                 match entity.BaseType with
-                | Some(_, baseTypeHtml) -> dt [] [ !! "Base Type: "; embed baseTypeHtml ]
+                | Some(_, baseTypeHtml) -> dt [] [ !!"Base Type: "; embed baseTypeHtml ]
                 | None -> ()
 
                 match entity.AllInterfaces with
@@ -408,7 +408,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                         !!("All Interfaces: ")
                         for (i, (_, ityHtml)) in Seq.indexed l do
                             if i <> 0 then
-                                !! ", "
+                                !!", "
 
                             embed ityHtml
                     ]
@@ -444,12 +444,12 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 | Some r -> p [ Class "fsdocs-remarks" ] [ embed r ]
                 | None -> ()
                 for note in entity.Comment.Notes do
-                    h5 [ Class "fsdocs-note-header" ] [ !! "Note" ]
+                    h5 [ Class "fsdocs-note-header" ] [ !!"Note" ]
 
                     p [ Class "fsdocs-note" ] [ embed note ]
 
                 for example in entity.Comment.Examples do
-                    h5 [ Class "fsdocs-example-header" ] [ !! "Example" ]
+                    h5 [ Class "fsdocs-example-header" ] [ !!"Example" ]
 
                     p [ Class "fsdocs-example" ] [ embed example ]
 
@@ -457,7 +457,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
             if (byCategory.Length > 1) then
                 // If there is more than 1 category in the type, generate TOC
-                h3 [] [ !! "Table of contents" ]
+                h3 [] [ !!"Table of contents" ]
 
                 ul [] [
                     for (index, _, name) in byCategory do
@@ -528,7 +528,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 ]
 
                 if (allByCategory.Length > 1) then
-                    h3 [] [ !! "Contents" ]
+                    h3 [] [ !!"Contents" ]
 
                     ul [] [
                         for category in allByCategory do
@@ -576,13 +576,13 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
             //
             // For non-FSharp.Core we only show one link "API Reference" in the nav menu
             if otherDocs && model.Collection.CollectionName <> "FSharp.Core" then
-                li [ Class "nav-header" ] [ !! "API Reference" ]
+                li [ Class "nav-header" ] [ !!"API Reference" ]
 
                 li [ Class "nav-item" ] [
                     a [
                         Class "nav-link"
                         Href(model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl))
-                    ] [ !! "All Namespaces" ]
+                    ] [ !!"All Namespaces" ]
                 ]
             else
 
@@ -591,7 +591,7 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                 let someExist = categorise.Length > 0
 
                 if someExist then
-                    li [ Class "nav-header" ] [ !! "Namespaces" ]
+                    li [ Class "nav-header" ] [ !!"Namespaces" ]
 
                 for allByCategory, ns in categorise do
 
@@ -713,13 +713,13 @@ type HtmlRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
         (let content =
             div [] [
-                h1 [] [ !! "API Reference" ]
-                h2 [] [ !! "Available Namespaces:" ]
+                h1 [] [ !!"API Reference" ]
+                h2 [] [ !!"Available Namespaces:" ]
                 table [ Class "table outer-list fsdocs-member-list" ] [
                     thead [] [
                         tr [] [
-                            td [ Class "fsdocs-member-list-header" ] [ !! "Namespace" ]
-                            td [ Class "fsdocs-member-list-header" ] [ !! "Description" ]
+                            td [ Class "fsdocs-member-list-header" ] [ !!"Namespace" ]
+                            td [ Class "fsdocs-member-list-header" ] [ !!"Description" ]
                         ]
                     ]
                     tbody [] (tableOfNamespacesAux ())

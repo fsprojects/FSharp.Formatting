@@ -471,12 +471,7 @@ module internal Transformations =
             // Split the formatted code into lines & emit line numbers in <td>
             // (Similar to formatSnippets in FSharp.Formatting.CodeFormat\HtmlFormatting.fs)
             let lines =
-                code
-                    .Trim('\r', '\n')
-                    .Replace("\r\n", "\n")
-                    .Replace("\n\r", "\n")
-                    .Replace("\r", "\n")
-                    .Split('\n')
+                code.Trim('\r', '\n').Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n").Split('\n')
 
             let numberLength = lines.Length.ToString().Length
             let linesLength = lines.Length
