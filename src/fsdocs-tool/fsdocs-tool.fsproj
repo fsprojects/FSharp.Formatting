@@ -19,6 +19,7 @@
     <Compile Include="Options.fs" />
     <Compile Include="ProjectCracker.fs" />
     <Compile Include="BuildCommand.fs" />
+    <Compile Include="InitCommand.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -27,10 +28,14 @@
     <Content Include="..\..\docs\_template.html" PackagePath="templates" />
     <Content Include="..\..\docs\_template.tex" PackagePath="templates" />
     <Content Include="..\..\docs\_template.ipynb" PackagePath="templates" />
+    <Content Include="..\..\docs\templates\init\*" PackagePath="templates\init" />
     <Content Include="..\..\docs\Dockerfile" PackagePath="extras" />
     <Content Include="..\..\docs\NuGet.config" PackagePath="extras" />
     <Content Include="..\..\docs\content\*" PackagePath="extras\content" />
     <Content Include="..\..\docs\content\img\*" PackagePath="extras\content\img" />
+    <Content Include="..\..\docs\img\badge-binder.svg" PackagePath="extras\content\img" />
+    <Content Include="..\..\docs\img\badge-notebook.svg" PackagePath="extras\content\img" />
+    <Content Include="..\..\docs\img\badge-script.svg" PackagePath="extras\content\img" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,6 +51,7 @@
     <PackageReference Include="CommandLineParser" />
     <PackageReference Include="Ionide.ProjInfo" />
     <PackageReference Include="Ionide.ProjInfo.Sln" />
+    <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Suave" />
   </ItemGroup>
 </Project>

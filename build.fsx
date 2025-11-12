@@ -42,9 +42,13 @@ let testStage =
             $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
     }
 
-pipeline "CI" {
-    lintStage
+let buildStage =
+    stage "Build" {
+        run $"dotnet restore {solutionFile} -tl"
+        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
+    }
 
+let cleanStage =
     stage "Clean" {
         run (fun _ ->
             !!artifactsDir ++ "temp" |> Shell.cleanDirs
@@ -52,13 +56,14 @@ pipeline "CI" {
             [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure)
     }
 
-    stage "Build" {
-        run $"dotnet restore {solutionFile} -tl"
-        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
-    }
-
+let nugetStage =
     stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
+pipeline "CI" {
+    lintStage
+    cleanStage
+    buildStage
+    nugetStage
     testStage
 
     stage "GenerateDocs" {
@@ -82,6 +87,13 @@ pipeline "Verify" {
     lintStage
     testStage
     stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
+    runIfOnlySpecified true
+}
+
+pipeline "BuildAndPack" {
+    cleanStage
+    buildStage
+    nugetStage
     runIfOnlySpecified true
 }
 
