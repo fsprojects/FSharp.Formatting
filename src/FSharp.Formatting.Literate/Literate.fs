@@ -115,8 +115,7 @@ type Literate private () =
 
         let rootInputFolder = Some(defaultArg rootInputFolder (Path.GetDirectoryName(path)))
 
-        ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder, onError)
+        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets path ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -145,8 +144,7 @@ type Literate private () =
                 | None -> "C:\\script.fsx"
                 | Some r -> Path.Combine(r, "script.fsx")
 
-        ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
+        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -249,8 +247,7 @@ type Literate private () =
 
         let content = ParsePynb.pynbStringToFsx content
 
-        ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
+        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -354,7 +351,8 @@ type Literate private () =
 
     /// Format the literate document as Latex without using a template
     static member ToLatex
-        (doc: LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions, ?crefResolver, ?mdlinkResolver) =
+        (doc: LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions, ?crefResolver, ?mdlinkResolver)
+        =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
