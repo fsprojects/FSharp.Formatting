@@ -1385,12 +1385,12 @@ module internal SymbolReader =
 
     let readMemberOrVal (ctx: ReadingContext) (v: FSharpMemberOrFunctionOrValue) =
         let requireQualifiedAccess =
-            hasAttrib<RequireQualifiedAccessAttribute> v.ApparentEnclosingEntity.Attributes
-            // Hack for FSHarp.Core - `Option` module doesn't have RQA but really should have
-            || (v.ApparentEnclosingEntity.Namespace = Some "Microsoft.FSharp.Core"
-                && v.ApparentEnclosingEntity.DisplayName = "Option")
-            || (v.ApparentEnclosingEntity.Namespace = Some "Microsoft.FSharp.Core"
-                && v.ApparentEnclosingEntity.DisplayName = "ValueOption")
+            v.ApparentEnclosingEntity
+            |> Option.exists (fun aee ->
+                hasAttrib<RequireQualifiedAccessAttribute> aee.Attributes
+                // Hack for FSHarp.Core - `Option` module doesn't have RQA but really should have
+                || (aee.Namespace = Some "Microsoft.FSharp.Core" && aee.DisplayName = "Option")
+                || (aee.Namespace = Some "Microsoft.FSharp.Core" && aee.DisplayName = "ValueOption"))
 
         let customOpName =
             match tryFindAttrib<CustomOperationAttribute> v.Attributes with
@@ -1406,7 +1406,8 @@ module internal SymbolReader =
         // This module doesn't have RequireQualifiedAccessAttribute and anyway we want the name to show
         // usage of its members as Array.Parallel.map
         let specialCase1 =
-            v.ApparentEnclosingEntity.TryFullName = Some "Microsoft.FSharp.Collections.ArrayModule.Parallel"
+            v.ApparentEnclosingEntity
+            |> Option.exists (fun aee -> aee.TryFullName = Some "Microsoft.FSharp.Collections.ArrayModule.Parallel")
 
         let argInfos, retInfo = FSharpType.Prettify(v.CurriedParameterGroups, v.ReturnParameter)
 
@@ -1439,7 +1440,13 @@ module internal SymbolReader =
 
             match v.IsMember, v.IsInstanceMember, v.LogicalName, v.DisplayName, customOpName with
             // Constructors
-            | _, _, ".ctor", _, _ -> span [] [ !!v.ApparentEnclosingEntity.DisplayName; fullArgUsage ]
+            | _, _, ".ctor", _, _ ->
+                span
+                    []
+                    [ match v.ApparentEnclosingEntity with
+                      | None -> ()
+                      | Some aee -> !!aee.DisplayName
+                      fullArgUsage ]
 
             // Indexers
             | _, true, _, "Item", _ -> span [] [ !! "this["; fullArgUsage; !! "]" ]
@@ -1515,7 +1522,9 @@ module internal SymbolReader =
             | _, false, _, name, _ ->
                 span
                     []
-                    [ !!(v.ApparentEnclosingEntity.DisplayName + "." + name)
+                    [ match v.ApparentEnclosingEntity with
+                      | None -> !!name
+                      | Some aee -> !!(aee.DisplayName + "." + name)
                       if preferNoParens then
                           !! "&#32;"
                       fullArgUsage ]
@@ -1552,7 +1561,7 @@ module internal SymbolReader =
         // Hence getting the generic argument count if this is a little trickier
         let numGenericParamsOfApparentParent =
             let pty = v.ApparentEnclosingEntity
-            pty.GenericParameters.Count
+            pty |> Option.map _.GenericParameters.Count |> Option.defaultValue 0
 
         // Ensure that there is enough number of elements to skip
         let tps =
@@ -1586,10 +1595,9 @@ module internal SymbolReader =
         let extendedType =
             if v.IsExtensionMember then
                 try
-                    Some(
-                        v.ApparentEnclosingEntity,
-                        formatTyconRefAsHtml ctx.UrlMap v.ApparentEnclosingEntity |> codeHtml
-                    )
+                    match v.ApparentEnclosingEntity with
+                    | Some aee -> Some(aee, formatTyconRefAsHtml ctx.UrlMap aee |> codeHtml)
+                    | None -> None
                 with _ ->
                     None
             else
