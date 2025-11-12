@@ -1,5 +1,9 @@
 # Changelog
 
+## 21.0.0 - 2025-11-12
+
+Stable release
+
 ## 21.0.0-beta-005 - 2025-04-23
 
 ### Added
