@@ -21,6 +21,52 @@ open MarkdownUtils
 let internal htmlEncode (code: string) =
     code.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
 
+/// Encode emojis and problematic Unicode characters as HTML numeric entities
+/// Encodes characters in emoji ranges and symbols, but preserves common international text
+let internal encodeHighUnicode (text: string) =
+    if String.IsNullOrEmpty text then
+        text
+    else
+        // Fast path: check if string needs encoding at all
+        let needsEncoding =
+            text
+            |> Seq.exists (fun c ->
+                let codePoint = int c
+                Char.IsSurrogate c || (codePoint >= 0x2000 && codePoint <= 0x2BFF))
+
+        if not needsEncoding then
+            text
+        else
+            // Tail-recursive function with StringBuilder accumulator
+            let rec processChars i (sb: System.Text.StringBuilder) =
+                if i >= text.Length then
+                    sb.ToString()
+                else
+                    let c = text.[i]
+                    // Check for surrogate pairs first (emojis and other characters outside BMP)
+                    if
+                        Char.IsHighSurrogate c
+                        && i + 1 < text.Length
+                        && Char.IsLowSurrogate(text.[i + 1])
+                    then
+                        let fullCodePoint = Char.ConvertToUtf32(c, text.[i + 1])
+                        // Encode all characters outside BMP (>= 0x10000) as they're typically emojis
+                        sb.Append(sprintf "&#%d;" fullCodePoint) |> ignore
+                        processChars (i + 2) sb // Skip both surrogate chars
+                    else
+                        let codePoint = int c
+                        // Encode specific ranges that contain emojis and symbols:
+                        // U+2000-U+2BFF: General Punctuation, Superscripts, Currency, Dingbats, Arrows, Math, Technical, Box Drawing, etc.
+                        // U+1F000-U+1FFFF: Supplementary Multilingual Plane emojis (handled above via surrogates)
+                        if codePoint >= 0x2000 && codePoint <= 0x2BFF then
+                            sb.Append(sprintf "&#%d;" codePoint) |> ignore
+                        else
+                            sb.Append c |> ignore
+
+                        processChars (i + 1) sb
+
+            processChars 0 (System.Text.StringBuilder text.Length)
+
 /// Basic escaping as done by Markdown including quotes
 let internal htmlEncodeQuotes (code: string) =
     (htmlEncode code).Replace("\"", "&quot;")
@@ -78,7 +124,7 @@ let rec internal formatSpan (ctx: FormattingContext) span =
 
     | AnchorLink(id, _) -> ctx.Writer.Write("<a name=\"" + htmlEncodeQuotes id + "\">&#160;</a>")
     | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
-    | Literal(str, _) -> ctx.Writer.Write(str)
+    | Literal(str, _) -> ctx.Writer.Write(encodeHighUnicode str)
     | HardLineBreak(_) -> ctx.Writer.Write("<br />" + ctx.Newline)
     | IndirectLink(body, _, LookupKey ctx.Links (link, title), _)
     | DirectLink(body, link, title, _) ->

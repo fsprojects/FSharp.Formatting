@@ -31,6 +31,38 @@ let ``Escape HTML entities inside of code`` () =
     |> should contain "<p><code>a &amp;gt; &amp; b</code></p>"
 
 [<Test>]
+let ``Emojis are encoded as HTML numeric entities`` () =
+    let html = "Like this 🎉🚧⭐⚠️✅" |> Markdown.ToHtml
+    html |> should contain "&#127881;" // 🎉 party popper
+    html |> should contain "&#128679;" // 🚧 construction
+    html |> should contain "&#11088;" // ⭐ star
+    html |> should contain "&#9888;" // ⚠️ warning
+    html |> should contain "&#9989;" // ✅ check mark
+
+[<Test>]
+let ``Regular text without emojis is not modified`` () =
+    // Fast path optimization: regular text should pass through unchanged
+    let html = "This is regular text with пристаням Cyrillic and 中文 Chinese" |> Markdown.ToHtml
+    html |> should contain "пристаням"
+    html |> should contain "中文"
+    html |> should not' (contain "&#") // No HTML entities for regular international text
+
+[<Test>]
+let ``List without blank line after heading`` () =
+    // Test the issue mentioned in comment: https://github.com/fsprojects/FSharp.Formatting/issues/964#issuecomment-3515381382
+    let markdown =
+        """# This is my title
+- this list
+- should render"""
+
+    let html = Markdown.ToHtml markdown
+    // Check if list is rendered as a separate element, not part of heading
+    html |> should contain "<h1>This is my title</h1>"
+    html |> should contain "<ul>"
+    html |> should contain "<li>this list</li>"
+    html |> should contain "<li>should render</li>"
+
+[<Test>]
 let ``Inline HTML tag containing 'at' is not turned into hyperlink`` () =
     let doc = """<a href="mailto:a@b.c">hi</a>""" |> Markdown.Parse
 
