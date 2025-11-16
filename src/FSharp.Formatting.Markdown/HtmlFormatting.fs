@@ -27,45 +27,61 @@ let internal encodeHighUnicode (text: string) =
     if String.IsNullOrEmpty text then
         text
     else
-        // Fast path: check if string needs encoding at all
-        let needsEncoding =
-            text
-            |> Seq.exists (fun c ->
-                let codePoint = int c
-                Char.IsSurrogate c || (codePoint >= 0x2000 && codePoint <= 0x2BFF))
+        // Single-pass encoding with lazy StringBuilder allocation
+        let mutable sb: System.Text.StringBuilder voption = ValueNone
+        let mutable i = 0
 
-        if not needsEncoding then
-            text
-        else
-            // Tail-recursive function with StringBuilder accumulator
-            let rec processChars i (sb: System.Text.StringBuilder) =
-                if i >= text.Length then
-                    sb.ToString()
+        while i < text.Length do
+            let c = text.[i]
+
+            let needsEncoding, codePoint, skipNext =
+                // Check for surrogate pairs first (emojis and other characters outside BMP)
+                if
+                    Char.IsHighSurrogate c
+                    && i + 1 < text.Length
+                    && Char.IsLowSurrogate text.[i + 1]
+                then
+                    let fullCodePoint = Char.ConvertToUtf32(c, text.[i + 1])
+                    // Encode all characters outside BMP (>= 0x10000) as they're typically emojis
+                    true, fullCodePoint, true
                 else
-                    let c = text.[i]
-                    // Check for surrogate pairs first (emojis and other characters outside BMP)
-                    if
-                        Char.IsHighSurrogate c
-                        && i + 1 < text.Length
-                        && Char.IsLowSurrogate(text.[i + 1])
-                    then
-                        let fullCodePoint = Char.ConvertToUtf32(c, text.[i + 1])
-                        // Encode all characters outside BMP (>= 0x10000) as they're typically emojis
-                        sb.Append(sprintf "&#%d;" fullCodePoint) |> ignore
-                        processChars (i + 2) sb // Skip both surrogate chars
-                    else
-                        let codePoint = int c
-                        // Encode specific ranges that contain emojis and symbols:
-                        // U+2000-U+2BFF: General Punctuation, Superscripts, Currency, Dingbats, Arrows, Math, Technical, Box Drawing, etc.
-                        // U+1F000-U+1FFFF: Supplementary Multilingual Plane emojis (handled above via surrogates)
-                        if codePoint >= 0x2000 && codePoint <= 0x2BFF then
-                            sb.Append(sprintf "&#%d;" codePoint) |> ignore
-                        else
-                            sb.Append c |> ignore
+                    let codePoint = int c
+                    // Encode specific ranges that contain emojis and symbols:
+                    // U+2000-U+2BFF: General Punctuation, Superscripts, Currency, Dingbats, Arrows, Math, Technical, Box Drawing, etc.
+                    // U+1F000-U+1FFFF: Supplementary Multilingual Plane emojis (handled above via surrogates)
+                    (codePoint >= 0x2000 && codePoint <= 0x2BFF), codePoint, false
 
-                        processChars (i + 1) sb
+            if needsEncoding then
+                // Lazy initialization of StringBuilder only when needed
+                match sb with
+                | ValueNone ->
+                    let builder = System.Text.StringBuilder(text.Length + 16)
 
-            processChars 0 (System.Text.StringBuilder text.Length)
+                    if i > 0 then
+                        builder.Append(text, 0, i) |> ignore
+
+                    sb <- ValueSome builder
+                | ValueSome _ -> ()
+
+                // Append HTML entity without using sprintf (avoid allocation)
+                match sb with
+                | ValueSome builder ->
+                    builder.Append "&#" |> ignore
+                    builder.Append codePoint |> ignore
+                    builder.Append ';' |> ignore
+                | ValueNone -> ()
+            else
+                // Only append to StringBuilder if it was already initialized
+                match sb with
+                | ValueSome builder -> builder.Append c |> ignore
+                | ValueNone -> ()
+
+            i <- i + (if skipNext then 2 else 1)
+
+        // Return original string if no encoding was needed
+        match sb with
+        | ValueNone -> text
+        | ValueSome builder -> builder.ToString()
 
 /// Basic escaping as done by Markdown including quotes
 let internal htmlEncodeQuotes (code: string) =
