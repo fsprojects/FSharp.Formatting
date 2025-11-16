@@ -355,10 +355,7 @@ var
 
     let formatted = FSharp.Formatting.CSharpFormat.SyntaxHighlighter.FormatHtml(html)
 
-    let expected =
-        html
-            .Replace(" lang=\"csharp\"", "")
-            .Replace("var", "<span class=\"k\">var</span>")
+    let expected = html.Replace(" lang=\"csharp\"", "").Replace("var", "<span class=\"k\">var</span>")
 
     formatted |> shouldEqual expected
 
@@ -1559,12 +1556,7 @@ let ``pynb outputs passed to script correctly`` () =
     printfn "%s" fsx
     printfn "----"
 
-    let fsx2 =
-        fsx
-            .Replace("\r\n", "\n")
-            .Replace(" \n", "\n")
-            .Replace("\n\n*)", "\n*)")
-            .Replace("\n", "!")
+    let fsx2 = fsx.Replace("\r\n", "\n").Replace(" \n", "\n").Replace("\n\n*)", "\n*)").Replace("\n", "!")
 
     let expected =
         """(**

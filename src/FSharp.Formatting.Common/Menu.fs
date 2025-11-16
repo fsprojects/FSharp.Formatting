@@ -10,10 +10,7 @@ type MenuItem =
       IsActive: bool }
 
 let private snakeCase (v: string) =
-    System.Text.RegularExpressions.Regex
-        .Replace(v, "[A-Z]", "$0")
-        .Replace(" ", "_")
-        .ToLower()
+    System.Text.RegularExpressions.Regex.Replace(v, "[A-Z]", "$0").Replace(" ", "_").ToLower()
 
 let createMenu (input: string) (isCategoryActive: bool) (header: string) (items: MenuItem list) : string =
     let pwd = Directory.GetCurrentDirectory()

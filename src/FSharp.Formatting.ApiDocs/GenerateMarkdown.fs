@@ -19,7 +19,7 @@ let htmlStringSafe (x: ApiDocHtml) =
 
 let embed (x: ApiDocHtml) = !!(htmlString x)
 let embedSafe (x: ApiDocHtml) = !!(htmlStringSafe x)
-let br = !! "<br />"
+let br = !!"<br />"
 
 type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
     let root = model.Root
@@ -36,7 +36,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               ``###`` [ !!header ]
 
               table
-                  [ [ p [ !!tableHeader ] ]; [ p [ !! "Description" ] ]; [ p [ !! "Source" ] ] ]
+                  [ [ p [ !!tableHeader ] ]; [ p [ !!"Description" ] ]; [ p [ !!"Source" ] ] ]
                   [ AlignLeft; AlignLeft; AlignCenter ]
                   [ for m in members ->
                         [ [ p [ link [ embedSafe (m.UsageHtml) ] ("#" + urlEncode (m.Name)) ] ]
@@ -52,7 +52,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                             | Some r -> p [ embedSafe r; br ]
 
                             if not m.Parameters.IsEmpty then
-                                p [ !! "Parameters" ]
+                                p [ !!"Parameters" ]
                                 p []
 
                                 yield!
@@ -60,7 +60,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                     |> List.collect (fun parameter ->
                                         [ p
                                               [ strong [ !!parameter.ParameterNameText ]
-                                                !! ": "
+                                                !!": "
                                                 embedSafe parameter.ParameterType ]
                                           match parameter.ParameterDocs with
                                           | None -> ()
@@ -72,7 +72,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                             match m.ExtendedType with
                             | None -> ()
-                            | Some(_, extendedTypeHtml) -> p [ !! "Extended Type: "; embedSafe extendedTypeHtml; br ]
+                            | Some(_, extendedTypeHtml) -> p [ !!"Extended Type: "; embedSafe extendedTypeHtml; br ]
 
                             match m.ReturnInfo.ReturnType with
                             | None -> ()
@@ -100,11 +100,11 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                                           br ]
 
                             for e in m.Comment.Notes do
-                                p [ !! "Note" ]
+                                p [ !!"Note" ]
                                 p [ embed e; br ]
 
                             for e in m.Comment.Examples do
-                                p [ !! "Example" ]
+                                p [ !!"Example" ]
                                 p [ embed e; br ] ]
                           [ p [ yield! sourceLink m.SourceLocation ] ] ] ] ]
 
@@ -119,8 +119,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
                           [ !!(if hasTypes && hasModules then "Type/Module"
                                elif hasTypes then "Type"
                                else "Modules") ]
-                      p [ !! "Description" ]
-                      p [ !! "Source" ] ] ]
+                      p [ !!"Description" ]
+                      p [ !!"Source" ] ] ]
                   [ AlignLeft; AlignLeft; AlignCenter ]
                   [ for e in entities do
                         [ [ p
@@ -158,7 +158,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
         [ ``##`` [ !!(usageName + (if entity.IsTypeDefinition then " Type" else " Module")) ]
           p
-              [ !! "Namespace: "
+              [ !!"Namespace: "
                 link
                     [ !!info.Namespace.Name ]
                     (info.Namespace.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ]
@@ -168,27 +168,27 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | None -> ()
           | Some parentModule ->
               p
-                  [ !! "Parent Module: "
+                  [ !!"Parent Module: "
                     link
                         [ !!parentModule.Name ]
                         (parentModule.Url(root, collectionName, qualify, model.FileExtensions.InUrl)) ]
 
           match entity.AbbreviatedType with
-          | Some(_, abbreviatedTyp) -> p [ !! "Abbreviation For: "; embed abbreviatedTyp ]
+          | Some(_, abbreviatedTyp) -> p [ !!"Abbreviation For: "; embed abbreviatedTyp ]
           | None -> ()
 
           match entity.BaseType with
-          | Some(_, baseType) -> p [ !! "Base Type: "; embed baseType ]
+          | Some(_, baseType) -> p [ !!"Base Type: "; embed baseType ]
           | None -> ()
 
           match entity.AllInterfaces with
           | [] -> ()
           | l ->
               p
-                  [ !! "All Interfaces: "
+                  [ !!"All Interfaces: "
                     for (i, (_, interfaceTyHtml)) in Seq.indexed l do
                         if i <> 0 then
-                            !! ", "
+                            !!", "
 
                         embed interfaceTyHtml ]
 
@@ -220,16 +220,16 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           | None -> ()
 
           for note in entity.Comment.Notes do
-              ``#####`` [ !! "Note" ]
+              ``#####`` [ !!"Note" ]
               p [ embed note ]
 
           for example in entity.Comment.Examples do
-              ``#####`` [ !! "Example" ]
+              ``#####`` [ !!"Example" ]
               p [ embed example ]
 
           if (byCategory.Length > 1) then
               // If there is more than 1 category in the type, generate TOC
-              ``###`` [ !! "Table of contents" ]
+              ``###`` [ !!"Table of contents" ]
 
               ul
                   [ for (index, _, name) in byCategory do
@@ -294,7 +294,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               | None -> ()
 
               if (allByCategory.Length > 1) then
-                  ``###`` [ !! "Contents" ]
+                  ``###`` [ !!"Contents" ]
 
                   ul
                       [ for category in allByCategory do
@@ -313,9 +313,9 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
           // For non-FSharp.Core we only show one link "API Reference" in the nav menu
           if otherDocs && nav && model.Collection.CollectionName <> "FSharp.Core" then
               p
-                  [ !! "API Reference"
+                  [ !!"API Reference"
                     link
-                        [ !! "All Namespaces" ]
+                        [ !!"All Namespaces" ]
                         (model.IndexFileUrl(root, collectionName, qualify, model.FileExtensions.InUrl)) ]
           else
 
@@ -324,7 +324,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
               let someExist = categorise.Length > 0
 
               if someExist && nav then
-                  p [ !! "Namespaces" ]
+                  p [ !!"Namespaces" ]
 
               for allByCategory, ns in categorise do
 
@@ -334,7 +334,7 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
                         // If not in the navigation list then generate the summary text as well
                         if not nav then
-                            !! " - "
+                            !!" - "
 
                             match ns.NamespaceDocs with
                             | Some nsdocs -> embed nsdocs.Summary
@@ -416,8 +416,8 @@ type MarkdownRender(model: ApiDocModel, ?menuTemplateFolder: string) =
 
         (let content =
             MarkdownDocument(
-                [ ``#`` [ !! "API Reference" ]
-                  ``##`` [ !! "Available Namespaces" ]
+                [ ``#`` [ !!"API Reference" ]
+                  ``##`` [ !!"Available Namespaces" ]
                   ul [ (listOfNamespacesAux false false None) ] ],
                 Map.empty
             )

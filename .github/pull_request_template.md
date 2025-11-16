@@ -17,3 +17,5 @@ dotnet fantomas build.fsx src tests docs
 Should any tests fail, please review and adjust your changes accordingly.
 
 We appreciate your efforts to contribute and look forward to reviewing your pull request!
+
+**Please remove this placeholder from the PR description after reading it and replace it with a clear, meaningful description of the changes in this PR.**

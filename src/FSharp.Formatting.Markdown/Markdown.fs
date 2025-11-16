@@ -148,7 +148,8 @@ type Markdown internal () =
     /// Transform the provided MarkdownDocument into LaTeX
     /// format and write the result to a given writer.
     static member WriteLatex
-        (doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver, ?lineNumbers) =
+        (doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver, ?lineNumbers)
+        =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
