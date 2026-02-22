@@ -2037,11 +2037,24 @@ type CoreBuildOptions(watch) =
                     }
                     |> Async.Start)
 
+            // Ignore file-system events for paths inside the output folder.
+            // This prevents an infinite rebuild loop when the output folder is a
+            // subdirectory of the input folder (e.g. docs/output/).
+            let isInsideOutputFolder (fullPath: string) =
+                let sep = string Path.DirectorySeparatorChar
+                let normalized = Path.GetFullPath fullPath
+                normalized.StartsWith(rootOutputFolderFullPath + sep)
+                || normalized.StartsWith(rootOutputFolderFullPath + "/")
+                || normalized = rootOutputFolderFullPath
+
             // Listen to changes in any input under docs
             for docsWatcher in docsWatchers do
                 docsWatcher.IncludeSubdirectories <- true
                 docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-                docsWatcher.Changed.Add(fun fileEvent -> docsDependenciesChanged.Trigger fileEvent.Name)
+
+                docsWatcher.Changed.Add(fun fileEvent ->
+                    if not (isInsideOutputFolder fileEvent.FullPath) then
+                        docsDependenciesChanged.Trigger fileEvent.Name)
 
             // When _template.* change rebuild everything
             for templateWatcher in templateWatchers do
@@ -2051,8 +2064,9 @@ type CoreBuildOptions(watch) =
                 templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
 
                 templateWatcher.Changed.Add(fun fileEvent ->
-                    docsDependenciesChanged.Trigger fileEvent.Name
-                    apiDocsDependenciesChanged.Trigger())
+                    if not (isInsideOutputFolder fileEvent.FullPath) then
+                        docsDependenciesChanged.Trigger fileEvent.Name
+                        apiDocsDependenciesChanged.Trigger())
 
             // Listen to changes in output DLLs
             for (projectOutputWatcher, projectOutput) in projectOutputWatchers do
