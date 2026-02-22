@@ -1,8 +1,8 @@
 {
-  "last_run": "2026-02-21",
+  "last_run": "2026-02-22",
   "backlog_cursor": {
-    "last_issue_processed": 970,
-    "description": "Processed all issues from #72 to #970 on first run. Next run should start from #72 again (full sweep complete)."
+    "last_issue_processed": 667,
+    "description": "Processed #72-#667 on this run (second run). First run covered #667-#970. Full sweep complete. Next run starts from #72."
   },
   "commented_issues": {
     "970": {
@@ -14,6 +14,26 @@
     "970": {
       "labelled_at": "2026-02-21",
       "labels": ["help wanted"]
+    },
+    "551": {
+      "labelled_at": "2026-02-22",
+      "labels": ["bug", "help wanted"]
+    },
+    "592": {
+      "labelled_at": "2026-02-22",
+      "labels": ["bug"]
+    },
+    "590": {
+      "labelled_at": "2026-02-22",
+      "labels": ["enhancement"]
+    },
+    "536": {
+      "labelled_at": "2026-02-22",
+      "labels": ["enhancement"]
+    },
+    "626": {
+      "labelled_at": "2026-02-22",
+      "labels": ["enhancement"]
     }
   },
   "attempted_fixes": {},
@@ -22,15 +42,19 @@
   "dependency_check_last": null,
   "release_check_last": null,
   "monthly_activity_issue": {
-    "2026-02": "created"
+    "2026-02": 973
   },
   "notes": [
-    "Repo has 85 open issues spanning from #72 (2013) to #970 (2025-11-19)",
+    "Repo has 85+ open issues spanning from #72 (2013) to #970 (2025-11-19)",
     "8 open PRs: #965 (emoji fix), #932 (signature API WIP), #925 (watch mode fix), #890 (netstandard2.0), #884 (dependabot NUnit), #880 (dependabot CodeAnalysis), #875 (fsdocs init), #776 (node_modules ignore)",
     "Latest tag: 8.0.1",
     "Repo labels: meta-discuss, meta-review, status-consider, status-planned, status-priority, type-bug, type-docs, type-feature, type-proposal, type-tests, action-taken, up-for-grabs, help-wanted, good-first-issue, dependencies, github_actions, .NET",
     "PR #776 (node_modules) has no reviews - blocked on maintainer",
     "PR #925 (watch mode) has CHANGES_REQUESTED from nojaf - active discussion through Jul 2024",
-    "PR #965 (emoji fix) by Thorium (MEMBER) - addresses #964"
+    "PR #965 (emoji fix) by Thorium (MEMBER) - addresses #964",
+    "Issues #536, #573, #585, #586, #590, #591, #592, #605, #626 all by dsyme with 0-1 comments - known desired enhancements",
+    "Issues #551 and #592 are actionable bugs that need community attention",
+    "safeoutputs add_labels only allows: bug, enhancement, help wanted, good first issue, spam, off topic",
+    "The repo uses custom labels (type-bug, type-feature, etc.) but standard GitHub labels (bug, enhancement, help wanted) also work"
   ]
 }
