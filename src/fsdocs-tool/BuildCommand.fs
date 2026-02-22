@@ -1385,6 +1385,12 @@ type CoreBuildOptions(watch) =
     [<Option("clean", Required = false, Default = false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
+    [<Option("generatellmstxt",
+             Required = false,
+             Default = false,
+             HelpText = "Generate llms.txt and llms-full.txt files for LLM consumption (see https://llmstxt.org/).")>]
+    member val generatellmstxt = false with get, set
+
     member this.Execute() =
 
         let onError msg =
@@ -1675,6 +1681,48 @@ type CoreBuildOptions(watch) =
 
             File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "index.json"), indxTxt)
 
+        let generateLlmsTxt () =
+            if this.generatellmstxt then
+                let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
+
+                let contentEntries = index |> Array.filter (fun e -> e.``type`` = "content")
+                let apiEntries = index |> Array.filter (fun e -> e.``type`` = "apiDocs")
+
+                let header = sprintf "# %s\n\n" collectionName
+
+                let buildSection sectionTitle (entries: ApiDocsSearchIndexEntry array) withContent =
+                    if entries.Length = 0 then
+                        ""
+                    else
+                        let sb = System.Text.StringBuilder()
+                        sb.Append(sprintf "## %s\n\n" sectionTitle) |> ignore
+
+                        for e in entries do
+                            sb.Append(sprintf "- [%s](%s)\n" e.title e.uri) |> ignore
+
+                            if withContent && not (System.String.IsNullOrWhiteSpace(e.content)) then
+                                sb.Append("\n") |> ignore
+                                sb.Append(e.content) |> ignore
+                                sb.Append("\n\n") |> ignore
+
+                        sb.ToString()
+
+                // llms.txt — index only (titles and links)
+                let llmsTxt =
+                    header
+                    + buildSection "Docs" contentEntries false
+                    + buildSection "API Reference" apiEntries false
+
+                File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms.txt"), llmsTxt)
+
+                // llms-full.txt — full content
+                let llmsFullTxt =
+                    header
+                    + buildSection "Docs" contentEntries true
+                    + buildSection "API Reference" apiEntries true
+
+                File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms-full.txt"), llmsFullTxt)
+
         /// get the hot reload script if running in watch mode
         let getLatestWatchScript () =
             if watch then
@@ -1949,6 +1997,7 @@ type CoreBuildOptions(watch) =
             // bespoke file for namespaces etc.
             let ok1 = ok1 && runDocContentPhase2 ()
             regenerateSearchIndex ()
+            generateLlmsTxt ()
             ok1 && ok2
 
         //-----------------------------------------
@@ -2010,7 +2059,8 @@ type CoreBuildOptions(watch) =
 
                             if runDocContentPhase1 () then
                                 if runDocContentPhase2 () then
-                                    regenerateSearchIndex ())
+                                    regenerateSearchIndex ()
+                                    generateLlmsTxt ())
 
                         Serve.refreshEvent.Trigger fileName
                     }
@@ -2031,7 +2081,8 @@ type CoreBuildOptions(watch) =
 
                             if runGeneratePhase1 () then
                                 if runGeneratePhase2 () then
-                                    regenerateSearchIndex ())
+                                    regenerateSearchIndex ()
+                                    generateLlmsTxt ())
 
                         Serve.refreshEvent.Trigger "full"
                     }

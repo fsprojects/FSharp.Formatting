@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+* Add `--generatellmstxt` flag to generate `llms.txt` and `llms-full.txt` for LLM consumption. [#951](https://github.com/fsprojects/FSharp.Formatting/issues/951)
+
 ### Changed
 * Update FCS to 43.10.100. [#935](https://github.com/fsprojects/FSharp.Formatting/pull/966)
 
