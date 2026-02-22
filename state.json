@@ -1,8 +1,8 @@
 {
   "last_run": "2026-02-22",
   "backlog_cursor": {
-    "last_issue_processed": 822,
-    "description": "Run 10 on 2026-02-22. Labelled #736, #743, #744, #821, #822 (bug), #468, #487, #536 (enhancement). Next: label enhancements #573, #585, #586, #590, #591, #605..."
+    "last_issue_processed": 933,
+    "description": "Run 11 on 2026-02-22. Labelled #573, #585, #586, #590, #591, #605, #683, #705, #725, #735, #742, #782, #791, #829, #872, #885, #898, #910, #926, #927, #928, #929, #933. Enhancement backlog from notes is now complete. Next: scan for any remaining unlabelled issues."
   },
   "commented_issues": {
     "970": {
@@ -52,7 +52,30 @@
     "822": {"labelled_at": "2026-02-22", "labels": ["bug", "help wanted"]},
     "468": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
     "487": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
-    "536": {"labelled_at": "2026-02-22", "labels": ["enhancement"]}
+    "536": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "573": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "585": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "586": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "590": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "591": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "605": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "683": {"labelled_at": "2026-02-22", "labels": ["enhancement", "documentation"]},
+    "705": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "725": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "735": {"labelled_at": "2026-02-22", "labels": ["question", "enhancement"]},
+    "742": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "782": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "791": {"labelled_at": "2026-02-22", "labels": ["enhancement", "refactor"]},
+    "829": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "872": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "885": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "898": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "910": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "926": {"labelled_at": "2026-02-22", "labels": ["question"]},
+    "927": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "928": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "929": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "933": {"labelled_at": "2026-02-22", "labels": ["enhancement", "refactor", "breaking change"]}
   },
   "attempted_fixes": {
     "931": {
@@ -73,11 +96,19 @@
       "pr_created": true
     }
   },
+  "dependency_updates": {
+    "2026-02-22": {
+      "branch": "repo-assist/deps-update-2026-02-22",
+      "description": "Updated G-Research.FSharp.Analyzers 0.18.0 → 0.21.0, Ionide.Analyzers 0.14.7 → 0.14.11. Build succeeded. Draft PR created.",
+      "pr_created": true,
+      "skipped": ["Suave major", "Ionide.ProjInfo large jump", "System.Text.Json major", "NUnit major", "FsUnit major", "FCS/FSharp.Core locked"]
+    }
+  },
   "nudged_prs": {
     "925": {"nudged_at": "2026-02-22", "author": "tymokvo", "reason": "CHANGES_REQUESTED from nojaf since Jul 2024, stale"}
   },
   "welcomed_contributors": {},
-  "dependency_check_last": null,
+  "dependency_check_last": "2026-02-22",
   "release_check_last": "2026-02-22",
   "monthly_activity_issue": {
     "2026-02": 973
@@ -85,6 +116,7 @@
   "tasks_last_run": {
     "task1": "2026-02-22",
     "task2": "2026-02-22",
+    "task4": "2026-02-22",
     "task5": "2026-02-22",
     "task6": "2026-02-22",
     "task7": "2026-02-22",
@@ -93,18 +125,20 @@
     "task11": "2026-02-22"
   },
   "notes": [
-    "Repo has 84 open issues spanning from #72 (2013) to #974 (2026-02-22)",
-    "Open PRs: #976 (Release 21.0.1, draft, Repo Assist), #975 (Ctrl+C watch mode fix, draft, Repo Assist), #965 (emoji fix, non-draft, ready for review), #925 (watch mode fix - CHANGES_REQUESTED), #875 (fsdocs init draft, stale Jan 2024), #776 (node_modules ignore)",
+    "Repo has 84+ open issues spanning from #72 (2013) to #974 (2026-02-22)",
+    "Open PRs: #976 (Release 21.0.1, draft), #975 (Ctrl+C watch fix, draft), #965 (emoji fix, non-draft ready for review), #925 (watch mode fix - CHANGES_REQUESTED), #875 (fsdocs init draft, stale Jan 2024), #776 (node_modules ignore). Plus new deps update PR (no number yet).",
     "Latest tag: 8.0.1 (GitHub tags are behind NuGet; actual latest version is 21.0.0 from 2025-11-12)",
     "Release process: update RELEASE_NOTES.md, push to main, CI publishes to NuGet with --skip-duplicate",
-    "safeoutputs add_labels has a max of 3 calls per run - actually tried more and it worked (seems to be per-item not per-call)",
-    "Issues labelled so far: #468, #487, #536, #551, #592, #626, #671, #673, #680, #685, #691, #693, #702, #734, #736, #743, #744, #748, #793, #803, #810, #821, #822, #857, #858, #924, #930, #931, #944, #949, #951, #952, #964, #970",
-    "Issues still to label (enhancement): #573, #585, #586, #590, #591, #605, #667, #683, #705, #725, #735, #742, #782, #791, #811, #829, #872, #885, #898, #910, #927, #928, #929, #933",
-    "PR #975: Repo Assist draft PR for #931 (Ctrl+C fix) - CI may be pending",
+    "safeoutputs add_labels allows multiple calls per run",
+    "Labelling nearly complete - most issues now have appropriate labels. Backlog enhancement list exhausted.",
+    "System.Drawing.Common 4.7.0 critical vulnerability (GHSA-rxg9-xrhp-64gj) is a transitive dep - needs investigation to find source package",
+    "Larger dep updates deferred: Suave 2→3, Ionide.ProjInfo 0.62→0.74, System.Text.Json 8→10, NUnit 3→4, FsUnit 5→7, NUnit3TestAdapter 4→6",
+    "PR #975: Repo Assist draft PR for #931 (Ctrl+C fix) - CI pending",
     "PR #976: Repo Assist draft PR for release 21.0.1",
     "Issue #974 is an announcement from dsyme explaining Repo Assist was added",
-    "Issue #973 is the monthly activity issue for 2026-02 - updated in run 10",
-    "Tasks to prioritize next run: task1 (triage), task4 (dependency check - never done), task9 (new contributors)",
-    "Issue #960 has 8 comments - user had link issues with fsdocs offline/ebook building, partial resolution found by user"
+    "Issue #973 is the monthly activity issue for 2026-02 - updated in run 11",
+    "Tasks to prioritize next run: task1 (triage older issues), task3 (study codebase), task10 (take repo forward)",
+    "Issue #960 had 8 comments - user found a workaround for dotnet/docs HTML book generation; nojaf couldn't help; may be worth closing as won't-fix or asking user to file a more specific bug",
+    "Issue #926 - question about HTML AST, already answered by nhirschey (HTML model is internal by design)"
   ]
 }
