@@ -7,3 +7,4 @@ With some [hyperlink](http://tomasp.net)
 
 Another [hyperlink](simple1.fsx)
 Yet another [hyperlink](simple2.md)
+And another [hyperlink](simple3.ipynb)

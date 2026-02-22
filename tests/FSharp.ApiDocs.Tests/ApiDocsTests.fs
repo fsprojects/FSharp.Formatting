@@ -88,7 +88,8 @@ let substitutions =
     [ ParamKeys.``fsdocs-collection-name``, "F# TestProject"
       ParamKeys.``fsdocs-authors``, "Your Name"
       ParamKeys.``fsdocs-repository-link``, "http://github.com/fsprojects/fsharp-test-project"
-      ParamKeys.root, "/root/" ]
+      ParamKeys.root, "/root/"
+      ParamKeys.``fsdocs-favicon-src``, "img/favicon.ico" ]
 
 let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComments uniq =
     try
@@ -126,6 +127,79 @@ let generateApiDocs (libraries: string list) (format: OutputFormat) useMdComment
         reraise ()
 
 do FSharp.Formatting.TestHelpers.enableLogging ()
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs seealso can find members`` (format: OutputFormat) =
+    let library = testBin </> "TestLib3.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] format false "TestLib3"
+
+    let (textA, textB) =
+        if format = OutputFormat.Html then
+            "seealso.html#disposeOnUnmount", "seealso.html#unsubscribeOnUnmount"
+        else
+            "seealso#disposeOnUnmount", "seealso#unsubscribeOnUnmount"
+
+    files.[(sprintf "test-seealso.%s" format.Extension)] |> shouldContainText textA
+
+    files.[(sprintf "test-seealso.%s" format.Extension)] |> shouldContainText textB
+
+[<Test>]
+[<TestCaseSource("formats")>]
+let ``ApiDocs excludes items`` (format: OutputFormat) =
+    let library = testBin </> "TestLib3.dll" |> fullpath
+
+    let files = generateApiDocs [ library ] format false "TestLib3"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldContainText "Returns unit"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeOmitted"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded1"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded2"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded3"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded4"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded5"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded6"
+
+    files.[(sprintf "fslib-partiallydocumented.%s" format.Extension)]
+    |> shouldNotContainText "shouldBeExcluded7"
+
+    // We can only expect a warning for "wishItWasExcluded1" & "WishItWasExcluded2"
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented1.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented2.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-partiallydocumented-notdocumented3.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "fslib-undocumentedmodule.%s" format.Extension)
+    |> shouldEqual false
+
+    files.ContainsKey(sprintf "test-dom.%s" format.Extension) |> shouldEqual true
+
+    files.ContainsKey(sprintf "test-dom-domaction.%s" format.Extension)
+    |> shouldEqual false
+
+    files.[(sprintf "test-dom.%s" format.Extension)]
+    |> shouldNotContainText "DomAction"
 
 [<Test>]
 [<TestCaseSource("formats")>]
@@ -571,7 +645,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     |> shouldContainText "Assembly"
 
     files.[(sprintf "creflib4-class4.%s" format.Extension)]
-    |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+    |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
 
     // F# tests (at least we not not crash for them, compiler doesn't resolve anything)
     // reference class in same assembly
@@ -587,7 +661,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
 
     files.[(sprintf "creflib2-class4.%s" format.Extension)]
     |> shouldContainText "Assembly"
-    //files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+    //files.[(sprintf "creflib2-class4.%s" format.Extension)] |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
 
     // F# tests (fully quallified)
     // reference class in same assembly
@@ -616,7 +690,7 @@ let ``ApiDocs test that cref generation works`` (format: OutputFormat) =
     |> shouldContainText "Assembly"
 
     files.[(sprintf "creflib2-class8.%s" format.Extension)]
-    |> shouldContainText "https://docs.microsoft.com/dotnet/api/system.reflection.assembly"
+    |> shouldContainText "https://learn.microsoft.com/dotnet/api/system.reflection.assembly"
 
 [<Test>]
 [<TestCaseSource("formats")>]
@@ -915,6 +989,7 @@ let ``ApiDocs process XML comments in two sample F# assemblies`` (format: Output
     files.[(sprintf "fslib-nested-submodule.%s" format.Extension)]
     |> shouldContainText "Very nested field"
 
+
 [<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs highlights code snippets in Markdown comments`` (format: OutputFormat) =
@@ -1054,9 +1129,9 @@ let ``ApiDocs omit works without markdown`` (format: OutputFormat) =
 
     let files = generateApiDocs [ library ] format false "FsLib2_omit"
 
-    // Actually, the thing gets generated it's just not in the index
+    // Omitted items shouldn't have generated a file
     files.ContainsKey(sprintf "fslib-test_omit.%s" format.Extension)
-    |> shouldEqual true
+    |> shouldEqual false
 
 [<Test>]
 [<TestCaseSource("formats")>]

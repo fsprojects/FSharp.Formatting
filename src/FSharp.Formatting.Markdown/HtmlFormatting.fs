@@ -29,7 +29,7 @@ let internal htmlEncodeQuotes (code: string) =
 /// ignoring newlines or spaces in the key.
 let internal (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
     [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-    |> Seq.tryPick (fun key ->
+    |> List.tryPick (fun key ->
         match dict.TryGetValue(key) with
         | true, v -> Some v
         | _ -> None)
@@ -53,7 +53,7 @@ type internal FormattingContext =
     { LineBreak: unit -> unit
       Newline: string
       Writer: TextWriter
-      Links: IDictionary<string, string * option<string>>
+      Links: IDictionary<string, string * string option>
       WrapCodeSnippets: bool
       GenerateHeaderAnchors: bool
       UniqueNameGenerator: UniqueNameGenerator
@@ -69,19 +69,19 @@ let internal noBreak (_ctx: FormattingContext) () = ()
 /// Write MarkdownSpan value to a TextWriter
 let rec internal formatSpan (ctx: FormattingContext) span =
     match span with
-    | LatexDisplayMath (body, _) ->
+    | LatexDisplayMath(body, _) ->
         // use mathjax grammar, for detail, check: http://www.mathjax.org/
         ctx.Writer.Write("<span class=\"math\">\\[" + (htmlEncode body) + "\\]</span>")
-    | LatexInlineMath (body, _) ->
+    | LatexInlineMath(body, _) ->
         // use mathjax grammar, for detail, check: http://www.mathjax.org/
         ctx.Writer.Write("<span class=\"math\">\\(" + (htmlEncode body) + "\\)</span>")
 
-    | AnchorLink (id, _) -> ctx.Writer.Write("<a name=\"" + id + "\">&#160;</a>")
-    | EmbedSpans (cmd, _) -> formatSpans ctx (cmd.Render())
-    | Literal (str, _) -> ctx.Writer.Write(str)
-    | HardLineBreak (_) -> ctx.Writer.Write("<br />" + ctx.Newline)
-    | IndirectLink (body, _, LookupKey ctx.Links (link, title), _)
-    | DirectLink (body, link, title, _) ->
+    | AnchorLink(id, _) -> ctx.Writer.Write("<a name=\"" + htmlEncodeQuotes id + "\">&#160;</a>")
+    | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
+    | Literal(str, _) -> ctx.Writer.Write(str)
+    | HardLineBreak(_) -> ctx.Writer.Write("<br />" + ctx.Newline)
+    | IndirectLink(body, _, LookupKey ctx.Links (link, title), _)
+    | DirectLink(body, link, title, _) ->
         ctx.Writer.Write("<a href=\"")
         ctx.Writer.Write(htmlEncode link)
 
@@ -95,14 +95,14 @@ let rec internal formatSpan (ctx: FormattingContext) span =
         formatSpans ctx body
         ctx.Writer.Write("</a>")
 
-    | IndirectLink (body, original, _, _) ->
+    | IndirectLink(body, original, _, _) ->
         ctx.Writer.Write("[")
         formatSpans ctx body
         ctx.Writer.Write("]")
         ctx.Writer.Write(original)
 
-    | IndirectImage (body, _, LookupKey ctx.Links (link, title), _)
-    | DirectImage (body, link, title, _) ->
+    | IndirectImage(body, _, LookupKey ctx.Links (link, title), _)
+    | DirectImage(body, link, title, _) ->
         ctx.Writer.Write("<img src=\"")
         ctx.Writer.Write(htmlEncodeQuotes link)
         ctx.Writer.Write("\" alt=\"")
@@ -115,21 +115,21 @@ let rec internal formatSpan (ctx: FormattingContext) span =
         | _ -> ()
 
         ctx.Writer.Write("\" />")
-    | IndirectImage (body, original, _, _) ->
+    | IndirectImage(body, original, _, _) ->
         ctx.Writer.Write("[")
         ctx.Writer.Write(body)
         ctx.Writer.Write("]")
         ctx.Writer.Write(original)
 
-    | Strong (body, _) ->
+    | Strong(body, _) ->
         ctx.Writer.Write("<strong>")
         formatSpans ctx body
         ctx.Writer.Write("</strong>")
-    | InlineCode (body, _) ->
+    | InlineCode(body, _) ->
         ctx.Writer.Write("<code>")
         ctx.Writer.Write(htmlEncode body)
         ctx.Writer.Write("</code>")
-    | Emphasis (body, _) ->
+    | Emphasis(body, _) ->
         ctx.Writer.Write("<em>")
         formatSpans ctx body
         ctx.Writer.Write("</em>")
@@ -142,13 +142,13 @@ let internal formatAnchor (ctx: FormattingContext) (spans: MarkdownSpans) =
     let extractWords (text: string) =
         Regex.Matches(text, @"\w+") |> Seq.cast<Match> |> Seq.map (fun m -> m.Value)
 
-    let rec gather (span: MarkdownSpan) : seq<string> =
+    let rec gather (span: MarkdownSpan) : string seq =
         seq {
             match span with
-            | Literal (str, _) -> yield! extractWords str
-            | Strong (body, _) -> yield! gathers body
-            | Emphasis (body, _) -> yield! gathers body
-            | DirectLink (body, _, _, _) -> yield! gathers body
+            | Literal(str, _) -> yield! extractWords str
+            | Strong(body, _) -> yield! gathers body
+            | Emphasis(body, _) -> yield! gathers body
+            | DirectLink(body, _, _, _) -> yield! gathers body
             | _ -> ()
         }
 
@@ -169,26 +169,27 @@ let internal withInner ctx f =
 /// Write a MarkdownParagraph value to a TextWriter as HTML
 let rec internal formatParagraph (ctx: FormattingContext) paragraph =
     match paragraph with
-    | LatexBlock (_env, lines, _) ->
+    | LatexBlock(_env, lines, _) ->
         // use mathjax grammar, for detail, check: http://www.mathjax.org/
         let body = String.concat ctx.Newline lines
 
         ctx.Writer.Write("<p><span class=\"math\">\\[" + (htmlEncode body) + "\\]</span></p>")
 
-    | EmbedParagraphs (cmd, _) -> formatParagraphs ctx (cmd.Render())
-    | Heading (n, spans, _) ->
-        ctx.Writer.Write("<h" + string n + ">")
+    | EmbedParagraphs(cmd, _) -> formatParagraphs ctx (cmd.Render())
+    | Heading(n, spans, _) ->
+        ctx.Writer.Write("<h" + string<int> n + ">")
 
         if ctx.GenerateHeaderAnchors then
             let anchorName = formatAnchor ctx spans
-            ctx.Writer.Write(sprintf """<a name="%s" class="anchor" href="#%s">""" anchorName anchorName)
+            let safeAnchorName = htmlEncodeQuotes anchorName
+            ctx.Writer.Write(sprintf """<a name="%s" class="anchor" href="#%s">""" safeAnchorName safeAnchorName)
             formatSpans ctx spans
             ctx.Writer.Write "</a>"
         else
             formatSpans ctx spans
 
-        ctx.Writer.Write("</h" + string n + ">")
-    | Paragraph (spans, _) ->
+        ctx.Writer.Write("</h" + string<int> n + ">")
+    | Paragraph(spans, _) ->
         ctx.ParagraphIndent()
         ctx.Writer.Write("<p>")
 
@@ -196,8 +197,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
             formatSpan ctx span
 
         ctx.Writer.Write("</p>")
-    | HorizontalRule (_, _) -> ctx.Writer.Write("<hr />")
-    | CodeBlock (code, _, _fence, language, _, _) ->
+    | HorizontalRule _ -> ctx.Writer.Write("<hr />")
+    | CodeBlock(code, _, _fence, language, _, _) ->
         let code =
             if language = "fsharp" then
                 adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code
@@ -210,7 +211,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         if String.IsNullOrWhiteSpace(language) then
             ctx.Writer.Write(sprintf "<pre><code>")
         else
-            let langCode = sprintf "language-%s" language
+            let langCode = sprintf "language-%s" (htmlEncodeQuotes language)
             ctx.Writer.Write(sprintf "<pre><code class=\"%s\">" langCode)
 
         ctx.Writer.Write(htmlEncode code)
@@ -218,8 +219,8 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("</td></tr></table>")
-    | OutputBlock (code, "text/html", _) -> ctx.Writer.Write(code)
-    | OutputBlock (code, _, _) ->
+    | OutputBlock(code, "text/html", _) -> ctx.Writer.Write(code)
+    | OutputBlock(code, _, _) ->
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
@@ -229,7 +230,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("</td></tr></table>")
-    | TableBlock (headers, alignments, rows, _) ->
+    | TableBlock(headers, alignments, rows, _) ->
         let aligns =
             alignments
             |> List.map (function
@@ -241,10 +242,12 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("<table>")
         ctx.Writer.Write(ctx.Newline)
 
-        if headers.IsSome then
+        match headers with
+        | None -> ()
+        | Some headers ->
             ctx.Writer.Write("<thead>" + ctx.Newline + "<tr class=\"header\">" + ctx.Newline)
 
-            for cell, align in Seq.zip headers.Value aligns do
+            for cell, align in Seq.zip headers aligns do
                 ctx.Writer.Write("<th" + align + ">")
 
                 for paragraph in cell do
@@ -273,7 +276,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
         ctx.Writer.Write("</table>")
         ctx.Writer.Write(ctx.Newline)
 
-    | ListBlock (kind, items, _) ->
+    | ListBlock(kind, items, _) ->
         let tag = if kind = Ordered then "ol" else "ul"
         ctx.Writer.Write("<" + tag + ">" + ctx.Newline)
 
@@ -282,8 +285,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
 
             match body with
             // Simple Paragraph
-            | [ Paragraph ([ MarkdownSpan.Literal (s, _) ], _) ] when not (s.Contains(ctx.Newline)) ->
-                ctx.Writer.Write s
+            | [ Paragraph([ MarkdownSpan.Literal(s, _) ], _) ] when not (s.Contains(ctx.Newline)) -> ctx.Writer.Write s
             | _ ->
                 let inner =
                     withInner ctx (fun ctx ->
@@ -302,19 +304,20 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
             ctx.Writer.Write("</li>" + ctx.Newline)
 
         ctx.Writer.Write("</" + tag + ">")
-    | QuotedBlock (body, _) ->
+    | QuotedBlock(body, _) ->
         ctx.ParagraphIndent()
         ctx.Writer.Write("<blockquote>" + ctx.Newline)
 
         formatParagraphs
-            { ctx with ParagraphIndent = fun () -> ctx.ParagraphIndent() (*; ctx.Writer.Write("  ")*)  }
+            { ctx with
+                ParagraphIndent = fun () -> ctx.ParagraphIndent() (*; ctx.Writer.Write("  ")*) }
             body
 
         ctx.ParagraphIndent()
         ctx.Writer.Write("</blockquote>")
-    | Span (spans, _) -> formatSpans ctx spans
-    | InlineHtmlBlock (code, _, _) -> ctx.Writer.Write(code)
-    | OtherBlock (lines, _) ->
+    | Span(spans, _) -> formatSpans ctx spans
+    | InlineHtmlBlock(code, _, _) -> ctx.Writer.Write(code)
+    | OtherBlock(lines, _) ->
         if ctx.WrapCodeSnippets then
             ctx.Writer.Write("<table class=\"pre\"><tr><td>")
 
@@ -324,7 +327,7 @@ let rec internal formatParagraph (ctx: FormattingContext) paragraph =
             ctx.Writer.Write(htmlEncode code)
 
         ctx.Writer.Write("</code></pre>")
-    | YamlFrontmatter (_lines, _) -> ()
+    | YamlFrontmatter(_lines, _) -> ()
 
     ctx.LineBreak()
 

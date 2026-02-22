@@ -12,7 +12,7 @@ files (`*.fsx`) that can be transformed into nice HTML
 using the `literate.fsx` script from the [F# Formatting
 package](http://fsprojects.github.io/FSharp.Formatting).
 
-As you can see, a comment starting with double asterisk
+As you can see, a comment starting with a double asterisk
 is treated as part of the document and is transformed
 using Markdown, which means that you can use:
 
@@ -25,7 +25,7 @@ And numerous other [Markdown][md] features.
 
 ## Writing F# code
 
-Code that is not inside comment will be formatted as
+Code that is not inside the comment will be formatted as
 a sample snippet.
 *)
 
@@ -50,8 +50,8 @@ let hidden = 42
 
 (**
 The value will be defined in the F# code and so you
-can use it from other (visible) code and get correct
-tool tips:
+can use it from other (visible) code and get the correct
+tooltips:
 *)
 
 let answer = hidden
@@ -64,14 +64,14 @@ has to be located at the end of the snippet (perhaps
 because it uses some definitions discussed in the middle).
 This can be done using `include` and `define` commands.
 
-The following snippet gets correct tool tips, even though
+The following snippet gets the correct tooltips, even though
 it uses `laterFunction`:
 *)
 
 (*** include:later-bit ***)
 
 (**
-Then we can explain how `laterFunction` is defined:
+Then, we can explain how `laterFunction` is defined:
 *)
 
 let laterFunction () = "Not very difficult, is it?"

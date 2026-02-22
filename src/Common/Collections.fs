@@ -49,7 +49,7 @@ module internal List =
             f x
             g ()
             iterInterleaved f g (y :: tl)
-        | x :: [] -> f x
+        | [ x ] -> f x
         | [] -> ()
 
     /// Tests whether a list starts with the elements of another
@@ -90,7 +90,7 @@ module internal List =
                     let other, rest = partitionUntil (f >> not) other
                     yield last, other
                     yield! loop rest
-                | [] when other = [] -> ()
+                | [] when List.isEmpty other -> ()
                 | _ -> invalidArg "" "Should start with true"
             }
 
@@ -103,7 +103,7 @@ module internal List =
 
 /// Represents a tree with nodes containing values an a list of children
 ///
-type internal Tree<'T> = Node of 'T * list<Tree<'T>>
+type internal Tree<'T> = Node of self: 'T * children: Tree<'T> list
 
 module internal Tree =
     /// Takes all elements at the specified level and turns them into nodes

@@ -23,6 +23,53 @@ type ParamKey =
 /// A list of parameters for substituting in templates, indexed by parameter keys
 type Substitutions = (ParamKey * string) list
 
+/// Meta data from files that contains front matter
+/// Used to determine upfront which files have front matter so that previous and next substitutes can be discovered.
+type FrontMatterFile =
+    { FileName: string
+      Category: string
+      CategoryIndex: int
+      Index: int }
+
+    /// Parses the category, categoryindex and index from the frontmatter lines
+    static member ParseFromLines (fileName: string) (lines: string seq) =
+        let (|ValidIndex|_|) (value: string) =
+            match Int32.TryParse value with
+            | true, i -> Some i
+            | false, _ -> None
+
+        let keyValues =
+            lines
+            // Skip opening lines
+            |> Seq.skipWhile (fun line ->
+                let line = line.Trim()
+                line = "(**" || line = "---")
+            |> Seq.takeWhile (fun line ->
+                // Allow empty lines in frontmatter
+                let isBlankLine = String.IsNullOrWhiteSpace line
+                isBlankLine || line.Contains(":"))
+            |> Seq.choose (fun line ->
+                if String.IsNullOrWhiteSpace line |> not then
+                    let parts = line.Split(":") |> Array.toList
+
+                    match parts with
+                    | first :: second :: _ -> Some(first.ToLowerInvariant(), second)
+                    | _ -> None
+                else
+                    None)
+            |> Map.ofSeq
+
+        match
+            Map.tryFind "category" keyValues, Map.tryFind "categoryindex" keyValues, Map.tryFind "index" keyValues
+        with
+        | Some category, Some(ValidIndex categoryindex), Some(ValidIndex index) ->
+            Some
+                { FileName = fileName
+                  Category = category.Trim()
+                  CategoryIndex = categoryindex
+                  Index = index }
+        | _ -> None
+
 /// <summary>
 ///  Defines the parameter keys known to FSharp.Formatting processing code
 /// </summary>
@@ -40,6 +87,9 @@ module ParamKeys =
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-content`` = ParamKey "fsdocs-content"
+
+    /// A parameter key known to FSharp.Formatting
+    let ``fsdocs-page-content-list`` = ParamKey "fsdocs-page-content-list"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-collection-name-link`` = ParamKey "fsdocs-collection-name-link"
@@ -63,7 +113,7 @@ module ParamKeys =
     let ``fsdocs-logo-src`` = ParamKey "fsdocs-logo-src"
 
     /// A parameter key known to FSharp.Formatting
-    let ``fsdocs-navbar-position`` = ParamKey "fsdocs-navbar-position"
+    let ``fsdocs-favicon-src`` = ParamKey "fsdocs-favicon-src"
 
     /// A parameter key known to FSharp.Formatting
     let ``fsdocs-package-license-expression`` = ParamKey "fsdocs-package-license-expression"
@@ -123,6 +173,10 @@ module ParamKeys =
     let ``fsdocs-menu-header-id`` = ParamKey "fsdocs-menu-header-id"
 
     /// A parameter key known to FSharp.Formatting, available in _menu_template.html
+    /// This will be an empty string if the category is not active.
+    let ``fsdocs-menu-header-active-class`` = ParamKey "fsdocs-menu-header-active-class"
+
+    /// A parameter key known to FSharp.Formatting, available in _menu_template.html
     let ``fsdocs-menu-items`` = ParamKey "fsdocs-menu-items"
 
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
@@ -134,6 +188,32 @@ module ParamKeys =
     /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
     let ``fsdocs-menu-item-id`` = ParamKey "fsdocs-menu-item-id"
 
+    /// A parameter key known to FSharp.Formatting, available in _menu-item_template.html
+    /// /// This will be an empty string if the item is not active.
+    let ``fsdocs-menu-item-active-class`` = ParamKey "fsdocs-menu-item-active-class"
+
+    /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
+    let ``fsdocs-previous-page-link`` = ParamKey "fsdocs-previous-page-link"
+
+    /// A parameter key known to FSharp.Formatting, available when frontmatter is used correctly
+    let ``fsdocs-next-page-link`` = ParamKey "fsdocs-next-page-link"
+
+    /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+    let ``fsdocs-head-extra`` = ParamKey "fsdocs-head-extra"
+
+    /// A parameter key known to FSharp.Formatting, available when `_head.html` exists in the input folder.
+    let ``fsdocs-body-extra`` = ParamKey "fsdocs-body-extra"
+
+    /// A parameter key known to FSharp.Formatting, either 'content' or 'api-doc'
+    /// Mean to be used on the `class` attribute in the `<body>` tag.
+    /// This helps to differentiate styles between API docs and custom content.
+    let ``fsdocs-body-class`` = ParamKey "fsdocs-body-class"
+
+    /// A parameter key known to FSharp.Formatting, it is HTML composed from additional frontmatter information.
+    /// Such as tags and description
+    /// This can be empty when both properties are not provided for the current page.
+    let ``fsdocs-meta-tags`` = ParamKey "fsdocs-meta-tags"
+
 module internal SimpleTemplating =
 
 #if NETSTANDARD2_0
@@ -143,7 +223,7 @@ module internal SimpleTemplating =
 #endif
 
     // Replace '{{xyz}}' in template text
-    let ApplySubstitutionsInText (substitutions: seq<ParamKey * string>) (text: string) =
+    let ApplySubstitutionsInText (substitutions: (ParamKey * string) seq) (text: string) =
         if not (text.Contains "{{") then
             text
         else
@@ -188,22 +268,29 @@ module internal SimpleTemplating =
 
             sb.ToString()
 
-    // Replace '{{xyz}}' in text
-    let ApplySubstitutions (substitutions: seq<ParamKey * string>) (templateTextOpt: string option) =
-        match templateTextOpt |> Option.map (fun s -> s.Trim()) with
-        | None
-        | Some "" ->
+    /// Replace '{{xyz}}' in text
+    let ApplySubstitutions (substitutions: (ParamKey * string) seq) (templateTextOpt: string option) =
+        let opt =
+            templateTextOpt
+            |> Option.bind (fun s ->
+                let trimmed = s.Trim()
+
+                if String.IsNullOrWhiteSpace trimmed then
+                    None
+                else
+                    Some trimmed)
+
+        match opt with
+        | None ->
             // If there is no template or the template is an empty file, return just document + tooltips (tooltips empty if not HTML)
             let lookup = readOnlyDict substitutions
 
-            (if lookup.ContainsKey ParamKeys.``fsdocs-content`` then
-                 lookup.[ParamKeys.``fsdocs-content``]
-             else
-                 "")
-            + (if lookup.ContainsKey ParamKeys.``fsdocs-tooltips`` then
-                   "\n\n" + lookup.[ParamKeys.``fsdocs-tooltips``]
-               else
-                   "")
+            (match lookup.TryGetValue ParamKeys.``fsdocs-content`` with
+             | true, lookupContent -> lookupContent
+             | false, _ -> "")
+            + (match lookup.TryGetValue ParamKeys.``fsdocs-tooltips`` with
+               | true, lookupTips -> "\n\n" + lookupTips
+               | false, _ -> "")
         | Some templateText -> ApplySubstitutionsInText substitutions templateText
 
     let UseFileAsSimpleTemplate (substitutions, templateOpt, outputFile) =

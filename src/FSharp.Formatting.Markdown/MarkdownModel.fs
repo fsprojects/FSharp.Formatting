@@ -14,11 +14,13 @@ open System.Collections.Generic
 /// <summary>
 ///   A list kind can be Ordered or Unordered corresponding to <c>&lt;ol&gt;</c> and <c>&lt;ul&gt;</c> elements
 /// </summary>
+[<Struct>]
 type MarkdownListKind =
     | Ordered
     | Unordered
 
 /// Column in a table can be aligned to left, right, center or using the default alignment
+[<Struct>]
 type MarkdownColumnAlignment =
     | AlignLeft
     | AlignRight
@@ -70,7 +72,7 @@ type MarkdownParagraph =
     | InlineHtmlBlock of code: string * executionCount: int option * range: MarkdownRange option
 
     /// A Markdown List block
-    | ListBlock of kind: MarkdownListKind * items: list<MarkdownParagraphs> * range: MarkdownRange option
+    | ListBlock of kind: MarkdownListKind * items: MarkdownParagraphs list * range: MarkdownRange option
 
     /// A Markdown Quote block
     | QuotedBlock of paragraphs: MarkdownParagraphs * range: MarkdownRange option
@@ -79,16 +81,16 @@ type MarkdownParagraph =
     | Span of body: MarkdownSpans * range: MarkdownRange option
 
     /// A Markdown Latex block
-    | LatexBlock of env: string * body: list<string> * range: MarkdownRange option
+    | LatexBlock of env: string * body: string list * range: MarkdownRange option
 
     /// A Markdown Horizontal rule
     | HorizontalRule of character: char * range: MarkdownRange option
 
     /// A Markdown Table
     | TableBlock of
-        headers: option<MarkdownTableRow> *
-        alignments: list<MarkdownColumnAlignment> *
-        rows: list<MarkdownTableRow> *
+        headers: MarkdownTableRow option *
+        alignments: MarkdownColumnAlignment list *
+        rows: MarkdownTableRow list *
         range: MarkdownRange option
 
     /// Represents a block of markdown produced when parsing of code or tables or quoted blocks is suppressed
@@ -104,10 +106,10 @@ type MarkdownParagraph =
     | OutputBlock of output: string * kind: string * executionCount: int option
 
 /// A type alias for a list of paragraphs
-type MarkdownParagraphs = list<MarkdownParagraph>
+type MarkdownParagraphs = MarkdownParagraph list
 
 /// A type alias representing table row as a list of paragraphs
-type MarkdownTableRow = list<MarkdownParagraphs>
+type MarkdownTableRow = MarkdownParagraphs list
 
 /// Provides an extensibility point for adding custom kinds of paragraphs into a document
 /// (MarkdownEmbedParagraphs values can be embedded using MarkdownParagraph.EmbedParagraphs)
@@ -158,19 +160,19 @@ module MarkdownPatterns =
         | LatexDisplayMath _
         | EmbedSpans _
         | HardLineBreak _ -> SpanLeaf(SL span)
-        | Strong (spans, _)
-        | Emphasis (spans, _)
-        | DirectLink (spans, _, _, _)
-        | IndirectLink (spans, _, _, _) -> SpanNode(SN span, spans)
+        | Strong(spans, _)
+        | Emphasis(spans, _)
+        | DirectLink(spans, _, _, _)
+        | IndirectLink(spans, _, _, _) -> SpanNode(SN span, spans)
 
-    let SpanLeaf (SL (span)) = span
+    let SpanLeaf (SL(span)) = span
 
-    let SpanNode (SN (span), spans) =
+    let SpanNode (SN(span), spans) =
         match span with
-        | Strong (_, r) -> Strong(spans, r)
-        | Emphasis (_, r) -> Emphasis(spans, r)
-        | DirectLink (_, l, t, r) -> DirectLink(spans, l, t, r)
-        | IndirectLink (_, a, b, r) -> IndirectLink(spans, a, b, r)
+        | Strong(_, r) -> Strong(spans, r)
+        | Emphasis(_, r) -> Emphasis(spans, r)
+        | DirectLink(_, l, t, r) -> DirectLink(spans, l, t, r)
+        | IndirectLink(_, a, b, r) -> IndirectLink(spans, a, b, r)
         | _ -> invalidArg "" "Incorrect SpanNodeInfo"
 
     type ParagraphSpansInfo = private PS of MarkdownParagraph
@@ -179,9 +181,9 @@ module MarkdownPatterns =
 
     let (|ParagraphLeaf|ParagraphNested|ParagraphSpans|) par =
         match par with
-        | Heading (_, spans, _)
-        | Paragraph (spans, _)
-        | Span (spans, _) -> ParagraphSpans(PS par, spans)
+        | Heading(_, spans, _)
+        | Paragraph(spans, _)
+        | Span(spans, _) -> ParagraphSpans(PS par, spans)
         | OtherBlock _
         | OutputBlock _
         | CodeBlock _
@@ -190,23 +192,23 @@ module MarkdownPatterns =
         | LatexBlock _
         | YamlFrontmatter _
         | HorizontalRule _ -> ParagraphLeaf(PL par)
-        | ListBlock (_, pars, _) -> ParagraphNested(PN par, pars)
-        | QuotedBlock (nested, _) -> ParagraphNested(PN par, [ nested ])
-        | TableBlock (headers, _alignments, rows, _) ->
+        | ListBlock(_, pars, _) -> ParagraphNested(PN par, pars)
+        | QuotedBlock(nested, _) -> ParagraphNested(PN par, [ nested ])
+        | TableBlock(headers, _alignments, rows, _) ->
             match headers with
             | None -> ParagraphNested(PN par, rows |> List.concat)
             | Some columns -> ParagraphNested(PN par, columns :: rows |> List.concat)
 
-    let ParagraphSpans (PS (par), spans) =
+    let ParagraphSpans (PS(par), spans) =
         match par with
-        | Heading (a, _, r) -> Heading(a, spans, r)
-        | Paragraph (_, r) -> Paragraph(spans, r)
-        | Span (_, r) -> Span(spans, r)
+        | Heading(a, _, r) -> Heading(a, spans, r)
+        | Paragraph(_, r) -> Paragraph(spans, r)
+        | Span(_, r) -> Span(spans, r)
         | _ -> invalidArg "" "Incorrect ParagraphSpansInfo."
 
-    let ParagraphLeaf (PL (par)) = par
+    let ParagraphLeaf (PL(par)) = par
 
-    let ParagraphNested (PN (par), pars) =
+    let ParagraphNested (PN(par), pars) =
         let splitEach n list =
             let rec loop n left ansList curList items =
                 if List.isEmpty items && List.isEmpty curList then
@@ -219,9 +221,9 @@ module MarkdownPatterns =
             loop n n [] [] list
 
         match par with
-        | ListBlock (a, _, r) -> ListBlock(a, pars, r)
-        | QuotedBlock (_, r) -> QuotedBlock(List.concat pars, r)
-        | TableBlock (headers, alignments, _, r) ->
+        | ListBlock(a, _, r) -> ListBlock(a, pars, r)
+        | QuotedBlock(_, r) -> QuotedBlock(List.concat pars, r)
+        | TableBlock(headers, alignments, _, r) ->
             let rows = splitEach (alignments.Length) pars
 
             if List.isEmpty rows || headers.IsNone then

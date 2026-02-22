@@ -36,7 +36,7 @@ type AsyncMaybeBuilder() =
 
             match r1' with
             | None -> return None
-            | Some () -> return! r2
+            | Some() -> return! r2
         }
 
     [<DebuggerStepThrough>]
@@ -80,7 +80,7 @@ type AsyncMaybeBuilder() =
             x.Zero()
 
     [<DebuggerStepThrough>]
-    member x.For(sequence: seq<_>, body: 'T -> Async<unit option>) : Async<_ option> =
+    member x.For(sequence: _ seq, body: 'T -> Async<unit option>) : Async<_ option> =
         x.Using(sequence.GetEnumerator(), (fun enum -> x.While(enum.MoveNext, x.Delay(fun () -> body enum.Current))))
 
     [<DebuggerStepThrough>]
@@ -134,12 +134,8 @@ type CheckResults =
 type FSharpChecker with
 
     member this.ParseAndCheckDocument
-        (
-            filePath: string,
-            sourceText: string,
-            options: FSharpProjectOptions,
-            allowStaleResults: bool
-        ) : Async<(FSharpParseFileResults * ParsedInput * FSharpCheckFileResults) option> =
+        (filePath: string, sourceText: string, options: FSharpProjectOptions, allowStaleResults: bool)
+        : Async<(FSharpParseFileResults * ParsedInput * FSharpCheckFileResults) option> =
         let parseAndCheckFile =
             async {
                 let! parseResults, checkFileAnswer =
@@ -163,7 +159,7 @@ type FSharpChecker with
 
         let bindParsedInput (results: (FSharpParseFileResults * FSharpCheckFileResults) option) =
             match results with
-            | Some (parseResults, checkResults) -> Some(parseResults, parseResults.ParseTree, checkResults)
+            | Some(parseResults, checkResults) -> Some(parseResults, parseResults.ParseTree, checkResults)
             | None -> None
 
         if allowStaleResults then
@@ -176,7 +172,7 @@ type FSharpChecker with
                     | StillRunning worker ->
                         async {
                             match allowStaleResults, this.TryGetRecentCheckResultsForFile(filePath, options) with
-                            | true, Some (parseResults, checkFileResults, _) ->
+                            | true, Some(parseResults, checkFileResults, _) ->
                                 return Some(parseResults, checkFileResults)
                             | _ -> return! worker
                         }

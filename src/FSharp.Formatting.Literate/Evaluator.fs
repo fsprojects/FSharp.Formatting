@@ -15,7 +15,7 @@ open FSharp.Formatting.Internal
 /// <namespacedoc>
 ///   <summary>Functionality to support literate evaluation for F# scripts</summary>
 /// </namespacedoc>
-[<RequireQualifiedAccessAttribute>]
+[<RequireQualifiedAccessAttribute; Struct>]
 type FsiEmbedKind =
     /// The FSI output
     | FsiOutput
@@ -32,9 +32,7 @@ type FsiEmbedKind =
 
 /// An interface that represents FSI evaluation result
 /// (we make this abstract so that evaluators can store other info)
-type IFsiEvaluationResult =
-    interface
-    end
+type IFsiEvaluationResult = interface end
 
 /// Represents the result of evaluating an F# snippet. This contains
 /// the generated console output together with a result and its static type.
@@ -96,7 +94,7 @@ type private NoOpFsiObject() =
     let mutable printSize = 10000
     let mutable showIEnumerable = true
     let mutable showProperties = true
-    let mutable addedPrinters: list<Choice<System.Type * (obj -> string), System.Type * (obj -> obj)>> = []
+    let mutable addedPrinters: Choice<System.Type * (obj -> string), System.Type * (obj -> obj)> list = []
 
     member self.FloatingPointFormat
         with get () = fpfmt
@@ -164,7 +162,7 @@ type FsiEvaluatorConfig() =
 /// A wrapper for F# interactive service that is used to evaluate inline snippets
 type FsiEvaluator
     (
-        ?options: string[],
+        ?options: string array,
         ?fsiObj: obj,
         ?addHtmlPrinter: bool,
         ?discardStdOut: bool,
@@ -187,14 +185,15 @@ type FsiEvaluator
 
     let fsiOptions =
         if addHtmlPrinter then
-            { fsiOptions with Defines = fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ] }
+            { fsiOptions with
+                Defines = fsiOptions.Defines @ [ "HAS_FSI_ADDHTMLPRINTER" ] }
         else
             fsiOptions
 
     let fsiSession = ScriptHost.Create(fsiOptions, discardStdOut = discardStdOut, fsiObj = fsiObj)
 
     let mutable plainTextPrinters: Choice<(obj -> string option), (obj -> obj option)> list = []
-    let mutable htmlPrinters: Choice<(obj -> (seq<string * string> * string) option), (obj -> obj option)> list = []
+    let mutable htmlPrinters: Choice<(obj -> ((string * string) seq * string) option), (obj -> obj option)> list = []
 
     //----------------------------------------------------
     // Inject the standard 'fsi' script control model into the evaluation session
@@ -248,7 +247,7 @@ type FsiEvaluator
             | _ ->
                 if ty.IsAssignableFrom(value.GetType()) then
                     match f with
-                    | :? (obj -> seq<string * string> * string) as f2 -> Some(f2 value)
+                    | :? (obj -> (string * string) seq * string) as f2 -> Some(f2 value)
                     | _ -> None
                 else
                     None
@@ -445,7 +444,7 @@ module __FsiSettings =
         Unchecked.defaultof<_> with get, set
 
     /// Temporarily holds the function value injected into the F# evaluation session
-    static member val internal InjectedAddHtmlPrinter: ((obj -> seq<string * string> * string) * Type -> unit) =
+    static member val internal InjectedAddHtmlPrinter: ((obj -> (string * string) seq * string) * Type -> unit) =
         Unchecked.defaultof<_> with get, set
 
     /// Temporarily holds the object value injected into the F# evaluation session
@@ -482,16 +481,16 @@ module __FsiSettings =
 
                 let output = outputText.Trim()
                 [ OutputBlock(output, "text/plain", Some executionCount) ]
-            | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItRaw ->
+            | { ItValue = Some(obj, ty) }, FsiEmbedKind.ItRaw ->
                 match
                     valueTransformations
-                    |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                    |> List.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
                 with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks ->
                     blocks
                     |> List.map (function
-                        | OutputBlock (output, _, Some executionCount) ->
+                        | OutputBlock(output, _, Some executionCount) ->
                             let output =
                                 if ty.FullName = (typeof<string>).FullName then
                                     let l = output.Length
@@ -501,11 +500,11 @@ module __FsiSettings =
 
                             OutputBlock(output, "text/html", Some executionCount)
                         | _ -> OutputBlock("Value could not be returned raw", "text/plain", Some executionCount))
-            | { ItValue = Some (obj, ty) }, FsiEmbedKind.ItValue
-            | { Result = Some (obj, ty) }, FsiEmbedKind.Value ->
+            | { ItValue = Some(obj, ty) }, FsiEmbedKind.ItValue
+            | { Result = Some(obj, ty) }, FsiEmbedKind.Value ->
                 match
                     valueTransformations
-                    |> Seq.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
+                    |> List.pick (fun f -> lock lockObj (fun () -> f (obj, ty, executionCount)))
                 with
                 | [] -> [ OutputBlock("No value returned by any evaluator", "text/plain", Some executionCount) ]
                 | blocks -> blocks
@@ -568,7 +567,7 @@ module __FsiSettings =
                       StdErr = e.Result.Error.Merged }
 
                 let msg =
-                    $"Evaluation failed and --strict is on\n    file={file}\n    asExpression={asExpression}, text={text}\n    stdout={e.Result.Output.Merged}\n\    stderr={e.Result.Error.Merged}\n    inner exception={e.InnerException}"
+                    $"Evaluation failed and --strict is on\n    file=%A{file}\n    asExpression=%b{asExpression}, text=%s{text}\n    stdout=%s{e.Result.Output.Merged}\n\    stderr=%s{e.Result.Error.Merged}\n    inner exception=%A{e.InnerException}"
 
                 onError msg
 

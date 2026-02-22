@@ -51,19 +51,19 @@ b""",
     //[/test]
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Literal ("a", Some ({ StartLine = 2 })) ], Some ({ StartLine = 2 })) -> true
+        | Paragraph([ Literal("a", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Literal ("b", Some ({ StartLine = 6 })) ], Some ({ StartLine = 6 })) -> true
+        | Paragraph([ Literal("b", Some({ StartLine = 6 })) ], Some({ StartLine = 6 })) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | EmbedParagraphs (:? LiterateParagraph as cd, Some ({ StartLine = 4 })) ->
+        | EmbedParagraphs(:? LiterateParagraph as cd, Some({ StartLine = 4 })) ->
             match cd with
-            | LanguageTaggedCode ("csharp", text, _popts) -> text.Contains "magic"
+            | LanguageTaggedCode("csharp", text, _popts) -> text.Contains "magic"
             | _ -> false
         | _ -> false)
 
@@ -84,13 +84,13 @@ let test = 42"""
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) ],
-                     Some ({ StartLine = 1 })) -> true
+        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) ],
+                    Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -112,12 +112,12 @@ let test = 42"""
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([ _; _ ], _) -> true
+        | YamlFrontmatter([ _; _ ], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 [<Test>]
@@ -141,7 +141,7 @@ let test = 42"""
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([ _; _ ], _) -> true
+        | YamlFrontmatter([ _; _ ], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
@@ -151,7 +151,7 @@ let test = 42"""
 
     doc.Paragraphs.[2..2]
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 
@@ -172,12 +172,12 @@ let test = 42"""
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([], _) -> true
+        | YamlFrontmatter([], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 [<Test>]
@@ -201,7 +201,7 @@ let test = 42
 
     doc.Paragraphs.[0..0]
     |> shouldMatchPar (function
-        | YamlFrontmatter ([ _; _ ], _) -> true
+        | YamlFrontmatter([ _; _ ], _) -> true
         | _ -> false)
 
     doc.Paragraphs.[1..1]
@@ -221,7 +221,7 @@ let test = 42"""
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (2, [ Literal ("Heading", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(2, [ Literal("Heading", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -238,13 +238,13 @@ let ``Can parse markdown with F# snippet`` () =
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", Some ({ StartLine = 2 })) ], Some ({ StartLine = 2 })) ],
-                     Some ({ StartLine = 2 })) -> true
+        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) ],
+                    Some({ StartLine = 2 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -263,13 +263,13 @@ let test = 42
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Paragraph ([ Strong ([ Literal ("hello", Some ({ StartLine = 2 })) ], Some ({ StartLine = 2 })) ],
-                     Some ({ StartLine = 2 })) -> true
+        | Paragraph([ Strong([ Literal("hello", Some({ StartLine = 2 })) ], Some({ StartLine = 2 })) ],
+                    Some({ StartLine = 2 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -288,7 +288,7 @@ let test = 42
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | MarkdownPatterns.LiterateParagraph (LiterateCode _) -> true
+        | MarkdownPatterns.LiterateParagraph(LiterateCode _) -> true
         | _ -> false)
 
 [<Test>]
@@ -305,17 +305,17 @@ some [link][ref] to
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | ListBlock (_, _, _) -> true
+        | ListBlock(_, _, _) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchSpan (function
-        | Literal ("Article", None) -> true
+        | Literal("Article", None) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchSpan (function
-        | Literal (" - Author", None) -> true
+        | Literal(" - Author", None) -> true
         | _ -> false)
 
 [<Test>]
@@ -355,10 +355,7 @@ var
 
     let formatted = FSharp.Formatting.CSharpFormat.SyntaxHighlighter.FormatHtml(html)
 
-    let expected =
-        html
-            .Replace(" lang=\"csharp\"", "")
-            .Replace("var", "<span class=\"k\">var</span>")
+    let expected = html.Replace(" lang=\"csharp\"", "").Replace("var", "<span class=\"k\">var</span>")
 
     formatted |> shouldEqual expected
 
@@ -961,7 +958,7 @@ let add a b = a + b
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (_, [ Literal ("demo", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 
@@ -980,12 +977,12 @@ let mul a b = a * b
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (_, [ Literal ("demo1", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo1", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
     doc.Paragraphs
     |> shouldMatchPar (function
-        | Heading (_, [ Literal ("demo2", Some ({ StartLine = 1 })) ], Some ({ StartLine = 1 })) -> true
+        | Heading(_, [ Literal("demo2", Some({ StartLine = 1 })) ], Some({ StartLine = 1 })) -> true
         | _ -> false)
 
 [<Test>]
@@ -1065,33 +1062,74 @@ With some [hyperlink](http://tomasp.net)
     printfn "----"
     pynb |> shouldContainText """ "cells": ["""
 
-    pynb |> shouldContainText """ "cell_type": "markdown","""
+    pynb
+    |> shouldContainText
+        """
+   "cell_type": "markdown",
+   "metadata": {},"""
 
-    pynb |> shouldContainText """ "source": ["Heading\n","""
+    pynb
+    |> shouldContainText
+        """ "source": [
+    "Heading\n","""
 
     pynb |> shouldContainText """"=======\n","""
 
     pynb |> shouldContainText """With some [hyperlink](http://tomasp.net)"""
 
-    pynb |> shouldContainText """ "cell_type": "code","""
+    pynb
+    |> shouldContainText
+        """"cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }"""
 
     pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
 
-    pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
+    pynb
+    |> shouldContainText
+        """ "source": [
+    "let hello = \"Code sample"""
 
     pynb
-    |> shouldContainText """ "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},"""
+    |> shouldContainText
+        """  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },"""
+
+    pynb
+    |> shouldContainText
+        """"polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }"""
 
     pynb |> shouldContainText """ "file_extension": ".fs","""
 
     pynb |> shouldContainText """ "mimetype": "text/x-fsharp","""
 
-    pynb |> shouldContainText """ "pygments_lexer": "fsharp","""
+    pynb
+    |> shouldContainText
+        """ "pygments_lexer": "fsharp"
+"""
 
-    pynb |> shouldContainText """ "version": "4.5"""
     pynb |> shouldContainText """ "nbformat": 4,"""
 
-    pynb |> shouldContainText """ "nbformat_minor": 1"""
+    pynb |> shouldContainText """ "nbformat_minor": 2"""
 
 
 [<Test>]
@@ -1183,7 +1221,10 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
 
     pynb |> shouldContainText """ "cell_type": "markdown","""
 
-    pynb |> shouldContainText """ "source": ["Heading"""
+    pynb
+    |> shouldContainText
+        """ "source": [
+    "Heading"""
 
     pynb |> shouldContainText """====="""
     pynb |> shouldContainText """```emptyblockcode"""
@@ -1258,30 +1299,64 @@ let hello5 = 4 // Doc preparation code is not present in generated notebooks
     pynb
     |> shouldNotContainText """Doc preparation code is not present in generated notebooks"""
 
-    pynb |> shouldContainText """ "cell_type": "code","""
-
-    pynb |> shouldContainText """ "execution_count": null, "outputs": [],"""
-
-    pynb |> shouldContainText """ "source": ["let hello = \"Code sample"""
+    pynb
+    |> shouldContainText
+        """"cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],"""
 
     pynb
-    |> shouldContainText """ "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},"""
+    |> shouldContainText
+        """ "source": [
+    "let hello = \"Code sample"""
+
+    pynb
+    |> shouldContainText
+        """  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },"""
+
+    pynb
+    |> shouldContainText
+        """  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }"""
 
     pynb |> shouldContainText """ "file_extension": ".fs","""
 
     pynb |> shouldContainText """ "mimetype": "text/x-fsharp","""
 
-    pynb |> shouldContainText """ "pygments_lexer": "fsharp","""
+    pynb
+    |> shouldContainText
+        """ "pygments_lexer": "fsharp"
+"""
 
-    pynb |> shouldContainText """ "version": "4.5"""
     pynb |> shouldContainText """ "nbformat": 4,"""
 
-    pynb |> shouldContainText """ "nbformat_minor": 1"""
+    pynb |> shouldContainText """ "nbformat_minor": 2"""
 
 
 [<Test>]
 let ``Notebook output is exactly right`` () =
-    let md =
+    let doc =
         Literate.ParseScriptString(
             """
 let hello = 1
@@ -1293,7 +1368,7 @@ let goodbye = 2
                  ||| MarkdownParseOptions.ParseNonCodeAsOther)
         )
 
-    let pynb = Literate.ToPynb(md)
+    let pynb = Literate.ToPynb(doc)
     printfn "----"
     printfn "%s" pynb
     printfn "----"
@@ -1302,35 +1377,347 @@ let goodbye = 2
 
     let expected =
         """
-        {
-            "cells": [
-          {
-           "cell_type": "code",
-           "metadata": {},
-            "execution_count": null, "outputs": [],
-           "source": ["let hello = 1\n",
-"\n",
-"let goodbye = 2\n"]
-          }],
-            "metadata": {
-            "kernelspec": {"display_name": ".NET (F#)", "language": "F#", "name": ".net-fsharp"},
-            "langauge_info": {
-        "file_extension": ".fs",
-        "mimetype": "text/x-fsharp",
-        "name": "C#",
-        "pygments_lexer": "fsharp",
-        "version": "4.5"
-        }
-        },
-            "nbformat": 4,
-            "nbformat_minor": 1
-        }
-        """
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],
+   "source": [
+    "let hello = 1\n",
+    "\n",
+    "let goodbye = 2\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "polyglot-notebook",
+   "pygments_lexer": "fsharp"
+  },
+  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}"""
 
     let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
 
     pynb2 |> shouldEqual expected2
 
+[<Test>]
+let ``pynb outputs passed to script correctly`` () =
+
+    let input =
+        """{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "dotnet_repl_cellExecutionStartTime": "2023-11-22T09:25:48.0570832+00:00",
+    "dotnet_repl_cellExecutionEndTime": "2023-11-22T09:25:48.0798154+00:00"
+   },
+   "source": [
+    "words"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "dotnet_repl_cellExecutionStartTime": "2023-11-22T09:25:48.081018+00:00",
+    "dotnet_repl_cellExecutionEndTime": "2023-11-22T09:25:50.1467326+00:00",
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<details open=\"open\" class=\"dni-treeview\"><summary><span class=\"dni-code-hint\"><code>{ Name = &quot;Alf&quot;\\n  Phone = &quot;(555) 555-5555&quot;\\n  ZipCode = &quot;90210&quot; }</code></span></summary><div><table><thead><tr></tr></thead><tbody><tr><td>Name</td><td><div class=\"dni-plaintext\"><pre>&quot;Alf&quot;\r\n",
+       "</pre></div></td></tr><tr><td>Phone</td><td><div class=\"dni-plaintext\"><pre>&quot;(555) 555-5555&quot;\r\n",
+       "</pre></div></td></tr><tr><td>ZipCode</td><td><div class=\"dni-plaintext\"><pre>&quot;90210&quot;\r\n",
+       "</pre></div></td></tr></tbody></table></div></details><style>\r\n",
+       ".dni-code-hint {\r\n",
+       "    font-style: italic;\r\n",
+       "    overflow: hidden;\r\n",
+       "    white-space: nowrap;\r\n",
+       "}\r\n",
+       ".dni-treeview {\r\n",
+       "    white-space: nowrap;\r\n",
+       "}\r\n",
+       ".dni-treeview td {\r\n",
+       "    vertical-align: top;\r\n",
+       "    text-align: start;\r\n",
+       "}\r\n",
+       "details.dni-treeview {\r\n",
+       "    padding-left: 1em;\r\n",
+       "}\r\n",
+       "table td {\r\n",
+       "    text-align: start;\r\n",
+       "}\r\n",
+       "table tr { \r\n",
+       "    vertical-align: top; \r\n",
+       "    margin: 0em 0px;\r\n",
+       "}\r\n",
+       "table tr td pre \r\n",
+       "{ \r\n",
+       "    vertical-align: top !important; \r\n",
+       "    margin: 0em 0px !important;\r\n",
+       "} \r\n",
+       "table th {\r\n",
+       "    text-align: start;\r\n",
+       "}\r\n",
+       "</style>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "type ContactCard =\n",
+    "    { Name: string\n",
+    "      Phone: string\n",
+    "      ZipCode: string }\n",
+    "\n",
+    "// Create a new record\n",
+    "{ Name = \"Alf\"; Phone = \"(555) 555-5555\"; ZipCode = \"90210\" }"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "F#",
+   "pygments_lexer": "fsharp",
+   "version": "6.0"
+  },
+  "polyglot_notebook": {
+   "defaultKernelName": "fsharp",
+   "items": [
+    {
+     "name": "fsharp"
+    }
+   ]
+  },
+  "dotnet_interactive": {
+   "defaultKernelName": "fsharp",
+   "items": [
+    {
+     "name": "fsharp"
+    }
+   ]
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}"""
+
+    let doc = Literate.ParsePynbString(input, parseOptions = (MarkdownParseOptions.ParseCodeAsOther))
+
+    let fsx = Literate.ToFsx(doc)
+    printfn "----"
+    printfn "%s" fsx
+    printfn "----"
+
+    let fsx2 = fsx.Replace("\r\n", "\n").Replace(" \n", "\n").Replace("\n\n*)", "\n*)").Replace("\n", "!")
+
+    let expected =
+        """(**
+words
+*)
+type ContactCard =
+    { Name: string
+      Phone: string
+      ZipCode: string }
+
+// Create a new record
+{ Name = "Alf"; Phone = "(555) 555-5555"; ZipCode = "90210" }
+(**
+<p><details open="open" class="dni-treeview"><summary><span class="dni-code-hint"><code>{ Name = &quot;Alf&quot;\n  Phone = &quot;(555) 555-5555&quot;\n  ZipCode = &quot;90210&quot; }</code></span></summary><div><table><thead><tr></tr></thead><tbody><tr><td>Name</td><td><div class="dni-plaintext"><pre>&quot;Alf&quot;
+</pre></div></td></tr><tr><td>Phone</td><td><div class="dni-plaintext"><pre>&quot;(555) 555-5555&quot;
+</pre></div></td></tr><tr><td>ZipCode</td><td><div class="dni-plaintext"><pre>&quot;90210&quot;
+</pre></div></td></tr></tbody></table></div></details><style>
+.dni-code-hint {
+    font-style: italic;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.dni-treeview {
+    white-space: nowrap;
+}
+.dni-treeview td {
+    vertical-align: top;
+    text-align: start;
+}
+details.dni-treeview {
+    padding-left: 1em;
+}
+table td {
+    text-align: start;
+}
+table tr {
+    vertical-align: top;
+    margin: 0em 0px;
+}
+table tr td pre
+{
+    vertical-align: top !important;
+    margin: 0em 0px !important;
+}
+table th {
+    text-align: start;
+}
+</style>
+</p>
+*)"""
+
+    let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+    fsx2 |> shouldEqual expected2
+
+[<Test>]
+let ``md --> pynb --> md comes back the same`` () =
+    let mdIn =
+        """Heading
+=======
+
+|  Col1 | Col2 |
+|:----:|------|
+|  Table with heading cell A1   | Table with heading cell B1    |
+|  Table with heading cell A2   | Table with heading cell B2    |
+
+```fsharp
+let add a b = a + b
+```
+
+```csharp
+```
+
+```python
+```
+"""
+
+    let mdOut =
+        Literate.ParseMarkdownString(
+            mdIn,
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
+        )
+        |> Literate.ToPynb
+        |> ParsePynb.pynbStringToMarkdown
+
+    (mdOut.Trim()) |> shouldEqual (mdIn.Trim())
+
+[<Test>]
+let ``Notebook is converted to script exactly right`` () =
+    let doc =
+        Literate.ParsePynbString(
+            """
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "metadata": {
+    "dotnet_interactive": {
+     "language": "fsharp"
+    },
+    "polyglot_notebook": {
+     "kernelName": "fsharp"
+    }
+   },
+   "execution_count": null, "outputs": [],
+   "source": [
+    "let hello = 1\n",
+    "\n",
+    "let goodbye = 2\n"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".NET (F#)",
+   "language": "F#",
+   "name": ".net-fsharp"
+  },
+  "language_info": {
+   "file_extension": ".fs",
+   "mimetype": "text/x-fsharp",
+   "name": "polyglot-notebook",
+   "pygments_lexer": "fsharp"
+  },
+  "polyglot_notebook": {
+   "kernelInfo": {
+    "defaultKernelName": "fsharp",
+    "items": [
+     {
+      "aliases": [],
+      "languageName": "fsharp",
+      "name": "fsharp"
+     }
+    ]
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}""",
+            parseOptions =
+                (MarkdownParseOptions.ParseCodeAsOther
+                 ||| MarkdownParseOptions.ParseNonCodeAsOther)
+        )
+
+    let fsx = Literate.ToFsx(doc)
+    printfn "----"
+    printfn "%s" fsx
+    printfn "----"
+
+    let fsx2 = fsx.Replace("\r\n", "\n").Replace("\n", "!")
+
+    let expected =
+        """let hello = 1
+
+let goodbye = 2"""
+
+    let expected2 = expected.Replace("\r\n", "\n").Replace("\n", "!")
+
+    fsx2 |> shouldEqual expected2
 
 [<Test>]
 let ``Script output is exactly right`` () =

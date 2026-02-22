@@ -14,7 +14,7 @@ package](http://fsprojects.github.io/FSharp.Formatting).
 In this case, the document itself is a valid Markdown and 
 you can use standard Markdown features to format the text:
 
- - Here is an example of unordered list and...
+ - Here is an example of an unordered list and...
  - Text formatting including **bold** and _emphasis_
 
 For more information, see the [Markdown][md] reference.
@@ -27,7 +27,7 @@ For more information, see the [Markdown][md] reference.
 In standard Markdown, you can include code snippets by 
 writing a block indented by four spaces and the code 
 snippet will be turned into a `<pre>` element. If you do 
-the same using Literate F# tool, the code is turned into
+the same using the Literate F# tool, the code is turned into
 a nicely formatted F# snippet:
 
     /// The Hello World of functional languages!
@@ -50,9 +50,9 @@ the snippet should be placed in a separate module
     /// This is a hidden answer
     let answer = 42
 
-The value will be deffined in the F# code that is 
+The value will be defined in the F# code that is 
 processed and so you can use it from other (visible) 
-code and get correct tool tips:
+code and get correct tooltips:
 
     let answer = Hidden.answer
 

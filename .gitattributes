@@ -20,3 +20,10 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
+
+# Always use lf for F# files
+*.fs text eol=lf
+*.fsx text eol=lf
+*.fsi text eol=lf
+
+.github/workflows/*.lock.yml linguist-generated=true merge=ours

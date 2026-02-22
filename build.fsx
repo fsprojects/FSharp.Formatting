@@ -1,149 +1,88 @@
-// This is a FAKE 5.0 script, run using
-//    dotnet fake build
+#r "nuget: Fun.Build, 1.0.4"
+#r "nuget: Fake.IO.FileSystem, 6.0.0"
+#r "nuget: Ionide.KeepAChangelog, 0.1.8"
 
-#r "paket: groupref fake //"
-
-#if !FAKE
-#load ".fake/build.fsx/intellisense.fsx"
-#r "netstandard"
-#endif
-
-open System
-open System.Xml.Linq
-open Fake.Core
-open Fake.Core.TargetOperators
+open System.IO
 open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
-open Fake.DotNet
 open Fake.IO
-open Fake.Tools
+open Ionide.KeepAChangelog
+open Ionide.KeepAChangelog.Domain
+open Fun.Build
 
-Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+let root = __SOURCE_DIRECTORY__
 
-// Information about the project to be used at NuGet and in AssemblyInfo files
-let project = "FSharp.Formatting"
-
-let summary =
-    "A package of libraries for building great F# documentation, samples and blogs"
-
-let license = "Apache 2.0 License"
-
-let configuration =
-    DotNet.BuildConfiguration.fromEnvironVarOrDefault "configuration" DotNet.BuildConfiguration.Release
+let configuration = "Release"
 
 // Folder to deposit deploy artifacts
-let artifactsDir = __SOURCE_DIRECTORY__ @@ "artifacts"
+let artifactsDir = root @@ "artifacts"
+
+// Local fsdocs-tool
+let fsdocTool = artifactsDir @@ "fsdocs"
 
 // Read release notes document
-let release = ReleaseNotes.load "RELEASE_NOTES.md"
+let releaseNugetVersion, _, _ =
+    let changeLog = FileInfo(__SOURCE_DIRECTORY__ </> "RELEASE_NOTES.md")
 
-let projectRepo = "https://github.com/fsprojects/FSharp.Formatting"
-
-// --------------------------------------------------------------------------------------
-// Generate assembly info files with the right version & up-to-date information
-
-Target.create "AssemblyInfo" (fun _ ->
-    let info =
-        [ AssemblyInfo.Product project
-          AssemblyInfo.Description summary
-          AssemblyInfo.Version release.AssemblyVersion
-          AssemblyInfo.FileVersion release.AssemblyVersion
-          AssemblyInfo.InformationalVersion release.NugetVersion
-          AssemblyInfo.Copyright license ]
-
-    AssemblyInfoFile.createFSharp "src/Common/AssemblyInfo.fs" info
-    AssemblyInfoFile.createCSharp "src/Common/AssemblyInfo.cs" info
-
-    let versionProps =
-        XElement(
-            XName.Get "Project",
-            XElement(
-                XName.Get "PropertyGroup",
-                XElement(XName.Get "Version", release.NugetVersion),
-                XElement(XName.Get "PackageReleaseNotes", String.toLines release.Notes)
-            )
-        )
-
-    versionProps.Save("version.props"))
-
-// Clean build results
-// --------------------------------------------------------------------------------------
-
-Target.create "Clean" (fun _ ->
-    !!artifactsDir ++ "temp" |> Shell.cleanDirs
-    // in case the above pattern is empty as it only matches existing stuff
-    [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure)
-
-// Build library
-// --------------------------------------------------------------------------------------
+    match Parser.parseChangeLog changeLog with
+    | Error(msg, error) -> failwithf "%s msg\n%A" msg error
+    | Ok result -> result.Releases |> List.head
 
 let solutionFile = "FSharp.Formatting.sln"
 
-Target.create "Build" (fun _ ->
-    solutionFile
-    |> DotNet.build (fun opts -> { opts with Configuration = configuration }))
+let lintStage =
+    stage "Lint" {
+        run "dotnet tool restore"
+        run $"dotnet fantomas {__SOURCE_FILE__} src tests docs --check"
+    }
 
-Target.create "Tests" (fun _ ->
-    solutionFile
-    |> DotNet.test (fun opts ->
-        { opts with
-            Blame = true
-            NoBuild = true
-            Framework = Some "net6.0"
-            Configuration = configuration
-            ResultsDirectory = Some "TestResults"
-            Logger = Some "trx" }))
+let testStage =
+    stage "Tests" {
+        run
+            $"dotnet test {solutionFile} --configuration {configuration} --no-build --blame --logger trx --results-directory TestResults -tl"
+    }
 
-// --------------------------------------------------------------------------------------
-// Build a NuGet package
+pipeline "CI" {
+    lintStage
 
-Target.create "NuGet" (fun _ ->
-    DotNet.pack
-        (fun pack ->
-            { pack with
-                OutputPath = Some artifactsDir
-                Configuration = configuration })
-        solutionFile)
+    stage "Clean" {
+        run (fun _ ->
+            !!artifactsDir ++ "temp" |> Shell.cleanDirs
+            // in case the above pattern is empty as it only matches existing stuff
+            [ "bin"; "temp"; "tests/bin" ] |> Seq.iter Directory.ensure)
+    }
 
-// Generate the documentation by dogfooding the tools pacakge
-// --------------------------------------------------------------------------------------
+    stage "Build" {
+        run $"dotnet restore {solutionFile} -tl"
+        run $"dotnet build {solutionFile} --configuration {configuration} -tl"
+    }
 
-Target.create "GenerateDocs" (fun _ ->
-    Shell.cleanDir ".fsdocs"
-    Shell.cleanDir ".packages"
-    // Τhe tool has been uninstalled when the
-    // artifacts folder was removed in the Clean target.
-    DotNet.exec
-        id
-        "tool"
-        ("install --no-cache --version "
-         + release.NugetVersion
-         + " --add-source "
-         + artifactsDir
-         + " --tool-path "
-         + artifactsDir
-         + " fsdocs-tool")
-    |> ignore
+    stage "NuGet" { run $"dotnet pack {solutionFile} --output \"{artifactsDir}\" --configuration {configuration} -tl" }
 
-    CreateProcess.fromRawCommand
-        (artifactsDir @@ "fsdocs")
-        [ "build"; "--strict"; "--clean"; "--properties"; "Configuration=Release" ]
-    |> CreateProcess.ensureExitCode
-    |> Proc.run
-    |> ignore
-    // DotNet.exec id "fsdocs" "build --strict --clean --properties Configuration=Release" |> ignore
-    // DotNet.exec id "tool" "uninstall --local fsdocs-tool" |> ignore
-    Shell.cleanDir ".packages")
+    testStage
 
-Target.create "All" ignore
+    stage "GenerateDocs" {
+        run (fun _ ->
+            Shell.cleanDir ".fsdocs"
+            Shell.cleanDir ".packages")
+        // Τhe tool has been uninstalled when the
+        // artifacts folder was removed in the Clean stage.
+        run
+            $"dotnet tool install --no-cache --version %A{releaseNugetVersion} --add-source \"%s{artifactsDir}\" --tool-path \"%s{artifactsDir}\" fsdocs-tool"
 
-// clean and recreate assembly inform on release
-"Clean"
-==> "AssemblyInfo"
-==> "Build"
-==> "NuGet"
-==> "Tests"
-==> "GenerateDocs"
-==> "All"
+        run $"\"{fsdocTool}\" build --strict --clean --properties Configuration=Release"
+        run $"dotnet tool uninstall fsdocs-tool --tool-path \"%s{artifactsDir}\""
+        run (fun _ -> Shell.cleanDir ".packages")
+    }
 
-Target.runOrDefault "All"
+    runIfOnlySpecified false
+}
+
+pipeline "Verify" {
+    lintStage
+    testStage
+    stage "Analyzers" { run "dotnet msbuild /t:AnalyzeSolution" }
+    runIfOnlySpecified true
+}
+
+tryPrintPipelineCommandHelp ()

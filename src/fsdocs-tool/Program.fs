@@ -7,9 +7,7 @@ do ()
 
 [<EntryPoint>]
 let main argv =
-    CommandLine
-        .Parser
-        .Default
+    CommandLine.Parser.Default
         .ParseArguments<BuildCommand, WatchCommand>(argv)
         .MapResult(
             (fun (opts: BuildCommand) -> opts.Execute()),

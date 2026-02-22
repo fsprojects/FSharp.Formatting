@@ -1,2 +1,4 @@
 docs/*.fsx
 paket-files/
+AssemblyInfo.fs
+tests/FSharp.Literate.Tests/**/*.fsx

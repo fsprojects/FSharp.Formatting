@@ -1,5 +1,6 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Literate.Evaluation
 open FSharp.Formatting.Templating
@@ -22,7 +23,7 @@ type internal CompilerContext =
     }
 
 /// Defines the possible output types from literate script (HTML, Latex, Pynb)
-[<RequireQualifiedAccess>]
+[<RequireQualifiedAccess; Struct>]
 type OutputKind =
     /// Requests HTML output
     | Html
@@ -47,32 +48,37 @@ type OutputKind =
         | Html -> "html"
         | Pynb -> "ipynb"
 
+type IndexText = IndexText of fullContent: string * headings: string list
+
 /// Defines the output of processing a literate doc
 type internal LiterateDocModel =
     {
         /// The extracted title of the document (first h1 header if not in front matter)
         Title: string
 
-        /// The replacement paramaters
+        /// The replacement parameters
         Substitutions: Substitutions
 
         /// The text for search index generation (empty for notebooks and latex)
-        IndexText: string option
+        IndexText: IndexText option
 
         /// The category in the front matter
         Category: string option
 
         /// The category index in the front matter (determines the order of categories)
-        CategoryIndex: string option
+        CategoryIndex: int option
 
         /// The index in the front matter (Determines the order of files within a category)
-        Index: string option
+        Index: int option
 
         /// The relative output path
         OutputPath: string
 
         /// The kind of output generated
         OutputKind: OutputKind
+
+        /// Used for the navigation section, to indicate the list item as active
+        IsActive: bool
     }
 
     // Get the URI for the resource when it is part of an overall site
@@ -80,7 +86,11 @@ type internal LiterateDocModel =
     member x.Uri(root) =
         let uri = x.OutputPath.Replace("\\", "/")
 
-        let uri = if uri.StartsWith("./") then uri.[2..] else uri
+        let uri =
+            if uri.StartsWith("./", StringComparison.Ordinal) then
+                uri.[2..]
+            else
+                uri
 
         sprintf "%s%s" root uri
 

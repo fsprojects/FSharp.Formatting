@@ -15,15 +15,19 @@ open FSharp.Formatting.Markdown
 
 module String =
     /// Matches when a string is a whitespace or null
+    [<return: Struct>]
     let (|WhiteSpace|_|) (s) =
-        if String.IsNullOrWhiteSpace(s) then Some() else None
+        if String.IsNullOrWhiteSpace(s) then
+            ValueSome()
+        else
+            ValueNone
 
     /// Returns a string trimmed from both start and end
     let (|TrimBoth|) (text: string) = text.Trim()
 
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(text.Substring(start.Length))
         else
             None
@@ -31,7 +35,7 @@ module String =
     /// Matches when a string starts with the specified sub-string
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithTrim|_|) (start: string) (text: string) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(text.Substring(start.Length).Trim())
         else
             None
@@ -40,8 +44,8 @@ module String =
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string) =
         if
-            s.StartsWith(starts)
-            && s.EndsWith(ends)
+            s.StartsWith(starts, StringComparison.Ordinal)
+            && s.EndsWith(ends, StringComparison.Ordinal)
             && s.Length >= starts.Length + ends.Length
         then
             Some(s.Substring(starts.Length, s.Length - starts.Length - ends.Length))
@@ -60,8 +64,8 @@ module String =
     /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
     /// text together with the rest.
     let (|StartsWithWrapped|_|) (starts: string, ends: string) (text: string) =
-        if text.StartsWith(starts) then
-            let id = text.IndexOf(ends, starts.Length)
+        if text.StartsWith(starts, StringComparison.Ordinal) then
+            let id = text.IndexOf(ends, starts.Length, StringComparison.Ordinal)
 
             if id >= 0 then
                 let wrapped = text.Substring(starts.Length, id - starts.Length)
@@ -79,7 +83,7 @@ module String =
         let rec tryEol eolList =
             match eolList with
             | h: string :: t ->
-                match text.IndexOf(h) with
+                match text.IndexOf(h, StringComparison.Ordinal) with
                 | i when i < 0 -> tryEol t
                 | i -> text.Substring(i + h.Length)
             | _ -> text
@@ -104,8 +108,11 @@ module String =
     let removeSpaces (lines: string list) =
         let spaces =
             lines
-            |> Seq.filter (String.IsNullOrWhiteSpace >> not)
-            |> Seq.map (fun line -> line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length)
+            |> Seq.choose (fun line ->
+                if String.IsNullOrWhiteSpace line |> not then
+                    line |> Seq.takeWhile Char.IsWhiteSpace |> Seq.length |> Some
+                else
+                    None)
             |> fun xs -> if Seq.isEmpty xs then 0 else Seq.min xs
 
         lines
@@ -117,15 +124,20 @@ module String =
 
 module StringPosition =
     /// Matches when a string is a whitespace or null
+    [<return: Struct>]
     let (|WhiteSpace|_|) (s, _n: MarkdownRange) =
-        if String.IsNullOrWhiteSpace(s) then Some() else None
+        if String.IsNullOrWhiteSpace(s) then
+            ValueSome()
+        else
+            ValueNone
 
     /// Matches when a string does starts with non-whitespace
+    [<return: Struct>]
     let (|Unindented|_|) (s: string, _n: MarkdownRange) =
         if not (String.IsNullOrWhiteSpace(s)) && s.TrimStart() = s then
-            Some()
+            ValueSome()
         else
-            None
+            ValueNone
 
     /// Returns a string trimmed from both start and end
     let (|TrimBoth|) (text: string, n: MarkdownRange) =
@@ -140,17 +152,26 @@ module StringPosition =
     /// Returns a string trimmed from the end
     let (|TrimEnd|) (text: string, n: MarkdownRange) =
         let trimmed = text.TrimEnd()
-        (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
+
+        (trimmed,
+         { n with
+             EndColumn = n.EndColumn - text.Length + trimmed.Length })
 
     /// Returns a string trimmed from the start
     let (|TrimStart|) (text: string, n: MarkdownRange) =
         let trimmed = text.TrimStart()
-        (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
+
+        (trimmed,
+         { n with
+             StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Returns a string trimmed from the end using characters given as a parameter
     let (|TrimEndUsing|) chars (text: string, n: MarkdownRange) =
         let trimmed = text.TrimEnd(Array.ofSeq chars)
-        (trimmed, { n with EndColumn = n.EndColumn - text.Length + trimmed.Length })
+
+        (trimmed,
+         { n with
+             EndColumn = n.EndColumn - text.Length + trimmed.Length })
 
     /// Returns a string trimmed from the start together with
     /// the number of skipped whitespace characters
@@ -160,29 +181,37 @@ module StringPosition =
 
         len,
         text.Substring(0, len).Replace("\t", "    ").Length,
-        (trimmed, { n with StartColumn = n.StartColumn + text.Length - trimmed.Length })
+        (trimmed,
+         { n with
+             StartColumn = n.StartColumn + text.Length - trimmed.Length })
 
     /// Matches when a string starts with any of the specified sub-strings
-    let (|StartsWithAny|_|) (starts: seq<string>) (text: string, _n: MarkdownRange) =
-        if starts |> Seq.exists (text.StartsWith) then
-            Some()
+    [<return: Struct>]
+    let (|StartsWithAny|_|) (starts: string seq) (text: string, _n: MarkdownRange) =
+        if starts |> Seq.exists (fun s -> text.StartsWith(s, StringComparison.Ordinal)) then
+            ValueSome()
         else
-            None
+            ValueNone
 
     /// Matches when a string starts with the specified sub-string
     let (|StartsWith|_|) (start: string) (text: string, n: MarkdownRange) =
-        if text.StartsWith(start) then
-            Some(text.Substring(start.Length), { n with StartColumn = n.StartColumn + text.Length - start.Length })
+        if text.StartsWith(start, StringComparison.Ordinal) then
+            Some(
+                text.Substring(start.Length),
+                { n with
+                    StartColumn = n.StartColumn + text.Length - start.Length }
+            )
         else
             None
 
     /// Matches when a string starts with the specified sub-string
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithTrim|_|) (start: string) (text: string, n: MarkdownRange) =
-        if text.StartsWith(start) then
+        if text.StartsWith(start, StringComparison.Ordinal) then
             Some(
                 text.Substring(start.Length).Trim(),
-                { n with StartColumn = n.StartColumn + text.Length - start.Length }
+                { n with
+                    StartColumn = n.StartColumn + text.Length - start.Length }
             )
         else
             None
@@ -191,7 +220,7 @@ module StringPosition =
     /// The matched string is trimmed from all whitespace.
     let (|StartsWithNTimesTrimIgnoreStartWhitespace|_|) (start: string) (text: string, _n: MarkdownRange) =
         if text.Contains(start) then
-            let beforeStart = text.Substring(0, text.IndexOf(start))
+            let beforeStart = text.Substring(0, text.IndexOf(start, StringComparison.Ordinal))
 
             if String.IsNullOrWhiteSpace(beforeStart) then
                 let startAndRest = text.Substring(beforeStart.Length)
@@ -216,8 +245,8 @@ module StringPosition =
     /// with a given value (and returns the rest of it)
     let (|StartsAndEndsWith|_|) (starts: string, ends: string) (s: string, n: MarkdownRange) =
         if
-            s.StartsWith(starts)
-            && s.EndsWith(ends)
+            s.StartsWith(starts, StringComparison.Ordinal)
+            && s.EndsWith(ends, StringComparison.Ordinal)
             && s.Length >= starts.Length + ends.Length
         then
             Some(
@@ -260,15 +289,20 @@ module StringPosition =
     /// For example "[aa]bc" is wrapped in [ and ] pair. Returns the wrapped
     /// text together with the rest.
     let (|StartsWithWrapped|_|) (starts: string, ends: string) (text: string, n: MarkdownRange) =
-        if text.StartsWith(starts) then
-            let id = text.IndexOf(ends, starts.Length)
+        if text.StartsWith(starts, StringComparison.Ordinal) then
+            let id = text.IndexOf(ends, starts.Length, StringComparison.Ordinal)
 
             if id >= 0 then
                 let wrapped = text.Substring(starts.Length, id - starts.Length)
 
                 let rest = text.Substring(id + ends.Length, text.Length - id - ends.Length)
 
-                Some(wrapped, (rest, { n with StartColumn = id + ends.Length }))
+                Some(
+                    wrapped,
+                    (rest,
+                     { n with
+                         StartColumn = id + ends.Length })
+                )
             else
                 None
         else
@@ -276,31 +310,32 @@ module StringPosition =
 
     /// Matches when a string consists of some number of
     /// complete repetitions of a specified sub-string.
+    [<return: Struct>]
     let (|EqualsRepeated|_|) (repeated, _n: MarkdownRange) =
         function
-        | StartsWithRepeated repeated (_n, ("", _)) -> Some()
-        | _ -> None
+        | StartsWithRepeated repeated (_n, (v, _)) when (String.IsNullOrWhiteSpace v) -> ValueSome()
+        | _ -> ValueNone
 
 module List =
     /// Matches a list if it starts with a sub-list that is delimited
     /// using the specified delimiters. Returns a wrapped list and the rest.
-    let inline (|DelimitedWith|_|) startl endl input =
+    let inline internal (|DelimitedWith|_|) startl endl input =
         if List.startsWith startl input then
             match List.partitionUntilEquals endl (List.skip startl.Length input) with
-            | Some (pre, post) -> Some(pre, List.skip endl.Length post, startl.Length, endl.Length)
+            | Some(pre, post) -> Some(pre, List.skip endl.Length post, startl.Length, endl.Length)
             | None -> None
         else
             None
 
     /// Matches a list if it starts with a sub-list. Returns the list.
-    let inline (|StartsWith|_|) startl input =
+    let inline internal (|StartsWith|_|) startl input =
         if List.startsWith startl input then Some input else None
 
     /// Matches a list if it starts with a sub-list that is delimited
     /// using the specified delimiter. Returns a wrapped list and the rest.
-    let inline (|Delimited|_|) str = (|DelimitedWith|_|) str str
+    let inline internal (|Delimited|_|) str = (|DelimitedWith|_|) str str
 
-    let inline (|DelimitedNTimes|_|) str input =
+    let inline internal (|DelimitedNTimes|_|) str input =
         let strs, _items = List.partitionWhile (fun i -> i = str) input
 
         match strs with
@@ -342,7 +377,8 @@ module Lines =
     let (|TakeStartingWithOrBlank|_|) (start: string) (input: string list) =
         match
             input
-            |> List.partitionWhile (fun s -> String.IsNullOrWhiteSpace s || s.StartsWith(start))
+            |> List.partitionWhile (fun s ->
+                String.IsNullOrWhiteSpace s || s.StartsWith(start, StringComparison.Ordinal))
         with
         | matching, rest when matching <> [] -> Some(matching, rest)
         | _ -> None
@@ -381,14 +417,15 @@ module Lines =
     let (|TrimParagraphLines|) lines =
         lines
         // first remove all whitespace on the beginning of the line
-        |> List.map (fun (StringPosition.TrimStart s) -> s)
-        // Now remove all additional spaces at the end, but keep two spaces if existent
-        |> List.map (fun (s, n) ->
-            let endsWithTwoSpaces = s.EndsWith("  ")
+        // then remove all additional spaces at the end, but keep two spaces if existent
+        |> List.map (fun (StringPosition.TrimStart(s, n)) ->
+            let endsWithTwoSpaces = s.EndsWith("  ", StringComparison.Ordinal)
 
             let trimmed = s.TrimEnd([| ' ' |]) + if endsWithTwoSpaces then "  " else ""
 
-            (trimmed, { n with EndColumn = n.EndColumn - s.Length + trimmed.Length }))
+            (trimmed,
+             { n with
+                 EndColumn = n.EndColumn - s.Length + trimmed.Length }))
 
 /// Parameterized pattern that assigns the specified value to the
 /// first component of a tuple. Usage:

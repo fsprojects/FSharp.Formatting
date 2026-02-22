@@ -1,5 +1,6 @@
 namespace fsdocs
 
+open System.Collections.Concurrent
 open CommandLine
 
 open System
@@ -25,6 +26,7 @@ open Suave.Sockets.Control
 open Suave.WebSocket
 open Suave.Operators
 open Suave.Filters
+open Suave.Logging
 open FSharp.Formatting.Markdown
 
 #nowarn "44" // Obsolete WebClient
@@ -35,7 +37,7 @@ type internal DocContent
         rootOutputFolderAsGiven,
         previous: Map<_, _>,
         lineNumbers,
-        fsiEvaluator,
+        evaluate,
         substitutions,
         saveImages,
         watch,
@@ -50,7 +52,10 @@ type internal DocContent
         let mutable counter = 0
 
         fun (url: string) ->
-            if url.StartsWith("http") || url.StartsWith("https") then
+            if
+                url.StartsWith("http", StringComparison.Ordinal)
+                || url.StartsWith("https", StringComparison.Ordinal)
+            then
                 counter <- counter + 1
                 let ext = Path.GetExtension(url)
 
@@ -69,10 +74,11 @@ type internal DocContent
         let inputFileName = Path.GetFileName(inputFileFullPath)
         let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
         let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+        let isPynb = inputFileFullPath.EndsWith(".ipynb", true, CultureInfo.InvariantCulture)
         let ext = outputKind.Extension
 
         let outputFileRelativeToRoot =
-            if isFsx || isMd then
+            if isFsx || isMd || isPynb then
                 let basename = Path.GetFileNameWithoutExtension(inputFileFullPath)
 
                 Path.Combine(outputFolderRelativeToRoot, sprintf "%s.%s" basename ext)
@@ -89,9 +95,12 @@ type internal DocContent
         (subFolderFullPath = rootOutputFolderFullPath)
 
     let allCultures =
-        System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.AllCultures)
-        |> Array.map (fun x -> x.TwoLetterISOLanguageName)
-        |> Array.filter (fun x -> x.Length = 2)
+        CultureInfo.GetCultures(CultureTypes.AllCultures)
+        |> Array.choose (fun x ->
+            if x.TwoLetterISOLanguageName.Length <> 2 then
+                None
+            else
+                Some x.TwoLetterISOLanguageName)
         |> Array.distinct
 
     let sourceFileOrFolderIsSkipped (input: string) =
@@ -118,14 +127,12 @@ type internal DocContent
                         Path.GetFullPath(Path.Combine(rootOutputFolderAsGiven, outputFolderRelativeToRoot))
 
                     let uri =
-                        Uri(outputFolderFullPath + "/")
-                            .MakeRelativeUri(Uri(markdownReferenceFullOutputPath))
-                            .ToString()
+                        Uri(outputFolderFullPath + "/").MakeRelativeUri(Uri(markdownReferenceFullOutputPath)).ToString()
 
                     Some uri
                 with _ ->
                     printfn
-                        $"Couldn't map markdown reference {markdownReference} that seemed to correspond to an input file"
+                        $"Couldn't map markdown reference %s{markdownReference} that seemed to correspond to an input file"
 
                     None
 
@@ -135,8 +142,8 @@ type internal DocContent
         [ let inputFileName = Path.GetFileName(inputFileFullPath)
 
           if
-              not (inputFileName.StartsWith("."))
-              && not (inputFileName.StartsWith "_template")
+              not (inputFileName.StartsWith('.'))
+              && not (inputFileName.StartsWith("_template", StringComparison.Ordinal))
           then
               let inputFileFullPath = Path.GetFullPath(inputFileFullPath)
 
@@ -176,15 +183,18 @@ type internal DocContent
         outputFolderRelativeToRoot
         imageSaver
         mdlinkResolver
+        (filesWithFrontMatter: FrontMatterFile array)
         =
         [ let name = Path.GetFileName(inputFileFullPath)
 
-          if name.StartsWith(".") then
+          if name.StartsWith('.') then
               printfn "skipping file %s" inputFileFullPath
-          elif not (name.StartsWith "_template") then
-              let isFsx = inputFileFullPath.EndsWith(".fsx", true, CultureInfo.InvariantCulture)
+          elif not (name.StartsWith("_template", StringComparison.Ordinal)) then
+              let isFsx = inputFileFullPath.EndsWith(".fsx", StringComparison.OrdinalIgnoreCase)
 
-              let isMd = inputFileFullPath.EndsWith(".md", true, CultureInfo.InvariantCulture)
+              let isMd = inputFileFullPath.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+
+              let isPynb = inputFileFullPath.EndsWith(".ipynb", StringComparison.OrdinalIgnoreCase)
 
               // A _template.tex or _template.pynb is needed to generate those files
               match outputKind, template with
@@ -217,14 +227,20 @@ type internal DocContent
 
                       let templateChangeTime =
                           match template with
-                          | Some t when isFsx || isMd ->
+                          | Some t when isFsx || isMd || isPynb ->
                               try
                                   let fi = FileInfo(t)
                                   let input = fi.Directory.Name
+                                  let headPath = Path.Combine(input, "_head.html")
+                                  let bodyPath = Path.Combine(input, "_body.html")
 
                                   [ yield File.GetLastWriteTime(t)
                                     if Menu.isTemplatingAvailable input then
-                                        yield! Menu.getLastWriteTimes input ]
+                                        yield! Menu.getLastWriteTimes input
+                                    if File.Exists headPath then
+                                        yield File.GetLastWriteTime headPath
+                                    if File.Exists bodyPath then
+                                        yield File.GetLastWriteTime bodyPath ]
                                   |> List.max
                               with _ ->
                                   DateTime.MaxValue
@@ -255,6 +271,14 @@ type internal DocContent
                       if isFsx then
                           printfn "  generating model for %s --> %s" inputFileFullPath outputFileRelativeToRoot
 
+                          let fsiEvaluator =
+                              (if evaluate then
+                                   Some(
+                                       FsiEvaluator(onError = onError, options = [| "--multiemit-" |]) :> IFsiEvaluator
+                                   )
+                               else
+                                   None)
+
                           let model =
                               Literate.ParseAndTransformScriptFile(
                                   inputFileFullPath,
@@ -271,7 +295,8 @@ type internal DocContent
                                   rootInputFolder = rootInputFolder,
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
-                                  onError = Some onError
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
                               )
 
                           yield
@@ -308,7 +333,101 @@ type internal DocContent
                                   crefResolver = crefResolver,
                                   mdlinkResolver = mdlinkResolver,
                                   parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
-                                  onError = Some onError
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
+                              )
+
+                          yield
+                              ((if mainRun then
+                                    Some(inputFileFullPath, isOtherLang, model)
+                                else
+                                    None),
+                               (fun p ->
+                                   printfn "  writing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+                                   ensureDirectory (Path.GetDirectoryName(outputFileFullPath))
+
+                                   SimpleTemplating.UseFileAsSimpleTemplate(
+                                       p @ model.Substitutions,
+                                       template,
+                                       outputFileFullPath
+                                   )))
+                      elif isPynb then
+                          printfn "  preparing %s --> %s" inputFileFullPath outputFileRelativeToRoot
+
+                          let evaluateNotebook ipynbFile =
+                              let args =
+                                  $"repl --run %s{ipynbFile} --default-kernel fsharp --exit-after-run --output-path %s{ipynbFile}"
+
+                              let psi =
+                                  ProcessStartInfo(
+                                      fileName = "dotnet",
+                                      arguments = args,
+                                      UseShellExecute = false,
+                                      CreateNoWindow = true
+                                  )
+
+                              try
+                                  let p = Process.Start(psi)
+                                  p.WaitForExit()
+                              with _ ->
+                                  let msg =
+                                      $"Failed to evaluate notebook %s{ipynbFile} using dotnet-repl\n"
+                                      + $"""try running "%s{args}" at the command line and inspect the error"""
+
+                                  failwith msg
+
+                          let checkDotnetReplInstall () =
+                              let failmsg =
+                                  "'dotnet-repl' is not installed. Please install it using 'dotnet tool install dotnet-repl'"
+
+                              try
+                                  let psi =
+                                      ProcessStartInfo(
+                                          fileName = "dotnet",
+                                          arguments = "tool list --local",
+                                          UseShellExecute = false,
+                                          CreateNoWindow = true,
+                                          RedirectStandardOutput = true
+                                      )
+
+                                  let p = Process.Start(psi)
+                                  let ol = p.StandardOutput.ReadToEnd()
+                                  p.WaitForExit()
+                                  psi.Arguments <- "tool list --global"
+                                  p.Start() |> ignore
+                                  let og = p.StandardOutput.ReadToEnd()
+                                  let output = $"%s{ol}\n%s{og}"
+
+                                  if not (output.Contains("dotnet-repl")) then
+                                      failwith failmsg
+
+                                  p.WaitForExit()
+                              with _ ->
+                                  failwith failmsg
+
+                          if evaluate then
+                              checkDotnetReplInstall ()
+                              printfn $"  evaluating %s{inputFileFullPath} with dotnet-repl"
+                              evaluateNotebook inputFileFullPath
+
+
+                          let model =
+                              Literate.ParseAndTransformPynbFile(
+                                  inputFileFullPath,
+                                  output = outputFileRelativeToRoot,
+                                  outputKind = outputKind,
+                                  prefix = None,
+                                  fscOptions = None,
+                                  lineNumbers = lineNumbers,
+                                  references = Some false,
+                                  substitutions = substitutions,
+                                  generateAnchors = Some true,
+                                  imageSaver = imageSaverOpt,
+                                  rootInputFolder = rootInputFolder,
+                                  crefResolver = crefResolver,
+                                  mdlinkResolver = mdlinkResolver,
+                                  onError = Some onError,
+                                  filesWithFrontMatter = filesWithFrontMatter
                               )
 
                           yield
@@ -340,14 +459,17 @@ type internal DocContent
                                            File.SetLastWriteTime(outputFileFullPath, DateTime.Now)
                                        with _ when watch ->
                                            ()))
+                  //printfn "skipping unchanged file %s" inputFileFullPath
                   else if mainRun && watch then
-                      //printfn "skipping unchanged file %s" inputFileFullPath
-                      yield (Some(inputFileFullPath, isOtherLang, haveModel.Value), (fun _ -> ())) ]
+                      match haveModel with
+                      | None -> ()
+                      | Some haveModel -> yield (Some(inputFileFullPath, isOtherLang, haveModel), (fun _ -> ())) ]
 
     let rec processFolder
         (htmlTemplate, texTemplate, pynbTemplate, fsxTemplate, mdTemplate, isOtherLang, rootInputFolder, fullPathFileMap)
         (inputFolderAsGiven: string)
         outputFolderRelativeToRoot
+        (filesWithFrontMatter: FrontMatterFile array)
         =
         [
           // Look for the presence of the _template.* files to activate the
@@ -421,6 +543,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Html
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -437,6 +560,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Latex
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -453,6 +577,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Pynb
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -469,6 +594,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Fsx
                       ))
+                      filesWithFrontMatter
 
               yield!
                   processFile
@@ -485,6 +611,7 @@ type internal DocContent
                           fullPathFileMap,
                           OutputKind.Markdown
                       ))
+                      filesWithFrontMatter
 
           for subInputFolderFullPath in Directory.EnumerateDirectories(inputFolderAsGiven) do
               let subInputFolderName = Path.GetFileName(subInputFolderFullPath)
@@ -506,7 +633,8 @@ type internal DocContent
                            rootInputFolder,
                            fullPathFileMap)
                           (Path.Combine(inputFolderAsGiven, subInputFolderName))
-                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName)) ]
+                          (Path.Combine(outputFolderRelativeToRoot, subInputFolderName))
+                          filesWithFrontMatter ]
 
     member _.Convert(rootInputFolderAsGiven, htmlTemplate, extraInputs) =
 
@@ -518,38 +646,79 @@ type internal DocContent
                   yield! prepFolder rootInputFolderAsGiven outputFolderRelativeToRoot ]
             |> Map.ofList
 
+        // In order to create {{next-page-url}} and {{previous-page-url}}
+        // We need to scan all *.fsx and *.md files for their frontmatter.
+        let filesWithFrontMatter =
+            fullPathFileMap
+            |> Map.keys
+            |> Seq.map fst
+            |> Seq.distinct
+            |> Seq.choose (fun fileName ->
+                let ext = Path.GetExtension fileName
+
+                if ext = ".fsx" then
+                    ParseScript.ParseFrontMatter(fileName)
+                elif ext = ".md" then
+                    File.ReadLines fileName |> FrontMatterFile.ParseFromLines fileName
+                elif ext = ".ipynb" then
+                    ParsePynb.parseFrontMatter fileName
+                else
+                    None)
+            |> Seq.sortBy (fun { Index = idx; CategoryIndex = cIdx } -> cIdx, idx)
+            |> Seq.toArray
+
         [ for (rootInputFolderAsGiven, outputFolderRelativeToRoot) in inputDirectories do
               yield!
                   processFolder
                       (htmlTemplate, None, None, None, None, false, Some rootInputFolderAsGiven, fullPathFileMap)
                       rootInputFolderAsGiven
-                      outputFolderRelativeToRoot ]
+                      outputFolderRelativeToRoot
+                      filesWithFrontMatter ]
 
     member _.GetSearchIndexEntries(docModels: (string * bool * LiterateDocModel) list) =
         [| for (_inputFile, isOtherLang, model) in docModels do
                if not isOtherLang then
                    match model.IndexText with
-                   | Some text ->
+                   | Some(IndexText(fullContent, headings)) ->
                        { title = model.Title
-                         content = text
-                         uri = model.Uri(root) }
+                         content = fullContent
+                         headings = headings
+                         uri = model.Uri(root)
+                         ``type`` = "content" }
                    | _ -> () |]
 
-    member _.GetNavigationEntries(input, docModels: (string * bool * LiterateDocModel) list) =
+    member _.GetNavigationEntries
+        (
+            input,
+            docModels: (string * bool * LiterateDocModel) list,
+            currentPagePath: string option,
+            ignoreUncategorized: bool
+        ) =
         let modelsForList =
             [ for thing in docModels do
                   match thing with
                   | (inputFileFullPath, isOtherLang, model) when
                       not isOtherLang
                       && model.OutputKind = OutputKind.Html
-                      && not (Path.GetFileNameWithoutExtension(inputFileFullPath) = "index")
+                      && (Path.GetFileNameWithoutExtension(inputFileFullPath) <> "index")
                       ->
-                      model
+                      { model with
+                          IsActive =
+                              match currentPagePath with
+                              | None -> false
+                              | Some currentPagePath -> currentPagePath = inputFileFullPath }
                   | _ -> () ]
+
+        let excludeUncategorized =
+            if ignoreUncategorized then
+                List.filter (fun (model: LiterateDocModel) -> model.Category.IsSome)
+            else
+                id
 
         let modelsByCategory =
             modelsForList
-            |> List.groupBy (fun model -> model.Category)
+            |> excludeUncategorized
+            |> List.groupBy (fun (model) -> model.Category)
             |> List.sortBy (fun (_, ms) ->
                 match ms.[0].CategoryIndex with
                 | Some s ->
@@ -559,19 +728,12 @@ type internal DocContent
                          Int32.MaxValue)
                 | None -> Int32.MaxValue)
 
-        let orderList list =
+        let orderList (list: (LiterateDocModel) list) =
             list
-            |> List.sortBy (fun model ->
-                match model.Index with
-                | Some s ->
-                    (try
-                        int32 s
-                     with _ ->
-                         Int32.MaxValue)
-                | None -> Int32.MaxValue)
+            |> List.sortBy (fun model -> Option.defaultValue Int32.MaxValue model.Index)
 
         if Menu.isTemplatingAvailable input then
-            let createGroup (header: string) (items: LiterateDocModel list) : string =
+            let createGroup (isCategoryActive: bool) (header: string) (items: LiterateDocModel list) : string =
                 //convert items into menuitem list
                 let menuItems =
                     orderList items
@@ -580,50 +742,63 @@ type internal DocContent
                         let title = System.Web.HttpUtility.HtmlEncode model.Title
 
                         { Menu.MenuItem.Link = link
-                          Menu.MenuItem.Content = title })
+                          Menu.MenuItem.Content = title
+                          Menu.MenuItem.IsActive = model.IsActive })
 
-                Menu.createMenu input header menuItems
+                Menu.createMenu input isCategoryActive header menuItems
             // No categories specified
             if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
                 let _, items = modelsByCategory.[0]
-                createGroup "Documentation" items
+                createGroup false "Documentation" items
             else
                 modelsByCategory
                 |> List.map (fun (header, items) ->
                     let header = Option.defaultValue "Other" header
-                    createGroup header items)
+                    let isActive = items |> List.exists (fun m -> m.IsActive)
+                    createGroup isActive header items)
                 |> String.concat "\n"
         else
             [
               // No categories specified
               if modelsByCategory.Length = 1 && (fst modelsByCategory.[0]) = None then
-                  li [ Class "nav-header" ] [ !! "Documentation" ]
+                  li [ Class "nav-header" ] [ !!"Documentation" ]
 
                   for model in snd modelsByCategory.[0] do
                       let link = model.Uri(root)
+                      let activeClass = if model.IsActive then "active" else ""
 
-                      li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
+                      li
+                          [ Class $"nav-item %s{activeClass}" ]
+                          [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ]
               else
                   // At least one category has been specified. Sort each category by index and emit
                   // Use 'Other' as a header for uncategorised things
                   for (cat, modelsInCategory) in modelsByCategory do
                       let modelsInCategory = orderList modelsInCategory
 
+                      let categoryActiveClass =
+                          if modelsInCategory |> List.exists (fun m -> m.IsActive) then
+                              "active"
+                          else
+                              ""
+
                       match cat with
-                      | Some c -> li [ Class "nav-header" ] [ !!c ]
-                      | None -> li [ Class "nav-header" ] [ !! "Other" ]
+                      | Some c -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!c ]
+                      | None -> li [ Class $"nav-header %s{categoryActiveClass}" ] [ !!"Other" ]
 
                       for model in modelsInCategory do
                           let link = model.Uri(root)
+                          let activeClass = if model.IsActive then "active" else ""
 
-                          li [ Class "nav-item" ] [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
+                          li
+                              [ Class $"nav-item %s{activeClass}" ]
+                              [ a [ Class "nav-link"; (Href link) ] [ encode model.Title ] ] ]
             |> List.map (fun html -> html.ToString())
             |> String.concat "             \n"
 
 /// Processes and runs Suave server to host them on localhost
 module Serve =
-    //not sure what this was needed for
-    //let refreshEvent = new Event<_>()
+    let refreshEvent = FSharp.Control.Event<string>()
 
     /// generate the script to inject into html to enable hot reload during development
     let generateWatchScript (port: int) =
@@ -634,32 +809,67 @@ module Serve =
     function init()
     {
         websocket = new WebSocket(wsUri);
-        websocket.onclose = function(evt) { onClose(evt) };
-    }
-    function onClose(evt)
-    {
-        console.log('closing');
-        websocket.close();
-        document.location.reload();
+        websocket.onmessage = function(evt) {
+            const data = evt.data;
+            if (data.endsWith(".css")) {
+                console.log(`Trying to reload ${data}`);
+                const link = document.querySelector(`link[href*='${data}']`);
+                if (link) {
+                    const href = new URL(link.href);
+                    const ticks = new Date().getTime();
+                    href.searchParams.set("v", ticks);
+                    link.href = href.toString();
+                }
+            }
+            else {
+                console.log('closing');
+                websocket.close();
+                document.location.reload();
+            }
+        }
     }
     window.addEventListener("load", init, false);
 </script>
 """
 
-        tag.Replace("{{PORT}}", string port)
+        tag.Replace("{{PORT}}", string<int> port)
 
+    let connectedClients = ConcurrentDictionary<WebSocket, unit>()
 
+    let socketHandler (webSocket: WebSocket) (context: HttpContext) =
+        context.runtime.logger.info (Message.eventX "New websocket connection")
+        connectedClients.TryAdd(webSocket, ()) |> ignore
 
-    let signalHotReload = new System.Threading.ManualResetEvent(false)
-
-    let socketHandler (webSocket: WebSocket) _ =
         socket {
-            signalHotReload.WaitOne() |> ignore
-            signalHotReload.Reset() |> ignore
-            let emptyResponse = [||] |> ByteSegment
-            printfn "Triggering hot reload on the client"
-            do! webSocket.send Close emptyResponse true
+            let! msg = webSocket.read ()
+
+            match msg with
+            | Close, _, _ ->
+                context.runtime.logger.info (Message.eventX "Closing connection")
+                connectedClients.TryRemove webSocket |> ignore
+                let emptyResponse = [||] |> ByteSegment
+                do! webSocket.send Close emptyResponse true
+            | _ -> ()
         }
+
+    let broadCastReload (msg: string) =
+        let msg = msg |> Encoding.UTF8.GetBytes |> ByteSegment
+
+        connectedClients.Keys
+        |> Seq.map (fun client ->
+            async {
+                let! _ = client.send Text msg true
+                ()
+            })
+        |> Async.Parallel
+        |> Async.Ignore
+        |> Async.RunSynchronously
+
+    refreshEvent.Publish
+    |> Event.add (fun fileName ->
+        if Path.HasExtension fileName then
+            let fileName = fileName.Replace("\\", "/").TrimEnd('~')
+            broadCastReload fileName)
 
     let startWebServer rootOutputFolderAsGiven localPort =
         let mimeTypesMap ext =
@@ -1057,11 +1267,15 @@ module Serve =
 
         let defaultBinding = defaultConfig.bindings.[0]
 
-        let withPort = { defaultBinding.socketBinding with port = uint16 localPort }
+        let withPort =
+            { defaultBinding.socketBinding with
+                port = uint16 localPort }
 
         let serverConfig =
             { defaultConfig with
-                bindings = [ { defaultBinding with socketBinding = withPort } ]
+                bindings =
+                    [ { defaultBinding with
+                          socketBinding = withPort } ]
                 homeFolder = Some rootOutputFolderAsGiven
                 mimeTypesMap = mimeTypesMap }
 
@@ -1093,6 +1307,12 @@ type CoreBuildOptions(watch) =
 
     [<Option("noapidocs", Default = false, Required = false, HelpText = "Disable generation of API docs.")>]
     member val noapidocs = false with get, set
+
+    [<Option("ignoreuncategorized",
+             Default = false,
+             Required = false,
+             HelpText = "Disable generation of 'Other' category for uncategorized docs.")>]
+    member val ignoreuncategorized = false with get, set
 
     [<Option("ignoreprojects", Default = false, Required = false, HelpText = "Disable project cracking.")>]
     member val ignoreprojects = false with get, set
@@ -1231,7 +1451,7 @@ type CoreBuildOptions(watch) =
             let projects = Seq.toList this.projects
             let cacheFile = ".fsdocs/cache"
 
-            let getTime p =
+            let getTime (p: string) =
                 try
                     File.GetLastWriteTimeUtc(p)
                 with _ ->
@@ -1244,31 +1464,28 @@ type CoreBuildOptions(watch) =
                  getTime (typeof<CoreBuildOptions>.Assembly.Location),
                  (projects |> List.map getTime |> List.toArray))
 
-            Utils.cacheBinary
-                cacheFile
-                (fun (_, key2) -> key1 = key2)
-                (fun () ->
-                    let props =
-                        this.extraMsbuildProperties
-                        |> Seq.toList
-                        |> List.map (fun s ->
-                            let arr = s.Split("=")
+            Utils.cacheBinary cacheFile (fun (_, key2) -> key1 = key2) (fun () ->
+                let props =
+                    this.extraMsbuildProperties
+                    |> Seq.toList
+                    |> List.map (fun s ->
+                        let arr = s.Split("=")
 
-                            if arr.Length > 1 then
-                                arr.[0], String.concat "=" arr.[1..]
-                            else
-                                failwith "properties must be of the form 'PropName=PropValue'")
+                        if arr.Length > 1 then
+                            arr.[0], String.concat "=" arr.[1..]
+                        else
+                            failwith "properties must be of the form 'PropName=PropValue'")
 
-                    Crack.crackProjects (
-                        onError,
-                        props,
-                        userRoot,
-                        userCollectionName,
-                        userParameters,
-                        projects,
-                        this.ignoreprojects
-                    ),
-                    key1)
+                Crack.crackProjects (
+                    onError,
+                    props,
+                    userRoot,
+                    userCollectionName,
+                    userParameters,
+                    projects,
+                    this.ignoreprojects
+                ),
+                key1)
 
         // See https://github.com/ionide/proj-info/issues/123
         System.Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", prevDotnetHostPath)
@@ -1361,7 +1578,7 @@ type CoreBuildOptions(watch) =
         let apiDocOtherFlags =
             [ for (_dllFile, otherFlags, _, _, _, _, _, _, _, _) in crackedProjects do
                   for otherFlag in otherFlags do
-                      if otherFlag.StartsWith("-r:") then
+                      if otherFlag.StartsWith("-r:", StringComparison.Ordinal) then
                           if File.Exists(otherFlag.[3..]) then
                               yield otherFlag
                           else
@@ -1370,7 +1587,7 @@ type CoreBuildOptions(watch) =
             |> List.distinctBy (fun ref -> Path.GetFileName(ref.[3..]))
 
         let rootOutputFolderAsGiven =
-            if this.output = "" then
+            if String.IsNullOrWhiteSpace this.output then
                 if watch then "tmp/watch" else "output"
             else
                 this.output
@@ -1473,89 +1690,88 @@ type CoreBuildOptions(watch) =
         // Incrementally generate API docs (regenerates all api docs, in two phases)
         let runGeneratePhase1 () =
             protect "API doc generation (phase 1)" (fun () ->
-                if crackedProjects.Length > 0 then
+                if crackedProjects.Length = 0 || this.noapidocs then
+                    latestApiDocGlobalParameters <- [ ParamKeys.``fsdocs-list-of-namespaces``, "" ]
+                elif crackedProjects.Length > 0 then
+                    let (outputKind, initialTemplate2) =
+                        let templates =
+                            [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
+                              OutputKind.Html, Path.Combine(this.input, "_template.html")
+                              OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
+                              OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
 
-                    if not this.noapidocs then
+                        match templates |> List.tryFind (fun (_, path) -> path |> File.Exists) with
+                        | Some(kind, path) -> kind, Some path
+                        | None ->
+                            let templateFiles = templates |> Seq.map snd |> String.concat "', '"
 
-                        let (outputKind, initialTemplate2) =
-                            let templates =
-                                [ OutputKind.Html, Path.Combine(this.input, "reference", "_template.html")
-                                  OutputKind.Html, Path.Combine(this.input, "_template.html")
-                                  OutputKind.Markdown, Path.Combine(this.input, "reference", "_template.md")
-                                  OutputKind.Markdown, Path.Combine(this.input, "_template.md") ]
+                            match defaultTemplate with
+                            | Some d ->
+                                printfn
+                                    "note, no template files: '%s' found, using default template %s"
+                                    templateFiles
+                                    d
 
-                            match templates |> Seq.tryFind (fun (_, path) -> path |> File.Exists) with
-                            | Some (kind, path) -> kind, Some path
+                                OutputKind.Html, Some d
                             | None ->
-                                let templateFiles = templates |> Seq.map snd |> String.concat "', '"
+                                printfn
+                                    "note, no template file '%s' found, and no default template at '%s'"
+                                    templateFiles
+                                    defaultTemplateAttempt1
 
-                                match defaultTemplate with
-                                | Some d ->
-                                    printfn
-                                        "note, no template files: '%s' found, using default template %s"
-                                        templateFiles
-                                        d
+                                OutputKind.Html, None
 
-                                    OutputKind.Html, Some d
-                                | None ->
-                                    printfn
-                                        "note, no template file '%s' found, and no default template at '%s'"
-                                        templateFiles
-                                        defaultTemplateAttempt1
+                    printfn ""
+                    printfn "API docs:"
+                    printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
 
-                                    OutputKind.Html, None
+                    let model, globals, index, phase2 =
+                        match outputKind with
+                        | OutputKind.Html ->
+                            ApiDocs.GenerateHtmlPhased(
+                                inputs = apiDocInputs,
+                                output = rootOutputFolderAsGiven,
+                                collectionName = collectionName,
+                                substitutions = docsSubstitutions,
+                                qualify = this.qualify,
+                                ?template = initialTemplate2,
+                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                                root = root,
+                                libDirs = paths,
+                                onError = onError,
+                                menuTemplateFolder = this.input
+                            )
+                        | OutputKind.Markdown ->
+                            ApiDocs.GenerateMarkdownPhased(
+                                inputs = apiDocInputs,
+                                output = rootOutputFolderAsGiven,
+                                collectionName = collectionName,
+                                substitutions = docsSubstitutions,
+                                qualify = this.qualify,
+                                ?template = initialTemplate2,
+                                otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
+                                root = root,
+                                libDirs = paths,
+                                onError = onError
+                            )
+                        | _ -> failwithf "API Docs format '%A' is not supported" outputKind
 
-                        printfn ""
-                        printfn "API docs:"
-                        printfn "  generating model for %d assemblies in API docs..." apiDocInputs.Length
+                    // Used to resolve code references in content with respect to the API Docs model
+                    let resolveInlineCodeReference (s: string) =
+                        if s.StartsWith("cref:", StringComparison.Ordinal) then
+                            let s = s.[5..]
 
-                        let model, globals, index, phase2 =
-                            match outputKind with
-                            | OutputKind.Html ->
-                                ApiDocs.GenerateHtmlPhased(
-                                    inputs = apiDocInputs,
-                                    output = rootOutputFolderAsGiven,
-                                    collectionName = collectionName,
-                                    substitutions = docsSubstitutions,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    onError = onError,
-                                    menuTemplateFolder = this.input
-                                )
-                            | OutputKind.Markdown ->
-                                ApiDocs.GenerateMarkdownPhased(
-                                    inputs = apiDocInputs,
-                                    output = rootOutputFolderAsGiven,
-                                    collectionName = collectionName,
-                                    substitutions = docsSubstitutions,
-                                    qualify = this.qualify,
-                                    ?template = initialTemplate2,
-                                    otherFlags = apiDocOtherFlags @ Seq.toList this.fscoptions,
-                                    root = root,
-                                    libDirs = paths,
-                                    onError = onError
-                                )
-                            | _ -> failwithf "API Docs format '%A' is not supported" outputKind
+                            match model.Resolver.ResolveCref s with
+                            | None -> None
+                            | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
+                        else
+                            None
 
-                        // Used to resolve code references in content with respect to the API Docs model
-                        let resolveInlineCodeReference (s: string) =
-                            if s.StartsWith("cref:") then
-                                let s = s.[5..]
-
-                                match model.Resolver.ResolveCref s with
-                                | None -> None
-                                | Some cref -> Some(cref.NiceName, cref.ReferenceLink)
-                            else
-                                None
-
-                        latestApiDocModel <- Some model
-                        latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
-                        latestApiDocSearchIndexEntries <- index
-                        latestApiDocGlobalParameters <- globals
-                        latestApiDocPhase2 <- phase2)
+                    latestApiDocModel <- Some model
+                    latestApiDocCodeReferenceResolver <- resolveInlineCodeReference
+                    latestApiDocSearchIndexEntries <- index
+                    latestApiDocGlobalParameters <- globals
+                    latestApiDocPhase2 <- phase2)
 
         let runGeneratePhase2 () =
             protect "API doc generation (phase 2)" (fun () ->
@@ -1582,18 +1798,12 @@ type CoreBuildOptions(watch) =
                      | "all" -> Some true
                      | _ -> None)
 
-                let fsiEvaluator =
-                    (if this.eval then
-                         Some(FsiEvaluator(onError = onError) :> IFsiEvaluator)
-                     else
-                         None)
-
                 let docContent =
                     DocContent(
                         rootOutputFolderAsGiven,
                         latestDocContentResults,
                         Some this.linenumbers,
-                        fsiEvaluator,
+                        this.eval,
                         docsSubstitutions,
                         saveImages,
                         watch,
@@ -1603,34 +1813,77 @@ type CoreBuildOptions(watch) =
                     )
 
                 let docModels = docContent.Convert(this.input, defaultTemplate, extraInputs)
-
                 let actualDocModels = docModels |> List.map fst |> List.choose id
-
                 let extrasForSearchIndex = docContent.GetSearchIndexEntries(actualDocModels)
 
-                let navEntries = docContent.GetNavigationEntries(this.input, actualDocModels)
+                let navEntriesWithoutActivePage =
+                    docContent.GetNavigationEntries(
+                        this.input,
+                        actualDocModels,
+                        None,
+                        ignoreUncategorized = this.ignoreuncategorized
+                    )
+
+                let headTemplateContent =
+                    let headTemplatePath = Path.Combine(this.input, "_head.html")
+
+                    if not (File.Exists headTemplatePath) then
+                        ""
+                    else
+                        File.ReadAllText headTemplatePath
+                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
+
+                let bodyTemplateContent =
+                    let bodyTemplatePath = Path.Combine(this.input, "_body.html")
+
+                    if not (File.Exists bodyTemplatePath) then
+                        ""
+                    else
+                        File.ReadAllText bodyTemplatePath
+                        |> SimpleTemplating.ApplySubstitutionsInText [ ParamKeys.root, root ]
 
                 let results =
                     Map.ofList
                         [ for (thing, _action) in docModels do
                               match thing with
-                              | Some (file, _isOtherLang, model) -> (file, model)
+                              | Some(file, _isOtherLang, model) -> (file, model)
                               | None -> () ]
 
                 latestDocContentResults <- results
                 latestDocContentSearchIndexEntries <- extrasForSearchIndex
-                latestDocContentGlobalParameters <- [ ParamKeys.``fsdocs-list-of-documents``, navEntries ]
+
+                latestDocContentGlobalParameters <-
+                    [ ParamKeys.``fsdocs-list-of-documents``, navEntriesWithoutActivePage
+                      ParamKeys.``fsdocs-head-extra``, headTemplateContent
+                      ParamKeys.``fsdocs-body-extra``, bodyTemplateContent ]
 
                 latestDocContentPhase2 <-
                     (fun globals ->
-
                         printfn ""
                         printfn "Write Content:"
 
-                        for (_thing, action) in docModels do
-                            action globals
+                        for (optDocModel, action) in docModels do
+                            let globals =
+                                match optDocModel with
+                                | None -> globals
+                                | Some(currentPagePath, _, _) ->
+                                    // Update the nav entries with the current page doc model
+                                    let navEntries =
+                                        docContent.GetNavigationEntries(
+                                            this.input,
+                                            actualDocModels,
+                                            Some currentPagePath,
+                                            ignoreUncategorized = this.ignoreuncategorized
+                                        )
 
-                        ))
+                                    globals
+                                    |> List.map (fun (pk, v) ->
+                                        if pk <> ParamKeys.``fsdocs-list-of-documents`` then
+                                            pk, v
+                                        else
+                                            ParamKeys.``fsdocs-list-of-documents``, navEntries)
+
+                            action globals))
 
         let runDocContentPhase2 () =
             protect "Content generation (phase 2)" (fun () ->
@@ -1651,7 +1904,7 @@ type CoreBuildOptions(watch) =
                     File.Delete file |> ignore
 
                 for subdir in Directory.EnumerateDirectories dir do
-                    if not (Path.GetFileName(subdir).StartsWith ".") then
+                    if not (Path.GetFileName(subdir).StartsWith '.') then
                         clean subdir
 
             let isOutputPathOK =
@@ -1707,10 +1960,12 @@ type CoreBuildOptions(watch) =
         if watch then
 
             let docsWatchers =
-                if Directory.Exists(this.input) then
-                    [ new FileSystemWatcher(this.input) ]
-                else
-                    []
+                [ if Directory.Exists(this.input) then
+                      yield new FileSystemWatcher(this.input)
+                  match defaultTemplate with
+                  | Some defaultTemplate ->
+                      yield new FileSystemWatcher(Path.GetDirectoryName(defaultTemplate), IncludeSubdirectories = true)
+                  | None -> () ]
 
             let templateWatchers =
                 if Directory.Exists(this.input) then
@@ -1743,9 +1998,9 @@ type CoreBuildOptions(watch) =
             let mutable docsQueued = true
             let mutable generateQueued = true
 
-            let docsDependenciesChanged = Event<_>()
+            let docsDependenciesChanged = FSharp.Control.Event<string>()
 
-            docsDependenciesChanged.Publish.Add(fun () ->
+            docsDependenciesChanged.Publish.Add(fun fileName ->
                 if not docsQueued then
                     docsQueued <- true
                     printfn "Detected change in '%s', scheduling rebuild of docs..." this.input
@@ -1760,11 +2015,11 @@ type CoreBuildOptions(watch) =
                                 if runDocContentPhase2 () then
                                     regenerateSearchIndex ())
 
-                        Serve.signalHotReload.Set() |> ignore
+                        Serve.refreshEvent.Trigger fileName
                     }
                     |> Async.Start)
 
-            let apiDocsDependenciesChanged = Event<_>()
+            let apiDocsDependenciesChanged = FSharp.Control.Event<_>()
 
             apiDocsDependenciesChanged.Publish.Add(fun () ->
                 if not generateQueued then
@@ -1781,7 +2036,7 @@ type CoreBuildOptions(watch) =
                                 if runGeneratePhase2 () then
                                     regenerateSearchIndex ())
 
-                        Serve.signalHotReload.Set() |> ignore
+                        Serve.refreshEvent.Trigger "full"
                     }
                     |> Async.Start)
 
@@ -1789,7 +2044,7 @@ type CoreBuildOptions(watch) =
             for docsWatcher in docsWatchers do
                 docsWatcher.IncludeSubdirectories <- true
                 docsWatcher.NotifyFilter <- NotifyFilters.LastWrite
-                docsWatcher.Changed.Add(fun _ -> docsDependenciesChanged.Trigger())
+                docsWatcher.Changed.Add(fun fileEvent -> docsDependenciesChanged.Trigger fileEvent.Name)
 
             // When _template.* change rebuild everything
             for templateWatcher in templateWatchers do
@@ -1798,8 +2053,8 @@ type CoreBuildOptions(watch) =
                 templateWatcher.Filter <- "*template.html"
                 templateWatcher.NotifyFilter <- NotifyFilters.LastWrite
 
-                templateWatcher.Changed.Add(fun _ ->
-                    docsDependenciesChanged.Trigger()
+                templateWatcher.Changed.Add(fun fileEvent ->
+                    docsDependenciesChanged.Trigger fileEvent.Name
                     apiDocsDependenciesChanged.Trigger())
 
             // Listen to changes in output DLLs

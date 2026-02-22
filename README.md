@@ -9,18 +9,31 @@ See https://fsprojects.github.io/FSharp.Formatting/
 
 ## Development
 
-    .\build.cmd
-    ./build.sh
+    dotnet fsi build.fsx
 
 
 Once built, you can run the command-line tool to self-build the docs for this directory using 
 
     dotnet build
-    src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe watch
-    src\fsdocs-tool\bin\Debug\net6.0\fsdocs.exe build --clean
+    src\fsdocs-tool\bin\Debug\net8.0\fsdocs.exe watch
+    src\fsdocs-tool\bin\Debug\net8.0\fsdocs.exe build --clean
 
+### Pipelines
+
+Run
+
+    dotnet fsi build.fsx -- --help
+
+to see what other pipelines can be run from `build.fsx`.
+
+    dotnet fsi build.fsx -- -p Verify
+
+Will perform the linting, unit tests and analyzer check.
+This is useful to run locally before submitting your PR.
 
 ## Maintainer(s)
 
 - [@dsyme](https://github.com/dsyme)
-- [@eiriktsarpalis](https://github.com/eiriktsarpalis)
+- [@baronfel](https://github.com/baronfel)
+- [@nhirschey](https://github.com/nhirschey)
+- [@nojaf](https://github.com/nojaf)

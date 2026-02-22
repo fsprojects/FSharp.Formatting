@@ -46,3 +46,8 @@ src/Common/AssemblyInfo.?s
 tests/FSharp.Literate.Tests/output1/
 .vscode/
 .DS_Store
+tests/FSharp.Literate.Tests/output2/
+tests/FSharp.Literate.Tests/previous-next-output/
+
+# Analyzer
+analysis.sarif

@@ -5,6 +5,10 @@ on:
     branches:
     - main
 
+permissions:
+  id-token: write
+  security-events: write
+
 jobs:
   build:
 
@@ -15,14 +19,19 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v6
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
-    - name: Restore .NET local tools
-      run: dotnet tool restore
-    - name: Restore packages
-      run: dotnet paket restore
-    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build.fsx --recurse' to repair)
-      run: dotnet fantomas src tests docs build.fsx -r --check
-    - name: Build and test
-      run: dotnet fake run build.fsx
+      uses: actions/setup-dotnet@v5
+    - name: Run CI
+      run: dotnet fsi build.fsx
+  
+    - name: Analyze Solution
+      if: matrix.os == 'ubuntu-latest'
+      run: dotnet msbuild /t:AnalyzeSolution
+      continue-on-error: true
+
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v4
+      if: matrix.os == 'ubuntu-latest'
+      with:
+        sarif_file: ./analysis.sarif

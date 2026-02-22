@@ -65,12 +65,7 @@ let info =
 let ``ApiDocs extracts Attribute on Module`` () =
     let modules =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let modul = modules |> findModule "SingleAttributeModule"
@@ -88,12 +83,7 @@ let ``ApiDocs extracts Attribute on Module`` () =
 let ``ApiDocs extracts multiple Attributes on Module`` () =
     let modules =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let modul = modules |> findModule "MultipleAttributesModule"
@@ -105,12 +95,7 @@ let ``ApiDocs extracts multiple Attributes on Module`` () =
 let ``ApiDocs extracts Attribute with argument`` () =
     let modules =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let modul = modules |> findModule "SingleAttributeWithArgumentModule"
@@ -129,12 +114,7 @@ let ``ApiDocs extracts Attribute with argument`` () =
 let ``ApiDocs extracts Attribute with named arguments`` () =
     let modules =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let modul = modules |> findModule "SingleAttributeWithNamedArgumentsModule"
@@ -160,12 +140,7 @@ let ``ApiDocs extracts Attribute with named arguments`` () =
 let ``ApiDocs extracts Attribute on interface`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let interface' = typeInfos |> findType "AttributeInterface"
@@ -179,12 +154,7 @@ let ``ApiDocs extracts Attribute on interface`` () =
 let ``ApiDocs extracts Attribute on class`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let class' = typeInfos |> findType "AttributeClass"
@@ -197,12 +167,7 @@ let ``ApiDocs extracts Attribute on class`` () =
 let ``ApiDocs extracts Attribute on value in module`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = typeInfos |> findModule "ContentTestModule"
@@ -218,12 +183,7 @@ let ``ApiDocs extracts Attribute on value in module`` () =
 let ``ApiDocs extracts Attribute on function in module`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = typeInfos |> findModule "ContentTestModule"
@@ -239,12 +199,7 @@ let ``ApiDocs extracts Attribute on function in module`` () =
 let ``ApiDocs extracts Attribute on instance member in class`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let class' = typeInfos |> findType "AttributeClass"
@@ -260,12 +215,7 @@ let ``ApiDocs extracts Attribute on instance member in class`` () =
 let ``ApiDocs extracts Attribute on static member in class`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let class' = typeInfos |> findType "AttributeClass"
@@ -281,12 +231,7 @@ let ``ApiDocs extracts Attribute on static member in class`` () =
 let ``ApiDocs extracts Attribute on union case`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let union = typeInfos |> findType "AttributeUnion"
@@ -304,12 +249,7 @@ let ``ApiDocs extracts Attribute on union case`` () =
 let ``ApiDocs extracts Attribute on record field`` () =
     let typeInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let union = typeInfos |> findType "AttributeRecord"
@@ -327,12 +267,7 @@ let ``ApiDocs extracts Attribute on record field`` () =
 let ``ApiDocs formats attribute without arguments`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -350,12 +285,7 @@ let ``ApiDocs formats attribute without arguments`` () =
 let ``ApiDocs formats attribute with single int argument`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -373,12 +303,7 @@ let ``ApiDocs formats attribute with single int argument`` () =
 let ``ApiDocs formats attribute with single string argument`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -397,12 +322,7 @@ let ``ApiDocs formats attribute with single string argument`` () =
 let ``ApiDocs formats attribute with single bool argument`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -421,12 +341,7 @@ let ``ApiDocs formats attribute with single bool argument`` () =
 let ``ApiDocs formats attribute with single array argument`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -444,12 +359,7 @@ let ``ApiDocs formats attribute with single array argument`` () =
 let ``ApiDocs formats attribute with multiple arguments`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -468,12 +378,7 @@ let ``ApiDocs formats attribute with multiple arguments`` () =
 let ``ApiDocs formats attribute with multiple named arguments`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -492,12 +397,7 @@ let ``ApiDocs formats attribute with multiple named arguments`` () =
 let ``ApiDocs formats attribute with name and suffix`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -515,12 +415,7 @@ let ``ApiDocs formats attribute with name and suffix`` () =
 let ``ApiDocs formats attribute with fullName`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -539,12 +434,7 @@ let ``ApiDocs formats attribute with fullName`` () =
 let ``ApiDocs formats attribute with fullName and suffix`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "FormatTestModule"
@@ -563,12 +453,7 @@ let ``ApiDocs formats attribute with fullName and suffix`` () =
 let ``ApiDocs IsObsolete returns true on obsolete attribute`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "ObsoleteTestModule"
@@ -582,12 +467,7 @@ let ``ApiDocs IsObsolete returns true on obsolete attribute`` () =
 let ``ApiDocs IsObsolete returns true on obsolete attribute and finds obsolete message`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "ObsoleteTestModule"
@@ -602,12 +482,7 @@ let ``ApiDocs IsObsolete returns true on obsolete attribute and finds obsolete m
 let ``ApiDocs IsObsolete returns false on not obsolete attribute and finds no obsolete message`` () =
     let moduleInfos =
         ApiDocs
-            .GenerateModel(
-                [ inputs ],
-                collectionName = "AttributeTestLib",
-                substitutions = info,
-                libDirs = [ testBin ]
-            )
+            .GenerateModel([ inputs ], collectionName = "AttributeTestLib", substitutions = info, libDirs = [ testBin ])
             .EntityInfos
 
     let module' = moduleInfos |> findModule "ObsoleteTestModule"

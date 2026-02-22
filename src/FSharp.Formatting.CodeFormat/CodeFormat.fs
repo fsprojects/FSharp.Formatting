@@ -6,7 +6,6 @@
 namespace FSharp.Formatting.CodeFormat
 
 open System
-open System.Diagnostics
 
 /// <summary>
 ///  Represents an individual formatted snippet with title as key
@@ -28,7 +27,7 @@ type FormattedSnippet(key: string, content: string) =
 
 
 /// Represents formatted snippets
-type FormattedContent(snippets: FormattedSnippet[], tips: string) =
+type FormattedContent(snippets: FormattedSnippet array, tips: string) =
     /// Returns the processed snippets as an array
     member x.Snippets = snippets
 
@@ -41,17 +40,7 @@ type CodeFormat =
     /// Formats the .fsx snippets as HTML. The parameters specify prefix for HTML tags, whether lines should
     /// be added to outputs and whether errors should be printed.
     static member FormatHtml
-        (
-            snippets,
-            prefix,
-            ?openTag,
-            ?closeTag,
-            ?lineNumbers,
-            ?openLinesTag,
-            ?closeLinesTag,
-            ?addErrors,
-            ?tokenKindToCss
-        ) =
+        (snippets, prefix, ?openTag, ?closeTag, ?lineNumbers, ?openLinesTag, ?closeLinesTag, ?addErrors, ?tokenKindToCss) =
         let openTag = defaultArg openTag "<pre class=\"fssnip\">"
 
         let closeTag = defaultArg closeTag "</pre>"
@@ -92,9 +81,9 @@ type CodeFormat =
     /// Formats the .fsx snippets as iPython notebook using the default settings.
     static member FormatFsx(snippets) =
         let snips =
-            [| for (Snippet (key, lines)) in snippets do
+            [| for (Snippet(key, lines)) in snippets do
                    let str =
-                       [| for (Line (originalLine, _spans)) in lines -> originalLine |]
+                       [| for (Line(originalLine, _spans)) in lines -> originalLine |]
                        |> String.concat Environment.NewLine
 
                    yield key, str |]

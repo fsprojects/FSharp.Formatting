@@ -10,6 +10,9 @@ type AssemblyEntities =
 let rec collectEntities (m: ApiDocEntity) =
     [ yield m; yield! m.NestedEntities |> List.collect collectEntities ]
 
+[<Literal>]
+let ApiDocs = "apiDocs"
+
 let searchIndexEntriesForModel (model: ApiDocModel) =
     let allEntities =
         [ for n in model.Collection.Namespaces do
@@ -32,7 +35,9 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
 
         { uri = memb.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
           title = enclName + "." + memb.Name
-          content = cnt }
+          content = cnt
+          ``type`` = ApiDocs
+          headings = List.empty }
 
     let refs =
         [| for nsp in model.Collection.Namespaces do
@@ -44,7 +49,9 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
 
                { uri = nsp.Url(model.Root, model.Collection.CollectionName, model.Qualify, model.FileExtensions.InUrl)
                  title = nsp.Name
-                 content = ctn }
+                 content = ctn
+                 ``type`` = ApiDocs
+                 headings = List.empty }
 
            // generate a search index entry for each entity in the assembly
            for e in entities.Entities do
@@ -70,11 +77,12 @@ let searchIndexEntriesForModel (model: ApiDocModel) =
 
                { uri = url
                  title = e.Name
-                 content = cnt }
+                 content = cnt
+                 ``type`` = ApiDocs
+                 headings = List.empty }
 
                for memb in e.AllMembers do
                    doMember e.Name memb
-
 
            |]
 

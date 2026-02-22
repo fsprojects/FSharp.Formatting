@@ -1,6 +1,8 @@
 namespace FSharp.Formatting.Literate
 
+open System
 open System.IO
+open System.Text.RegularExpressions
 open FSharp.Formatting.Literate
 open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Markdown
@@ -40,7 +42,7 @@ module internal Formatting =
                 mdlinkResolver = mdlinkResolver
             )
         | OutputKind.Html ->
-            let sb = new System.Text.StringBuilder()
+            let sb = System.Text.StringBuilder()
             use wr = new StringWriter(sb)
 
             HtmlFormatting.formatAsHtml
@@ -61,7 +63,7 @@ module internal Formatting =
         paragraphs
         |> Seq.tryPick (fun para ->
             match para with
-            | Heading (1, text, r) ->
+            | Heading(1, text, r) ->
                 match outputKind with
                 | OutputKind.Html
                 | OutputKind.Latex ->
@@ -80,13 +82,13 @@ module internal Formatting =
             let mutable count = 0
 
             let paragraphs =
-                [ for Snippet (name, lines) in snippets do
+                [ for Snippet(name, lines) in snippets do
                       if snippets.Length > 1 then
                           yield Heading(3, [ Literal(name, None) ], None)
 
                       let id =
                           count <- count + 1
-                          "cell" + string count
+                          "cell" + string<int> count
 
                       let opts =
                           { Evaluate = true
@@ -104,21 +106,27 @@ module internal Formatting =
         match doc.Source with
         | LiterateSource.Markdown text -> text
         | LiterateSource.Script snippets ->
-            [ for Snippet (_name, lines) in snippets do
-                  for (Line (line, _)) in lines do
+            [ for Snippet(_name, lines) in snippets do
+                  for Line(line, _) in lines do
                       yield line ]
             |> String.concat "\n"
 
-    let transformDocument (doc: LiterateDocument) (outputPath: string) ctx =
+    let transformDocument
+        // This array was sorted in BuildCommand.fs
+        (filesWithFrontMatter: FrontMatterFile array)
+        (doc: LiterateDocument)
+        (outputPath: string)
+        ctx
+        =
 
         let findInFrontMatter key =
             match doc.Paragraphs with
-            | YamlFrontmatter (lines, _) :: _ ->
+            | YamlFrontmatter(lines, _) :: _ ->
                 lines
                 |> List.tryPick (fun line ->
                     let line = line.Trim()
 
-                    if line.StartsWith(key + ":") then
+                    if line.StartsWith(key + ":", StringComparison.Ordinal) then
                         let line = line.[(key + ":").Length ..]
                         let line = line.Trim()
                         Some line
@@ -126,11 +134,17 @@ module internal Formatting =
                         None)
             | _ -> None
 
-        let category = findInFrontMatter "category"
+        let mkValidIndex (value: string) =
+            match System.Int32.TryParse value with
+            | true, i -> Some i
+            | false, _ -> None
 
-        let categoryIndex = findInFrontMatter "categoryindex"
-        let index = findInFrontMatter "index"
+        let category = findInFrontMatter "category"
+        let categoryIndex = findInFrontMatter "categoryindex" |> Option.bind mkValidIndex
+        let index = findInFrontMatter "index" |> Option.bind mkValidIndex
         let titleFromFrontMatter = findInFrontMatter "title"
+        let description = findInFrontMatter "description"
+        let tags = findInFrontMatter "keywords"
 
         // If we want to include the source code of the script, then process
         // the entire source and generate replacement {source} => ...some html...
@@ -167,9 +181,81 @@ module internal Formatting =
         // Replace all special elements with ordinary Html/Latex Markdown
         let doc = Transformations.replaceLiterateParagraphs ctx doc
 
+        // construct previous and next urls
+        let nextPreviousPageSubstitutions =
+            let getLinksFromCurrentPageIdx currentPageIdx =
+                match currentPageIdx with
+                | None -> []
+                | Some currentPageIdx ->
+                    let previousPage =
+                        filesWithFrontMatter
+                        |> Array.tryItem (currentPageIdx - 1)
+                        |> Option.bind (fun { FileName = fileName } ->
+                            ctx.MarkdownDirectLinkResolver fileName
+                            |> Option.map (fun link -> ParamKeys.``fsdocs-previous-page-link``, link))
+                        |> Option.toList
+
+                    let nextPage =
+                        filesWithFrontMatter
+                        |> Array.tryItem (currentPageIdx + 1)
+                        |> Option.bind (fun { FileName = fileName } ->
+                            ctx.MarkdownDirectLinkResolver fileName
+                            |> Option.map (fun link -> ParamKeys.``fsdocs-next-page-link``, link))
+                        |> Option.toList
+
+                    previousPage @ nextPage
+
+            match index, categoryIndex with
+            | None, None
+            | None, Some _ ->
+                // Typical uses case here is the main index page.
+                // If there is no frontmatter there, we want to propose the first available page
+                filesWithFrontMatter
+                |> Array.tryHead
+                |> Option.bind (fun { FileName = fileName } ->
+                    ctx.MarkdownDirectLinkResolver fileName
+                    |> Option.map (fun link -> ParamKeys.``fsdocs-next-page-link``, link))
+                |> Option.toList
+
+            | Some currentPageIdx, None ->
+                let currentPageIdx =
+                    filesWithFrontMatter
+                    |> Array.tryFindIndex (fun { Index = idx } -> idx = currentPageIdx)
+
+                getLinksFromCurrentPageIdx currentPageIdx
+            | Some currentPageIdx, Some currentCategoryIdx ->
+                let currentPageIdx =
+                    filesWithFrontMatter
+                    |> Array.tryFindIndex (fun { Index = idx; CategoryIndex = cIdx } ->
+                        cIdx = currentCategoryIdx && idx = currentPageIdx)
+
+                getLinksFromCurrentPageIdx currentPageIdx
+
+        let meta =
+            let mkDescription description =
+                $"""<meta name="description" content="%s{description}">
+<meta name="twitter:site" content="%s{description}">
+<meta name="og:description" content="%s{description}">"""
+
+            let mkKeywords keywords =
+                $"""<meta name="keywords" content="%s{keywords}">"""
+
+            match description, tags with
+            | Some description, Some tags -> String.Concat(mkDescription description, "\n", mkKeywords tags)
+            | Some description, None -> mkDescription description
+            | None, Some keywords -> mkKeywords keywords
+            | None, None -> String.Empty
+
         let substitutions0 =
-            [ ParamKeys.``fsdocs-page-title``, pageTitle; ParamKeys.``fsdocs-page-source``, doc.SourceFile ]
-            @ ctx.Substitutions @ sourceSubstitutions
+            [ yield ParamKeys.``fsdocs-page-title``, pageTitle
+              yield ParamKeys.``fsdocs-page-source``, doc.SourceFile
+              yield ParamKeys.``fsdocs-body-class``, "content"
+              yield ParamKeys.``fsdocs-meta-tags``, meta
+              yield! ctx.Substitutions
+              yield! sourceSubstitutions
+              yield! nextPreviousPageSubstitutions ]
+
+
 
         let formattedDocument =
             format
@@ -180,16 +266,23 @@ module internal Formatting =
                 ctx.CodeReferenceResolver
                 ctx.MarkdownDirectLinkResolver
 
+        let headingTexts, pageHeaders = FSharp.Formatting.Common.PageContentList.mkPageContentMenu formattedDocument
+
         let tipsHtml = doc.FormattedTips
 
         // Construct new Markdown document and write it
         let substitutions =
             substitutions0
-            @ [ ParamKeys.``fsdocs-content``, formattedDocument; ParamKeys.``fsdocs-tooltips``, tipsHtml ]
+            @ [ ParamKeys.``fsdocs-content``, formattedDocument
+                ParamKeys.``fsdocs-tooltips``, tipsHtml
+                ParamKeys.``fsdocs-page-content-list``, pageHeaders ]
 
         let indexText =
             (match ctx.OutputKind with
-             | OutputKind.Html -> Some(getIndexText doc)
+             | OutputKind.Html ->
+                 // Strip the html tags
+                 let fullText = Regex.Replace(formattedDocument, "<.*?>", "")
+                 Some(IndexText(fullText, headingTexts))
              | _ -> None)
 
         { OutputPath = outputPath
@@ -199,4 +292,7 @@ module internal Formatting =
           CategoryIndex = categoryIndex
           Index = index
           IndexText = indexText
-          Substitutions = substitutions }
+          Substitutions = substitutions
+          // No don't know this until later.
+          // See DocContent.GetNavigationEntries
+          IsActive = false }

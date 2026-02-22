@@ -24,7 +24,7 @@ let rec formatParagraphs ctx paragraphs =
 
         let cell =
             match k with
-            | Choice1Of2 (code, codeOutput, executionCount) ->
+            | Choice1Of2(code, codeOutput, executionCount) ->
                 codeCell
                     [| adjustFsxCodeForConditionalDefines (ctx.DefineSymbol, ctx.Newline) code |]
                     executionCount
@@ -48,6 +48,8 @@ let formatAsPynb links replacements newline crefResolver mdlinkResolver paragrap
 
     let cells = formatParagraphs ctx paragraphs
 
-    let notebook = { Notebook.Default with cells = Array.ofList cells }
+    let notebook =
+        { Notebook.Default with
+            cells = Array.ofList cells }
 
     notebook.ToString()

@@ -82,8 +82,7 @@ module internal CompilerServiceExtensions =
                  //    printfn "option: %s" r
 
                  options.OtherOptions
-                 |> Array.filter (fun path -> path.StartsWith "-r:")
-                 |> Array.filter (fun path -> path.StartsWith "-r:")
+                 |> Array.filter (fun path -> path.StartsWith("-r:", StringComparison.Ordinal))
                  //|> Seq.choose (fun path -> if path.StartsWith "-r:" then path.Substring 3 |> Some else None)
                  //|> Seq.map (fun path -> path.Replace("\\\\", "\\"))
                  |> Array.toList)
@@ -161,8 +160,9 @@ module internal CompilerServiceExtensions =
                        yield "-r:" + dllFile
                    for libDir in libDirs do
                        yield "-I:" + libDir
-                   if fsCoreLib.IsSome then
-                       yield sprintf "-r:%s" fsCoreLib.Value
+                   match fsCoreLib with
+                   | None -> ()
+                   | Some fsCoreLib -> yield $"-r:%s{fsCoreLib}"
 
                    yield! otherFlags
                    yield fileName1 |]
@@ -179,11 +179,11 @@ module internal CompilerServiceExtensions =
                 || libDirs
                    |> List.exists (fun lib ->
                        Directory.EnumerateFiles(lib)
-                       |> Seq.filter (fun file -> Path.GetExtension file =? ".dll")
                        |> Seq.filter (fun file ->
                            // If we find a FSharp.Core in a lib path, we check if is suited for us...
-                           Path.GetFileNameWithoutExtension file <>? "FSharp.Core"
-                           || (tryCheckFsCore file |> Option.isSome))
+                           Path.GetExtension file =? ".dll"
+                           && (Path.GetFileNameWithoutExtension file <>? "FSharp.Core"
+                               || (tryCheckFsCore file |> Option.isSome)))
                        |> Seq.toList
                        |> isAssembly asm)
 
@@ -245,10 +245,9 @@ module internal CompilerServiceExtensions =
             dllFiles
             |> List.map (fun file ->
                 file,
-                (if referenceDict.ContainsKey file then
-                     Some referenceDict.[file]
-                 else
-                     None))
+                (match referenceDict.TryGetValue file with
+                 | true, refFile -> Some refFile
+                 | false, _ -> None))
 
         let getProjectReferencesSimple frameworkVersion (dllFiles: string list) =
             getProjectReferences frameworkVersion None None dllFiles |> resolve dllFiles
@@ -267,9 +266,9 @@ module internal CompilerServiceExtensions =
         member x.NamespaceName =
             x.FullName.Substring(
                 0,
-                match x.FullName.IndexOf("[") with
+                match x.FullName.IndexOf '[' with
                 | -1 -> x.FullName.Length
-                | _ as i -> i
+                | i -> i
             )
 
     type FSharpAssembly with
@@ -279,19 +278,22 @@ module internal CompilerServiceExtensions =
 
             let findReferences libDir =
                 Directory.EnumerateFiles(libDir, "*.dll")
-                |> Seq.map Path.GetFullPath
                 // Filter files already referenced directly
                 |> Seq.filter (fun file ->
-                    let fileName = Path.GetFileName file
+                    let fileName = Path.GetFullPath file |> Path.GetFileName
 
-                    dllFiles
-                    |> Seq.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
-                    |> not)
-                |> Seq.filter (fun file ->
-                    if Path.GetFileName file =? "FSharp.Core.dll" then
-                        FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
-                    else
-                        true)
+                    let dllNotAlreadyReferenced =
+                        dllFiles
+                        |> List.exists (fun (dllFile: string) -> Path.GetFileName dllFile =? fileName)
+                        |> not
+
+                    let checkFSharpCore =
+                        if Path.GetFileName file =? "FSharp.Core.dll" then
+                            FSharpAssemblyHelper.tryCheckFsCore file |> Option.isSome
+                        else
+                            true
+
+                    dllNotAlreadyReferenced && checkFSharpCore)
                 |> Seq.toList
 
             // See https://github.com/tpetricek/FSharp.Formatting/commit/5d14f45cd7e70c2164a7448ea50a6b9995166489
@@ -326,13 +328,7 @@ type internal InteractionOutputs =
 
 /// This exception indicates that an exception happened while compiling or executing given F# code.
 type internal FsiEvaluationException
-    (
-        msg: string,
-        input: string,
-        args: string list option,
-        result: InteractionOutputs,
-        inner: System.Exception
-    ) =
+    (msg: string, input: string, args: string list option, result: InteractionOutputs, inner: System.Exception) =
     inherit Exception(msg, inner)
 
     member x.Result = result
@@ -357,7 +353,6 @@ type internal FsiEvaluationException
                 (nl x.Input)
                 (Log.formatArgs args)
                 (base.ToString())
-
 
 /// Exception for invalid expression types
 type internal FsiExpressionTypeException =
@@ -464,30 +459,34 @@ module internal Shell =
 
 module internal ArgParser =
     let (|StartsWith|_|) (start: string) (s: string) =
-        if s.StartsWith(start) then
+        if s.StartsWith(start, StringComparison.Ordinal) then
             StartsWith(s.Substring(start.Length)) |> Some
         else
             None
 
+    [<return: Struct>]
     let (|FsiBoolArg|_|) argName s =
         match s with
         | StartsWith argName rest ->
-            match rest with
-            | null
-            | ""
-            | "+" -> Some true
-            | "-" -> Some false
-            | _ -> None
-        | _ -> None
+            if String.IsNullOrWhiteSpace rest then
+                ValueSome true
+            else
+                match rest with
+                | "+" -> ValueSome true
+                | "-" -> ValueSome false
+                | _ -> ValueNone
+        | _ -> ValueNone
 
 open ArgParser
 
+[<Struct>]
 type internal DebugMode =
     | Full
     | PdbOnly
     | Portable
     | NoDebug
 
+[<Struct>]
 type internal OptimizationType =
     | NoJitOptimize
     | NoJitTracking
@@ -495,7 +494,7 @@ type internal OptimizationType =
     | NoCrossOptimize
     | NoTailCalls
 
-/// See https://msdn.microsoft.com/en-us/library/dd233172.aspx
+/// See https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/fsharp-interactive-options
 type internal FsiOptions =
     {
         Checked: bool option
@@ -525,6 +524,7 @@ type internal FsiOptions =
         WarnLevel: int option
         WarnAsError: bool option
         WarnAsErrorList: (bool * int list) list
+        MultiEmit: bool option
         ScriptArgs: string list
     }
 
@@ -554,6 +554,7 @@ type internal FsiOptions =
           WarnLevel = None
           WarnAsError = None
           WarnAsErrorList = []
+          MultiEmit = None
           ScriptArgs = [] }
 
     static member Default =
@@ -579,39 +580,68 @@ type internal FsiOptions =
         |> Seq.fold
             (fun (parsed, state) (arg: string) ->
                 match state, arg with
-                | (false, Some cont), _ when not (arg.StartsWith("--")) ->
+                | (false, Some cont), _ when not (arg.StartsWith("--", StringComparison.Ordinal)) ->
                     let parsed, (userArgs, newCont) = cont arg
                     parsed, (userArgs, unbox newCont)
                 | _, "--" -> parsed, (true, None)
-                | (true, _), a -> { parsed with ScriptArgs = a :: parsed.ScriptArgs }, state
+                | (true, _), a ->
+                    { parsed with
+                        ScriptArgs = a :: parsed.ScriptArgs },
+                    state
                 | _, FsiBoolArg "--checked" enabled -> { parsed with Checked = Some enabled }, state
                 | _, StartsWith "--codepage:" res -> { parsed with Codepage = Some(int res) }, state
-                | _, FsiBoolArg "--crossoptimize" enabled -> { parsed with CrossOptimize = Some enabled }, state
+                | _, FsiBoolArg "--crossoptimize" enabled ->
+                    { parsed with
+                        CrossOptimize = Some enabled },
+                    state
                 | _, StartsWith "--debug:" "pdbonly"
-                | _, StartsWith "-g:" "pdbonly" -> { parsed with Debug = Some DebugMode.PdbOnly }, state
+                | _, StartsWith "-g:" "pdbonly" ->
+                    { parsed with
+                        Debug = Some DebugMode.PdbOnly },
+                    state
                 | _, StartsWith "--debug:" "portable"
-                | _, StartsWith "-g:" "portable" -> { parsed with Debug = Some DebugMode.Portable }, state
+                | _, StartsWith "-g:" "portable" ->
+                    { parsed with
+                        Debug = Some DebugMode.Portable },
+                    state
                 | _, StartsWith "--debug:" "full"
                 | _, StartsWith "-g:" "full"
                 | _, FsiBoolArg "--debug" true
-                | _, FsiBoolArg "-g" true -> { parsed with Debug = Some DebugMode.Full }, state
+                | _, FsiBoolArg "-g" true ->
+                    { parsed with
+                        Debug = Some DebugMode.Full },
+                    state
                 | _, FsiBoolArg "--debug" false
-                | _, FsiBoolArg "-g" false -> { parsed with Debug = Some DebugMode.NoDebug }, state
+                | _, FsiBoolArg "-g" false ->
+                    { parsed with
+                        Debug = Some DebugMode.NoDebug },
+                    state
                 | _, StartsWith "-d:" def
-                | _, StartsWith "--define:" def -> { parsed with Defines = def :: parsed.Defines }, state
+                | _, StartsWith "--define:" def ->
+                    { parsed with
+                        Defines = def :: parsed.Defines },
+                    state
                 | _, "--exec" -> { parsed with Exec = true }, state
                 | _, "--noninteractive" -> { parsed with NonInteractive = true }, state
                 | _, "--fullpaths" -> { parsed with FullPaths = true }, state
                 | _, FsiBoolArg "--gui" enabled -> { parsed with Gui = Some enabled }, state
                 | _, StartsWith "-I:" lib
-                | _, StartsWith "--lib:" lib -> { parsed with LibDirs = lib :: parsed.LibDirs }, state
-                | _, StartsWith "--load:" load -> { parsed with Loads = load :: parsed.Loads }, state
+                | _, StartsWith "--lib:" lib ->
+                    { parsed with
+                        LibDirs = lib :: parsed.LibDirs },
+                    state
+                | _, StartsWith "--load:" load ->
+                    { parsed with
+                        Loads = load :: parsed.Loads },
+                    state
                 | _, "--noframework" -> { parsed with NoFramework = true }, state
                 | _, "--nologo" -> { parsed with NoLogo = true }, state
                 | _, StartsWith "--nowarn:" warns ->
                     let noWarns = warns.Split([| ',' |]) |> Seq.map int |> Seq.toList
 
-                    { parsed with NoWarns = noWarns @ parsed.NoWarns }, state
+                    { parsed with
+                        NoWarns = noWarns @ parsed.NoWarns },
+                    state
                 | _, FsiBoolArg "--optimize" enabled ->
                     let cont (arg: string) =
                         let optList =
@@ -625,19 +655,35 @@ type internal FsiOptions =
                                 | unknown -> failwithf "Unknown optimization option %s" unknown)
                             |> Seq.toList
 
-                        { parsed with Optimize = (enabled, optList) :: parsed.Optimize }, (false, box None)
+                        { parsed with
+                            Optimize = (enabled, optList) :: parsed.Optimize },
+                        (false, box None)
 
-                    { parsed with Optimize = (enabled, []) :: parsed.Optimize }, (false, Some cont)
+                    { parsed with
+                        Optimize = (enabled, []) :: parsed.Optimize },
+                    (false, Some cont)
                 | _, "--quiet" -> { parsed with Quiet = true }, state
                 | _, "--quotations-debug" -> { parsed with QuotationsDebug = true }, state
                 | _, FsiBoolArg "--readline" enabled -> { parsed with ReadLine = Some enabled }, state
                 | _, StartsWith "-r:" ref
-                | _, StartsWith "--reference:" ref -> { parsed with References = ref :: parsed.References }, state
+                | _, StartsWith "--reference:" ref ->
+                    { parsed with
+                        References = ref :: parsed.References },
+                    state
                 | _, FsiBoolArg "--tailcalls" enabled -> { parsed with TailCalls = Some enabled }, state
-                | _, StartsWith "--use:" useFile -> { parsed with Uses = useFile :: parsed.Uses }, state
+                | _, StartsWith "--use:" useFile ->
+                    { parsed with
+                        Uses = useFile :: parsed.Uses },
+                    state
                 | _, "--utf8output" -> { parsed with Utf8Output = true }, state
-                | _, StartsWith "--warn:" warn -> { parsed with WarnLevel = Some(int warn) }, state
-                | _, FsiBoolArg "--warnaserror" enabled -> { parsed with WarnAsError = Some enabled }, state
+                | _, StartsWith "--warn:" warn ->
+                    { parsed with
+                        WarnLevel = Some(int warn) },
+                    state
+                | _, FsiBoolArg "--warnaserror" enabled ->
+                    { parsed with
+                        WarnAsError = Some enabled },
+                    state
                 | _, StartsWith "--warnaserror" warnOpts ->
                     let parseList (l: string) =
                         l.Split [| ',' |] |> Seq.map int |> Seq.toList
@@ -656,7 +702,11 @@ type internal FsiOptions =
                             WarnAsErrorList = (false, parseList (warnOpts.Substring 2)) :: parsed.WarnAsErrorList },
                         state
                     | _ -> failwithf "invalid --warnaserror argument: %s" arg
-                | _, unknown -> { parsed with ScriptArgs = unknown :: parsed.ScriptArgs }, (true, None))
+                | _, FsiBoolArg "--multiemit" enabled -> { parsed with MultiEmit = Some enabled }, state
+                | _, unknown ->
+                    { parsed with
+                        ScriptArgs = unknown :: parsed.ScriptArgs },
+                    (true, None))
             (FsiOptions.Empty, (false, None))
         |> fst
         |> (fun p ->
@@ -707,14 +757,14 @@ type internal FsiOptions =
            yield!
                (match x.NoWarns with
                 | [] -> None
-                | l -> l |> Seq.map string |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
+                | l -> l |> Seq.map string<int> |> String.concat "," |> sprintf "--nowarn:%s" |> Some)
                |> maybeArg
            yield!
                match x.Optimize with
                | [] -> Seq.empty
                | opts ->
                    opts
-                   |> Seq.map (fun (enable, types) ->
+                   |> Seq.collect (fun (enable, types) ->
                        seq {
                            yield sprintf "--optimize%s" (getMinusPlus enable)
 
@@ -731,7 +781,6 @@ type internal FsiOptions =
                                        | NoTailCalls -> "notailcalls")
                                    |> String.concat ","
                        })
-                   |> Seq.concat
 
            yield! getSimpleBoolArg "--quiet" x.Quiet
            yield! getSimpleBoolArg "--quotations-debug" x.QuotationsDebug
@@ -747,12 +796,13 @@ type internal FsiOptions =
            yield! maybeArgMap x.WarnLevel (fun i -> sprintf "--warn:%d" i)
 
            yield! getFsiBoolArg "--warnaserror" x.WarnAsError
+           yield! getFsiBoolArg "--multiemit" x.MultiEmit
 
            yield!
                x.WarnAsErrorList
                |> Seq.map (fun (enable, warnNums) ->
                    warnNums
-                   |> Seq.map string
+                   |> Seq.map string<int>
                    |> String.concat ","
                    |> sprintf "--warnaserror%s:%s" (getMinusPlus enable))
 
@@ -768,7 +818,7 @@ module internal Helper =
     type ForwardTextWriter(f) =
         inherit TextWriter()
         override __.Flush() = ()
-        override __.Write(c: char) = f (string c)
+        override __.Write(c: char) = f (string<char> c)
 
         override __.Write(c: string) =
             if isNull c |> not then
@@ -828,15 +878,17 @@ module internal Helper =
             CombineTextWriter.Create
                 [ yield fsiOutStream
                   yield mergedOutStream
-                  if liveFsiWriter.IsSome then
-                      yield liveFsiWriter.Value ]
+                  match liveFsiWriter with
+                  | None -> ()
+                  | Some liveFsiWriter -> yield liveFsiWriter ]
 
         let stdOutWriter =
             CombineTextWriter.Create
                 [ yield stdOutStream
                   yield mergedOutStream
-                  if liveOutWriter.IsSome then
-                      yield liveOutWriter.Value ]
+                  match liveOutWriter with
+                  | None -> ()
+                  | Some liveFsiWriter -> yield liveFsiWriter ]
 
         let all = [ globalFsiOut, fsiOut; globalStdOut, stdOut; globalMergedOut, mergedOut ]
 
@@ -844,7 +896,7 @@ module internal Helper =
         member _.StdOutWriter = stdOutWriter
 
         member _.GetOutputAndResetLocal() =
-            let [ fsi; std; merged ] =
+            let mapped =
                 all
                 |> List.map (fun (global', local) ->
                     let data = local.ToString()
@@ -855,9 +907,12 @@ module internal Helper =
                     local.Clear() |> ignore
                     data)
 
-            { FsiOutput = fsi
-              ScriptOutput = std
-              Merged = merged }
+            match mapped with
+            | [ fsi; std; merged ] ->
+                { FsiOutput = fsi
+                  ScriptOutput = std
+                  Merged = merged }
+            | _ -> failwith $"Expected three StringBuilders, got %A{mapped}"
 
     let consoleCapture out err f =
         let defOut = Console.Out
@@ -872,16 +927,7 @@ module internal Helper =
             Console.SetError defErr
 
 type internal FsiSession
-    (
-        fsi: obj,
-        options: FsiOptions,
-        reportGlobal,
-        liveOut,
-        liveOutFsi,
-        liveErr,
-        liveErrFsi,
-        discardStdOut
-    ) =
+    (fsi: obj, options: FsiOptions, reportGlobal, liveOut, liveOutFsi, liveErr, liveErrFsi, discardStdOut) =
     // Intialize output and input streams
     let out = new OutStreamHelper(reportGlobal, liveOut, liveOutFsi)
 
@@ -924,7 +970,8 @@ type internal FsiSession
             let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration(fsi, false)
 
             redirectOut (fun () ->
-                let session = FsiEvaluationSession.Create(fsiConfig, args, inStream, out.FsiOutWriter, err.FsiOutWriter)
+                let session =
+                    FsiEvaluationSession.Create(fsiConfig, args, inStream, out.FsiOutWriter, err.FsiOutWriter)
 
                 saveOutput () |> ignore
                 session)
@@ -968,11 +1015,14 @@ type internal FsiSession
 
     let evalExpression = save fsiSession.EvalExpressionNonThrowing
 
-    let diagsToString (diags: FSharpDiagnostic[]) =
+    let diagsToString (diags: FSharpDiagnostic array) =
         [ for d in diags -> d.ToString() + Environment.NewLine ] |> String.concat ""
 
     let addDiagsToFsiOutput (o: InteractionOutputs) diags =
-        { o with Output = { o.Output with FsiOutput = diagsToString diags + o.Output.FsiOutput } }
+        { o with
+            Output =
+                { o.Output with
+                    FsiOutput = diagsToString diags + o.Output.FsiOutput } }
 
     member _.EvalInteraction text =
         let i, (r, diags) = evalInteraction text
@@ -1057,7 +1107,9 @@ type internal ScriptHost() =
             ?fsiErrWriter: TextWriter,
             ?discardStdOut
         ) =
-        let opts = { FsiOptions.Default with Defines = defaultArg defines [] }
+        let opts =
+            { FsiOptions.Default with
+                Defines = defaultArg defines [] }
 
         ScriptHost.Create(
             opts,

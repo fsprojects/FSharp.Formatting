@@ -5,7 +5,6 @@ open System.Collections.Generic
 open System.IO
 open System.Runtime.CompilerServices
 open FSharp.Formatting.Markdown
-open FSharp.Formatting.CodeFormat
 open FSharp.Formatting.Templating
 
 /// <summary>
@@ -47,7 +46,7 @@ type Literate private () =
     /// ignoring newlines or spaces in the key.
     static let (|LookupKey|_|) (dict: IDictionary<_, _>) (key: string) =
         [ key; key.Replace("\r\n", ""); key.Replace("\r\n", " "); key.Replace("\n", ""); key.Replace("\n", " ") ]
-        |> Seq.tryPick (fun key ->
+        |> List.tryPick (fun key ->
             match dict.TryGetValue(key) with
             | true, v -> Some v
             | _ -> None)
@@ -55,18 +54,18 @@ type Literate private () =
     /// When generating LaTeX, we need to save all files locally
     static let rec downloadSpanImages (saver, links) para =
         match para with
-        | IndirectImage (body, _, LookupKey links (link, title), range)
-        | DirectImage (body, link, title, range) -> DirectImage(body, saver link, title, range)
-        | MarkdownPatterns.SpanNode (s, spans) ->
+        | IndirectImage(body, _, LookupKey links (link, title), range)
+        | DirectImage(body, link, title, range) -> DirectImage(body, saver link, title, range)
+        | MarkdownPatterns.SpanNode(s, spans) ->
             MarkdownPatterns.SpanNode(s, List.map (downloadSpanImages (saver, links)) spans)
-        | MarkdownPatterns.SpanLeaf (l) -> MarkdownPatterns.SpanLeaf(l)
+        | MarkdownPatterns.SpanLeaf(l) -> MarkdownPatterns.SpanLeaf(l)
 
     static let rec downloadImages ctx (pars: MarkdownParagraphs) : MarkdownParagraphs =
         pars
         |> List.map (function
-            | MarkdownPatterns.ParagraphSpans (s, spans) ->
+            | MarkdownPatterns.ParagraphSpans(s, spans) ->
                 MarkdownPatterns.ParagraphSpans(s, List.map (downloadSpanImages ctx) spans)
-            | MarkdownPatterns.ParagraphNested (o, pars) ->
+            | MarkdownPatterns.ParagraphNested(o, pars) ->
                 MarkdownPatterns.ParagraphNested(o, List.map (downloadImages ctx) pars)
             | MarkdownPatterns.ParagraphLeaf p -> MarkdownPatterns.ParagraphLeaf p)
 
@@ -116,8 +115,7 @@ type Literate private () =
 
         let rootInputFolder = Some(defaultArg rootInputFolder (Path.GetDirectoryName(path)))
 
-        ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder, onError)
+        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(path, File.ReadAllText path, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets path ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -146,8 +144,7 @@ type Literate private () =
                 | None -> "C:\\script.fsx"
                 | Some r -> Path.Combine(r, "script.fsx")
 
-        ParseScript(parseOptions, ctx)
-            .ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
+        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
         |> Transformations.generateReferences references
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
@@ -224,6 +221,37 @@ type Literate private () =
         |> Transformations.formatCodeSnippets filePath ctx
         |> Transformations.evaluateCodeSnippets ctx
 
+    /// <summary>
+    /// Parse pynb string as literate document
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="path">optional file path for debugging purposes</param>
+    /// <param name="definedSymbols"></param>
+    /// <param name="references"></param>
+    /// <param name="parseOptions">Defaults to MarkdownParseOptions.AllowYamlFrontMatter</param>
+    /// <param name="rootInputFolder"></param>
+    /// <param name="onError"></param>
+    static member ParsePynbString
+        (content, ?path, ?definedSymbols, ?references, ?parseOptions, ?rootInputFolder, ?onError)
+        =
+        let onError = defaultArg onError ignore
+        let ctx = parsingContext None None definedSymbols onError
+
+        let filePath =
+            match path with
+            | Some s -> s
+            | None ->
+                match rootInputFolder with
+                | None -> "C:\\script.fsx"
+                | Some r -> Path.Combine(r, "script.fsx")
+
+        let content = ParsePynb.pynbStringToFsx content
+
+        ParseScript(parseOptions, ctx).ParseAndCheckScriptFile(filePath, content, rootInputFolder, onError)
+        |> Transformations.generateReferences references
+        |> Transformations.formatCodeSnippets filePath ctx
+        |> Transformations.evaluateCodeSnippets ctx
+
     // ------------------------------------------------------------------------------------
     // Simple writing functions
     // ------------------------------------------------------------------------------------
@@ -260,7 +288,7 @@ type Literate private () =
         let doc =
             MarkdownDocument(doc.Paragraphs @ [ InlineHtmlBlock(doc.FormattedTips, None, None) ], doc.DefinedLinks)
 
-        let sb = new System.Text.StringBuilder()
+        let sb = System.Text.StringBuilder()
         use wr = new StringWriter(sb)
 
         HtmlFormatting.formatAsHtml
@@ -323,15 +351,8 @@ type Literate private () =
 
     /// Format the literate document as Latex without using a template
     static member ToLatex
-        (
-            doc: LiterateDocument,
-            ?prefix,
-            ?lineNumbers,
-            ?generateAnchors,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver
-        ) =
+        (doc: LiterateDocument, ?prefix, ?lineNumbers, ?generateAnchors, ?substitutions, ?crefResolver, ?mdlinkResolver)
+        =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
 
@@ -424,7 +445,8 @@ type Literate private () =
             crefResolver,
             mdlinkResolver,
             parseOptions,
-            onError
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
         ) =
 
         let parseOptions =
@@ -457,7 +479,7 @@ type Literate private () =
                 None
 
         let doc = downloadImagesForDoc imageSaver doc
-        let docModel = Formatting.transformDocument doc output ctx
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
         docModel
 
     /// Parse and transform an F# script file
@@ -477,7 +499,8 @@ type Literate private () =
             rootInputFolder,
             crefResolver,
             mdlinkResolver,
-            onError
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
         ) =
 
         let parseOptions =
@@ -509,7 +532,60 @@ type Literate private () =
                 None
 
         let doc = downloadImagesForDoc imageSaver doc
-        let docModel = Formatting.transformDocument doc output ctx
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
+        docModel
+
+    /// Parse and transform a pynb document
+    static member internal ParseAndTransformPynbFile
+        (
+            input,
+            output,
+            outputKind,
+            prefix,
+            fscOptions,
+            lineNumbers,
+            references,
+            substitutions,
+            generateAnchors,
+            imageSaver,
+            rootInputFolder,
+            crefResolver,
+            mdlinkResolver,
+            onError,
+            filesWithFrontMatter: FrontMatterFile array
+        ) =
+
+        let parseOptions =
+            match outputKind with
+            | OutputKind.Fsx
+            | OutputKind.Pynb -> (MarkdownParseOptions.ParseCodeAsOther)
+            | _ -> MarkdownParseOptions.None
+
+        let fsx = ParsePynb.pynbToFsx input
+
+        let doc =
+            Literate.ParseScriptString(
+                fsx,
+                ?fscOptions = fscOptions,
+                ?references = references,
+                parseOptions = parseOptions,
+                ?rootInputFolder = rootInputFolder,
+                ?onError = onError
+            )
+
+        let ctx =
+            makeFormattingContext
+                outputKind
+                prefix
+                lineNumbers
+                generateAnchors
+                substitutions
+                crefResolver
+                mdlinkResolver
+                None
+
+        let doc = downloadImagesForDoc imageSaver doc
+        let docModel = Formatting.transformDocument filesWithFrontMatter doc output ctx
         docModel
 
     /// Convert a markdown file into HTML or another output kind
@@ -529,7 +605,8 @@ type Literate private () =
             ?rootInputFolder,
             ?crefResolver,
             ?mdlinkResolver,
-            ?onError
+            ?onError,
+            ?filesWithFrontMatter
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -537,6 +614,7 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let substitutions = defaultArg substitutions []
+        let filesWithFrontMatter = defaultArg filesWithFrontMatter Array.empty
 
         let res =
             Literate.ParseAndTransformMarkdownFile(
@@ -554,7 +632,8 @@ type Literate private () =
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver,
                 parseOptions = MarkdownParseOptions.AllowYamlFrontMatter,
-                onError = onError
+                onError = onError,
+                filesWithFrontMatter = filesWithFrontMatter
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)
@@ -582,7 +661,8 @@ type Literate private () =
             ?rootInputFolder,
             ?crefResolver,
             ?mdlinkResolver,
-            ?onError
+            ?onError,
+            ?filesWithFrontMatter
         ) =
 
         let outputKind = defaultArg outputKind OutputKind.Html
@@ -590,6 +670,7 @@ type Literate private () =
         let crefResolver = defaultArg crefResolver (fun _ -> None)
         let mdlinkResolver = defaultArg mdlinkResolver (fun _ -> None)
         let substitutions = defaultArg substitutions []
+        let filesWithFrontMatter = defaultArg filesWithFrontMatter Array.empty
 
         let res =
             Literate.ParseAndTransformScriptFile(
@@ -607,7 +688,8 @@ type Literate private () =
                 rootInputFolder = rootInputFolder,
                 crefResolver = crefResolver,
                 mdlinkResolver = mdlinkResolver,
-                onError = onError
+                onError = onError,
+                filesWithFrontMatter = filesWithFrontMatter
             )
 
         SimpleTemplating.UseFileAsSimpleTemplate(res.Substitutions, template, output)

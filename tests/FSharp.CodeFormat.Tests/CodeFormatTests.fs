@@ -20,20 +20,21 @@ open FsUnitTyped
 // Check that snippet constains a specific span
 let containsSpan f snips =
     snips
-    |> Seq.exists (fun (Snippet (_, lines)) -> lines |> Seq.exists (fun (Line (_, spans)) -> spans |> Seq.exists f))
+    |> Seq.exists (fun (Snippet(_, lines)) -> lines |> Seq.exists (fun (Line(_, spans)) -> spans |> Seq.exists f))
 
 // Check that tool tips contains a specified token
+[<return: Struct>]
 let (|ToolTipWithLiteral|_|) text tips =
     if
         Seq.exists
             (function
-            | Literal (tip) -> tip.Contains(text: string)
+            | Literal(tip) -> tip.Contains(text: string)
             | _ -> false)
             tips
     then
-        Some()
+        ValueSome()
     else
-        None
+        ValueNone
 
 // --------------------------------------------------------------------------------------
 // Test that some basic things work
@@ -49,7 +50,7 @@ let ``Simple code snippet is formatted with tool tips`` () =
 
     snips
     |> containsSpan (function
-        | TokenSpan.Token (_, "hello", Some (ToolTipWithLiteral "val hello: int")) -> true
+        | TokenSpan.Token(_, "hello", Some(ToolTipWithLiteral "val hello: int")) -> true
         | _ -> false)
     |> shouldEqual true
 
@@ -68,7 +69,7 @@ nameof x
 
     snips
     |> containsSpan (function
-        | TokenSpan.Token (_, "nameof", Some (ToolTipWithLiteral "val nameof: 'T -> string")) -> true
+        | TokenSpan.Token(_, "nameof", Some(ToolTipWithLiteral "val nameof: 'T -> string")) -> true
         | _ -> false)
     |> shouldEqual true
 
@@ -155,7 +156,7 @@ let ``Non-unicode characters do not cause exception`` () =
     let _snips, errors = CodeFormatter.ParseAndCheckSource("/somewhere/test.fsx", source.Trim(), None, None, ignore)
 
     errors.Length |> shouldBeGreaterThan 0
-    let (SourceError (_, _, _, msg)) = errors.[0]
+    let (SourceError(_, _, _, msg)) = errors.[0]
     msg |> shouldContainText "✘"
 
 [<Test>]

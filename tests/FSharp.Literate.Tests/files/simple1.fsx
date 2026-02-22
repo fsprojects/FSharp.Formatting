@@ -13,6 +13,7 @@ substitute-in-markdown: {{fsdocs-source-basename}}
 
 Another [hyperlink](simple1.fsx)
 Another [hyperlink](simple2.md)
+And another [hyperlink](simple3.ipynb)
 
 *)
 let hello = "Code sample"

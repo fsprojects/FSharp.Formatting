@@ -81,7 +81,7 @@ type ToolTip private (str) =
     /// Creates a tool tip - returns 'None' if it contains no data
     static member TryCreate(tip: DataTipText) =
         match tip with
-        | DataTipText (elems) when
+        | DataTipText(elems) when
             elems
             |> List.forall (function
                 | DataTipElementNone -> true
@@ -168,7 +168,7 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
     // Override default options if the user specified something
     let opts =
         match options with
-        | Some (str: string) when not (String.IsNullOrEmpty(str)) ->
+        | Some(str: string) when not (String.IsNullOrEmpty(str)) ->
             opts.WithProjectOptions(parseOptions str 0 [] [] |> Array.ofSeq)
         | _ -> opts
 
@@ -187,7 +187,7 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
             let info = checker.TypeCheckSource(untypedInfo, file, 0, source, opts, obs)
 
             match info with
-            | TypeCheckSucceeded (res) when res.TypeCheckInfo.IsSome ->
+            | TypeCheckSucceeded(res) when res.TypeCheckInfo.IsSome ->
                 let errs =
                     (*[omit:(copying of errors omitted)]*)
                     seq {
@@ -230,7 +230,7 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
               let rec parseLine () =
                   seq {
                       match tokenizer.ScanToken(!state) with
-                      | Some (tok), nstate ->
+                      | Some(tok), nstate ->
                           let str = line.Substring(tok.LeftColumn, tok.RightColumn - tok.LeftColumn + 1)
 
                           yield str, tok
@@ -282,7 +282,7 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
                                       let tip = checkInfo.GetDataTipText(pos, lines.[line], island, identToken)
 
                                       match ToolTip.TryCreate(tip) with
-                                      | Some (_) as res -> res
+                                      | Some(_) as res -> res
                                       | _ when island.Length > 1 -> (*[omit:(alternative attempt omitted)]*)
                                           // Try to find some information about the last part of the identifier
                                           let pos = (line, tok.LeftColumn + 2)
@@ -346,7 +346,10 @@ type SourceFile(file, source, lines: string[], ?options, ?defines) =
                   [ for line in res do
                         match line.Tokens with
                         | first :: rest ->
-                            let tokens = { first with Text = first.Text.Substring(spaces) } :: rest
+                            let tokens =
+                                { first with
+                                    Text = first.Text.Substring(spaces) }
+                                :: rest
 
                             yield { line with Tokens = tokens }
                         | _ -> yield line ]

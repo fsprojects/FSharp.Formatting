@@ -26,7 +26,7 @@ type MarkdownDocument(paragraphs, links) =
     member x.Paragraphs: MarkdownParagraphs = paragraphs
 
     /// Returns a dictionary containing explicitly defined links
-    member x.DefinedLinks: IDictionary<string, string * option<string>> = links
+    member x.DefinedLinks: IDictionary<string, string * string option> = links
 
 /// Static class that provides methods for formatting
 /// and transforming Markdown documents.
@@ -45,7 +45,7 @@ type Markdown internal () =
               let mutable lineNo = 1
 
               while (line := reader.ReadLine()
-                     line.Value <> null) do
+                     not (isNull line.Value)) do
                   yield
                       (line.Value,
                        { StartLine = lineNo
@@ -55,7 +55,7 @@ type Markdown internal () =
 
                   lineNo <- lineNo + 1
 
-              if text.EndsWith(newline) then
+              if text.EndsWith(newline, StringComparison.Ordinal) then
                   yield
                       ("",
                        { StartLine = lineNo
@@ -102,14 +102,8 @@ type Markdown internal () =
     /// Transform Markdown text into HTML format. The result
     /// will be written to the provided TextWriter.
     static member WriteHtml
-        (
-            markdownText: string,
-            writer: TextWriter,
-            ?newline,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver
-        ) =
+        (markdownText: string, writer: TextWriter, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver)
+        =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
         Markdown.WriteHtml(
@@ -154,15 +148,8 @@ type Markdown internal () =
     /// Transform the provided MarkdownDocument into LaTeX
     /// format and write the result to a given writer.
     static member WriteLatex
-        (
-            doc: MarkdownDocument,
-            writer,
-            ?newline,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver,
-            ?lineNumbers
-        ) =
+        (doc: MarkdownDocument, writer, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver, ?lineNumbers)
+        =
         let newline = defaultArg newline Environment.NewLine
         let substitutions = defaultArg substitutions []
         let crefResolver = defaultArg crefResolver (fun _ -> None)
@@ -182,14 +169,8 @@ type Markdown internal () =
     /// Transform Markdown document into LaTeX format. The result
     /// will be written to the provided TextWriter.
     static member WriteLatex
-        (
-            markdownText,
-            writer: TextWriter,
-            ?newline,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver
-        ) =
+        (markdownText, writer: TextWriter, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver)
+        =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
         Markdown.WriteLatex(
@@ -204,14 +185,8 @@ type Markdown internal () =
     /// Transform the provided MarkdownDocument into LaTeX
     /// format and return the result as a string.
     static member ToLatex
-        (
-            doc: MarkdownDocument,
-            ?newline,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver,
-            ?lineNumbers
-        ) =
+        (doc: MarkdownDocument, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver, ?lineNumbers)
+        =
         let sb = new System.Text.StringBuilder()
         use wr = new StringWriter(sb)
 
@@ -229,14 +204,8 @@ type Markdown internal () =
 
     /// Transform Markdown text into LaTeX format. The result will be returned as a string.
     static member ToLatex
-        (
-            markdownText: string,
-            ?newline,
-            ?substitutions,
-            ?crefResolver,
-            ?mdlinkResolver,
-            ?lineNumbers
-        ) =
+        (markdownText: string, ?newline, ?substitutions, ?crefResolver, ?mdlinkResolver, ?lineNumbers)
+        =
         let doc = Markdown.Parse(markdownText, ?newline = newline)
 
         Markdown.ToLatex(

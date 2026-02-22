@@ -15,19 +15,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v6
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
-    - name: Restore .NET local tools
-      run: dotnet tool restore
-    - name: Restore packages
-      run: dotnet paket restore
-    - name: Check code formatting conforms (run 'dotnet fantomas src tests docs build.fsx --recurse' to repair)
-      run: dotnet fantomas src tests docs build.fsx -r --check
-    - name: Build and test
-      run: dotnet fake run build.fsx
+      uses: actions/setup-dotnet@v5
+    - name: Run CI
+      run: dotnet fsi build.fsx
     - name: Deploy docs
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         personal_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./output

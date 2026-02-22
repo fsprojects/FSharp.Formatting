@@ -93,7 +93,7 @@ let executeTest (dir: string) (source: string) (target: string) (verify: string)
 [<TestCaseSource("getTest")>]
 let ``Run external test`` (actualName: string) (expectedName: string) (actual: string) (expected: string) =
     match executeTest actualName expectedName actual expected with
-    | Some (actualName, expectedName, actual, expected) ->
+    | Some(actualName, expectedName, actual, expected) ->
         if actual = expected then
             File.Delete(expectedName)
 
