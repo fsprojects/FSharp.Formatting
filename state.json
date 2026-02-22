@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-22",
     "task11_monthly": "2026-02-22"
   },
-  "issue_comments_made": [551, 570, 918, 930, 931, 944, 951, 952, 960, 961, 970, 974],
+  "issue_comments_made": [551, 570, 792, 918, 930, 931, 944, 951, 952, 960, 961, 970, 974],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
@@ -32,17 +32,20 @@
   "deps_last_checked": "2026-02-22",
   "release_last_proposed": "2026-02-22",
   "stale_nudge_last_run": "2026-02-22",
-  "closed_issues": [551],
+  "closed_issues": [551, 931],
   "notes": [
     "Issue #551 was closed by dsyme on 2026-02-22 after Repo Assist comment confirmed fix",
+    "Issue #931 was closed on 2026-02-22 after PR #975 merged",
     "PR #975 (Ctrl+C watch) merged by dsyme on 2026-02-22",
     "PR #977 (analyzer deps) merged by dsyme on 2026-02-22",
     "PR #979 (Mermaid docs) merged by dsyme on 2026-02-22",
-    "PR #978 (executable project support by Copilot) still open - CI pending",
+    "PR #978 (executable project support by Copilot) still open - CI unstable",
     "PR #976 (Release 21.0.1) still open as draft - CI pending",
-    "PR #980 (llms.txt) open as draft - CI pending, number confirmed as 980",
+    "PR #980 (llms.txt) open as draft - CI pending",
     "Issue #960: commented with guidance on root parameter limitation for offline HTML docs",
-    "Issue #897: resolved per comments (user fixed with --parameters root ./), nojaf noted docs update needed",
-    "Issue #635: partially resolved, remaining issue is --strict not failing on missing references"
+    "Issue #952: PR #979 merged, issue still open - maintainer should close it",
+    "Issue #792: commented explaining --projects requires .fsproj, outlined what --dlls flag would need",
+    "Issue #635: --strict + eval failure - mechanism exists via onError callback in Evaluator.fs:572",
+    "Issue #944: commented suggesting URL collision as likely cause"
   ]
 }
