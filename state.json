@@ -11,23 +11,24 @@
     "task7_labels": "2026-02-22",
     "task8_release": "2026-02-22",
     "task9_welcome": "2026-02-22",
-    "task10_forward": "2026-02-22"
+    "task10_forward": "2026-02-22",
+    "task11_monthly": "2026-02-22"
   },
-  "issue_comments_made": [551, 570, 918, 930, 931, 944, 951, 952, 961, 970, 974],
+  "issue_comments_made": [551, 570, 918, 930, 931, 944, 951, 952, 960, 961, 970, 974],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
     "918": {"pr": 978, "status": "open", "desc": "executable project support (by Copilot)"},
     "952": {"pr": 979, "status": "merged", "desc": "Mermaid docs recipe"},
-    "951": {"pr": "repo-assist/feature-llmstxt-951", "status": "submitted", "desc": "llms.txt support"}
+    "951": {"pr": 980, "status": "open", "desc": "llms.txt support"}
   },
   "improvements_proposed": [
     {"desc": "Analyzer deps update", "pr": 977, "status": "merged"},
     {"desc": "Mermaid docs recipe", "pr": 979, "status": "merged"},
-    {"desc": "llms.txt support", "branch": "repo-assist/feature-llmstxt-951", "status": "submitted"}
+    {"desc": "llms.txt support", "pr": 980, "status": "open"}
   ],
   "labels_applied": [551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974],
-  "issue_backlog_cursor": 885,
+  "issue_backlog_cursor": 897,
   "deps_last_checked": "2026-02-22",
   "release_last_proposed": "2026-02-22",
   "stale_nudge_last_run": "2026-02-22",
@@ -37,9 +38,11 @@
     "PR #975 (Ctrl+C watch) merged by dsyme on 2026-02-22",
     "PR #977 (analyzer deps) merged by dsyme on 2026-02-22",
     "PR #979 (Mermaid docs) merged by dsyme on 2026-02-22",
-    "PR #978 (executable project support by Copilot) still open",
-    "PR #976 (Release 21.0.1) still open as draft",
-    "llms.txt PR submitted as patch (branch: repo-assist/feature-llmstxt-951) - PR number unknown",
-    "dsyme asked about missing llms.txt PR in issue #951 - addressed this run"
+    "PR #978 (executable project support by Copilot) still open - CI pending",
+    "PR #976 (Release 21.0.1) still open as draft - CI pending",
+    "PR #980 (llms.txt) open as draft - CI pending, number confirmed as 980",
+    "Issue #960: commented with guidance on root parameter limitation for offline HTML docs",
+    "Issue #897: resolved per comments (user fixed with --parameters root ./), nojaf noted docs update needed",
+    "Issue #635: partially resolved, remaining issue is --strict not failing on missing references"
   ]
 }
