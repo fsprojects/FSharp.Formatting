@@ -493,7 +493,9 @@ let ``ApiDocs model generation works on an executable assembly`` () =
         |> List.tryFind (fun v -> v.Symbol.DisplayName = "greet")
 
     greetVal |> Option.isSome |> shouldEqual true
-    greetVal.Value.Comment.Summary.HtmlText |> shouldContainText "Greet the given name"
+
+    greetVal.Value.Comment.Summary.HtmlText
+    |> shouldContainText "Greet the given name"
 
 [<Test>]
 [<TestCaseSource("formats")>]
