@@ -1,60 +1,36 @@
 {
   "last_run": "2026-02-22",
   "backlog_cursor": {
-    "last_issue_processed": 857,
-    "description": "Third run on 2026-02-22. Processed #671, #702, #748, #793, #857 for labelling. Next run should continue from ~#858."
+    "last_issue_processed": 974,
+    "description": "Run 4 on 2026-02-22. Processed #858-#974. Labelled #858, #930, #944, #931, #934. Commented on #961. Next run should start from oldest unlabelled issues not yet processed (e.g. #872, #885, #897, #910, #918, #924, #926-#929, #933, #949, #951, #952) or loop back to #72 for a fresh sweep."
   },
   "commented_issues": {
     "970": {
       "commented_at": "2026-02-21",
       "description": "Provided API migration guidance for Literate.FormatLiterateNodes to WriteHtml/ToHtml"
+    },
+    "961": {
+      "commented_at": "2026-02-22",
+      "description": "Explained that docfx [!code-fsharp[...]] syntax is not supported by fsdocs; suggested pre-processing or feature request"
     }
   },
   "labelled_issues": {
-    "970": {
-      "labelled_at": "2026-02-21",
-      "labels": ["help wanted"]
-    },
-    "551": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug", "help wanted"]
-    },
-    "592": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug"]
-    },
-    "590": {
-      "labelled_at": "2026-02-22",
-      "labels": ["enhancement"]
-    },
-    "536": {
-      "labelled_at": "2026-02-22",
-      "labels": ["enhancement"]
-    },
-    "626": {
-      "labelled_at": "2026-02-22",
-      "labels": ["enhancement"]
-    },
-    "671": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug"]
-    },
-    "748": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug"]
-    },
-    "702": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug"]
-    },
-    "857": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug"]
-    },
-    "793": {
-      "labelled_at": "2026-02-22",
-      "labels": ["bug"]
-    }
+    "970": {"labelled_at": "2026-02-21", "labels": ["help wanted"]},
+    "551": {"labelled_at": "2026-02-22", "labels": ["bug", "help wanted"]},
+    "592": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "590": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "536": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "626": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "671": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "748": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "702": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "857": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "793": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "858": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "930": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "944": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "931": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "934": {"labelled_at": "2026-02-22", "labels": ["enhancement"]}
   },
   "attempted_fixes": {},
   "nudged_prs": {},
@@ -65,21 +41,18 @@
     "2026-02": 973
   },
   "notes": [
-    "Repo has 85+ open issues spanning from #72 (2013) to #974 (2026-02-22)",
+    "Repo has 86+ open issues spanning from #72 (2013) to #974 (2026-02-22)",
     "8 open PRs: #965 (emoji fix), #932 (signature API WIP), #925 (watch mode fix), #890 (netstandard2.0), #884 (dependabot NUnit), #880 (dependabot CodeAnalysis), #875 (fsdocs init), #776 (node_modules ignore)",
     "Latest tag: 8.0.1",
     "Repo labels: meta-discuss, meta-review, status-consider, status-planned, status-priority, type-bug, type-docs, type-feature, type-proposal, type-tests, action-taken, up-for-grabs, help-wanted, good-first-issue, dependencies, github_actions, .NET",
-    "PR #776 (node_modules) has no reviews - blocked on maintainer",
-    "PR #925 (watch mode) has CHANGES_REQUESTED from nojaf - active discussion through Jul 2024",
-    "PR #965 (emoji fix) by Thorium (MEMBER) - addresses #964",
-    "Issues #536, #573, #585, #586, #590, #591, #592, #605, #626 all by dsyme with 0-1 comments - known desired enhancements",
-    "Issues #551 and #592 are actionable bugs that need community attention",
     "safeoutputs add_labels only allows: bug, enhancement, help wanted, good first issue, spam, off topic",
     "The repo uses custom labels (type-bug, type-feature, etc.) but standard GitHub labels (bug, enhancement, help wanted) also work",
     "Issue #974 is an announcement from dsyme explaining Repo Assist was added via gh aw add",
-    "Many issues in range #671-#972 are unlabelled - priority for future label runs",
-    "Issues labelled as bugs in this run: #671 (template keywords), #702 (5D/6D arrays), #748 (backtick XML docs), #793 (--projects relative paths), #857 (CSharp library not used)",
-    "Issues not yet labelled (high priority bugs): #679, #680, #683, #685, #691, #693, #734, #736, #791, #810, #821, #822, #858, #930, #931, #944",
-    "Next run should continue labelling from ~#858 onwards"
+    "Issues fully processed through run 4: #536, #551, #573 (skipped), #574 (already has type-bug), #585-591 (some labelled), #592, #605 (skipped), #626, #635 (has type-bug), #667 (has type-proposal), #671, #673 (skipped), #679 (skipped), #680 (skipped), #683 (skipped), #685 (skipped), #691 (skipped), #693 (skipped), #702, #705 (skipped), #725 (skipped), #734 (skipped), #735 (skipped), #736 (skipped), #742-744 (skipped), #748, #782 (skipped), #791 (skipped), #793, #857, #858, #872 (skipped), #885 (skipped), #897 (has type-docs), #898 (skipped), #910 (skipped), #918 (skipped), #924 (skipped), #925 (PR), #926-929 (skipped), #930, #931, #932 (PR), #933 (skipped), #934, #944, #949 (skipped), #951 (skipped), #952 (skipped), #960 (skipped - maintainer already engaged), #961 (commented), #964 (addressed by #965), #973 (activity issue), #974 (announcement)",
+    "Issues still worth labelling in a future run: #673 (bug - unhelpful error message), #679 (bug - tooltip), #680 (bug - build fails), #683 (enhancement - saveImages docs), #685 (bug - native library), #691 (bug - connection reset watch), #693 (bug - #if HTML), #705 (enhancement - common API examples), #725 (enhancement - cleaner markdown), #734 (bug - property setter ReturnType), #736 (bug - newlines in API docs), #742-744 (various), #782 (enhancement - diagrams), #791 (enhancement - MSBuild.Locator), #872 (enhancement - init suggestion), #885 (enhancement - dark mode), #898 (enhancement - glossary), #910 (enhancement - watch docs), #918 (question), #924 (enhancement - watch host), #926 (question), #927 (enhancement - nesting categories), #928 (enhancement - images in docs), #929 (enhancement - signature API), #933 (enhancement - ApiDocMemberDetails record), #949 (enhancement - tooltip system), #951 (enhancement - llms.txt), #952 (enhancement - mermaid)",
+    "PR #858 (tooltip bug): nojaf and kMutagene are discussing fix in FCS NicePrint; relates to upstream FSharp compiler",
+    "PR #930 (infinite watch loop): nojaf confirmed structural issue, complex to fix",
+    "PR #944 (missing types): possibly type same name as namespace, maintainer said needs debugging",
+    "Issue #961 (docfx syntax): AveNRU is trying to build dotnet/docs as HTML book with fsdocs, using docfx syntax not supported by fsdocs"
   ]
 }
