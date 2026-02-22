@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-22",
     "task11_monthly": "2026-02-22"
   },
-  "issue_comments_made": [551, 570, 792, 810, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
+  "issue_comments_made": [551, 570, 635, 792, 810, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
@@ -45,13 +45,14 @@
     "Issue #960: commented with guidance on root parameter limitation for offline HTML docs",
     "Issue #952: PR #979 merged, issue still open - maintainer should close it",
     "Issue #792: commented explaining --projects requires .fsproj, outlined what --dlls flag would need",
-    "Issue #635: --strict + eval failure - mechanism exists via onError callback in Evaluator.fs:572",
+    "Issue #635: commented in run 16 explaining --strict now correctly exits on eval failures (commit 486fa29e); Evaluator.fs calls onError which exits 1 when strict=true",
     "Issue #944: commented suggesting URL collision as likely cause",
     "Issue #810: commented that ControlledExecution.Run issue is .NET 7 upstream issue, fixed in .NET 8+",
     "PR #965: approved by dsyme, clean state - ready to merge - fixes #964 (emoji + list without blank line)",
     "Issue #964: commented in run 15 pointing to PR #965 as the fix",
     "Issues #810, #857, #910, #926, #929, #933, #949, #964 reviewed in run 14",
     "Issue #929: major redesign effort, linked to experimental PR #932 by MangelMaxime",
-    "Issue #949: tooltip rewrite planned after #929 is resolved - MangelMaxime working on it"
+    "Issue #949: tooltip rewrite planned after #929 is resolved - MangelMaxime working on it",
+    "Run 16: Task5 - all Repo Assist PRs (#976, #978, #980) CI still pending; Task1 - commented on #635; Task11 - monthly summary updated"
   ]
 }
