@@ -2,7 +2,7 @@
   "last_run": "2026-02-22",
   "backlog_cursor": {
     "last_issue_processed": 944,
-    "description": "Run 12 on 2026-02-22. Commented on #930 (infinite watch loop) and #944 (missing type). Checked PRs #975, #976, #977 CI (all pending). PR #978 opened by Copilot for #918."
+    "description": "Run 9 on 2026-02-22. Created Mermaid docs PR and llms.txt feature PR. PR #977 merged by dsyme."
   },
   "commented_issues": {
     "970": {
@@ -28,6 +28,14 @@
     "944": {
       "commented_at": "2026-02-22",
       "description": "Suggested URL collision between same-named namespace and type as likely cause; pointed to readCommentsInto and ResolveUrlBaseNameForEntity"
+    },
+    "952": {
+      "commented_at": "2026-02-22",
+      "description": "Pointed to new draft PR adding Mermaid docs recipe"
+    },
+    "951": {
+      "commented_at": "2026-02-22",
+      "description": "Pointed to new draft PR implementing --generatellmstxt flag"
     }
   },
   "labelled_issues": {
@@ -87,7 +95,8 @@
     "927": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
     "928": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
     "929": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
-    "933": {"labelled_at": "2026-02-22", "labels": ["enhancement", "refactor", "breaking change"]}
+    "933": {"labelled_at": "2026-02-22", "labels": ["enhancement", "refactor", "breaking change"]},
+    "974": {"labelled_at": "2026-02-22", "labels": ["documentation", "question"]}
   },
   "attempted_fixes": {
     "931": {
@@ -97,6 +106,20 @@
       "description": "Changed waitForKey to use Console.CancelKeyPress + ManualResetEventSlim instead of Console.ReadKey(). Build succeeded.",
       "pr_created": true,
       "pr_title": "[Repo Assist] Use Ctrl+C to stop watch mode instead of any key press"
+    }
+  },
+  "codebase_improvements": {
+    "mermaid-docs": {
+      "attempted_at": "2026-02-22",
+      "branch": "repo-assist/improve-mermaid-docs",
+      "description": "Added docs/sidebyside/sidemermaid.md with Mermaid JS recipe (script tag in _head.html). Addresses #952.",
+      "pr_created": true
+    },
+    "llms-txt": {
+      "attempted_at": "2026-02-22",
+      "branch": "repo-assist/feature-llms-txt",
+      "description": "Added --generatellmstxt flag to CoreBuildOptions. Generates llms.txt and llms-full.txt in output root. Build+tests pass. Addresses #951.",
+      "pr_created": true
     }
   },
   "release_attempts": {
@@ -113,7 +136,9 @@
       "branch": "repo-assist/deps-update-2026-02-22",
       "description": "Updated G-Research.FSharp.Analyzers 0.18.0 -> 0.21.0, Ionide.Analyzers 0.14.7 -> 0.14.11. Build succeeded. Draft PR created.",
       "pr_created": true,
-      "skipped": ["Suave major", "Ionide.ProjInfo large jump", "System.Text.Json major", "NUnit major", "FsUnit major", "NUnit3TestAdapter 4->6", "FCS/FSharp.Core locked"]
+      "merged": true,
+      "merged_by": "dsyme",
+      "pr_number": 977
     }
   },
   "nudged_prs": {
@@ -128,25 +153,24 @@
   "tasks_last_run": {
     "task1": "2026-02-22",
     "task2": "2026-02-22",
+    "task3": "2026-02-22",
     "task4": "2026-02-22",
     "task5": "2026-02-22",
     "task6": "2026-02-22",
     "task7": "2026-02-22",
     "task8": "2026-02-22",
     "task9": "2026-02-22",
+    "task10": "2026-02-22",
     "task11": "2026-02-22"
   },
   "notes": [
-    "Repo has 80+ open issues. Latest is #974 (announcement from dsyme about Repo Assist).",
-    "Open PRs: #978 (Copilot: support executable projects, fixes #918), #977 (deps update, draft), #976 (Release 21.0.1, draft), #975 (Ctrl+C watch fix, draft), #965 (emoji fix, ready), #925 (watch mode fix - CHANGES_REQUESTED), #875 (fsdocs init draft, stale Jan 2024), #776 (node_modules ignore).",
-    "Latest tag: 8.0.1 (GitHub tags behind; actual NuGet latest is 21.0.0 from 2025-11-12)",
-    "Release process: update RELEASE_NOTES.md, push to main, CI publishes to NuGet with --skip-duplicate",
-    "System.Drawing.Common 4.7.0 critical vulnerability (GHSA-rxg9-xrhp-64gj) is a transitive dep - needs investigation to find source package",
-    "Larger dep updates deferred: Suave 2->3, Ionide.ProjInfo 0.62->0.74, System.Text.Json 8->10, NUnit 3->4, FsUnit 5->7, NUnit3TestAdapter 4->6",
-    "PR #975 CI: pending. PR #976 CI: pending. PR #977 CI: pending.",
-    "Issue #930: infinite watch loop root cause - duplicate FileSystemWatcher on same input directory (docsWatchers + templateWatchers both watch this.input), and no output-dir exclusion in Changed handler. Fix: deduplicate watcher paths; exclude output dir in Changed handler.",
-    "Issue #944: missing type (AvalonLog type in AvalonLog namespace) - likely URL collision between namespace page and type page. May need investigation in ResolveUrlBaseNameForEntity.",
-    "PR #978 (Copilot): simply removes IsLibrary guard entirely. Repo Assist had suggested a --includeExecutableProjects flag, but Copilot went with always-allow-exe approach. Worth reviewing for backwards compat.",
-    "Tasks to prioritize next run: task3 (codebase study/improvement), task10 (repo forward), check CI on Repo Assist PRs"
+    "PR #977 (dep updates) was merged by dsyme on 2026-02-22.",
+    "Open Repo Assist PRs: #975 (Ctrl+C watch fix, CI passed), #976 (Release 21.0.1, CI passed), plus new PRs for Mermaid docs and llms.txt (pending creation).",
+    "Other open PRs: #978 (Copilot: exe projects, CI action_required), #965 (emoji fix, ready), #925 (watch mode fix, CHANGES_REQUESTED), #875 (fsdocs init, stale), #776 (node_modules).",
+    "System.Drawing.Common 4.7.0 critical vulnerability (GHSA-rxg9-xrhp-64gj) comes from Suave 2.6.2. Suave major update needed to fix.",
+    "Larger dep updates deferred: Suave 2->3, Ionide.ProjInfo 0.62->0.74, System.Text.Json 8->10, NUnit 3->4, FsUnit 5->7, NUnit3TestAdapter 4->6.",
+    "llms.txt feature: added --generatellmstxt flag, generates llms.txt and llms-full.txt in output root. Uses existing search index data. Build+tests pass.",
+    "Mermaid recipe: added docs/sidebyside/sidemermaid.md showing _head.html CDN script approach.",
+    "Tasks to prioritize next run: task1 (triage new issues), task6 (check stale PRs), task9 (new contributors)"
   ]
 }
