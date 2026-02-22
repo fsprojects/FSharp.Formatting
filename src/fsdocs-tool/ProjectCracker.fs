@@ -498,9 +498,6 @@ module Crack =
                 if info.TargetPath.IsNone then
                     printfn "  skipping project '%s' because it doesn't have a target path" shortName
                     None
-                elif not info.IsLibrary then
-                    printfn "  skipping project '%s' because it isn't a library" shortName
-                    None
                 elif info.IsTestProject then
                     printfn "  skipping project '%s' because it has <IsTestProject> true" shortName
                     None
