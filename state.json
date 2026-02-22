@@ -1,8 +1,8 @@
 {
   "last_run": "2026-02-22",
   "backlog_cursor": {
-    "last_issue_processed": 974,
-    "description": "Run 5 on 2026-02-22. Labelled #793, #857, #803 as bugs. Nudged PR #925 author. Next run: continue labelling from backlog - many unlabelled issues remain (see notes). The safeoutputs add_labels tool has a max of 3 calls per run, not 5 as previously assumed."
+    "last_issue_processed": 72,
+    "description": "Run 6 on 2026-02-22. Labelled #673, #680, #964 as bugs. Cursor reset to start of list; next run starts from oldest open issues."
   },
   "commented_issues": {
     "970": {
@@ -18,6 +18,7 @@
     "970": {"labelled_at": "2026-02-21", "labels": ["help wanted"]},
     "551": {"labelled_at": "2026-02-22", "labels": ["bug", "help wanted"]},
     "592": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "626": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
     "671": {"labelled_at": "2026-02-22", "labels": ["bug"]},
     "748": {"labelled_at": "2026-02-22", "labels": ["bug"]},
     "702": {"labelled_at": "2026-02-22", "labels": ["bug"]},
@@ -26,7 +27,10 @@
     "944": {"labelled_at": "2026-02-22", "labels": ["bug"]},
     "793": {"labelled_at": "2026-02-22", "labels": ["bug"]},
     "857": {"labelled_at": "2026-02-22", "labels": ["bug"]},
-    "803": {"labelled_at": "2026-02-22", "labels": ["bug"]}
+    "803": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "673": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "680": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "964": {"labelled_at": "2026-02-22", "labels": ["bug"]}
   },
   "attempted_fixes": {},
   "nudged_prs": {
@@ -40,16 +44,17 @@
   },
   "notes": [
     "Repo has 85 open issues spanning from #72 (2013) to #974 (2026-02-22)",
-    "Open PRs: #965 (emoji fix), #932 (signature API WIP), #925 (watch mode fix - CHANGES_REQUESTED), #890 (netstandard2.0 draft), #875 (fsdocs init draft), #776 (node_modules ignore)",
+    "Open PRs: #965 (emoji fix, non-draft, ready for review), #925 (watch mode fix - CHANGES_REQUESTED), #890 (netstandard2.0 draft, stale Dec 2023), #875 (fsdocs init draft, stale Jan 2024), #776 (node_modules ignore)",
     "Latest tag: 8.0.1",
-    "safeoutputs add_labels has a max of 3 calls per run (not 5 as previously assumed) - confirmed by observing which labels stuck",
-    "Issues labelled so far (with standard GitHub labels bug/enhancement/help-wanted): #551, #592, #626, #671, #702, #748, #793, #803, #857, #858, #930, #944, #970",
-    "Issues still to label (bug): #341, #347, #362, #387, #390, #439, #573, #574, #635, #673, #679, #680, #685, #691, #693, #734, #736, #743, #744, #810, #821, #822",
-    "Issues still to label (enhancement): #90, #144, #191, #296, #468, #487, #536, #585, #586, #590, #591, #605, #667, #683, #705, #725, #735, #742, #782, #791, #811, #829, #872, #885, #898, #910, #924, #927, #928, #929, #931, #933, #934, #949, #951, #952",
-    "Issues still to label (good first issue): #536 (generate .ipynb), #590 (inherited members)",
-    "PR #925: tymokvo is author, nojaf reviewed with CHANGES_REQUESTED in Jul 2024. Nudged tymokvo on 2026-02-22",
-    "PR #965: Thorium's markdown-to-html improvement fixing emoji conversion #964, updated today - worth reviewing",
+    "safeoutputs add_labels has a max of 3 calls per run - confirmed",
+    "Issues labelled so far (standard GitHub labels bug/enhancement): #551, #592, #626, #671, #673, #680, #702, #748, #793, #803, #857, #858, #930, #944, #964, #970",
+    "Issues still to label (bug): #685, #691, #693, #734, #736, #743, #744, #810, #821, #822",
+    "Issues still to label (enhancement): #468, #487, #536, #573, #585, #586, #590, #591, #605, #667, #683, #705, #725, #735, #742, #782, #791, #811, #829, #872, #885, #898, #910, #924, #927, #928, #929, #931, #933, #949, #951, #952",
+    "Issues with 'type-bug' label (already have some label): #230, #296, #341, #347, #362, #387, #390, #439, #574, #635",
+    "Issues with 'type-feature' or 'type-proposal' (already labelled): #90, #144, #163, #191, #667, #811",
+    "PR #965: Thorium's markdown-to-html improvement fixing emoji conversion - non-draft, updated 2026-02-22, ready for review",
+    "PR #776: node_modules ignore - non-draft, updated 2026-02-22",
     "Issue #974 is an announcement from dsyme explaining Repo Assist was added",
-    "Issue #973 is the monthly activity issue for 2026-02"
+    "Issue #973 is the monthly activity issue for 2026-02 - updated in run 6"
   ]
 }
