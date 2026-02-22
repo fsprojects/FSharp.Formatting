@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-22",
     "task11_monthly": "2026-02-22"
   },
-  "issue_comments_made": [551, 570, 792, 810, 918, 930, 931, 944, 951, 952, 960, 961, 970, 974],
+  "issue_comments_made": [551, 570, 792, 810, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
@@ -40,7 +40,7 @@
     "PR #977 (analyzer deps) merged by dsyme on 2026-02-22",
     "PR #979 (Mermaid docs) merged by dsyme on 2026-02-22",
     "PR #978 (executable project support by Copilot) still open - CI unstable",
-    "PR #976 (Release 21.0.1) still open as draft - CI pending",
+    "PR #976 (Release 21.0.1) updated in run 15: fixed version 22.0.0→21.0.1, added changelog entries for #975/#977/#979, merged latest main",
     "PR #980 (llms.txt) open as draft - CI pending",
     "Issue #960: commented with guidance on root parameter limitation for offline HTML docs",
     "Issue #952: PR #979 merged, issue still open - maintainer should close it",
@@ -48,8 +48,9 @@
     "Issue #635: --strict + eval failure - mechanism exists via onError callback in Evaluator.fs:572",
     "Issue #944: commented suggesting URL collision as likely cause",
     "Issue #810: commented that ControlledExecution.Run issue is .NET 7 upstream issue, fixed in .NET 8+",
-    "PR #965: approved by dsyme, clean state - ready to merge",
-    "Issues #810, #857, #910, #926, #929, #933, #949, #964 reviewed in run 14 - most well-handled by maintainers",
+    "PR #965: approved by dsyme, clean state - ready to merge - fixes #964 (emoji + list without blank line)",
+    "Issue #964: commented in run 15 pointing to PR #965 as the fix",
+    "Issues #810, #857, #910, #926, #929, #933, #949, #964 reviewed in run 14",
     "Issue #929: major redesign effort, linked to experimental PR #932 by MangelMaxime",
     "Issue #949: tooltip rewrite planned after #929 is resolved - MangelMaxime working on it"
   ]
