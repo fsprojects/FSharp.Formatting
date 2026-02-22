@@ -32,5 +32,11 @@ module Common =
 
     let waitForKey b =
         if b then
-            printf "\nPress any key to continue ..."
-            System.Console.ReadKey() |> ignore
+            printf "\nPress Ctrl+C to stop ..."
+            let exiting = new System.Threading.ManualResetEventSlim(false)
+
+            System.Console.CancelKeyPress.AddHandler(fun _ ea ->
+                ea.Cancel <- true
+                exiting.Set())
+
+            exiting.Wait()
