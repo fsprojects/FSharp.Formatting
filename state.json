@@ -1,8 +1,8 @@
 {
   "last_run": "2026-02-22",
   "backlog_cursor": {
-    "last_issue_processed": 72,
-    "description": "Run 6 on 2026-02-22. Labelled #673, #680, #964 as bugs. Cursor reset to start of list; next run starts from oldest open issues."
+    "last_issue_processed": 952,
+    "description": "Run 7 on 2026-02-22. Labelled #952, #951, #931, #924. Created PR for #931. Next run should pick up from issues not yet labelled."
   },
   "commented_issues": {
     "970": {
@@ -12,6 +12,10 @@
     "961": {
       "commented_at": "2026-02-22",
       "description": "Explained that docfx [!code-fsharp[...]] syntax is not supported by fsdocs; suggested pre-processing or feature request"
+    },
+    "931": {
+      "commented_at": "2026-02-22",
+      "description": "Linked to draft PR for Ctrl+C fix"
     }
   },
   "labelled_issues": {
@@ -30,9 +34,21 @@
     "803": {"labelled_at": "2026-02-22", "labels": ["bug"]},
     "673": {"labelled_at": "2026-02-22", "labels": ["bug"]},
     "680": {"labelled_at": "2026-02-22", "labels": ["bug"]},
-    "964": {"labelled_at": "2026-02-22", "labels": ["bug"]}
+    "964": {"labelled_at": "2026-02-22", "labels": ["bug"]},
+    "952": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "951": {"labelled_at": "2026-02-22", "labels": ["enhancement"]},
+    "931": {"labelled_at": "2026-02-22", "labels": ["enhancement", "good first issue"]},
+    "924": {"labelled_at": "2026-02-22", "labels": ["enhancement"]}
   },
-  "attempted_fixes": {},
+  "attempted_fixes": {
+    "931": {
+      "attempted_at": "2026-02-22",
+      "branch": "repo-assist/fix-issue-931-ctrl-c-stop",
+      "description": "Changed waitForKey to use Console.CancelKeyPress + ManualResetEventSlim instead of Console.ReadKey(). Build succeeded.",
+      "pr_created": true,
+      "pr_title": "[Repo Assist] Use Ctrl+C to stop watch mode instead of any key press"
+    }
+  },
   "nudged_prs": {
     "925": {"nudged_at": "2026-02-22", "author": "tymokvo", "reason": "CHANGES_REQUESTED from nojaf since Jul 2024, stale"}
   },
@@ -43,18 +59,19 @@
     "2026-02": 973
   },
   "notes": [
-    "Repo has 85 open issues spanning from #72 (2013) to #974 (2026-02-22)",
+    "Repo has 85+ open issues spanning from #72 (2013) to #974 (2026-02-22)",
     "Open PRs: #965 (emoji fix, non-draft, ready for review), #925 (watch mode fix - CHANGES_REQUESTED), #890 (netstandard2.0 draft, stale Dec 2023), #875 (fsdocs init draft, stale Jan 2024), #776 (node_modules ignore)",
     "Latest tag: 8.0.1",
     "safeoutputs add_labels has a max of 3 calls per run - confirmed",
-    "Issues labelled so far (standard GitHub labels bug/enhancement): #551, #592, #626, #671, #673, #680, #702, #748, #793, #803, #857, #858, #930, #944, #964, #970",
+    "Issues labelled so far (standard GitHub labels): #551, #592, #626, #671, #673, #680, #702, #748, #793, #803, #857, #858, #924, #930, #931, #944, #951, #952, #964, #970",
     "Issues still to label (bug): #685, #691, #693, #734, #736, #743, #744, #810, #821, #822",
-    "Issues still to label (enhancement): #468, #487, #536, #573, #585, #586, #590, #591, #605, #667, #683, #705, #725, #735, #742, #782, #791, #811, #829, #872, #885, #898, #910, #924, #927, #928, #929, #931, #933, #949, #951, #952",
+    "Issues still to label (enhancement): #468, #487, #536, #573, #585, #586, #590, #591, #605, #667, #683, #705, #725, #735, #742, #782, #791, #811, #829, #872, #885, #898, #910, #927, #928, #929, #933, #949",
     "Issues with 'type-bug' label (already have some label): #230, #296, #341, #347, #362, #387, #390, #439, #574, #635",
     "Issues with 'type-feature' or 'type-proposal' (already labelled): #90, #144, #163, #191, #667, #811",
     "PR #965: Thorium's markdown-to-html improvement fixing emoji conversion - non-draft, updated 2026-02-22, ready for review",
     "PR #776: node_modules ignore - non-draft, updated 2026-02-22",
     "Issue #974 is an announcement from dsyme explaining Repo Assist was added",
-    "Issue #973 is the monthly activity issue for 2026-02 - updated in run 6"
+    "Issue #973 is the monthly activity issue for 2026-02 - updated in run 7",
+    "Repo Assist PR for #931 uses branch repo-assist/fix-issue-931-ctrl-c-stop - need to update comment with actual PR number in next run"
   ]
 }
