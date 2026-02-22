@@ -14,18 +14,20 @@
     "task10_forward": "2026-02-22",
     "task11_monthly": "2026-02-22"
   },
-  "issue_comments_made": [551, 570, 635, 671, 792, 810, 821, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
+  "issue_comments_made": [551, 570, 635, 671, 792, 810, 811, 821, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
     "918": {"pr": 978, "status": "open", "desc": "executable project support (by Copilot)"},
     "952": {"pr": 979, "status": "merged", "desc": "Mermaid docs recipe"},
-    "951": {"pr": 980, "status": "open", "desc": "llms.txt support"}
+    "951": {"pr": 980, "status": "open", "desc": "llms.txt support"},
+    "930": {"pr": 981, "status": "open", "desc": "watch mode infinite loop fix - output dir exclusion"}
   },
   "improvements_proposed": [
     {"desc": "Analyzer deps update", "pr": 977, "status": "merged"},
     {"desc": "Mermaid docs recipe", "pr": 979, "status": "merged"},
-    {"desc": "llms.txt support", "pr": 980, "status": "open"}
+    {"desc": "llms.txt support", "pr": 980, "status": "open"},
+    {"desc": "Watch mode infinite loop fix", "pr": 981, "status": "open"}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974],
   "issue_backlog_cursor": 0,
@@ -42,9 +44,10 @@
     "PR #978 (executable project support by Copilot) still open - CI unstable",
     "PR #976 (Release 21.0.1) updated in run 15: fixed version 22.0.0->21.0.1, added changelog entries for #975/#977/#979, merged latest main",
     "PR #980 (llms.txt) open as draft - CI pending",
+    "PR #981 (watch mode infinite loop fix) created in run 19 - fixes #930 by excluding output dir from watcher events",
     "Issue #671: code block substitution bug was FIXED in commit 26891c39 (Oct 2022) - map code content when it is code block",
     "Issue #897: resolved - user found workaround --parameters root / in comments; Repo Assist summarized and suggested closing",
-    "Issue #821 root cause: BlockquoteStart regex uses \\s? consuming the whole tab, but CommonMark requires only 1 virtual column be consumed; fix needs to prepend remaining virtual spaces to captured content",
+    "Issue #821 root cause: BlockquoteStart regex uses \\s? consuming the whole tab, but CommonMark requires only 1 virtual column be consumed; fix needs to prepend remaining virtual spaces to captured content. NOTE: all 179 Markdown tests including Tabs section currently PASS",
     "All 179 Markdown tests pass (including Tabs section) - commonmark_spec.json may need update to 0.30 (requires network)",
     "Issue #960: commented with guidance on root parameter limitation for offline HTML docs",
     "Issue #952: PR #979 merged, issue still open - maintainer should close it",
@@ -54,6 +57,8 @@
     "Issue #810: commented that ControlledExecution.Run issue is .NET 7 upstream issue, fixed in .NET 8+",
     "PR #965: approved by dsyme, clean state - ready to merge - fixes #964 (emoji + list without blank line)",
     "Issue #964: commented in run 15 pointing to PR #965 as the fix",
-    "Issue #821: commented in run 17 with tabs/blockquote root cause; fix requires tab-aware parsing in BlockquoteStart"
+    "Issue #821: commented in run 17 with tabs/blockquote root cause; fix requires tab-aware parsing in BlockquoteStart",
+    "Issue #811: commented in run 19 explaining Literate.WriteHtml API and what a fsdocs convert CLI command would need",
+    "Issue #930: commented in run 8 with root causes; commented in run 19 linking to PR #981"
   ]
 }
