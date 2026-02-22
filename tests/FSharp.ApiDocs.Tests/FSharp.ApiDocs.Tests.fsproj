@@ -26,6 +26,7 @@
     <ProjectReference Include="files\TestLib1\TestLib1.fsproj" />
     <ProjectReference Include="files\TestLib2\TestLib2.fsproj" />
     <ProjectReference Include="files\TestLib3\TestLib3.fsproj" />
+    <ProjectReference Include="files\ExeLib1\ExeLib1.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" />

@@ -462,6 +462,40 @@ let ``ApiDocs model generation works on two sample F# assemblies`` (_format: Out
     assemblies |> List.distinct |> List.sort |> shouldEqual [ "FsLib1"; "FsLib2" ]
 
 [<Test>]
+let ``ApiDocs model generation works on an executable assembly`` () =
+    let exeBin =
+        __SOURCE_DIRECTORY__
+        </> "files/bin"
+        </> AttributeTests.configuration
+        </> "net8.0"
+        |> fullpath
+
+    let library = exeBin </> "ExeLib1.dll"
+
+    let inputs = [ ApiDocInput.FromFile(library) ]
+
+    let model =
+        ApiDocs.GenerateModel(inputs, collectionName = "ExeLib1", substitutions = substitutions, libDirs = [ exeBin ])
+
+    model.Collection.Assemblies.Length |> shouldEqual 1
+    model.Collection.Assemblies.[0].Name |> shouldEqual "ExeLib1"
+    model.Collection.Namespaces.Length |> shouldEqual 1
+    model.Collection.Namespaces.[0].Name |> shouldEqual "ExeLib1"
+
+    let greeterModule =
+        model.Collection.Namespaces.[0].Entities
+        |> List.tryFind (fun e -> e.Symbol.DisplayName = "Greeter")
+
+    greeterModule |> Option.isSome |> shouldEqual true
+
+    let greetVal =
+        greeterModule.Value.ValuesAndFuncs
+        |> List.tryFind (fun v -> v.Symbol.DisplayName = "greet")
+
+    greetVal |> Option.isSome |> shouldEqual true
+    greetVal.Value.Comment.Summary.HtmlText |> shouldContainText "Greet the given name"
+
+[<Test>]
 [<TestCaseSource("formats")>]
 let ``ApiDocs generates Go to GitHub source links`` (format: OutputFormat) =
     let libraries = [ testBin </> "FsLib1.dll"; testBin </> "FsLib2.dll" ] |> fullpaths
