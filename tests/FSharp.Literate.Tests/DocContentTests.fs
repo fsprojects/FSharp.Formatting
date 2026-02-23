@@ -338,7 +338,7 @@ let ``ipynb notebook evaluates`` () =
 *)
 
 // --------------------------------------------------------------------------------------
-// Tests for LlmsTxt module (--llms flag)
+// Tests for LlmsTxt module (FsDocsGenerateLlmsTxt MSBuild property, on by default)
 // --------------------------------------------------------------------------------------
 
 open FSharp.Formatting.ApiDocs
@@ -371,8 +371,12 @@ let ``LlmsTxt buildContent separates Docs and API Reference sections`` () =
     let llmsTxt, _ = LlmsTxt.buildContent "MyProject" entries
     llmsTxt |> shouldContainText "## Docs"
     llmsTxt |> shouldContainText "## API Reference"
-    llmsTxt |> shouldContainText "- [Getting Started](https://example.com/docs/getting-started)"
-    llmsTxt |> shouldContainText "- [MyModule.MyType](https://example.com/reference/mytype)"
+
+    llmsTxt
+    |> shouldContainText "- [Getting Started](https://example.com/docs/getting-started)"
+
+    llmsTxt
+    |> shouldContainText "- [MyModule.MyType](https://example.com/reference/mytype)"
 
 [<Test>]
 let ``LlmsTxt llms.txt does not include content body`` () =
@@ -392,12 +396,12 @@ let ``LlmsTxt llms-full.txt includes content body`` () =
 
 [<Test>]
 let ``LlmsTxt llms-full.txt skips blank content`` () =
-    let entries =
-        [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule" "   " |]
+    let entries = [| makeEntry "apiDocs" "MyModule" "https://example.com/reference/mymodule" "   " |]
 
     let _, llmsFullTxt = LlmsTxt.buildContent "MyProject" entries
     // The entry link must appear, but no content after it
-    llmsFullTxt |> shouldContainText "- [MyModule](https://example.com/reference/mymodule)"
+    llmsFullTxt
+    |> shouldContainText "- [MyModule](https://example.com/reference/mymodule)"
     // Blank content should not produce extra blank lines beyond the link line
     llmsFullTxt.Contains("   ") |> shouldEqual false
 
