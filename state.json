@@ -7,11 +7,11 @@
     "task3_improvements": "2026-02-22",
     "task4_dependencies": "2026-02-22",
     "task5_maintain_prs": "2026-02-23",
-    "task6_stale_nudges": "2026-02-22",
+    "task6_stale_nudges": "2026-02-23",
     "task7_labels": "2026-02-23",
     "task8_release": "2026-02-22",
     "task9_welcome": "2026-02-23",
-    "task10_forward": "2026-02-22",
+    "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-23"
   },
   "issue_comments_made": [90, 551, 570, 635, 671, 673, 792, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993],
@@ -39,8 +39,9 @@
   "issue_backlog_cursor": 0,
   "deps_last_checked": "2026-02-22",
   "release_last_proposed": "2026-02-22",
-  "stale_nudge_last_run": "2026-02-22",
+  "stale_nudge_last_run": "2026-02-23",
   "closed_issues": [551, 673, 931],
+  "closed_prs": [925, 978, 981, 986],
   "maintainer_checked_off": ["PR #776", "comment #635", "comment #810", "comment #857", "comment #960", "comment #792", "comment #821", "comment #671", "comment #811", "comment #822", "issue #897", "issue #952", "PR #965", "PR #986", "PR #978", "PR #984", "PR #980", "PR #981", "PR #982", "comment #90"],
   "notes": [
     "Issue #551 closed by dsyme 2026-02-22 after Repo Assist confirmed fix",
@@ -58,8 +59,12 @@
     "PR #980 (llms.txt): open, maintainer checked off in monthly issue - monitored but not actively tracked",
     "PR #983 (dark mode borders): open, needs review",
     "dsyme confirmed PR #981 fix not needed - watch mode output-inside-input issue is user-avoidable",
-    "Issue #993: Transient push failure, Repo Assist commented to close loop, PR #992 is fine",
+    "Issue #993: agentics bot failure issue - push failures from other workflow runs",
     "Issue #987: dsyme's post explaining Repo Assist workflow - labeled documentation",
-    "Task 5 2026-02-23: Fixed PR #976 merge conflicts; PRs #980, #983, #992 all clean"
+    "Task 5 2026-02-23 run 2: All PRs (#976, #980, #983, #992) still at 0 CI checks (infrastructure issue)",
+    "PR #925 (stale nudge target, remove root override in watch mode): closed 2026-02-23 without merge",
+    "Issue #792: dsyme said 'We don't want to support this extra feature' on 2026-02-23; OP agreed; Repo Assist suggested close",
+    "Issue #748 (backtick in XML docs): investigated 2026-02-23; unresolved <see cref> elements append raw .NET generic notation (e.g. Type`1) without clean formatting; text nodes in readXmlElementAsHtml also appended without HtmlEncode (line 1901); potential future fix",
+    "Issue #930: dsyme (2026-02-23) + MangelMaxime (2026-02-23) both agree to close pending more information on root cause"
   ]
 }
