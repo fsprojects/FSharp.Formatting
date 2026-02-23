@@ -4,8 +4,8 @@
   "task_last_run": {
     "task1_triage": "2026-02-23",
     "task2_fix_issues": "2026-02-23",
-    "task3_improvements": "2026-02-22",
-    "task4_dependencies": "2026-02-22",
+    "task3_improvements": "2026-02-23",
+    "task4_dependencies": "2026-02-23",
     "task5_maintain_prs": "2026-02-23",
     "task6_stale_nudges": "2026-02-23",
     "task7_labels": "2026-02-23",
@@ -14,20 +14,20 @@
     "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-23"
   },
-  "issue_comments_made": [90, 551, 570, 635, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993],
+  "issue_comments_made": [90, 551, 570, 592, 635, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993],
   "pr_comments_made": [976, 980],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
     "918": {"pr": 978, "status": "closed", "desc": "executable project support (by Copilot) - closed without merge"},
     "952": {"pr": 979, "status": "merged", "desc": "Mermaid docs recipe"},
-    "951": {"pr": 980, "status": "open", "desc": "llms.txt support - MSBuild FsDocsGenerateLlmsTxt property, default true; nojaf CHANGES_REQUESTED addressed, asked for re-review"},
+    "951": {"pr": 980, "status": "open", "desc": "llms.txt support - MSBuild FsDocsGenerateLlmsTxt property, default true; dsyme APPROVED; nojaf feedback addressed; waiting for nojaf re-review"},
     "930": {"pr": 981, "status": "closed", "desc": "watch mode infinite loop fix - closed by dsyme (not needed)"},
     "673": {"pr": 982, "status": "merged", "desc": "improve snippet-not-found error message - issue #673 closed"},
     "885": {"pr": 983, "status": "open", "desc": "reduce dark mode border contrast (CSS only)"},
     "965_review": {"pr": 986, "status": "closed", "desc": "emoji/unicode encoding - closed by dsyme (will manually port to PR #965)"},
     "964_tests": {"pr": 992, "status": "open", "desc": "comprehensive emoji test suite for FSX->HTML pipeline - clean, mergeable"},
-    "748": {"pr": 994, "status": "open", "desc": "HTML-encode XML doc text nodes and unresolved see-cref values - 68/68 ApiDocs tests pass; branch: repo-assist/fix-748-xml-doc-html-encoding-v2"},
+    "748": {"pr": 994, "status": "open", "desc": "HTML-encode XML doc text nodes and unresolved see-cref values - 68/68 ApiDocs tests pass; branch: repo-assist/fix-748-xml-doc-html-encoding-v2-6c850b1f53e8d053"},
     "803": {"pr": 995, "status": "open", "desc": "do not copy _menu_template.html/_menu-item_template.html to output; branch: repo-assist/fix-803-menu-template-copy-to-output-17453a74b14e630f; all 346 tests pass"}
   },
   "improvements_proposed": [
@@ -42,7 +42,7 @@
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987],
   "issue_backlog_cursor": 0,
-  "deps_last_checked": "2026-02-22",
+  "deps_last_checked": "2026-02-23",
   "release_last_proposed": "2026-02-23",
   "stale_nudge_last_run": "2026-02-23",
   "closed_issues": [551, 673, 931],
@@ -60,13 +60,15 @@
     "PR #981 (watch mode fix) closed by dsyme 2026-02-23: not needed",
     "PR #986 (emoji encoding) closed by dsyme 2026-02-23: will manually port to original PR #965",
     "PR #992 (emoji tests): open, clean/mergeable, all 30 tests pass",
-    "PR #980 (llms.txt): open; switched from CLI flag to FsDocsGenerateLlmsTxt MSBuild property (default true); output quality issues fixed; nojaf CHANGES_REQUESTED on old commit; we asked for re-review 2026-02-23 run 6",
+    "PR #980 (llms.txt): open; FsDocsGenerateLlmsTxt MSBuild property (default true); HTML entity decoding, title trimming, multi-line title collapsing all fixed; dsyme APPROVED; nojaf CHANGES_REQUESTED on old commit - latest commit addresses all feedback; waiting for nojaf re-review 2026-02-23",
     "PR #983 (dark mode borders): open, needs review",
-    "PR #994 (XML doc encoding fix): created 2026-02-23 run 4 v2; 68/68 ApiDocs tests pass",
-    "PR #995 (menu template output fix): created 2026-02-23 run 5; 346/346 tests pass",
-    "PR #976 (Release 21.0.1): merge conflict resolved 2026-02-23 run 6; includes #982 fix, date updated to 2026-02-23; nojaf suggested bumping to 21.1.0",
+    "PR #994 (XML doc encoding fix): created 2026-02-23; 68/68 ApiDocs tests pass",
+    "PR #995 (menu template output fix): created 2026-02-23; 346/346 tests pass",
+    "PR #976 (Release 21.1.0): merge conflict resolved 2026-02-23 run 7; bumped from 21.0.1 to 21.1.0 per nojaf suggestion; includes #982 fix; date updated to 2026-02-23",
     "Issue #993: persistent push failures from multiple workflow runs - infrastructure issue",
     "Issue #792: dsyme said won't support --dlls feature; both dsyme + OP agreed to close",
-    "Issue #930: dsyme + MangelMaxime agree to close pending more info on root cause"
+    "Issue #930: dsyme + MangelMaxime agree to close pending more info on root cause",
+    "Issue #592: commented 2026-02-23 - restore check updated with UseArtifactsOutput fallback; asked reporter to verify",
+    "Deps check 2026-02-23: Ionide.ProjInfo 0.62->0.74 (significant; may fix #793), TestSdk 17.8->18.0.1, Newtonsoft.Json 13.0.3->13.0.4, NUnit 3.14->4.5 (breaking), FsUnit 5.6->7.1 (breaking)"
   ]
 }
