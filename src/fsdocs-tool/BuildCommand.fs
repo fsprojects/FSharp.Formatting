@@ -1426,12 +1426,6 @@ type CoreBuildOptions(watch) =
     [<Option("clean", Required = false, Default = false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
-    [<Option("llms",
-             Required = false,
-             Default = false,
-             HelpText = "Generate llms.txt and llms-full.txt files for LLM consumption (see https://llmstxt.org/).")>]
-    member val llms = false with get, set
-
     member this.Execute() =
 
         let onError msg =
@@ -1491,7 +1485,7 @@ type CoreBuildOptions(watch) =
         // See https://github.com/ionide/proj-info/issues/123
         let prevDotnetHostPath = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH")
 
-        let (root, collectionName, crackedProjects, paths, docsSubstitutions), _key =
+        let (root, collectionName, crackedProjects, paths, docsSubstitutions, generateLlmsTxt), _key =
             let projects = Seq.toList this.projects
             let cacheFile = ".fsdocs/cache"
 
@@ -1723,7 +1717,7 @@ type CoreBuildOptions(watch) =
             File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "index.json"), indxTxt)
 
         let generateLlmsTxt () =
-            if this.llms then
+            if generateLlmsTxt then
                 let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
                 let llmsTxt, llmsFullTxt = LlmsTxt.buildContent collectionName index
                 File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "llms.txt"), llmsTxt)

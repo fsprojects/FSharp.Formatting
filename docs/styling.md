@@ -75,6 +75,21 @@ For example:
 </PropertyGroup>
 ```
 
+## LLM-Friendly Output
+
+By default, `fsdocs build` generates `llms.txt` and `llms-full.txt` in the output root,
+following the [llmstxt.org](https://llmstxt.org/) convention. These files provide a structured
+index (and full content) of all documentation pages and API reference entries, making it easy
+to add documentation context to LLMs and AI coding assistants.
+
+To opt out, set the following property in your project file or `Directory.Build.props`:
+
+```xml
+<PropertyGroup>
+    <FsDocsGenerateLlmsTxt>false</FsDocsGenerateLlmsTxt>
+</PropertyGroup>
+```
+
 As an example, here is [a page with alternative styling](templates/leftside/styling.html).
 
 ## Customizing via CSS
