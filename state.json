@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-23"
   },
-  "issue_comments_made": [90, 551, 570, 635, 671, 673, 748, 792, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993],
+  "issue_comments_made": [90, 551, 570, 635, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993],
   "pr_nudges_made": [925],
   "fix_attempts": {
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
@@ -26,7 +26,8 @@
     "885": {"pr": 983, "status": "open", "desc": "reduce dark mode border contrast (CSS only)"},
     "965_review": {"pr": 986, "status": "closed", "desc": "emoji/unicode encoding - closed by dsyme (will manually port to PR #965)"},
     "964_tests": {"pr": 992, "status": "open", "desc": "comprehensive emoji test suite for FSX->HTML pipeline - clean, mergeable"},
-    "748": {"pr": 994, "status": "open", "desc": "HTML-encode XML doc text nodes and unresolved see-cref values - 68/68 ApiDocs tests pass; branch: repo-assist/fix-748-xml-doc-html-encoding-v2"}
+    "748": {"pr": 994, "status": "open", "desc": "HTML-encode XML doc text nodes and unresolved see-cref values - 68/68 ApiDocs tests pass; branch: repo-assist/fix-748-xml-doc-html-encoding-v2"},
+    "803": {"pr": null, "status": "submitted", "desc": "do not copy _menu_template.html/_menu-item_template.html to output; branch: repo-assist/fix-803-menu-template-copy-to-output; all tests pass"}
   },
   "improvements_proposed": [
     {"desc": "Analyzer deps update", "pr": 977, "status": "merged"},
@@ -35,7 +36,8 @@
     {"desc": "Improve snippet-not-found error message", "pr": 982, "status": "merged", "issue": 673},
     {"desc": "Reduce dark mode border contrast", "pr": 983, "status": "open", "issue": 885},
     {"desc": "Comprehensive emoji test suite for FSX->HTML", "pr": 992, "status": "open", "issue": 964},
-    {"desc": "HTML-encode XML doc text nodes and unresolved crefs", "pr": 994, "status": "open", "issue": 748}
+    {"desc": "HTML-encode XML doc text nodes and unresolved crefs", "pr": 994, "status": "open", "issue": 748},
+    {"desc": "Fix menu template files copied to output", "pr": null, "status": "submitted", "issue": 803}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987],
   "issue_backlog_cursor": 0,
@@ -69,6 +71,6 @@
     "Issue #792: dsyme said 'We don't want to support this extra feature' on 2026-02-23; OP agreed; Repo Assist suggested close",
     "Issue #748 (backtick in XML docs): fixed in PR #994 (2026-02-23 run 4) - text nodes now HtmlEncoded + enabled HtmlEncode on unresolved crefs",
     "Issue #930: dsyme (2026-02-23) + MangelMaxime (2026-02-23) both agree to close pending more information on root cause",
-    "Issue #803 (_menu-item_template files copied to output): nojaf confirmed it's a bug; watch mode slowness also discussed"
+    "Issue #803 (_menu-item_template files copied to output): fixed 2026-02-23 run 5 - filter in prepFile/processFile now also excludes files starting with '_menu' and ending with '_template.html'; PR submitted as draft on branch repo-assist/fix-803-menu-template-copy-to-output; 346/346 tests pass; watch mode was already working (templateWatcher.Filter already matches *template.html)"
   ]
 }
