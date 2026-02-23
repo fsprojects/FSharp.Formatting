@@ -141,7 +141,7 @@ See [Styling](styling.html) for information about template parameters and stylin
 
 |  Substitution name            | Generated content |
 |:------------------------------|:--------------------------------------------------------------|
-| `root`                        | `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`    |
+| `root`                        | `<PackageProjectUrl>` else `/` followed by `fsdocs-collection-name`. |
 | `fsdocs-collection-name`      | Name of .sln, single .fsproj or containing directory          |
 | `fsdocs-content`              | Main page content                                             |
 | `fsdocs-list-of-namespaces`   | HTML `<li>` list of namespaces with links                     |

@@ -514,7 +514,14 @@ module internal Transformations =
                         match special with
                         | RawBlock(lines, _) -> Some(InlineHtmlBlock(unparse lines, None, None))
                         | LiterateCode(lines, _, _) -> Some(formatted.[Choice1Of2 lines])
-                        | CodeReference(ref, _) -> Some(formatted.[Choice2Of2 ref])
+                        | CodeReference(ref, _) ->
+                            match formatted.TryGetValue(Choice2Of2 ref) with
+                            | true, v -> Some v
+                            | false, _ ->
+                                failwithf
+                                    "Could not find named code snippet '%s'. Check that it is defined with '(** define:%s ***)'."
+                                    ref
+                                    ref
                         | FsiMergedOutputReference _
                         | FsiOutputReference _
                         | OutputReference _
