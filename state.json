@@ -14,7 +14,7 @@
     "task10_forward": "2026-02-23",
     "task11_monthly": "2026-02-23"
   },
-  "issue_comments_made": [90, 551, 570, 592, 626, 635, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 898, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993],
+  "issue_comments_made": [72, 90, 551, 570, 592, 626, 635, 671, 673, 748, 792, 803, 810, 811, 821, 822, 857, 885, 897, 898, 918, 930, 931, 944, 951, 952, 960, 961, 964, 970, 974, 993, 679],
   "pr_comments_made": [976, 980],
   "pr_nudges_made": [925],
   "fix_attempts": {
@@ -43,7 +43,7 @@
     {"desc": "Add fsdocs-logo-alt substitution for accessible logo alt text", "pr": 996, "status": "open", "issue": 626}
   ],
   "labels_applied": [72, 90, 144, 163, 191, 230, 296, 341, 347, 362, 387, 390, 391, 422, 439, 468, 487, 536, 551, 570, 573, 574, 579, 585, 586, 590, 591, 592, 605, 626, 635, 667, 671, 673, 679, 680, 683, 685, 691, 693, 702, 705, 725, 734, 735, 736, 742, 743, 744, 748, 782, 791, 792, 793, 803, 804, 810, 811, 821, 822, 828, 829, 857, 858, 872, 885, 897, 898, 910, 918, 924, 925, 926, 927, 928, 929, 930, 931, 933, 944, 949, 951, 952, 960, 961, 964, 970, 972, 974, 987],
-  "issue_backlog_cursor": 898,
+  "issue_backlog_cursor": 679,
   "deps_last_checked": "2026-02-23",
   "release_last_proposed": "2026-02-23",
   "stale_nudge_last_run": "2026-02-23",
@@ -67,7 +67,7 @@
     "PR #994 (XML doc encoding fix): created 2026-02-23; 68/68 ApiDocs tests pass",
     "PR #995 (menu template output fix): created 2026-02-23; 346/346 tests pass",
     "PR #996 (logo alt text): created 2026-02-23; fsdocs-logo-alt substitution; FsDocsLogoAlt MSBuild property; default Logo; 346/346 tests pass",
-    "PR #976 (Release 21.0.1): DIRTY (merge conflict) as of 2026-02-23; accumulated non-release changes; suggest maintainer close and create fresh release PR",
+    "PR #976 (Release 21.0.1): DIRTY (merge conflict) as of 2026-02-23; accumulated non-release changes (14 commits, 7 files); suggest maintainer close and create fresh release PR",
     "Issue #993: persistent push failures from multiple workflow runs - infrastructure issue affecting push_to_pull_request_branch; 10+ failures on 2026-02-23",
     "Issue #792: dsyme said won't support --dlls feature; both dsyme + OP agreed to close",
     "Issue #930: dsyme + MangelMaxime agree to close pending more info on root cause",
@@ -75,6 +75,9 @@
     "Deps check 2026-02-23: Ionide.ProjInfo 0.62->0.74 (significant; may fix #793), TestSdk 17.8->18.0.1, Newtonsoft.Json 13.0.3->13.0.4, NUnit 3.14->4.5 (breaking), FsUnit 5.6->7.1 (breaking)",
     "Issue #144: CompilerMessageAttribute(IsHidden=true) not handled in GenerateModel.fs; would require adding IsHidden check similar to IsObsolete pattern",
     "Issue #898: commented 2026-02-23 - explained keywords implementation (front matter -> meta tags) and two-phase approach for glossary page generation",
-    "Backlog cursor moved to #898 (next: continue from older issues #72, #144, etc.)"
+    "Issue #679: commented 2026-02-23 - explained tooltip jitter root cause (JS reflow loop) and linked to #422 for CSS tooltip fix",
+    "Issue #72: commented 2026-02-23 - provided modern navigator.clipboard.writeText() implementation sketch for copy-to-clipboard buttons",
+    "Issue #987: dsyme explanation of Repo Assist process - CI doesn't trigger on PRs (being fixed), PR workflow: open/close to trigger CI, then assess as usual",
+    "Backlog cursor moved to #679 (next: continue from older issues #422, #667, #804, #828)"
   ]
 }
