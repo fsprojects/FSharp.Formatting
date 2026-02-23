@@ -21,7 +21,7 @@
     "931": {"pr": 975, "status": "merged", "desc": "Ctrl+C watch mode fix"},
     "918": {"pr": 978, "status": "closed", "desc": "executable project support (by Copilot) - closed without merge"},
     "952": {"pr": 979, "status": "merged", "desc": "Mermaid docs recipe"},
-    "951": {"pr": 980, "status": "open", "desc": "llms.txt support - MSBuild FsDocsGenerateLlmsTxt property, default true; dsyme APPROVED; nojaf feedback addressed; waiting for nojaf re-review"},
+    "951": {"pr": 980, "status": "open", "desc": "llms.txt support - FsDocsGenerateLlmsTxt MSBuild property (default true); dsyme APPROVED; nojaf CHANGES_REQUESTED addressed in new commits (review thread outdated); waiting for nojaf re-review"},
     "930": {"pr": 981, "status": "closed", "desc": "watch mode infinite loop fix - closed by dsyme (not needed)"},
     "673": {"pr": 982, "status": "merged", "desc": "improve snippet-not-found error message - issue #673 closed"},
     "885": {"pr": 983, "status": "open", "desc": "reduce dark mode border contrast (CSS only)"},
@@ -60,15 +60,16 @@
     "PR #981 (watch mode fix) closed by dsyme 2026-02-23: not needed",
     "PR #986 (emoji encoding) closed by dsyme 2026-02-23: will manually port to original PR #965",
     "PR #992 (emoji tests): open, clean/mergeable, all 30 tests pass",
-    "PR #980 (llms.txt): open; FsDocsGenerateLlmsTxt MSBuild property (default true); HTML entity decoding, title trimming, multi-line title collapsing all fixed; dsyme APPROVED; nojaf CHANGES_REQUESTED on old commit - latest commit addresses all feedback; waiting for nojaf re-review 2026-02-23",
+    "PR #980 (llms.txt): open; FsDocsGenerateLlmsTxt MSBuild property (default true); dsyme APPROVED; nojaf CHANGES_REQUESTED addressed in latest commits (review thread outdated); waiting for nojaf re-review 2026-02-23",
     "PR #983 (dark mode borders): open, needs review",
     "PR #994 (XML doc encoding fix): created 2026-02-23; 68/68 ApiDocs tests pass",
     "PR #995 (menu template output fix): created 2026-02-23; 346/346 tests pass",
-    "PR #976 (Release 21.1.0): merge conflict resolved 2026-02-23 run 7; bumped from 21.0.1 to 21.1.0 per nojaf suggestion; includes #982 fix; date updated to 2026-02-23",
-    "Issue #993: persistent push failures from multiple workflow runs - infrastructure issue",
+    "PR #976 (Release 21.0.1): DIRTY (merge conflict) as of 2026-02-23 run 6; accumulated non-release changes (workflow files, docs) across multiple conflict-resolution iterations; suggest maintainer close and create fresh release PR",
+    "Issue #993: persistent push failures from multiple workflow runs - infrastructure issue affecting push_to_pull_request_branch; 8+ failures on 2026-02-23",
     "Issue #792: dsyme said won't support --dlls feature; both dsyme + OP agreed to close",
     "Issue #930: dsyme + MangelMaxime agree to close pending more info on root cause",
     "Issue #592: commented 2026-02-23 - restore check updated with UseArtifactsOutput fallback; asked reporter to verify",
-    "Deps check 2026-02-23: Ionide.ProjInfo 0.62->0.74 (significant; may fix #793), TestSdk 17.8->18.0.1, Newtonsoft.Json 13.0.3->13.0.4, NUnit 3.14->4.5 (breaking), FsUnit 5.6->7.1 (breaking)"
+    "Deps check 2026-02-23: Ionide.ProjInfo 0.62->0.74 (significant; may fix #793), TestSdk 17.8->18.0.1, Newtonsoft.Json 13.0.3->13.0.4, NUnit 3.14->4.5 (breaking), FsUnit 5.6->7.1 (breaking)",
+    "PR #976 accumulated files: .github/workflows/pull-requests.yml, .github/workflows/repo-assist.lock.yml, .github/workflows/repo-assist.md, Directory.Packages.props, RELEASE_NOTES.md, docs/sidebyside/sidemermaid.md, src/fsdocs-tool/Options.fs - NOT a clean release PR"
   ]
 }
