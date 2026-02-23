@@ -17,9 +17,82 @@ open MarkdownUtils
 // Formats Markdown documents as an HTML file
 // --------------------------------------------------------------------------------------
 
+/// Encode non-BMP code points and selected BMP emoji/symbol ranges as HTML numeric entities
+/// to avoid output encoding issues. This includes supplementary code points (>= U+10000),
+/// common emoji/symbol blocks (U+2600–U+26FF, U+2700–U+27BF, U+2B00–U+2BFF),
+/// and variation selectors (U+FE00–U+FE0F).
+let internal encodeHighUnicode (text: string) =
+    if String.IsNullOrEmpty text then
+        text
+    else
+        // Single-pass encoding with lazy StringBuilder allocation
+        let mutable sb: System.Text.StringBuilder voption = ValueNone
+        let mutable i = 0
+
+        while i < text.Length do
+            let c = text.[i]
+
+            let needsEncoding, codePoint, skipNext =
+                // Check for surrogate pairs first (non-BMP code points outside U+FFFF)
+                if
+                    Char.IsHighSurrogate c
+                    && i + 1 < text.Length
+                    && Char.IsLowSurrogate text.[i + 1]
+                then
+                    let fullCodePoint = Char.ConvertToUtf32(c, text.[i + 1])
+                    // Encode all non-BMP code points (>= U+10000) to avoid output encoding issues
+                    true, fullCodePoint, true
+                else
+                    let codePoint = int c
+                    // Encode specific BMP emoji/symbol blocks:
+                    // U+2600-U+26FF: Miscellaneous Symbols (e.g., ⚠ U+26A0)
+                    // U+2700-U+27BF: Dingbats (e.g., ✅ U+2705)
+                    // U+2B00-U+2BFF: Miscellaneous Symbols and Arrows (e.g., ⭐ U+2B50)
+                    // U+FE00-U+FE0F: Variation Selectors (e.g., VS16 appended to base emoji characters)
+                    let needs =
+                        (codePoint >= 0x2600 && codePoint <= 0x26FF)
+                        || (codePoint >= 0x2700 && codePoint <= 0x27BF)
+                        || (codePoint >= 0x2B00 && codePoint <= 0x2BFF)
+                        || (codePoint >= 0xFE00 && codePoint <= 0xFE0F)
+
+                    needs, codePoint, false
+
+            if needsEncoding then
+                // Lazy initialization of StringBuilder only when needed
+                match sb with
+                | ValueNone ->
+                    let builder = System.Text.StringBuilder(text.Length + 16)
+
+                    if i > 0 then
+                        builder.Append(text, 0, i) |> ignore
+
+                    sb <- ValueSome builder
+                | ValueSome _ -> ()
+
+                // Append HTML entity without using sprintf (avoid allocation)
+                match sb with
+                | ValueSome builder ->
+                    builder.Append "&#" |> ignore
+                    builder.Append codePoint |> ignore
+                    builder.Append ';' |> ignore
+                | ValueNone -> ()
+            else
+                // Only append to StringBuilder if it was already initialized
+                match sb with
+                | ValueSome builder -> builder.Append c |> ignore
+                | ValueNone -> ()
+
+            i <- i + (if skipNext then 2 else 1)
+
+        // Return original string if no encoding was needed
+        match sb with
+        | ValueNone -> text
+        | ValueSome builder -> builder.ToString()
+
 /// Basic escaping as done by Markdown
 let internal htmlEncode (code: string) =
     code.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+    |> encodeHighUnicode
 
 /// Basic escaping as done by Markdown including quotes
 let internal htmlEncodeQuotes (code: string) =
@@ -78,7 +151,7 @@ let rec internal formatSpan (ctx: FormattingContext) span =
 
     | AnchorLink(id, _) -> ctx.Writer.Write("<a name=\"" + htmlEncodeQuotes id + "\">&#160;</a>")
     | EmbedSpans(cmd, _) -> formatSpans ctx (cmd.Render())
-    | Literal(str, _) -> ctx.Writer.Write(str)
+    | Literal(str, _) -> ctx.Writer.Write(encodeHighUnicode str)
     | HardLineBreak(_) -> ctx.Writer.Write("<br />" + ctx.Newline)
     | IndirectLink(body, _, LookupKey ctx.Links (link, title), _)
     | DirectLink(body, link, title, _) ->
