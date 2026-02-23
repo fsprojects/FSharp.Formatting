@@ -222,6 +222,7 @@ module Crack =
           FsDocsLicenseLink: string option
           FsDocsLogoLink: string option
           FsDocsLogoSource: string option
+          FsDocsLogoAlt: string option
           FsDocsReleaseNotesLink: string option
           FsDocsSourceFolder: string option
           FsDocsSourceRepository: string option
@@ -251,6 +252,7 @@ module Crack =
               "UsesMarkdownComments"
               "FsDocsCollectionNameLink"
               "FsDocsLogoSource"
+              "FsDocsLogoAlt"
               "FsDocsFaviconSource"
               "FsDocsTheme"
               "FsDocsLogoLink"
@@ -340,6 +342,7 @@ module Crack =
                   FsDocsReleaseNotesLink = msbuildPropString "FsDocsReleaseNotesLink"
                   FsDocsLogoLink = msbuildPropString "FsDocsLogoLink"
                   FsDocsLogoSource = msbuildPropString "FsDocsLogoSource"
+                  FsDocsLogoAlt = msbuildPropString "FsDocsLogoAlt"
                   FsDocsFaviconSource = msbuildPropString "FsDocsFaviconSource"
                   FsDocsTheme = msbuildPropString "FsDocsTheme"
                   FsDocsWarnOnMissingDocs = msbuildPropBool "FsDocsWarnOnMissingDocs" |> Option.defaultValue false
@@ -570,6 +573,10 @@ module Crack =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsLogoSource)
                 |> fallbackFromDirectoryProps "//FsDocsLogoSource"
+              FsDocsLogoAlt =
+                projectInfos
+                |> List.tryPick (fun info -> info.FsDocsLogoAlt)
+                |> fallbackFromDirectoryProps "//FsDocsLogoAlt"
               FsDocsFaviconSource =
                 projectInfos
                 |> List.tryPick (fun info -> info.FsDocsFaviconSource)
@@ -624,6 +631,10 @@ module Crack =
                       (Some "<FsDocsLogoSource>")
                       ParamKeys.``fsdocs-logo-src``
                       (Some(defaultArg info.FsDocsLogoSource "img/logo.png"))
+                  param
+                      (Some "<FsDocsLogoAlt>")
+                      ParamKeys.``fsdocs-logo-alt``
+                      (Some(defaultArg info.FsDocsLogoAlt "Logo"))
                   param
                       (Some "<FsDocsFaviconSource>")
                       ParamKeys.``fsdocs-favicon-src``
