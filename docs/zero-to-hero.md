@@ -113,6 +113,20 @@ Let's now run `dotnet fsdocs build`.
 
 ⚠️ You want to ensure that the static files in the `output` folder (after running the build) have the correct links.
 
+### Previewing the built output locally
+
+When `<PackageProjectUrl>` is not set, `root` defaults to `/<fsdocs-collection-name>` (e.g. `/MyProject`).
+Opening the output files directly in a browser using the `file://` protocol will result in broken links to stylesheets and scripts,
+because the browser will try to load assets from an absolute path like `/MyProject/content/fsdocs-default.css` which does not exist on the filesystem.
+
+To work around this when building for a local preview, pass a relative root:
+
+    dotnet fsdocs build --parameters root ./
+
+This makes all asset links relative, so the output can be viewed directly from the filesystem without a web server.
+
+> 💡 Note that `dotnet fsdocs watch` serves files over HTTP and handles the `root` correctly for local development — this limitation only applies to `fsdocs build` when `<PackageProjectUrl>` is not configured.
+
 ## Ignore generated files
 
 Alright, at this point we've made a lot of progress. If you are using `git` you want to add the following to your [.gitignore](https://git-scm.com/docs/gitignore) file.
