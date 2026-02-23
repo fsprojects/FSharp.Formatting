@@ -1385,11 +1385,11 @@ type CoreBuildOptions(watch) =
     [<Option("clean", Required = false, Default = false, HelpText = "Clean the output directory.")>]
     member val clean = false with get, set
 
-    [<Option("generatellmstxt",
+    [<Option("llms",
              Required = false,
              Default = false,
              HelpText = "Generate llms.txt and llms-full.txt files for LLM consumption (see https://llmstxt.org/).")>]
-    member val generatellmstxt = false with get, set
+    member val llms = false with get, set
 
     member this.Execute() =
 
@@ -1682,7 +1682,7 @@ type CoreBuildOptions(watch) =
             File.WriteAllText(Path.Combine(rootOutputFolderAsGiven, "index.json"), indxTxt)
 
         let generateLlmsTxt () =
-            if this.generatellmstxt then
+            if this.llms then
                 let index = Array.append latestApiDocSearchIndexEntries latestDocContentSearchIndexEntries
 
                 let contentEntries = index |> Array.filter (fun e -> e.``type`` = "content")
